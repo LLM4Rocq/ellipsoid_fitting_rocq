@@ -1,5 +1,5 @@
-(* The upper spectral edge of the square-free block (G16, checkpoint B4,
-   item 6), part 1: the trace moment and the trace box.
+(* The upper spectral edge of the square-free block, first part: the trace
+   moment and the trace box.
    - pmeu_walk_weight: the walk weight of PaperMainSquarefreeWalkBridge is
      the sum of the moment weights over the valid walks of
      PaperMainSquarefreeWalkShapeOnce, with B = 4 L.
@@ -10,9 +10,8 @@
      16 L^2 (2L)^45 <= d; also under the actual law
      (paper_main_squarefree_offdiag_law_trace_le).
    - pmeu_trace_box: for symmetric Z and L = 2^(j+1), tr Z^L <= t^L gives
-     -t I <= Z <= t I. The proof uses Cauchy-Schwarz at each doubling,
-     generalizing paper_main_trace_fourth_box, with no spectral theorem.
-   No probability premise. *)
+     -t I <= Z <= t I, by opnorm_le_trace_exp of
+     GaussianAnalysis.matrix.opnorm. *)
 From Stdlib Require Import Reals Lia ArithRing.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -145,21 +144,6 @@ Proof.
 move=> HZ; elim: m => [|m IH]; first by rewrite !expr0 trmx1.
 rewrite exprS -mulmxE trmx_mul IH HZ.
 by rewrite mulmxE -exprSr exprS.
-Qed.
-
-Lemma pmeu_form_pow Z v j : Z^T = Z ->
-  ((v^T *m Z *m v) 0 0) ^+ (2 ^ j.+1) <=
-  ((v^T *m v) 0 0) ^+ (2 ^ j.+1) * \tr (Z ^+ (2 ^ j.+1)).
-Proof.
-move=> /symmetricmxP HZ; set p := (2 ^ j.+1)%N.
-have ep : ~~ odd p by rewrite oddX.
-have p0 : (0 < p)%N by rewrite expn_gt0.
-rewrite -mulmxA -!mxdot_colE -[_ ^+ p]ger0_norm ?exprn_even_ge0 // normrX.
-have q_le : `|mxdot v (Z *m v)| <= opnorm Z * mxdot v v.
-  by rewrite -frobenius_sqr expr2 mulrA mxdot_opnorm.
-apply: le_trans (lerXn2r p _ _ q_le) _;
-  rewrite ?nnegrE ?mulr_ge0 ?opnorm_ge0 ?mxdot_ge0 //.
-by rewrite exprMn mulrC ler_wpM2l ?exprn_ge0 ?mxdot_ge0 ?opnorm_exp_le_trace_even.
 Qed.
 
 Theorem pmeu_trace_box Z (t : R) j : Z^T = Z -> 0 <= t ->

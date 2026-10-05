@@ -1,6 +1,6 @@
 (* The upper spectral edge of the square-free block with probability
-   tending to one (G16, checkpoint B4, item 6, part 2). V is the
-   square-free block and W the off-diagonal part of V V^T.
+   tending to one, second part. V is the square-free block and W the
+   off-diagonal part of V V^T.
    - The event t^L < tr W^L is measurable. Outside it, -t I <= W <= t I
      for L = 2^(j+1) (paper_main_squarefree_offdiag_event_bound).
    - Markov and the trace moment of PaperMainSquarefreeEdgeUpper give
@@ -14,8 +14,7 @@
    - With the diagonal event of PaperMainSquareFreeDiagonal at eps = 1, the
      union is measurable and its probability tends to 0. Outside it,
      V V^T <= 106 d^2 I in the Loewner order, whenever 0 < N(d) <= d^2
-     eventually (paper_main_squarefree_upper_edge).
-   No probability premise. *)
+     eventually (paper_main_squarefree_upper_edge). *)
 From Stdlib Require Import Reals Lia ArithRing.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

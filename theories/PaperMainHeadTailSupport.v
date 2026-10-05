@@ -1,7 +1,8 @@
 (* Positive support by a Frobenius-unit perturbation. Deterministic.
    - A symmetric N with |N|_F <= c lies in the Loewner box -c I <= N <= c I,
-     by Frobenius Cauchy-Schwarz against the rank-one v v^T
-     (paper_main_frobenius_loewner_box).
+     since its operator norm is at most its Frobenius norm
+     (paper_main_frobenius_loewner_box, from opnorm_le_frobenius and
+     opnorm_symP of GaussianAnalysis.matrix.opnorm).
    - For a symmetric M <> 0, the unit N(M) = M / |M|_F
      (paper_main_frobenius_unit) satisfies -I <= N(M) <= I and
      <M, N(M)> = |M|_F.
@@ -12,19 +13,20 @@
      <Mu + Mv, S'> >= delta h - v (b + delta) sqrt d. So the support is
      positive when v (b + delta) sqrt d < delta h
      (paper_main_support_positive).
-   The proof uses only Cauchy-Schwarz for the Frobenius pairing and the
+   The perturbation uses Cauchy-Schwarz for the Frobenius pairing and the
    Loewner bounds on the Frobenius norm and on the trace. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp reals Rstruct.
-From mathcomp Require Import ring_tactic arithmetic_tactic.
+From mathcomp Require Import ring_tactic arithmetic_tactic sesquilinear.
+From GaussianAnalysis.matrix Require Import euclidean opnorm.
 From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions PaperMainDefinitions
   PaperMainGeometryPsd PaperMainGeometryHomogeneous PaperMainGeometrySeparation
   PaperMainGeometryHeadFrobenius PaperMainGeometryHeadCorrection
   PaperMainGeometryHeadFeature PaperMainGeometryHeadSpectral
   PaperMainGeometryHeadCoefficients PaperMainSymmetricBilinear PaperMainMatrixTransport
-  PaperMainMatrixOperatorTransport.
+  PaperMainMatrixOperatorTransport PaperMainSymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
@@ -43,43 +45,14 @@ Variable d : nat.
 Implicit Types (S M N : 'M[R]_d).
 
 (* 1. A Frobenius bound gives a Loewner box. *)
-Lemma pmhs_rank_one_frobenius (v : 'cV[R]_d) :
-  paper_main_frobenius (v *m v^T) = (v^T *m v) 0 0.
-Proof.
-rewrite /paper_main_frobenius pmsb_pairing_outer_outer -expr2 sqrtr_sqr.
-by rewrite ger0_norm //; exact: pmh_vec_sqr_ge0.
-Qed.
-
-Lemma pmhs_form_bound N (v : 'cV[R]_d) :
-  `|paper_main_quadratic_form N v| <= paper_main_frobenius N * (v^T *m v) 0 0.
-Proof.
-rewrite -paper_main_pairing_outer -pmhs_rank_one_frobenius.
-exact: pmh_pairing_frobenius_bound.
-Qed.
-
 Theorem paper_main_frobenius_loewner_box N (c : R) :
   paper_main_symmetric N -> paper_main_frobenius N <= c ->
   paper_main_loewner_le ((- c) *: 1%:M) N /\ paper_main_loewner_le N (c *: 1%:M).
 Proof.
-move=> HN Hc.
-have HI := pmh_symmetric_id d.
-have HcI : paper_main_symmetric (c *: (1%:M : 'M[R]_d)) by exact: paper_main_symmetric_scale.
-have HmcI : paper_main_symmetric ((- c) *: (1%:M : 'M[R]_d)) by exact: paper_main_symmetric_scale.
-have Hb : forall v : 'cV[R]_d,
-    - (c * (v^T *m v) 0 0) <= paper_main_quadratic_form N v <= c * (v^T *m v) 0 0.
-  move=> v; have H := pmhs_form_bound N v.
-  have Hv := pmh_vec_sqr_ge0 _ v.
-  have HF : paper_main_frobenius N * (v^T *m v) 0 0 <= c * (v^T *m v) 0 0.
-    exact: ler_pM (pmh_frobenius_ge0 _ N) Hv Hc (lexx _).
-  have := le_trans H HF; rewrite ler_norml.
-  by [].
-split; split.
-- exact: pmh_symmetricB.
-- move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id.
-  have /andP [H1 _] := Hb v; lra.
-- exact: pmh_symmetricB.
-- move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id.
-  have /andP [_ H2] := Hb v; lra.
+move=> /paper_main_symmetricmx Ns Nc.
+have c0 : 0 <= c := le_trans (pmh_frobenius_ge0 _ N) Nc.
+apply/paper_main_loewner_boxP; split => //.
+by apply/(opnorm_symP Ns c0); exact: le_trans (opnorm_le_frobenius N) Nc.
 Qed.
 
 (* 2. The Frobenius-unit direction of a nonzero matrix. *)

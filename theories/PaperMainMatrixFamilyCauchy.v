@@ -4,7 +4,8 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp reals Rstruct ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import PaperMainDefinitions PaperMainGeometryHeadCoefficients
-  PaperMainGeometryHeadFrobenius PaperMainConeConditionOperator PaperMainSquarefreeEdgeLower.
+  PaperMainGeometryHeadFrobenius PaperMainConeConditionOperator PaperMainSquarefreeEdgeLower
+  PaperMainSymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
@@ -69,17 +70,7 @@ Qed.
 Theorem paper_main_opnorm_to_action n (M : 'M[R]_n) c :
   0 <= c -> paper_main_cone_opnorm_le M c -> pmlo_opb n M c.
 Proof.
-move=> Hc HM; split=>// v.
-have H := HM (M *m v) v.
-rewrite -mulmxA in H.
-have Hq := pmh_vec_sqr_ge0 n (M *m v).
-have Hr := pmh_vec_sqr_ge0 n v.
-set q := ((M *m v)^T *m (M *m v)) 0 0 in H Hq *.
-set r := (v^T *m v) 0 0 in H Hr *.
-case: (eqVneq q 0)=>[->|Hq0].
-- by apply: mulr_ge0; first exact: sqr_ge0.
-have Hqp : 0 < q by rewrite lt_neqAle eq_sym Hq0 Hq.
-move: H; by rewrite expr2 [c^+2*(q*r)]mulrCA (ler_pM2l Hqp).
+by move=> c0 /paper_main_cone_opnorm_leP; rewrite ger0_norm // => Mc; apply/pmlo_opbP.
 Qed.
 
 Lemma paper_main_family_energy_nonnegative (I : finType) n

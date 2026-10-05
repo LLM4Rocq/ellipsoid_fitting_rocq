@@ -1,12 +1,12 @@
 (* Deterministic trace-fourth control for the diagonal quadratic block
-   (G15, checkpoint A; manuscript lem:diagonal-feature-block, by a fourth
-   trace moment in place of matrix Bernstein).
+   (lem:diagonal-feature-block of the paper, by a fourth trace moment in
+   place of matrix Bernstein).
    For square public matrices, with MathComp's trace \tr:
-   - tr (A B A B) <= tr (A^2 B^2) for symmetric A, B, from
-     tr (X X^T) >= 0 with X = A B - B A (paper_main_trace_abab);
-   - for symmetric Z and every v, (v^T Z v)^4 <= (v^T v)^4 tr Z^4. So
-     tr Z^4 <= t^4 gives -t I <= Z <= t I, with no spectral theorem
-     (paper_main_trace_fourth_box);
+   - tr (A B A B) <= tr (A^2 B^2) for symmetric A, B (paper_main_trace_abab,
+     from mxtrace_ABAB_le of GaussianAnalysis.matrix.real_spectral);
+   - for symmetric Z, tr Z^4 <= t^4 gives -t I <= Z <= t I
+     (paper_main_trace_fourth_box, from opnorm_le_trace_exp of
+     GaussianAnalysis.matrix.opnorm);
    - the rank-one formulas
      tr (u u^T - c I)^2 = (|u|^2 - c)^2 + c^2 (d - 1) and
      tr (u u^T - c I)^4 = (|u|^2 - c)^4 + c^4 (d - 1);

@@ -1,14 +1,15 @@
-(* The lower spectral edge of the square-free block (G16, lower edge),
-   deterministic part: the non-backtracking (NB) recursion and the
-   Chebyshev step. No probability premise and no counting estimate.
+(* The lower spectral edge of the square-free block, deterministic part:
+   the non-backtracking (NB) recursion and the Chebyshev step. No
+   probability and no counting estimate.
    1. Chebyshev step. Let B, T m, Rm m be n x n real matrices with T 0 = 1,
       B T 0 = T 1 - s T 0 and B T (m+1) = T (m+2) + T m + Rm (m+1). Then
       B^K = sum_(m <= K) gam K m T m + rem K (pmlo_cheb), with
       sum_m |gam K m| <= 2^K when 0 <= s <= 1 (pmlo_gam_abs). For symmetric
       B and K = 2^(k+1), bounds |v^T T m v| <= tau |v|^2 and operator
       bounds on Rm m and B give -theta I <= B <= theta I as soon as
-      2^K tau + rho_K <= theta^K (pmlo_cheb_box). The proof halves the
-      power with Cauchy-Schwarz; no spectral theorem.
+      2^K tau + rho_K <= theta^K (pmlo_cheb_box), by opnorm_le_form_exp of
+      GaussianAnalysis.matrix.opnorm. The operator bounds pmlo_opb are
+      those of opnorm (pmlo_opbP).
    2. NB recursion. For X : 'I_N -> C -> R over a finite column type C and
       kap, let P_c = kap offdiag(X_c X_c^T), T^c 0 = 0, T 0 = 1,
       T^c (L+1) = P_c (T L - T^c L) and T (L+1) = sum_c T^c (L+1). Then
@@ -20,10 +21,12 @@ From Stdlib Require Import Reals Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp reals Rstruct.
-From mathcomp Require Import ring_tactic arithmetic_tactic.
+From mathcomp Require Import ring_tactic arithmetic_tactic sesquilinear.
+From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 From EllipsoidFitting Require Import PaperMainDefinitions PaperMainGeometryPsd PaperMainGeometryHomogeneous
   PaperMainGeometrySeparation PaperMainGeometryHeadCoefficients PaperMainGeometryHeadFeature
-  PaperMainGeometryHeadCorrection PaperMainConeConditionOperator PaperMainDiagonalBlockTrace.
+  PaperMainGeometryHeadCorrection PaperMainConeConditionOperator PaperMainDiagonalBlockTrace
+  PaperMainSymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
@@ -141,71 +144,46 @@ Definition pmlo_opb M (c : R) : Prop :=
   0 <= c /\ forall v, ((M *m v)^T *m (M *m v)) 0 0 <= c ^+ 2 * (v^T *m v) 0 0.
 Arguments pmlo_opb : clear scopes.
 
+Lemma pmlo_opbP M c : pmlo_opb M c <-> 0 <= c /\ opnorm M <= c.
+Proof.
+split=> [[c0 Mc]|[c0 Mc]].
+  split => //; apply/opnorm_leP => // v.
+  rewrite -ler_sqr ?nnegrE ?mulr_ge0 ?frobenius_ge0 // exprMn !frobenius_sqr.
+  by rewrite !mxdot_colE; exact: Mc.
+split => // v; rewrite -!mxdot_colE -!frobenius_sqr -exprMn.
+rewrite ler_sqr ?nnegrE ?mulr_ge0 ?frobenius_ge0 //.
+exact: (proj2 (opnorm_leP M c0) Mc).
+Qed.
+
 Lemma pmlo_opb_mul M1 M2 c1 c2 : pmlo_opb M1 c1 -> pmlo_opb M2 c2 ->
   pmlo_opb (M1 *m M2) (c1 * c2).
 Proof.
-case=> H1c H1 [H2c H2]; split; first exact: mulr_ge0.
-move=> v; rewrite -mulmxA.
-apply: le_trans (H1 (M2 *m v)) _.
-rewrite exprMn -[_ * _ * (v^T *m v) 0 0]mulrA.
-by apply: ler_wpM2l; [exact: sqr_ge0 | exact: H2].
+move=> /pmlo_opbP[c10 H1] /pmlo_opbP[c20 H2]; apply/pmlo_opbP.
+split; first exact: mulr_ge0.
+exact: le_trans (opnorm_mulmx _ _) (ler_pM (opnorm_ge0 _) (opnorm_ge0 _) H1 H2).
 Qed.
 
 Lemma pmlo_opb_add M1 M2 c1 c2 : pmlo_opb M1 c1 -> pmlo_opb M2 c2 ->
   pmlo_opb (M1 + M2) (c1 + c2).
 Proof.
-case=> H1c H1 [H2c H2]; split; first exact: addr_ge0.
-move=> v; rewrite mulmxDl.
-have Ha := H1 v; have Hb := H2 v.
-move: Ha Hb; set a := M1 *m v; set b := M2 *m v; clearbody a b => Ha Hb.
-set w := (v^T *m v) 0 0.
-have Hw : 0 <= w by exact: pmh_vec_sqr_ge0.
-have E : ((a + b)^T *m (a + b)) 0 0 = (a^T *m a) 0 0 + 2 * (a^T *m b) 0 0 + (b^T *m b) 0 0.
-  rewrite !pmh_vec_dot mulr_sumr -!big_split /=; apply: eq_bigr => i _.
-  rewrite !mxE; ring.
-have Hcs := pmco_vec_cauchy_schwarz _ a b.
-rewrite -/w in Ha Hb.
-set x := (a^T *m b) 0 0 in E Hcs *.
-set A := (a^T *m a) 0 0 in E Hcs Ha *.
-set Bv := (b^T *m b) 0 0 in E Hcs Hb *.
-have HA : 0 <= A by exact: pmh_vec_sqr_ge0.
-have HB : 0 <= Bv by exact: pmh_vec_sqr_ge0.
-have Hy : 0 <= c1 * c2 * w by rewrite !mulr_ge0.
-have Hx : x <= c1 * c2 * w.
-  have Hsq : `|x| ^+ 2 <= (c1 * c2 * w) ^+ 2.
-    rewrite -normrX ger0_norm ?sqr_ge0 //.
-    apply: le_trans Hcs _.
-    have -> : (c1 * c2 * w) ^+ 2 = (c1 ^+ 2 * w) * (c2 ^+ 2 * w) by ring.
-    by apply: ler_pM.
-  have Hn : `|x| <= c1 * c2 * w by move: Hsq; rewrite ler_pXn2r // nnegrE.
-  exact: le_trans (ler_norm x) Hn.
-rewrite E.
-have -> : (c1 + c2) ^+ 2 * w = c1 ^+ 2 * w + 2 * (c1 * c2 * w) + c2 ^+ 2 * w by ring.
-by apply: lerD; [apply: lerD => //; rewrite ler_pM2l | ].
+move=> /pmlo_opbP[c10 H1] /pmlo_opbP[c20 H2]; apply/pmlo_opbP.
+by split; [exact: addr_ge0 | exact: le_trans (opnormD _ _) (lerD H1 H2)].
 Qed.
 
 Lemma pmlo_opb_scale M c (a : R) : pmlo_opb M c -> pmlo_opb (a *: M) (`|a| * c).
 Proof.
-case=> Hc H; split; first by rewrite mulr_ge0.
-move=> v; rewrite -scalemxAl.
-have -> : ((a *: (M *m v))^T *m (a *: (M *m v))) 0 0 =
-    a ^+ 2 * ((M *m v)^T *m (M *m v)) 0 0.
-  by rewrite !pmh_vec_dot mulr_sumr; apply: eq_bigr => i _; rewrite !mxE; ring.
-rewrite exprMn -normrX ger0_norm ?sqr_ge0 // -[_ * _ * (v^T *m v) 0 0]mulrA.
-by apply: ler_wpM2l; [exact: sqr_ge0 | exact: H].
+move=> /pmlo_opbP[c0 H]; apply/pmlo_opbP; split; first by rewrite mulr_ge0.
+by rewrite opnormZ ler_wpM2l.
 Qed.
 
 Lemma pmlo_opb_le M c c' : pmlo_opb M c -> c <= c' -> pmlo_opb M c'.
 Proof.
-case=> Hc H Hcc; split; first exact: le_trans Hc Hcc.
-move=> v; apply: le_trans (H v) _; apply: ler_wpM2r; first exact: pmh_vec_sqr_ge0.
-by rewrite ler_pXn2r // nnegrE // (le_trans Hc).
+move=> /pmlo_opbP[c0 H] cc; apply/pmlo_opbP.
+by split; [exact: le_trans c0 cc | exact: le_trans H cc].
 Qed.
 
 Lemma pmlo_opb0 : pmlo_opb 0 0.
-Proof.
-by split=> // v; rewrite mul0mx trmx0 mul0mx mxE expr2 !mul0r.
-Qed.
+Proof. by apply/pmlo_opbP; rewrite opnorm0. Qed.
 
 Lemma pmlo_opb_sum (I : finType) (F : I -> 'M[R]_n) (c : I -> R) :
   (forall i, pmlo_opb (F i) (c i)) -> pmlo_opb (\sum_i F i) (\sum_i c i).
@@ -216,62 +194,17 @@ Qed.
 
 Lemma pmlo_opb_form M c v : pmlo_opb M c -> `|(v^T *m M *m v) 0 0| <= c * (v^T *m v) 0 0.
 Proof.
-case=> Hc H.
-set w := (v^T *m v) 0 0.
-have Hw : 0 <= w by exact: pmh_vec_sqr_ge0.
-have Hcs := pmco_vec_cauchy_schwarz _ v (M *m v).
-have HM := H v; rewrite -/w in HM Hcs.
-rewrite -mulmxA; set x := (v^T *m (M *m v)) 0 0 in Hcs *.
-have Hsq : `|x| ^+ 2 <= (c * w) ^+ 2.
-  rewrite -normrX ger0_norm ?sqr_ge0 //; apply: le_trans Hcs _.
-  have -> : (c * w) ^+ 2 = w * (c ^+ 2 * w) by ring.
-  exact: ler_wpM2l.
-by move: Hsq; rewrite ler_pXn2r // nnegrE // mulr_ge0.
+move=> /pmlo_opbP[c0 H]; rewrite -mulmxA -!mxdot_colE.
+apply: le_trans (mxdot_opnorm _ _ _) _.
+by rewrite -mulrA -expr2 frobenius_sqr ler_wpM2r ?mxdot_ge0.
 Qed.
 
-(* Halving a power of a symmetric matrix by Cauchy-Schwarz. *)
+(* Powers of a symmetric matrix are symmetric. *)
 Lemma pmlo_trmx_exp M m : M^T = M -> (M ^+ m)^T = M ^+ m.
 Proof.
 move=> HM; elim: m => [|m IH]; first by rewrite !expr0 trmx1.
 rewrite exprS -mulmxE trmx_mul IH HM.
 by rewrite mulmxE -exprSr exprS.
-Qed.
-
-Lemma pmlo_form_halve M v j : M^T = M ->
-  ((v^T *m M *m v) 0 0) ^+ (2 ^ j.+1) <=
-  ((v^T *m v) 0 0) ^+ (2 ^ j.+1).-1 * (v^T *m M ^+ (2 ^ j.+1) *m v) 0 0.
-Proof.
-move=> HM.
-set nn := (v^T *m v) 0 0.
-have Hn : 0 <= nn by exact: pmh_vec_sqr_ge0.
-pose q k := (v^T *m M ^+ (2 ^ k) *m v) 0 0.
-have HMk k : (M ^+ (2 ^ k))^T = M ^+ (2 ^ k) by exact: pmlo_trmx_exp.
-have Hsq k : M ^+ (2 ^ k.+1) = M ^+ (2 ^ k) *m M ^+ (2 ^ k).
-  by rewrite expnS mul2n -addnn exprD mulmxE.
-have Hcs k : q k ^+ 2 <= nn * q k.+1.
-  by have := pmdb_form_cs _ (M ^+ (2 ^ k)) v (HMk k); rewrite -Hsq.
-have Hqpos k : 0 <= q k.+1.
-  have E : q k.+1 = ((M ^+ (2 ^ k) *m v)^T *m (M ^+ (2 ^ k) *m v)) 0 0.
-    by rewrite /q Hsq trmx_mul HMk !mulmxA.
-  by rewrite E; exact: pmh_vec_sqr_ge0.
-have Hind k : q 0 ^+ (2 ^ k.+1) <= nn ^+ (2 ^ k.+1).-1 * q k.+1.
-  elim: k => [|k IH]; first by rewrite expn1 /= expr1; exact: Hcs 0.
-  have Ha : (2 ^ k.+2).-1 = ((2 ^ k.+1).-1 * 2).+1.
-    rewrite expnS; case: (2 ^ k.+1)%N (expn_gt0 2 k.+1) => [//|a] _.
-    by rewrite -!multE; lia.
-  have H0 : 0 <= q 0 ^+ (2 ^ k.+1) by rewrite expnS exprM exprn_ge0 // sqr_ge0.
-  rewrite Ha.
-  have EL : q 0 ^+ (2 ^ k.+2) = (q 0 ^+ (2 ^ k.+1)) ^+ 2 by rewrite -exprM -expnSr.
-  have ER : nn ^+ ((2 ^ k.+1).-1 * 2).+1 * q k.+2 =
-      (nn ^+ (2 ^ k.+1).-1) ^+ 2 * (nn * q k.+2).
-    by rewrite exprS exprM mulrA [_ * nn]mulrC.
-  rewrite EL ER.
-  have S1 : (q 0 ^+ (2 ^ k.+1)) ^+ 2 <= (nn ^+ (2 ^ k.+1).-1 * q k.+1) ^+ 2.
-    by rewrite ler_sqr ?nnegrE // mulr_ge0 ?exprn_ge0 // Hqpos.
-  apply: le_trans S1 _; rewrite exprMn; apply: ler_wpM2l; first by rewrite sqr_ge0.
-  exact: Hcs.
-have Hq0 : q 0 = (v^T *m M *m v) 0 0 by rewrite /q expn0 expr1.
-by rewrite -Hq0; exact: Hind j.
 Qed.
 
 (* The remainder rem K has operator bound rho_K. *)
@@ -342,33 +275,13 @@ have HBK : forall v, (v^T *m B ^+ K *m v) 0 0 <= theta ^+ K * (v^T *m v) 0 0.
     exact: pmlo_opb_form.
   apply: le_trans (lerD H1 H2) _.
   by rewrite -mulrDl; apply: ler_wpM2r.
-(* Halving the power. *)
-have Hev : ~~ odd K by rewrite /K oddX.
-have HK0 : (0 < K)%N by rewrite /K expn_gt0.
-have Hform : forall v : 'cV[R]_n, `|(v^T *m B *m v) 0 0| <= theta * (v^T *m v) 0 0.
-  move=> v.
-  set w := (v^T *m v) 0 0.
-  have Hw : 0 <= w by exact: pmh_vec_sqr_ge0.
-  have H := pmlo_form_halve B v k HBs; rewrite -/K -/w in H.
-  have H' : ((v^T *m B *m v) 0 0) ^+ K <= (theta * w) ^+ K.
-    apply: le_trans H _.
-    apply: le_trans (ler_wpM2l (exprn_ge0 _ Hw) (HBK v)) _; rewrite -/w.
-    by rewrite exprMn mulrCA -exprSr prednK.
-  have Hx : `|(v^T *m B *m v) 0 0| ^+ K <= (theta * w) ^+ K.
-    by rewrite -normrX ger0_norm ?exprn_even_ge0.
-  by move: Hx; rewrite ler_pXn2r // ?nnegrE // mulr_ge0.
-have HtI : paper_main_symmetric (theta *: (1%:M : 'M[R]_n)).
-  by apply: paper_main_symmetric_scale; exact: pmh_symmetric_id.
-have HmtI : paper_main_symmetric ((- theta) *: (1%:M : 'M[R]_n)).
-  by apply: paper_main_symmetric_scale; exact: pmh_symmetric_id.
-have HBsym : paper_main_symmetric B by exact/paper_main_symmetricP.
-split; split.
-- exact: pmh_symmetricB.
-- move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id paper_main_quadratic_formE.
-  have := Hform v; rewrite ler_norml => /andP [H1 _]; lra.
-- exact: pmh_symmetricB.
-- move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id paper_main_quadratic_formE.
-  have := Hform v; rewrite ler_norml => /andP [_ H2]; lra.
+(* The operator bound from the even power K. *)
+have HBsym : B \is symmetricmx by exact/symmetricmxP.
+apply/paper_main_loewner_boxP; split => //.
+apply/(opnorm_symP HBsym Hth)/(opnorm_le_form_exp HBsym (p := K)) => //.
+- by rewrite /K oddX.
+- by rewrite /K expn_gt0.
+by move=> v; rewrite !mxdot_colE mulmxA; exact: HBK.
 Qed.
 
 End Chebyshev.

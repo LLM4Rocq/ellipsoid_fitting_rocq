@@ -9,14 +9,20 @@ From mathcomp Require Import arithmetic_tactic field_tactic.
 (**md**************************************************************************)
 (* # Moment inequalities                                                      *)
 (*                                                                            *)
-(* Lower bounds on probabilities from the first two moments of a real random  *)
-(* variable X on a probability space P.                                       *)
+(* Lower bounds on probabilities from the first moments of a real random      *)
+(* variable X on a probability space P, and the facts on square integrable    *)
+(* variables they need.                                                       *)
 (*                                                                            *)
-(* - paley_zygmund: for 0 <= theta < E X,                                     *)
+(* - paley_zygmund: for X square integrable and 0 <= theta < E X,             *)
 (*   P(theta <= X) >= (E X - theta)^2 / E X^2, without sign condition on X.   *)
 (* - paley_zygmund_sqr: the same applied to X^2, a small-ball estimate from   *)
-(*   the second and fourth moments: for 0 <= t < 1,                           *)
+(*   the second and fourth moments: for X in L^4 with E X^2 > 0 and           *)
+(*   0 <= t < 1,                                                              *)
 (*   P(t E X^2 <= X^2) >= (1 - t)^2 (E X^2)^2 / E X^4.                        *)
+(* - expectation_sqr_le: (E X)^2 <= E X^2 for X square integrable.            *)
+(* - integrable_sqr_Lfun2, Lfun2_sqr, Lfun4_sqr: X is in L^2 when it is       *)
+(*   measurable and X^2 is integrable; X^2 is in L^1 when X is in L^2, and    *)
+(*   in L^2 when X is in L^4.                                                 *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -44,6 +50,18 @@ Lemma Lfun2_sqr (X : T -> R) : X \in Lfun P 2%:E -> X ^+ 2 \in Lfun P 1.
 Proof.
 move=> X2; have := Lfun2_mul_Lfun1 X2 X2.
 by congr (_ \in _); apply/funext => x; rewrite /= expr2.
+Qed.
+
+Lemma Lfun4_sqr (X : T -> R) : X \in Lfun P 4%:E -> X ^+ 2 \in Lfun P 2%:E.
+Proof.
+move=> X4; have := X4; rewrite inE => /andP[]; rewrite inE /= => mX _.
+apply: integrable_sqr_Lfun2.
+  apply: (eq_measurable_fun (fun x => X x ^+ 2)) => [x _|].
+    by rewrite exprfctE.
+  exact: measurable_funX.
+have := Lfun_integrable (ler1n R 4) X4.
+congr (_.-integrable _ _); apply/funext => x /=.
+by rewrite exprfctE -exprM powR_mulrn ?normr_ge0 // -normrX ger0_norm ?exprn_even_ge0.
 Qed.
 
 Lemma expectation_sqr_le (X : T -> R) : X \in Lfun P 2%:E ->
@@ -109,6 +127,28 @@ have -> : (m - theta) ^+ 2 / M = 2 * s * m - (2 * s * theta + s ^+ 2 * M).
     by rewrite !invr0 !(mulr0, mul0r, addr0, subr0, expr0n).
   by field.
 by rewrite lerBlDl.
+Qed.
+
+Theorem paley_zygmund_sqr (X : T -> R) (t : R) :
+  X \in Lfun P 4%:E -> 0 <= t < 1 -> (0 < 'E_P[X ^+ 2])%E ->
+  (((1 - t) ^+ 2 * fine 'E_P[X ^+ 2] ^+ 2 / fine 'E_P[X ^+ 4])%:E <=
+    P [set x | (t * fine 'E_P[X ^+ 2] <= X x ^+ 2)%R])%E.
+Proof.
+move=> X4 /andP[t0 t1] EX2.
+have Y2 := Lfun4_sqr X4.
+set m := fine 'E_P[X ^+ 2].
+have Em : ('E_P[X ^+ 2] = m%:E)%E.
+  have Y1 := Lfun_subset12 (fin_num_measure P _ measurableT) Y2.
+  by rewrite fineK // expectation_fin_num.
+have m0 : 0 < m by rewrite -lte_fin -Em.
+have th0 : 0 <= t * m := mulr_ge0 t0 (ltW m0).
+have thm : ((t * m)%:E < 'E_P[X ^+ 2])%E.
+  by rewrite Em lte_fin -[ltRHS]mul1r ltr_pM2r.
+have := paley_zygmund Y2 th0 thm.
+rewrite -/m -exprM.
+have -> : [set x | (t * m <= (X ^+ 2) x)%R] = [set x | (t * m <= X x ^+ 2)%R].
+  by apply/seteqP; split => x /=; rewrite exprfctE.
+by rewrite (_ : m - t * m = (1 - t) * m) ?exprMn // mulrBl mul1r.
 Qed.
 
 End paley_zygmund.

@@ -1,4 +1,4 @@
-(* NB trace events for the lower edge (G16, lower edge, part 8).
+(* NB trace events for the lower edge.
    Let T m = pmlo_T N ('I_d * 'I_d) (pmnb_X d xs) kap m.
    - pmnbv_reg: xs |-> tr (T L)^p is regular (continuous with a polynomial
      bound), entry by entry.
@@ -15,13 +15,13 @@
      0 < m <= K (pmnbv_out_opb).
    - pmnbv_box: outside the union, with K = 2^(k+1), operator bounds on
      T 1 - s and on the remainders Psi m + s Psi (m-1) give
-     -theta <= T 1 - s <= theta (pmlo_cheb_box).
-   No probability premise. *)
+     -theta <= T 1 - s <= theta (pmlo_cheb_box). *)
 From Stdlib Require Import Reals Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct ereal measure.
-From mathcomp Require Import lebesgue_measure lebesgue_integral probability.
+From mathcomp Require Import lebesgue_measure lebesgue_integral probability sesquilinear.
+From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefinitions
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity
   PaperMainDefinitions PaperMainDataFeatureMomentsCoordinates PaperMainDataFeatureMoments
@@ -122,17 +122,11 @@ Lemma pmnbv_form_trace (Z : 'M[R]_n) (t : R) j (v : 'cV[R]_n) : Z^T = Z -> 0 <= 
   \tr (Z ^+ (2 ^ j.+1)) <= t ^+ (2 ^ j.+1) ->
   `|(v^T *m Z *m v) 0 0| <= t * (v^T *m v) 0 0.
 Proof.
-move=> HZ Ht HT.
-have Hn : 0 <= (v^T *m v) 0 0 by exact: pmh_vec_sqr_ge0.
-have HL0 : (0 < 2 ^ j.+1)%N by rewrite expn_gt0.
-have Hev : ~~ odd (2 ^ j.+1)%N by rewrite oddX.
-have H := pmeu_form_pow _ Z v j HZ.
-have H' : ((v^T *m Z *m v) 0 0) ^+ (2 ^ j.+1) <= (t * (v^T *m v) 0 0) ^+ (2 ^ j.+1).
-  apply: le_trans H _; rewrite exprMn mulrC.
-  by apply: ler_wpM2r => //; exact: exprn_ge0.
-have Hx : `|(v^T *m Z *m v) 0 0| ^+ (2 ^ j.+1) <= (t * (v^T *m v) 0 0) ^+ (2 ^ j.+1).
-  by rewrite -normrX ger0_norm ?exprn_even_ge0.
-move: Hx; rewrite ler_pXn2r // ?nnegrE //; exact: mulr_ge0.
+move=> /symmetricmxP HZ Ht HT.
+have Zt : opnorm Z <= t.
+  by apply: (opnorm_le_trace_exp HZ (p := 2 ^ j.+1)); rewrite ?oddX ?expn_gt0.
+rewrite -mulmxA -!mxdot_colE (le_trans (mxdot_opnorm _ _ _)) //.
+by rewrite -mulrA -expr2 frobenius_sqr ler_wpM2r ?mxdot_ge0.
 Qed.
 
 Lemma pmnbv_opb_trace (Z : 'M[R]_n) (t : R) j : Z^T = Z -> 0 <= t ->

@@ -1,5 +1,5 @@
 (* The NB trace event of the actual lower spectral law at the exact
-   normalization (A40, trace).
+   normalization.
 
    With kap = (sqrt (N 'C(d, 2)))^-1, K = 2^(k+1), p = pmnbr_p d =
    2^(pmel_k d + 4) and t = pmnbr_t k = 12 (K + 1):

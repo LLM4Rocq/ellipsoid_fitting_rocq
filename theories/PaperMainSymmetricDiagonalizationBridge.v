@@ -1,21 +1,21 @@
 (* Bridge from the real orthogonal diagonalization to the list forms of
-   A13. For O : 'M[R]_d and a : 'rV[R]_d, the loading
+   PaperMainGaussianOrthogonal. For O : 'M[R]_d and a : 'rV[R]_d, the loading
    paper_main_symmetric_loading O : nat -> nat -> R and the coefficients
    paper_main_symmetric_coefficients a : nat -> R read the entries with
    indices below d and are 0 elsewhere. For any list xs and its public
    column x = paper_main_symmetric_column xs = \col_(k < d) nth k xs 0:
    - the row gaussian_covariance_row d L i xs is (O x)_i for i < d;
-   - the A13 weighted square of the image gaussian_covariance_image d d L xs
+   - the weighted square of the image gaussian_covariance_image d d L xs
      is sum_(i < d) a_i ((O x)_i^2 - 1), so the column and list forms are the
      same number;
    - if O^T O = 1, the loading has orthonormal rows in the exact predicate
-     paper_main_gaussian_orthonormal_rows of A13.
+     paper_main_gaussian_orthonormal_rows of PaperMainGaussianOrthogonal.
    For a symmetric B the diagonalization of PaperMainSymmetricDiagonalization
    gives, for EVERY column x,
      x^T B x - trace B = sum_(i < d) a_i ((O x)_i^2 - 1),
    with O^T O = O O^T = 1, sum_i a_i^2 = paper_main_pairing B B and
    |a_i| <= b under paper_main_cone_opnorm_le B b, 0 <= b; and the same
-   identity, constants and bounds in the list form of A13. The case d = 0
+   identity, constants and bounds in the list form. The case d = 0
    and the zero form are included. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
@@ -75,7 +75,7 @@ apply: eq_bigr => i _.
 by rewrite paper_main_symmetric_coefficients_val paper_main_symmetric_image_nth RpowE.
 Qed.
 
-(* Orthonormal rows in the predicate of A13. *)
+(* Orthonormal rows in the predicate of PaperMainGaussianOrthogonal. *)
 
 Lemma paper_main_symmetric_loading_entry {d : nat} (O : 'M[R]_d) (i j : 'I_d) :
   gaussian_covariance_entry d (paper_main_symmetric_loading O) i j = (O *m O^T) i j.
