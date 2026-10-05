@@ -1,4 +1,13 @@
-(* Fixed parameter choices for the supercritical loss contradiction. *)
+(* The parameters of the supercritical loss argument, chosen from the
+   margin e > 0. Deterministic.
+   - paper_main_unsat_net_parameters: delta, beta, eta > 0 with
+     4 (L + 1) delta <= e/16, 2 eta = e/32 and 3 E / (c beta) <= e/16,
+     where E = paper_main_gordon_entropy_constant (delta / (L + 3)).
+   - paper_main_unsat_cutoff_parameters: eps > 0 and 0 < tau <= 1/8 with
+     eps/2 + tau^2 <= eps, 2 C eps <= e/32 and 16 L tau <= e/16.
+   - paper_main_unsat_error_budget: under these bounds and p <= 1/4,
+       16 L tau + 4 (L + 1) delta + 3 E / (c beta)
+         < e (1 - p) - (2 eta + 2 C eps) - e/4. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import PaperMainGordonEntropy PaperMainGordonEntropyMargin.
 Open Scope R_scope.

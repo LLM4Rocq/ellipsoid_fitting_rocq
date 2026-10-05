@@ -1,13 +1,15 @@
-(* Eventual scalar frame premises for the non-backtracking column remainder (A37).
+(* Scalar bounds on N and d used by the non-backtracking column remainder.
 
-   1. Binomial normalization. With M = 'C(d, 2), 2 M = d (d - 1)
-      (pmccf_bin2). For d >= 2 and 0 < N <= d^2: 0 < M and N <= 4 M, since
-      d^2 <= 2 d (d - 1) when d >= 2.
-   2. Entry radius. For c, C0, r > 0 put A = C0 c r^2 > 0. If c d^2 <= N and
-      1 <= A d, then d <= A d^2 <= C0 N r^2. If N(d) has eventual density
-      >= c, then for all large d (d >= 1 / A and past the density threshold)
+   1. Binomial normalization (paper_main_frame_binomial_bounds). With
+      M = 'C(d, 2), 2 M = d (d - 1) (pmccf_bin2). For d >= 2 and
+      0 < N <= d^2: 0 < M and N <= 4 M, since d^2 <= 2 d (d - 1) when
+      d >= 2.
+   2. Entry radius (paper_main_frame_entry_radius). For c, C0, r > 0 put
+      A = C0 c r^2 > 0. If c d^2 <= N and 1 <= A d, then
+      d <= A d^2 <= C0 N r^2. If N(d) has eventual density >= c, then for
+      all large d (d >= 1 / A and past the density threshold)
       d <= C0 N(d) r^2. No upper density is needed.
-   Deterministic; no probability premise. *)
+   Deterministic. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

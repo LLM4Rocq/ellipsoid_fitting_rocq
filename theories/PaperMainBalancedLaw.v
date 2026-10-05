@@ -1,5 +1,10 @@
-(* Exact finite-dimensional probability consequences of the recovered
-   separation and measurability proofs. No phase-limit premise is used. *)
+(* One direction of the alternative behind cor:alternative, for a fixed
+   sample. For d > 0 and points x_i that span R^d, if no S >= 0 satisfies
+   x_i^T S x_i = d for every i, then some weights y with sum_i y_i = 0
+   make sum_i y_i x_i x_i^T positive definite:
+   paper_main_not_fit_balanced, from the equivalence
+   paper_main_fit_alternative of PaperMainGeometrySeparation.
+   Deterministic. *)
 From Stdlib Require Import Reals Lra.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

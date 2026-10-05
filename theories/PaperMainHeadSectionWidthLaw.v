@@ -1,18 +1,22 @@
-(* The actual Gaussian width of the data-dependent head section. Let
+(* The Gaussian width of the data-dependent head section. Let
    D = paper_main_symmetric_dimension n, z a D-tuple of Gaussian coordinates
-   with public symmetric Gaussian matrix Z(z), and h a head sample of m rows
-   of R^(S n) with features W k = paper_main_head_feature h k. The value
+   with symmetric Gaussian matrix Z(z) (paper_main_public_symmetric_gaussian),
+   and h a head sample of m rows of R^(S n) with features
+   W k = paper_main_head_feature h k. The value
      paper_main_head_section_support_value n m kappa h z
        = paper_main_head_support (Z(z)) (paper_main_head_section kappa W)
-   is jointly measurable in (h, z) (PaperMainHeadSectionMeasurable) and
-   |value| <= |Z(z)|_F = |z| (the Euclidean norm of the coordinates), also
-   for empty sections, whose support is 0. Hence for each h it is integrable
+   satisfies |value| <= |Z(z)|_F = |z| (the Euclidean norm of the
+   coordinates), also for empty sections, whose support is 0. For
+   kappa >= 1 it is jointly measurable in (h, z)
+   (PaperMainHeadSectionMeasurable). Hence for each h it is integrable
    under gaussian_product_law D, and the width
      paper_main_head_section_width n m kappa h
        = \int value(h, z) d gaussian_product_law D (z)
-   is finite with |width h| <= E|z| <= sqrt D. As a function of h it is
-   measurable: it is the Tonelli integral of the nonnegative jointly
-   measurable function value + |Z|_F, minus the constant E|z|. *)
+   is finite with |width h| <= E|z| (paper_main_head_section_width_bound).
+   As a function of h it is measurable
+   (paper_main_head_section_width_measurable): it is the Tonelli integral
+   of the nonnegative jointly measurable function value + |Z|_F, minus the
+   constant E|z|. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

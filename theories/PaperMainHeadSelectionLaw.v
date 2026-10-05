@@ -5,18 +5,20 @@
      t d + j |-> pi(t) d + j is a permutation of 'I_(N d)
      (paper_main_row_perm pi), and paper_main_permute_rows pi x is the sample
      whose row t is row pi(t) of x. By PaperMainGaussianPermutationLaw it
-     preserves gaussian_product_law (N d) on every measurable event.
+     preserves gaussian_product_law (N d) on every measurable event
+     (paper_main_permute_rows_law).
    - Head and tail blocks. For N = k + n, paper_main_head_selection k n d pi x
      splits the row-permuted sample into its first k rows and last n rows.
      It is measurable, and for every measurable joint event E
-       P[(head, tail) in E] = (P_(k d) \x P_(n d)) E.
-     Head row t is row pi(t) of x, tail row u is row pi(k + u) of x, and the
-     same holds for the head features W_i.
-   - Fixed heads. For a fixed list J of distinct rows below k + n with
-     size J = k, there is pi whose first k images are J, in order, and whose
-     last n images are the other rows in increasing order.
-   J is fixed, not chosen from the data; no law is claimed for a
-   data-dependent selection. No independence or regularity premise is used. *)
+       P[(head, tail) in E] = (P_(k d) \x P_(n d)) E
+     (paper_main_head_selection_law). Head row t is row pi(t) of x, tail
+     row u is row pi(k + u) of x, and the same holds for the head
+     features W_i.
+   - Fixed heads (paper_main_head_selection_perm_exists). For a fixed list
+     J of distinct rows below k + n with size J = k, there is pi whose
+     first k images are J, in order, and whose last n images are the other
+     rows in increasing order.
+   The head J is fixed, not chosen from the data. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix interval.
@@ -218,5 +220,3 @@ exists (perm Hf); split.
 - by move=> t; rewrite permE /= /L nth_cat HJs ltn_ord.
 - by move=> u; rewrite permE /= /L nth_cat HJs ltnNge leq_addr /= addKn.
 Qed.
-
-(* Everything for a fixed ordered head J. *)

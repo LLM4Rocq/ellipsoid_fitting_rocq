@@ -1,5 +1,6 @@
-(* Gaussian coordinate moments of degree two and four, with domains: the
-   coordinate part of PaperMainDataFeatureMoments.
+(* Gaussian coordinate moments of degree two and four, with their
+   integrability domains: the coordinate part of the moments of
+   PaperMainDataFeatureMoments.
 
    E is the iterated Gaussian expectation gaussian_iterated_expectation of
    GaussianProductDefinitions in dimension S n. Its coordinates are
@@ -7,8 +8,7 @@
    - E[x_a x_b] = delta_ab (pmdf_second_moment);
    - E[x_a x_b x_c x_e] = delta_ab delta_ce + delta_ac delta_be +
      delta_ae delta_bc (pmdf_fourth_moment);
-   - with x_ab = x_a x_b - delta_ab (pmdf_centered): E[x_ab] = 0
-     (pmdf_centered_mean) and
+   - with x_ab = x_a x_b - delta_ab (pmdf_centered),
      E[x_ab x_ce] = delta_ac delta_be + delta_ae delta_bc
      (pmdf_centered_moment).
    Each function is continuous with a polynomial bound (pmdf_regular), so it
@@ -17,8 +17,7 @@
    identities come from the first-order Stein identity
    gaussian_iterated_coordinate_first_stein of GaussianCoordinateStein, for
    F = x_b (degree two) and F = x_b x_c x_e (degree four). The derivatives
-   come from the product rule (pmdf_derivative_nth, pmdf_derivative_mult).
-   No Wick formula, Stein conclusion or domain is assumed. *)
+   come from the product rule (pmdf_derivative_nth, pmdf_derivative_mult). *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
@@ -157,7 +156,8 @@ cbv beta in HS; rewrite -HS.
 by case: (gaussian_iterated_constant (S n) (pmdf_kron a b)).
 Qed.
 
-(* E[x_a x_b x_c x_e] = delta_ab delta_ce + delta_ac delta_be + delta_ae delta_bc. *)
+(* E[x_a x_b x_c x_e] = delta_ab delta_ce + delta_ac delta_be
+                       + delta_ae delta_bc. *)
 Theorem pmdf_fourth_moment n a b c e :
   (a <= n)%coq_nat -> (b <= n)%coq_nat -> (c <= n)%coq_nat -> (e <= n)%coq_nat ->
   gaussian_covariance_domain (S n)
@@ -228,7 +228,8 @@ apply: pmdf_regular_add; last exact: pmdf_regular_scale (pmdf_regular_const _ _)
 exact: pmdf_regular_mult (pmdf_regular_nth _ _ Ha) (pmdf_regular_nth _ _ Hb).
 Qed.
 
-(* E[(x_a x_b - delta_ab)(x_c x_e - delta_ce)] = delta_ac delta_be + delta_ae delta_bc. *)
+(* E[(x_a x_b - delta_ab)(x_c x_e - delta_ce)]
+     = delta_ac delta_be + delta_ae delta_bc. *)
 Theorem pmdf_centered_moment n a b c e :
   (a <= n)%coq_nat -> (b <= n)%coq_nat -> (c <= n)%coq_nat -> (e <= n)%coq_nat ->
   gaussian_covariance_domain (S n) (fun xs => pmdf_centered a b xs * pmdf_centered c e xs) /\

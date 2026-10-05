@@ -1,4 +1,19 @@
-(* Dimension scales for the actual finite data-soft clipping loss. *)
+(* The clipping loss of the soft minimax of data scores
+   (PaperMainDataSoftConcentration) at the scales of the proof. For
+   d = S n, the operator bound is kappa / sqrt d, both inverse temperatures
+   are A d sqrt d, the index lists are [0, r) and [0, s), the clipping
+   level is U = d^(1/4) and the free parameter is a = d^6. Assume
+   N <= C d^2, ln r <= H N and ln s <= H D, where D = d (d + 1) / 2 is the
+   dimension of the symmetric matrices. Put
+   M = 8 kappa^2 C^2 + 4 kappa^2 C + 2 (H (C + 1) / A)^2
+   (paper_main_data_soft_scale_constant).
+   - paper_main_data_soft_scaled_second: the second-moment bound
+     paper_main_data_soft_second_bound is at most M d^4.
+   - paper_main_data_soft_scaled_clipping: the clipping loss
+     paper_main_data_soft_clipping_loss is at most
+     M / d^2 + 2 C 38^19 / sqrt d.
+   - paper_main_data_soft_scaled_clipping_large: for every eta > 0, the
+     clipping loss is at most eta sqrt d for all large d. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

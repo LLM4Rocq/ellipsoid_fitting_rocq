@@ -1,4 +1,26 @@
-(* Uniform width of regular selected heads outside one actual residual exception. *)
+(* The section width of regular selected heads, uniformly outside one
+   residual exception.
+
+   For d = S n, paper_main_head_regular N n m x s K c c0 Q L says that the
+   head s : 'I_m -> 'I_N is injective with m <= K d ln d, that the Gram
+   matrix of the N features of x is at least c d I, that every selected
+   feature has squared norm at least c0 d, that two distinct selected
+   features have a pairing at most Q ln d in absolute value, and that
+   X_J X_J^T <= L d (ln d)^2 I.
+   - paper_main_head_width_regular_transfer: let P be a measurable selector
+     of near-maximizers of the Gaussian support on the cone sphere. For all
+     large d, if x is outside the residual conditional event of P
+     (paper_main_residual_conditional_event), then every head h with the
+     features of a regular head of x has section width, for the cone
+     parameter 2 kappa^2, at least the Gaussian condition width minus eps d.
+     It combines paper_main_head_width_actual_selected with the parameters
+     of paper_main_head_correction_eventual.
+   - paper_main_head_width_regular_event_fixed: if the Gaussian condition
+     width for k0 is eventually at least (1/2 - eps/2) d, then for all large
+     d and every N there is a measurable event of probability at most
+     2 N d^4 exp(-sqrt d / 2) outside which every such head has section
+     width at least (1/2 - eps) d. The selector and the event come from
+     paper_main_cone_selector_conditional. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix numfun.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

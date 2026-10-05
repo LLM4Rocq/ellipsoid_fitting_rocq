@@ -1,22 +1,25 @@
-(* G13, last step: positive support for every unit dual vector, from G12's
-   actual head J (manuscript lines 891-923, before convex separation).
-   - Box to cone: an S with lo I <= S <= hi I (0 < lo) and <Z, S> > 0
-     normalizes into the condition cone sphere K_(hi / lo) \cap S_F, so the
-     support value sup_(K \cap S_F) <Z, .> of PaperMainGeometryHeadWidth is
-     positive.
-   - Combination. Fix d >= 2, theta > 0 and the G12 head budget
-     K = head_tail_constant theta * d * ln d. Assume, for every head J with
-     length J <= K:
-     - a section S0 in [a I, b I] annihilating J;
+(* Positive support for every unit dual vector, from the head J of the
+   head-tail decomposition paper_main_head_tail_regularity
+   (PaperMainHeadTailDecompositionLog). This is the step before the convex
+   separation in the proof of the satisfiable half. Deterministic.
+   - paper_main_support_cone_sphere: an S with lo I <= S <= hi I (0 < lo)
+     and <Z, S> > 0 normalizes into the condition cone sphere
+     K_(hi / lo) \cap S_F, so the support value sup_(K \cap S_F) <Z, .> of
+     PaperMainGeometryHeadWidth is positive.
+   - paper_main_support_all: fix d >= 2, theta > 0 and the head budget
+     K = head_tail_constant theta * d * ln d (paper_main_head_budget).
+     Assume, for every head J with length J <= K:
+     - a section S0 in [a I, b I] orthogonal to the features of J;
      - the head Gram bound mu;
      - positive section support in [(a - delta) I, (b + delta) I] for every
        capped unit tail vanishing on J.
      Assume also the full operator bound A and
      A d^-2 (b + delta) sqrt d < delta sqrt mu / 2. Then every unit y has
-     positive support in [(a - delta) I, (b + delta) I], hence positive
-     support on K_((b + delta) / (a - delta)) \cap S_F.
-   All cardinality, section, Gram and operator premises are explicit. No
-   probability statement. *)
+     positive support in [(a - delta) I, (b + delta) I], hence, by
+     paper_main_support_cone_sphere, positive support on
+     K_((b + delta) / (a - delta)) \cap S_F. The decomposition of y gives
+     either a tiny tail (paper_main_support_tiny) or a capped tail
+     (paper_main_support_spread). *)
 From Stdlib Require Import Reals List Lia Lra Psatz PeanoNat.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -63,7 +66,7 @@ Qed.
 Section All.
 Variables (d n : nat) (W : nat -> 'M[R]_d).
 
-(* The G12 head budget K = head_tail_constant theta * d * ln d. *)
+(* The head budget K = head_tail_constant theta * d * ln d. *)
 Definition paper_main_head_budget (theta : R) : R :=
   head_tail_constant theta * INR d * ln (INR d).
 

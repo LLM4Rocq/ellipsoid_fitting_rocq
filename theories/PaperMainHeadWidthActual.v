@@ -1,4 +1,19 @@
-(* Expected support transfer for the actual measurable head-section width. *)
+(* The head-section width is close to the Gaussian condition width.
+
+   paper_main_head_width_actual_transfer: let Z be the Gaussian symmetric
+   matrix, of dimension D = paper_main_symmetric_dimension n. If, outside a
+   measurable set A of probability at most p, the support of the head
+   section at Z is at least the condition support at Z minus e |Z|_F, then
+   the condition width exceeds the head-section width by at most
+   e sqrt D + D/a + a p. paper_main_head_width_actual_polynomial takes
+   a = d^2 and p = 1/d^4, where d = S n, and gets e d + 1 + 1/d^2.
+   paper_main_head_width_actual_selected applies this to a head h formed by
+   distinct points s of a sample x. Given a measurable choice P(Z) of near
+   maximizers on the cone sphere, and a sample outside the residual event
+   paper_main_residual_conditional_event, the bound holds with
+   e = eps + 2 eta under the deterministic conditions of
+   paper_main_head_width_transfer_features_approx on the Gram matrices of
+   the head and data features. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix numfun.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

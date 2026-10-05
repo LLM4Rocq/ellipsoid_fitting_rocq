@@ -1,5 +1,5 @@
 (* The raw head-data operator bound, uniformly over all injective selections
-   of at most K sample points, under the actual law of the sample.
+   of at most K sample points.
 
    x : paper_main_sample N d has the law paper_main_probability N d. For
    u > 0 put C = paper_main_gordon_entropy_constant (1/4) = 20 ln 2 and
@@ -15,13 +15,12 @@
    to all m <= K. The exception for (m, s) is the net-test event of
    PaperMainDataHeadOperator. For each m, its union over the finite
    functions sf : {ffun 'I_m -> 'I_N} with injectiveb sf has probability at
-   most N^m 2 exp(-t) (pmdou_level_tail). The union over 1 <= m <= K then
-   has probability at most (K + 1) (N + 1)^K 2 exp(-t) = 2 exp(-u)
-   (pmdou_count_rate). The combinatorial factor (K + 1) (N + 1)^K bounds
-   sum_(m <= K) N^m. m = 0 is trivial (empty Gram); N = 0 leaves no
-   selection with m > 0; d = 0 is trivial (0 x 0 matrices). No independence
-   of rows, rotation law, tail bound or coercivity is assumed. Nothing from
-   the paper is assumed. *)
+   most N^m 2 exp(-t) <= (N + 1)^K 2 exp(-t) (pmdou_level_rate). The union
+   over 1 <= m <= K then has probability at most
+   (K + 1) (N + 1)^K 2 exp(-t) = 2 exp(-u) (pmdou_count_rate). The
+   combinatorial factor (K + 1) (N + 1)^K bounds sum_(m <= K) N^m. m = 0 is
+   trivial (empty Gram); N = 0 leaves no selection with m > 0; d = 0 is
+   trivial (0 x 0 matrices). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

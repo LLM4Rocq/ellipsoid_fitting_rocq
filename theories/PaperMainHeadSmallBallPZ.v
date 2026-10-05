@@ -22,7 +22,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct cardinality.
 From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
-From mathcomp Require Import probability numfun.
+From mathcomp Require Import probability numfun hoelder.
+From GaussianAnalysis.probability Require Import moments.
 From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GaussianCoordinateDefinitions
   GaussianCoordinateWeightDefinitions GaussianProductDefinitions GaussianProduct
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity
@@ -37,113 +38,7 @@ Local Open Scope classical_set_scope.
 Open Scope R_scope.
 Local Notation T := (measurableTypeR R).
 
-(* Scalar facts for Paley-Zygmund. *)
-
-Lemma paper_main_head_small_ball_pz_point (z m theta t ind : R) :
-  0 <= theta -> theta <= m -> 0 <= t ->
-  (theta <= z -> ind = 1) -> (z < theta -> ind = 0) ->
-  2 * t * (m - theta) * z <=
-  2 * t * (m - theta) * theta + t ^ 2 * (m - theta) ^ 2 * z ^ 2 + ind.
-Proof.
-move=> Hth Hm Ht H1 H0.
-have Hs : 0 <= t * (m - theta) by apply: Rmult_le_pos; lra.
-case: (Rle_lt_dec theta z) => Hz.
-- rewrite (H1 Hz).
-  have Hsq := pow2_ge_0 (t * (m - theta) * z - 1).
-  have Hk : 0 <= 2 * t * (m - theta) * theta by nra.
-  nra.
-- rewrite (H0 Hz).
-  have Hsq : 0 <= t ^ 2 * (m - theta) ^ 2 * z ^ 2.
-    apply Rmult_le_pos; [apply Rmult_le_pos; apply pow2_ge_0 | apply pow2_ge_0].
-  nra.
-Qed.
-
-Lemma paper_main_head_small_ball_pz_scalar (m M theta p : R) :
-  theta < m ->
-  (forall t, 0 <= t ->
-    2 * t * (m - theta) * m <=
-    2 * t * (m - theta) * theta + t ^ 2 * (m - theta) ^ 2 * M + p) ->
-  0 < M /\ (m - theta) ^ 2 / M <= p.
-Proof.
-move=> Hm H.
-have Hd : 0 < m - theta by lra.
-have Hd2 : 0 < (m - theta) ^ 2 by apply: pow_lt.
-have HM : 0 < M.
-  case: (Rlt_or_le 0 M) => HM //; exfalso.
-  set t := (Rabs p + 1) / (2 * (m - theta) ^ 2).
-  have Ht : 0 <= t.
-    rewrite /t; apply: Rmult_le_pos; first by have := Rabs_pos p; lra.
-    by apply/Rlt_le/Rinv_0_lt_compat; lra.
-  have Ht' := H t Ht.
-  have E : 2 * t * (m - theta) * m - 2 * t * (m - theta) * theta = Rabs p + 1.
-    by rewrite /t; field; lra.
-  have Hneg : t ^ 2 * (m - theta) ^ 2 * M <= 0.
-    have : 0 <= t ^ 2 * (m - theta) ^ 2 by apply Rmult_le_pos; apply pow2_ge_0.
-    nra.
-  have := Rle_abs p; lra.
-split=> //.
-have HiM : 0 <= / M by apply/Rlt_le/Rinv_0_lt_compat.
-have Ht' := H (/ M) HiM.
-have E1 : 2 * / M * (m - theta) * m - 2 * / M * (m - theta) * theta =
-    2 * ((m - theta) ^ 2 / M) by field; lra.
-have E2 : (/ M) ^ 2 * (m - theta) ^ 2 * M = (m - theta) ^ 2 / M by field; lra.
-lra.
-Qed.
-
-(* Paley-Zygmund for any probability measure. *)
-
-Lemma paper_main_head_small_ball_pz_step {dX : measure_display} {X : measurableType dX}
-    (P : probability X R) (Z : X -> R) (m M theta t : R) :
-  measurable_fun [set: X] (Z : X -> T) ->
-  P.-integrable [set: X] (fun x => (Z x)%:E) -> (\int[P]_x (Z x)%:E = m%:E)%E ->
-  P.-integrable [set: X] (fun x => (Z x ^ 2)%:E) -> (\int[P]_x (Z x ^ 2)%:E = M%:E)%E ->
-  0 <= theta -> theta <= m -> 0 <= t ->
-  (((2 * t * (m - theta) * m)%Rcoq)%:E <=
-    ((2 * t * (m - theta) * theta)%Rcoq)%:E * P [set: X] +
-    ((t ^ 2 * (m - theta) ^ 2 * M)%Rcoq)%:E +
-    P [set x | Rle theta (Z x)])%E.
-Proof.
-move=> mZ HI1 HE1 HI2 HE2 Hth Hm Ht.
-set A := [set x | Rle theta (Z x)].
-have mA : measurable A.
-  have H := paper_main_head_section_le_measurable (fun _ => theta) Z (measurable_cst _) mZ.
-  have -> : A = [set x | (theta <= Z x)%R].
-    by apply/seteqP; split => x /=; [move/RleP | move/RleP].
-  exact: H.
-set k1 := 2 * t * (m - theta).
-set k2 := 2 * t * (m - theta) * theta.
-set k3 := t ^ 2 * (m - theta) ^ 2.
-have HIA := integrable_indic P mA.
-have HIT := integrable_indic P (@measurableT _ X).
-have HL : P.-integrable setT (fun x => (k1%:E * (Z x)%:E)%E) by exact: integrableZl HI1.
-have H2 : P.-integrable setT (fun x => (k2%:E * (\1_setT x)%:E)%E) by exact: integrableZl HIT.
-have H3 : P.-integrable setT (fun x => (k3%:E * (Z x ^ 2)%:E)%E) by exact: integrableZl HI2.
-have H23 := integrableD measurableT H2 H3.
-have H23A := integrableD measurableT H23 HIA.
-have Hle : (\int[P]_x (k1%:E * (Z x)%:E) <=
-    \int[P]_x ((k2%:E * (\1_setT x)%:E + k3%:E * (Z x ^ 2)%:E) + (\1_A x)%:E))%E.
-  apply: (le_integral measurableT HL H23A) => x _.
-  rewrite /numfun.indic -!EFinM -!EFinD lee_fin; apply/RleP.
-  have Hx1 : (x \in [set: X]) = true by apply/mem_set.
-  rewrite Hx1 /=.
-  have Hind1 : Rle theta (Z x) -> (((x \in A)%:R)%R : R) = 1.
-    move=> Hz; have Hx : x \in A by apply/mem_set.
-    by rewrite Hx.
-  have Hind0 : Z x < theta -> (((x \in A)%:R)%R : R) = 0.
-    move=> Hz; have Hx : x \notin A.
-      apply/negP => Hx; have Hz' : Rle theta (Z x) by move/set_mem: Hx.
-      lra.
-    by rewrite (negbTE Hx).
-  have Hp := paper_main_head_small_ball_pz_point (Z x) m theta t _ Hth Hm Ht Hind1 Hind0.
-  rewrite mulr1.
-  exact: Hp.
-rewrite (integralD measurableT H23 HIA) (integralD measurableT H2 H3) in Hle.
-rewrite (integralZl measurableT HI1) (integralZl measurableT HIT) in Hle.
-rewrite (integralZl measurableT HI2) HE1 HE2 in Hle.
-rewrite (integral_indic P measurableT mA) (integral_indic P measurableT measurableT) in Hle.
-rewrite !setIT -!EFinM in Hle.
-exact: Hle.
-Qed.
+(* Paley-Zygmund, from the library (paley_zygmund of moments.v). *)
 
 Theorem paper_main_head_small_ball_paley_zygmund {dX : measure_display}
     {X : measurableType dX} (P : probability X R) (Z : X -> R) (m M theta : R) :
@@ -153,26 +48,22 @@ Theorem paper_main_head_small_ball_paley_zygmund {dX : measure_display}
   0 <= theta -> theta < m ->
   0 < M /\ ((((m - theta) ^ 2 / M)%Rcoq)%:E <= P [set x | Rle theta (Z x)])%E.
 Proof.
-move=> mZ HI1 HE1 HI2 HE2 Hth Hm.
-set A := [set x | Rle theta (Z x)].
-have HPA : P A = (fine (P A))%:E.
-  have mA : measurable A.
-    have H := paper_main_head_section_le_measurable (fun _ => theta) Z (measurable_cst _) mZ.
-    have -> : A = [set x | (theta <= Z x)%R].
-      by apply/seteqP; split => x /=; [move/RleP | move/RleP].
-    exact: H.
-  by rewrite fineK //; apply: fin_num_measure.
-have Hstep : forall t, 0 <= t ->
-    2 * t * (m - theta) * m <=
-    2 * t * (m - theta) * theta + t ^ 2 * (m - theta) ^ 2 * M + fine (P A).
-  move=> t Ht.
-  have H := paper_main_head_small_ball_pz_step P Z m M theta t mZ HI1 HE1 HI2 HE2 Hth
-    (Rlt_le _ _ Hm) Ht.
-  rewrite probability_setT mule1 -/A HPA -!EFinD lee_fin in H.
-  by apply/RleP.
-have [HM Hb] := paper_main_head_small_ball_pz_scalar m M theta (fine (P A)) Hm Hstep.
-split => //.
-by rewrite HPA lee_fin; apply/RleP.
+move=> mZ _ HE1 HI2 HE2 Hth Hm.
+have Hm' : (theta < m)%R by apply/RltP.
+have Hth' : (0 <= theta)%R by apply/RleP.
+have sqrE : (fun x => (Z x ^ 2)%:E) = EFin \o (fun x => (Z x ^+ 2)%R).
+  by apply/funext => x; rewrite RpowE.
+have Z2 : Z \in Lfun P 2%:E by apply: integrable_sqr_Lfun2 => //; rewrite -sqrE.
+have Em : ('E_P[Z] = m%:E)%E by rewrite unlock.
+have EM : ('E_P[(Z ^+ 2)%R] = M%:E)%E.
+  by rewrite unlock -HE2; apply: eq_integral => x _; rewrite RpowE expr2.
+split.
+  have := expectation_sqr_le Z2; rewrite Em EM /= => mM.
+  by apply/RltP; apply: lt_le_trans mM; rewrite exprn_gt0 // (le_lt_trans Hth').
+have := paley_zygmund Z2 Hth'; rewrite Em EM /= lte_fin => /(_ Hm').
+have -> : [set x | Rle theta (Z x)] = [set x | (theta <= Z x)%R].
+  by apply/seteqP; split => x /= /RleP.
+by rewrite Rmult_1_r expr2.
 Qed.
 
 (* Measurability, jointly in the sample and the parameters. *)

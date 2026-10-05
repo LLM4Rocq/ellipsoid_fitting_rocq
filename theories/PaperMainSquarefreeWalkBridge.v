@@ -1,4 +1,4 @@
-(* The walk-word bridge (G16, checkpoint B3b).
+(* From the moments of walk words to a walk weight.
    PaperMainSquarefreeWalkExpansion writes E tr W^(K+1) as a sum over
    closed walks i, t, i and label lists ps of the moments of walk words.
    This file reads these words in the walk model of
@@ -7,17 +7,15 @@
      (pmsw_big_coord);
    - the multiplicity of r * d + c in the word is the degree
      pmsc_deg rs ps r c (pmsw_bridge_count). So the moment is the product of
-     moment_factor over all degrees (pmsw_bridge_moment), and the exponent
-     of pmsw_moment_le is the excess pmsc_X (pmsw_bridge_excess);
+     moment_factor over all degrees, and the exponent of pmsw_moment_le is
+     the excess pmsc_X (pmsw_bridge_excess);
    - the walks of E tr W^(K+1) are loop-free with distinct label pairs, and
      a nonzero moment makes them even (pmsw_bridge_loopfree,
      pmsw_bridge_distinct, pmsw_bridge_even);
    - so the moment is at most [even] (4 L)^(2 e), with the deficiency
      e = 2 L + 2 - 2 R - C (pmsw_bridge_weight). Summed over walks, this
      bounds E tr W^(K+1) by a natural number, the walk weight
-     (paper_main_squarefree_offdiag_weight), also under the actual law
-     (paper_main_squarefree_offdiag_law_weight).
-   No probability premise. *)
+     pmsw_walk_weight (paper_main_squarefree_offdiag_weight). *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

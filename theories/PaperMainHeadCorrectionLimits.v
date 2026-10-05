@@ -1,4 +1,9 @@
-(* Public convergence consequences of the explicit dimension scale. *)
+(* Two consequences of the dimension scale s(d) = d^(1/32)
+   (paper_main_head_scale).
+   - paper_main_head_scale_residual: for d >= 1 the residual threshold
+     sqrt(4 + 4 kappa) / d^(1/4) equals sqrt(4 + 4 kappa) / s(d)^8.
+   - paper_main_head_width_error_large: for E >= 0 and eps > 0, every large
+     d satisfies 2 (E / s(d)^7) d + 1 + 1 / d^2 <= eps d. *)
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity

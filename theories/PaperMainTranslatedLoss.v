@@ -1,4 +1,16 @@
-(* The bounded smooth empirical loss used for the supercritical phase. *)
+(* The bounded smooth loss l(t) = 1 - exp(-t^2) (paper_main_loss) used for
+   the supercritical phase, and its first three derivatives
+   (paper_main_loss_first, paper_main_loss_second, paper_main_loss_third).
+   Deterministic.
+   - paper_main_loss_bounds: 0 <= l(t) <= 1. paper_main_loss_zero:
+     l(t) = 0 if and only if t = 0.
+   - paper_main_loss_damping, paper_main_loss_abs_damping: bounds on
+     |t|^k exp(-t^2) for k = 1, ..., 4.
+   - paper_main_loss_derivative_bounds: |l'| <= 4, |l''| <= 6 and
+     |l'''| <= 64.
+   - paper_main_loss_sandwich: exp(-1) min(t^2, 1) <= l(t) <= min(t^2, 1).
+   - paper_main_loss_lipschitz: l is 4-Lipschitz, by the mean value
+     theorem. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftExtrema PaperMainClippingRates.
 Open Scope R_scope.

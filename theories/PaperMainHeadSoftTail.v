@@ -1,4 +1,19 @@
-(* Finite soft tails expressed through the actual head-section width. *)
+(* Lower bounds for the data soft minimax expressed through the
+   head-section width paper_main_head_section_width.
+   - paper_main_head_section_width_empty and
+     paper_main_head_section_width_positive: the width of an empty section
+     is 0, so a positive width gives a nonempty section.
+   - paper_main_head_soft_level: the level of PaperMainDataSoftConeTail
+     with the Gordon width of a net replaced by the head-section width
+     minus eps sqrt D, D = paper_main_symmetric_dimension n. It is at most
+     the level of an eps-net B of the section
+     (paper_main_head_soft_level_le).
+   - paper_main_head_soft_expectation: the level is at most the iterated
+     Gaussian expectation of the raw data soft minimax over the net B.
+   - paper_main_head_soft_clipped_lower_tail: the soft minimax clipped at
+     level U is at most the level minus the clipping loss
+     (paper_main_data_soft_clipping_loss) minus u with probability at most
+     exp(-u^2 / (2 (2 k U)^2)), k = kappa / sqrt d. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

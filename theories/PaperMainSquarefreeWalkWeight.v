@@ -1,9 +1,9 @@
-(* Multiplicities and weights of square-free walk words (G16, checkpoint B1).
+(* Multiplicities and weights of square-free walk words.
    For a word w of coordinate indices below D, with n_c = count of c in w:
    - pmsw_moment D w <= (size w) ^ (sum_c (n_c / 2 - [n_c > 0]))
      (pmsw_moment_le), from (m - 1)!! <= m ^ (m / 2 - 1) for even m >= 2.
-     The exponent is the multiplicity excess: it is 0 exactly when every
-     occurring coordinate occurs at most twice.
+     The exponent is the multiplicity excess. When every n_c is even, it is
+     0 exactly when every occurring coordinate occurs twice.
    - For the walk words of PaperMainSquarefreeWalkExpansion: the steps of a
      walk i, t, j are the consecutive row pairs (pmsw_rows). The coordinate
      r * d + c occurs in the edge of a step (i, k) with labels p = (a, b)
@@ -12,8 +12,7 @@
      these over the steps (pmsw_count_word): the degree of row r in the
      steps whose labels contain c. The moment vanishes unless all these
      degrees are even (pmsw_word_moment_even). A walk word has 4 entries
-     per step (pmsw_word_size).
-   No probability premise. *)
+     per step (pmsw_word_size). *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -1,23 +1,28 @@
-(* The coefficient error in the non-backtracking column remainder (A36).
+(* The coefficient error in the non-backtracking column remainder.
 
    The middle term of paper_main_column_remainder_split is
-     sum_c ((Q_c^p - N^p) *: R_c),  R_c = pmcr_rankone N C X c, Q_c = pmcr_column_norm N C X c.
+     sum_c ((Q_c^p - N^p) *: R_c),
+   with R_c = pmcr_rankone N C X c and Q_c = pmcr_column_norm N C X c.
    1. Generic weighted rank-one sums. If the Gram form satisfies
       u^T (sum_c R_c) u <= U |u|^2 with U >= 0, e >= 0, and for every c either
       R_c = 0 or |a_c| <= e, then |u^T (sum_c a_c R_c) u| <= e U |u|^2, since
-      u^T R_c u >= 0. The sum is symmetric, so -e U I <= sum_c a_c R_c <= e U I,
-      and paper_main_cone_opnorm_of_loewner with paper_main_opnorm_to_action
-      give pmlo_opb N (sum_c a_c *: R_c) (e U). The zero alternative covers
+      u^T R_c u >= 0 (pmccc_weighted_form_bound). The sum is symmetric, so
+      -e U I <= sum_c a_c R_c <= e U I (pmccc_box), and
+      paper_main_cone_opnorm_of_loewner with paper_main_opnorm_to_action
+      give pmlo_opb N (sum_c a_c *: R_c) (e U)
+      (paper_main_weighted_rankone_opbound). The zero alternative covers
       inactive columns, whose coefficient may be large.
    2. Normalized powers. For x >= 0, 0 <= delta <= 1 and |x - 1| <= delta,
       |x^p - 1| <= (2^p - 1) delta, by x^(p+1) - 1 = x (x^p - 1) + (x - 1)
-      and x <= 2. Hence |Q^p - N^p| <= N^p (2^p - 1) delta when N > 0 and
-      |Q / N - 1| <= delta.
+      and x <= 2 (paper_main_power_error). Hence |Q^p - N^p| <= N^p (2^p - 1)
+      delta when N > 0 and |Q / N - 1| <= delta
+      (paper_main_power_ratio_error).
    3. For X = pmnb_X d (tval x) under paper_main_column_frame_good with
       0 < delta <= 1 and N > 0, active columns have |Q_q / N - 1| <= delta and
       inactive columns have R_q = 0, so for every p
-        pmlo_opb N (sum_q ((Q_q^p - N^p) *: R_q)) (N^p (2^p - 1) delta (C0 N)).
-   Deterministic; no probability premise. *)
+        pmlo_opb N (sum_q ((Q_q^p - N^p) *: R_q)) (N^p (2^p - 1) delta (C0 N))
+      (paper_main_column_coefficient_opbound).
+   Deterministic. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -124,7 +129,7 @@ rewrite E normrM (ger0_norm (exprn_ge0 _ (ltW Hn))) -mulrA.
 by apply: ler_wpM2l; [exact: exprn_ge0 (ltW Hn) | exact: paper_main_power_error].
 Qed.
 
-(* 3. The actual coefficient error under the frame premises. *)
+(* 3. The coefficient error under the frame event. *)
 Lemma pmccc_inactive_rankone N d (x : paper_main_sample N d) (q : 'I_d * 'I_d) :
   ~~ (q.1 < q.2)%N -> pmcr_rankone N ('I_d * 'I_d)%type (@pmnb_X R d (tval x) N) q = 0.
 Proof.

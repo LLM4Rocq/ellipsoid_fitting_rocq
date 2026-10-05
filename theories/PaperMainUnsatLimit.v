@@ -1,23 +1,31 @@
-(* The actual fixed-density UNSAT limit and its extension to supercritical
+(* The UNSAT limit at fixed density and its extension to supercritical
    sample-size sequences.
 
    For gamma in (1/4, 1/2) and N(d) = paper_main_fixed_count gamma d:
-   1. M134 fixes kappa, e, c, L, eps, tau, d0 from gamma alone, and A31 fixes
-      rmax with 1/(eps/2)^2 <= rmax, all before d. With
-      C = paper_main_orientation_entropy rmax tau and a = gamma (e/4)^2 / 4 > 0:
-   2. For every large d, the A32 union F_d of the M134 events (cutoff eps/2) is
-      measurable, has probability at most
+   1. paper_main_unsat_orientation_constants fixes kappa, e, c, L, eps, tau
+      and d0 from gamma alone, with events for each orientation, and
+      paper_main_orientation_rank_bound fixes rmax with
+      1/(eps/2)^2 <= rmax, all before d. Put
+      C = paper_main_orientation_entropy rmax tau and
+      a = gamma (e/4)^2 / 4 > 0.
+   2. For every large d, the union F_d of these events given by
+      paper_main_orientation_union_fit (cutoff eps/2) is measurable, has
+      probability at most
         (rmax + 1) exp (C (d + 1)) exp (- N (e/4)^2 / 2)
           <= (rmax + 1) exp (C (d + 1)) exp (- a d^2),
-      and contains every fit outside the actual feature upper event: there the
-      raw Gram matrix is at most (3 N + 106 d^2) I and 3 N + 106 d^2 <= 109 d^2
-      <= N L^2. For small d, F_d is empty. The events are chosen for each d
-      separately; no measurability in d is used.
-   3. For large d, P(fit) <= P(feature upper event) + P(F_d), and both tend to 0
-      (M117, M129). Hence the fixed-density fit probability tends to 0.
-   4. With the checked fit measurability, the existing reduction
-      paper_main_unsat_from_fixed gives P(fit) -> 0 for every sample-size
-      sequence whose density has liminf greater than 1/4. *)
+      and contains every fit outside the feature upper event: there the raw
+      Gram matrix is at most (3 N + 106 d^2) I and
+      3 N + 106 d^2 <= 109 d^2 <= N L^2. For small d, F_d is empty. The
+      events are chosen for each d separately; no measurability in d is
+      used.
+   3. For large d, P(fit) <= P(feature upper event) + P(F_d), and both tend
+      to 0 (paper_main_feature_upper_edge and
+      paper_main_unsat_orientation_union_limit). Hence the fit probability
+      at fixed density tends to 0 (paper_main_unsat_fixed_density_limit).
+   4. With the measurability of the fit event (pm_fit_event_measurable),
+      the reduction paper_main_unsat_from_fixed gives P(fit) -> 0 for every
+      sample-size sequence whose density has liminf greater than 1/4
+      (paper_main_unsat_supercritical_limit). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -60,7 +68,8 @@ rewrite Rinv_r; last lra.
 lra.
 Qed.
 
-(* The fixed-density limit from per-orientation events of the M134 form. *)
+(* The fixed-density limit from events for each orientation, of the form
+   given by paper_main_unsat_orientation_constants. *)
 
 Theorem paper_main_unsat_fixed_density_limit_from_events (gamma kappa e c L eps tau : R) (d0 : nat) :
   1 / 4%:R < gamma -> gamma < 1 / 2%:R ->
@@ -118,7 +127,8 @@ have Ht8R : tau <= 1 / 8.
   rewrite E8 INR_IZR_INZ /=; exact: Ht8.
 have HeptR : eps0 + tau ^+ 2 <= eps.
   by apply/RleP; rewrite -RpowE -RplusE /eps0.
-(* For each d, the union event of A32 (empty for small d). *)
+(* For each d, the union event of paper_main_orientation_union_fit (empty
+   for small d). *)
 have Hpick : forall d, exists F : set (paper_main_sample (Nf d) d),
     (D <= d)%N -> measurable F /\
       (paper_main_probability (Nf d) d F <=
@@ -164,7 +174,7 @@ have HF : forall d, (D <= d)%N -> measurable (F d) /\
       paper_main_loewner_le (paper_main_feature_gram (Nf d) d x) (K *: 1%:M) ->
       (K <= INR (Nf d) * L ^ 2)%Rcoq -> paper_main_fit_event (Nf d) d x -> F d x.
   by move=> d; exact: (proj2_sig (cid (Hpick d))).
-(* The actual feature upper event (M117). *)
+(* The feature upper event (paper_main_feature_upper_edge). *)
 have Hg2R : (0 < gamma / 2)%Rcoq by lra.
 have Hg2 : 0 < (gamma / 2)%Rcoq by apply/RltP.
 have Hlowev := paper_main_fixed_count_eventually_lower gamma Hg0 Hg1.
@@ -226,7 +236,8 @@ apply: (paper_main_tends_to_zero_squeeze_eventually _
       by right; rewrite Hlt.
 Qed.
 
-(* Target 1: the actual fixed-density UNSAT limit, with the M134 constants. *)
+(* The UNSAT limit at fixed density, with the constants of
+   paper_main_unsat_orientation_constants. *)
 
 Theorem paper_main_unsat_fixed_density_limit (gamma : R) :
   1 / 4%:R < gamma -> gamma < 1 / 2%:R ->
@@ -242,8 +253,8 @@ exact: (paper_main_unsat_fixed_density_limit_from_events gamma kappa e c L eps t
   Hg14 Hg12 Hk Hk2 He Hc HL HLeq Heps Ht Ht8 Hept Hev).
 Qed.
 
-(* Target 2: every sample-size sequence whose density has liminf greater than
-   1/4 is asymptotically UNSAT. *)
+(* Every sample-size sequence whose density has liminf greater than 1/4 is
+   asymptotically UNSAT. *)
 
 Theorem paper_main_unsat_supercritical_limit (n : nat -> nat) :
   paper_main_liminf_gt (paper_main_density n) (1 / 4%:R) ->

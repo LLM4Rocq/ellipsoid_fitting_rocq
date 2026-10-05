@@ -1,16 +1,19 @@
-(* The actual lower spectral law at the fixed subcritical count (A41).
+(* The lower spectral bound on the raw features at the fixed subcritical
+   count, with probability tending to one.
 
-   1. Bridge: the MathComp hypotheses 0 < beta and beta < 1 / 4%:R of the
-      final statements give the Stdlib pair (0 < beta)%Rcoq and
-      (beta < 1/4)%Rcoq used by the count lemmas.
-   2. Endpoint: for 0 < beta < 1/4 and N = paper_main_fixed_count beta there
-      are actual measurable events E_d with probability tending to 0 such
-      that for all large d (Stdlib Nat.le threshold) every sample outside
-      E_d has raw-feature coercivity with constant d^2 / 128. These are the
-      three event premises of paper_main_conditioned_from_lower_exists.
-      Route: paper_main_fixed_subcritical_counts and
-      paper_main_fixed_subcritical_density (c = beta / 2), then the A40
-      law paper_main_squarefree_lower_probability. *)
+   1. paper_main_fixed_beta_coq: the MathComp hypotheses 0 < beta and
+      beta < 1 / 4%:R of paper_main_conditioned_fixed_limit give the Stdlib
+      pair (0 < beta)%Rcoq and (beta < 1/4)%Rcoq used by the count lemmas.
+   2. paper_main_fixed_lower_probability: for 0 < beta < 1/4 and
+      N = paper_main_fixed_count beta there are measurable events E_d with
+      probability tending to 0 such that, for all large d (a Stdlib Nat.le
+      threshold), the Gram matrix of the raw features of every sample
+      outside E_d is at least (d^2 / 128) I (paper_main_head_coercive).
+      These are the three event hypotheses of
+      paper_main_conditioned_from_lower_exists. The proof combines
+      paper_main_fixed_subcritical_counts and
+      paper_main_fixed_subcritical_density (c = beta / 2) with
+      paper_main_squarefree_lower_probability. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -32,7 +35,7 @@ move=> Hb0 Hb1; split; first by apply/RltP.
 by move/RltP: Hb1; rewrite -RdivE -INRE INR_IZR_INZ.
 Qed.
 
-(* 2. The fixed-beta endpoint. *)
+(* 2. The lower bound with probability tending to one. *)
 Theorem paper_main_fixed_lower_probability (beta : R) :
   0 < beta -> beta < 1 / 4%:R ->
   exists E : forall d, set (paper_main_sample (paper_main_fixed_count beta d) d),

@@ -1,4 +1,4 @@
-(* The sharp NB moment (G16, lower edge, part 6).
+(* The non-backtracking (NB) trace moment as a sum over marked walks.
    The trace moment of PaperMainSquarefreeWalkNB is a sum over closed walks
    whose columns are NB inside each of the q + 1 segments of m + 1 steps.
    Marking the segment starts (pmnct_ms0) turns this into the marked NB

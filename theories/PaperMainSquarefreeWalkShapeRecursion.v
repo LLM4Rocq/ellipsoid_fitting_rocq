@@ -1,15 +1,16 @@
-(* The position recursion of the shape count (G16, checkpoint B4, item 1).
-   In the shape count of the square-free walks, a walk W of length L whose
-   first removable row sits at position j reduces to a walk of length L - 1
-   or L - 2 whose first removable row sits at position j - 1 or later. For
-   the weighted sums S L k over the walks of length L whose first removable
-   row is at position k or later, this gives
+(* The position recursion of the shape count of the square-free walks.
+   A walk W of length L whose first removable row sits at position j
+   reduces to a walk of length L - 1 or L - 2 whose first removable row
+   sits at position j - 1 or later. For the weighted sums S L k over the
+   walks of length L whose first removable row is at position k or later,
+   this gives
      S L k <= T L + sum_(k <= j < L) (a S (L-1) (j-1) + b S (L-2) (j-1)),
    with T L the sum over the walks without a removable row. Since the
    reduced position cannot drop by more than one, the sum over j costs only
    a factor 2^(L - k) (pmsr_bound):
-     S L k <= Lam L * 2^(L - k)   whenever   T L + 2 a Lam (L-1) + b Lam (L-2) <= Lam L.
-   Pure arithmetic on natural numbers. *)
+     S L k <= Lam L * 2^(L - k)
+   whenever T 0 <= Lam 0 and T L + 2 a Lam (L-1) + b Lam (L-2) <= Lam L
+   for every L > 0. Pure arithmetic on natural numbers. *)
 From mathcomp Require Import all_ssreflect_compat.
 
 (* 1. Geometric sums. *)

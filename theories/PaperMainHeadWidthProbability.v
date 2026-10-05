@@ -1,4 +1,17 @@
-(* Actual exceptional sets for the uniform width of regular selected heads. *)
+(* Exceptional sets for the uniform width of the regular selected heads.
+   paper_main_regular_heads_width_good N n K c c0 Q L kappa eps x says that
+   every head of x selected by a regular selection
+   (paper_main_head_regular of PaperMainHeadWidthRegular) has section width
+   at least (1/2 - eps) d, where d = n + 1.
+   paper_main_head_width_regular_probability_fixed: assume N(d) <= C d^2
+   for all large d, k0 >= 1, and that the Gaussian condition width
+   paper_main_gaussian_condition_width n k0 is at least (1/2 - eps/2) d for
+   all large n. Then there are measurable events A_d with probability
+   tending to 0 such that, for all large d, every sample outside A_d
+   satisfies paper_main_regular_heads_width_good with kappa = 2 k0^2. For
+   each large d, the event of paper_main_head_width_regular_event_fixed is
+   chosen with Hilbert's epsilon; its probability is at most
+   2 N d^4 exp(-sqrt d / 2) <= 2 C d^6 exp(-sqrt d / 2). *)
 From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

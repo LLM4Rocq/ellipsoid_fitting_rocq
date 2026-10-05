@@ -1,12 +1,17 @@
-(* Clipped quadratic data-feature scores (G11, checkpoint A).
-   For d = S n and N rows, the clipped public feature of row i of a list xs is
-   paper_main_data_feature n (fun j => clip U (nth (i * d + j) xs 0)), with the
-   checked clip of PaperMainGaussianLipschitzClip. The full score
-   sum_i y_i <Wclip_i(xs), B> is 2 k U-Lipschitz in the Euclidean distance of
-   all N * d coordinates, with no sqrt N loss. When every sample coordinate has
-   absolute value at most U, the clipped rows are the head features of the
-   sample. N = 0 and U = 0 are covered. No length, rotation, tail or
-   concentration assumption is used. *)
+(* Clipped quadratic data-feature scores.
+   For d = S n and N rows, the clipped feature of row i of a list xs is
+   paper_main_data_feature n (fun j => clip U (nth (i * d + j) xs 0)), with
+   the clip max(-U, min(U, z)) of PaperMainGaussianLipschitzClip
+   (paper_main_data_clipped_feature). For symmetric B with operator norm at
+   most k and weights y with Euclidean norm at most 1, the score
+   sum_i y_i <Wclip_i(xs), B> is 2 k U-Lipschitz in the Euclidean distance
+   of all N * d coordinates, with no sqrt N loss
+   (paper_main_data_clipped_score_lipschitz, an instance of
+   paper_main_data_contraction_score_lipschitz of
+   PaperMainDataClippedScore). When every sample coordinate has absolute
+   value at most U, the clipped rows are the head features of the sample
+   (paper_main_data_clipped_feature_head,
+   paper_main_data_clipped_score_head). N = 0 and U = 0 are covered. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval boolp.
@@ -34,7 +39,7 @@ Lemma pmdcl_score_generic U n N B y xs :
   pmdc_score (paper_main_gaussian_clip U) n N B y xs.
 Proof. by []. Qed.
 
-(* 3. The full score is 2kU-Lipschitz, with no sqrt N loss. *)
+(* 2. The score is 2kU-Lipschitz, with no sqrt N loss. *)
 Theorem paper_main_data_clipped_score_lipschitz U n N (B : 'M[R]_(S n))
     (y : nat -> R) k xs ys :
   0 <= U -> paper_main_symmetric B -> 0 <= k ->
@@ -50,7 +55,8 @@ apply: (paper_main_data_contraction_score_lipschitz _ U) => //.
 - exact: paper_main_gaussian_clip_lipschitz.
 Qed.
 
-(* 4. Off the coordinate exception the clipped rows are the head features. *)
+(* 3. When every coordinate has absolute value at most U, the clipped rows
+   are the head features. *)
 Lemma pmdcl_index N n i j :
   (i < N)%N -> (j < S n)%N -> (i * S n + j < N * S n)%N.
 Proof.

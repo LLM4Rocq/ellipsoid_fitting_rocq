@@ -1,30 +1,12 @@
-(* The one-row law bridge for the quadratic data feature: the moments of
-   PaperMainDataFeatureMoments hold for the head feature of each row of an
-   m-point sample, under the actual sample law.
+(* Rows of a sample as lists, and the head feature of one row.
 
-   The sample x : paper_main_sample m N, N = n + 1, has the law
-   gaussian_product_law (m * N), the measure of paper_main_probability m N.
-   For i < m, row i has the coordinates List.nth (i * N + j) (tval x) 0,
-   j < N (paper_main_point x i), and its feature is
-   W_i = paper_main_head_feature x i = (x_i x_i^T - I) / sqrt N. With actual
-   integrability:
-   - E <W_i, S> = 0 (paper_main_head_feature_mean);
-   - E <W_i, S><W_i, T> = N^-1 (<S, T> + <S, T^T>), and (2/N) <S, T> for
-     symmetric T (paper_main_head_feature_covariance,
-     paper_main_head_feature_covariance_symmetric);
-   - E |W_i|_F^2 = N + 1 (paper_main_head_feature_frobenius);
-   - E c_k(W_i) = 0 and E c_k(W_i) c_l(W_i) = goe_scale n ^ 2 * delta_kl in
-     the goe_basis (paper_main_head_feature_coefficient_mean,
-     paper_main_head_feature_coefficient_covariance).
-
-   Proof. On lists, row i is pmdf_row N i zs = firstn N (skipn (i * N) zs).
-   For G continuous with a polynomial bound in dimension N, the iterated
-   expectation of zs |-> G (pmdf_row N i zs) in dimension m * N equals that
-   of G (pmdf_row_moment): the blocks before and after row i integrate out
-   by gaussian_block_exchange_signed (pmdf_expectation_skipn,
-   pmdf_expectation_firstn). pmdf_actual transports to the actual law. One
-   row at a time: joint laws of several rows are not treated here. Nothing
-   from the paper is assumed. *)
+   For a list zs of m rows of length N, row i is
+   pmdf_row N i zs = firstn N (skipn (i * N) zs), and its entry j < N is
+   List.nth (i * N + j) zs 0 (pmdf_row_nth). For a sample
+   x : paper_main_sample m N with N = n + 1, the head feature of point i,
+   W_i = paper_main_head_feature x i = (x_i x_i^T - I) / sqrt N, is the
+   data feature of PaperMainDataFeatureMoments applied to the row
+   pmdf_row N i (tval x) (pmdf_head_feature_row). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

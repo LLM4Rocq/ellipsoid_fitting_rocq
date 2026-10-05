@@ -1,19 +1,23 @@
 (* The translated Gaussian quadratic form Y = x^T H x - Tr H - b and its
    rotation to independent centered squares. For a real symmetric H of size
-   d and real b, A14 (paper_main_symmetric_quadratic_list) gives a loading L
-   with orthonormal rows and coefficients c with
-     x^T H x - Tr H = sum_(i < d) c_i (z_i^2 - 1),  z = L x,
+   d and real b, paper_main_symmetric_quadratic_list
+   (PaperMainSymmetricDiagonalizationBridge) gives a loading O with
+   orthonormal rows and coefficients c with
+     x^T H x - Tr H = sum_(i < d) c_i (z_i^2 - 1),  z = O x,
      sum_(i < d) c_i^2 = |H|_F^2.
    - For every k the function (sum_i c_i (z_i^2 - 1) - b)^(k+2) is a smooth
      test in the sense of PaperMainGaussianSmoothCovariance: explicit first
      and second coordinate derivatives (chain and product rules of
      PaperMainGaussianOrthogonalCutoff), continuity, and polynomial bounds
-     with the weight prod_j (1 + |z_j|)^(2(k+2)).
-   - Hence (A13, paper_main_gaussian_orthogonal_smooth_expectation) the
-     iterated Gaussian expectation of Y^(k+2) equals that of
-     (sum_i c_i (x_i^2 - 1) - b)^(k+2). The loading and the coefficients do
-     not depend on b or k.
-   No hypercontractivity is used; d = 0 is included. *)
+     with the weight prod_j (1 + |z_j|)^(2(k+2))
+     (paper_main_head_small_ball_test_smooth).
+   - Hence, by the rotation invariance
+     paper_main_gaussian_orthogonal_smooth_expectation, the iterated
+     Gaussian expectation of Y^(k+2) equals that of
+     (sum_i c_i (x_i^2 - 1) - b)^(k+2)
+     (paper_main_head_small_ball_rotation). The loading and the
+     coefficients do not depend on b or k.
+   The case d = 0 is included. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -1,5 +1,19 @@
-(* Finite clipped concentration controls the original compact value for each fixed head.
-   Nets are selected within the fixed-head proof, before every tail sample. *)
+(* Lower tail of the head-section minimax over a compact set of weights, for
+   a fixed head and the clipped tail features.
+
+   paper_main_head_compact_clipped_tail: fix a head sample h of m points of
+   R^d (d = S n) with a nonempty head section, and a set Y of unit weight
+   vectors y with |y_i| <= theta / sqrt d. Let E be a measurable event of
+   tail samples of S q points on which the tail features clipped at U have
+   operator bound L and the head-section minimax over Y is at most
+   paper_main_head_compact_level: the soft level minus the clipping loss,
+   u, an entropy term and L eps. Then E has probability at most
+   exp(-u^2 / (2 (2 kappa U / sqrt d)^2)).
+   The proof takes finite nets of weights and of cone points that depend on
+   the head only (paper_main_head_section_approx_width_exists), bounds the
+   clipped soft minimax over the nets by the minimax over Y plus the
+   entropy and L eps terms, and applies the tail bound
+   paper_main_head_soft_clipped_lower_tail. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

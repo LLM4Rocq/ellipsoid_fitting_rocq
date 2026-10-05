@@ -1,15 +1,20 @@
-(* Base pieces of the actual lower spectral law (A40), from checked A35 and
-   A39 results only.
-   1. Row event. The A35 frame event at tolerance 1/64 is measurable and its
-      probability tends to 0 under eventual density >= c > 0 and eventually
-      0 < N(d) <= d^2; for all large d, outside it, every row sum of squares
-      D_i = sum_q pmnb_X d (tval x) i q ^ 2 satisfies |D_i / 'C(d, 2) - 1| <= 1/64
-      (frame item 5).
-   2. Deterministic step. For 0 < N, d >= 9 and 4 N <= d^2, the row bound and
-      the NB box -(49/24) I <= pmlo_T 1 - s I with kap = (sqrt (N 'C(d, 2)))^-1,
-      s = kap N give raw-feature coercivity with constant d^2 / 128 (A39).
-   3. Unions. Three measurable families of events whose probabilities tend
-      to 0 have a measurable union whose probability tends to 0. *)
+(* Pieces of the lower spectral bound of the raw features.
+   1. Row event (paper_main_squarefree_row_event). The frame event of
+      paper_main_column_frame (PaperMainColumnConcentrationFrame) at
+      tolerance 1/64 is measurable and its probability tends to 0 under
+      eventual density >= c > 0 and eventually 0 < N(d) <= d^2. For all
+      large d, outside it, every row sum of squares
+      D_i = sum_q pmnb_X d (tval x) i q ^ 2 satisfies
+      |D_i / 'C(d, 2) - 1| <= 1/64, the last condition of
+      paper_main_column_frame_good.
+   2. Deterministic step (paper_main_squarefree_coercivity_from_box). For
+      0 < N, d >= 9 and 4 N <= d^2, the row bound and the non-backtracking
+      box -(49/24) I <= pmlo_T 1 - s I, with kap = (sqrt (N 'C(d, 2)))^-1
+      and s = kap N, give raw-feature coercivity with constant d^2 / 128
+      (paper_main_squarefree_coercivity of PaperMainSquarefreeCoercivity).
+   3. Unions (paper_main_event_union3). Three measurable families of
+      events whose probabilities tend to 0 have a measurable union whose
+      probability tends to 0. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -46,7 +51,7 @@ exists D => d Hd x Hx i.
 by have [_ _ _ _ Hrow] := HD d Hd x Hx; exact: Hrow.
 Qed.
 
-(* 2. The deterministic step from the NB box to coercivity. *)
+(* 2. The deterministic step from the non-backtracking box to coercivity. *)
 Theorem paper_main_squarefree_coercivity_from_box N d (x : paper_main_sample N d) :
   (0 < N)%N -> (9 <= d)%N -> (4 * N <= d ^ 2)%N ->
   (forall i : 'I_N,

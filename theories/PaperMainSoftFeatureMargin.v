@@ -1,4 +1,29 @@
-(* Gaussian soft expectation margin transported to quadratic sample features. *)
+(* Lower bounds on the mean of the soft minimax of feature scores, from
+   Gordon's soft width margin. The soft minimax
+   paper_main_public_soft_minimax d N beta gamma y B Y S W is
+     soft_min_(z in Y) soft_max_(t in S) sum_(i < N) y_z,i <W_i, B_t>
+   at inverse temperatures beta and gamma. Let d = n + 1, N = m + 1, let
+   the y_z (z < r) be unit vectors of R^N, let the B_j (j < s) be
+   symmetric with unit Frobenius norm, and let w be the Gordon width of the
+   coordinates of the B_j.
+   - paper_main_soft_max_scale, paper_main_soft_minimax_scale: multiplying
+     the scores by c multiplies the soft extrema by c and their inverse
+     temperatures by c.
+   - paper_main_public_goe_soft_coordinates: for the N GOE features of a
+     list xs of coordinates (paper_main_public_goe_feature), the soft
+     minimax is goe_scale n = sqrt(2 / d) times a soft minimax, at inverse
+     temperatures multiplied by goe_scale n, of Gordon bilinear values
+     in xs.
+   - paper_main_public_goe_soft_margin: when xs is Gaussian, its mean is at
+     least sqrt(2 / d) (w - sqrt N) - ln r / beta, by
+     paper_main_gordon_soft_width_margin.
+   - paper_main_data_soft_margin_coarse: if moreover the coordinates of the
+     y_z are at most theta / sqrt d, the operator norms of the B_j are at
+     most k and ln N <= d, then the mean, under the law of the data sample,
+     of the soft minimax of the head features is at least the same bound
+     minus (200/3) k^3 (beta + gamma)^2 theta / d, by the comparison
+     paper_main_public_feature_soft_comparison_coarse of data features with
+     GOE features. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct normedtype ereal measure.

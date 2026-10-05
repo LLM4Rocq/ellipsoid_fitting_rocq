@@ -1,19 +1,21 @@
-(* Marked walks for the sharp non-backtracking count (G16, lower edge,
-   part 3). A closed walk (rs, ps) of PaperMainSquarefreeWalkShapeOnce
-   carries marks ms (one per row position). It is ms-NB when consecutive
-   label pairs differ except at marked rows (pmnm_nb), and its pairs are
-   increasing (pmnm_incr). For the trace of a power of an NB matrix the
-   marks are the junction rows.
+(* Marked walks for the sharp non-backtracking count of the lower spectral
+   edge. A closed walk (rs, ps) of PaperMainSquarefreeWalkShapeOnce carries
+   marks ms (one per row position). It is ms-NB when consecutive label
+   pairs differ except at marked rows (pmnm_nb), and its pairs are
+   increasing (pmnm_incr). For the trace of a power of a non-backtracking
+   matrix the marks are the junction rows.
    - pmnm_mark_once: a non-root row visited once sits at a mark, because
      parity makes its two pairs equal.
-   - The ShapeOnce contraction at a mark keeps the walk NB for the marks
-     with that position deleted (pmnm_contract_nb); the excursion keeps it
-     NB once the merge row is marked (pmnm_exc_nb).
+   - The contraction of PaperMainSquarefreeWalkShapeOnce at a mark keeps
+     the walk NB for the marks with that position deleted
+     (pmnm_contract_nb); the excursion keeps it NB once the merge row is
+     marked (pmnm_exc_nb).
    - One reduction at the first removable row j, with weight B^(2e)
      (pmnm_step_c, pmnm_step_e). A contraction costs a factor N. An
      excursion costs N ('C(d, 2) + 2 L d B^4): the removed pair is
      increasing, so there is no orientation factor 2.
-   No probability premise. *)
+   - The resulting recursion and its solution, pmnm_solve and pmnm_count,
+     are described before section 4. *)
 From Stdlib Require Import Lia.
 From mathcomp Require Import all_ssreflect_compat.
 From EllipsoidFitting Require Import PaperMainSquarefreeWalkCount PaperMainSquarefreeWalkExcess
@@ -420,7 +422,7 @@ Qed.
 
 End Steps.
 
-(* Parts 4 to 7: the recursion by the first removable mark and its
+(* Sections 4 to 7: the recursion by the first removable mark and its
    solution. S L ms k sums the weights of the walks of length L whose
    first removable row is at k or later (pmnm_S). Such a row is a mark
    (pmnm_unmarked, pmnm_split). A contraction at the m-th mark from k
@@ -428,7 +430,8 @@ End Steps.
    phi - m + 1 from j - 1 on. So S L ms k <= 2^phi binom(L + phi, phi) z L
    (pmnm_solve), where phi is the number of marks from k on. With z the
    explicit sum pmnm_Z over the numbers of contractions and excursions,
-   the full sum is at most 2^n binom(L + n, n) pmnm_Z L (pmnm_count). *)
+   the full sum is at most 2^c binom(L + c, c) pmnm_Z L, where c <= n is
+   the number of marks (pmnm_count). *)
 
 (* 4. Counting facts on marks. *)
 Lemma pmnm_drop_del (T : Type) j i (s : seq T) : j <= i -> drop i (pmso_del j s) = drop i.+1 s.

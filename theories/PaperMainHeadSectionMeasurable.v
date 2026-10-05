@@ -1,22 +1,27 @@
 (* Joint measurability of the support of the data-dependent head section.
+
    For d = S n, kappa >= 1, matrices W k (k < m) and Z, the section is
    paper_main_head_section kappa W = K_kappa \cap S_F \cap ker W, and its
    support is paper_main_head_support Z (section) = sup of <Z, S> over it.
    The section can be empty, and then the support is sup set0 = 0.
    - Countable characterization (paper_main_head_section_level_iff). Take
      fixed finite nets B j t, t < s j, of K_kappa \cap S_F with Frobenius
-     accuracy 1/(2(j+1)) (PaperMainConeApproxSelector). Then "the section is
-     nonempty and c <= support" holds iff for every j some net point B j t
-     has |<W k, B j t>| <= (1 + <W k, W k>)/(j+1) for every k and
+     accuracy 1/(2(j+1)) (paper_main_head_section_nets, from
+     PaperMainConeApproxSelector). Then the section is nonempty with
+     c <= support iff for every j some net point B j t has
+     |<W k, B j t>| <= (1 + <W k, W k>)/(j+1) for every k and
      c - (1 + <Z, Z>)/(j+1) <= <Z, B j t>. One direction uses the supremum
      and the net; the other lifts the net points to the compact augmented
      set pmhw_aug, takes a cluster point and passes to the limit.
    - Measurability. On any measurable space, for entrywise measurable W k
-     and Z, every level set of the support is measurable, so the support is
-     a measurable function (paper_main_head_section_support_measurable), and
-     the event that the section is nonempty is measurable.
-   - |support| <= |Z|_F, also for empty sections.
-   No measurable selection and no nonemptiness assumption is used. *)
+     and Z, the set where the section is nonempty with c <= support is
+     measurable (paper_main_head_section_level_measurable). Hence the event
+     that the section is nonempty is measurable
+     (paper_main_head_section_nonempty_measurable), every level set of the
+     support is measurable, and the support is a measurable function
+     (paper_main_head_section_support_measurable).
+   - paper_main_head_section_support_bound: |support| <= |Z|_F, also for
+     empty sections. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

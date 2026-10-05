@@ -8,7 +8,7 @@ Lemma paper_main_loss_joint_dimension n :
   INR(S(S(paper_main_symmetric_dimension n))) <= 3*(INR(S n))^2.
 Proof.
 rewrite paper_main_symmetric_dimension_formula.
-assert (H : (2*(S n*S(S n)/2)<=S n*S(S n))%nat) by (apply Nat.mul_div_le; lia).
+assert (H : (2*(S n*S(S n)/2)<=S n*S(S n))%nat) by apply Nat.Div0.mul_div_le.
 pose proof(le_INR _ _ H) as HR.
 rewrite !mult_INR, !S_INR in HR.
 rewrite !S_INR.

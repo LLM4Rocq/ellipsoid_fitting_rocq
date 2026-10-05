@@ -180,7 +180,7 @@ Definition pmel_k (d : nat) : nat := trunc_log 2 (trunc_log 2 d).
 
 (* The walk length L(d) = 2^(k+3) with k = log2 (log2 d), so that
    4 (log2 d + 1) <= L(d) <= 8 log2 d. *)
-Lemma pmel_L_facts (d : nat) : (2 ^ 9600 <= d)%N ->
+Lemma pmel_L_facts (d : nat) : (2 ^ (48 * 200) <= d)%N ->
   [/\ (32 <= 2 ^ (pmel_k d).+3)%N,
       (16 * (2 ^ (pmel_k d).+3) ^ 2 * (2 * 2 ^ (pmel_k d).+3) ^ 45 <= d)%N &
       (d ^ 3 <= 2 ^ (2 ^ (pmel_k d).+3))%N].
@@ -192,7 +192,7 @@ have Hd0 : (0 < d)%N by apply: leq_trans Hd; rewrite expn_gt0.
 set l := trunc_log 2 d.
 have Hl1 : (2 ^ l <= d)%N by exact: trunc_logP.
 have Hl2 : (d < 2 ^ l.+1)%N by exact: trunc_log_ltn.
-have Hl9600 : (9600 <= l)%N.
+have Hl9600 : (48 * 200 <= l)%N.
   rewrite -ltnS -(ltn_exp2l _ _ (isT : (1 < 2)%N)); exact: leq_ltn_trans Hd Hl2.
 have Hl0 : (0 < l)%N by exact: leq_trans _ Hl9600.
 rewrite /pmel_k -/l; set k := trunc_log 2 l.
@@ -216,7 +216,7 @@ have HB : (16 * (2 ^ k.+3) ^ 2 * (2 * 2 ^ k.+3) ^ 45 <=
     16 * (8 * l) ^ 2 * (2 * (8 * l)) ^ 45)%N.
   apply: leq_mul; first by rewrite leq_mul2l leq_exp2r // HL8 orbT.
   by rewrite leq_exp2r // leq_mul2l HL8 orbT.
-have Hpe := pmel_poly_exp l (leq_trans (isT : (48 * 190 <= 9600)%N) Hl9600).
+have Hpe := pmel_poly_exp l (leq_trans (isT : (48 * 190 <= 48 * 200)%N) Hl9600).
 by split => //; apply: leq_trans HB _; rewrite HE; apply: leq_trans Hpe Hl1.
 Qed.
 
@@ -229,7 +229,7 @@ Definition pmel_L (d : nat) : nat := 2 ^ (pmel_k d).+3.
 Definition pmel_t (d : nat) : R := 104%:R * d%:R ^+ 2.
 
 Theorem paper_main_squarefree_offdiag_rate (N d : nat) : (0 < N)%N -> (N <= d ^ 2)%N ->
-  (2 ^ 9600 <= d)%N ->
+  (2 ^ (48 * 200) <= d)%N ->
   (paper_main_probability N d (paper_main_squarefree_offdiag_event N d (pmel_L d) (pmel_t d)) <=
    (1 / d%:R)%:E)%E.
 Proof.
@@ -263,7 +263,7 @@ Theorem paper_main_squarefree_offdiag_tends_to_zero (N : nat -> nat) :
     (paper_main_squarefree_offdiag_event (N d) d (pmel_L d) (pmel_t d))) 0.
 Proof.
 move=> [D HD]; apply: (pmdbl_inv_rate _ 1) => //.
-exists (maxn D (2 ^ 9600)) => d Hd.
+exists (maxn D (2 ^ (48 * 200))) => d Hd.
 have [HN HNd] := HD d (leq_trans (leq_maxl _ _) Hd).
 by apply: paper_main_squarefree_offdiag_rate => //; exact: leq_trans (leq_maxr _ _) Hd.
 Qed.

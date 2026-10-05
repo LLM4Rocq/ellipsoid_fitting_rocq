@@ -1,4 +1,17 @@
-(* Integrate approximate head support with an explicit exceptional-set loss. *)
+(* Integration of an approximate support bound, with an explicit loss on
+   an exceptional set. Here D = paper_main_symmetric_dimension n, Z is the
+   symmetric Gaussian matrix paper_main_public_symmetric_gaussian n of D
+   standard coordinates, F is the support of the cone sphere
+   paper_main_head_cone_sphere kappa at Z
+   (paper_main_gaussian_condition_support) and V = |Z|_F.
+   - paper_main_head_support_exceptional_point: if |f|, |g| <= v, then
+     f <= g + e v + v^2 / a + a, since 2 v <= v^2 / a + a.
+   - paper_main_head_width_expectation_transfer: if |G| <= V everywhere and
+     F - e V <= G outside a measurable set A of probability at most p, then
+     the width E[F] (paper_main_gaussian_condition_width) exceeds E[G] by
+     at most e sqrt D + D / a + a p.
+   - paper_main_head_width_exceptional_scale: for a = d^2 and p = d^(-4),
+     d = n + 1, this loss is at most e d + 1 + 1 / d^2. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix numfun.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

@@ -1,4 +1,19 @@
-(* Outside the actual compact bad event, capped tails have positive cone support. *)
+(* Outside the subcritical bad event, every capped dual vector supported
+   on the tail has a positive support score against some matrix of the
+   cone section of the head.
+   paper_main_head_subcritical_selected_good: let pi split the m + q points
+   of x into the head J of m points and the tail of q points, and let
+   d = n + 1. Assume that the head section has width at least
+   (1/2 - (1/2 - sqrt alpha)/16) d, that the head features of all m + q
+   points have operator bound L sqrt d, that every coordinate of x has
+   absolute value below d^(1/4), and that the selected pair (head, tail) is
+   outside paper_main_head_subcritical_bad. Then for every unit t that
+   vanishes on J and has coordinates at most theta / sqrt d, some P with
+   the cone condition paper_main_head_condition kappa, orthogonal to the
+   head features, has positive support score sum_i t_i <W_i, P>. Clipping
+   does not change the tail features, so the compact value of the pair is
+   above (1/2 - sqrt alpha) sqrt d / 4, and
+   paper_main_head_compact_tail_duals_pos gives P. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix.

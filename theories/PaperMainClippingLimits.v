@@ -1,4 +1,18 @@
-(* Vanishing probabilities for the explicit coordinate clipping choice d^(1/4). *)
+(* Vanishing probabilities for the coordinate clipping threshold d^(1/4).
+
+   - paper_main_sqrt_rate_tends_to_zero: a sequence of nonnegative extended
+     reals that is eventually at most C / sqrt d tends to 0.
+   - paper_main_sqrt_polynomial_tends_to_zero and
+     paper_main_clipped_head_union_tends_to_zero: the same conclusion from
+     the eventual bounds C d^k exp(-sqrt d / 2), and
+     exp(C d (ln d)^2) exp(-c d sqrt d) with c > 0. Both bounds are
+     eventually at most a constant times 1 / sqrt d
+     (paper_main_sqrt_exponential_rate, paper_main_clipped_head_union_rate,
+     paper_main_clipped_head_tail_rate).
+   - paper_main_coordinate_clipping_tends_to_zero: if N d <= C d^2
+     eventually, the probability that some coordinate of a sample of N d
+     standard Gaussian points of R^d has absolute value at least d^(1/4)
+     tends to 0, by the union bound paper_main_data_coordinate_tail. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions PaperMainAsymptotics
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity

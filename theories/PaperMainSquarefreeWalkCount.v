@@ -1,4 +1,4 @@
-(* Rows and colors of even square-free walks (G16, checkpoint B2).
+(* Rows and colors of even square-free walks.
    A closed walk of length K is a list rs of K rows (step s goes from
    rs_s to rs_(s+1 mod K)) and a list ps of K label pairs p_s = (a_s, b_s)
    with a_s != b_s. It is loop-free when consecutive rows differ, and even
@@ -13,7 +13,7 @@
      induction on K: a row visited once is contracted (its two steps carry
      the same label pair), or its excursion u -> v -> u is removed; if every
      row is visited at least twice, then 2 R <= K.
-   No probability premise. *)
+   Deterministic. *)
 From Stdlib Require Import Lia.
 From mathcomp Require Import all_ssreflect_compat.
 

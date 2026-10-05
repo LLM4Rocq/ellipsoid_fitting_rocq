@@ -1,4 +1,23 @@
-(* Actual translated quadratic/Gaussian comparison for finite Gibbs replicas. *)
+(* Comparison of products of loss factors at quadratic forms with the same
+   products at Gaussian linear forms, also averaged over Gibbs replicas.
+   Let T_j be symmetric matrices of size n + 1 and
+   u_j(t) = paper_main_loss_factor beta (a j) t = 1 - exp (- beta l(a_j + t)).
+   Compare the expectation of prod_(j in js) u_j(Q_j(x)), where
+   Q_j(x) = x^T T_j x - Tr T_j for a standard Gaussian vector x of R^(n+1),
+   with that of prod_(j in js) u_j(G_j(z)), where
+   G_j(z) = <paper_main_projection_goe_loading n T_j, z> for a standard
+   Gaussian vector z of dimension paper_main_symmetric_dimension n; the G_j
+   have the same covariances as the Q_j.
+   - paper_main_loss_product_comparison: if every T_j has operator norm at
+     most eps and Frobenius norm at most S, the two expectations differ by
+     at most paper_main_loss_replica_error beta k eps S = 2 k^2 (4 C)^k eps S,
+     with k the length of js and C = paper_main_loss_factor_constant beta.
+     It applies paper_main_projection_public_comparison to the smooth test
+     function paper_main_loss_test_product.
+   - paper_main_loss_replicated_comparison: the same bound holds after
+     averaging these products over k replicas with the Gibbs weights of
+     gibbs_average c f I (paper_main_loss_replica), since the Gaussian
+     expectation commutes with the replica average. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums

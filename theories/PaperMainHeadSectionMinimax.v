@@ -5,17 +5,21 @@
               (paper_main_head_section kappa W),
      minimax = inf_(y in Y) f(y)            (paper_main_head_section_minimax).
    - The support is 1-Lipschitz in the matrix for the unit-norm section,
-     also when the section is empty (both supports are 0). So f is Lipschitz
-     in y with constant sum_(i < q) |V_i|_F, and |f(y)|, |minimax| are at most
-     sum_(i < q) |V_i|_F.
-   - Measurability. On any measurable space with entrywise measurable W k
-     and V i, each f(., y) is measurable (PaperMainHeadSectionMeasurable).
-     With fixed finite nets of Y (paper_main_gordon_finite_net_exists),
-     c <= minimax holds iff c <= f(v) for every net point v, by the
-     Lipschitz bound. So every threshold event is a countable intersection of
-     measurable events, and the minimax value is a measurable function. No
-     measurable net, minimizer or selection is assumed, and sections may be
-     empty. *)
+     also when the section is empty (both supports are 0)
+     (paper_main_head_section_support_lipschitz). So f is Lipschitz in y
+     with constant sum_(i < q) |V_i|_F
+     (paper_main_head_section_value_lipschitz), and |f(y)| is at most
+     sum_(i < q) |V_i|_F when every |y_i| <= 1
+     (paper_main_head_section_value_bound).
+   - Measurability (paper_main_head_section_minimax_measurable). On any
+     measurable space with entrywise measurable W k and V i, each f(., y)
+     is measurable (PaperMainHeadSectionMeasurable). With fixed finite
+     1/(j+1)-nets of Y (paper_main_gordon_finite_net_exists), c <= minimax
+     holds iff c <= f(v) for every net point v, by the Lipschitz bound. So
+     every threshold event is a countable intersection of measurable
+     events, and the minimax value is a measurable function. The nets do
+     not depend on the point of the space, so no measurable selection is
+     needed, and sections may be empty. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.
@@ -177,9 +181,9 @@ apply: (paper_main_head_section_coord_le q y 1 i Hi ler01).
 by rewrite H1 expr1n.
 Qed.
 
-(* The absolute bound of the minimax value. *)
-
 (* Measurability on any measurable space. *)
+
+(* The combinations sum_(i < q) y_i V_i are measurable. *)
 
 Lemma paper_main_head_section_combination_measurable {dX : measure_display}
     {X : measurableType dX} {d : nat} q (y : nat -> R) (V : nat -> X -> 'M[R]_d) :

@@ -1,4 +1,24 @@
-(* Explicit elementary rates for growing coordinate clipping thresholds. *)
+(* Elementary inequalities, with explicit constants, behind clipping the
+   Gaussian coordinates at the threshold d^(1/4). Deterministic, at
+   Stdlib's R.
+
+   - paper_main_exp_polynomial_bound: x^n exp(-x/2) <= (2n)^n for n > 0 and
+     x >= 0, from 1 + y <= exp y at y = x/(2n). At x = sqrt d it gives
+     paper_main_sqrt_exponential_rate: d^k exp(-sqrt d/2) is at most
+     (2(2k+1))^(2k+1) / sqrt d.
+   - paper_main_coordinate_clipping_rate: if N <= C d^2, the union bound
+     2 N d exp(-sqrt d/2) over the N d coordinates is at most
+     2 C 14^7 / sqrt d. paper_main_clipping_mean_error_rate: if moreover
+     V <= M d^4, then V/(2 d^6) plus d^6 times this union bound is at most
+     M/(2 d^2) + 2 C 38^19 / sqrt d.
+   - paper_main_log_eighth_root and paper_main_log_square_quarter_root:
+     ln d <= 8 d^(1/8) and (ln d)^2 <= 64 d^(1/4) for d >= 1. Hence
+     paper_main_clipped_head_entropy and paper_main_clipped_head_union_rate:
+     once 128 C/c <= d^(1/4), the factor exp(C d (ln d)^2) costs at most
+     half of the exponent of exp(-c d sqrt d).
+   - paper_main_clipped_concentration_scale computes the exponent of a
+     concentration bound at deviation c sqrt d for the Lipschitz constant
+     2 (kappa/sqrt d) d^(1/4). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import ssreflect.
 Open Scope R_scope.

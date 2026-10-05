@@ -1,4 +1,18 @@
-(* Explicit finite data soft tails on the actual bounded-condition cone. *)
+(* An explicit lower bound for the expected data soft minimax over the
+   bounded-condition cone.
+   - paper_main_data_soft_cone_level: the level
+       goe_scale n (w - sqrt (m + 1)) - ln r / beta
+         - (200/3) kappa^3 (beta + gamma)^2 theta / (d^2 sqrt d),
+     d = n + 1, where w is the Gordon width (paper_main_gordon_width) of
+     the s matrices B j in GOE coordinates.
+   - paper_main_data_cone_soft_admissible: matrices B j of the cone sphere
+     paper_main_head_cone_sphere kappa, kappa >= 1, with unit dual vectors
+     y z, are admissible for the clipped scores with operator bound
+     kappa / sqrt d.
+   - paper_main_data_cone_soft_expectation: under the hypotheses of
+     paper_main_data_soft_cone_margin, the level is at most the iterated
+     Gaussian expectation of the raw data soft minimax
+     paper_main_data_raw_soft over (m + 1) d coordinates. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

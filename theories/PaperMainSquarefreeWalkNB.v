@@ -1,5 +1,5 @@
-(* Non-backtracking walks for the lower edge (G16, lower edge, part 2):
-   the walk expansion of the NB matrices T L of
+(* Non-backtracking walks for the lower spectral edge of the square-free
+   block: the walk expansion of the NB matrices T L of
    PaperMainSquarefreeEdgeLower. For X : 'I_N -> C -> R over a finite
    column type C, a walk of length L+1 from i to j has rows i, t, j
    (t of length L) and columns cs (length L+1); it is NB when consecutive
@@ -16,8 +16,7 @@
      pair. pmnb_trace_moment: E tr T(m+1)^(q+1) = kap^((q+1)(m+1)) times
      the sum over closed walks of q+1 NB segments with increasing pairs of
      the walk-word moments pmsw_moment (N d) (pmsw_word i rs i cs).
-   These are exact identities. No counting estimate and no probability
-   premise. *)
+   These are exact identities. *)
 From Stdlib Require Import Reals List Lia FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

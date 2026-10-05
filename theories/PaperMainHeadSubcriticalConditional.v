@@ -1,4 +1,20 @@
-(* Integrate the compact tail bound over each fixed head, charging no head exception. *)
+(* The subcritical tail bound, integrated over the head. The points of a
+   sample of m + q + 1 points are split by a permutation pi into a head of
+   m points and a tail of q + 1 points (paper_main_head_selection).
+   - paper_main_head_selection_section_bound: if every section of a
+     measurable event E of pairs (head, tail) has probability at most p,
+     then the preimage of E under the selection has probability at most p.
+   - paper_main_head_subcritical_selected_tail: let 0 <= alpha < 1/4,
+     kappa >= 1, L >= 0 and g = 1/2 - sqrt alpha. There are theta, c > 0
+     such that, for all large n, with d = n + 1, q + 1 <= alpha d^2 and a
+     nonempty set Y of unit dual vectors with coordinates at most
+     theta / sqrt d, the preimage of every measurable event E is measurable
+     and has probability at most exp(-c d sqrt d) when, on E, the head
+     section has width at least (1/2 - g/16) d, the clipped tail features
+     have operator bound L sqrt d, and the minimax over the head section is
+     at most (g/4) sqrt d. For a head of large width the section bound is
+     paper_main_head_subcritical_clipped_tail; for a head of smaller width
+     the section of E is empty. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix.
