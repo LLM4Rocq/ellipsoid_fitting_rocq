@@ -11,10 +11,12 @@ library/matrix/real_spectral.v
 library/matrix/opnorm.v
 library/matrix/nets.v
 library/probability/moments.v
+library/probability/lindeberg.v
 ```
 
 They depend only on MathComp and MathComp-Analysis, and on each other in
-the order above. Each compiles in the pinned image with
+the order above (`lindeberg.v`, added since the first version of this
+entry, depends on none of the others). Each compiles in the pinned image with
 `rocq compile -Q library GaussianAnalysis` and the warning flags of
 `_CoqProject`, and prints no warning. They require each other as
 `From GaussianAnalysis.matrix Require Import euclidean` (and so on).
