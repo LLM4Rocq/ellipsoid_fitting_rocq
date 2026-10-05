@@ -8,6 +8,7 @@
 library/gaussian/measurable_matrix.v
 library/gaussian/normal_integral.v
 library/gaussian/gauss.v
+library/gaussian/gauss_ibp.v
 
 theories/AffineGaussianGibbs.v
 theories/AffineGaussianRegular.v

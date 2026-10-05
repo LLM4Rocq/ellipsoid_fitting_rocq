@@ -327,6 +327,25 @@ Qed.
 
 End measurable_real_matrix.
 
+Section continuous_mx.
+Context {T : topologicalType} {R : realType} {m n : nat}.
+
+Lemma continuous_mxP (f : T -> 'M[R]_(m, n)) :
+  (forall i j, continuous (fun x => f x i j)) -> continuous f.
+Proof.
+move=> cf x; apply/cvgrPdist_lt => e e0.
+have : \forall y \near x, forall ij : 'I_m * 'I_n,
+    `|f x ij.1 ij.2 - f y ij.1 ij.2| < e.
+  apply: filter_forall => -[i j] /=.
+  by have /cvgrPdist_lt := cf i j x; apply.
+apply: filterS => y H.
+have -> : `|f x - f y| = \big[maxr/0]_ij `|(f x - f y) ij.1 ij.2|.
+  by rewrite -mx_normrE.
+by apply: bigmax_lt => // ij _; rewrite !mxE; exact: H.
+Qed.
+
+End continuous_mx.
+
 Section continuous_measurable_mx.
 Context {R : realType} {m n : nat}.
 

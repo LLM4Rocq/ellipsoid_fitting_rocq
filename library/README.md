@@ -56,7 +56,11 @@ will review.
 | `gaussian/gauss.v` | `gauss_box`, `gaussE` | `gauss n` gives the box with sides `A i` the measure `\prod_i normal_prob 0 1 (A i)`, and it is the only probability on `'rV[R]_n` that does. | `GaussianLawBridge` |
 | `gaussian/gauss.v` | `ge0_integral_gauss_cons`, `integral_gauss_cons` | Fubini for the first coordinate: the integral against `gauss n.+1` is the iterated integral against `normal_prob 0 1` and `gauss n`. | |
 | `gaussian/gauss.v` | `gauss_row_mx` | Independent blocks: the image of `gauss n \x gauss m` under `(x, y) \|-> row_mx x y` is `gauss (n + m)`. | |
-| `gaussian/gauss.v` | `gauss_col_perm` | `gauss n` is invariant under permutations of the coordinates. | |
+| `gaussian/gauss.v` | `gauss_col_perm`, `integral_gauss_col_perm` | `gauss n`, and the integral of every integrable function against it, are invariant under permutations of the coordinates. | |
 | `gaussian/gauss.v` | `gauss_coord`, `integral_gauss_coord` | Each coordinate of a vector of law `gauss n` has law `normal_prob 0 1`. | |
 | `gaussian/gauss.v` | `ge0_integral_gauss_prod` | Independent coordinates: the integral of `\prod_i f i (x 0 i)` against `gauss n` is `\prod_i` of the integrals of `f i` against `normal_prob 0 1`, for nonnegative measurable `f i`. | |
 | `gaussian/gauss.v` | `integrable_gauss_poly` | Every measurable function bounded by `C (1 + \|x\|^k)` is integrable against `gauss n`. | |
+| `gaussian/gauss_ibp.v` | `normal_ibp` | Stein's identity: `E[X f(X)] = E[f'(X)]` for `X` of law `normal_prob 0 1` and `f` differentiable with a continuous derivative, `f` and `f'` of polynomial growth. | |
+| `gaussian/gauss_ibp.v` | `gauss_ibp` | Gaussian integration by parts: `E[x_i F(x)] = E[d_i F(x)]` for `x` of law `gauss n`, `F` continuous with a continuous partial derivative `d_i F` (along `delta_mx 0 i`), both of polynomial growth. | |
+| `gaussian/gauss_ibp.v` | `integrable_nondecreasing_set_cvg_integral` | If `F i` increases to `U` and `g` is integrable on `U`, the integrals of `g` over `F i` converge to its integral over `U`. | |
+| `gaussian/measurable_matrix.v` | `continuous_mxP` | A map into real matrices is continuous if each of its entries is. | |
