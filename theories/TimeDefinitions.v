@@ -24,16 +24,3 @@ Open Scope R_scope.
 Definition joint_time_velocity n t (x : vector n) (z : vector (goe_vector_index n)) : matrix n :=
   matrix_add n (matrix_scale n (/(2*sqrt t)) (joint_quadratic_input n x))
     (matrix_scale n (-/(2*sqrt(1-t))) (goe_matrix n z)).
-
-Definition joint_time_acceleration n t (x : vector n) (z : vector (goe_vector_index n)) : matrix n :=
-  matrix_add n (matrix_scale n (-/(4*t*sqrt t)) (joint_quadratic_input n x))
-    (matrix_scale n (-/(4*(1-t)*sqrt(1-t))) (goe_matrix n z)).
-
-Definition joint_soft_value n beta gamma offset coeff Y S C t x z : R :=
-  soft_minimax beta gamma (matrix_affine_scores n offset coeff (joint_matrix n C t x z)) Y S.
-
-Definition joint_soft_second n beta gamma offset coeff Y S C t x z : R :=
-  matrix_nested_second_derivative n beta gamma offset coeff Y S (joint_matrix n C t x z)
-    (joint_time_velocity n t x z) (joint_time_velocity n t x z) +
-  trace_pair n (matrix_nested_gradient n beta gamma offset coeff Y S (joint_matrix n C t x z))
-    (joint_time_acceleration n t x z).

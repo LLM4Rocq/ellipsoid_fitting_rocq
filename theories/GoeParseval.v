@@ -50,17 +50,3 @@ Proof.
       ((/ sqrt 2 * / sqrt 2) * (4 * matrix_entry n U a b * matrix_entry n V a b)) by ring.
     rewrite symmetric_inv_sqrt2_square; field.
 Qed.
-
-Theorem goe_chaos_second_trace_product n a b c d :
-  (a <= n)%nat -> (b <= n)%nat -> (c <= n)%nat -> (d <= n)%nat ->
-  trace_pair n (chaos_second n a b) (chaos_second n c d) =
-    2 * ((if Nat.eqb a c then 1 else 0) * (if Nat.eqb b d then 1 else 0) +
-         (if Nat.eqb a d then 1 else 0) * (if Nat.eqb b c then 1 else 0)).
-Proof.
-  intros Ha Hb Hc Hd.
-  rewrite trace_pair_chaos_second by (try assumption; apply chaos_second_symmetric).
-  unfold chaos_second; rewrite matrix_entry_add, !vector_outer_entry by assumption.
-  rewrite !chaos_basis_entry by assumption.
-  rewrite (Nat.eqb_sym c a), (Nat.eqb_sym d b), (Nat.eqb_sym c b), (Nat.eqb_sym d a); ring.
-Qed.
-

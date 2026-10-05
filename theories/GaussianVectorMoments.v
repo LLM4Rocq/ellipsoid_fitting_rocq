@@ -175,20 +175,6 @@ Proof.
     symmetry; exact HE.
 Qed.
 
-Theorem gaussian_vector_coordinate_product_moment n i j :
-  (i <= n)%coq_nat -> (j <= n)%coq_nat ->
-  gaussian_vector_domain n (fun x => vector_entry n x i * vector_entry n x j) /\
-  gaussian_vector_expectation n (fun x => vector_entry n x i * vector_entry n x j) =
-    if Nat.eqb i j then 1 else 0.
-Proof.
-  intros Hi Hj.
-  pose proof (gaussian_vector_linear_coordinate_moment n i (fun x => vector_entry n x j)
-    Hi (tuple_entry_linear R^o n j)) as [HD HE].
-  split; [exact HD|].
-  rewrite (vector_coordinate_basis_entry n i j Hj) in HE.
-  rewrite Nat.eqb_sym in HE; exact HE.
-Qed.
-
 Lemma gaussian_vector_linear_form_is_linear n (u : nat -> R) :
   linear ((fun x : vector n => coordinate_sum n (fun i => u i * vector_entry n x i))
       : vector n -> R^o) /\

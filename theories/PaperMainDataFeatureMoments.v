@@ -129,12 +129,6 @@ Lemma paper_main_data_feature_entry (f : nat -> R) (a b : 'I_N) :
   paper_main_data_feature n f a b = (Num.sqrt N%:R)^-1 * (f a * f b - (a == b)%:R).
 Proof. by rewrite !mxE big_ord1 !mxE. Qed.
 
-Lemma paper_main_data_feature_symmetric (f : nat -> R) :
-  paper_main_symmetric (paper_main_data_feature n f).
-Proof.
-by move=> a b; rewrite !paper_main_data_feature_entry (mulrC (f a)) eq_sym.
-Qed.
-
 Lemma pmdf_ord_le (a : 'I_N) : (a <= n)%coq_nat.
 Proof. by have /ssrnat.ltP := ltn_ord a; lia. Qed.
 
@@ -147,15 +141,6 @@ Qed.
 (* sum_ab S_ab (x_a x_b - delta_ab). *)
 Definition pmdf_quad S (xs : list R) : R :=
   \sum_(a < N) \sum_(b < N) S a b * pmdf_centered a b xs.
-
-Lemma pmdf_pairing_quad S xs :
-  paper_main_pairing (paper_main_data_feature n (fun j => List.nth j xs 0)) S =
-  (Num.sqrt N%:R)^-1 * pmdf_quad S xs.
-Proof.
-rewrite /paper_main_pairing /pmdf_quad mulr_sumr; apply: eq_bigr => a _.
-rewrite mulr_sumr; apply: eq_bigr => b _.
-rewrite paper_main_data_feature_entry /pmdf_centered pmdf_kron_ord RminusE RmultE; ring.
-Qed.
 
 Lemma pmdf_regular_entry S (a b : 'I_N) :
   pmdf_regular N (fun xs => S a b * pmdf_centered a b xs).
@@ -170,19 +155,6 @@ Proof.
 have [H _] := pmdf_bigsum N N (fun a xs => \sum_(b < N) S a b * pmdf_centered a b xs)
   (fun a => (pmdf_bigsum N N _ (fun b => pmdf_regular_entry S a b)).1).
 exact: H.
-Qed.
-
-Lemma pmdf_quad_mean S : gaussian_iterated_expectation N (pmdf_quad S) = 0.
-Proof.
-have [_ ->] := pmdf_bigsum N N (fun a xs => \sum_(b < N) S a b * pmdf_centered a b xs)
-  (fun a => (pmdf_bigsum N N _ (fun b => pmdf_regular_entry S a b)).1).
-rewrite big1 // => a _.
-have [_ ->] := pmdf_bigsum N N _ (fun b => pmdf_regular_entry S a b).
-rewrite big1 // => b _.
-have Rab : pmdf_regular N (pmdf_centered a b).
-  by apply: pmdf_regular_centered; [have := pmdf_ord_le a | have := pmdf_ord_le b]; lia.
-rewrite (pmdf_scale_expectation N _ (S a b) Rab).
-by rewrite (pmdf_centered_mean n a b (pmdf_ord_le a) (pmdf_ord_le b)).2 mulr0.
 Qed.
 
 (* E (x_a x_b - delta_ab) q_T = T_ab + T_ba. *)
@@ -298,60 +270,6 @@ rewrite paper_main_data_feature_entry /pmdf_centered pmdf_kron_ord RminusE Rmult
 by rewrite -pmdf_sqrt_inv2; ring.
 Qed.
 
-(* The moments under the actual law of the row. *)
-Theorem paper_main_data_feature_mean S :
-  (gaussian_product_law N).-integrable setT
-    (fun x => (paper_main_pairing (paper_main_data_row_feature x) S)%:E) /\
-  (\int[gaussian_product_law N]_x
-    (paper_main_pairing (paper_main_data_row_feature x) S)%:E = 0%:E)%E.
-Proof.
-pose F := fun xs : list R => (Num.sqrt N%:R)^-1 * pmdf_quad S xs.
-have -> : (fun x => (paper_main_pairing (paper_main_data_row_feature x) S)%:E) =
-    (fun x => (F (tval x))%:E).
-  by apply: funext => x; rewrite /paper_main_data_row_feature pmdf_pairing_quad.
-have [HI HE] := pmdf_actual N F (@pmdf_regular_scale N _ (Num.sqrt N%:R)^-1 (pmdf_quad_regular S)).
-split; first exact: HI.
-rewrite HE; congr (_%:E).
-by rewrite /F (pmdf_scale_expectation N _ _ (pmdf_quad_regular S)) pmdf_quad_mean mulr0.
-Qed.
-
-Theorem paper_main_data_feature_covariance S T :
-  (gaussian_product_law N).-integrable setT
-    (fun x => (paper_main_pairing (paper_main_data_row_feature x) S *
-               paper_main_pairing (paper_main_data_row_feature x) T)%:E) /\
-  (\int[gaussian_product_law N]_x
-    (paper_main_pairing (paper_main_data_row_feature x) S *
-     paper_main_pairing (paper_main_data_row_feature x) T)%:E =
-   ((N%:R)^-1 * (paper_main_pairing S T + paper_main_pairing S T^T))%:E)%E.
-Proof.
-have [Rq Eq] := pmdf_quad_covariance S T.
-pose F := fun xs : list R => (N%:R)^-1 * (pmdf_quad S xs * pmdf_quad T xs).
-have -> : (fun x => (paper_main_pairing (paper_main_data_row_feature x) S *
-                     paper_main_pairing (paper_main_data_row_feature x) T)%:E) =
-    (fun x => (F (tval x))%:E).
-  apply: funext => x; rewrite /paper_main_data_row_feature !pmdf_pairing_quad /F.
-  by rewrite -pmdf_sqrt_inv2; congr (_%:E); ring.
-have [HI HE] := pmdf_actual N F (@pmdf_regular_scale N _ (N%:R)^-1 Rq).
-split; first exact: HI.
-by rewrite HE; congr (_%:E); rewrite /F (pmdf_scale_expectation N _ _ Rq) Eq.
-Qed.
-
-Corollary paper_main_data_feature_covariance_symmetric S T :
-  paper_main_symmetric T ->
-  (gaussian_product_law N).-integrable setT
-    (fun x => (paper_main_pairing (paper_main_data_row_feature x) S *
-               paper_main_pairing (paper_main_data_row_feature x) T)%:E) /\
-  (\int[gaussian_product_law N]_x
-    (paper_main_pairing (paper_main_data_row_feature x) S *
-     paper_main_pairing (paper_main_data_row_feature x) T)%:E =
-   (2%:R / N%:R * paper_main_pairing S T)%:E)%E.
-Proof.
-move=> HT; have HTt : T^T = T by exact/paper_main_symmetricP.
-have [HI HE] := paper_main_data_feature_covariance S T.
-split; first exact: HI.
-by rewrite HE HTt; congr (_%:E); rewrite -mulr2n -mulr_natl; ring.
-Qed.
-
 Theorem paper_main_data_feature_frobenius :
   (gaussian_product_law N).-integrable setT
     (fun x => (paper_main_frobenius (paper_main_data_row_feature x) ^+ 2)%:E) /\
@@ -369,85 +287,6 @@ split; first exact: HI.
 rewrite HE; congr (_%:E); rewrite /F (pmdf_scale_expectation N _ _ Rs) Es.
 have HN : (N%:R : R) != 0 by rewrite pnatr_eq0.
 by rewrite mulrDr (mulKf HN) (mulVf HN).
-Qed.
-
-(* The coefficients in the orthonormal goe_basis. *)
-Definition pmdf_basis k : 'M[R]_N := paper_main_matrix_to_public n (goe_basis n k).
-
-Lemma pmdf_basis_symmetric k : paper_main_symmetric (pmdf_basis k).
-Proof. exact: paper_main_matrix_public_symmetric (goe_basis_symmetric n k). Qed.
-
-Lemma pmdf_coefficient_pairing (A : 'M[R]_N) k :
-  paper_main_symmetric A ->
-  paper_main_symmetric_coordinates n (paper_main_matrix_from_public n A) k =
-  paper_main_pairing A (pmdf_basis k).
-Proof.
-move=> HA; rewrite /paper_main_symmetric_coordinates.
-rewrite (paper_main_matrix_public_pairing _ _ _ (paper_main_matrix_internal_symmetric _ _ HA)).
-by rewrite paper_main_matrix_public_roundtrip paper_main_pairingC.
-Qed.
-
-Lemma pmdf_basis_orthonormal k l :
-  (k < paper_main_symmetric_dimension n)%N -> (l < paper_main_symmetric_dimension n)%N ->
-  paper_main_pairing (pmdf_basis k) (pmdf_basis l) = (k == l)%:R.
-Proof.
-move=> /ssrnat.ltP Hk /ssrnat.ltP Hl.
-rewrite /pmdf_basis -(paper_main_matrix_public_pairing _ _ _ (goe_basis_symmetric n l)).
-rewrite /paper_main_symmetric_dimension in Hk Hl.
-rewrite (goe_basis_orthonormal n k l ltac:(lia) ltac:(lia)).
-case: (Nat.eqb_spec k l) => [->|H]; first by rewrite eqxx.
-by rewrite (introF eqP).
-Qed.
-
-Lemma pmdf_goe_scale_sqr : goe_scale n ^+ 2 = 2%:R / N%:R.
-Proof.
-have I2 : IZR 2 = 2%:R :> R by rewrite -INRE INR_IZR_INZ.
-by rewrite expr2 -RmultE goe_scale_square RdivE INRE I2.
-Qed.
-
-Theorem paper_main_data_feature_coefficient_mean k :
-  (gaussian_product_law N).-integrable setT
-    (fun x => (paper_main_symmetric_coordinates n
-      (paper_main_matrix_from_public n (paper_main_data_row_feature x)) k)%:E) /\
-  (\int[gaussian_product_law N]_x
-    (paper_main_symmetric_coordinates n
-      (paper_main_matrix_from_public n (paper_main_data_row_feature x)) k)%:E = 0%:E)%E.
-Proof.
-have -> : (fun x => (paper_main_symmetric_coordinates n
-      (paper_main_matrix_from_public n (paper_main_data_row_feature x)) k)%:E) =
-    (fun x => (paper_main_pairing (paper_main_data_row_feature x) (pmdf_basis k))%:E).
-  apply: funext => x; rewrite pmdf_coefficient_pairing //.
-  exact: paper_main_data_feature_symmetric.
-exact: paper_main_data_feature_mean.
-Qed.
-
-Theorem paper_main_data_feature_coefficient_covariance k l :
-  (k < paper_main_symmetric_dimension n)%N -> (l < paper_main_symmetric_dimension n)%N ->
-  (gaussian_product_law N).-integrable setT
-    (fun x => (paper_main_symmetric_coordinates n
-       (paper_main_matrix_from_public n (paper_main_data_row_feature x)) k *
-     paper_main_symmetric_coordinates n
-       (paper_main_matrix_from_public n (paper_main_data_row_feature x)) l)%:E) /\
-  (\int[gaussian_product_law N]_x
-    (paper_main_symmetric_coordinates n
-       (paper_main_matrix_from_public n (paper_main_data_row_feature x)) k *
-     paper_main_symmetric_coordinates n
-       (paper_main_matrix_from_public n (paper_main_data_row_feature x)) l)%:E =
-   (goe_scale n ^+ 2 * (k == l)%:R)%:E)%E.
-Proof.
-move=> Hk Hl.
-have -> : (fun x => (paper_main_symmetric_coordinates n
-       (paper_main_matrix_from_public n (paper_main_data_row_feature x)) k *
-     paper_main_symmetric_coordinates n
-       (paper_main_matrix_from_public n (paper_main_data_row_feature x)) l)%:E) =
-    (fun x => (paper_main_pairing (paper_main_data_row_feature x) (pmdf_basis k) *
-               paper_main_pairing (paper_main_data_row_feature x) (pmdf_basis l))%:E).
-  apply: funext => x; rewrite !pmdf_coefficient_pairing //;
-    exact: paper_main_data_feature_symmetric.
-have [HI HE] := paper_main_data_feature_covariance_symmetric (pmdf_basis k) (pmdf_basis l)
-  (pmdf_basis_symmetric l).
-split; first exact: HI.
-by rewrite HE pmdf_basis_orthonormal // pmdf_goe_scale_sqr.
 Qed.
 
 End DataFeature.

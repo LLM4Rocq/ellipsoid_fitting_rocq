@@ -227,24 +227,3 @@ have HN0 : (0 < N d)%N.
 apply: (le_trans (paper_main_diag_trace_event_markov (N d) d HN0)).
 by rewrite lee_fin; exact: pmdbl_rate.
 Qed.
-
-(* The operator bound with probability tending to one. *)
-Corollary paper_main_diag_block_operator_bound (N : nat -> nat) (c : R) :
-  0 < c -> paper_main_eventually_ge (paper_main_density N) c ->
-  exists E : forall d, set (paper_main_sample (N d) d),
-    (forall d, measurable (E d)) /\
-    paper_main_tends_to (fun d => paper_main_probability (N d) d (E d)) 0 /\
-    forall d (x : paper_main_sample (N d) d), ~ E d x ->
-      paper_main_loewner_le
-        ((paper_main_diag_block (N d) d x)^T *m paper_main_diag_block (N d) d x)
-        ((3 * (N d)%:R) *: 1%:M) /\
-      paper_main_loewner_le
-        (paper_main_diag_block (N d) d x *m (paper_main_diag_block (N d) d x)^T)
-        ((3 * (N d)%:R) *: 1%:M).
-Proof.
-move=> Hc HN.
-exists (fun d => paper_main_diag_trace_event (N d) d); split.
-  by move=> d; exact: paper_main_diag_trace_event_measurable.
-split; first exact: (paper_main_diag_block_tends_to_zero N c Hc HN).
-by move=> d x Hx; exact: paper_main_diag_trace_event_bound.
-Qed.

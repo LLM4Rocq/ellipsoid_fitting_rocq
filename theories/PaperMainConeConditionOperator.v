@@ -64,25 +64,6 @@ move: CS Hc; set A := (u^T *m w) 0 0 ^+ 2 => CS Hc.
 nra.
 Qed.
 
-Theorem paper_main_cone_opnorm_loewner Z (b : R) :
-  paper_main_symmetric Z -> 0 <= b -> paper_main_cone_opnorm_le Z b ->
-  paper_main_loewner_le ((- b) *: 1%:M) Z /\ paper_main_loewner_le Z (b *: 1%:M).
-Proof.
-move=> HZ Hb HO.
-have Hq : forall v, `|paper_main_quadratic_form Z v| <= b * (v^T *m v) 0 0.
-  move=> v; have H := HO v v.
-  have Hv := pmh_vec_sqr_ge0 _ v.
-  have Hbv : 0 <= b * (v^T *m v) 0 0 by exact: mulr_ge0.
-  rewrite paper_main_quadratic_formE ler_norml; apply/andP; split; nra.
-split.
-- split; first by apply: pmh_symmetricB => // i j; rewrite !mxE eq_sym.
-  move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id.
-  by have := Hq v; rewrite ler_norml => /andP [H _]; lra.
-- split; first by apply: pmh_symmetricB => // i j; rewrite !mxE eq_sym.
-  move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id.
-  by have := Hq v; rewrite ler_norml => /andP [_ H]; lra.
-Qed.
-
 (* N P = 0 and P^2 = Z P. *)
 Theorem paper_main_psd_negative_mul_projection Z :
   paper_main_symmetric Z ->
@@ -157,21 +138,6 @@ have Hvu : ((v^T *m u) 0 0) ^+ 2 <= (b * (v^T *m v) 0 0) ^+ 2.
 have Hbv : 0 <= b * (v^T *m v) 0 0 by exact: mulr_ge0.
 have := ler_norm ((v^T *m u) 0 0).
 nra.
-Qed.
-
-(* The shifted candidate under the operator bound. *)
-Theorem paper_main_cone_shift_opnorm Z (t b kappa : R) :
-  (0 < d)%N -> paper_main_symmetric Z -> 0 < t -> 0 <= b -> kappa = (b + t) / t ->
-  paper_main_cone_opnorm_le Z b ->
-  paper_main_head_cone_sphere kappa (paper_main_cone_shift Z t) /\
-  paper_main_frobenius (paper_main_psd_projection Z) - t * Num.sqrt d%:R -
-    `|paper_main_trace Z| / Num.sqrt d%:R <=
-  paper_main_head_support Z (paper_main_head_cone_sphere kappa).
-Proof.
-move=> Hd HZ Ht Hb Hk HO.
-have [_ HPb] := paper_main_psd_projection_opnorm _ _ HZ Hb HO.
-split; first exact: (paper_main_cone_shift_condition _ Z t b kappa Hd Ht Hb Hk HPb).
-exact: (paper_main_cone_shift_cone_support _ Z t b kappa Hd HZ Ht Hb Hk HPb).
 Qed.
 
 Corollary paper_main_cone_shift_opnorm_scaled Z (C s b t kappa : R) :

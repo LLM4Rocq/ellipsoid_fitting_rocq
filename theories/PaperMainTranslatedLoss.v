@@ -92,16 +92,6 @@ split.
   pose proof (Rmult_le_compat_r (exp(-t^2)) _ _ (Rlt_le _ _ HE0) HB); nra.
 Qed.
 
-Lemma paper_main_loss_first_derive a t :
-  derivable_pt_lim (fun u => paper_main_loss (a+u)) t (paper_main_loss_first (a+t)).
-Proof. unfold paper_main_loss,paper_main_loss_first; auto_derive; simpl; ring. Qed.
-Lemma paper_main_loss_second_derive a t :
-  derivable_pt_lim (fun u => paper_main_loss_first (a+u)) t (paper_main_loss_second (a+t)).
-Proof. unfold paper_main_loss_first,paper_main_loss_second; auto_derive; simpl; ring. Qed.
-Lemma paper_main_loss_third_derive a t :
-  derivable_pt_lim (fun u => paper_main_loss_second (a+u)) t (paper_main_loss_third (a+t)).
-Proof. unfold paper_main_loss_second,paper_main_loss_third; auto_derive; simpl; ring. Qed.
-
 Theorem paper_main_loss_sandwich t :
   exp(-1)*Rmin (t^2) 1 <= paper_main_loss t <= Rmin (t^2) 1.
 Proof.

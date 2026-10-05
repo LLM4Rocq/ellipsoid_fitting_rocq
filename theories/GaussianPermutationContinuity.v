@@ -83,16 +83,6 @@ Proof.
   - intros e xs ys Hx Hy H; apply move_coordinate_last_forall2, H.
 Qed.
 
-Lemma finite_joint_continuous_replace_coordinate d i value F :
-  finite_joint_continuous d F ->
-  finite_joint_continuous d (fun xs => F (replace_coordinate i value xs)).
-Proof.
-  apply finite_joint_continuous_list_map.
-  - intros xs HL; rewrite replace_coordinate_length; exact HL.
-  - intros e xs ys Hx Hy H; apply replace_coordinate_forall2; [|exact H].
-    rewrite Rminus_diag_eq, Rabs_R0; [apply cond_pos|reflexivity].
-Qed.
-
 Lemma finite_joint_continuous_prefix d prefix F :
   finite_joint_continuous (length prefix + d) F ->
   finite_joint_continuous d (fun xs => F (prefix ++ xs)).
@@ -109,34 +99,4 @@ Proof.
   apply finite_joint_continuous_list_map.
   - intros xs HL; rewrite length_app, HL; reflexivity.
   - intros e xs ys Hx Hy H; apply Forall2_app; [exact H|apply coordinate_forall2_close_center].
-Qed.
-
-Lemma coordinates_swap_adjacent_close d i e (z w : Tn d R) :
-  close_n d e z w -> close_n d e
-    (coordinates_of_list d (swap_adjacent i (coordinates_to_list d z)))
-    (coordinates_of_list d (swap_adjacent i (coordinates_to_list d w))).
-Proof.
-  intro H; apply coordinates_close_forall2.
-  rewrite !coordinates_list_roundtrip by (rewrite swap_adjacent_length; apply coordinates_to_list_length).
-  apply swap_adjacent_forall2, coordinates_close_forall2, H.
-Qed.
-
-Lemma coordinates_move_last_close d i e (z w : Tn d R) :
-  close_n d e z w -> close_n d e
-    (coordinates_of_list d (move_coordinate_last i (coordinates_to_list d z)))
-    (coordinates_of_list d (move_coordinate_last i (coordinates_to_list d w))).
-Proof.
-  intro H; apply coordinates_close_forall2.
-  rewrite !coordinates_list_roundtrip by (rewrite move_coordinate_last_length; apply coordinates_to_list_length).
-  apply move_coordinate_last_forall2, coordinates_close_forall2, H.
-Qed.
-
-Lemma coordinates_replace_close d i e x y (z w : Tn d R) :
-  Rabs (x-y)<e -> close_n d e z w -> close_n d e
-    (coordinates_of_list d (replace_coordinate i x (coordinates_to_list d z)))
-    (coordinates_of_list d (replace_coordinate i y (coordinates_to_list d w))).
-Proof.
-  intros Hxy H; apply coordinates_close_forall2.
-  rewrite !coordinates_list_roundtrip by (rewrite replace_coordinate_length; apply coordinates_to_list_length).
-  apply replace_coordinate_forall2; [exact Hxy|apply coordinates_close_forall2, H].
 Qed.

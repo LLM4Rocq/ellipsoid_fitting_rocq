@@ -32,16 +32,6 @@ Proof.
   - rewrite IHPermutation1, IHPermutation2; reflexivity.
 Qed.
 
-Lemma gaussian_coordinate_product_weight_swap p i xs :
-  gaussian_coordinate_product_weight p (swap_adjacent i xs) =
-    gaussian_coordinate_product_weight p xs.
-Proof. apply gaussian_coordinate_product_weight_permutation, swap_adjacent_permutation. Qed.
-
-Lemma gaussian_coordinate_product_weight_move_last p i xs :
-  gaussian_coordinate_product_weight p (move_coordinate_last i xs) =
-    gaussian_coordinate_product_weight p xs.
-Proof. apply gaussian_coordinate_product_weight_permutation, move_coordinate_last_permutation. Qed.
-
 Lemma finite_polynomial_bound_permutation d C p F transform :
   (forall xs, length xs = d -> Permutation (transform xs) xs) ->
   finite_polynomial_bound d C p F ->
@@ -66,16 +56,4 @@ Lemma finite_polynomial_bound_move_last d C p F i :
   finite_polynomial_bound d C p (fun xs => F (move_coordinate_last i xs)).
 Proof.
   apply finite_polynomial_bound_permutation; intros xs HL; apply move_coordinate_last_permutation.
-Qed.
-
-Lemma gaussian_coordinate_product_weight_replace p i value xs :
-  (i < length xs)%nat ->
-  gaussian_coordinate_product_weight p (replace_coordinate i value xs) *
-      gaussian_coordinate_weight p (nth i xs 0) =
-  gaussian_coordinate_product_weight p xs * gaussian_coordinate_weight p value.
-Proof.
-  revert xs; induction i; intros [|x xs] Hi; simpl in *; try lia.
-  - ring.
-  - specialize (IHi xs ltac:(lia)).
-    rewrite !Rmult_assoc, IHi; reflexivity.
 Qed.

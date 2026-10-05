@@ -181,21 +181,3 @@ by split=> //; rewrite measure0 adde0 in HE.
 Qed.
 
 (* A constant matrix: the joint event is the residual event of the sample. *)
-
-Theorem paper_main_gaussian_residual_joint_constant D N d (P0 : 'M[R]_d) (r : R) :
-  paper_main_symmetric P0 ->
-  gaussian_product_law (Nat.add D (N * d)%N)
-    (paper_main_gaussian_residual_joint_event D N d (fun _ => P0) r) =
-  gaussian_product_law (N * d)%N (paper_main_gaussian_residual_event N d P0 r).
-Proof.
-move=> HP0.
-have mE : measurable (paper_main_gaussian_residual_event N d P0 r).
-  by have [mE _] := paper_main_gaussian_residual_union N d P0 r 1 HP0
-    (le_trans (probability_le1 _ (paper_main_gaussian_residual_measurable d P0 r HP0))
-      (lexx _)).
-have -> : paper_main_gaussian_residual_joint_event D N d (fun _ => P0) r =
-    paper_main_drop_coordinates D (N * d)%N @^-1` paper_main_gaussian_residual_event N d P0 r.
-  by apply/seteqP; split=> x; rewrite /paper_main_gaussian_residual_joint_event
-    /paper_main_gaussian_residual_joint_set /paper_main_split_coordinates /=.
-exact: (paper_main_drop_coordinates_law D (N * d)%N _ mE).
-Qed.

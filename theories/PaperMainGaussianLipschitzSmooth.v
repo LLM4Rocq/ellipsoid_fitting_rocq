@@ -35,15 +35,6 @@ intros Ha; unfold paper_main_gaussian_shift.
 exact (nth_map_seq (fun a => List.nth a xs 0 + eps * List.nth a zs 0) d a Ha).
 Qed.
 
-Lemma paper_main_gaussian_shift_zero d xs zs :
-  List.length xs = d -> paper_main_gaussian_shift d xs 0 zs = xs.
-Proof.
-intros Hxs; apply (nth_ext _ _ 0 0).
-- rewrite paper_main_gaussian_shift_length; symmetry; exact Hxs.
-- intros a Ha; rewrite paper_main_gaussian_shift_length in Ha.
-  rewrite (paper_main_gaussian_shift_nth d xs 0 zs a Ha); ring.
-Qed.
-
 Lemma paper_main_gaussian_shift_distance d xs ys eps zs :
   paper_main_gordon_distance d (paper_main_gaussian_shift d xs eps zs)
     (paper_main_gaussian_shift d ys eps zs) =
@@ -255,7 +246,3 @@ apply Rabs_le; split.
     paper_main_gaussian_norm); [exact Hup|].
   apply Rmult_le_compat_l; [exact HLe|exact HEd].
 Qed.
-
-Lemma paper_main_gaussian_smoothing_dim_zero eps G xs :
-  paper_main_gaussian_smoothing 0 eps G xs = G [].
-Proof. reflexivity. Qed.

@@ -179,31 +179,6 @@ Qed.
 
 (* The absolute bound of the minimax value. *)
 
-Theorem paper_main_head_section_minimax_bound {d m : nat} (kappa : R) q
-    (Y : (nat -> R) -> Prop) (W : 'I_m -> 'M[R]_d) (V : nat -> 'M[R]_d) :
-  (exists y, Y y) -> (forall y, Y y -> paper_main_gordon_dot q y y = 1) ->
-  `|paper_main_head_section_minimax kappa q Y W V| <= paper_main_head_section_tail_norm q V.
-Proof.
-move=> [y0 Hy0] HY.
-set B := paper_main_head_section_tail_norm q V.
-set E := [set paper_main_head_support (paper_main_head_section_combination q y V)
-  (paper_main_head_section kappa W) | y in Y].
-have Hb : forall e, E e -> `|e| <= B.
-  move=> _ [y Hy <-]; apply: paper_main_head_section_value_bound => i Hi.
-  exact: paper_main_head_section_unit_coord Hi (HY y Hy).
-have HE : E !=set0 by exists (paper_main_head_support
-  (paper_main_head_section_combination q y0 V) (paper_main_head_section kappa W)), y0.
-have Hlb : lbound E (- B).
-  by move=> e He; have := Hb e He; rewrite ler_norml => /andP [].
-have Hlo : - B <= inf E := lb_le_inf HE Hlb.
-have Hup : inf E <= B.
-  have He0 : E (paper_main_head_support (paper_main_head_section_combination q y0 V)
-    (paper_main_head_section kappa W)) by exists y0.
-  apply: le_trans (ge_inf (ex_intro _ (- B) Hlb) He0) _.
-  by have := Hb _ He0; rewrite ler_norml => /andP [].
-by rewrite /paper_main_head_section_minimax -/E ler_norml Hlo Hup.
-Qed.
-
 (* Measurability on any measurable space. *)
 
 Lemma paper_main_head_section_combination_measurable {dX : measure_display}

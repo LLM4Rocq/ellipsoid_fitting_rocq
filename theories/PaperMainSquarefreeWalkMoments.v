@@ -138,43 +138,9 @@ Proof.
 by case Hk: (odd k); [rewrite pmsw_mf_odd | apply: ltW; rewrite pmsw_mf_gt0 ?Hk].
 Qed.
 
-(* The even moments (2n - 1)!! are at most (2n)^n. *)
-Lemma pmsw_mf_double_le n : moment_factor n.*2 <= (n.*2)%:R ^+ n.
-Proof.
-elim: n => [|n IH]; first by rewrite pmdm_mf0 expr0.
-rewrite doubleS pmdm_mfS exprS.
-have H0 : 0 <= moment_factor n.*2 by exact: ltW (pmsw_mf_even_double n).
-have H1 : (n.*2.+1)%:R <= (n.*2.+2)%:R :> R by rewrite ler_nat.
-have H2 : (n.*2)%:R ^+ n <= (n.*2.+2)%:R ^+ n :> R.
-  apply: lerXn2r.
-  - by rewrite nnegrE ler0n.
-  - by rewrite nnegrE ler0n.
-  - by rewrite ler_nat -addn2 leq_addr.
-apply: ler_pM; [exact: ler0n | exact: H0 | exact: H1 | exact: le_trans IH H2].
-Qed.
-
 Theorem paper_main_monomial_moment_odd D w (c : 'I_D) :
   odd (count_mem (c : nat) w) -> pmsw_moment D w = 0.
 Proof.
 move=> Hodd; rewrite /pmsw_moment (bigD1 c) //=.
 by rewrite (pmsw_mf_odd _ Hodd) mul0r.
-Qed.
-
-Theorem paper_main_monomial_moment_ge0 D w : 0 <= pmsw_moment D w.
-Proof. by apply: prodr_ge0 => c _; exact: pmsw_mf_ge0. Qed.
-
-Theorem paper_main_monomial_moment_gt0 D w :
-  (forall c : 'I_D, ~~ odd (count_mem (c : nat) w)) -> 0 < pmsw_moment D w.
-Proof. by move=> Hev; apply: prodr_gt0 => c _; exact: pmsw_mf_gt0. Qed.
-
-(* 5. The actual law. *)
-Theorem paper_main_gaussian_monomial_law D w :
-  all (fun t => (t < D)%N) w ->
-  (gaussian_product_law D).-integrable setT (fun x => (pmsw_mono w (tval x))%:E) /\
-  (\int[gaussian_product_law D]_x (pmsw_mono w (tval x))%:E =
-    (pmsw_moment D w)%:E)%E.
-Proof.
-move=> Hw.
-have [HI HE] := pmdf_actual D (pmsw_mono w) (pmsw_mono_reg D w Hw).
-by split => //; rewrite HE paper_main_gaussian_monomial_moment.
 Qed.

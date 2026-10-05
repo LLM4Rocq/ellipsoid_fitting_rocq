@@ -36,47 +36,6 @@ Proof.
   apply gibbs_average_monotone; assumption.
 Qed.
 
-Theorem gibbs_variance_uniform_bound c f I u K :
-  I <> [] -> 0 <= K -> (forall i, In i I -> Rabs (u i) <= K) ->
-  0 <= gibbs_variance c f I u <= K ^ 2.
-Proof.
-  intros HI HK Hu; split; [apply gibbs_variance_nonnegative; exact HI|].
-  assert (H2 : gibbs_average c f I (fun i => u i * u i) <= K ^ 2).
-  { rewrite <- (gibbs_average_const c f I (K ^ 2) HI).
-    apply gibbs_average_monotone; [exact HI|].
-    intros i Hi; specialize (Hu i Hi).
-    pose proof (Rabs_pos (u i)); pose proof (Rsqr_abs (u i)); unfold Rsqr in *; nra. }
-  unfold gibbs_variance, gibbs_covariance; nra.
-Qed.
-
-Lemma gibbs_abs_cube (x : R) : Rabs (x ^ 3) = Rabs x ^ 3.
-Proof. simpl; rewrite !Rabs_mult, Rabs_R1; ring. Qed.
-
-Theorem gibbs_third_central_abs_bound c f I u :
-  I <> [] ->
-  Rabs (gibbs_third_central c f I u) <=
-  8 * gibbs_average c f I (fun i => Rabs (u i) ^ 3).
-Proof.
-  intros HI; rewrite gibbs_third_central_power.
-  eapply Rle_trans; [apply gibbs_average_abs_bound; exact HI|].
-  assert (HE : gibbs_average c f I
-    (fun i => Rabs ((u i - gibbs_average c f I u) ^ 3)) =
-    gibbs_average c f I (fun i => Rabs (u i - gibbs_average c f I u) ^ 3)).
-  { apply gibbs_average_ext; intros; apply gibbs_abs_cube. }
-  cbv beta; rewrite HE; apply weighted_centered_cube, gibbs_finite_probability; exact HI.
-Qed.
-
-Theorem gibbs_third_uniform_bound c f I u K :
-  I <> [] -> 0 <= K -> (forall i, In i I -> Rabs (u i) <= K) ->
-  Rabs (gibbs_third_central c f I u) <= 8 * K ^ 3.
-Proof.
-  intros HI HK Hu; eapply Rle_trans; [apply gibbs_third_central_abs_bound; exact HI|].
-  apply Rmult_le_compat_l; [lra|].
-  rewrite <- (gibbs_average_const c f I (K ^ 3) HI).
-  apply gibbs_average_monotone; [exact HI|].
-  intros; apply pow_incr; split; [apply Rabs_pos|apply Hu; assumption].
-Qed.
-
 Theorem gibbs_covariance_absolute_bound c f I u v :
   I <> [] ->
   Rabs (gibbs_covariance c f I u v) <=

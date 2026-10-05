@@ -197,15 +197,6 @@ Lemma paper_main_projected_mx_loading_val {s m : nat} (V : 'M[R]_(s, m)) (a : 'I
   paper_main_projected_mx_loading V a k = V a k.
 Proof. by rewrite /paper_main_projected_mx_loading !valK. Qed.
 
-Lemma paper_main_projected_mx_loading_out {s m : nat} (V : 'M[R]_(s, m)) (a k : nat) :
-  (m <= k)%N -> paper_main_projected_mx_loading V a k = 0.
-Proof.
-move=> Hk; rewrite /paper_main_projected_mx_loading.
-case: (insub a) => [a'|] //=.
-case: insubP => [k' Hlt _|_] //=.
-by move: Hlt; rewrite ltnNge Hk.
-Qed.
-
 Lemma paper_main_projected_mx_loading_orthonormal {s m : nat} (V : 'M[R]_(s, m)) :
   V *m V^T = 1%:M -> paper_main_projected_orthonormal s m (paper_main_projected_mx_loading V).
 Proof.
@@ -317,69 +308,4 @@ Qed.
    complement dimension. The measurability of the original small-residual
    set itself is not claimed. *)
 
-Theorem paper_main_projected_section_tail n D q (J : {set 'I_n}) (F : 'M[R]_(#|J|, q))
-    (A : (nat -> R) -> Prop) (u : R) :
-  (exists v, A v) -> (forall v, A v -> paper_main_gordon_dot D v v = 1) ->
-  (0 <= paper_main_gordon_set_width D A)%Rcoq -> (0 < u)%Rcoq ->
-  exists B : set ((n * D).-tuple (measurableTypeR R)),
-    measurable B /\
-    (gaussian_product_law (n * D) B <= ((exp (- u ^ 2 / 2))%Rcoq)%:E)%E /\
-    [set x | exists (v : nat -> R) (h : 'cV[R]_q), A v /\
-      (sqrt (paper_main_projected_sqnorm (paper_main_projected_selector J *m
-         paper_main_projected_bulk_vector n D x v + F *m h)) <=
-       sqrt (INR (#|J| - q) - 1) - paper_main_gordon_set_width D A - u)%Rcoq] `<=` B.
-Proof.
-move=> HA HAu Hw Hu.
-have [s [U [Hs [HU Hsec]]]] := paper_main_projected_section n D q J F.
-case: (posnP s) => Hs0.
-  (* No complement dimension: the threshold is negative and the set is empty. *)
-  exists set0; split; first exact: measurable0.
-  split.
-    rewrite measure0 lee_fin; apply/RleP; apply: Rlt_le; exact: exp_pos.
-  move=> x [v [h [Hv Hle]]]; exfalso.
-  have H0 : (#|J| - q = 0)%N by apply/eqP; rewrite -leqn0 -Hs0.
-  rewrite H0 /= in Hle.
-  have Hsq : sqrt (0 - 1) = 0 by apply: sqrt_neg_0; lra.
-  rewrite Hsq in Hle.
-  have Hpos := sqrt_pos (paper_main_projected_sqnorm (paper_main_projected_selector J *m
-    paper_main_projected_bulk_vector n D x v + F *m h)).
-  have H1 := Rle_trans _ _ _ Hpos Hle.
-  have H2 : (0 - paper_main_gordon_set_width D A - u < 0)%Rcoq by lra.
-  exact: (Rle_not_lt _ _ H1 H2).
-have Hs' : (0 < s)%coq_nat by apply/ssrnat.ltP.
-have [mB PB] := paper_main_projected_escape_tail s n D U A u Hs' HU HA HAu Hu.
-eexists; split; first exact: mB.
-split; first exact: PB.
-move=> x [v [h [Hv Hle]]] /=.
-have H1 := paper_main_gordon_escape_le s D A v
-  (tval (paper_main_projected_map s n D U x)) Hv.
-have H2 := Hsec x v h.
-have H3 : (sqrt (INR (#|J| - q) - 1) <= sqrt (INR s - 1))%Rcoq.
-  apply: sqrt_le_1_alt.
-  have := le_INR _ _ (ssrnat.leP Hs); lra.
-apply: (Rle_trans _ _ _ H1); apply: (Rle_trans _ _ _ H2); apply: (Rle_trans _ _ _ Hle).
-by apply: Rplus_le_compat_r; apply: Rplus_le_compat_r.
-Qed.
-
 (* The PSD unit sphere of size k + 1 in R^D, D = paper_main_symmetric_dimension k. *)
-
-Corollary paper_main_projected_psd_section_tail n k q (J : {set 'I_n})
-    (F : 'M[R]_(#|J|, q)) (u : R) :
-  (0 < u)%Rcoq ->
-  exists B : set ((n * paper_main_symmetric_dimension k).-tuple (measurableTypeR R)),
-    measurable B /\
-    (gaussian_product_law (n * paper_main_symmetric_dimension k) B <=
-      ((exp (- u ^ 2 / 2))%Rcoq)%:E)%E /\
-    [set x | exists (v : nat -> R) (h : 'cV[R]_q), paper_main_projected_psd_set k v /\
-      (sqrt (paper_main_projected_sqnorm (paper_main_projected_selector J *m
-         paper_main_projected_bulk_vector n (paper_main_symmetric_dimension k) x v + F *m h)) <=
-       sqrt (INR (#|J| - q) - 1) -
-       paper_main_gordon_set_width (paper_main_symmetric_dimension k)
-         (paper_main_projected_psd_set k) - u)%Rcoq] `<=` B.
-Proof.
-move=> Hu.
-have [HA HAu] := paper_main_projected_psd_set_unit k.
-have [Hw _] := paper_main_projected_psd_width k.
-exact: (paper_main_projected_section_tail n (paper_main_symmetric_dimension k) q J F
-  (paper_main_projected_psd_set k) u HA HAu Hw Hu).
-Qed.

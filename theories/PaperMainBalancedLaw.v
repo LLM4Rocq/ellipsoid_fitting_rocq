@@ -26,30 +26,3 @@ case: (pselect (paper_main_balanced_pd_event n d x)) => // Hnotbalanced.
 exfalso; apply: Hnotfit.
 exact: (proj2 (paper_main_fit_alternative n d x Hd Hspan) Hnotbalanced).
 Qed.
-
-Theorem paper_main_balanced_probability_complement n d :
-  (0 < d)%N -> (d <= n)%N ->
-  paper_main_probability n d (paper_main_balanced_pd_event n d) =
-    (1 - paper_main_probability n d (paper_main_fit_event n d))%E.
-Proof.
-move=> Hd Hdn.
-apply: paper_main_balanced_complement_from_separation.
-- exact Hd.
-- exact Hdn.
-- exact: pm_fit_event_measurable.
-- exact: pm_balanced_pd_event_measurable.
-- move=> x Hspan Hnotfit.
-  exact: paper_main_not_fit_balanced n d x Hd Hspan Hnotfit.
-Qed.
-
-Theorem paper_main_balanced_probability_upper n d :
-  (0 < d)%N ->
-  (paper_main_probability n d (paper_main_balanced_pd_event n d) <=
-    1 - paper_main_probability n d (paper_main_fit_event n d))%E.
-Proof.
-move=> Hd.
-apply: paper_main_balanced_probability_le_complement.
-- exact Hd.
-- exact: pm_fit_event_measurable.
-- exact: pm_balanced_pd_event_measurable.
-Qed.

@@ -21,22 +21,6 @@ rewrite E mxtrace_mulC (mulmxA O) HT mul1mx.
 reflexivity.
 Qed.
 
-Lemma paper_main_orthogonal_frobenius d (O A : 'M[R]_d) : O^T *m O = 1%:M ->
-  paper_main_frobenius (O^T *m A *m O) = paper_main_frobenius A.
-Proof.
-move=> HO; have H := paper_main_orthogonal_frobenius_square d O A HO.
-have H1 := pmh_frobenius_ge0 d (O^T *m A *m O); have H2 := pmh_frobenius_ge0 d A.
-nra.
-Qed.
-
-Lemma paper_main_orthogonal_trace d (O A : 'M[R]_d) : O^T *m O = 1%:M ->
-  paper_main_trace (O^T *m A *m O) = paper_main_trace A.
-Proof.
-move=> HO; have HT := paper_main_symmetric_orthogonal_tr d O HO.
-change (\tr(O^T *m A *m O) = \tr A).
-by rewrite mxtrace_mulC mulmxA HT mul1mx.
-Qed.
-
 Section Blocks.
 Variables r m : nat.
 Implicit Types (H : 'M[R]_r) (B : 'M[R]_m) (M : 'M[R]_(r+m)) (g : 'cV[R]_r) (y : 'cV[R]_m).
@@ -57,19 +41,6 @@ Lemma paper_main_block_frobenius H B :
 Proof.
 by rewrite !paper_main_frobenius_trace tr_block_mx !trmx0 mulmx_block
   !mulmx0 !mul0mx !addr0 !add0r mxtrace_block.
-Qed.
-
-Lemma paper_main_block_symmetric H B : paper_main_symmetric H -> paper_main_symmetric B ->
-  paper_main_symmetric (block_mx H 0 0 B).
-Proof.
-move=> /paper_main_symmetricP HH /paper_main_symmetricP HB; apply/paper_main_symmetricP.
-by rewrite tr_block_mx !trmx0 HH HB.
-Qed.
-
-Theorem paper_main_block_psd H B : paper_main_psd H -> paper_main_psd B -> paper_main_psd (block_mx H 0 0 B).
-Proof.
-move=> [HH HP] [HB BP]; split; first exact: paper_main_block_symmetric.
-move=> v; rewrite -[v]vsubmxK paper_main_block_form; exact: addr_ge0 (HP _) (BP _).
 Qed.
 
 Theorem paper_main_block_head_psd M : paper_main_psd M -> paper_main_psd (ulsubmx M).

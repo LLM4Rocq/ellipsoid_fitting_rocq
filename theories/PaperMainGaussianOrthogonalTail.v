@@ -224,35 +224,6 @@ rewrite -Hexp.
 exact: (H t Ht HtL).
 Qed.
 
-Lemma paper_main_gaussian_orthogonal_chernoff_threshold (p : \bar R) v L s :
-  0 <= L -> 0 < s -> 0 < v ->
-  (forall t, 0 < t -> 2 * t * L < 1 ->
-    (p <= (exp (t * t * v / (1 - 2 * t * L) - t * (2 * sqrt (v * s) + 2 * L * s)))%:E)%E) ->
-  (p <= (exp (- s))%:E)%E.
-Proof.
-move=> HL Hs Hv H.
-have Hsv : 0 < sqrt v by apply: sqrt_lt_R0.
-have Hss : 0 < sqrt s by apply: sqrt_lt_R0.
-have Hsv2 : sqrt v * sqrt v = v by apply: sqrt_sqrt; lra.
-have Hss2 : sqrt s * sqrt s = s by apply: sqrt_sqrt; lra.
-have Hvs : sqrt (v * s) = sqrt v * sqrt s by apply: sqrt_mult; lra.
-pose t := sqrt s / (sqrt v + 2 * L * sqrt s).
-have Hden : 0 < sqrt v + 2 * L * sqrt s by nra.
-have Ht : 0 < t by rewrite /t; apply: Rdiv_lt_0_compat.
-have HtL : 2 * t * L < 1.
-  rewrite /t; apply: (Rmult_lt_reg_r (sqrt v + 2 * L * sqrt s)); first exact: Hden.
-  have -> : 2 * (sqrt s / (sqrt v + 2 * L * sqrt s)) * L * (sqrt v + 2 * L * sqrt s) =
-      2 * L * sqrt s by field; lra.
-  lra.
-have Hexp : t * t * v / (1 - 2 * t * L) - t * (2 * sqrt (v * s) + 2 * L * s) = - s.
-  rewrite Hvs -{1}Hsv2 -{2 3}Hss2 /t.
-  have Hone : 1 - 2 * (sqrt s / (sqrt v + 2 * L * sqrt s)) * L =
-      sqrt v / (sqrt v + 2 * L * sqrt s) by field; lra.
-  rewrite Hone; field; lra.
-rewrite -Hexp.
-exact: (H t Ht HtL).
-Qed.
-
 (* The transported one-sided, two-sided and threshold tails. *)
 
 Theorem paper_main_gaussian_orthogonal_square_upper_tail_quadratic d O (a : nat -> R) L u :
@@ -337,81 +308,6 @@ apply: (le_trans (measureU2 _ (paper_main_gaussian_orthogonal_square_ge_measurab
   (paper_main_gaussian_orthogonal_square_le_measurable d O a (- u)))).
 have H1 := paper_main_gaussian_orthogonal_square_upper_tail_quadratic d O a L u HO Ha HL Hu Hden.
 have H2 := paper_main_gaussian_orthogonal_square_lower_tail_quadratic d O a L u HO Ha HL Hu Hden.
-have E2 : forall z : R, ((2 * z)%:E = z%:E + z%:E)%E.
-  move=> z; rewrite -EFinD; congr (_%:E).
-  by change (2 * z = z + z); ring.
-rewrite E2.
-exact: (leeD H1 H2).
-Qed.
-
-Theorem paper_main_gaussian_orthogonal_square_zero_tail d O (a : nat -> R) u :
-  (forall i, (i < d)%coq_nat -> a i = 0) -> 0 < u ->
-  gaussian_product_law d
-    [set x | Rle u (Rabs (paper_main_weighted_square d a
-      (gaussian_covariance_image d d O (tval x))))] = 0%E.
-Proof.
-move=> Hz Hu.
-have -> : [set x : d.-tuple (measurableTypeR R) |
-    Rle u (Rabs (paper_main_weighted_square d a
-      (gaussian_covariance_image d d O (tval x))))] = set0.
-  apply/seteqP; split=> x //=.
-  by rewrite (paper_main_weighted_square_zero d a _ Hz) Rabs_R0; lra.
-exact: measure0.
-Qed.
-
-Theorem paper_main_gaussian_orthogonal_square_upper_tail_threshold d O (a : nat -> R) L s :
-  paper_main_gaussian_orthonormal_rows d O ->
-  (forall i, (i < d)%coq_nat -> Rabs (a i) <= L) -> 0 <= L -> 0 < s ->
-  0 < finite_sum (fun i => a i ^ 2) (List.seq 0 d) ->
-  (gaussian_product_law d
-    [set x | Rle (2 * sqrt (finite_sum (fun i => a i ^ 2) (List.seq 0 d) * s) + 2 * L * s)
-      (paper_main_weighted_square d a (gaussian_covariance_image d d O (tval x)))]
-    <= (exp (- s))%:E)%E.
-Proof.
-move=> HO Ha HL Hs Hv.
-apply: (paper_main_gaussian_orthogonal_chernoff_threshold _ _ L s HL Hs Hv).
-move=> t Ht HtL.
-exact: (paper_main_gaussian_orthogonal_square_upper_tail d O a L t _ HO Ha HL Ht HtL).
-Qed.
-
-Theorem paper_main_gaussian_orthogonal_square_two_sided_threshold d O (a : nat -> R) L s :
-  paper_main_gaussian_orthonormal_rows d O ->
-  (forall i, (i < d)%coq_nat -> Rabs (a i) <= L) -> 0 <= L -> 0 < s ->
-  0 < finite_sum (fun i => a i ^ 2) (List.seq 0 d) ->
-  (gaussian_product_law d
-    [set x | Rle (2 * sqrt (finite_sum (fun i => a i ^ 2) (List.seq 0 d) * s) + 2 * L * s)
-      (Rabs (paper_main_weighted_square d a (gaussian_covariance_image d d O (tval x))))]
-    <= (2 * exp (- s))%:E)%E.
-Proof.
-move=> HO Ha HL Hs Hv.
-set T := 2 * sqrt (finite_sum (fun i => a i ^ 2) (List.seq 0 d) * s) + 2 * L * s.
-have Ha' : forall i, (i < d)%coq_nat -> Rabs (- a i) <= L.
-  by move=> i Hi; rewrite Rabs_Ropp; exact: Ha.
-have Hv' : finite_sum (fun i => (- a i) ^ 2) (List.seq 0 d) =
-    finite_sum (fun i => a i ^ 2) (List.seq 0 d).
-  by apply: finite_sum_ext => i _; ring.
-have H1 := paper_main_gaussian_orthogonal_square_upper_tail_threshold d O a L s HO Ha HL Hs Hv.
-have H2 := paper_main_gaussian_orthogonal_square_upper_tail_threshold d O (fun i => - a i) L s
-  HO Ha' HL Hs (ltac:(rewrite Hv'; exact Hv)).
-rewrite Hv' in H2.
-set q := fun x : d.-tuple (measurableTypeR R) =>
-  paper_main_weighted_square d a (gaussian_covariance_image d d O (tval x)).
-have HS : [set x : d.-tuple (measurableTypeR R) | Rle T (Rabs (q x))] =
-  [set x | Rle T (q x)] `|`
-  [set x | Rle T (paper_main_weighted_square d (fun i => - a i)
-    (gaussian_covariance_image d d O (tval x)))].
-  apply/seteqP; split=> x /=.
-  - move=> Hx.
-    case: (Rle_lt_dec 0 (q x)) => Hsg.
-      by left; rewrite (Rabs_pos_eq _ Hsg) in Hx.
-    by right; rewrite paper_main_weighted_square_neg; rewrite (Rabs_left _ Hsg) in Hx.
-  - case=> Hx.
-      by apply: (Rle_trans _ _ _ Hx); exact: Rle_abs.
-    rewrite paper_main_weighted_square_neg in Hx.
-    apply: (Rle_trans _ _ _ Hx); rewrite -Rabs_Ropp; exact: Rle_abs.
-rewrite HS.
-apply: (le_trans (measureU2 _ (paper_main_gaussian_orthogonal_square_ge_measurable d O a T)
-  (paper_main_gaussian_orthogonal_square_ge_measurable d O (fun i => - a i) T))).
 have E2 : forall z : R, ((2 * z)%:E = z%:E + z%:E)%E.
   move=> z; rewrite -EFinD; congr (_%:E).
   by change (2 * z = z + z); ring.

@@ -166,22 +166,6 @@ Proof.
     + apply gaussian_kernel_continuous.
 Qed.
 
-Lemma gaussian_stein_finite (f df : R -> R) a b :
-  (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
-  (forall t, {for t, continuous df}) ->
-  oriented_has_integral (gaussian_stein_integrand f df) a b
-    (f b * gaussian_kernel b - f a * gaussian_kernel a).
-Proof.
-  intros Hd Hc.
-  have Hs : continuous (gaussian_stein_integrand f df).
-  { intro t; apply gaussian_stein_continuous; [exact Hd | apply Hc]. }
-  split.
-  - exact: rectangle_continuous_segment_integrable.
-  - apply: (rectangle_oriented_FTC (fun t => f t * gaussian_kernel t)).
-    + intro t; apply gaussian_product_derivative; apply Hd.
-    + exact Hs.
-Qed.
-
 (* The fundamental theorem of calculus on the whole line, for a continuous
    integrable derivative. *)
 Lemma gaussian_kernel_line_FTC (g F : R -> R) (L M : R) :

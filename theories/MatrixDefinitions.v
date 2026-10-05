@@ -80,10 +80,6 @@ Definition matrix_add (n : nat) (A B : matrix n) : matrix n := (A + B)%R.
 Definition matrix_scale (n : nat) (c : R) (A : matrix n) : matrix n :=
   (c *: A)%R.
 
-Definition matrix_mul (n : nat) (A B : matrix n) : matrix n :=
-  matrix_build n (fun i j => coordinate_sum n
-    (fun k => matrix_entry n A i k * matrix_entry n B k j)).
-
 Definition matrix_trace (n : nat) (A : matrix n) : R :=
   coordinate_sum n (fun i => matrix_entry n A i i).
 

@@ -65,13 +65,6 @@ Proof.
   intros xs Hxs; apply He.
 Qed.
 
-Lemma gaussian_vector_integrable_ext n (f g : vector n -> R) :
-  (forall x, f x = g x) -> gaussian_vector_integrable n f -> gaussian_vector_integrable n g.
-Proof.
-  intros He HI; unfold gaussian_vector_integrable in *.
-  eapply gaussian_iterated_integrable_ext; [intros xs Hxs; apply He|exact HI].
-Qed.
-
 Lemma gaussian_vector_constant n c :
   gaussian_vector_integrable n (fun _ => c) /\ gaussian_vector_expectation n (fun _ => c) = c.
 Proof. exact (gaussian_iterated_constant (S n) c). Qed.

@@ -3,7 +3,7 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import Rstruct.
 From mathcomp Require Import topology normedtype.
 From mathcomp Require Import Rstruct_topology.
-From EllipsoidFitting Require Import MatrixDefinitions LowerDefinitions OperatorNormedDefinitions.
+From EllipsoidFitting Require Import MatrixDefinitions LowerDefinitions.
 Open Scope R_scope.
 
 (* Port of theories/BlockOperatorDefinitions.v from Coquelicot to
@@ -53,16 +53,3 @@ Open Scope R_scope.
 
 Definition block_inject n m i (M : matrix n) : block_array n m :=
   tuple_build (matrix_NormedModule n) m (fun j => if Nat.eqb j i then M else 0%R).
-
-Definition block_operator_coefficients n m (V : normedModType R) : normedModType R :=
-  tuple_NormedModule (bounded_matrix_NormedModule n V) m.
-
-Definition bounded_block_map n m (V : normedModType R) : Type :=
-  { f : block_array n m -> V | linear f /\
-      exists M : R, 0 < M /\ forall x : block_array n m, (`|f x|)%R <= M * (`|x|)%R }.
-
-Definition block_operator_apply n m V (L : bounded_block_map n m V) (W : block_array n m) : V :=
-  proj1_sig L W.
-
-Definition block_operator_component n m V (C : block_operator_coefficients n m V) i :=
-  tuple_entry (bounded_matrix_NormedModule n V) m i C.

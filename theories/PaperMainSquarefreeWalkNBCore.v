@@ -51,21 +51,6 @@ Proof.
 by case: y => [// | [[[?|?] [?|?]] [?|?]]].
 Qed.
 
-Lemma pmnc_Z_rf y : pmnc_Z y -> pmsk_rf N d n y = 0.
-Proof.
-by case: y.
-Qed.
-
-Lemma pmnc_Z_cf y : pmnc_Z y -> pmsk_cf N d n y = 0.
-Proof.
-by case: y.
-Qed.
-
-Lemma pmnc_rf_le1 y : pmsk_rf N d n y <= 1.
-Proof.
-by case: y => [// | [[[?|?] ?] ?]].
-Qed.
-
 Lemma pmnc_cf_le2 y : pmsk_cf N d n y <= 2.
 Proof.
 by case: y => [// | [[? [?|?]] [?|?]]].

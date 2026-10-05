@@ -44,16 +44,6 @@ apply: (gpp_all_sections d F _ HI HA).
 exact: (proj2 (measurable_EFinP _ _) (gpp_joint_measurable d F Hc)).
 Qed.
 
-Theorem paper_main_gaussian_smooth_law_expectation d f Df D2f M r :
-  paper_main_gaussian_smooth_test d f Df D2f M r ->
-  (gaussian_product_law d).-integrable setT (fun x => (f (tval x))%:E) /\
-  (\int[gaussian_product_law d]_x (f (tval x))%:E =
-    (gaussian_iterated_expectation d f)%:E)%E.
-Proof.
-move=> [Hc _ _ _ _ Hb _ _].
-exact: (paper_main_gaussian_law_transport d f M r Hc Hb).
-Qed.
-
 Lemma paper_main_gaussian_shift_continuous d f c :
   finite_joint_continuous d f ->
   finite_joint_continuous d (fun xs => f xs - c).

@@ -171,9 +171,6 @@ Proof.
         nra.
 Qed.
 
-Theorem goe_matrix_frechet n z : is_diff z (goe_matrix n) (goe_matrix n).
-Proof. apply matrix_linear_is_diff; apply goe_matrix_linear. Qed.
-
 Theorem goe_matrix_coordinate_direction n k : (k <= goe_vector_index n)%coq_nat ->
   goe_matrix n (chaos_basis (goe_vector_index n) k) =
     matrix_scale n (goe_scale n) (goe_basis n k).

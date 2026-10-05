@@ -56,15 +56,3 @@ Proof.
   pose proof (improper_nonnegative_interval_bound_eps g J HC Hg HJ a b
     (mkposreal _ He) Hab) as H; simpl in H; lra.
 Qed.
-
-Lemma improper_nonnegative_integral_nonnegative (g : R -> R) J :
-  (forall x, {for x, continuous g}) ->
-  (forall x, 0 <= g x) ->
-  whole_line_has_integral g J ->
-  0 <= J.
-Proof.
-  intros HC Hg HJ.
-  pose proof (improper_nonnegative_interval_bound g J HC Hg HJ 0 0 (Rle_refl _))
-    as H.
-  rewrite rectangle_oriented_point in H; exact H.
-Qed.

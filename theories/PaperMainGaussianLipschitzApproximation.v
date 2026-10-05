@@ -41,13 +41,6 @@ unfold paper_main_gaussian_width; apply Rinv_0_lt_compat.
 exact (paper_main_gaussian_level_pos n).
 Qed.
 
-Lemma paper_main_gaussian_width_le_one n : paper_main_gaussian_width n <= 1.
-Proof.
-unfold paper_main_gaussian_width; rewrite <- Rinv_1.
-apply Rinv_le_contravar; [lra|].
-rewrite S_INR; pose proof (pos_INR n); lra.
-Qed.
-
 Lemma paper_main_gaussian_width_level n :
   paper_main_gaussian_width n = / paper_main_gaussian_level n.
 Proof. reflexivity. Qed.
@@ -66,16 +59,6 @@ f_equal; rewrite <- (paper_main_gaussian_squares_coordinates d xs Hxs).
 apply finite_sum_ext; intros k Hk; apply in_seq in Hk.
 unfold paper_main_gaussian_zero_list.
 rewrite (nth_map_seq (fun _ => 0) d k ltac:(lia)); ring.
-Qed.
-
-Lemma paper_main_gaussian_clip_abs_le K z :
-  0 <= K -> Rabs (paper_main_gaussian_clip K z) <= Rabs z.
-Proof.
-intros HK; unfold paper_main_gaussian_clip, Rmax, Rmin.
-destruct (Rle_dec K z) as [h1|h1];
-  repeat match goal with |- context [Rle_dec ?a ?b] => destruct (Rle_dec a b) end;
-  repeat match goal with H : ~ (_ <= _) |- _ => apply Rnot_le_lt in H end;
-  unfold Rabs; repeat destruct Rcase_abs; lra.
 Qed.
 
 Lemma paper_main_gaussian_clip_minus_abs_le K z :
@@ -288,75 +271,6 @@ exact Hcl.
 Qed.
 
 (* An integrable envelope independent of n. *)
-
-Theorem paper_main_gaussian_approximant_envelope d F L n xs :
-  0 <= L ->
-  (forall xs ys, List.length xs = d -> List.length ys = d ->
-    Rabs (F xs - F ys) <= L * paper_main_gordon_distance d xs ys) ->
-  List.length xs = d ->
-  Rabs (paper_main_gaussian_approximant d F n xs) <=
-    Rabs (F (paper_main_gaussian_zero_list d)) + L * paper_main_gaussian_norm xs +
-    L * sqrt (INR d).
-Proof.
-intros HL HLip Hxs; unfold paper_main_gaussian_approximant, paper_main_gaussian_smoothing.
-set (w := paper_main_gaussian_width n).
-set (K := paper_main_gaussian_level n).
-set (c := Rabs (F (paper_main_gaussian_zero_list d)) + L * paper_main_gaussian_norm xs).
-assert (Hw0 : 0 <= w) by exact (Rlt_le _ _ (paper_main_gaussian_width_pos n)).
-assert (Hw1 : w <= 1) by exact (paper_main_gaussian_width_le_one n).
-assert (HK0 : 0 <= K) by exact (Rlt_le _ _ (paper_main_gaussian_level_pos n)).
-destruct (paper_main_gaussian_smoothing_domain d K L w
-  (paper_main_gaussian_clipped K F) xs HK0 HL
-  (paper_main_gaussian_level_clipped_bound d F n)
-  (paper_main_gaussian_clipped_lipschitz d K F L HLip)) as [HI _].
-destruct (gaussian_coordinate_polynomial_domain d paper_main_gaussian_norm
-  (1 + INR d) 2 (paper_main_gaussian_norm_continuous d)
-  (paper_main_gaussian_norm_polynomial d)) as [HIn _].
-destruct (gaussian_iterated_scale d paper_main_gaussian_norm (L * w) HIn) as [HIs HEs].
-destruct (gaussian_iterated_constant d c) as [HIc HEc].
-destruct (gaussian_iterated_add d (fun _ => c)
-  (fun zs => L * w * paper_main_gaussian_norm zs) HIc HIs) as [HIh HEh].
-rewrite HEc in HEh; rewrite HEs in HEh.
-destruct (paper_main_gaussian_norm_expectation d) as [HE0 HEd].
-assert (Hpt : forall zs, List.length zs = d ->
-  Rabs (paper_main_gaussian_clipped K F (paper_main_gaussian_shift d xs w zs)) <=
-    c + L * w * paper_main_gaussian_norm zs).
-{ intros zs Hzs.
-  eapply Rle_trans; [apply paper_main_gaussian_clip_abs_le; exact HK0|].
-  pose proof (HLip (paper_main_gaussian_shift d xs w zs) xs
-    (paper_main_gaussian_shift_length d xs w zs) Hxs) as H1.
-  rewrite (paper_main_gaussian_shift_center_distance d xs w zs Hw0 Hzs) in H1.
-  pose proof (paper_main_gaussian_lipschitz_linear_growth d F L xs HLip Hxs) as H2.
-  pose proof (Rabs_triang_inv (F (paper_main_gaussian_shift d xs w zs)) (F xs)) as H3.
-  unfold c; lra. }
-assert (Hup : gaussian_iterated_expectation d
-    (fun zs => paper_main_gaussian_clipped K F (paper_main_gaussian_shift d xs w zs)) <=
-  c + L * w * gaussian_iterated_expectation d paper_main_gaussian_norm).
-{ rewrite <- HEh; apply gaussian_iterated_monotone; [exact HI|exact HIh|].
-  intros zs Hzs; pose proof (Hpt zs Hzs).
-  pose proof (Rle_abs (paper_main_gaussian_clipped K F (paper_main_gaussian_shift d xs w zs))).
-  lra. }
-destruct (gaussian_iterated_scale d (fun zs => c + L * w * paper_main_gaussian_norm zs)
-  (-1) HIh) as [HIm HEm].
-rewrite HEh in HEm.
-assert (Hlo : - (c + L * w * gaussian_iterated_expectation d paper_main_gaussian_norm) <=
-  gaussian_iterated_expectation d
-    (fun zs => paper_main_gaussian_clipped K F (paper_main_gaussian_shift d xs w zs))).
-{ replace (- (c + L * w * gaussian_iterated_expectation d paper_main_gaussian_norm)) with
-    (-1 * (c + L * w * gaussian_iterated_expectation d paper_main_gaussian_norm)) by ring.
-  rewrite <- HEm; apply gaussian_iterated_monotone; [exact HIm|exact HI|].
-  intros zs Hzs; pose proof (Hpt zs Hzs).
-  pose proof (Rle_abs (- paper_main_gaussian_clipped K F
-    (paper_main_gaussian_shift d xs w zs))) as H0.
-  rewrite Rabs_Ropp in H0; lra. }
-assert (Hbound : L * w * gaussian_iterated_expectation d paper_main_gaussian_norm <=
-  L * sqrt (INR d)).
-{ assert (HLw : L * w <= L) by nra.
-  pose proof (Rmult_le_compat (L * w) L
-    (gaussian_iterated_expectation d paper_main_gaussian_norm) (sqrt (INR d))
-    ltac:(nra) HE0 HLw HEd); lra. }
-apply Rabs_le; split; lra.
-Qed.
 
 (* Explicit convergence of the iterated Gaussian means. *)
 

@@ -81,31 +81,6 @@ have H := fubini_Rintegral_bound `[a, b] f g 1 (measurable_itv _)
 by rewrite Rmult_1_l in H.
 Qed.
 
-Lemma continuous_enclosing_interval_error_bound f g u a b v :
-  (forall x, {for x, continuous f}) -> (forall x, {for x, continuous g}) ->
-  (forall x, Rabs (f x) <= g x) -> u <= a -> a <= b -> b <= v ->
-  Rabs (oriented_integral f u v - oriented_integral f a b) <=
-    oriented_integral g u v - oriented_integral g a b.
-Proof.
-intros HC HG Hbound Hua Hab Hbv.
-pose proof (continuous_finite_integrable f HC) as HF.
-pose proof (continuous_finite_integrable g HG) as HGf.
-assert (Hf : oriented_integral f u v - oriented_integral f a b =
-  oriented_integral f u a + oriented_integral f b v).
-{ rewrite -(rectangle_oriented_chasles f u b v (HF u b) (HF b v)).
-  rewrite -(rectangle_oriented_chasles f u a b (HF u a) (HF a b)).
-  ring. }
-assert (Hg : oriented_integral g u v - oriented_integral g a b =
-  oriented_integral g u a + oriented_integral g b v).
-{ rewrite -(rectangle_oriented_chasles g u b v (HGf u b) (HGf b v)).
-  rewrite -(rectangle_oriented_chasles g u a b (HGf u a) (HGf a b)).
-  ring. }
-rewrite Hf Hg.
-eapply Rle_trans; [apply Rabs_triang |].
-pose proof (continuous_finite_integral_abs_bound f g u a HC HG Hbound Hua).
-pose proof (continuous_finite_integral_abs_bound f g b v HC HG Hbound Hbv); lra.
-Qed.
-
 (* The integral over the line minus the integral over a measurable set D is
    the integral over the complement of D. *)
 Lemma improper_cutoff_whole_line_split (h : R -> R) (D : set R) :
@@ -141,21 +116,6 @@ have H := fubini_Rintegral_bound (~` `[a, b]) f g 1 mC
   (integrableS measurableT mC (subsetT _) Hgi)
   (fun y _ => ltac:(rewrite Rmult_1_l; exact: Hbound)).
 by rewrite Rmult_1_l in H.
-Qed.
-
-Lemma continuous_improper_interval_error_bound_eps f g If Ig a b
-    (eps : posreal) :
-  (forall x, {for x, continuous f}) -> (forall x, {for x, continuous g}) ->
-  (forall x, Rabs (f x) <= g x) ->
-  whole_line_has_integral f If ->
-  whole_line_has_integral g Ig ->
-  a <= b -> Rabs (If - oriented_integral f a b) <
-    Ig - oriented_integral g a b + 2 * eps.
-Proof.
-intros HC HG Hbound HIf HIg Hab.
-pose proof (improper_cutoff_interval_error_bound f g If Ig a b
-  HIf HIg Hbound Hab) as H.
-pose proof (cond_pos eps); lra.
 Qed.
 
 Theorem continuous_improper_interval_error_bound f g If Ig a b :

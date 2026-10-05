@@ -190,12 +190,3 @@ have Heq : paper_main_head_section_width n m kappa =
   by apply: eq_integral => z _; rewrite /= -EFinB addrK.
 by rewrite Heq; apply: emeasurable_funB.
 Qed.
-
-Corollary paper_main_head_section_width_sqrt_bound n m (kappa : R) h :
-  1 <= kappa ->
-  (`|paper_main_head_section_width n m kappa h| <=
-    (sqrt (INR (paper_main_symmetric_dimension n)))%:E)%E.
-Proof.
-move=> Hk; apply: le_trans (paper_main_head_section_width_bound n m kappa h Hk) _.
-rewrite lee_fin; apply/RleP; exact: (proj2 (paper_main_gaussian_norm_expectation _)).
-Qed.

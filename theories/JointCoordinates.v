@@ -157,13 +157,6 @@ Proof.
   rewrite (joint_vector_of_append m n xs ys H); reflexivity.
 Qed.
 
-Lemma gaussian_pair_pullback_vectors m n (F : vector m -> vector n -> R) x z :
-  gaussian_pair_pullback m n F (vector_to_list m x ++ vector_to_list n z)%list = F x z.
-Proof.
-  rewrite (gaussian_pair_pullback_append m n F _ _ (vector_to_list_length m x)).
-  rewrite !vector_of_to_list; reflexivity.
-Qed.
-
 (* Changed meaning (item 4 of the header): the radius of the ball is
    INR (S m + S n) * e instead of e, because the ball on joint vectors is
    now the ball of the Euclidean norm, not the conjunction of the

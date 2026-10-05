@@ -163,21 +163,3 @@ Proof.
       (matrix_basis n j i) V) A).
   intros i j Hi Hj; apply matrix_nested_derivative_frechet; assumption.
 Qed.
-
-Theorem matrix_soft_minimax_gradient_frechet n beta gamma offset coeff Y S :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  forall A : matrix n,
-  is_diff A
-    ((fun M => soft_minimax beta gamma (matrix_affine_scores n offset coeff M) Y S)
-      : matrix n -> R^o)
-    (trace_pair n (matrix_nested_gradient n beta gamma offset coeff Y S A)) /\
-  is_diff A (matrix_nested_gradient n beta gamma offset coeff Y S)
-    (matrix_nested_gradient_derivative n beta gamma offset coeff Y S A).
-Proof.
-  intros Hb Hg HY HS A; split.
-  - apply: (is_diff_eq
-      (matrix_nested_soft_minimax_frechet n beta gamma offset coeff Y S A
-        Hb Hg HY HS)).
-    apply: funext => U; symmetry; apply matrix_nested_gradient_trace.
-  - apply matrix_nested_gradient_frechet; assumption.
-Qed.

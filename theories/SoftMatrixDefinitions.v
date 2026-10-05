@@ -36,15 +36,6 @@ Definition soft_matrix_phi n beta gamma y B I Y S (A : nat -> matrix n) : R :=
 Definition soft_matrix_coefficients n (y : nat -> nat -> R) (B : nat -> matrix n) i z s : matrix n :=
   matrix_scale n (y z i) (B s).
 
-Definition soft_matrix_first n beta gamma y B I Y S (A : nat -> matrix n) i (U : matrix n) : R :=
-  matrix_nested_derivative n beta gamma (soft_matrix_scores n y B I A)
-    (soft_matrix_coefficients n y B i) Y S (matrix_zero n) U.
-
-Definition soft_matrix_second n beta gamma y B I Y S (A : nat -> matrix n)
-    i (U V : matrix n) : R :=
-  matrix_nested_second_derivative n beta gamma (soft_matrix_scores n y B I A)
-    (soft_matrix_coefficients n y B i) Y S (matrix_zero n) U V.
-
 Definition soft_matrix_third n beta gamma y B I Y S (A : nat -> matrix n)
     i (U V W : matrix n) : R :=
   matrix_nested_third_derivative n beta gamma (soft_matrix_scores n y B I A)

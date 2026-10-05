@@ -284,23 +284,3 @@ Proof.
     (matrix_inner_derivative n gamma offset coeff S A V)).
   f_equal; f_equal; apply gibbs_average_ext; intros; apply matrix_inner_covariance_symmetric.
 Qed.
-
-(* At every base matrix the first derivative is established, then its value
-   on any fixed direction U is differentiated in every matrix direction V. *)
-Theorem matrix_nested_soft_minimax_second_frechet n beta gamma offset coeff Y S :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  forall A : matrix n,
-  is_diff A
-    ((fun M => soft_minimax beta gamma (matrix_affine_scores n offset coeff M) Y S)
-      : matrix n -> R^o)
-    (matrix_nested_derivative n beta gamma offset coeff Y S A) /\
-  forall U : matrix n,
-  is_diff A
-    ((fun M => matrix_nested_derivative n beta gamma offset coeff Y S M U)
-      : matrix n -> R^o)
-    (matrix_nested_second_derivative n beta gamma offset coeff Y S A U).
-Proof.
-  intros Hb Hg HY HS A; split.
-  - apply matrix_nested_soft_minimax_frechet; assumption.
-  - intros U; apply matrix_nested_derivative_frechet; assumption.
-Qed.

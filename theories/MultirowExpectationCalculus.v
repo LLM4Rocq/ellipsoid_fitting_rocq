@@ -26,20 +26,6 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-Lemma mexp_sum_sq (y : nat -> R) (I : list nat) :
-  finite_sum (fun i => y i ^ 2) I = finite_sum (fun i => y i * y i) I.
-Proof.
-  induction I as [|i I IH]; cbn [finite_sum]; [reflexivity|].
-  rewrite IH; f_equal; ring.
-Qed.
-
-Lemma mexp_unit_norm (y : nat -> R) (I : list nat) :
-  finite_sum (fun i => y i * y i) I = 1 -> euclidean_norm y I = 1.
-Proof.
-  intro H; unfold euclidean_norm, squared_norm.
-  rewrite mexp_sum_sq H; exact sqrt_1.
-Qed.
-
 Lemma mexp_first_along n m beta gamma y B Y S (U : block_array n m) t xs :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 < t < 1 ->
   @is_derive R R^o R^o t 1

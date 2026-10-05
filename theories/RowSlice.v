@@ -100,17 +100,6 @@ Proof.
   rewrite (soft_matrix_row_shared_scores n y B I A i HD Hi); reflexivity.
 Qed.
 
-Theorem soft_matrix_row_phi n beta gamma y B I Y S (A : nat -> matrix n) i M :
-  NoDup I -> In i I ->
-  soft_minimax beta gamma
-    (matrix_affine_scores n (soft_matrix_row_offset n y B I A i)
-      (soft_matrix_coefficients n y B i) M) Y S =
-  soft_matrix_phi n beta gamma y B I Y S (soft_matrix_block_replace n A i M).
-Proof.
-  intros HD Hi; unfold soft_matrix_phi.
-  rewrite (soft_matrix_row_scores n y B I A i M HD Hi); reflexivity.
-Qed.
-
 Lemma soft_matrix_third_rebase n beta gamma H coeff Y S (M U V W : matrix n) :
   matrix_nested_third_derivative n beta gamma (matrix_affine_scores n H coeff M)
     coeff Y S (matrix_zero n) U V W =
@@ -143,49 +132,6 @@ Proof.
   apply functional_extensionality; intros V; apply functional_extensionality; intros W.
   rewrite (soft_matrix_row_third n beta gamma y B I Y S A i (A i) U V W HD Hi).
   rewrite soft_matrix_block_replace_current; reflexivity.
-Qed.
-
-Theorem soft_matrix_row_actual_derivatives n beta gamma y B I Y S
-    (A : nat -> matrix n) i M :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> NoDup I -> In i I ->
-  is_diff M
-    ((fun H => soft_matrix_phi n beta gamma y B I Y S
-      (soft_matrix_block_replace n A i H)) : matrix n -> R^o)
-    (matrix_nested_derivative n beta gamma (soft_matrix_row_offset n y B I A i)
-      (soft_matrix_coefficients n y B i) Y S M) /\
-  forall U : matrix n,
-  is_diff M
-    ((fun H => matrix_nested_derivative n beta gamma
-      (soft_matrix_row_offset n y B I A i) (soft_matrix_coefficients n y B i) Y S H U)
-      : matrix n -> R^o)
-    (matrix_nested_second_derivative n beta gamma
-      (soft_matrix_row_offset n y B I A i) (soft_matrix_coefficients n y B i) Y S M U) /\
-  forall V : matrix n,
-  is_diff M
-    ((fun H => matrix_nested_second_derivative n beta gamma
-      (soft_matrix_row_offset n y B I A i) (soft_matrix_coefficients n y B i) Y S H U V)
-      : matrix n -> R^o)
-    (soft_matrix_third n beta gamma y B I Y S
-      (soft_matrix_block_replace n A i M) i U V).
-Proof.
-  intros Hb Hg HY HS HD Hi.
-  destruct (matrix_nested_soft_minimax_third_frechet n beta gamma
-    (soft_matrix_row_offset n y B I A i) (soft_matrix_coefficients n y B i)
-    Y S Hb Hg HY HS M) as [HF Hrest].
-  split.
-  - have -> : (fun H => soft_matrix_phi n beta gamma y B I Y S
-        (soft_matrix_block_replace n A i H)) =
-      (fun H => soft_minimax beta gamma
-        (matrix_affine_scores n (soft_matrix_row_offset n y B I A i)
-          (soft_matrix_coefficients n y B i) H) Y S).
-    { apply: funext => H; symmetry; apply soft_matrix_row_phi; assumption. }
-    exact HF.
-  - intros U; destruct (Hrest U) as [Hsecond Hthird]; split; [exact Hsecond|].
-    intros V; assert (HE : matrix_nested_third_derivative n beta gamma
-      (soft_matrix_row_offset n y B I A i) (soft_matrix_coefficients n y B i) Y S M U V =
-      soft_matrix_third n beta gamma y B I Y S (soft_matrix_block_replace n A i M) i U V).
-    { apply functional_extensionality; intros W; apply soft_matrix_row_third; assumption. }
-    rewrite <- HE; exact (Hthird V).
 Qed.
 
 Theorem soft_matrix_row_projective_sum n beta gamma y B I Y S

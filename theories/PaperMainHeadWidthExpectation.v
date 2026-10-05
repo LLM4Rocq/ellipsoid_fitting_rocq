@@ -130,23 +130,3 @@ have HE : d^2*(1/d^4) = 1/d^2 by field; nra.
 have HM := Rmult_le_compat_l e _ _ He Hroot.
 fold d; rewrite HE; lra.
 Qed.
-
-Corollary paper_main_head_width_expectation_polynomial n kappa
-    (G : (paper_main_symmetric_dimension n).-tuple T -> R)
-    (A : set ((paper_main_symmetric_dimension n).-tuple T)) e mG :
-  1 <= kappa -> 0 <= e -> measurable A ->
-  (forall x, Rabs (G x) <= paper_main_frobenius (paper_main_public_symmetric_gaussian n (tval x))) ->
-  (forall x, ~ A x -> paper_main_gaussian_condition_support n kappa (tval x) -
-    e*paper_main_frobenius (paper_main_public_symmetric_gaussian n (tval x)) <= G x) ->
-  (gaussian_product_law (paper_main_symmetric_dimension n)).-integrable setT (fun x => (G x)%:E) ->
-  (\int[gaussian_product_law (paper_main_symmetric_dimension n)]_x (G x)%:E = mG%:E)%E ->
-  (gaussian_product_law (paper_main_symmetric_dimension n) A <= ((1/(INR (S n))^4)%Rcoq)%:E)%E ->
-  paper_main_gaussian_condition_width n kappa - mG <= e*INR (S n)+1+1/(INR (S n))^2.
-Proof.
-move=> Hk He mA HG Hgood IG EG Hp.
-have Hd : 0 < INR (S n) by apply lt_0_INR; lia.
-have Ha : 0 < (INR (S n))^2 by nra.
-have HB := paper_main_head_width_expectation_transfer n kappa G A e
-  ((INR (S n))^2) (1/(INR (S n))^4) mG Hk He Ha mA HG Hgood IG EG Hp.
-exact: Rle_trans HB (paper_main_head_width_exceptional_scale n e He).
-Qed.

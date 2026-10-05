@@ -218,27 +218,3 @@ Proof.
     - intros t Ht; pose proof (Hb t Ht); pose proof (Rle_abs (-dg t)) as Habs; rewrite Rabs_Ropp in Habs; lra. }
   apply Rabs_le; lra.
 Qed.
-
-Theorem weighted_sqrt_endpoint_comparison (g r : R -> R) (d B : R) :
-  0<d -> 0<=B ->
-  (g @ within (fun t=>0<=t<=1) (nbhs 0) --> g 0)%classic ->
-  (g @ within (fun t=>0<=t<=1) (nbhs 1) --> g 1)%classic ->
-  (forall t, 0<t<1 -> @is_derive R R^o R^o t 1 g ((sqrt t/(2*d*sqrt d))*r t)) ->
-  (forall t, 0<t<1 -> Rabs(r t)<=B) ->
-  Rabs(g 1-g 0)<=B/(3*d*sqrt d).
-Proof.
-  intros Hd HB H0 H1 Hg Hr.
-  assert (Hs : 0<sqrt d) by (apply sqrt_lt_R0; exact Hd).
-  assert (Hden : 0<2*d*sqrt d) by nra.
-  replace (B/(3*d*sqrt d)) with (2*(B/(2*d*sqrt d))/3) by (field; lra).
-  apply (sqrt_weighted_endpoint_bound g (fun t=>(sqrt t/(2*d*sqrt d))*r t) (B/(2*d*sqrt d))).
-  - apply Rdiv_le_0_compat; lra.
-  - exact H0.
-  - exact H1.
-  - exact Hg.
-  - intros t Ht.
-    assert (Hc : 0<=sqrt t/(2*d*sqrt d)) by (apply Rdiv_le_0_compat; [apply sqrt_pos|exact Hden]).
-    rewrite Rabs_mult (Rabs_pos_eq _ Hc).
-    replace (B/(2*d*sqrt d)*sqrt t) with ((sqrt t/(2*d*sqrt d))*B) by (unfold Rdiv; ring).
-    apply Rmult_le_compat_l; [exact Hc|apply Hr; exact Ht].
-Qed.

@@ -118,22 +118,6 @@ HB.instance Definition _ d := Nbhs_isPseudoMetric.Build R (coordinates_uniform_s
   erefl (@coordinates_uniform_space_ball_center d)
   (@coordinates_uniform_space_ball_sym d) (@coordinates_uniform_space_ball_triangle d) erefl.
 
-(* The ball of coordinates_uniform_space d is close_n, as in the original. *)
-Lemma coordinates_uniform_space_ballE d (x y : coordinates_uniform_space d) (e : R) :
-  ball x e y = close_n d e y x.
-Proof. reflexivity. Qed.
-
-(* Its neighbourhoods are those of Coquelicot's locally for these balls. *)
-Lemma coordinates_uniform_space_nbhs d (z : coordinates_uniform_space d)
-  (P : coordinates_uniform_space d -> Prop) :
-  nbhs z P <-> exists eps : posreal, forall w, close_n d eps w z -> P w.
-Proof.
-  split.
-  - move=> /nbhs_ballP [e e0 He]; exists (mkposreal e (elimT RltP e0)); exact: He.
-  - move=> [eps Heps]; apply/nbhs_ballP; exists (pos eps); last exact: Heps.
-    by apply/RltP; exact: cond_pos.
-Qed.
-
 Lemma finite_joint_continuous_filter d F :
   finite_joint_continuous d F <->
   forall z : coordinates_uniform_space d,
@@ -242,19 +226,6 @@ Proof.
     pose proof (Rle_abs x) as Hhi; pose proof (Rle_abs (-x)) as Hlo; rewrite Rabs_Ropp in Hlo; lra.
   - apply IH; [lia|]. intros y Hy; apply Hbox; right; exact Hy.
 Qed.
-Lemma coordinates_bounded_snoc d (a b : Tn d R) xs l u x :
-  length xs = d -> bounded_n d a b (coordinates_of_list d xs) -> l <= x <= u ->
-  bounded_n (S d)
-    (coordinates_of_list (S d) (coordinates_to_list d a ++ [l])%list)
-    (coordinates_of_list (S d) (coordinates_to_list d b ++ [u])%list)
-    (coordinates_of_list (S d) (xs ++ [x])%list).
-Proof.
-  revert a b xs; induction d as [|d IH]; intros a b xs Hlen Hbox Hlast.
-  - destruct a,b,xs; try discriminate; simpl; split; [exact Hlast|exact I].
-  - destruct a as [a aa], b as [b bb], xs as [|z xs]; try discriminate.
-    simpl in Hlen, Hbox |- *; destruct Hbox as [H0 Hs]; split; [exact H0|].
-    apply IH; try assumption; lia.
-Qed.
 
 Theorem finite_joint_uniform_list_box d (F : list R -> R) R :
   finite_joint_continuous d F -> forall eps : posreal, exists delta : posreal,
@@ -298,26 +269,6 @@ Lemma finite_joint_continuous_head d (F : list R -> R) x :
   finite_joint_continuous (S d) F -> finite_joint_continuous d (fun xs => F (x::xs)).
 Proof. exact (finite_joint_continuous_prefix d [x] F). Qed.
 
-Lemma finite_joint_continuous_snoc d (F : list R -> R) t :
-  finite_joint_continuous (S d) F -> finite_joint_continuous d (fun xs => F (xs ++ [t])%list).
-Proof.
-  intros HF z eps.
-  assert (Hlenz : length (coordinates_to_list d z ++ [t])%list = S d)
-    by (rewrite length_app coordinates_to_list_length; simpl; lia).
-  destruct (HF (coordinates_of_list _ (coordinates_to_list d z ++ [t])%list) eps) as [delta Hd].
-  rewrite (coordinates_list_roundtrip _ _ Hlenz) in Hd.
-  exists delta; intros w Hclose.
-  assert (Hlenw : length (coordinates_to_list d w ++ [t])%list = S d)
-    by (rewrite length_app coordinates_to_list_length; simpl; lia).
-  assert (Hc : close_n (S d) delta
-    (coordinates_of_list _ (coordinates_to_list d w ++ [t])%list)
-    (coordinates_of_list _ (coordinates_to_list d z ++ [t])%list)).
-  { apply coordinates_close_snoc; try apply coordinates_to_list_length.
-    - rewrite !coordinates_roundtrip; exact Hclose.
-    - rewrite Rminus_diag Rabs_R0; apply cond_pos. }
-  specialize (Hd _ Hc); rewrite (coordinates_list_roundtrip _ _ Hlenw) in Hd; exact Hd.
-Qed.
-
 Theorem finite_joint_continuous_last_section d (F : list R -> R) (xs : list R) :
   finite_joint_continuous (S d) F -> length xs = d ->
   forall t : R, {for t, continuous (fun u : R => F (xs ++ [u])%list)}.
@@ -338,16 +289,4 @@ Proof.
   specialize (Hd _ Hc).
   rewrite (coordinates_list_roundtrip _ _ Hlenu) in Hd.
   exact Hd.
-Qed.
-Theorem finite_joint_continuous_first_section d (F : list R -> R) (xs : list R) :
-  finite_joint_continuous (S d) F -> length xs = d ->
-  forall t : R, {for t, continuous (fun u : R => F (u::xs))}.
-Proof.
-  intros HF Hlen t; apply continuous_Reals; intros eps Heps.
-  destruct (HF (t, coordinates_of_list d xs) (mkposreal eps Heps)) as [delta Hd].
-  exists delta; split; [apply cond_pos|]. intros u Hu.
-  assert (Hc : close_n (S d) delta (u, coordinates_of_list d xs) (t, coordinates_of_list d xs)).
-  { split; [exact Hu|apply coordinates_close_center, cond_pos]. }
-  specialize (Hd _ Hc); simpl in Hd.
-  rewrite (coordinates_list_roundtrip d xs Hlen) in Hd; exact Hd.
 Qed.

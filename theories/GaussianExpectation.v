@@ -81,15 +81,6 @@ Lemma gaussian_integral_correct f :
   gaussian_integral_exists f -> gaussian_has_integral f (gaussian_integral f).
 Proof. by move=> Hf; split. Qed.
 
-Lemma gaussian_has_integral_ext f g l :
-  (forall x, f x = g x) ->
-  gaussian_has_integral f l -> gaussian_has_integral g l.
-Proof.
-  move=> Hfg Hf.
-  have -> : g = f by apply/funext => x; rewrite Hfg.
-  exact Hf.
-Qed.
-
 Lemma gaussian_has_integral_scale f l c :
   gaussian_has_integral f l ->
   gaussian_has_integral (fun x => c * f x) (c * l).
@@ -187,21 +178,6 @@ Proof.
   unfold Rdiv; ring.
 Qed.
 
-(* Coquelicot's filter_prod (Rbar_locally m_infty) (Rbar_locally p_infty)
-   becomes MathComp's filter_prod (-oo%R) (+oo%R) (header, item 3). *)
-Lemma gaussian_endpoints_ordered :
-  filter_prod (-oo%R : set_system R) (+oo%R : set_system R)
-    (fun ab : R * R => fst ab <= snd ab).
-Proof.
-  exists ([set a : R | a < 0], [set b : R | 0 < b]).
-  - split.
-    + exists 0%R; split; first exact: num_real.
-      by move=> x /RltP.
-    + exists 0%R; split; first exact: num_real.
-      by move=> x /RltP.
-  - move=> [a b] [/= Ha Hb]; simpl; lra.
-Qed.
-
 (* The hypothesis ex_RInt_gen gaussian_kernel ... becomes
    whole_line_integrable gaussian_kernel (header, item 1). *)
 Lemma gaussian_has_integral_constant c :
@@ -230,74 +206,10 @@ Proof.
   field; exact Hm.
 Qed.
 
-Lemma gaussian_density_positive_given_mass x :
-  0 < gaussian_mass -> 0 < gaussian_density x.
-Proof.
-  intro Hm; unfold gaussian_density; apply Rdiv_lt_0_compat; [apply exp_pos|exact Hm].
-Qed.
-
-(* The conclusion is_RInt_gen gaussian_density ... 1 becomes
-   whole_line_has_integral gaussian_density 1 (header, items 1 and 2). *)
-Lemma gaussian_density_normalized :
-  whole_line_integrable gaussian_kernel ->
-  gaussian_mass <> 0 ->
-  whole_line_has_integral gaussian_density 1.
-Proof.
-  move=> Hk Hm.
-  have E : gaussian_density = (fun x => / gaussian_mass * gaussian_kernel x).
-  { apply/funext => x; unfold gaussian_density, Rdiv; ring. }
-  rewrite /whole_line_has_integral E.
-  split.
-  - exact: (fubini_integrable_scale setT _ (/ gaussian_mass) measurableT Hk).
-  - rewrite (fubini_integral_scale_l _ (/ gaussian_mass) Hk).
-    change (/ gaussian_mass * gaussian_mass = 1); field; exact Hm.
-Qed.
-
-Lemma gaussian_has_integral_uniform_bound f l B :
-  whole_line_integrable gaussian_kernel ->
-  (forall x, Rabs (f x) <= B) -> gaussian_has_integral f l ->
-  Rabs l <= B * gaussian_mass.
-Proof.
-  move=> Hk Hf [Hi Hl].
-  rewrite -Hl /gaussian_mass.
-  apply: (fubini_Rintegral_bound setT _ gaussian_kernel B measurableT Hi Hk).
-  move=> x _.
-  have Hk0 : gaussian_kernel x >= 0 by left; apply exp_pos.
-  rewrite Rabs_mult (Rabs_right _ Hk0).
-  apply Rmult_le_compat_r; [left; apply exp_pos|apply Hf].
-Qed.
-
-Theorem gaussian_density_positive x : 0 < gaussian_density x.
-Proof. apply gaussian_density_positive_given_mass, gaussian_mass_positive. Qed.
-
-Theorem gaussian_density_mass_one :
-  whole_line_has_integral gaussian_density 1.
-Proof.
-  apply gaussian_density_normalized; [exact gaussian_kernel_integrable|].
-  pose proof gaussian_mass_positive; lra.
-Qed.
-
 Theorem gaussian_expectation_of_constant c : gaussian_expectation (fun _ => c) = c.
 Proof.
   apply gaussian_expectation_constant; [exact gaussian_kernel_integrable|].
   pose proof gaussian_mass_positive; lra.
-Qed.
-
-Theorem gaussian_expectation_uniform_bound f B :
-  gaussian_integral_exists f -> (forall x, Rabs (f x) <= B) ->
-  Rabs (gaussian_expectation f) <= B.
-Proof.
-  intros Hf HB.
-  pose proof (gaussian_has_integral_uniform_bound f (gaussian_integral f) B
-    gaussian_kernel_integrable HB (gaussian_integral_correct f Hf)) as HI.
-  pose proof gaussian_mass_positive as HM.
-  unfold gaussian_expectation, Rdiv.
-  have HM0 : gaussian_mass >= 0 by lra.
-  rewrite Rabs_mult Rabs_inv (Rabs_right _ HM0).
-  apply (Rmult_le_reg_r gaussian_mass); [exact HM|].
-  replace (Rabs (gaussian_integral f) * / gaussian_mass * gaussian_mass)
-    with (Rabs (gaussian_integral f)) by (field; lra).
-  exact HI.
 Qed.
 
 Lemma gaussian_integral_exists_scale f c :
@@ -383,14 +295,6 @@ Qed.
 Lemma gaussian_has_integral_exists f l :
   gaussian_has_integral f l -> gaussian_integral_exists f.
 Proof. by move=> [Hi _]. Qed.
-
-Lemma gaussian_integral_exists_iff f :
-  gaussian_integral_exists f <-> exists l, gaussian_has_integral f l.
-Proof.
-  split.
-  - move=> Hf; exists (gaussian_integral f); exact: gaussian_integral_correct.
-  - move=> [l Hl]; exact: (gaussian_has_integral_exists f l Hl).
-Qed.
 
 Lemma gaussian_integral_exists_constant c :
   gaussian_integral_exists (fun _ => c).

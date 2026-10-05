@@ -179,13 +179,6 @@ rewrite mulmxBl !mulmxBr pmdb_rank1_mul -!scalemxAl -!scalemxAr mulmx1 mul1mx.
 rewrite mul1mx; apply/matrixP => a b; rewrite !mxE; ring.
 Qed.
 
-Theorem paper_main_rank_one_trace_sq (u : 'cV[R]_d) (c : R) :
-  \tr ((u *m u^T - c *: 1%:M) *m (u *m u^T - c *: 1%:M)) =
-  ((u^T *m u) 0 0 - c) ^+ 2 + c ^+ 2 * (d%:R - 1).
-Proof.
-rewrite pmdb_rank1_sq raddfD /= linearZ /= pmdb_tr_rank1 pmdb_tr_scalar; ring.
-Qed.
-
 Theorem paper_main_rank_one_trace_fourth (u : 'cV[R]_d) (c : R) :
   \tr ((u *m u^T - c *: 1%:M) *m (u *m u^T - c *: 1%:M) *m
        (u *m u^T - c *: 1%:M) *m (u *m u^T - c *: 1%:M)) =

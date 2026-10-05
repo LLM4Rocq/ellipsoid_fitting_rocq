@@ -134,46 +134,4 @@ exists S; split => //; split => //.
 exact: (paper_main_support_spread d n W y J S HS Hpos Hpos').
 Qed.
 
-(* The cone form: positive support on K_((b + delta) / (a - delta)) \cap S_F. *)
-Corollary paper_main_support_all_cone (theta a b delta mu A : R) :
-  (2 <= d)%coq_nat -> 0 < theta ->
-  (forall i, (i < n)%nat -> paper_main_symmetric (W i)) ->
-  0 < delta -> delta < a -> 0 < mu ->
-  (forall J : list nat, NoDup J -> incl J (List.seq 0 n) ->
-    INR (length J) <= paper_main_head_budget theta ->
-    exists S0 : 'M[R]_d,
-      paper_main_loewner_le (a *: 1%:M)%R S0 /\ paper_main_loewner_le S0 (b *: 1%:M)%R /\
-      forall i, In i J -> paper_main_pairing (W i) S0 = 0) ->
-  (forall J : list nat, NoDup J -> incl J (List.seq 0 n) ->
-    INR (length J) <= paper_main_head_budget theta ->
-    forall c : nat -> R, (forall i, ~ In i J -> c i = 0) ->
-      mu * squared_norm c (List.seq 0 n) <=
-        paper_main_frobenius (paper_main_support_combination d n W c) ^ 2) ->
-  (forall c : nat -> R,
-    paper_main_frobenius (paper_main_support_combination d n W c) <=
-      A * euclidean_norm c (List.seq 0 n)) ->
-  (forall J : list nat, NoDup J -> incl J (List.seq 0 n) ->
-    INR (length J) <= paper_main_head_budget theta ->
-    forall t : nat -> R, euclidean_norm t (List.seq 0 n) = 1 ->
-      (forall i, In i J -> t i = 0) ->
-      (forall i, Rabs (t i) <= theta / sqrt (INR d)) ->
-      exists S : 'M[R]_d,
-        paper_main_loewner_le ((a - delta) *: 1%:M)%R S /\
-        paper_main_loewner_le S ((b + delta) *: 1%:M)%R /\
-        (forall i, In i J -> paper_main_pairing (W i) S = 0) /\
-        0 < paper_main_support_score d n W t S) ->
-  A * (1 / INR d ^ 2) * (b + delta) * sqrt (INR d) < delta * (sqrt mu / 2) ->
-  forall y : nat -> R, euclidean_norm y (List.seq 0 n) = 1 ->
-    0 < paper_main_head_support (paper_main_support_combination d n W y)
-      (paper_main_head_cone_sphere ((b + delta) / (a - delta))).
-Proof.
-move=> Hd Hth HW Hd0 Hda Hmu Hsec HG HA Htail Hcond y Hy.
-have [S [Hlo [Hup Hpos]]] := paper_main_support_all theta a b delta mu A
-  Hd Hth HW Hd0 Hda Hmu Hsec HG HA Htail Hcond y Hy.
-rewrite paper_main_support_score_pairing in Hpos.
-have Had : 0 < a - delta by lra.
-have [_ H] := paper_main_support_cone_sphere d _ S (a - delta) (b + delta) Had Hlo Hup Hpos.
-exact: H.
-Qed.
-
 End All.

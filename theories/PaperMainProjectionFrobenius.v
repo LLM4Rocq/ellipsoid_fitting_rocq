@@ -39,37 +39,12 @@ apply/matrixP=> i k; rewrite !mxE.
 by apply: eq_bigr => a _; rewrite mxE.
 Qed.
 
-Lemma paper_main_opnorm_action A c : paper_main_cone_opnorm_le A c ->
-  forall v, ((A *m v)^T *m (A *m v)) 0 0<=c ^+ 2*(v^T *m v) 0 0.
-Proof.
-move=> HA v.
-have H := HA (A *m v) v; rewrite -mulmxA in H.
-have Hx := pmh_vec_sqr_ge0 _ (A *m v).
-have Hy := pmh_vec_sqr_ge0 _ v.
-have Hc := sqr_ge0 c.
-set x := ((A *m v)^T *m (A *m v)) 0 0 in H Hx *.
-have [Hx0|Hx0] := eqVneq x 0; first by rewrite Hx0 mulr_ge0.
-have Hxp : 0<x by rewrite lt0r Hx0.
-nra.
-Qed.
-
 Lemma paper_main_action_frobenius A B c :
   (forall v, ((A *m v)^T *m (A *m v)) 0 0<=c ^+ 2*(v^T *m v) 0 0) ->
   paper_main_frobenius (A *m B) ^+ 2<=c ^+ 2*paper_main_frobenius B ^+ 2.
 Proof.
 move=> HA; rewrite !paper_main_frobenius_columns mulr_sumr.
 by apply: ler_sum => j _; rewrite paper_main_product_column; exact: HA.
-Qed.
-
-Theorem paper_main_opnorm_frobenius_left A B c : 0<=c -> paper_main_cone_opnorm_le A c ->
-  paper_main_frobenius (A *m B)<=c*paper_main_frobenius B.
-Proof.
-move=> Hc HA.
-have H := paper_main_action_frobenius A B c (paper_main_opnorm_action A c HA).
-have H1 := pmh_frobenius_ge0 _ (A *m B).
-have H2 := pmh_frobenius_ge0 _ B.
-have H3 : 0<=c*paper_main_frobenius B by exact: mulr_ge0.
-nra.
 Qed.
 
 Theorem paper_main_frobenius_product A B :

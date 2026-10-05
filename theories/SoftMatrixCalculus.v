@@ -71,31 +71,6 @@ Proof.
   apply coordinate_sum_ext; intros i Hi; apply coordinate_sum_ext; intros j Hj; ring.
 Qed.
 
-Theorem soft_matrix_scores_trace_product n y B I (A : nat -> matrix n) z s :
-  soft_matrix_scores n y B I A z s =
-    finite_sum (fun i => y z i * matrix_trace n (matrix_mul n (A i) (B s))) I.
-Proof.
-  unfold soft_matrix_scores; apply gibbs_sum_ext; intros i Hi.
-  rewrite soft_matrix_trace_pair_swap trace_pair_is_trace_product; reflexivity.
-Qed.
-
-Lemma soft_matrix_block_add_zero n (A : nat -> matrix n) i :
-  soft_matrix_block_add n A i (matrix_zero n) = A.
-Proof.
-  apply functional_extensionality; intros j; unfold soft_matrix_block_add.
-  destruct (Nat.eq_dec j i); [|reflexivity].
-  unfold matrix_add, matrix_zero; exact: addr0.
-Qed.
-
-Lemma soft_matrix_block_add_symmetric n (A : nat -> matrix n) i (M : matrix n) I :
-  (forall j, In j I -> symmetric_matrix n (A j)) -> symmetric_matrix n M ->
-  forall j, In j I -> symmetric_matrix n (soft_matrix_block_add n A i M j).
-Proof.
-  intros HA HM j Hj; unfold soft_matrix_block_add; destruct (Nat.eq_dec j i).
-  - apply matrix_add_symmetric; [apply HA; exact Hj|exact HM].
-  - apply HA; exact Hj.
-Qed.
-
 Lemma soft_matrix_single_sum I i x :
   NoDup I -> In i I -> finite_sum (fun j => match Nat.eq_dec j i with left _ => x | right _ => 0 end) I = x.
 Proof.
@@ -126,74 +101,4 @@ Proof.
     destruct (Nat.eq_dec j i); [subst; rewrite trace_pair_add; ring|ring].
   - rewrite gibbs_sum_add (soft_matrix_single_sum I i _ HD Hi).
     unfold matrix_affine_scores, soft_matrix_coefficients; rewrite trace_pair_left_scale; reflexivity.
-Qed.
-
-Theorem soft_matrix_phi_perturbation n beta gamma y B I Y S (A : nat -> matrix n) i M :
-  NoDup I -> In i I ->
-  soft_matrix_phi n beta gamma y B I Y S (soft_matrix_block_add n A i M) =
-    soft_minimax beta gamma
-      (matrix_affine_scores n (soft_matrix_scores n y B I A) (soft_matrix_coefficients n y B i) M) Y S.
-Proof.
-  intros HD Hi; unfold soft_matrix_phi; rewrite (soft_matrix_scores_perturbation n y B I A i M HD Hi).
-  reflexivity.
-Qed.
-
-Lemma soft_matrix_first_rebase n beta gamma H coeff Y S (M U : matrix n) :
-  matrix_nested_derivative n beta gamma (matrix_affine_scores n H coeff M) coeff Y S (matrix_zero n) U =
-    matrix_nested_derivative n beta gamma H coeff Y S M U.
-Proof.
-  unfold matrix_nested_derivative, matrix_inner_derivative, matrix_inner_values.
-  rewrite !matrix_affine_scores_at_zero; reflexivity.
-Qed.
-
-Lemma soft_matrix_second_rebase n beta gamma H coeff Y S (M U V : matrix n) :
-  matrix_nested_second_derivative n beta gamma (matrix_affine_scores n H coeff M) coeff
-    Y S (matrix_zero n) U V = matrix_nested_second_derivative n beta gamma H coeff Y S M U V.
-Proof.
-  unfold matrix_nested_second_derivative, matrix_inner_covariance, matrix_inner_derivative, matrix_inner_values.
-  rewrite !matrix_affine_scores_at_zero; reflexivity.
-Qed.
-
-Theorem soft_matrix_coordinate_derivatives n beta gamma y B I Y S (A : nat -> matrix n) i :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> NoDup I -> In i I ->
-  is_diff (matrix_zero n)
-    ((fun M => soft_matrix_phi n beta gamma y B I Y S (soft_matrix_block_add n A i M))
-      : matrix n -> R^o)
-    (soft_matrix_first n beta gamma y B I Y S A i) /\
-  forall U : matrix n,
-  is_diff (matrix_zero n)
-    ((fun M => soft_matrix_first n beta gamma y B I Y S (soft_matrix_block_add n A i M) i U)
-      : matrix n -> R^o)
-    (soft_matrix_second n beta gamma y B I Y S A i U) /\
-  forall V : matrix n,
-  is_diff (matrix_zero n)
-    ((fun M => soft_matrix_second n beta gamma y B I Y S (soft_matrix_block_add n A i M) i U V)
-      : matrix n -> R^o)
-    (soft_matrix_third n beta gamma y B I Y S A i U V).
-Proof.
-  intros Hb Hg HY HS HD Hi.
-  destruct (matrix_nested_soft_minimax_third_frechet n beta gamma (soft_matrix_scores n y B I A)
-    (soft_matrix_coefficients n y B i) Y S Hb Hg HY HS (matrix_zero n)) as [Hfirst Hrest].
-  split.
-  - have -> : (fun M => soft_matrix_phi n beta gamma y B I Y S (soft_matrix_block_add n A i M)) =
-      (fun M => soft_minimax beta gamma
-        (matrix_affine_scores n (soft_matrix_scores n y B I A) (soft_matrix_coefficients n y B i) M) Y S).
-    { apply: funext => M; apply soft_matrix_phi_perturbation; assumption. }
-    exact Hfirst.
-  - intros U; destruct (Hrest U) as [Hsecond Hthird]; split.
-    + have -> : (fun M => soft_matrix_first n beta gamma y B I Y S (soft_matrix_block_add n A i M) i U) =
-        (fun M => matrix_nested_derivative n beta gamma (soft_matrix_scores n y B I A)
-          (soft_matrix_coefficients n y B i) Y S M U).
-      { apply: funext => M; unfold soft_matrix_first.
-        rewrite (soft_matrix_scores_perturbation n y B I A i M HD Hi).
-        apply soft_matrix_first_rebase. }
-      exact Hsecond.
-    + intros V.
-      have -> : (fun M => soft_matrix_second n beta gamma y B I Y S (soft_matrix_block_add n A i M) i U V) =
-        (fun M => matrix_nested_second_derivative n beta gamma (soft_matrix_scores n y B I A)
-          (soft_matrix_coefficients n y B i) Y S M U V).
-      { apply: funext => M; unfold soft_matrix_second.
-        rewrite (soft_matrix_scores_perturbation n y B I A i M HD Hi).
-        apply soft_matrix_second_rebase. }
-      exact (Hthird V).
 Qed.

@@ -25,11 +25,6 @@ Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
 
-(* The balanced event is measurable, for every n and d. *)
-Theorem paper_main_balanced_event_measurable_all :
-  forall n d : nat, measurable (paper_main_balanced_pd_event n d).
-Proof. exact: pm_balanced_pd_event_measurable. Qed.
-
 (* The balanced probability tends to 1 above density 1/4. *)
 Theorem paper_main_balanced_supercritical_limit (n : nat -> nat) :
   paper_main_liminf_gt (paper_main_density n) (1 / 4%:R) ->
@@ -41,15 +36,4 @@ apply: paper_main_balanced_from_unsat.
 - exact: pm_balanced_pd_event_measurable.
 - by move=> m d x Hd Hspan Hnot; exact: paper_main_not_fit_balanced.
 - exact: paper_main_unsat_supercritical_limit.
-Qed.
-
-(* Both together: the endpoint with its unconditional measurability. *)
-Corollary paper_main_balanced_supercritical_endpoint :
-  (forall n d : nat, measurable (paper_main_balanced_pd_event n d)) /\
-  forall n : nat -> nat, paper_main_liminf_gt (paper_main_density n) (1 / 4%:R) ->
-    paper_main_tends_to (fun d => paper_main_probability (n d) d
-      (paper_main_balanced_pd_event (n d) d)) 1.
-Proof.
-split; first exact: paper_main_balanced_event_measurable_all.
-exact: paper_main_balanced_supercritical_limit.
 Qed.

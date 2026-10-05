@@ -115,32 +115,6 @@ apply: paper_main_public_soft_minimax_ext => i Hi.
 apply List.in_seq in Hi; apply paper_main_goe_array_public; lia.
 Qed.
 
-Theorem paper_main_public_soft_endpoint_integrable n m beta gamma y B Y S :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  (forall s, In s S -> paper_main_symmetric (B s)) ->
-  ((gaussian_product_law (Nat.mul (Datatypes.S m) (Datatypes.S (goe_vector_index n)))).-integrable
-    setT (fun x => (paper_main_public_soft_minimax (Datatypes.S n) (Datatypes.S m)
-      beta gamma y B Y S (paper_main_public_goe_feature n (tval x)))%:E)) /\
-  ((paper_main_probability (Datatypes.S m) (Datatypes.S n)).-integrable
-    setT (fun x => (paper_main_public_soft_minimax (Datatypes.S n) (Datatypes.S m)
-      beta gamma y B Y S (paper_main_head_feature x))%:E)).
-Proof.
-move=> Hb Hg HY HS Hsym.
-have [[IG _] [IW _]] := paper_main_soft_endpoint_laws n m beta gamma y
-  (fun s => paper_main_matrix_from_public n (B s)) Y S Hb Hg HY HS.
-have EG : (fun x : (Nat.mul (Datatypes.S m) (Datatypes.S (goe_vector_index n))).-tuple (measurableTypeR R) =>
-  (multirow_goe_value n m beta gamma y (fun s => paper_main_matrix_from_public n (B s)) Y S (tval x))%:E) =
-  (fun x => (paper_main_public_soft_minimax (Datatypes.S n) (Datatypes.S m)
-      beta gamma y B Y S (paper_main_public_goe_feature n (tval x)))%:E).
-{ by apply: funext => x; rewrite paper_main_goe_value_public. }
-have EW : (fun x : paper_main_sample (Datatypes.S m) (Datatypes.S n) =>
-  (multirow_quadratic_value n m beta gamma y (fun s => paper_main_matrix_from_public n (B s)) Y S (tval x))%:E) =
-  (fun x => (paper_main_public_soft_minimax (Datatypes.S n) (Datatypes.S m)
-      beta gamma y B Y S (paper_main_head_feature x))%:E).
-{ by apply: funext => x; rewrite paper_main_quadratic_value_public. }
-by rewrite EG in IG; rewrite EW in IW; split.
-Qed.
-
 Theorem paper_main_public_feature_soft_comparison n m beta gamma theta k y B Y S :
   0 < beta -> 0 < gamma -> 0 < theta -> 0 <= k -> Y <> [] -> S <> [] ->
   (forall z, In z Y -> euclidean_norm (y z) (List.seq 0 (Datatypes.S m)) = 1) ->

@@ -132,23 +132,6 @@ Proof.
   - intros; apply block_inner_first_along_continuous; assumption.
 Qed.
 
-Theorem block_second_along_continuous {E : topologicalType} n m beta gamma y B Y S
-    (A U V : E -> block_array n m) q :
-  0<gamma -> Y<>[] -> S<>[] -> {for q, continuous A} -> {for q, continuous U} ->
-  {for q, continuous V} ->
-  {for q, continuous (fun x => lower_block_second n m beta gamma y B Y S (A x) (U x) (V x))}.
-Proof.
-  intros Hg HY HS HA HU HV; unfold lower_block_second, lower_second.
-  apply continuous_Rminus_fct; apply continuous_Rmult_fct; try apply: cst_continuous.
-  - apply gibbs_average_continuous; [exact HY| |].
-    + intros; apply block_inner_value_along_continuous; assumption.
-    + intros; apply block_inner_covariance_along_continuous; assumption.
-  - apply gibbs_covariance_continuous; [exact HY| | |].
-    + intros; apply block_inner_value_along_continuous; assumption.
-    + intros; apply block_inner_first_along_continuous; assumption.
-    + intros; apply block_inner_first_along_continuous; assumption.
-Qed.
-
 Theorem block_third_along_continuous {E : topologicalType} n m beta gamma y B Y S
     (A U V W : E -> block_array n m) q :
   0<gamma -> Y<>[] -> S<>[] -> {for q, continuous A} -> {for q, continuous U} ->

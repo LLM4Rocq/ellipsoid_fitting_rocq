@@ -194,16 +194,6 @@ Proof.
     nra.
 Qed.
 
-Lemma finite_polynomial_bound_box d C p F xs R :
-  finite_polynomial_bound d C p F -> length xs = d ->
-  0 <= R -> (forall x, In x xs -> Rabs x <= R) ->
-  Rabs (F xs) <= C * (1 + R) ^ (p * d)%coq_nat.
-Proof.
-  intros [HC HF] Hlen HR Hb.
-  pose proof (gaussian_coordinate_product_weight_box p xs R HR Hb) as H.
-  rewrite Hlen in H; specialize (HF xs Hlen); nra.
-Qed.
-
 Lemma gaussian_coordinate_product_weight_degree_add p q xs :
   gaussian_coordinate_product_weight (p+q)%coq_nat xs =
   gaussian_coordinate_product_weight p xs * gaussian_coordinate_product_weight q xs.
@@ -363,21 +353,4 @@ Proof.
     rewrite Hfun (gaussian_expectation_scale _ _
       (proj1 (gaussian_coordinate_weight_integrable p))).
     unfold gaussian_coordinate_weight_moment; simpl; ring.
-Qed.
-
-Theorem gaussian_coordinate_product_weight_integral p d :
-  gaussian_iterated_integrable d (gaussian_coordinate_product_weight p) /\
-  gaussian_iterated_absolutely_integrable d (gaussian_coordinate_product_weight p) /\
-  gaussian_iterated_has_expectation d (gaussian_coordinate_product_weight p)
-    (gaussian_coordinate_weight_moment p ^ d) /\
-  gaussian_iterated_expectation d (gaussian_coordinate_product_weight p) =
-    gaussian_coordinate_weight_moment p ^ d.
-Proof.
-  destruct (gaussian_coordinate_product_weight_expectation p d) as [HI HE].
-  split; [exact HI|]. split.
-  - unfold gaussian_iterated_absolutely_integrable.
-    apply gaussian_iterated_integrable_ext with (F := gaussian_coordinate_product_weight p).
-    + intros xs Hxs; symmetry; apply Rabs_pos_eq; apply gaussian_coordinate_product_weight_nonnegative.
-    + exact HI.
-  - split; [rewrite <- HE; apply gaussian_iterated_has_expectation_correct; exact HI|exact HE].
 Qed.

@@ -107,24 +107,4 @@ transitivity (gaussian_iterated_expectation K
   rewrite (paper_main_gaussian_identity_image K xs Hxs); reflexivity.
 Qed.
 
-Theorem paper_main_gaussian_path_constant_marginal p q P Q t :
-  0 <= t <= 1 ->
-  (forall a b, (a < K)%coq_nat -> (b < K)%coq_nat ->
-    gaussian_covariance_entry p P a b = gaussian_covariance_entry q Q a b) ->
-  gaussian_iterated_expectation (p + q)%coq_nat
-    (fun xs => f (gaussian_covariance_path K p q P Q t xs)) =
-  gaussian_iterated_expectation p (fun xs => f (gaussian_covariance_image K p P xs)).
-Proof.
-intros Ht Hcov.
-rewrite gaussian_covariance_path_linear.
-change (gaussian_iterated_expectation (p + q)%coq_nat
-  (fun xs => f (gaussian_covariance_image K (p + q)%coq_nat
-    (gaussian_covariance_coef p q P Q t) xs)) =
-  gaussian_iterated_expectation p (fun xs => f (gaussian_covariance_image K p P xs))).
-apply (paper_main_covariance_equal_expectation K f Df D2f C r
-  Hf HD HDc HD2 HD2c Hfb HDb HD2b).
-intros a b Ha Hb.
-rewrite (paper_main_gaussian_path_covariance p q P Q t a b Ht).
-rewrite <- (Hcov a b Ha Hb); ring.
-Qed.
 End SmoothFunction.

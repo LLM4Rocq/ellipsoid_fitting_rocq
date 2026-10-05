@@ -61,25 +61,6 @@ have [HB [HA Hy]] := Had z q Hz Hq.
 exact: paper_main_data_clipped_score_lipschitz.
 Qed.
 
-(* 2. Gaussian integrability and the iterated expectation. *)
-Theorem paper_main_data_clipped_soft_gaussian_law U n N k beta gamma Bf yf Y Q :
-  0 <= U -> 0 <= k -> 0 < beta -> 0 < gamma -> Y <> [] -> Q <> [] ->
-  paper_main_data_clipped_admissible n N k Bf yf Y Q ->
-  (gaussian_product_law (N * S n)).-integrable setT
-    (fun x => (soft_minimax beta gamma
-      (paper_main_data_clipped_family U n N Bf yf (tval x)) Y Q)%:E) /\
-  (\int[gaussian_product_law (N * S n)]_x
-      (soft_minimax beta gamma (paper_main_data_clipped_family U n N Bf yf (tval x)) Y Q)%:E =
-    (gaussian_iterated_expectation (N * S n)
-      (fun xs => soft_minimax beta gamma (paper_main_data_clipped_family U n N Bf yf xs) Y Q))%:E)%E.
-Proof.
-move=> HU Hk Hb Hg HY HQ Had.
-apply: (paper_main_soft_gaussian_law (N * S n) beta gamma
-  (paper_main_data_clipped_family U n N Bf yf) Y Q (2 * k * U)) => //.
-- by apply: Rmult_le_pos => //; lra.
-- exact: pmdcs_family_lipschitz.
-Qed.
-
 (* 3. Measurability of the sublevel sets. *)
 Theorem paper_main_data_clipped_soft_le_measurable U n N k beta gamma Bf yf Y Q c :
   0 <= U -> 0 <= k -> 0 < beta -> 0 < gamma -> Y <> [] -> Q <> [] ->
@@ -92,22 +73,4 @@ apply: (paper_main_soft_gaussian_le_measurable (N * S n) beta gamma
   (paper_main_data_clipped_family U n N Bf yf) Y Q (2 * k * U)) => //.
 - by apply: Rmult_le_pos => //; lra.
 - exact: pmdcs_family_lipschitz.
-Qed.
-
-(* 4. The Gaussian lower tail with L = 2kU, for k > 0 and U > 0. *)
-Theorem paper_main_data_clipped_soft_lower_tail U n N k beta gamma Bf yf Y Q u :
-  0 < U -> 0 < k -> 0 < beta -> 0 < gamma -> Y <> [] -> Q <> [] -> 0 < u ->
-  paper_main_data_clipped_admissible n N k Bf yf Y Q ->
-  (gaussian_product_law (N * S n)
-    [set x | Rle (soft_minimax beta gamma (paper_main_data_clipped_family U n N Bf yf (tval x)) Y Q)
-      (fine (\int[gaussian_product_law (N * S n)]_v
-        (soft_minimax beta gamma (paper_main_data_clipped_family U n N Bf yf (tval v)) Y Q)%:E)%E
-       - u)] <=
-    (exp (- u ^ 2 / (2 * (2 * k * U) ^ 2)))%:E)%E.
-Proof.
-move=> HU Hk Hb Hg HY HQ Hu Had.
-apply: (paper_main_soft_gaussian_lower_tail (N * S n) beta gamma
-  (paper_main_data_clipped_family U n N Bf yf) Y Q (2 * k * U) u) => //.
-- by apply: Rmult_lt_0_compat => //; lra.
-- exact: pmdcs_family_lipschitz U n N k Bf yf Y Q (Rlt_le _ _ HU) (Rlt_le _ _ Hk) Had.
 Qed.

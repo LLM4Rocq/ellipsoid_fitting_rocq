@@ -108,29 +108,3 @@ Proof.
              (apply Rdiv_lt_0_compat; [lra | now apply pow_lt]).
            lra.
 Qed.
-
-Lemma unit_norm_energy (y : nat -> R) (A : list nat) :
-  vector_norm y A = 1 -> squared_energy y A = 1.
-Proof.
-  unfold vector_norm; intro Hnorm.
-  pose proof (sqrt_def _ (squared_energy_nonneg y A)) as Hsquare.
-  rewrite Hnorm in Hsquare; lra.
-Qed.
-
-Theorem head_tail_decomposition :
-  forall theta : R, 0 < theta -> exists C : R, 0 < C /\
-  forall (d n : nat) (y : nat -> R),
-    (1 <= d)%nat -> vector_norm y (seq 0 n) = 1 ->
-    exists J : list nat,
-      NoDup J /\ incl J (seq 0 n) /\
-      INR (length J) <= C * INR d * ln (INR d) /\
-      (vector_norm y (tail_indices n J) <= 1 / (INR d) ^ 2 \/
-       (0 < vector_norm y (tail_indices n J) /\
-        forall i, In i (tail_indices n J) ->
-          Rabs (y i / vector_norm y (tail_indices n J)) <= theta / sqrt (INR d))).
-Proof.
-  intros theta Htheta; exists (head_tail_constant theta).
-  split; [now apply head_tail_constant_positive |].
-  intros d n y Hd Hy; apply head_tail_decomposition_explicit; try assumption.
-  now apply unit_norm_energy.
-Qed.

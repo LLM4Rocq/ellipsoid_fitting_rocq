@@ -6,7 +6,7 @@ From mathcomp Require Import topology normedtype derive.
 From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeights GibbsMomentBounds
   ThirdDefinitions MatrixDefinitions OperatorDefinitions LowerDefinitions LowerNormBounds
-  LowerFrechet LowerBounds FullThirdDefinitions FullThirdFrechet FullThirdContinuity.
+  LowerFrechet LowerBounds FullThirdDefinitions.
 Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.

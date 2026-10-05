@@ -138,27 +138,6 @@ split.
   by rewrite !RmultE RpowE INRE.
 Qed.
 
-Theorem paper_main_head_width_coercive_probability (N : nat -> nat) C K c eps :
-  (0 <= C)%Rcoq -> (0 <= K)%Rcoq -> (0 < c)%Rcoq -> (0 < eps)%Rcoq ->
-  (exists D, forall d, Nat.le D d -> (INR (N d) <= C*(INR d)^2)%Rcoq) ->
-  exists kappa, (1 <= kappa)%Rcoq /\ exists A : forall d, set (paper_main_sample (N d) d),
-    (forall d, measurable (A d)) /\
-    paper_main_tends_to (fun d => paper_main_probability (N d) d (A d)) 0 /\
-    exists D, forall n, Nat.le D n -> forall x, ~ A (S n) x ->
-      paper_main_head_coercive
-        (paper_main_head_gram (fun i : 'I_(N (S n)) => paper_main_head_feature x i)) (c*(S n)%:R) ->
-      forall m (h : paper_main_sample m (S n)) (s : 'I_m -> 'I_(N (S n))),
-        injective s -> (INR m <= K*INR (S n)*Rpower.ln(INR (S n)))%Rcoq ->
-        (forall k : 'I_m, paper_main_head_feature h k = paper_main_head_feature x (s k)) ->
-        ((1/2-eps)*INR (S n) <= fine (paper_main_head_section_width n m kappa h))%Rcoq.
-Proof.
-move=> HC HK Hc Heps HN.
-have [k0 [Hk0 Hbase]] := paper_main_gaussian_condition_width_large (eps/2)%Rcoq ltac:(lra).
-exists (2*k0^2)%Rcoq; split; first nra.
-exact: paper_main_head_width_coercive_probability_fixed N C K c k0 eps
-  HC HK Hc Heps HN Hk0 Hbase.
-Qed.
-
 (* Kappa is chosen before the head-size budget and all data constants. *)
 Theorem paper_main_head_width_coercive_probability_uniform eps :
   (0 < eps)%Rcoq -> exists kappa, (1 <= kappa)%Rcoq /\

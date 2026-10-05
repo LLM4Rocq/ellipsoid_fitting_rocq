@@ -82,11 +82,6 @@ Proof.
   rewrite app_assoc; reflexivity.
 Qed.
 
-Lemma gaussian_suffix_marginal_head n F x xs :
-  gaussian_suffix_marginal n F (x::xs) =
-    gaussian_suffix_marginal n (fun ys => F (x::ys)) xs.
-Proof. reflexivity. Qed.
-
 Lemma gaussian_suffix_marginal_swap_head n F x y :
   gaussian_suffix_marginal n (fun xs => F (swap_adjacent 0 xs)) [x;y] =
     gaussian_suffix_marginal n F [y;x].

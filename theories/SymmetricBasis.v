@@ -156,14 +156,6 @@ Proof.
   rewrite matrix_entry_add matrix_entry_scale; ring.
 Qed.
 
-Theorem chaos_second_offdiagonal n a b :
-  chaos_second n a b = matrix_scale n (sqrt 2) (symmetric_offdiagonal_basis n a b).
-Proof.
-  assert (H0 : sqrt 2 <> 0) by (pose proof (sqrt_def 2 ltac:(lra)); nra).
-  apply matrix_ext; intros i j Hi Hj; unfold symmetric_offdiagonal_basis.
-  rewrite !matrix_entry_scale; field; exact H0.
-Qed.
-
 Theorem chaos_second_swap n a b : chaos_second n a b = chaos_second n b a.
 Proof.
   apply matrix_ext; intros i j Hi Hj; unfold chaos_second; rewrite !matrix_entry_add; ring.
@@ -181,48 +173,4 @@ Proof.
   rewrite (symmetric_basis_normalized n a b Hab Hb) in HE.
   assert (H0 : 0 <= (`|symmetric_basis n a b|)%R) by (apply/RleP; apply normr_ge0).
   nra.
-Qed.
-
-Theorem symmetric_offdiagonal_reconstruction n (A : matrix n) i j :
-  symmetric_matrix n A -> (i <= n)%coq_nat -> (j <= n)%coq_nat ->
-  matrix_entry n A i j = / sqrt 2 * trace_pair n (symmetric_offdiagonal_basis n i j) A.
-Proof.
-  intros HA Hi Hj; rewrite (symmetric_offdiagonal_trace n i j A Hi Hj).
-  rewrite (HA j i Hj Hi).
-  replace (/ sqrt 2 * (/ sqrt 2 * (matrix_entry n A i j + matrix_entry n A i j))) with
-    ((/ sqrt 2 * / sqrt 2) * (2 * matrix_entry n A i j)) by ring.
-  rewrite symmetric_inv_sqrt2_square; field.
-Qed.
-
-(* Every coefficient below belongs to the independent upper-triangular family. *)
-Theorem symmetric_matrix_entry_reconstruction n (A : matrix n) i j :
-  symmetric_matrix n A -> (i <= n)%coq_nat -> (j <= n)%coq_nat ->
-  matrix_entry n A i j =
-    if Nat.eqb i j then trace_pair n (symmetric_basis n i j) A
-    else if Nat.ltb i j then / sqrt 2 * trace_pair n (symmetric_basis n i j) A
-    else / sqrt 2 * trace_pair n (symmetric_basis n j i) A.
-Proof.
-  intros HA Hi Hj; destruct (Nat.eqb i j) eqn:Heq.
-  - apply Nat.eqb_eq in Heq; subst j; unfold symmetric_basis; rewrite Nat.eqb_refl.
-    symmetry; apply symmetric_diagonal_trace; assumption.
-  - unfold symmetric_basis; rewrite Heq Nat.eqb_sym Heq.
-    destruct (Nat.ltb i j).
-    + apply symmetric_offdiagonal_reconstruction; assumption.
-    + rewrite (HA i j Hi Hj); apply symmetric_offdiagonal_reconstruction; assumption.
-Qed.
-
-Theorem symmetric_basis_coefficients_determine n (A B : matrix n) :
-  symmetric_matrix n A -> symmetric_matrix n B ->
-  (forall a b, (a <= b)%coq_nat -> (b <= n)%coq_nat ->
-    trace_pair n (symmetric_basis n a b) A = trace_pair n (symmetric_basis n a b) B) ->
-  A = B.
-Proof.
-  intros HA HB HC; apply matrix_ext; intros i j Hi Hj.
-  rewrite (symmetric_matrix_entry_reconstruction n A i j HA Hi Hj).
-  rewrite (symmetric_matrix_entry_reconstruction n B i j HB Hi Hj).
-  destruct (Nat.eqb i j) eqn:Heq.
-  - apply Nat.eqb_eq in Heq; subst j; apply HC; lia.
-  - destruct (Nat.ltb i j) eqn:Hlt; f_equal; apply HC; try assumption.
-    + apply Nat.ltb_lt in Hlt; lia.
-    + apply Nat.ltb_ge in Hlt; lia.
 Qed.

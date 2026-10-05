@@ -37,18 +37,6 @@ apply/matrixP => i j.
 by rewrite paper_main_matrix_to_public_entry paper_main_matrix_from_public_entry.
 Qed.
 
-Lemma paper_main_matrix_internal_roundtrip n (A : MatrixDefinitions.matrix n) :
-  paper_main_matrix_from_public n (paper_main_matrix_to_public n A) = A.
-Proof.
-apply matrix_ext; intros i j Hi Hj.
-unfold paper_main_matrix_from_public.
-rewrite matrix_entry_build; try assumption.
-rewrite paper_main_matrix_to_public_entry.
-have Hi' : (i < S n)%nat by apply/ssrnat.ltP; lia.
-have Hj' : (j < S n)%nat by apply/ssrnat.ltP; lia.
-by rewrite (inordK Hi') (inordK Hj').
-Qed.
-
 Lemma paper_main_matrix_public_symmetric n (A : MatrixDefinitions.matrix n) :
   symmetric_matrix n A -> paper_main_symmetric (paper_main_matrix_to_public n A).
 Proof.

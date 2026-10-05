@@ -62,12 +62,3 @@ have H : 0 <= (1 + S - paper_main_remainder_constant k h) * eta.
   by apply: mulr_ge0; [rewrite subr_ge0; lra | exact: ltW].
 lra.
 Qed.
-
-Corollary paper_main_remainder_tolerance_exists (K : nat) (h eta : R) :
-  0 <= h -> 0 < eta ->
-  exists delta : R, 0 < delta /\ delta <= 1 /\
-    forall k, (k < K)%N -> paper_main_remainder_constant k h * delta <= eta.
-Proof.
-move=> Hh Heta; exists (paper_main_remainder_tolerance K h eta).
-exact: paper_main_remainder_tolerance_spec.
-Qed.

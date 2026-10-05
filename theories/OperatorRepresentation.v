@@ -6,7 +6,7 @@ From mathcomp Require Import Rstruct.
 From mathcomp Require Import topology normedtype.
 From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates GradientDefinitions MatrixGradient
-  CoefficientDefinitions CoefficientMaps OperatorSpaceDefinitions.
+  CoefficientDefinitions CoefficientMaps.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
@@ -48,42 +48,6 @@ Open Scope R_scope.
       boolp.propositional_extensionality, two of the seven axioms of the
       README, so the module does not need Classical_Prop.classic. *)
 
-Theorem bounded_matrix_map_ext n V (L M : bounded_matrix_map n V) :
-  (forall W, operator_apply n V L W = operator_apply n V M W) -> L = M.
-Proof.
-  destruct L as [f Hf], M as [g Hg]; simpl; intros H.
-  assert (f = g) by (apply funext; exact H).
-  subst g; f_equal; apply Prop_irrelevance.
-Qed.
-
-Theorem operator_coefficient_apply_linear n V C :
-  linear (operator_coefficient_apply n V C) /\
-  exists M : R, 0 < M /\
-    forall x : matrix n, (`|operator_coefficient_apply n V C x|)%R <= M * (`|x|)%R.
-Proof. apply coefficient_contract_linear_direction. Qed.
-
-Definition operator_decode n V (C : operator_coefficients n V) : bounded_matrix_map n V :=
-  exist _ (operator_coefficient_apply n V C) (operator_coefficient_apply_linear n V C).
-
-Lemma operator_coefficient_encode n V L i j :
-  (i <= n)%coq_nat -> (j <= n)%coq_nat ->
-  operator_coefficient n V (operator_encode n V L) i j =
-  operator_apply n V L (matrix_basis n j i).
-Proof.
-  intros; unfold operator_coefficient, operator_encode; rewrite !tuple_entry_build //.
-Qed.
-
-Theorem operator_decode_encode n V (L : bounded_matrix_map n V) :
-  operator_decode n V (operator_encode n V L) = L.
-Proof.
-  apply bounded_matrix_map_ext; intros W.
-  change (coefficient_contract V n (operator_coefficient n V (operator_encode n V L)) W = operator_apply n V L W).
-  transitivity (coefficient_contract V n (fun i j => operator_apply n V L (matrix_basis n j i)) W).
-  - unfold coefficient_contract; apply module_coordinate_sum_ext; intros i Hi.
-    apply module_coordinate_sum_ext; intros j Hj; rewrite operator_coefficient_encode //.
-  - apply matrix_linear_basis_reconstruction; exact (proj2_sig L).
-Qed.
-
 Lemma module_coordinate_sum_zero (V : normedModType R) n :
   module_coordinate_sum V n (fun _ => 0%R) = 0%R.
 Proof. induction n; simpl; [reflexivity|by rewrite IHn addr0]. Qed.
@@ -100,33 +64,4 @@ Proof.
     + f_equal; apply module_coordinate_sum_ext; intros i Hi; by rewrite scale0r.
     + by rewrite module_coordinate_sum_zero addr0.
   - rewrite scale0r add0r; apply (IH j (fun i => f (S i))); lia.
-Qed.
-
-Theorem operator_coefficient_apply_basis n V C i j :
-  (i <= n)%coq_nat -> (j <= n)%coq_nat ->
-  operator_coefficient_apply n V C (matrix_basis n j i) = operator_coefficient n V C i j.
-Proof.
-  intros Hi Hj; unfold operator_coefficient_apply, coefficient_contract.
-  transitivity (module_coordinate_sum V n (fun r =>
-    ((if Nat.eqb r i then 1 else 0) *: operator_coefficient n V C r j)%R)).
-  - apply module_coordinate_sum_ext; intros r Hr.
-    transitivity (module_coordinate_sum V n (fun c =>
-      ((if Nat.eqb c j then 1 else 0) *:
-        ((if Nat.eqb r i then 1 else 0) *: operator_coefficient n V C r c))%R)).
-    + apply module_coordinate_sum_ext; intros c Hc.
-      rewrite matrix_basis_entry //.
-      destruct (Nat.eqb c j), (Nat.eqb r i); simpl;
-        rewrite ?scale1r ?scale0r ?scaler0 //.
-    + exact (module_coordinate_sum_select V n j (fun c =>
-        ((if Nat.eqb r i then 1 else 0) *: operator_coefficient n V C r c)%R) Hj).
-  - exact (module_coordinate_sum_select V n i (fun r => operator_coefficient n V C r j) Hi).
-Qed.
-
-Theorem operator_encode_decode n V (C : operator_coefficients n V) :
-  operator_encode n V (operator_decode n V C) = C.
-Proof.
-  apply tuple_ext; intros i Hi; apply tuple_ext; intros j Hj.
-  change (operator_coefficient n V (operator_encode n V (operator_decode n V C)) i j = operator_coefficient n V C i j).
-  rewrite operator_coefficient_encode //.
-  apply operator_coefficient_apply_basis; assumption.
 Qed.

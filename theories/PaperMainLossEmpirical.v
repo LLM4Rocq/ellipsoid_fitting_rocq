@@ -7,23 +7,6 @@ Open Scope R_scope.
 Definition paper_main_loss_empirical N u :=
   /INR N*finite_sum (fun i => paper_main_loss(u i)) (List.seq 0 N).
 
-Lemma paper_main_loss_empirical_bounds N u : 0<=paper_main_loss_empirical N u<=1.
-Proof.
-destruct N as [|N]; [unfold paper_main_loss_empirical; simpl; rewrite Rinv_0; lra|].
-assert (HN : 0<INR(S N)) by (apply lt_0_INR; lia).
-assert (HL : 0<=finite_sum (fun i => paper_main_loss(u i)) (List.seq 0 (S N))).
-{ apply finite_sum_nonneg; intros; apply paper_main_loss_bounds. }
-assert (HU : finite_sum (fun i => paper_main_loss(u i)) (List.seq 0 (S N))<=INR(S N)).
-{ replace (INR(S N)) with (finite_sum (fun _ => 1) (List.seq 0 (S N)))
-    by (rewrite finite_sum_const,List.length_seq; ring).
-  apply finite_sum_le; intros; apply paper_main_loss_bounds. }
-unfold paper_main_loss_empirical.
-pose proof(Rinv_0_lt_compat _ HN).
-assert (HE : /INR(S N)*INR(S N)=1) by (field; lra).
-split; [apply Rmult_le_pos; lra|].
-pose proof(Rmult_le_compat_l (/INR(S N)) _ _ ltac:(lra) HU); lra.
-Qed.
-
 Lemma paper_main_loss_empirical_zero N u :
   (forall i, (i<N)%nat -> u i=0) -> paper_main_loss_empirical N u=0.
 Proof.

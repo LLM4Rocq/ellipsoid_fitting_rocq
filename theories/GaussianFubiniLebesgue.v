@@ -119,23 +119,6 @@ move=> hF hw; apply: continuity_2d_pt_mult => //.
 exact: fubini_joint_continuous_right.
 Qed.
 
-Lemma fubini_mult_2d_1d (F : R -> R -> R) (w : R -> R) x y :
-  continuity_2d_pt F x y -> {for x, continuous w} ->
-  continuity_2d_pt (fun u v => w u * F u v) x y.
-Proof.
-move=> hF hw; apply: continuity_2d_pt_mult => //.
-exact: fubini_joint_continuous_left.
-Qed.
-
-Lemma fubini_abs_2d (F : R -> R -> R) :
-  (forall x y, continuity_2d_pt F x y) ->
-  forall x y, continuity_2d_pt (fun u v => Rabs (F u v)) x y.
-Proof.
-move=> H x y; apply: (continuity_1d_2d_pt_comp Rabs F x y).
-- exact: Rcontinuity_abs.
-- exact: H.
-Qed.
-
 (* A continuous function is bounded on a segment. *)
 
 Lemma continuous_bounded_segment (g : R -> R) a b :
@@ -163,16 +146,6 @@ Proof.
 move=> mD hf.
 apply: (eq_integrable mD _ _ _ (integrableZl mD c hf)).
 by move=> y _ /=; rewrite RmultE EFinM.
-Qed.
-
-Lemma fubini_integrable_scale_r (D : set R) (f : R -> R) (c : R) :
-  measurable (D : set (measurableTypeR R)) ->
-  lebesgue_measure.-integrable D (EFin \o f) ->
-  lebesgue_measure.-integrable D (EFin \o (fun y => f y * c)).
-Proof.
-move=> mD hf.
-apply: (eq_integrable mD _ _ _ (fubini_integrable_scale _ _ c mD hf)).
-by move=> y _ /=; rewrite Rmult_comm.
 Qed.
 
 Lemma fubini_integrable_abs (D : set R) (f : R -> R) :
@@ -265,13 +238,6 @@ Proof.
 by move=> hf; rewrite /whole_line_integral (RintegralZl _ measurableT hf).
 Qed.
 
-Lemma fubini_integral_scale_r (f : R -> R) (c : R) :
-  whole_line_integrable f ->
-  whole_line_integral (fun x => f x * c) = whole_line_integral f * c.
-Proof.
-by move=> hf; rewrite /whole_line_integral (RintegralZr _ measurableT hf).
-Qed.
-
 (* The integral over [-n, n] tends to the integral over the line. *)
 
 Lemma fubini_cutoff_cvg (f : R -> R) : whole_line_integrable f ->
@@ -314,15 +280,6 @@ Unshelve. all: by end_near.
 Qed.
 
 (* Real sequences. *)
-
-Lemma fubini_seq_cvg0_add (e1 e2 : nat -> R) :
-  e1 @ \oo --> 0 -> e2 @ \oo --> 0 -> (fun n => e1 n + e2 n) @ \oo --> 0.
-Proof.
-move=> h1 h2.
-have H := @cvgD R R^o nat \oo _ e1 e2 0 0 h1 h2.
-rewrite add0r in H.
-exact: H.
-Qed.
 
 Lemma fubini_seq_unique (u : nat -> R) (l1 l2 : R) :
   u @ \oo --> l1 -> u @ \oo --> l2 -> l1 = l2.
@@ -496,210 +453,6 @@ Qed.
 (* Fubini on the line for a separably dominated jointly continuous
    integrand. *)
 
-Lemma whole_line_fubini_inner_integrable (F : R -> R -> R) (g h : R -> R) :
-  (forall x y, continuity_2d_pt F x y) -> whole_line_integrable h ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  forall x, whole_line_integrable (F x).
-Proof.
-move=> HF Hh Hb x.
-apply: (fubini_dominated_integrable _ _ _ (g x) measurableT _ Hh).
-- apply: fubini_continuous_measurable; exact: fubini_slice_left.
-- by move=> y _; exact: Hb.
-Qed.
-
-Lemma whole_line_fubini_inner_bound (F : R -> R -> R) (g h : R -> R) :
-  whole_line_integrable h -> (forall x y, Rabs (F x y) <= g x * h y) ->
-  (forall x, whole_line_integrable (F x)) ->
-  forall x, Rabs (whole_line_integral (F x)) <= g x * whole_line_integral h.
-Proof.
-move=> Hh Hb HFx x.
-exact: (fubini_Rintegral_bound _ _ _ (g x) measurableT (HFx x) Hh (fun y _ => Hb x y)).
-Qed.
-
-Lemma whole_line_fubini_outer_integrable (F : R -> R -> R) (g h : R -> R) :
-  (forall x y, continuity_2d_pt F x y) -> continuous g ->
-  whole_line_integrable g -> whole_line_integrable h -> (forall y, 0 <= h y) ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  whole_line_integrable (fun x => whole_line_integral (F x)).
-Proof.
-move=> HF Hg Hig Hih Hh0 Hb.
-apply: (fubini_dominated_integrable _ _ _ (whole_line_integral h) measurableT _ Hig).
-- apply: fubini_continuous_measurable; exact: (whole_line_parameter_continuous F g h).
-- move=> x _; rewrite Rmult_comm; apply: whole_line_fubini_inner_bound => //.
-  exact: (whole_line_fubini_inner_integrable F g h).
-Qed.
-
-Lemma fubini_iterated_cutoff_cvg (F : R -> R -> R) (g h : R -> R) :
-  (forall x y, continuity_2d_pt F x y) -> continuous g ->
-  (forall x, 0 <= g x) -> (forall y, 0 <= h y) ->
-  whole_line_integrable g -> whole_line_integrable h ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  (fun n : nat => oriented_integral
-      (fun x => oriented_integral (F x) (- INR n) (INR n)) (- INR n) (INR n)) @ \oo
-    --> whole_line_integral (fun x => whole_line_integral (F x)).
-Proof.
-move=> HF Hg Hg0 Hh0 Hig Hih Hb.
-pose Phi := fun x => whole_line_integral (F x).
-pose Phin := fun n : nat => fun x => oriented_integral (F x) (- INR n) (INR n).
-pose D := fun n : nat => (`[- INR n, INR n] : set R).
-have mD n : measurable (D n : set (measurableTypeR R)) by exact: measurable_itv.
-have hn n : 0 <= INR n by exact: pos_INR.
-have HFx : forall x, whole_line_integrable (F x) :=
-  whole_line_fubini_inner_integrable F g h HF Hih Hb.
-have cPhin n : continuous (Phin n).
-  by move=> x; exact: rectangle_parameter_integral_continuous.
-pose f_ := fun n : nat => ((EFin \o Phin n) \_ (D n) : R -> \bar R).
-have mf_ n : measurable_fun (setT : set (measurableTypeR R)) (f_ n).
-  apply/(measurable_restrictT _ (mD n)); apply: measurable_funTS.
-  apply/measurable_EFinP; exact: fubini_continuous_measurable.
-pose H := whole_line_integral h.
-have H0 : 0 <= H by apply/RleP; apply: Rintegral_ge0 => y _; apply/RleP; exact: Hh0.
-pose G := fun x => g x * H.
-have G0 x : 0 <= G x by rewrite /G; have := Hg0 x; nra.
-have Phin_bound n x : Rabs (Phin n x) <= G x.
-  rewrite /Phin fubini_oriented_symmetric // -[`[- INR n, INR n]]/(D n).
-  have h1 := fubini_Rintegral_bound (D n) (F x) h (g x) (mD n)
-    (integrableS measurableT (mD n) (@subsetT _ _) (HFx x))
-    (integrableS measurableT (mD n) (@subsetT _ _) Hih) (fun y _ => Hb x y).
-  have h2 := fubini_segment_le_whole_line h (D n) (mD n) Hh0 Hih.
-  have := Hg0 x; rewrite /G /H; nra.
-have f_f x : (setT : set R) x -> f_ n x @[n --> \oo] --> (EFin \o Phi) x.
-  move=> _.
-  have hu : (fun n => Phin n x) @ \oo --> Phi x.
-    have E : (fun n : nat => Rintegral lebesgue_measure `[- INR n, INR n] (F x)) =1
-        (fun n => Phin n x).
-      by move=> n; rewrite /Phin fubini_oriented_symmetric.
-    rewrite -(eq_cvg _ _ E).
-    exact: fubini_cutoff_cvg.
-  have hv : (fun n => (Phin n x)%:E) @ \oo --> (Phi x)%:E.
-    apply: cvg_EFin; first exact: nearW.
-    exact: hu.
-  apply: (cvg_trans _ hv); apply: near_eq_cvg.
-  have hx : \forall n \near \oo, Rabs x <= INR n.
-    by apply: filterS (nbhs_infty_ger (Rabs x)) => n /RleP; rewrite -INRE.
-  near=> n.
-  have hxn : Rabs x <= INR n by near: n; exact: hx.
-  have Dx : D n x.
-    have [H1 _] := Rabs_le_between x (INR n); have := H1 hxn.
-    rewrite /D /= in_itv /= => hh; apply/andP; split; apply/RleP; lra.
-  by rewrite /f_ patchE (mem_set Dx).
-have fin x : (setT : set R) x -> ((EFin \o G) x \is a fin_num) by [].
-have ig : lebesgue_measure.-integrable setT (EFin \o G).
-  apply: (eq_integrable measurableT _ _ _
-    (fubini_integrable_scale setT g H measurableT Hig)).
-  by move=> x _ /=; rewrite /G Rmult_comm.
-have bnd m x : (setT : set R) x -> (`|f_ m x| <= (EFin \o G) x)%E.
-  move=> _; rewrite /f_ patchE; case: ifP => _ /=.
-  - by rewrite lee_fin; apply/RleP; rewrite -RabsE; exact: Phin_bound.
-  - by rewrite normr0 lee_fin; apply/RleP; exact: G0.
-have key := @dominated_cvg _ _ _ lebesgue_measure setT measurableT f_ (EFin \o Phi)
-  (EFin \o G) mf_ f_f fin ig bnd.
-have iPhi : whole_line_integrable Phi :=
-  whole_line_fubini_outer_integrable F g h HF Hg Hig Hih Hh0 Hb.
-rewrite -(fineK (integrable_fin_num measurableT iPhi)) in key.
-have E : (fun n : nat => oriented_integral (Phin n) (- INR n) (INR n)) =1
-  fine \o (fun n => \int[lebesgue_measure]_(x in setT) f_ n x)%E.
-  by move=> n; rewrite fubini_oriented_symmetric // /Rintegral integral_mkcond.
-rewrite (eq_cvg _ _ E).
-exact: fine_cvg key.
-Unshelve. all: by end_near.
-Qed.
-
-Theorem whole_line_fubini (F : R -> R -> R) (g h : R -> R) :
-  (forall x y, continuity_2d_pt F x y) -> continuous g -> continuous h ->
-  (forall x, 0 <= g x) -> (forall y, 0 <= h y) ->
-  whole_line_integrable g -> whole_line_integrable h ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  whole_line_integral (fun x => whole_line_integral (F x)) =
-  whole_line_integral (fun y => whole_line_integral (fun x => F x y)).
-Proof.
-move=> HF Hg Hh Hg0 Hh0 Hig Hih Hb.
-have HFt : forall y x, continuity_2d_pt (fun v u => F u v) y x.
-  by move=> y x; exact: rectangle_continuous_transpose.
-have Hbt : forall y x, Rabs (F x y) <= h y * g x.
-  by move=> y x; rewrite Rmult_comm; exact: Hb.
-have L := fubini_iterated_cutoff_cvg F g h HF Hg Hg0 Hh0 Hig Hih Hb.
-have Rr := fubini_iterated_cutoff_cvg (fun y x => F x y) h g HFt Hh Hh0 Hg0 Hih Hig Hbt.
-have E : (fun n : nat => oriented_integral
-      (fun x => oriented_integral (F x) (- INR n) (INR n)) (- INR n) (INR n)) =1
-    (fun n : nat => oriented_integral
-      (fun y => oriented_integral (fun x => F x y) (- INR n) (INR n)) (- INR n) (INR n)).
-  by move=> n; exact: continuous_rectangle_fubini.
-rewrite (eq_cvg _ _ E) in L.
-exact: (fubini_seq_unique _ _ _ L Rr).
-Qed.
-
 (* Fubini with a nonnegative continuous weight on each variable. With w the
    Gaussian kernel, the hypotheses on g and h are gaussian_integral_exists g
    and gaussian_integral_exists h. *)
-
-Theorem whole_line_fubini_weighted (F : R -> R -> R) (g h w : R -> R) :
-  (forall x y, continuity_2d_pt F x y) ->
-  continuous g -> continuous h -> continuous w ->
-  (forall x, 0 <= g x) -> (forall y, 0 <= h y) -> (forall x, 0 <= w x) ->
-  whole_line_integrable (fun x => g x * w x) ->
-  whole_line_integrable (fun y => h y * w y) ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  (forall x, whole_line_integrable (fun y => F x y * w y)) /\
-  (forall y, whole_line_integrable (fun x => F x y * w x)) /\
-  whole_line_integrable (fun x => whole_line_integral (fun y => F x y * w y) * w x) /\
-  whole_line_integrable (fun y => whole_line_integral (fun x => F x y * w x) * w y) /\
-  whole_line_integral (fun x => whole_line_integral (fun y => F x y * w y) * w x) =
-  whole_line_integral (fun y => whole_line_integral (fun x => F x y * w x) * w y).
-Proof.
-move=> HF Hg Hh Hw Hg0 Hh0 Hw0 Higw Hihw Hb.
-pose G := fun x y => F x y * w y * w x.
-have HG : forall x y, continuity_2d_pt (fun u v => F u v * w v * w u) x y.
-  move=> x y; apply: continuity_2d_pt_mult.
-  - by apply: fubini_mult_1d_2d; [exact: HF | exact: Hw].
-  - exact: (fubini_joint_continuous_left w x y (Hw x)).
-have Hgw0 x : 0 <= g x * w x by have := Hg0 x; have := Hw0 x; nra.
-have Hhw0 y : 0 <= h y * w y by have := Hh0 y; have := Hw0 y; nra.
-have HGb : forall x y, Rabs (G x y) <= (g x * w x) * (h y * w y).
-  move=> x y; rewrite /G !Rabs_mult (Rabs_pos_eq (w y) (Hw0 y)) (Rabs_pos_eq (w x) (Hw0 x)).
-  have := Hb x y; have := Rmult_le_pos _ _ (Hw0 x) (Hw0 y).
-  have := Hw0 x; have := Hw0 y; have := Rabs_pos (F x y); nra.
-have cgw : continuous (fun x => g x * w x).
-  by move=> x; exact: (continuous_mult _ _ _ x (Hg x) (Hw x)).
-have chw : continuous (fun y => h y * w y).
-  by move=> y; exact: (continuous_mult _ _ _ y (Hh y) (Hw y)).
-have Hin : forall x, whole_line_integrable (fun y => F x y * w y).
-  move=> x.
-  apply: (fubini_dominated_integrable _ _ _ (g x) measurableT _ Hihw).
-  - apply: fubini_continuous_measurable => y.
-    exact: (continuous_mult _ _ _ y (fubini_slice_left F x HF y) (Hw y)).
-  - move=> y _; rewrite Rabs_mult (Rabs_pos_eq (w y) (Hw0 y)).
-    have := Hb x y; have := Hw0 y; nra.
-have HinT : forall y, whole_line_integrable (fun x => F x y * w x).
-  move=> y.
-  apply: (fubini_dominated_integrable _ _ _ (h y) measurableT _ Higw).
-  - apply: fubini_continuous_measurable => x.
-    exact: (continuous_mult _ _ _ x (fubini_slice_right F y HF x) (Hw x)).
-  - move=> x _; rewrite Rabs_mult (Rabs_pos_eq (w x) (Hw0 x)).
-    have := Hb x y; have := Hw0 x; nra.
-have inner : forall x,
-    whole_line_integral (G x) = whole_line_integral (fun y => F x y * w y) * w x.
-  by move=> x; exact: (fubini_integral_scale_r _ _ (Hin x)).
-have innerT : forall y,
-    whole_line_integral (fun x => G x y) =
-    whole_line_integral (fun x => F x y * w x) * w y.
-  move=> y.
-  have -> : (fun x => G x y) = (fun x => (F x y * w x) * w y).
-    by apply/funext => x; rewrite /G; ring.
-  exact: (fubini_integral_scale_r _ _ (HinT y)).
-have HGt : forall y x, continuity_2d_pt (fun v u => G u v) y x.
-  by move=> y x; exact: (rectangle_continuous_transpose G x y (HG x y)).
-have HGbt : forall y x, Rabs (G x y) <= (h y * w y) * (g x * w x).
-  by move=> y x; rewrite Rmult_comm; exact: HGb.
-have main := whole_line_fubini G _ _ HG cgw chw Hgw0 Hhw0 Higw Hihw HGb.
-have outer := whole_line_fubini_outer_integrable G _ _ HG cgw Higw Hihw Hhw0 HGb.
-have outerT := whole_line_fubini_outer_integrable (fun y x => G x y) _ _ HGt chw
-  Hihw Higw Hgw0 HGbt.
-split; [exact: Hin | split; [exact: HinT | split; [| split]]].
-- by apply: (eq_integrable measurableT _ _ _ outer) => x _ /=; rewrite inner.
-- by apply: (eq_integrable measurableT _ _ _ outerT) => y _ /=; rewrite innerT.
-- transitivity (whole_line_integral (fun x => whole_line_integral (G x))).
-    by apply: eq_Rintegral => x _; rewrite inner.
-  rewrite main.
-  by apply: eq_Rintegral => y _; rewrite innerT.
-Qed.

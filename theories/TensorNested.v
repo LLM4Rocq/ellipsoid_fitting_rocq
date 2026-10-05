@@ -78,24 +78,3 @@ Proof.
   exists z; split; [exact HE|]; split; [exact Hz|].
   eapply Rle_trans; [exact Hbound|exact Hcost].
 Qed.
-
-(* Rbar_le and Finite of the original become lee and EFin; see the comment at
-   the top of the file. *)
-Theorem matrix_nested_third_projective_bound n beta gamma offset coeff Y S
-    (A : matrix n) k r :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 <= k ->
-  (forall y, In y Y -> 0 <= r y) ->
-  (forall y, In y Y -> forall s, In s S -> symmetric_matrix n (coeff y s)) ->
-  (forall y, In y Y -> forall s, In s S -> matrix_operator_norm n (coeff y s) <= k * r y) ->
-  lee (projective_operator_norm
-    (matrix_nested_third_derivative n beta gamma offset coeff Y S A))
-    (EFin (10 * k ^ 3 * (beta + gamma) ^ 2 *
-      gibbs_average (- beta) (matrix_inner_values n gamma offset coeff S A) Y (fun y => r y ^ 3))).
-Proof.
-  intros Hbeta Hgamma HY HS Hk Hr Hsym Hcap.
-  destruct (matrix_nested_third_trace_representation n beta gamma offset coeff Y S A k r
-    Hbeta Hgamma HY HS Hk Hr Hsym Hcap) as [Hrep Hcost].
-  apply: Order.POrderTheory.le_trans.
-  - apply: projective_operator_norm_representation_bound; exact Hrep.
-  - rewrite lee_fin; apply/RleP; exact Hcost.
-Qed.

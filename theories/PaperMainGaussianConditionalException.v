@@ -13,39 +13,6 @@ Open Scope ring_scope.
 Open Scope classical_set_scope.
 Local Notation T := (measurableTypeR R).
 
-Definition paper_main_conditional_exception k m
-    (E : set (k.-tuple T * m.-tuple T)) (tau : R) : set (k.-tuple T) :=
-  [set h | (tau%:E <= gaussian_product_law m (xsection E h))%E].
-
-Lemma paper_main_conditional_exception_measurable k m E tau :
-  measurable E -> measurable (paper_main_conditional_exception k m E tau).
-Proof.
-move=> mE; rewrite /paper_main_conditional_exception -[X in measurable X]setTI.
-apply: measurable_lee => //; exact: measurable_fun_xsection.
-Qed.
-
-Theorem paper_main_conditional_exception_markov k m E tau :
-  measurable E -> 0 < tau ->
-  (tau%:E * gaussian_product_law k (paper_main_conditional_exception k m E tau) <=
-    gaussian_product_law (Nat.add k m) (paper_main_split_coordinates k m @^-1` E))%E.
-Proof.
-move=> mE Htau.
-have mf : measurable_fun [set: k.-tuple T]
-    (fun h => gaussian_product_law m (xsection E h)).
-  exact: measurable_fun_xsection.
-have Habs : (fun h => `|gaussian_product_law m (xsection E h)|%E) =
-    (fun h => gaussian_product_law m (xsection E h)).
-  apply/funext => h; exact: gee0_abs (measure_ge0 _ _).
-have H := le_integral_abse (gaussian_product_law k) measurableT mf Htau.
-rewrite setTI in H.
-rewrite Habs in H.
-have HE : [set h | (tau%:E <= `|gaussian_product_law m (xsection E h)|)%E] =
-    paper_main_conditional_exception k m E tau.
-{ exact: (congr1 (fun f => [set h | (tau%:E <= f h)%E]) Habs). }
-rewrite HE in H.
-by rewrite paper_main_split_coordinates_fubini.
-Qed.
-
 Lemma paper_main_split_coordinates_fubini_reverse k m (E : set (k.-tuple T * m.-tuple T)) :
   measurable E ->
   gaussian_product_law (Nat.add k m) (paper_main_split_coordinates k m @^-1` E) =
@@ -88,15 +55,6 @@ have HE : [set x | (tau%:E <= `|gaussian_product_law k (ysection E x)|)%E] =
 { exact: (congr1 (fun f => [set x | (tau%:E <= f x)%E]) Habs). }
 rewrite HE in H.
 by rewrite paper_main_split_coordinates_fubini_reverse.
-Qed.
-
-Corollary paper_main_conditional_exception_bound k m E tau p :
-  measurable E -> 0 < tau ->
-  (gaussian_product_law (Nat.add k m) (paper_main_split_coordinates k m @^-1` E) <= p)%E ->
-  (gaussian_product_law k (paper_main_conditional_exception k m E tau) <= tau^-1%:E * p)%E.
-Proof.
-move=> mE Htau Hp; rewrite lee_pdivlMl //.
-exact: le_trans (paper_main_conditional_exception_markov k m E tau mE Htau) Hp.
 Qed.
 
 Corollary paper_main_conditional_exception_reverse_bound k m E tau p :

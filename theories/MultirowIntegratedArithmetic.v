@@ -25,37 +25,6 @@ Open Scope R_scope.
    derivative challenge writes finite_sum (fun i => y z i * y z i) I = 1;
    they are equivalent since euclidean_norm is the square root of that sum. *)
 
-Lemma multirow_integrated_squares_ext (y : nat -> R) (I : list nat) :
-  finite_sum (fun i => y i ^ 2) I = finite_sum (fun i => y i * y i) I.
-Proof. induction I as [|i I IH]; [reflexivity|]. cbn [finite_sum]. rewrite IH; ring. Qed.
-
-Lemma multirow_integrated_sum_squares_nonneg (y : nat -> R) (I : list nat) :
-  0 <= finite_sum (fun i => y i * y i) I.
-Proof.
-  induction I as [|i I IH]; simpl; [lra|].
-  pose proof (Rle_0_sqr (y i)); unfold Rsqr in *; lra.
-Qed.
-
-Lemma multirow_integrated_squared_norm_ext (y : nat -> R) (I : list nat) :
-  squared_norm y I = finite_sum (fun i => y i * y i) I.
-Proof. unfold squared_norm; apply multirow_integrated_squares_ext. Qed.
-
-Lemma multirow_integrated_unit_of_norm (y : nat -> R) (I : list nat) :
-  euclidean_norm y I = 1 -> finite_sum (fun i => y i * y i) I = 1.
-Proof.
-  intros H; rewrite <- multirow_integrated_squared_norm_ext.
-  assert (H0 : 0 <= squared_norm y I)
-    by (rewrite multirow_integrated_squared_norm_ext; apply multirow_integrated_sum_squares_nonneg).
-  rewrite <- (sqrt_sqrt _ H0). unfold euclidean_norm in H. rewrite H. ring.
-Qed.
-
-Lemma multirow_integrated_norm_of_unit (y : nat -> R) (I : list nat) :
-  finite_sum (fun i => y i * y i) I = 1 -> euclidean_norm y I = 1.
-Proof.
-  intros H; unfold euclidean_norm.
-  rewrite multirow_integrated_squared_norm_ext, H; apply sqrt_1.
-Qed.
-
 (* |c * s| <= (2 sqrt t / (d sqrt d)) * radius * M3 when c = sqrt t / (2 d sqrt d)
    and |s| <= 4 * M3 * radius, for d > 0, radius >= 0, M3 >= 0, t >= 0. *)
 Lemma multirow_integrated_derivative_bound (d t radius M3 s : R) :

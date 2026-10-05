@@ -85,39 +85,3 @@ Proof.
     exists i; split; [exact Hi|].
     rewrite (gaussian_row_first_norm_squared n N i xs HL Hi); exact HE.
 Qed.
-
-Theorem gaussian_joint_expected_maximum_radius n N :
-  (0<N)%nat ->
-  gaussian_iterated_integrable (N*(S n+S(goe_vector_index n)))
-    (fun xs=>gaussian_maximum_radius N (S n) (row_prefixes N (S n) (S(goe_vector_index n)) xs)) /\
-  gaussian_iterated_absolutely_integrable (N*(S n+S(goe_vector_index n)))
-    (fun xs=>gaussian_maximum_radius N (S n) (row_prefixes N (S n) (S(goe_vector_index n)) xs)) /\
-  gaussian_iterated_has_expectation (N*(S n+S(goe_vector_index n)))
-    (fun xs=>gaussian_maximum_radius N (S n) (row_prefixes N (S n) (S(goe_vector_index n)) xs))
-    (gaussian_iterated_expectation (N*(S n)) (gaussian_maximum_radius N (S n))) /\
-  gaussian_iterated_has_expectation (N*(S n+S(goe_vector_index n)))
-    (fun xs=>Rabs(gaussian_maximum_radius N (S n) (row_prefixes N (S n) (S(goe_vector_index n)) xs)))
-    (gaussian_iterated_expectation (N*(S n)) (fun xs=>Rabs(gaussian_maximum_radius N (S n) xs))) /\
-  gaussian_iterated_expectation (N*(S n+S(goe_vector_index n)))
-    (fun xs=>gaussian_maximum_radius N (S n) (row_prefixes N (S n) (S(goe_vector_index n)) xs)) =
-    gaussian_iterated_expectation (N*(S n)) (gaussian_maximum_radius N (S n)) /\
-  gaussian_iterated_expectation (N*(S n+S(goe_vector_index n)))
-    (fun xs=>Rabs(gaussian_maximum_radius N (S n) (row_prefixes N (S n) (S(goe_vector_index n)) xs))) =
-    gaussian_iterated_expectation (N*(S n)) (fun xs=>Rabs(gaussian_maximum_radius N (S n) xs)) /\
-  (forall xs, length xs=(N*(S n+S(goe_vector_index n)))%nat ->
-    (forall i, (i<N)%nat -> `|fst(gaussian_row_pair n i xs)|%R^2 <=
-      gaussian_maximum_radius N (S n) (row_prefixes N (S n) (S(goe_vector_index n)) xs)) /\
-    (exists i, (i<N)%nat /\
-      gaussian_maximum_radius N (S n) (row_prefixes N (S n) (S(goe_vector_index n)) xs) =
-      `|fst(gaussian_row_pair n i xs)|%R^2)) /\
-  gaussian_iterated_expectation (N*(S n+S(goe_vector_index n)))
-    (fun xs=>gaussian_maximum_radius N (S n) (row_prefixes N (S n) (S(goe_vector_index n)) xs)) <=
-    INR(S n)+2*sqrt(INR(S n)*Rpower.ln(INR N))+2*Rpower.ln(INR N).
-Proof.
-  intro HN.
-  destruct (gaussian_interleaved_expected_maximum_radius N (S n) (S(goe_vector_index n)) HN ltac:(lia))
-    as [HI [HA [HV [HAV [HE [HEA [_ HB]]]]]]].
-  split; [exact HI|]. split; [exact HA|]. split; [exact HV|]. split; [exact HAV|].
-  split; [exact HE|]. split; [exact HEA|]. split; [|exact HB].
-  intros xs HL; apply gaussian_interleaved_maximum_norm_characterization; assumption.
-Qed.

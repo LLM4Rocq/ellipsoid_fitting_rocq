@@ -225,15 +225,6 @@ case: (splitP k) => [j Hj | j Hj].
   by apply/andP; split; lra.
 Qed.
 
-Theorem pmhw_aug_compact (kappa : R) : (0 < d)%N -> 1 <= kappa -> compact (pmhw_aug kappa).
-Proof.
-move=> Hd Hk.
-have -> : pmhw_aug kappa = pmg_box N `&` pmhw_aug kappa.
-  rewrite predeqE => w; split=> [Hw | [_ Hw]] //; split=> //.
-  exact: (pmhw_aug_sub_box _ Hd Hk _ Hw).
-by apply: compact_closedI; [exact: pmg_box_compact | exact: pmhw_aug_closed].
-Qed.
-
 Lemma pmhw_lift_aug S (lam kappa : R) :
   (0 < d)%N -> 0 < lam ->
   paper_main_loewner_le (lam *: 1%:M) S ->
@@ -246,76 +237,4 @@ rewrite /pmhw_aug /= pmhw_S_lift pmhw_lam_lift; do !split => //.
 by rewrite -pmh_frobenius_sqr HF expr1n.
 Qed.
 
-(* A pointwise maximizer of <Z, .> on K_kappa \cap S_F. *)
-Theorem paper_main_head_cone_sphere_max (kappa : R) Z :
-  (0 < d)%N -> 1 <= kappa ->
-  exists P, paper_main_head_cone_sphere kappa P /\
-    forall S, paper_main_head_cone_sphere kappa S ->
-      paper_main_pairing Z S <= paper_main_pairing Z P.
-Proof.
-move=> Hd Hk.
-have Hne : pmhw_aug kappa !=set0.
-  have [[lam [Hl [H1 H2]]] HF] := paper_main_head_cone_sphere_nonempty _ Hd Hk.
-  by exists (pmhw_lift ((Num.sqrt d%:R)^-1 *: 1%:M) lam); exact: pmhw_lift_aug.
-have Hf : continuous (fun w : W => paper_main_pairing Z (pmhw_S w)).
-  rewrite /paper_main_pairing.
-  apply: pmg_continuous_sum => i; apply: pmg_continuous_sum => j.
-  by apply: pmg_continuousM; [exact: pmg_continuous_cst | exact: pmhw_S_continuous].
-have Hw : {within pmhw_aug kappa, continuous (fun w : W => paper_main_pairing Z (pmhw_S w))}.
-  by apply: continuous_subspaceT.
-have [w0 Hw0 Hmax] := compact_EVT_max Hne (pmhw_aug_compact _ Hd Hk) Hw.
-move: Hw0; rewrite in_setE => -[Ha [Hb [H1 [H2 H3]]]].
-exists (pmhw_S w0); split.
-  split.
-    exists (pmhw_lam w0); split => //.
-    apply: lt_le_trans Ha; rewrite invr_gt0 mulr_gt0 //; first exact: lt_le_trans ltr01 Hk.
-    by rewrite sqrtr_gt0 ltr0n.
-  by rewrite /paper_main_frobenius H3 sqrtr1.
-move=> S [[lam [Hl [HS1 HS2]]] HF].
-have HwS := pmhw_lift_aug _ _ _ Hd Hl HS1 HS2 HF.
-have := Hmax (pmhw_lift S lam); rewrite in_setE pmhw_S_lift => /(_ HwS).
-done.
-Qed.
-
 End WidthCompact.
-
-(* The supremum transfer with the maximizer discharged: for every Z there is
-   a pointwise maximizer P on K_(kappa_0) \cap S_F, and for it the transfer
-   holds on every injective head whose explicit premises hold. *)
-Theorem paper_main_head_width_transfer_maximizer n d (x : paper_main_sample n d)
-    (Z : 'M[R]_d) (kappa0 : R) :
-  (0 < d)%N -> 1 <= kappa0 ->
-  exists P : 'M[R]_d, paper_main_head_cone_sphere kappa0 P /\
-    (forall S, paper_main_head_cone_sphere kappa0 S ->
-       paper_main_pairing Z S <= paper_main_pairing Z P) /\
-    forall m (s : 'I_m -> 'I_n) (mu q0 q1 Rd lam eta A_1 A_inf delta kappa : R),
-      injective s -> 0 < mu ->
-      paper_main_head_coercive
-        (paper_main_head_gram (fun i : 'I_n => paper_main_head_feature x i)) mu ->
-      0 < q0 ->
-      (forall k : 'I_m, q0 <= paper_main_pairing (paper_main_head_feature x (s k))
-                                  (paper_main_head_feature x (s k))) ->
-      0 <= q1 ->
-      (forall k l : 'I_m, l != k ->
-         `|paper_main_pairing (paper_main_head_feature x (s k))
-                              (paper_main_head_feature x (s l))| <= q1) ->
-      0 <= Rd ->
-      (forall k : 'I_m, `|paper_main_pairing (paper_main_head_feature x (s k)) P| <= Rd) ->
-      paper_main_loewner_le (paper_main_head_data_gram x s) (lam *: 1%:M) ->
-      m%:R * Rd ^+ 2 <= mu * eta ^+ 2 -> 0 <= eta -> eta < 1 ->
-      m%:R * Rd <= mu * A_1 -> Rd + q1 * A_1 <= q0 * A_inf ->
-      (Num.sqrt d%:R)^-1 * (A_inf * lam + A_1) <= delta ->
-      delta < (kappa0 * Num.sqrt d%:R)^-1 ->
-      kappa0 / Num.sqrt d%:R + delta <= kappa * ((kappa0 * Num.sqrt d%:R)^-1 - delta) ->
-      paper_main_head_support Z (paper_main_head_cone_sphere kappa0) -
-        2 * eta * paper_main_frobenius Z <=
-      paper_main_head_support Z
-        (paper_main_head_section kappa (fun k : 'I_m => paper_main_head_feature x (s k))).
-Proof.
-move=> Hd Hk.
-have [P [HP Hmax]] := paper_main_head_cone_sphere_max _ _ Z Hd Hk.
-exists P; split => //; split => // m s mu q0 q1 Rd lam eta A_1 A_inf delta kappa.
-move=> Hs Hmu HG Hq0 Hdiag Hq1 Hoff HRd0 HRd Hlam Heta2 Heta0 Heta HA1 HAinf Hdel Hlm Hkk.
-exact: (paper_main_head_width_transfer_features _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-  Hd Hs Hmu HG Hq0 Hdiag Hq1 Hoff HRd0 HRd Hlam Heta2 Heta0 Heta HA1 HAinf Hdel Hlm Hkk HP Hmax).
-Qed.

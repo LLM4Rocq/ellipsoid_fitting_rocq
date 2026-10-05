@@ -37,13 +37,6 @@ Definition paper_main_finite_argmax {d : nat} (B : nat -> 'M[R]_d) (M : 'M[R]_d)
     (q0 : nat) (Q : seq nat) : 'M[R]_d :=
   B (paper_main_finite_argmax_index B M q0 Q).
 
-Fixpoint paper_main_finite_max {d : nat} (B : nat -> 'M[R]_d) (M : 'M[R]_d)
-    (q0 : nat) (Q : seq nat) : R :=
-  match Q with
-  | [::] => paper_main_pairing M (B q0)
-  | q :: Q' => Num.max (paper_main_pairing M (B q0)) (paper_main_finite_max B M q Q')
-  end.
-
 (* The selected index is in the list and in the family. *)
 
 Lemma paper_main_finite_argmax_index_mem {d : nat} (B : nat -> 'M[R]_d) M q0 Q :
@@ -52,13 +45,6 @@ Proof.
 elim: Q q0 => [|q Q IH] q0 /=; first by rewrite mem_seq1.
 case: ifP => _; first by rewrite in_cons eqxx.
 by rewrite in_cons IH orbT.
-Qed.
-
-Lemma paper_main_finite_argmax_family {d : nat} (B : nat -> 'M[R]_d) M q0 Q :
-  exists q, q \in q0 :: Q /\ paper_main_finite_argmax B M q0 Q = B q.
-Proof.
-exists (paper_main_finite_argmax_index B M q0 Q); split=> //.
-exact: paper_main_finite_argmax_index_mem.
 Qed.
 
 (* Maximality, the value, and the first-maximizer rule. *)
@@ -74,35 +60,6 @@ rewrite in_cons => /orP [/eqP -> | Hq].
   by case: ifP => [_ | /negbT]; [exact: lexx | rewrite -ltNge => /ltW].
 case: ifP => Hj; last exact: IH.
 exact: le_trans (IH q1 q Hq) Hj.
-Qed.
-
-Theorem paper_main_finite_argmax_value {d : nat} (B : nat -> 'M[R]_d) M q0 Q :
-  paper_main_pairing M (paper_main_finite_argmax B M q0 Q) = paper_main_finite_max B M q0 Q.
-Proof.
-rewrite /paper_main_finite_argmax.
-elim: Q q0 => [|q1 Q IH] q0 //=.
-rewrite -IH; case: ifP => Hj.
-  by rewrite max_l.
-by rewrite max_r // ltW // ltNge Hj.
-Qed.
-
-Theorem paper_main_finite_argmax_first {d : nat} (B : nat -> 'M[R]_d) M q0 Q :
-  let s := paper_main_finite_argmax_index B M q0 Q in
-  forall q, q \in take (index s (q0 :: Q)) (q0 :: Q) ->
-    paper_main_pairing M (B q) < paper_main_pairing M (B s).
-Proof.
-elim: Q q0 => [|q1 Q IH] q0.
-  by move=> q; rewrite /= ?eqxx ?eqnn.
-rewrite [paper_main_finite_argmax_index _ _ _ (_ :: _)]/=.
-set j := paper_main_finite_argmax_index B M q1 Q.
-case: ifP => Hj s.
-  by rewrite /s [index q0 _]/= ?eqxx ?eqnn.
-move=> q; rewrite /s.
-have Hlt : paper_main_pairing M (B q0) < paper_main_pairing M (B j) by rewrite ltNge Hj.
-have Hne : (q0 == j) = false.
-  by apply/negbTE/eqP => Hq; move: Hlt; rewrite Hq ltxx.
-rewrite [index j _]/= Hne /= in_cons => /orP [/eqP -> // | Hq].
-exact: (IH q1 q Hq).
 Qed.
 
 (* Measurability of the selected matrix. *)

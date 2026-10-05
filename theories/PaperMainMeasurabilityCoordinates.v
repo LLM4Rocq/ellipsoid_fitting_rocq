@@ -61,12 +61,6 @@ have -> : (fun x : T => (paper_main_point x i a 0 : RT)) = pm_coord (i * d + a)%
 exact: pm_coord_measurable.
 Qed.
 
-(* Closure of measurable real functions on T under the ring operations. *)
-Lemma pm_measurable_sum (I : Type) (s : seq I) (h : I -> T -> R) :
-  (forall i, measurable_fun [set: T] (fun x => (h i x : RT))) ->
-  measurable_fun [set: T] (fun x => (\sum_(i <- s) h i x : RT)).
-Proof. by move=> mh; exact: measurable_sum. Qed.
-
 Lemma pm_measurable_ordsum {m : nat} (h : 'I_m -> T -> R) :
   (forall i, measurable_fun [set: T] (fun x => (h i x : RT))) ->
   measurable_fun [set: T] (fun x => (\sum_(i < m) h i x : RT)).
@@ -77,12 +71,6 @@ Lemma pm_measurable_mul (f g : T -> R) :
   measurable_fun [set: T] (fun x => (g x : RT)) ->
   measurable_fun [set: T] (fun x => (f x * g x : RT)).
 Proof. by move=> mf mg; exact: measurable_funM. Qed.
-
-Lemma pm_measurable_add (f g : T -> R) :
-  measurable_fun [set: T] (fun x => (f x : RT)) ->
-  measurable_fun [set: T] (fun x => (g x : RT)) ->
-  measurable_fun [set: T] (fun x => (f x + g x : RT)).
-Proof. by move=> mf mg; exact: measurable_funD. Qed.
 
 Lemma pm_measurable_sub (f g : T -> R) :
   measurable_fun [set: T] (fun x => (f x : RT)) ->
@@ -125,22 +113,6 @@ have := mgf measurableT _ moA.
 rewrite setTI => H.
 rewrite (_ : [set x : T | f x <= g x] = (fun x => (g x - f x : RT)) @^-1` [set t : RT | 0 <= t])//.
 by apply/seteqP; split=> x /=; rewrite subr_ge0.
-Qed.
-
-Lemma pm_measurable_eq (f g : T -> R) :
-  measurable_fun [set: T] (fun x => (f x : RT)) ->
-  measurable_fun [set: T] (fun x => (g x : RT)) ->
-  measurable [set x : T | f x = g x].
-Proof.
-move=> mf mg.
-have mgf := measurable_funB mg mf.
-have moA : measurable [set t : RT | t = 0] by apply: closed_measurable; exact: (@closed_eq R 0).
-have := mgf measurableT _ moA.
-rewrite setTI => H.
-rewrite (_ : [set x : T | f x = g x] = (fun x => (g x - f x : RT)) @^-1` [set t : RT | t = 0])//.
-apply/seteqP; split=> x /=.
-- by move=> ->; rewrite subrr.
-- by move/eqP; rewrite subr_eq0 => /eqP ->.
 Qed.
 
 (* The quadratic form of the glossary at a fixed matrix, along a point. *)

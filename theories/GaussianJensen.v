@@ -53,46 +53,6 @@ Proof.
   nra.
 Qed.
 
-Theorem gaussian_iterated_exp_jensen d F :
-  gaussian_iterated_integrable d F ->
-  gaussian_iterated_integrable d (fun xs => exp (F xs)) ->
-  exp (gaussian_iterated_expectation d F) <=
-    gaussian_iterated_expectation d (fun xs => exp (F xs)).
-Proof.
-  intros HF HE.
-  set (m := gaussian_iterated_expectation d F).
-  destruct (gaussian_iterated_constant d (1-m)) as [HC HCE].
-  destruct (gaussian_iterated_add d (fun _ => 1-m) F HC HF) as [HI HIE].
-  destruct (gaussian_iterated_scale d (fun xs => (1-m)+F xs) (exp m) HI) as [HS HSE].
-  pose proof (gaussian_iterated_monotone d (fun xs => exp m*((1-m)+F xs))
-    (fun xs => exp (F xs)) HS HE) as HM.
-  assert (Hb : forall xs, length xs=d -> exp m*((1-m)+F xs) <= exp (F xs)).
-  { intros xs Hxs. replace ((1-m)+F xs) with (1+F xs-m) by ring.
-    apply exponential_tangent_lower_bound. }
-  specialize (HM Hb).
-  rewrite HSE HIE HCE in HM.
-  fold m in HM.
-  replace (exp m * (1-m+m)) with (exp m) in HM by ring.
-  exact HM.
-Qed.
-
-Theorem gaussian_iterated_log_exp_bound d F :
-  gaussian_iterated_integrable d F ->
-  gaussian_iterated_integrable d (fun xs => exp (F xs)) ->
-  gaussian_iterated_expectation d F <=
-    Rpower.ln (gaussian_iterated_expectation d (fun xs => exp (F xs))).
-Proof.
-  intros HF HE.
-  pose proof (gaussian_iterated_exp_jensen d F HF HE) as H.
-  destruct (Req_EM_T (exp (gaussian_iterated_expectation d F))
-    (gaussian_iterated_expectation d (fun xs => exp (F xs)))) as [Heq|Hneq].
-  - rewrite -Heq ln_exp; lra.
-  - pose proof (ln_increasing (exp (gaussian_iterated_expectation d F))
-      (gaussian_iterated_expectation d (fun xs => exp (F xs)))
-      (exp_pos _) ltac:(lra)) as HL.
-    rewrite ln_exp in HL; lra.
-Qed.
-
 Theorem gaussian_iterated_exp_dominated_jensen d F G :
   gaussian_iterated_integrable d F ->
   gaussian_iterated_integrable d G ->

@@ -105,34 +105,3 @@ Proof.
     + apply finite_joint_continuous_head, HC.
     + apply finite_polynomial_bound_head, HB.
 Qed.
-
-Theorem gaussian_iterated_swap_adjacent_integrable d i F C p :
-  (S i < d)%nat -> finite_joint_continuous d F -> finite_polynomial_bound d C p F ->
-  gaussian_iterated_integrable d F /\ gaussian_iterated_absolutely_integrable d F /\
-  gaussian_iterated_has_expectation d F (gaussian_iterated_expectation d F) /\
-  gaussian_iterated_has_expectation d (fun xs => Rabs (F xs))
-    (gaussian_iterated_expectation d (fun xs => Rabs (F xs))) /\
-  gaussian_iterated_integrable d (fun xs => F (swap_adjacent i xs)) /\
-  gaussian_iterated_absolutely_integrable d (fun xs => F (swap_adjacent i xs)) /\
-  gaussian_iterated_has_expectation d (fun xs => F (swap_adjacent i xs))
-    (gaussian_iterated_expectation d F) /\
-  gaussian_iterated_has_expectation d (fun xs => Rabs (F (swap_adjacent i xs)))
-    (gaussian_iterated_expectation d (fun xs => Rabs (F xs))) /\
-  gaussian_iterated_expectation d F =
-    gaussian_iterated_expectation d (fun xs => F (swap_adjacent i xs)) /\
-  gaussian_iterated_expectation d (fun xs => Rabs (F xs)) =
-    gaussian_iterated_expectation d (fun xs => Rabs (F (swap_adjacent i xs))).
-Proof.
-  intros Hi HC HB.
-  destruct (gaussian_iterated_polynomial_admissible d F C p HC HB)
-    as [HI [HA [HV [HAV HBV]]]].
-  pose proof (finite_joint_continuous_swap_adjacent d i F HC) as HCs.
-  pose proof (finite_polynomial_bound_swap_adjacent d C p F i HB) as HBs.
-  destruct (gaussian_iterated_polynomial_admissible d _ C p HCs HBs)
-    as [HIs [HAs [HVs [HAVs HBVs]]]].
-  pose proof (gaussian_iterated_swap_adjacent d i F C p Hi HC HB) as HE.
-  pose proof (gaussian_iterated_swap_adjacent d i (fun xs => Rabs (F xs)) C p Hi
-    (finite_joint_continuous_abs d F HC) (finite_polynomial_bound_abs d C p F HB)) as HEA.
-  rewrite <- HE in HVs; rewrite <- HEA in HAVs.
-  repeat split; assumption.
-Qed.

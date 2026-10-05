@@ -79,20 +79,6 @@ rewrite expr2.
 lra.
 Qed.
 
-(* For q > 1 and A >= 0: A (K + 1) < q^K for every large k. *)
-Lemma pmchp_power_dominates (q A : R) : 1 < q -> 0 <= A ->
-  exists k0 : nat, forall k : nat, (k0 <= k)%N ->
-    A * ((2 ^ k.+1)%:R + 1) < q ^+ (2 ^ k.+1).
-Proof.
-move=> Hq HA.
-have Hu : 0 < q - 1 by rewrite subr_gt0.
-have Huu : 0 < (q - 1) * (q - 1) by exact: mulr_gt0.
-have [k0 Hk0] := pmchp_dyadic_unbounded (3 * A / ((q - 1) * (q - 1))).
-exists k0 => k Hk.
-apply: pmchp_power_at => //.
-by apply: ltW; rewrite -ltr_pdivrMr //; exact: Hk0.
-Qed.
-
 (* The explicit criterion for theta > 2: 3 A <= 2^k (theta / 2 - 1)^2
    gives 2^K tau < theta^K. *)
 Lemma pmchp_dyadic_at (theta A : R) (k : nat) : 2 < theta -> 0 <= A ->
@@ -105,19 +91,6 @@ have Hq : 1 < theta / 2 by rewrite ltr_pdivlMr // mul1r.
 have -> : theta = 2 * (theta / 2) by rewrite mulrC divfK // pnatr_eq0.
 rewrite exprMn (ltr_pM2l (exprn_gt0 _ H2)).
 exact: pmchp_power_at.
-Qed.
-
-(* The gap form at a given k: g = theta^K - 2^K tau > 0. *)
-Lemma pmchp_gap_at (theta A : R) (k : nat) : 2 < theta -> 0 <= A ->
-  3 * A <= (2 ^ k)%:R * ((theta / 2 - 1) * (theta / 2 - 1)) ->
-  exists g : R, 0 < g /\
-    2 ^+ (2 ^ k.+1) * (A * ((2 ^ k.+1)%:R + 1)) + g <= theta ^+ (2 ^ k.+1).
-Proof.
-move=> Hth HA Hk.
-have H := pmchp_dyadic_at _ _ _ Hth HA Hk.
-exists (theta ^+ (2 ^ k.+1) - 2 ^+ (2 ^ k.+1) * (A * ((2 ^ k.+1)%:R + 1))).
-split; first by rewrite subr_gt0.
-by rewrite addrC subrK lexx.
 Qed.
 
 (* For theta > 2 and A >= 0, eventually in k: 2^K tau < theta^K. *)
@@ -158,16 +131,4 @@ have [k Hk] := pmchp_dyadic_strict _ _ Hth HA.
 exists k, (theta ^+ (2 ^ k.+1) - 2 ^+ (2 ^ k.+1) * (A * ((2 ^ k.+1)%:R + 1))).
 split; first by rewrite subr_gt0.
 by rewrite addrC subrK lexx.
-Qed.
-
-(* The concrete consumer: theta = 49/24 and A = 12 at k = 17, K = 2^18.
-   Here u = 1/48 and 2^17 / 48^2 >= 36 = 3 A. *)
-Theorem paper_main_chebyshev_parameters_concrete :
-  exists g : R, 0 < g /\
-    2 ^+ (2 ^ 17.+1) * (12 * ((2 ^ 17.+1)%:R + 1)) + g <= (49 / 24) ^+ (2 ^ 17.+1).
-Proof.
-apply: (pmchp_gap_at _ _ 17).
-- by lra.
-- by lra.
-- by rewrite natrX; lra.
 Qed.

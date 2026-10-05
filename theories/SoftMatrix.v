@@ -67,29 +67,6 @@ Proof.
   rewrite (Rmult_comm k); apply Rmult_le_compat_l; [apply Rabs_pos|apply HB; exact Hs].
 Qed.
 
-Theorem soft_matrix_inner_bounds n gamma y B I S (A : nat -> matrix n) z :
-  0 < gamma -> S <> [] ->
-  finite_max (soft_matrix_scores n y B I A z) S <= soft_matrix_inner n gamma y B I S A z /\
-  soft_matrix_inner n gamma y B I S A z <=
-    finite_max (soft_matrix_scores n y B I A z) S + Rpower.ln (INR (length S)) / gamma.
-Proof. intros Hg HS; apply soft_max_bounds; assumption. Qed.
-
-Theorem soft_matrix_outer_bounds n beta gamma y B I Y S (A : nat -> matrix n) :
-  0 < beta -> Y <> [] ->
-  finite_min (soft_matrix_inner n gamma y B I S A) Y - Rpower.ln (INR (length Y)) / beta <=
-    soft_matrix_phi n beta gamma y B I Y S A /\
-  soft_matrix_phi n beta gamma y B I Y S A <=
-    finite_min (soft_matrix_inner n gamma y B I S A) Y.
-Proof. intros Hb HY; apply soft_min_bounds; assumption. Qed.
-
-Theorem soft_matrix_minimax_bounds n beta gamma y B I Y S (A : nat -> matrix n) :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  finite_minimax (soft_matrix_scores n y B I A) Y S - Rpower.ln (INR (length Y)) / beta <=
-    soft_matrix_phi n beta gamma y B I Y S A /\
-  soft_matrix_phi n beta gamma y B I Y S A <=
-    finite_minimax (soft_matrix_scores n y B I A) Y S + Rpower.ln (INR (length S)) / gamma.
-Proof. intros Hb Hg HY HS; apply soft_minimax_bounds; assumption. Qed.
-
 (* The low-influence scale uses the matrix dimension S n, as in the paper.
    The coordinate list I independently indexes the N matrix blocks. *)
 Theorem soft_matrix_projective_sum_bound n beta gamma y B I Y S (A : nat -> matrix n) theta k :
@@ -110,50 +87,4 @@ Proof.
   - lia.
   - intros i z s Hi Hz Hs; exact (soft_matrix_coefficients_symmetric n y B S Hsym i z s Hs).
   - intros i z s Hi Hz Hs; exact (soft_matrix_coefficients_operator_bound n y B S k HB i z s Hs).
-Qed.
-
-(* The deterministic finite soft-extremum lemma at every block array A:
-   two log-sum-exp sandwiches, actual evaluated coordinate derivatives,
-   and the summed projective estimate with an explicit constant 10.
-   Operator-valued C3 regularity is not part of this statement. *)
-Theorem soft_matrix_deterministic_lemma n beta gamma y B I Y S (A : nat -> matrix n) theta k :
-  0 < beta -> 0 < gamma -> 0 <= k -> 0 < theta -> Y <> [] -> S <> [] -> NoDup I ->
-  (forall z, In z Y -> euclidean_norm (y z) I = 1) ->
-  (forall z i, In z Y -> In i I -> Rabs (y z i) <= theta / sqrt (INR (Datatypes.S n))) ->
-  (forall s, In s S -> symmetric_matrix n (B s)) ->
-  (forall s, In s S -> matrix_operator_norm n (B s) <= k) ->
-  (forall z, finite_max (soft_matrix_scores n y B I A z) S <= soft_matrix_inner n gamma y B I S A z /\
-    soft_matrix_inner n gamma y B I S A z <=
-      finite_max (soft_matrix_scores n y B I A z) S + Rpower.ln (INR (length S)) / gamma) /\
-  (finite_min (soft_matrix_inner n gamma y B I S A) Y - Rpower.ln (INR (length Y)) / beta <=
-    soft_matrix_phi n beta gamma y B I Y S A /\
-    soft_matrix_phi n beta gamma y B I Y S A <= finite_min (soft_matrix_inner n gamma y B I S A) Y) /\
-  (forall i, In i I ->
-    is_diff (matrix_zero n)
-      ((fun M => soft_matrix_phi n beta gamma y B I Y S (soft_matrix_block_add n A i M))
-        : matrix n -> R^o)
-      (soft_matrix_first n beta gamma y B I Y S A i) /\
-    forall U : matrix n,
-    is_diff (matrix_zero n)
-      ((fun M => soft_matrix_first n beta gamma y B I Y S (soft_matrix_block_add n A i M) i U)
-        : matrix n -> R^o)
-      (soft_matrix_second n beta gamma y B I Y S A i U) /\
-    forall V : matrix n,
-    is_diff (matrix_zero n)
-      ((fun M => soft_matrix_second n beta gamma y B I Y S (soft_matrix_block_add n A i M) i U V)
-        : matrix n -> R^o)
-      (soft_matrix_third n beta gamma y B I Y S A i U V)) /\
-  (forall i, In i I ->
-    let N := projective_operator_norm (soft_matrix_third n beta gamma y B I Y S A i) in
-    N = EFin (fine N) /\ 0 <= fine N) /\
-  finite_sum (fun i => fine (projective_operator_norm (soft_matrix_third n beta gamma y B I Y S A i))) I <=
-    10 * k ^ 3 * (beta + gamma) ^ 2 * theta / sqrt (INR (Datatypes.S n)).
-Proof.
-  intros Hb Hg Hk Htheta HY HS HD Hunit Hcap Hsym HB; split.
-  - intros z; apply soft_matrix_inner_bounds; assumption.
-  - split.
-    + apply soft_matrix_outer_bounds; assumption.
-    + split.
-      * intros i Hi; apply soft_matrix_coordinate_derivatives; assumption.
-      * apply soft_matrix_projective_sum_bound; assumption.
 Qed.

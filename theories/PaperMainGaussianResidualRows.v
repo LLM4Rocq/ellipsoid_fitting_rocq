@@ -155,21 +155,6 @@ Qed.
 
 (* The tails for d = S n. *)
 
-Theorem paper_main_gaussian_residual_row_tail N n (P : 'M[R]_(S n)) (kappa r : R) i :
-  paper_main_symmetric P -> paper_main_pairing P P = 1 -> 0 <= kappa ->
-  paper_main_cone_opnorm_le P (kappa / Num.sqrt (S n)%:R) -> 0 < r -> (i < N)%coq_nat ->
-  measurable (paper_main_gaussian_residual_row_event N (S n) P r i) /\
-  (gaussian_product_law (N * S n)%N (paper_main_gaussian_residual_row_event N (S n) P r i)
-    <= (Rmult 2 (exp (Rdiv (Ropp (Rmult (INR (S n)) (pow r 2)))
-      (Rplus 4 (Rmult (Rmult 4 kappa) r)))))%:E)%E.
-Proof.
-move=> HP HP1 Hk HB Hr Hi.
-have [mE HE] := paper_main_gaussian_residual_row_law N (S n) P r i HP Hi.
-split; first exact: mE.
-rewrite HE.
-exact: (paper_main_gaussian_residual_tail n P kappa r HP HP1 Hk HB Hr).
-Qed.
-
 Theorem paper_main_gaussian_residual_rows_tail N n (P : 'M[R]_(S n)) (kappa r : R) :
   paper_main_symmetric P -> paper_main_pairing P P = 1 -> 0 <= kappa ->
   paper_main_cone_opnorm_le P (kappa / Num.sqrt (S n)%:R) -> 0 < r ->
@@ -182,7 +167,3 @@ move=> HP HP1 Hk HB Hr.
 exact: (paper_main_gaussian_residual_union N (S n) P r _ HP
   (paper_main_gaussian_residual_tail n P kappa r HP HP1 Hk HB Hr)).
 Qed.
-
-Corollary paper_main_gaussian_residual_rows_empty d (P : 'M[R]_d) r :
-  paper_main_gaussian_residual_event 0 d P r = set0.
-Proof. by apply/seteqP; split=> x // [i [Hi _]]; lia. Qed.

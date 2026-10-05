@@ -61,15 +61,6 @@ Lemma pmds_point_entry n d (x : paper_main_sample n d) (i : nat) (a : 'I_d) :
   paper_main_point x i a ord0 = List.nth (i * d + a)%N (tval x) 0.
 Proof. by rewrite /paper_main_point mxE. Qed.
 
-Lemma pmds_point_dot n d (x : paper_main_sample n d) (i j : nat) :
-  (((paper_main_point x i)^T *m paper_main_point x j) ord0 ord0)%R =
-  finite_sum (fun a => List.nth (i * d + a)%N (tval x) 0 * List.nth (j * d + a)%N (tval x) 0)
-    (List.seq 0 d).
-Proof.
-rewrite paper_main_finite_sum_public pmh_vec_dot.
-by apply: eq_bigr => a _; rewrite !pmds_point_entry.
-Qed.
-
 (* sum_l delta_kl f l = f k. *)
 Lemma pmds_kron_sum D k (f : nat -> R) : (k < D)%coq_nat ->
   finite_sum (fun l => pmdf_kron k l * f l) (List.seq 0 D) = f k.

@@ -220,27 +220,3 @@ exists (perm Hf); split.
 Qed.
 
 (* Everything for a fixed ordered head J. *)
-
-Corollary paper_main_head_selection_fixed k n d (J : seq nat) :
-  uniq J -> size J = k -> all (fun i => i < k + n)%N J ->
-  exists pi : 'S_(k + n),
-    (forall (x : paper_main_sample (k + n) d) (t : 'I_k),
-      paper_main_point (paper_main_head_selection k n d pi x).1 t =
-      paper_main_point x (nth 0 J t)) /\
-    (forall (x : paper_main_sample (k + n) d) (u : 'I_n),
-      paper_main_point (paper_main_head_selection k n d pi x).2 u =
-      paper_main_point x (nth 0 (paper_main_head_complement (k + n) J) u)) /\
-    measurable_fun [set: paper_main_sample (k + n) d] (paper_main_head_selection k n d pi) /\
-    (forall E : set (paper_main_sample k d * paper_main_sample n d), measurable E ->
-      paper_main_probability (k + n) d (paper_main_head_selection k n d pi @^-1` E) =
-      (gaussian_product_law (k * d)%N \x gaussian_product_law (n * d)%N)%E E).
-Proof.
-move=> HJu HJs HJa.
-have [pi [Hh Ht]] := paper_main_head_selection_perm_exists k n J HJu HJs HJa.
-exists pi; split.
-  by move=> x t; rewrite paper_main_head_selection_head_point Hh.
-split.
-  by move=> x u; rewrite paper_main_head_selection_tail_point Ht.
-split; first exact: paper_main_head_selection_measurable.
-exact: paper_main_head_selection_law.
-Qed.

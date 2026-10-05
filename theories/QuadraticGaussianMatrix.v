@@ -79,27 +79,6 @@ Proof.
       offset coeff Y S lambda C a b Hb Hg HY HS Ha Hbb))))).
 Qed.
 
-Lemma quadratic_gaussian_second_sum_domain n beta gamma offset coeff Y S lambda C :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  gaussian_vector_domain n (fun x => coordinate_sum n (fun a => coordinate_sum n (fun b =>
-    matrix_entry n (quadratic_gradient_second n beta gamma offset coeff Y S lambda C x
-      (chaos_basis n a) (chaos_basis n b)) a b))).
-Proof.
-  intros Hb Hg HY HS.
-  apply (proj1 (gaussian_vector_polynomial_double_sum_domain n n n 2
-    (fun a b x => matrix_entry n (quadratic_gradient_second n beta gamma offset coeff Y S lambda C x
-      (chaos_basis n a) (chaos_basis n b)) a b) ltac:(
-    intros a b Ha Hbb x;
-    destruct (quadratic_gradient_entry_polynomial_regular n beta gamma offset coeff Y S lambda C
-      (chaos_basis n a) (chaos_basis n b) a b Hb Hg HY HS Ha Hbb)
-      as [K0 [K1 [K2 [H0 [H1 [H2 Hr]]]]]]; specialize (Hr x); tauto) ltac:(
-    intros a b Ha Hbb;
-    destruct (quadratic_gradient_entry_polynomial_regular n beta gamma offset coeff Y S lambda C
-      (chaos_basis n a) (chaos_basis n b) a b Hb Hg HY HS Ha Hbb)
-      as [K0 [K1 [K2 [H0 [H1 [H2 Hr]]]]]];
-    exists K2; split; [exact H2|intro x; specialize (Hr x); tauto]))).
-Qed.
-
 Theorem quadratic_gaussian_divergence_domain n beta gamma offset coeff Y S lambda C :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
   gaussian_vector_domain n (fun x => symmetric_divergence n

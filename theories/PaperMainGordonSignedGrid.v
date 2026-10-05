@@ -15,15 +15,6 @@ Fixpoint paper_main_gordon_signs h (xs : list nat) : list (list R) :=
 Definition paper_main_gordon_signed_grid d K h :=
   List.flat_map (paper_main_gordon_signs h) (paper_main_gordon_budget_grid d K).
 
-Lemma paper_main_gordon_signs_length h xs ys :
-  List.In ys (paper_main_gordon_signs h xs) -> List.length ys = List.length xs.
-Proof.
-revert ys; induction xs as [|x xs IH]; intros ys H.
-- simpl in H; destruct H as [<-|[]]; reflexivity.
-- simpl in H; apply in_app_iff in H; destruct H as [H|H];
-    apply in_map_iff in H; destruct H as [zs [<- Hz]]; simpl; f_equal; apply IH; exact Hz.
-Qed.
-
 Lemma paper_main_gordon_signs_cardinality h xs :
   List.length (paper_main_gordon_signs h xs) = (2^List.length xs)%nat.
 Proof.

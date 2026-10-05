@@ -13,16 +13,6 @@ Fixpoint paper_main_gordon_grid d (centers : list R) : list (list R) :=
   | S n => List.flat_map (fun c => List.map (cons c) (paper_main_gordon_grid n centers)) centers
   end.
 
-Lemma paper_main_gordon_grid_length d centers xs :
-  List.In xs (paper_main_gordon_grid d centers) -> List.length xs = d.
-Proof.
-revert xs; induction d as [|d IH]; intros xs H; simpl in H.
-- destruct H as [<-|[]]; reflexivity.
-- apply in_flat_map in H; destruct H as [c [Hc H]].
-  apply in_map_iff in H; destruct H as [ys [E Hys]]; subst xs.
-  simpl; f_equal; apply IH; exact Hys.
-Qed.
-
 Lemma paper_main_gordon_grid_cover d centers delta :
   (forall x, -1 <= x <= 1 -> exists c, List.In c centers /\ Rabs (x-c) < delta) ->
   forall u : nat -> R, (forall i, (i < d)%nat -> Rabs (u i) <= 1) ->
@@ -111,22 +101,4 @@ split.
     pose proof (Rabs_triang (u i - List.nth i xs 0) (List.nth i xs 0 - pick xs i)) as H3.
     rewrite Rabs_minus_sym in H2; lra.
   + nra.
-Qed.
-
-Theorem paper_main_gordon_width_finite_approximation d T eta :
-  0 < eta -> (exists u, T u) -> (forall u, T u -> paper_main_gordon_dot d u u = 1) ->
-  exists s v, (0 < s)%nat /\ (forall t, (t < s)%nat -> T (v t)) /\
-    0 <= paper_main_gordon_set_width d T - paper_main_gordon_width d v (List.seq 0 s) < eta.
-Proof.
-intros Heta HT HU.
-set (a := sqrt (INR d)).
-assert (Ha : 0 <= a) by (unfold a; apply sqrt_pos).
-set (eps := eta / (a+1)).
-assert (He : 0 < eps) by (unfold eps; apply Rdiv_lt_0_compat; lra).
-assert (HE : (a+1)*eps = eta) by (unfold eps; field; lra).
-destruct (paper_main_gordon_finite_net_exists d T eps He HT HU) as [s [v [Hs Hnet]]].
-exists s, v; split; [exact Hs|]; split.
-- intros t Ht; apply (proj1 Hnet); apply lt_in_seq; exact Ht.
-- pose proof (paper_main_gordon_net_width_error d T v (List.seq 0 s) eps ltac:(lra) HT HU Hnet) as H.
-  fold a in H; split; lra.
 Qed.

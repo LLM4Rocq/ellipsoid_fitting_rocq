@@ -244,23 +244,6 @@ Definition paper_main_data_clipped_soft U n N beta gamma (Bf : nat -> nat -> 'M[
     (yf : nat -> nat -> nat -> R) (Y Q : list nat) (xs : list R) : R :=
   soft_minimax beta gamma (paper_main_data_clipped_family U n N Bf yf xs) Y Q.
 
-(* With Bf z q = B q and yf z q = y z, the raw soft minimax is the soft
-   minimax of sum_i y z i * <W i, B q> with W i the data feature of row i. *)
-Lemma pmdcm_raw_soft_public n N beta gamma (B : nat -> 'M[R]_(S n)) (y : nat -> nat -> R)
-    Y Q xs :
-  paper_main_data_raw_soft n N beta gamma (fun _ q => B q) (fun z _ => y z) Y Q xs =
-  soft_minimax beta gamma (fun z q => finite_sum (fun i => y z i * paper_main_pairing
-    (paper_main_data_feature n (fun j => List.nth (i * S n + j)%N xs 0)) (B q))
-    (List.seq 0 N)) Y Q.
-Proof. by []. Qed.
-
-Lemma pmdcm_clipped_soft_public U n N beta gamma (B : nat -> 'M[R]_(S n))
-    (y : nat -> nat -> R) Y Q xs :
-  paper_main_data_clipped_soft U n N beta gamma (fun _ q => B q) (fun z _ => y z) Y Q xs =
-  soft_minimax beta gamma (fun z q => finite_sum (fun i => y z i * paper_main_pairing
-    (paper_main_data_clipped_feature U n i xs) (B q)) (List.seq 0 N)) Y Q.
-Proof. by []. Qed.
-
 Theorem paper_main_data_raw_soft_continuous n N beta gamma Bf yf Y Q :
   Y <> [] -> Q <> [] ->
   finite_joint_continuous (N * S n) (paper_main_data_raw_soft n N beta gamma Bf yf Y Q).
@@ -317,35 +300,4 @@ apply: paper_main_data_growth_law.
 - exact: (paper_main_data_clipped_soft_continuous U n N k beta gamma Bf yf Y Q
     HU Hk Hb Hg HY HQ Had).
 - by move=> xs; exact: paper_main_data_clipped_soft_growth.
-Qed.
-
-(* The uniform alternative for the clipped soft minimax. *)
-Theorem paper_main_data_clipped_soft_square_uniform U n N k beta gamma Bf yf Y Q :
-  0 <= U -> 0 <= k -> 0 < beta -> 0 < gamma -> Y <> [] -> Q <> [] ->
-  paper_main_data_clipped_admissible n N k Bf yf Y Q ->
-  gaussian_iterated_expectation (N * S n)
-    (fun xs => paper_main_data_clipped_soft U n N beta gamma Bf yf Y Q xs *
-      paper_main_data_clipped_soft U n N beta gamma Bf yf Y Q xs) <=
-  (k * sqrt (INR (N * S n)) * (U ^ 2 + 1) + paper_main_data_soft_entropy beta gamma Y Q) ^ 2.
-Proof.
-move=> HU Hk Hb Hg HY HQ Had.
-set G := paper_main_data_clipped_soft U n N beta gamma Bf yf Y Q.
-set K := k * sqrt (INR (N * S n)) * (U ^ 2 + 1) + paper_main_data_soft_entropy beta gamma Y Q.
-have Hcont := paper_main_data_clipped_soft_continuous U n N k beta gamma Bf yf Y Q
-  HU Hk Hb Hg HY HQ Had.
-have HG : forall xs, Rabs (G xs) <= K.
-  by move=> xs; exact: paper_main_data_clipped_soft_uniform.
-have HK : 0 <= K by have := HG nil; have := Rabs_pos (G nil); lra.
-have Hb0 : finite_polynomial_bound (N * S n) K 0 G.
-  split => // xs _.
-  have HW := gaussian_coordinate_product_weight_at_least_one 0 xs.
-  have := HG xs; nra.
-have Hb2 := finite_polynomial_bound_mult _ _ _ _ _ _ _ Hb0 Hb0.
-have Hcont2 := finite_joint_continuous_mult _ _ _ Hcont Hcont.
-have IGG := gaussian_iterated_polynomial_integrable _ _ _ _ Hcont2 Hb2.
-have [IC EC] := gaussian_iterated_constant (N * S n) (K ^ 2).
-rewrite -EC; apply: gaussian_iterated_monotone => // xs _.
-have := paper_main_data_square_bound (G xs) K 0 HK (Rle_refl 0) ltac:(have := HG xs; lra).
-have E : G xs * G xs = Rabs (G xs) * Rabs (G xs) by have := Rsqr_abs (G xs); rewrite /Rsqr.
-have := HG xs; have := Rabs_pos (G xs); nra.
 Qed.

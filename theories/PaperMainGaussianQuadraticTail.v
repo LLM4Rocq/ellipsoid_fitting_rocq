@@ -51,26 +51,6 @@ apply: (finite_joint_continuous_ext d
 exact: paper_main_gaussian_orthogonal_square_continuous.
 Qed.
 
-Theorem paper_main_gaussian_quadratic_abs_measurable d (B : 'M[R]_d) u :
-  paper_main_symmetric B ->
-  measurable [set x : d.-tuple (measurableTypeR R) |
-    Rle u (Rabs (paper_main_gaussian_quadratic_statistic B (tval x)))].
-Proof.
-move=> HB.
-exact: (paper_main_gaussian_smooth_ge_measurable d _ u
-  (finite_joint_continuous_abs d _ (paper_main_gaussian_quadratic_continuous d B HB))).
-Qed.
-
-Theorem paper_main_gaussian_quadratic_ge_measurable d (B : 'M[R]_d) u :
-  paper_main_symmetric B ->
-  measurable [set x : d.-tuple (measurableTypeR R) |
-    Rle u (paper_main_gaussian_quadratic_statistic B (tval x))].
-Proof.
-move=> HB.
-exact: (paper_main_gaussian_smooth_ge_measurable d _ u
-  (paper_main_gaussian_quadratic_continuous d B HB)).
-Qed.
-
 (* The tail. *)
 
 Theorem paper_main_gaussian_quadratic_tail d (B : 'M[R]_d) (b u : R) :
@@ -95,40 +75,4 @@ have -> : [set x : d.-tuple (measurableTypeR R) |
     (gaussian_covariance_image d d L (tval x))))].
   by apply/seteqP; split=> x /=; rewrite /paper_main_gaussian_quadratic_statistic RminusE Hid.
 exact: H.
-Qed.
-
-Corollary paper_main_gaussian_quadratic_tail_nonzero d (B : 'M[R]_d) (b u : R) :
-  paper_main_symmetric B -> B != 0%R -> 0 <= b -> paper_main_cone_opnorm_le B b -> 0 < u ->
-  (gaussian_product_law d
-    [set x | Rle u (Rabs (paper_main_gaussian_quadratic_statistic B (tval x)))]
-    <= (2 * exp (- u ^ 2 / (4 * paper_main_pairing B B + 4 * b * u)))%:E)%E.
-Proof.
-move=> HB HB0 Hb HBb Hu.
-apply: (paper_main_gaussian_quadratic_tail d B b u HB Hb HBb Hu).
-have Hp : 0 < paper_main_pairing B B.
-  by apply/RltP; exact: (paper_main_pairing_self_gt0 d B HB0).
-have Hbu : 0 <= b * u by apply: Rmult_le_pos; lra.
-lra.
-Qed.
-
-Theorem paper_main_gaussian_quadratic_zero_tail d u :
-  0 < u ->
-  gaussian_product_law d
-    [set x | Rle u (Rabs (paper_main_gaussian_quadratic_statistic (0%R : 'M[R]_d) (tval x)))]
-    = 0%E.
-Proof.
-move=> Hu.
-have Hz : forall xs, paper_main_gaussian_quadratic_statistic (0%R : 'M[R]_d) xs = 0.
-  move=> xs; rewrite /paper_main_gaussian_quadratic_statistic.
-  have -> : paper_main_quadratic_form (0%R : 'M[R]_d) (paper_main_symmetric_column xs) = 0.
-    rewrite /paper_main_quadratic_form big1 // => i _; rewrite big1 // => j _.
-    by rewrite !mxE mulr0 mul0r.
-  have -> : paper_main_trace (0%R : 'M[R]_d) = 0.
-    by rewrite /paper_main_trace big1 // => i _; rewrite mxE.
-  by rewrite Rminus_0_r.
-have -> : [set x : d.-tuple (measurableTypeR R) |
-    Rle u (Rabs (paper_main_gaussian_quadratic_statistic (0%R : 'M[R]_d) (tval x)))] = set0.
-  apply/seteqP; split=> x //=.
-  by rewrite Hz Rabs_R0; lra.
-exact: measure0.
 Qed.

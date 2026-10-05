@@ -68,16 +68,6 @@ have Hs : size (take j s) = j by rewrite size_take Hj.
 by rewrite drop_size_cat // take_size_cat.
 Qed.
 
-Lemma pmso_take_del j i s : i <= j -> take i (pmso_del j s) = take i s.
-Proof.
-move=> Hij; rewrite /pmso_del.
-case: (leqP j (size s)) => Hj.
-  rewrite takel_cat ?take_takel //.
-  by rewrite size_take; case: ifP => _; [exact: Hij | exact: leq_trans Hij Hj].
-rewrite (take_oversize (ltnW Hj)).
-by rewrite (drop_oversize (leq_trans (ltnW Hj) (leqnSn _))) cats0.
-Qed.
-
 End Lists.
 
 Arguments pmso_del {T}.
@@ -87,7 +77,6 @@ Arguments pmso_size_ins {T}.
 Arguments pmso_del_ins {T}.
 Arguments pmso_ins_del {T}.
 Arguments pmso_rot_del {T}.
-Arguments pmso_take_del {T}.
 
 (* 2. The two head reductions of PaperMainSquarefreeWalkCount, refined. *)
 Section Head.

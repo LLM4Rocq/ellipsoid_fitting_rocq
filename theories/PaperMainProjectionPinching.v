@@ -43,17 +43,6 @@ move=> HP HS; apply: pms_psd_add; apply: paper_main_compression_psd => //.
 exact: paper_main_projection_complement_transpose.
 Qed.
 
-Theorem paper_main_pinching_trace P S : P *m P  =  P ->
-  paper_main_trace (paper_main_pinching P S) = paper_main_trace S.
-Proof.
-move=> HP; have HQ := paper_main_projection_complement_square P HP.
-have EP : \tr(P *m S *m P) = \tr(P *m S) by rewrite mxtrace_mulC mulmxA HP.
-have EQ : \tr((1%:M-P) *m S *m (1%:M-P)) = \tr((1%:M-P) *m S)
-  by rewrite mxtrace_mulC mulmxA HQ.
-change (\tr(P *m S *m P+(1%:M-P) *m S *m (1%:M-P)) = \tr S).
-by rewrite raddfD /= EP EQ -raddfD /= -mulmxDl addrC subrK mul1mx.
-Qed.
-
 Theorem paper_main_pinching_frobenius P S : P^T  =  P -> P *m P  =  P ->
   paper_main_frobenius (paper_main_pinching P S)<=2*paper_main_frobenius S.
 Proof.

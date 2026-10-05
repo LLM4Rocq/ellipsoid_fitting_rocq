@@ -35,13 +35,6 @@ Proof.
   - rewrite gibbs_sum_scale, Hq; ring.
 Qed.
 
-Lemma weighted_average_zero q I : weighted_average q I (fun _ => 0) = 0.
-Proof.
-  unfold weighted_average; transitivity (finite_sum (fun _ => 0) I).
-  - apply gibbs_sum_ext; intros; ring.
-  - apply gibbs_sum_zero.
-Qed.
-
 Lemma weighted_average_nonnegative q I f :
   finite_probability q I ->
   (forall i, In i I -> 0 <= f i) -> 0 <= weighted_average q I f.
@@ -168,35 +161,4 @@ Proof.
     (fun i => 4 * (r i ^ 3 + m ^ 3)) HP Hpt) as H.
   rewrite weighted_average_scale, weighted_average_add in H.
   rewrite weighted_average_const in H by exact HP; lra.
-Qed.
-
-Theorem weighted_centered_cube q I u :
-  finite_probability q I ->
-  weighted_average q I
-    (fun i => Rabs (u i - weighted_average q I u) ^ 3) <=
-  8 * weighted_average q I (fun i => Rabs (u i) ^ 3).
-Proof.
-  intros HP.
-  set (m := weighted_average q I u).
-  assert (Hm : Rabs m ^ 3 <= weighted_average q I (fun i => Rabs (u i) ^ 3)).
-  { eapply Rle_trans.
-    - apply pow_incr; split; [apply Rabs_pos|].
-      unfold m; apply weighted_average_abs; exact HP.
-    - apply weighted_cubic_jensen; [exact HP|].
-      intros; apply Rabs_pos. }
-  assert (Hpt : forall i, In i I ->
-    Rabs (u i - m) ^ 3 <= 4 * (Rabs (u i) ^ 3 + Rabs m ^ 3)).
-  { intros i Hi; eapply Rle_trans with (r2 := (Rabs (u i) + Rabs m) ^ 3).
-    - apply pow_incr.
-      split; [apply Rabs_pos|].
-      replace (u i - m) with (u i + -m) by ring.
-      eapply Rle_trans; [apply Rabs_triang|].
-      rewrite Rabs_Ropp; lra.
-    - apply cubic_sum_bound; apply Rabs_pos. }
-  pose proof (weighted_average_monotone q I
-    (fun i => Rabs (u i - m) ^ 3)
-    (fun i => 4 * (Rabs (u i) ^ 3 + Rabs m ^ 3)) HP Hpt) as H.
-  rewrite weighted_average_scale, weighted_average_add in H.
-  rewrite weighted_average_const in H by exact HP.
-  lra.
 Qed.

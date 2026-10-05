@@ -113,12 +113,6 @@ Qed.
 Lemma pmh_frobenius0 : paper_main_frobenius (0 : 'M[R]_d) = 0.
 Proof. by rewrite /paper_main_frobenius pmh_pairing0l sqrtr0. Qed.
 
-Lemma pmh_frobenius_eq0 S : paper_main_frobenius S = 0 -> S = 0.
-Proof.
-move=> H; apply: paper_main_pairing_self_eq0.
-by rewrite -pmh_frobenius_sqr H expr2 mulr0.
-Qed.
-
 Lemma pmh_frobenius_gt0 S : S != 0 -> 0 < paper_main_frobenius S.
 Proof.
 move=> HS; rewrite /paper_main_frobenius sqrtr_gt0.

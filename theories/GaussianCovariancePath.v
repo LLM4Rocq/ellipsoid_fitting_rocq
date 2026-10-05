@@ -38,10 +38,6 @@ Definition gaussian_covariance_ddcoef (p q : nat) (P Q : nat -> nat -> R) (t : R
   if Nat.ltb k p then - P a k / (4 * (sqrt t * sqrt t * sqrt t))
   else - Q a (k - p)%coq_nat / (4 * (sqrt (1 - t) * sqrt (1 - t) * sqrt (1 - t))).
 
-Lemma gaussian_covariance_row_linear p P a xs :
-  gaussian_covariance_row p P a xs = linear_form p (P a) xs.
-Proof. reflexivity. Qed.
-
 Lemma gaussian_covariance_image_linear K p P :
   gaussian_covariance_image K p P = linear_image p K P.
 Proof. reflexivity. Qed.

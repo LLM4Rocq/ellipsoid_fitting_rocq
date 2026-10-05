@@ -25,15 +25,6 @@ rewrite /paper_main_head_section_combination pmh_pairing_suml paper_main_finite_
 by apply: eq_bigr => i _; rewrite RmultE.
 Qed.
 
-Lemma paper_main_head_combination_soft d q beta gamma y B Y Q (V : nat -> 'M[R]_d) :
-  soft_minimax beta gamma
-    (fun a t => paper_main_pairing (paper_main_head_section_combination q (y a) V) (B t)) Y Q =
-  paper_main_public_soft_minimax d q beta gamma y B Y Q V.
-Proof.
-apply: paper_main_gordon_soft_minimax_ext => a t Ha Ht.
-exact: paper_main_head_combination_score.
-Qed.
-
 Lemma paper_main_head_clipped_combination U n q beta gamma y B Y Q xs :
   soft_minimax beta gamma
     (fun a t => paper_main_pairing (paper_main_head_section_combination q (y a)

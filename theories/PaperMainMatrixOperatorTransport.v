@@ -205,32 +205,6 @@ move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id.
 have := HB v; have := pmh_vec_sqr_ge0 _ v; nra.
 Qed.
 
-(* A PSD B with |B|_F = 1 is below I. *)
-Lemma pmmo_psd_frobenius_upper (B : 'M[R]_N) :
-  paper_main_psd B -> paper_main_frobenius B = 1 -> paper_main_loewner_le B (1 *: 1%:M).
-Proof.
-move=> [HBs HB] HF; split.
-  apply: pmh_symmetricB => //.
-  by apply: paper_main_symmetric_scale; exact: pmh_symmetric_id.
-move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id mul1r subr_ge0.
-have H := pmh_pairing_frobenius_bound _ B (v *m v^T).
-rewrite paper_main_pairing_outer HF mul1r in H.
-have HF2 : paper_main_frobenius (v *m v^T) = (v^T *m v) 0 0.
-  rewrite /paper_main_frobenius pmsb_pairing_outer_outer -expr2 sqrtr_sqr.
-  by rewrite ger0_norm //; exact: pmh_vec_sqr_ge0.
-by rewrite HF2 in H; apply: le_trans (ler_norm _) H.
-Qed.
-
-Theorem paper_main_matrix_operator_psd_frobenius (B : 'M[R]_N) :
-  paper_main_psd B -> paper_main_frobenius B = 1 ->
-  matrix_operator_norm n (paper_main_matrix_from_public n B) <= 1.
-Proof.
-move=> HB HF; apply: paper_main_matrix_operator_loewner => //.
-- by case: HB.
-- exact: pmmo_psd_lower.
-- exact: pmmo_psd_frobenius_upper.
-Qed.
-
 (* A unit element of the bounded-condition cone. *)
 Theorem paper_main_matrix_operator_cone_sphere (kappa : R) (B : 'M[R]_N) :
   1 <= kappa -> paper_main_head_cone_sphere kappa B ->

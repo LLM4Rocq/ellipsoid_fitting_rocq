@@ -70,45 +70,6 @@ Proof.
   apply gaussian_integral_exists_scale; exact HIh.
 Qed.
 
-Lemma gaussian_joint_continuous_right (h : R -> R) (x y : R) :
-  {for y, continuous h} -> continuity_2d_pt (fun _ v => h v) x y.
-Proof.
-  move=> /continuity_pt_filterlim HC.
-  exact (continuity_1d_2d_pt_comp h (fun _ v => v) x y HC (continuity_2d_pt_id2 x y)).
-Qed.
-
-Lemma gaussian_joint_weighted_continuous (F : R -> R -> R) :
-  (forall x y, continuity_2d_pt F x y) ->
-  forall x y, continuity_2d_pt (fun u v => F u v * gaussian_kernel v) x y.
-Proof.
-  intros HC x y; apply continuity_2d_pt_mult; [apply HC|].
-  apply gaussian_joint_continuous_right; apply gaussian_kernel_continuous.
-Qed.
-
-Lemma gaussian_parameter_cutoff_continuous (F : R -> R -> R) (A a : R) :
-  (forall x y, continuity_2d_pt F x y) ->
-  {for a, continuous (fun x => gaussian_cutoff_expectation (F x) A)}.
-Proof.
-  intro HC. unfold gaussian_cutoff_expectation, gaussian_cutoff_integral, Rdiv.
-  apply (continuous_mult R); [|apply (continuous_const R)].
-  apply (rectangle_parameter_integral_continuous
-    (fun u v => F u v * gaussian_kernel v)).
-  apply gaussian_joint_weighted_continuous; exact HC.
-Qed.
-
-Lemma gaussian_section_integrability (F : R -> R -> R) (g h : R -> R) :
-  (forall x y, continuity_2d_pt F x y) ->
-  (forall y : R, {for y, continuous h}) ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  gaussian_integral_exists h ->
-  forall x, gaussian_integral_exists (F x) /\ gaussian_absolutely_integrable (F x).
-Proof.
-  intros HC HH Hb HIh x.
-  apply (gaussian_majorant_integrability (F x) h (g x)); try assumption.
-  - intro y; apply rectangle_continuous_slice_right, HC.
-  - apply Hb.
-Qed.
-
 (* The proof uses whole_line_parameter_continuous_weighted of
    GaussianFubiniLebesgue with the kernel as the weight; see the header.
    The hypothesis HH is not used. *)
@@ -142,40 +103,4 @@ Proof.
   apply (gaussian_expectation_majorant_bound (F x) h (g x)); try assumption.
   - intro y; apply rectangle_continuous_slice_right, HC.
   - apply Hb.
-Qed.
-
-Theorem gaussian_separable_outer_integrability (F : R -> R -> R) (g h : R -> R) :
-  (forall x y, continuity_2d_pt F x y) ->
-  (forall x : R, {for x, continuous g}) -> (forall y : R, {for y, continuous h}) ->
-  (forall y, 0 <= h y) ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  gaussian_integral_exists g -> gaussian_integral_exists h ->
-  gaussian_integral_exists (fun x => gaussian_expectation (F x)) /\
-  gaussian_absolutely_integrable (fun x => gaussian_expectation (F x)).
-Proof.
-  intros HC HG HH Hh Hb HIg HIh.
-  apply (gaussian_majorant_integrability
-    (fun x => gaussian_expectation (F x)) g (gaussian_expectation h)); try assumption.
-  - intro x; apply (gaussian_section_expectation_continuous F g h); assumption.
-  - intro x; rewrite Rmult_comm; apply (gaussian_section_expectation_bound F g h); assumption.
-Qed.
-
-Theorem gaussian_separable_sections_integrable (F : R -> R -> R) (g h : R -> R) :
-  (forall x y, continuity_2d_pt F x y) ->
-  (forall x : R, {for x, continuous g}) -> (forall y : R, {for y, continuous h}) ->
-  (forall y, 0 <= h y) ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  gaussian_integral_exists g -> gaussian_integral_exists h ->
-  (forall x, gaussian_integral_exists (F x) /\ gaussian_absolutely_integrable (F x)) /\
-  (forall x, Rabs (gaussian_expectation (F x)) <= g x * gaussian_expectation h) /\
-  (forall x : R, {for x, continuous (fun u => gaussian_expectation (F u))}) /\
-  gaussian_integral_exists (fun x => gaussian_expectation (F x)) /\
-  gaussian_absolutely_integrable (fun x => gaussian_expectation (F x)).
-Proof.
-  intros HC HG HH Hh Hb HIg HIh.
-  split; [apply (gaussian_section_integrability F g h); assumption|].
-  split; [apply (gaussian_section_expectation_bound F g h); assumption|].
-  split.
-  - intro x; apply (gaussian_section_expectation_continuous F g h); assumption.
-  - apply (gaussian_separable_outer_integrability F g h); assumption.
 Qed.

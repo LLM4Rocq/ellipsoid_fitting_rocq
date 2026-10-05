@@ -34,40 +34,6 @@ Proof.
 intros HO a b Ha Hb; exact (HO a b Ha Hb).
 Qed.
 
-Lemma paper_main_gaussian_identity_orthonormal_rows d :
-  paper_main_gaussian_orthonormal_rows d paper_main_gaussian_identity.
-Proof.
-intros a b Ha Hb; exact (paper_main_gaussian_identity_covariance d a b Ha).
-Qed.
-
-(* Rows of norm one have entries of absolute value at most one. *)
-Lemma paper_main_gaussian_orthonormal_rows_entry_bound d O :
-  paper_main_gaussian_orthonormal_rows d O ->
-  forall a k, (a < d)%coq_nat -> (k < d)%coq_nat -> Rabs (O a k) <= 1.
-Proof.
-intros HO a k Ha Hk.
-assert (Hsq : O a k * O a k <= 1).
-{ transitivity (gaussian_covariance_entry d O a a);
-    [|rewrite (HO a a Ha Ha) Nat.eqb_refl; lra].
-  unfold gaussian_covariance_entry.
-  rewrite <- (finite_sum_delta d k (O a k * O a k) Hk).
-  apply finite_sum_le; intros j _.
-  destruct (Nat.eqb_spec j k) as [->|_]; [lra|].
-  apply Rle_0_sqr. }
-apply Rabs_le; nra.
-Qed.
-
-Lemma paper_main_gaussian_orthogonal_integrable d O (f : list R -> R) C r :
-  finite_joint_continuous d f -> finite_polynomial_bound d C r f ->
-  gaussian_iterated_integrable d (fun xs => f (gaussian_covariance_image d d O xs)) /\
-  gaussian_iterated_absolutely_integrable d
-    (fun xs => f (gaussian_covariance_image d d O xs)).
-Proof.
-intros Hf Hb.
-destruct (gaussian_covariance_image_domain d d O f C r Hf Hb) as [HI [HA _]].
-split; assumption.
-Qed.
-
 Theorem paper_main_gaussian_orthogonal_expectation d (O : nat -> nat -> R)
     (f : list R -> R) (Df : nat -> list R -> R) (D2f : nat -> nat -> list R -> R)
     (C : R) (r : nat) :
@@ -100,17 +66,4 @@ Proof.
 intros HO [Hf HD HDc HD2 HD2c Hfb HDb HD2b].
 exact (paper_main_gaussian_orthogonal_expectation d O f Df D2f C r HO
   Hf HD HDc HD2 HD2c Hfb HDb HD2b).
-Qed.
-
-(* Two loadings with orthonormal rows give the same expectations. *)
-Corollary paper_main_gaussian_orthogonal_pair_expectation d O1 O2 f Df D2f C r :
-  paper_main_gaussian_orthonormal_rows d O1 ->
-  paper_main_gaussian_orthonormal_rows d O2 ->
-  paper_main_gaussian_smooth_test d f Df D2f C r ->
-  gaussian_iterated_expectation d (fun xs => f (gaussian_covariance_image d d O1 xs)) =
-  gaussian_iterated_expectation d (fun xs => f (gaussian_covariance_image d d O2 xs)).
-Proof.
-intros H1 H2 Hs.
-rewrite (paper_main_gaussian_orthogonal_smooth_expectation d O1 f Df D2f C r H1 Hs).
-symmetry; exact (paper_main_gaussian_orthogonal_smooth_expectation d O2 f Df D2f C r H2 Hs).
 Qed.

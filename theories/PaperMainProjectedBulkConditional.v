@@ -685,17 +685,6 @@ Definition paper_main_projected_distance_le n D q (J : {set 'I_n}) (F : 'M[R]_(#
     (x : (n * D).-tuple (measurableTypeR R)) (A : (nat -> R) -> Prop) (t : R) : Prop :=
   forall m : nat, paper_main_projected_distance_lt n D q J F x A (t + / INR m.+1)%Rcoq.
 
-Lemma paper_main_projected_distance_le_attained n D q (J : {set 'I_n}) (F : 'M[R]_(#|J|, q))
-    (x : (n * D).-tuple (measurableTypeR R)) (A : (nat -> R) -> Prop) (t : R)
-    (v : nat -> R) (c : 'cV[R]_q) :
-  A v -> (paper_main_projected_norm (paper_main_projected_residual n D q J F x v c) <= t)%Rcoq ->
-  paper_main_projected_distance_le n D q J F x A t.
-Proof.
-move=> Hv Hle m; exists v, c; split => //.
-have : (0 < / INR m.+1)%Rcoq by apply: Rinv_0_lt_compat; apply: lt_0_INR; lia.
-lra.
-Qed.
-
 Lemma paper_main_projected_distance_margin n D q (J : {set 'I_n}) (F : 'M[R]_(#|J|, q))
     (x : (n * D).-tuple (measurableTypeR R)) (A : (nat -> R) -> Prop) (t : R) :
   ~ paper_main_projected_distance_le n D q J F x A t ->
@@ -860,18 +849,6 @@ Qed.
 
 (* The bad event contains every attained small residual, and off the bad
    event every admissible J has a uniform margin. *)
-
-Lemma paper_main_projected_bad_attained n D q k (F : 'M[R]_(n, q))
-    (x : (n * D).-tuple (measurableTypeR R)) (A : (nat -> R) -> Prop) (b : R)
-    (J : {set 'I_n}) (v : nat -> R) (c : 'cV[R]_q) :
-  (n - k <= #|J|)%N -> A v ->
-  (paper_main_projected_norm (paper_main_projected_residual n D q J
-     (paper_main_projected_selector J *m F) x v c) <= sqrt (INR (#|J| - q) - 1) - b)%Rcoq ->
-  paper_main_projected_bad n D q k F x A b.
-Proof.
-move=> HJ Hv Hle; exists J; split => //.
-exact: (paper_main_projected_distance_le_attained n D q J _ x A _ v c Hv Hle).
-Qed.
 
 Lemma paper_main_projected_not_bad_margin n D q k (F : 'M[R]_(n, q))
     (x : (n * D).-tuple (measurableTypeR R)) (A : (nat -> R) -> Prop) (b : R) :

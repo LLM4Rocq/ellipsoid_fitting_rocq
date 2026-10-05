@@ -105,30 +105,3 @@ Proof.
   destruct (gaussian_covariance_image_regular K p P M g C r HM HP Hg Hb) as [Hc Hpb].
   exact (gaussian_coordinate_polynomial_domain _ _ _ _ Hc Hpb).
 Qed.
-
-(* Clause 1. *)
-Theorem gaussian_covariance_domains K p q (P Q : nat -> nat -> R) (f : list R -> R)
-    (D2f : nat -> nat -> list R -> R) (C : R) (r : nat) :
-  finite_joint_continuous K f ->
-  (forall a b, (a < K)%coq_nat -> (b < K)%coq_nat -> finite_joint_continuous K (D2f a b)) ->
-  finite_polynomial_bound K C r f ->
-  (forall a b, (a < K)%coq_nat -> (b < K)%coq_nat ->
-    finite_polynomial_bound K C r (D2f a b)) ->
-  (forall t, 0 <= t <= 1 ->
-    gaussian_covariance_domain (p + q)%coq_nat
-      (fun zs => f (gaussian_covariance_path K p q P Q t zs))) /\
-  (forall t a b, 0 <= t <= 1 -> (a < K)%coq_nat -> (b < K)%coq_nat ->
-    gaussian_covariance_domain (p + q)%coq_nat
-      (fun zs => D2f a b (gaussian_covariance_path K p q P Q t zs))) /\
-  gaussian_covariance_domain p (fun xs => f (gaussian_covariance_image K p P xs)) /\
-  gaussian_covariance_domain q (fun ys => f (gaussian_covariance_image K q Q ys)).
-Proof.
-  intros Hf HD2 Hfb HD2b.
-  split; [|split; [|split]].
-  - intros t Ht; exact (gaussian_covariance_path_domain K p q P Q f C r t Ht Hf Hfb).
-  - intros t a b Ht Ha Hb.
-    exact (gaussian_covariance_path_domain K p q P Q (D2f a b) C r t Ht (HD2 a b Ha Hb)
-      (HD2b a b Ha Hb)).
-  - exact (gaussian_covariance_image_domain K p P f C r Hf Hfb).
-  - exact (gaussian_covariance_image_domain K q Q f C r Hf Hfb).
-Qed.

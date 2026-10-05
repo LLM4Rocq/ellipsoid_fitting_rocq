@@ -126,10 +126,6 @@ Lemma euclidean_product_normE x :
   `|x|%R = sqrt (`|x.1|%R ^ 2 + `|x.2|%R ^ 2).
 Proof. reflexivity. Qed.
 
-Lemma euclidean_product_ballE x (e : R) y :
-  ball x e y <-> (`|x - y| < e)%R.
-Proof. reflexivity. Qed.
-
 Lemma euclidean_product_norm_fst x : (`|x.1| <= `|x|)%R.
 Proof.
   apply/RleP; rewrite euclidean_product_normE.

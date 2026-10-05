@@ -152,35 +152,6 @@ rewrite /paper_main_loewner_le paper_main_feature_gram_blocks addrK.
 exact: pmfg_psd_gram.
 Qed.
 
-Theorem paper_main_diag_gram_le :
-  paper_main_loewner_le (paper_main_diag_block *m paper_main_diag_block^T)
-    paper_main_feature_gram.
-Proof.
-rewrite /paper_main_loewner_le paper_main_feature_gram_blocks
-  [_ + paper_main_squarefree_block *m _]addrC addrK.
-exact: pmfg_psd_gram.
-Qed.
-
-(* 5. The explicit entries and the normalized head features. *)
-Theorem paper_main_feature_gram_entry (i j : 'I_N) :
-  paper_main_feature_gram i j =
-  ((paper_main_point x i)^T *m paper_main_point x j) 0 0 ^+ 2 -
-  ((paper_main_point x i)^T *m paper_main_point x i) 0 0 -
-  ((paper_main_point x j)^T *m paper_main_point x j) 0 0 + d%:R.
-Proof.
-set u := paper_main_point x i; set v := paper_main_point x j.
-rewrite mxE /paper_main_raw_feature -/u -/v.
-rewrite pmh_pairingBl !pmh_pairingBr pmsb_pairing_outer_outer.
-rewrite pmh_pairing_id [paper_main_pairing (u *m u^T) 1%:M]paper_main_pairingC pmh_pairing_id.
-rewrite !pms_trace_rank1.
-have HI : paper_main_pairing (1%:M : 'M[R]_d) 1%:M = d%:R.
-  rewrite pmh_pairing_id /paper_main_trace; under eq_bigr do rewrite mxE eqxx.
-  by rewrite sumr_const card_ord.
-have Huv : (v^T *m u) 0 0 = (u^T *m v) 0 0.
-  by rewrite !pmh_vec_dot; apply: eq_bigr => k _; rewrite mulrC.
-rewrite HI Huv -expr2; ring.
-Qed.
-
 Theorem paper_main_feature_gram_head :
   (0 < d)%N ->
   paper_main_feature_gram = d%:R *:

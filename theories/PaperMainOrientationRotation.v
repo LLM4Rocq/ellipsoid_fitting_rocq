@@ -209,13 +209,6 @@ have -> : (i == i')%N = false.
 by [].
 Qed.
 
-Lemma paper_main_orientation_rotate_point N d (O : 'M[R]_d) (x : (N * d).-tuple T) (i : 'I_N) :
-  paper_main_point (paper_main_orientation_rotate N d O x) i = O *m paper_main_point x i.
-Proof.
-apply/matrixP => a b; rewrite [b]ord1 !mxE paper_main_orientation_rotate_nth //.
-by apply: eq_bigr => c _; rewrite mxE.
-Qed.
-
 (* 4. The centered quadratic value under conjugation. *)
 
 Lemma paper_main_orientation_form_mx {d : nat} (S : 'M[R]_d) (v : 'cV[R]_d) :
@@ -243,78 +236,5 @@ Qed.
 
 (* 5. Finite lists of rotations: pullbacks of events with a common bound. *)
 
-Theorem paper_main_orientation_union N d (Os : nat -> 'M[R]_d) (s : nat)
-    (E : nat -> set ((N * d).-tuple T)) (p : R) :
-  (forall k, (k < s)%N -> (Os k)^T *m Os k = 1%:M) ->
-  (forall k, (k < s)%N -> measurable (E k)) ->
-  (forall k, (k < s)%N -> (gaussian_product_law (N * d) (E k) <= p%:E)%E) ->
-  measurable (paper_main_finite_event_union (List.seq 0 s)
-    (fun k => paper_main_orientation_rotate N d (Os k) @^-1` E k)) /\
-  (gaussian_product_law (N * d) (paper_main_finite_event_union (List.seq 0 s)
-    (fun k => paper_main_orientation_rotate N d (Os k) @^-1` E k)) <=
-   ((INR s * p)%Rcoq)%:E)%E.
-Proof.
-move=> HO mE PE.
-have Hs : forall k, List.In k (List.seq 0 s) -> (k < s)%N.
-  move=> k /List.in_seq [_ Hk]; apply/ssrnat.ltP; lia.
-have mR : forall k, List.In k (List.seq 0 s) ->
-    measurable (paper_main_orientation_rotate N d (Os k) @^-1` E k).
-  move=> k Hk.
-  have := paper_main_orientation_rotate_measurable N d (Os k) measurableT (E k) (mE k (Hs k Hk)).
-  by rewrite setTI.
-split; first exact: paper_main_gaussian_union_measurable.
-have := paper_main_gaussian_union_bound (N * d) (List.seq 0 s) _ p mR.
-rewrite List.length_seq; apply => k Hk.
-rewrite (paper_main_orientation_rotate_law N d (Os k) (E k) (HO k (Hs k Hk)) (mE k (Hs k Hk))).
-exact: PE (Hs k Hk).
-Qed.
-
 (* 6. Pullback of the A26 finite-prior data tail by a finite list of
    orientations, each with its own admissible finite prior. *)
-
-Theorem paper_main_orientation_finite_data_tail (gamma beta eta : R) :
-  (1 / 4 < gamma)%Rcoq -> (0 < beta)%Rcoq -> (0 < eta)%Rcoq ->
-  exists (C kappa e c : R) (d0 : nat),
-    (0 <= C)%Rcoq /\ (0 < kappa)%Rcoq /\ (kappa <= gamma / 2)%Rcoq /\
-    (0 < e)%Rcoq /\ (0 < c)%Rcoq /\
-    forall (d N r mi s : nat) (Os : nat -> 'M[R]_(r + S mi)%coq_nat) (Is : nat -> list nat)
-      (Hs : nat -> nat -> 'M[R]_r) (bs : nat -> nat -> R) (Bs : nat -> nat -> 'M[R]_(S mi))
-      (eps Sf t : R),
-      (d0 <= d)%N ->
-      (Rabs (INR N - gamma * INR d ^ 2) <= kappa * INR d ^ 2)%Rcoq ->
-      (INR r <= sqrt (INR d) + 1)%Rcoq -> (r + mi + 1 <= d)%N ->
-      (0 <= eps)%Rcoq -> (0 <= Sf)%Rcoq -> (0 < t)%Rcoq ->
-      (forall k, (k < s)%N -> (Os k)^T *m Os k = 1%:M) ->
-      (forall k, (k < s)%N -> Is k <> nil) ->
-      (forall k j, (k < s)%N -> In j (Is k) -> paper_main_symmetric (Hs k j)) ->
-      (forall k j, (k < s)%N -> In j (Is k) -> paper_main_psd (Bs k j)) ->
-      (forall k j, (k < s)%N -> In j (Is k) ->
-         (1 / 4 <= paper_main_frobenius (Hs k j) ^ 2 + paper_main_frobenius (Bs k j) ^ 2)%Rcoq) ->
-      (forall k j, (k < s)%N -> In j (Is k) -> paper_main_cone_opnorm_le (Bs k j) eps) ->
-      (forall k j, (k < s)%N -> In j (Is k) ->
-         (paper_main_frobenius (Bs k j) ^ 2 <= Sf ^ 2)%Rcoq) ->
-      measurable (paper_main_finite_event_union (List.seq 0 s) (fun k =>
-        paper_main_orientation_rotate N (r + S mi)%coq_nat (Os k) @^-1`
-        [set x | (paper_main_hybrid_finite_data N r mi beta (Is k) (Hs k) (bs k) (Bs k) (tval x) <=
-          (e * (1 - exp (- c * INR d ^ 2)) - (2 * eta + C * eps * Sf) - t)%Rcoq)%R])) /\
-      (gaussian_product_law (N * (r + S mi)%coq_nat)
-        (paper_main_finite_event_union (List.seq 0 s) (fun k =>
-          paper_main_orientation_rotate N (r + S mi)%coq_nat (Os k) @^-1`
-          [set x | (paper_main_hybrid_finite_data N r mi beta (Is k) (Hs k) (bs k) (Bs k) (tval x) <=
-            (e * (1 - exp (- c * INR d ^ 2)) - (2 * eta + C * eps * Sf) - t)%Rcoq)%R])) <=
-       ((INR s * exp (- (INR N * t ^ 2) / 2))%Rcoq)%:E)%E.
-Proof.
-move=> Hg Hb He.
-have [C [kappa [e [c [d0 [HC [Hk [Hk2 [He' [Hc Htail]]]]]]]]]] :=
-  paper_main_hybrid_finite_data_tail gamma beta eta Hg Hb He.
-exists C, kappa, e, c, d0; do 5 (split => //).
-move=> d N r mi s Os Is Hs bs Bs eps Sf t Hd HN Hr Hmi Heps HS Ht HO HI HHs HBs Hn HOp HF.
-apply: (paper_main_orientation_union N (r + S mi)%coq_nat Os s _
-  (exp (- (INR N * t ^ 2) / 2)) HO).
-- move=> k Hks.
-  exact: (Htail d N r mi (Is k) (Hs k) (bs k) (Bs k) eps Sf t Hd HN Hr Hmi (HI k Hks) Heps HS Ht
-    (HHs k ^~ Hks) (HBs k ^~ Hks) (Hn k ^~ Hks) (HOp k ^~ Hks) (HF k ^~ Hks)).1.
-- move=> k Hks.
-  exact: (Htail d N r mi (Is k) (Hs k) (bs k) (Bs k) eps Sf t Hd HN Hr Hmi (HI k Hks) Heps HS Ht
-    (HHs k ^~ Hks) (HBs k ^~ Hks) (Hn k ^~ Hks) (HOp k ^~ Hks) (HF k ^~ Hks)).2.
-Qed.

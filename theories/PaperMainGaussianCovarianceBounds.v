@@ -82,27 +82,6 @@ rewrite gaussian_covariance_endpoint_one gaussian_covariance_endpoint_zero in He
 lra.
 Qed.
 
-Theorem paper_main_covariance_pointwise_hessian_bound p q P Q B :
-  (forall u, List.length u = K ->
-    gaussian_covariance_pairing K p q P Q (fun a b => D2f a b u) <= 2 * B) ->
-  gaussian_iterated_expectation p (fun xs => f (gaussian_covariance_image K p P xs)) -
-  gaussian_iterated_expectation q (fun ys => f (gaussian_covariance_image K q Q ys)) <= B.
-Proof.
-intros Hb; apply paper_main_covariance_expected_hessian_bound.
-intros t Ht.
-assert (Hint : forall a b, (a < K)%coq_nat -> (b < K)%coq_nat ->
-  gaussian_iterated_integrable (p + q)%coq_nat
-    (fun zs => D2f a b (gaussian_covariance_path K p q P Q t zs))).
-{ intros a b Ha Hb'.
-  exact (proj1 (gaussian_covariance_path_domain K p q P Q (D2f a b) C r t ltac:(lra)
-    (HD2c a b Ha Hb') (HD2b a b Ha Hb'))). }
-destruct (gaussian_covariance_pairing_expectation K p q P Q D2f t Hint) as [Hi He].
-rewrite He.
-rewrite <- (proj2 (gaussian_iterated_constant (p + q)%coq_nat (2 * B))).
-apply gaussian_iterated_monotone; [exact Hi|apply gaussian_iterated_constant|].
-intros zs Hzs; apply Hb; unfold gaussian_covariance_path; apply length_map_seq.
-Qed.
-
 Theorem paper_main_covariance_equal_expectation p q P Q :
   (forall a b, (a < K)%coq_nat -> (b < K)%coq_nat ->
     gaussian_covariance_entry p P a b = gaussian_covariance_entry q Q a b) ->

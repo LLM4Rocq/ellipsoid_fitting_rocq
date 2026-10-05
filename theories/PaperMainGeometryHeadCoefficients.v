@@ -43,12 +43,6 @@ Proof.
 by rewrite pmh_vec_dot; apply: sumr_ge0 => i _; rewrite -expr2 sqr_ge0.
 Qed.
 
-Lemma paper_main_head_gram_symmetric W :
-  (paper_main_head_gram W)^T = paper_main_head_gram W.
-Proof.
-by apply/matrixP => i j; rewrite /paper_main_head_gram !mxE paper_main_pairingC.
-Qed.
-
 Lemma paper_main_head_quadratic_solve W P a :
   paper_main_head_gram W *m a = paper_main_head_residual W P ->
   (a^T *m paper_main_head_gram W *m a) 0 0 =
@@ -96,20 +90,6 @@ rewrite paper_main_head_correction_frobenius (paper_main_head_quadratic_solve _ 
 by case: (pmh_coercive_core _ _ _ Hmu Hc).
 Qed.
 
-Theorem paper_main_head_correction_frobenius_bound W P a (mu : R) :
-  0 < mu -> paper_main_head_coercive (paper_main_head_gram W) mu ->
-  paper_main_head_gram W *m a = paper_main_head_residual W P ->
-  paper_main_frobenius (paper_main_head_correction W a) <=
-  Num.sqrt (((paper_main_head_residual W P)^T *m paper_main_head_residual W P) 0 0 / mu).
-Proof.
-move=> Hmu HQ Ha.
-have HE := paper_main_head_correction_energy _ _ _ _ Hmu HQ Ha.
-have Hf := pmh_frobenius_ge0 _ (paper_main_head_correction W a).
-rewrite -(ger0_norm Hf) -sqrtr_sqr.
-apply: ler_wsqrtr.
-by rewrite ler_pdivlMr // mulrC.
-Qed.
-
 Theorem paper_main_head_gram_coercive_unit W (mu : R) :
   0 < mu -> paper_main_head_coercive (paper_main_head_gram W) mu ->
   paper_main_head_gram W \in unitmx.
@@ -127,35 +107,6 @@ rewrite trmxK Hv mul0mx [X in _ <= X]mxE in Hq.
 rewrite trmxK in Hpos.
 have Hp := mulr_gt0 Hmu Hpos.
 lra.
-Qed.
-
-(* With a residual bound, the exact correction a = Q^-1 r is defined and
-   the normalization and support transfer of item 2 hold. *)
-Theorem paper_main_head_coercive_transfer W P Z (mu eta : R) :
-  0 < mu -> paper_main_head_coercive (paper_main_head_gram W) mu ->
-  ((paper_main_head_residual W P)^T *m paper_main_head_residual W P) 0 0 <=
-    mu * eta ^+ 2 ->
-  0 <= eta -> eta < 1 -> paper_main_frobenius P = 1 ->
-  let Pt := paper_main_head_normalize
-    (P + paper_main_head_correction W (paper_main_head_coefficients W P)) in
-  [/\ paper_main_head_gram W \in unitmx, paper_main_frobenius Pt = 1,
-      (forall i : 'I_m, paper_main_pairing (W i) Pt = 0),
-      paper_main_frobenius (Pt - P) <= 2 * eta &
-      paper_main_pairing Z P - 2 * eta * paper_main_frobenius Z <= paper_main_pairing Z Pt].
-Proof.
-move=> Hmu HQ Hr Heta0 Heta HP Pt.
-have HU := paper_main_head_gram_coercive_unit _ _ Hmu HQ.
-have Ha := paper_main_head_coefficients_solve _ _ _ P HU.
-have HE := paper_main_head_correction_energy _ _ _ _ Hmu HQ Ha.
-have Hf := pmh_frobenius_ge0 _
-  (paper_main_head_correction W (paper_main_head_coefficients W P)).
-have Hsq : paper_main_frobenius
-    (paper_main_head_correction W (paper_main_head_coefficients W P)) ^+ 2 <= eta ^+ 2.
-  by rewrite -(ler_pM2l Hmu); exact: le_trans HE Hr.
-have HEeta : paper_main_frobenius
-    (paper_main_head_correction W (paper_main_head_coefficients W P)) <= eta by nra.
-have [U K Cl T] := paper_main_head_correction_transfer _ _ _ _ Z _ _ Ha HP HEeta Heta.
-by split.
 Qed.
 
 End HeadCoefficients.

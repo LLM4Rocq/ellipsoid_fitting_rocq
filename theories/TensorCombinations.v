@@ -51,17 +51,6 @@ Proof.
   rewrite Rabs_pos_eq by (apply Hq; exact Hi); reflexivity.
 Qed.
 
-Theorem tensor_weighted_join_cost_bound n q rows I K :
-  finite_probability q I ->
-  (forall i, In i I -> tensor_cost (rows i) <= K) ->
-  tensor_cost (tensor_weighted_join n q rows I) <= K.
-Proof.
-  intros Hq HK; rewrite tensor_weighted_join_probability_cost by exact Hq.
-  eapply Rle_trans with (weighted_average q I (fun _ => K)).
-  - apply weighted_average_monotone; assumption.
-  - rewrite weighted_average_const by exact Hq; apply Rle_refl.
-Qed.
-
 Theorem tensor_weighted_join_represents n q rows I
     (T : nat -> matrix n -> matrix n -> matrix n -> R) :
   (forall i, In i I -> tensor_represents (T i) (rows i)) ->
@@ -148,20 +137,6 @@ Lemma mixed_trace_atoms_cost n q B1 B2 B3 I :
 Proof.
   unfold mixed_trace_atoms, weighted_average; induction I as [|i I IH]; simpl; [reflexivity|].
   rewrite IH; unfold atom_cost; simpl; ring.
-Qed.
-
-Theorem mixed_trace_atoms_represents n q B1 B2 B3 I :
-  (forall i, In i I -> symmetric_matrix n (B1 i)) ->
-  (forall i, In i I -> symmetric_matrix n (B2 i)) ->
-  (forall i, In i I -> symmetric_matrix n (B3 i)) ->
-  tensor_represents (fun U V W => weighted_average q I (fun i =>
-    trace_pair n (B1 i) U * trace_pair n (B2 i) V * trace_pair n (B3 i) W))
-    (mixed_trace_atoms n q B1 B2 B3 I).
-Proof.
-  intros H1 H2 H3; split.
-  - intros a Ha; unfold mixed_trace_atoms in Ha; apply in_map_iff in Ha.
-    destruct Ha as [i [<- Hi]]; unfold symmetric_atom; simpl; repeat split; auto.
-  - intros U V W HU HV HW; symmetry; apply mixed_trace_atoms_value.
 Qed.
 
 Lemma mixed_trace_atoms_probability_cost n q B1 B2 B3 I :

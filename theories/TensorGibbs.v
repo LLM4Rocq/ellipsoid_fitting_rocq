@@ -246,32 +246,6 @@ Proof.
   apply centered_trace_atoms_represents; exact HB.
 Qed.
 
-Theorem gibbs_centered_trace_atoms_cost_bound n c f I B K :
-  I <> [] -> (forall i, In i I -> matrix_operator_norm n (B i) <= K) ->
-  tensor_cost (centered_trace_atoms n (gibbs_weight c f I) B I) <= 8 * K ^ 3.
-Proof.
-  intros HI HB; apply centered_trace_atoms_cost_bound;
-    [apply tensor_gibbs_finite_probability|]; assumption.
-Qed.
-
-(* Rbar_le and Finite of the original become lee and EFin; see the comment
-   at the top of the file. *)
-Theorem gibbs_projective_cumulant_bound n c f I B K :
-  I <> [] -> (forall i, In i I -> symmetric_matrix n (B i)) ->
-  (forall i, In i I -> matrix_operator_norm n (B i) <= K) ->
-  lee (projective_operator_norm
-    (fun U V W => gibbs_cumulant3 c f I (fun i => trace_pair n (B i) U)
-      (fun i => trace_pair n (B i) V) (fun i => trace_pair n (B i) W)))
-    (EFin (8 * K ^ 3)).
-Proof.
-  intros HI HS HB.
-  apply: Order.POrderTheory.le_trans.
-  - apply: projective_operator_norm_representation_bound.
-    apply gibbs_centered_trace_atoms_represents; exact HS.
-  - rewrite lee_fin; apply/RleP.
-    apply gibbs_centered_trace_atoms_cost_bound; assumption.
-Qed.
-
 Lemma tensor_scale_atoms_value n a (atoms : list (trace_atom n)) U V W :
   tensor_value (tensor_scale_atoms a atoms) U V W = a * tensor_value atoms U V W.
 Proof.
@@ -295,33 +269,4 @@ Proof.
     exact Hs.
   - intros U V W HU HV HW.
     rewrite tensor_scale_atoms_value (HT U V W HU HV HW); reflexivity.
-Qed.
-
-Theorem gibbs_scaled_centered_trace_cost_bound n c f I B K gamma :
-  I <> [] -> (forall i, In i I -> matrix_operator_norm n (B i) <= K) ->
-  tensor_cost (tensor_scale_atoms (gamma ^ 2) (centered_trace_atoms n (gibbs_weight c f I) B I)) <=
-    8 * gamma ^ 2 * K ^ 3.
-Proof.
-  intros HI HB.
-  rewrite tensor_scale_atoms_cost (Rabs_pos_eq (gamma ^ 2) (pow2_ge_0 gamma)).
-  replace (8 * gamma ^ 2 * K ^ 3) with (gamma ^ 2 * (8 * K ^ 3)) by ring.
-  apply Rmult_le_compat_l; [nra|apply gibbs_centered_trace_atoms_cost_bound; assumption].
-Qed.
-
-(* Rbar_le and Finite of the original become lee and EFin; see the comment
-   at the top of the file. *)
-Theorem gibbs_scaled_projective_cumulant_bound n c f I B K gamma :
-  I <> [] -> (forall i, In i I -> symmetric_matrix n (B i)) ->
-  (forall i, In i I -> matrix_operator_norm n (B i) <= K) ->
-  lee (projective_operator_norm
-    (fun U V W => gamma ^ 2 * gibbs_cumulant3 c f I (fun i => trace_pair n (B i) U)
-      (fun i => trace_pair n (B i) V) (fun i => trace_pair n (B i) W)))
-    (EFin (8 * gamma ^ 2 * K ^ 3)).
-Proof.
-  intros HI HS HB.
-  apply: Order.POrderTheory.le_trans.
-  - apply: projective_operator_norm_representation_bound.
-    apply tensor_scale_atoms_represents, gibbs_centered_trace_atoms_represents; exact HS.
-  - rewrite lee_fin; apply/RleP.
-    apply gibbs_scaled_centered_trace_cost_bound; assumption.
 Qed.

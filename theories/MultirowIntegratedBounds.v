@@ -43,12 +43,6 @@ Open Scope R_scope.
 Local Notation Dfull n m :=
   (Datatypes.S m * (Datatypes.S n + Datatypes.S (goe_vector_index n)))%coq_nat.
 
-Lemma multirow_integrated_sum_squares_ge0 (xs : list R) : 0 <= gaussian_sum_squares xs.
-Proof.
-  induction xs as [|x xs IH]; simpl; [lra|].
-  pose proof (Rle_0_sqr x); unfold Rsqr in *; lra.
-Qed.
-
 Lemma multirow_integrated_maximum_radius_ge0 N d (xs : list R) :
   0 <= gaussian_maximum_radius N d xs.
 Proof.

@@ -109,15 +109,6 @@ Proof.
   rewrite H1, H2; f_equal; subst D; apply mexp_firstn_app_length.
 Qed.
 
-Theorem mexp_row_suffixes_length {A : Type} N d D (xs : list A) :
-  length xs = (N*(d+D))%nat -> length (mexp_row_suffixes N d D xs) = (N*D)%nat.
-Proof.
-  revert xs; induction N as [|N IH]; intros xs HL; [reflexivity|].
-  destruct (mexp_split_row N d D xs HL) as [front [b [tail [-> [HF [HB HT]]]]]].
-  rewrite mexp_row_suffixes_first_block by assumption.
-  rewrite length_app, IH by exact HT; simpl; lia.
-Qed.
-
 Theorem mexp_row_suffixes_row_chunk {A : Type} N d D i (xs : list A) :
   length xs = (N*(d+D))%nat -> (i < N)%nat ->
   row_chunk D i (mexp_row_suffixes N d D xs) = skipn d (row_chunk (d+D) i xs).

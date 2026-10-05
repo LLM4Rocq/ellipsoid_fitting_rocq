@@ -34,11 +34,3 @@ have Hl : (0 < l)%R by apply: lt_le_trans H1; exact: ltr01.
 split; first by rewrite invr_gt0.
 by apply: (le_trans _ H1); rewrite invf_le1.
 Qed.
-
-Lemma pmcfls_bounds_coq (kappa : R) : Rle 1 kappa ->
-  Rlt 0 (((kappa+1/2)/(1-1/2))^-1)%R /\
-  Rle (((kappa+1/2)/(1-1/2))^-1)%R ((kappa+1/2)/(1-1/2))%R.
-Proof.
-move=> Hk; have [H1 H2] := pmcfls_bounds kappa Hk.
-by split; [exact/RltP | exact/RleP].
-Qed.

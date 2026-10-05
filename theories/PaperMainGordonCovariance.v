@@ -3,7 +3,7 @@
    functions. No Gaussian comparison or concentration theorem is assumed. *)
 From Stdlib Require Import Reals List Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeights
-  GibbsNested GibbsMomentBounds Cubic.
+  GibbsMomentBounds Cubic.
 Import ListNotations.
 Open Scope R_scope.
 
@@ -210,21 +210,4 @@ transitivity (finite_sum (fun k =>
 - apply gibbs_sum_ext; intros k Hk; apply paper_main_gordon_curvatureE.
 - rewrite paper_main_gordon_sum_sub, !gibbs_sum_scale, HI, HO.
   unfold paper_main_gordon_contraction; ring.
-Qed.
-
-Lemma paper_main_gordon_hessian_compare (beta gamma : R) (H : nat -> nat -> R)
-    (Y S K L : list nat) (B A : nat -> nat -> nat -> R) :
-  0 <= beta -> Y <> [] -> S <> [] ->
-  (forall y s t, In y Y -> In s S -> In t S ->
-    paper_main_gordon_gram B K y s y t = paper_main_gordon_gram A L y s y t) ->
-  (forall y z s t, In y Y -> In z Y -> In s S -> In t S -> y <> z ->
-    paper_main_gordon_gram A L y s z t <= paper_main_gordon_gram B K y s z t) ->
-  finite_sum (fun k => nested_gibbs_curvature beta gamma H
-    (fun y s => A y s k) Y S 0) L <=
-  finite_sum (fun k => nested_gibbs_curvature beta gamma H
-    (fun y s => B y s k) Y S 0) K.
-Proof.
-intros Hb HY HS Hsame Hcross.
-rewrite !paper_main_gordon_hessian_gram.
-apply paper_main_gordon_contraction_mono; assumption.
 Qed.

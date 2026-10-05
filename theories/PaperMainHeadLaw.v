@@ -193,13 +193,6 @@ Lemma paper_main_split_pointsE k n d (x : paper_main_sample (k + n) d) :
   (paper_main_take_points k n d x, paper_main_drop_points k n d x).
 Proof. by []. Qed.
 
-Lemma paper_main_take_points_measurable k n d :
-  measurable_fun [set: paper_main_sample (k + n) d] (paper_main_take_points k n d).
-Proof.
-exact: (measurableT_comp (paper_main_take_coordinates_measurable _ _)
-  (paper_main_tcast_measurable _ _ _)).
-Qed.
-
 Lemma paper_main_split_points_measurable k n d :
   measurable_fun [set: paper_main_sample (k + n) d] (paper_main_split_points k n d).
 Proof.
@@ -232,26 +225,4 @@ Proof.
 move=> mA mB.
 rewrite (paper_main_split_points_law k n d _ (measurableX mA mB)).
 exact: product_measure1E.
-Qed.
-
-Corollary paper_main_split_points_fubini k n d
-    (E : set (paper_main_sample k d * paper_main_sample n d)) :
-  measurable E ->
-  paper_main_probability (k + n) d (paper_main_split_points k n d @^-1` E) =
-  (\int[gaussian_product_law (k * d)%N]_h
-    paper_main_probability n d (xsection E h))%E.
-Proof. by move=> mE; rewrite paper_main_split_points_law. Qed.
-
-Corollary paper_main_take_points_law k n d (A : set (paper_main_sample k d)) :
-  measurable A ->
-  paper_main_probability (k + n) d (paper_main_take_points k n d @^-1` A) =
-  paper_main_probability k d A.
-Proof.
-move=> mA.
-change (gaussian_product_law ((k + n) * d)%N
-  (tcast (mulnDl k n d) @^-1`
-    (paper_main_take_coordinates (k * d)%N (n * d)%N @^-1` A)) =
-  gaussian_product_law (k * d)%N A).
-rewrite paper_main_tcast_law.
-exact: paper_main_take_coordinates_law.
 Qed.

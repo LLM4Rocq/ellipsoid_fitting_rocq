@@ -67,25 +67,3 @@ Proof.
   - split; [apply gaussian_row_remainder_continuous; assumption|].
     apply (gaussian_row_observables_polynomial_bounds n m beta gamma y B Y S k t i); assumption.
 Qed.
-
-Theorem gaussian_row_observables_full_domains n m beta gamma y B Y S k t i :
-  0<beta -> 0<gamma -> Y<>[] -> S<>[] -> 0<=k -> (i<=m)%nat ->
-  (forall z, In z Y -> euclidean_norm (y z) (seq 0 (Datatypes.S m))=1) ->
-  (forall s, In s S -> matrix_operator_norm n (B s)<=k) ->
-  List.Forall (fun F =>
-    gaussian_iterated_integrable (Datatypes.S m * (Datatypes.S n+Datatypes.S (goe_vector_index n))) F /\
-    gaussian_iterated_absolutely_integrable (Datatypes.S m * (Datatypes.S n+Datatypes.S (goe_vector_index n))) F /\
-    gaussian_iterated_has_expectation (Datatypes.S m * (Datatypes.S n+Datatypes.S (goe_vector_index n))) F
-      (gaussian_iterated_expectation (Datatypes.S m * (Datatypes.S n+Datatypes.S (goe_vector_index n))) F) /\
-    gaussian_iterated_has_expectation (Datatypes.S m * (Datatypes.S n+Datatypes.S (goe_vector_index n))) (fun xs => Rabs (F xs))
-      (gaussian_iterated_expectation (Datatypes.S m * (Datatypes.S n+Datatypes.S (goe_vector_index n))) (fun xs => Rabs (F xs))))
-    [gaussian_row_velocity n m beta gamma y B Y S t i;
-     gaussian_row_remainder n m beta gamma y B Y S t i].
-Proof.
-  intros Hb Hg HY HS Hk Hi Hy HB.
-  destruct (gaussian_row_observables_regular n m beta gamma y B Y S k t i Hb Hg HY HS Hk Hi Hy HB)
-    as [HCV [HCR [CV [CR [HV HR]]]]].
-  constructor.
-  - exact (gaussian_coordinate_polynomial_domain _ _ CV 2 HCV HV).
-  - constructor; [exact (gaussian_coordinate_polynomial_domain _ _ CR 2 HCR HR)|constructor].
-Qed.

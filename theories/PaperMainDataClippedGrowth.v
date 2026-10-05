@@ -135,29 +135,6 @@ have H1 : Rabs (y i) ^ 2 <= 1 by rewrite pow2_abs; rewrite /squared_norm in Hy2;
 have := Rabs_pos (y i); nra.
 Qed.
 
-Lemma pmdcg_dual_sum N (y : nat -> R) :
-  euclidean_norm y (List.seq 0 N) <= 1 ->
-  finite_sum (fun i => Rabs (y i)) (List.seq 0 N) <= sqrt (INR N).
-Proof.
-move=> Hy.
-have Hy2 := pmdcg_dual_squared N y Hy.
-have CS := paper_main_gordon_sum_cauchy (fun i => Rabs (y i)) (fun _ => 1) (List.seq 0 N).
-have E1 : finite_sum (fun i => Rabs (y i) * 1) (List.seq 0 N) =
-    finite_sum (fun i => Rabs (y i)) (List.seq 0 N).
-  by apply: finite_sum_ext => i _; ring.
-have E2 : finite_sum (fun i => Rabs (y i) ^ 2) (List.seq 0 N) = squared_norm y (List.seq 0 N).
-  by apply: finite_sum_ext => i _; rewrite pow2_abs.
-have E3 : finite_sum (fun _ => 1 ^ 2) (List.seq 0 N) = INR N.
-  by rewrite finite_sum_const List.length_seq; ring.
-rewrite E1 E2 E3 in CS.
-have H0 : 0 <= finite_sum (fun i => Rabs (y i)) (List.seq 0 N).
-  by apply: finite_sum_nonneg => i _; exact: Rabs_pos.
-have HN := pos_INR N.
-have Hsy : 0 <= squared_norm y (List.seq 0 N).
-  by apply: finite_sum_nonneg => j _; exact: pow2_ge_0.
-rewrite -(sqrt_pow2 _ H0); apply: sqrt_le_1_alt; nra.
-Qed.
-
 Lemma pmdcg_row_dot_le phi n i xs :
   (forall z, Rabs (phi z) <= Rabs z) ->
   paper_main_gordon_dot (S n) (pmdc_row phi n i xs) (pmdc_row phi n i xs) <=
@@ -246,57 +223,6 @@ move=> HU Hk HA Hy; rewrite pmdcl_score_generic.
 by apply: paper_main_data_contraction_score_growth => // z; exact: pmdcg_clip_abs_le.
 Qed.
 
-(* A uniform bound for the clipped score. *)
-Theorem paper_main_data_clipped_score_uniform U n N (B : 'M[R]_(S n)) (y : nat -> R) k xs :
-  0 <= U -> 0 <= k -> matrix_operator_norm n (paper_main_matrix_from_public n B) <= k ->
-  euclidean_norm y (List.seq 0 N) <= 1 ->
-  Rabs (paper_main_data_clipped_score U n N B y xs) <=
-    k * sqrt (INR (N * S n)) * (U ^ 2 + 1).
-Proof.
-move=> HU Hk HA Hy.
-have Hd := pos_INR (S n).
-have Hsp : 0 < sqrt (INR (S n)) by apply: sqrt_lt_R0; apply: lt_0_INR; lia.
-have Hss : sqrt (INR (S n)) * sqrt (INR (S n)) = INR (S n) by exact: sqrt_sqrt.
-have Hrow : forall i, Rabs (paper_main_pairing
-    (paper_main_data_feature n (pmdc_row (paper_main_gaussian_clip U) n i xs)) B) <=
-    k * sqrt (INR (S n)) * (U ^ 2 + 1).
-  move=> i.
-  apply: Rle_trans (pmdcg_pairing_bound _ _ _ _ Hk HA) _.
-  have HG : paper_main_gordon_dot (S n) (pmdc_row (paper_main_gaussian_clip U) n i xs)
-      (pmdc_row (paper_main_gaussian_clip U) n i xs) <= INR (S n) * U ^ 2.
-    rewrite /paper_main_gordon_dot.
-    have := finite_sum_upper (fun j => pmdc_row (paper_main_gaussian_clip U) n i xs j *
-      pmdc_row (paper_main_gaussian_clip U) n i xs j) (List.seq 0 (S n)) (U ^ 2).
-    rewrite List.length_seq; apply => j _.
-    have Hc := paper_main_gaussian_clip_bound U (List.nth (i * S n + j)%N xs 0) HU.
-    rewrite /pmdc_row; move: Hc; set c := paper_main_gaussian_clip U _ => Hc.
-    have := Rsqr_le_abs_1 c U; rewrite (Rabs_pos_eq U HU) /Rsqr => H.
-    by have := H Hc; nra.
-  move: HG; set G := paper_main_gordon_dot _ _ _ => HG.
-  have Hks : 0 <= k / sqrt (INR (S n)).
-  by apply: Rmult_le_pos => //; apply: Rlt_le; exact: Rinv_0_lt_compat.
-  have E : k / sqrt (INR (S n)) * (INR (S n) * U ^ 2 + INR (S n)) =
-      k * sqrt (INR (S n)) * (U ^ 2 + 1).
-    move: Hss Hsp; set sq := sqrt (INR (S n)) => Hss Hsp.
-    have -> : INR (S n) * U ^ 2 + INR (S n) = sq * sq * (U ^ 2 + 1) by rewrite Hss; ring.
-    have Hn : sq <> 0 by lra.
-    rewrite /Rdiv.
-    transitivity (k * sq * (U ^ 2 + 1) * (sq * / sq)); first by ring.
-    by rewrite Rinv_r // Rmult_1_r.
-  rewrite -E; apply: Rmult_le_compat_l => //; lra.
-rewrite pmdcl_score_generic /pmdc_score.
-apply: Rle_trans (finite_sum_abs_le _ _) _.
-apply: Rle_trans (finite_sum_le _ (fun i => Rabs (y i) * (k * sqrt (INR (S n)) * (U ^ 2 + 1))) _ _) _.
-  move=> i _; rewrite Rabs_mult.
-  by apply: Rmult_le_compat_l; [exact: Rabs_pos | exact: Hrow].
-rewrite finite_sum_scale_r.
-have HS := pmdcg_dual_sum N y Hy.
-have HC : 0 <= k * sqrt (INR (S n)) * (U ^ 2 + 1).
-  apply: Rmult_le_pos; [apply: Rmult_le_pos => //; lra | nra].
-apply: Rle_trans (Rmult_le_compat_r _ _ _ HC HS) _.
-right; rewrite -multE mult_INR (sqrt_mult _ _ (pos_INR N) Hd); ring.
-Qed.
-
 (* 4. Soft minimax of score families. *)
 Definition paper_main_data_soft_entropy beta gamma (Y Q : list nat) : R :=
   ln (INR (length Y)) / beta + ln (INR (length Q)) / gamma.
@@ -367,18 +293,6 @@ move=> HU Hk Hb Hg HY HQ Had.
 apply: paper_main_data_soft_value_bound => // z q Hz Hq.
 have [_ [HA Hy]] := Had z q Hz Hq.
 exact: paper_main_data_clipped_score_growth.
-Qed.
-
-Theorem paper_main_data_clipped_soft_uniform U n N k beta gamma Bf yf Y Q xs :
-  0 <= U -> 0 <= k -> 0 < beta -> 0 < gamma -> Y <> [] -> Q <> [] ->
-  paper_main_data_clipped_admissible n N k Bf yf Y Q ->
-  Rabs (soft_minimax beta gamma (paper_main_data_clipped_family U n N Bf yf xs) Y Q) <=
-    k * sqrt (INR (N * S n)) * (U ^ 2 + 1) + paper_main_data_soft_entropy beta gamma Y Q.
-Proof.
-move=> HU Hk Hb Hg HY HQ Had.
-apply: paper_main_data_soft_value_bound => // z q Hz Hq.
-have [_ [HA Hy]] := Had z q Hz Hq.
-exact: paper_main_data_clipped_score_uniform.
 Qed.
 
 (* 5. Squares. *)

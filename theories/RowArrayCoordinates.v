@@ -47,15 +47,6 @@ Theorem gaussian_row_pair_assemble n N i background xz :
     (joint_vector_to_list n (goe_vector_index n) xz)) = xz.
 Proof. apply row_joint_decode_assemble. Qed.
 
-Theorem gaussian_row_matrix_assemble n N t i background x z :
-  length background = ((N-1)*(S n+S(goe_vector_index n)))%nat -> (i<N)%nat ->
-  gaussian_row_matrix n t i (row_assemble N (S n+S(goe_vector_index n)) i background
-    (joint_vector_to_list n (goe_vector_index n) (x,z))) = joint_matrix n (matrix_zero n) t x z.
-Proof.
-  intros HB Hi; unfold gaussian_row_matrix.
-  rewrite gaussian_row_pair_assemble by assumption; reflexivity.
-Qed.
-
 Theorem gaussian_row_pair_other_independent n N i j background xz xz' :
   length background = ((N-1)*(S n+S(goe_vector_index n)))%nat -> (i<N)%nat -> j<>i ->
   gaussian_row_pair n j (row_assemble N (S n+S(goe_vector_index n)) i background
@@ -73,41 +64,6 @@ Theorem gaussian_row_matrix_other_independent n N t i j background xz xz' :
 Proof.
   intros HB Hi Hj; unfold gaussian_row_matrix.
   rewrite (gaussian_row_pair_other_independent n N i j background xz xz' HB Hi Hj); reflexivity.
-Qed.
-
-Theorem gaussian_row_array_entry n m t xs i :
-  (i<=m)%nat ->
-  tuple_entry (matrix_NormedModule n) m i (gaussian_row_array n m t xs) = gaussian_row_matrix n t i xs.
-Proof. intros Hi; unfold gaussian_row_array; apply tuple_entry_build; exact Hi. Qed.
-
-Theorem gaussian_row_matrix_replacement n N t i xs x z :
-  length xs = (N*(S n+S(goe_vector_index n)))%nat -> (i<N)%nat ->
-  (fun j=>gaussian_row_matrix n t j
-    (row_assemble N (S n+S(goe_vector_index n)) i
-      (row_background N (S n+S(goe_vector_index n)) i xs)
-      (joint_vector_to_list n (goe_vector_index n) (x,z)))) =
-  soft_matrix_block_replace n (fun j=>gaussian_row_matrix n t j xs) i
-    (joint_matrix n (matrix_zero n) t x z).
-Proof.
-  intros HL Hi; apply functional_extensionality; intros j; unfold soft_matrix_block_replace.
-  destruct (Nat.eq_dec j i) as [Heq|Hne].
-  - subst j; apply gaussian_row_matrix_assemble; [apply row_background_length|]; assumption.
-  - unfold gaussian_row_matrix, gaussian_row_pair.
-    rewrite row_joint_decode_replacement_other by assumption; reflexivity.
-Qed.
-
-Theorem gaussian_row_array_replacement n m t i xs x z :
-  length xs = ((S m)*(S n+S(goe_vector_index n)))%nat -> (i<S m)%nat ->
-  gaussian_row_array n m t
-    (row_assemble (S m) (S n+S(goe_vector_index n)) i
-      (row_background (S m) (S n+S(goe_vector_index n)) i xs)
-      (joint_vector_to_list n (goe_vector_index n) (x,z))) =
-  tuple_build (matrix_NormedModule n) m
-    (soft_matrix_block_replace n (fun j=>gaussian_row_matrix n t j xs) i
-      (joint_matrix n (matrix_zero n) t x z)).
-Proof.
-  intros HL Hi; unfold gaussian_row_array.
-  rewrite gaussian_row_matrix_replacement by assumption; reflexivity.
 Qed.
 
 Theorem gaussian_row_zeroed_array_independent n N t i background xz xz' :

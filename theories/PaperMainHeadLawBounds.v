@@ -85,21 +85,3 @@ change (gaussian_product_law ((k + n) * d)%N
 rewrite paper_main_tcast_law.
 exact: paper_main_split_coordinates_section_bound.
 Qed.
-
-Corollary paper_main_head_points_exception_bound k n d
-    (E : set (paper_main_sample k d * paper_main_sample n d))
-    (H : set (paper_main_sample k d)) (p : \bar R) :
-  measurable E -> measurable H -> (0 <= p)%E ->
-  (forall h, ~ H h -> (paper_main_probability n d (xsection E h) <= p)%E) ->
-  (paper_main_probability (k + n) d
-    (paper_main_split_points k n d @^-1` E) <=
-    p + paper_main_probability k d H)%E.
-Proof.
-move=> mE mH Hp0 Hp.
-change (gaussian_product_law ((k + n) * d)%N
-  (tcast (mulnDl k n d) @^-1`
-    (paper_main_split_coordinates (k * d)%N (n * d)%N @^-1` E)) <=
-    p + gaussian_product_law (k * d)%N H)%E.
-rewrite paper_main_tcast_law.
-exact: paper_main_head_exception_bound.
-Qed.

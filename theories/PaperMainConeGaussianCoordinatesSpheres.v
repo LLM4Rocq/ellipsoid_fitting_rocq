@@ -85,18 +85,6 @@ split.
     (@paper_main_cone_psd_sphere_unit n)).
 Qed.
 
-Theorem paper_main_cone_psd_sphere_support n xs :
-  List.length xs = paper_main_symmetric_dimension n ->
-  paper_main_gordon_set_support (paper_main_symmetric_dimension n)
-    (paper_main_cone_code_set n (@paper_main_psd_sphere (S n))) xs =
-  paper_main_head_support (paper_main_public_symmetric_gaussian n xs)
-    (@paper_main_psd_sphere (S n)).
-Proof.
-move=> Hxs.
-exact: (paper_main_cone_code_set_support n _ xs Hxs (paper_main_cone_psd_sphere_nonempty n)
-  (@paper_main_cone_psd_sphere_symmetric n) (@paper_main_cone_psd_sphere_unit n)).
-Qed.
-
 Theorem paper_main_cone_psd_sphere_width n :
   paper_main_gordon_set_width (paper_main_symmetric_dimension n)
     (paper_main_cone_code_set n (@paper_main_psd_sphere (S n))) =
@@ -109,49 +97,6 @@ exact: (paper_main_cone_code_set_width n _ (paper_main_cone_psd_sphere_nonempty 
 Qed.
 
 (* The condition-cone sphere, kappa >= 1. *)
-
-Theorem paper_main_cone_condition_sphere_code_set n kappa :
-  1 <= kappa ->
-  (exists u, paper_main_cone_code_set n (@paper_main_head_cone_sphere (S n) kappa) u) /\
-  (forall u, paper_main_cone_code_set n (@paper_main_head_cone_sphere (S n) kappa) u ->
-    paper_main_gordon_dot (paper_main_symmetric_dimension n) u u = 1).
-Proof.
-move=> Hk; split.
-- exact: (paper_main_cone_code_set_nonempty n _
-    (paper_main_cone_condition_sphere_nonempty n kappa Hk)).
-- exact: (paper_main_cone_code_set_unit n _
-    (@paper_main_cone_condition_sphere_symmetric n kappa)
-    (@paper_main_cone_condition_sphere_unit n kappa)).
-Qed.
-
-Theorem paper_main_cone_condition_sphere_support n kappa xs :
-  1 <= kappa -> List.length xs = paper_main_symmetric_dimension n ->
-  paper_main_gordon_set_support (paper_main_symmetric_dimension n)
-    (paper_main_cone_code_set n (@paper_main_head_cone_sphere (S n) kappa)) xs =
-  paper_main_head_support (paper_main_public_symmetric_gaussian n xs)
-    (@paper_main_head_cone_sphere (S n) kappa).
-Proof.
-move=> Hk Hxs.
-exact: (paper_main_cone_code_set_support n _ xs Hxs
-  (paper_main_cone_condition_sphere_nonempty n kappa Hk)
-  (@paper_main_cone_condition_sphere_symmetric n kappa)
-  (@paper_main_cone_condition_sphere_unit n kappa)).
-Qed.
-
-Theorem paper_main_cone_condition_sphere_width n kappa :
-  1 <= kappa ->
-  paper_main_gordon_set_width (paper_main_symmetric_dimension n)
-    (paper_main_cone_code_set n (@paper_main_head_cone_sphere (S n) kappa)) =
-  gaussian_iterated_expectation (paper_main_symmetric_dimension n)
-    (fun xs => paper_main_head_support (paper_main_public_symmetric_gaussian n xs)
-      (@paper_main_head_cone_sphere (S n) kappa)).
-Proof.
-move=> Hk.
-exact: (paper_main_cone_code_set_width n _
-  (paper_main_cone_condition_sphere_nonempty n kappa Hk)
-  (@paper_main_cone_condition_sphere_symmetric n kappa)
-  (@paper_main_cone_condition_sphere_unit n kappa)).
-Qed.
 
 (* The head-kernel section, under explicit nonemptiness. *)
 
@@ -178,20 +123,6 @@ Theorem paper_main_cone_section_support n m kappa (W : 'I_m -> 'M[R]_(S n)) xs :
 Proof.
 move=> HA Hxs.
 exact: (paper_main_cone_code_set_support n _ xs Hxs HA
-  (@paper_main_cone_section_symmetric n m kappa W)
-  (@paper_main_cone_section_unit n m kappa W)).
-Qed.
-
-Theorem paper_main_cone_section_width n m kappa (W : 'I_m -> 'M[R]_(S n)) :
-  (exists P, paper_main_head_section kappa W P) ->
-  paper_main_gordon_set_width (paper_main_symmetric_dimension n)
-    (paper_main_cone_code_set n (paper_main_head_section kappa W)) =
-  gaussian_iterated_expectation (paper_main_symmetric_dimension n)
-    (fun xs => paper_main_head_support (paper_main_public_symmetric_gaussian n xs)
-      (paper_main_head_section kappa W)).
-Proof.
-move=> HA.
-exact: (paper_main_cone_code_set_width n _ HA
   (@paper_main_cone_section_symmetric n m kappa W)
   (@paper_main_cone_section_unit n m kappa W)).
 Qed.

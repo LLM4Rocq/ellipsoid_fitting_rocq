@@ -67,13 +67,3 @@ unfold finite_polynomial_bound; split; intros [HC HF]; split; [exact HC| |exact 
 - intros xs Hxs; specialize (HF xs Hxs); rewrite product_weight_zero Rmult_1_r in HF; exact HF.
 - intros xs Hxs; rewrite product_weight_zero Rmult_1_r; apply HF; exact Hxs.
 Qed.
-
-Lemma paper_main_polynomial_zero_enlarge d C D F :
-  finite_polynomial_bound d C 0 F -> C <= D ->
-  finite_polynomial_bound d D 0 F.
-Proof.
-intros HF HCD.
-apply paper_main_polynomial_zero_bound.
-apply paper_main_polynomial_zero_bound in HF; destruct HF as [HC HF].
-split; [lra|intros xs Hxs; specialize (HF xs Hxs); lra].
-Qed.

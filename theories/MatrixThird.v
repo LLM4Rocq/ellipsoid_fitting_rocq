@@ -251,33 +251,6 @@ Proof.
   apply HE.
 Qed.
 
-(* All lower evaluated derivatives hold at every matrix.  This statement
-   does not identify a map into a space of bounded multilinear operators. *)
-Theorem matrix_nested_soft_minimax_third_frechet n beta gamma offset coeff Y S :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  forall A : matrix n,
-  is_diff A
-    ((fun M => soft_minimax beta gamma (matrix_affine_scores n offset coeff M) Y S)
-      : matrix n -> R^o)
-    (matrix_nested_derivative n beta gamma offset coeff Y S A) /\
-  forall U : matrix n,
-  is_diff A
-    ((fun M => matrix_nested_derivative n beta gamma offset coeff Y S M U)
-      : matrix n -> R^o)
-    (matrix_nested_second_derivative n beta gamma offset coeff Y S A U) /\
-  forall V : matrix n,
-  is_diff A
-    ((fun M => matrix_nested_second_derivative n beta gamma offset coeff Y S M U V)
-      : matrix n -> R^o)
-    (matrix_nested_third_derivative n beta gamma offset coeff Y S A U V).
-Proof.
-  intros Hb Hg HY HS A; split.
-  - apply matrix_nested_soft_minimax_frechet; assumption.
-  - intros U; split.
-    + apply matrix_nested_derivative_frechet; assumption.
-    + intros V; apply matrix_nested_second_evaluation_frechet; assumption.
-Qed.
-
 Theorem matrix_nested_third_swap_left n beta gamma offset coeff Y S (A U V W : matrix n) :
   matrix_nested_third_derivative n beta gamma offset coeff Y S A U V W =
   matrix_nested_third_derivative n beta gamma offset coeff Y S A V U W.
@@ -337,19 +310,4 @@ Proof.
   - rewrite -Hval; exact: linearP.
   - exists M; split; first by apply/RltP.
     move=> x; rewrite -Hval; apply/RleP; exact: HM.
-Qed.
-
-Theorem matrix_nested_third_linear_last n beta gamma offset coeff Y S (A U V : matrix n) :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  linear (matrix_nested_third_derivative n beta gamma offset coeff Y S A U V
-    : matrix n -> R^o) /\
-  exists M : R, 0 < M /\
-    forall W : matrix n,
-      (`|matrix_nested_third_derivative n beta gamma offset coeff Y S A U V W|)%R <=
-      M * (`|W|)%R.
-Proof.
-  intros Hb Hg HY HS.
-  exact (matrix_third_is_diff_linear _ _ A
-    (matrix_nested_second_evaluation_frechet n beta gamma offset coeff Y S
-      A U V Hb Hg HY HS)).
 Qed.

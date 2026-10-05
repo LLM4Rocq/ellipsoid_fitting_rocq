@@ -154,16 +154,3 @@ assert (HE : paper_main_gordon_dot N (Z a) (Z b) = 1).
   rewrite <- (Hsame i Hi); reflexivity. }
 rewrite paper_main_gordon_matrix_covariance, paper_main_gordon_vector_covariance, HE; ring.
 Qed.
-
-Lemma paper_main_gordon_process_variances N M Z V a :
-  paper_main_gordon_dot N (Z a) (Z a) = 1 ->
-  paper_main_gordon_dot M (V a) (V a) = 1 ->
-  gaussian_covariance_entry (S (N * M))
-    (paper_main_gordon_matrix_loading N M Z V) a a = 2 /\
-  gaussian_covariance_entry (N + M)
-    (paper_main_gordon_vector_loading N Z V) a a = 2.
-Proof.
-intros HZ HV.
-rewrite paper_main_gordon_matrix_covariance, paper_main_gordon_vector_covariance, HZ, HV.
-split; ring.
-Qed.

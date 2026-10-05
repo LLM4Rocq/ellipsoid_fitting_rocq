@@ -30,10 +30,6 @@ Qed.
 Lemma filter_incl_nat (f : nat -> bool) A : incl (filter f A) A.
 Proof. intros i Hi; apply filter_In in Hi; tauto. Qed.
 
-Lemma filter_length_le_nat (f : nat -> bool) A :
-  (length (filter f A) <= length A)%nat.
-Proof. induction A; simpl; [lia|]; destruct (f a); simpl; lia. Qed.
-
 Lemma energy_filter_nonneg w A f :
   (forall i, In i A -> 0 <= w i) -> 0 <= energy w (filter f A).
 Proof.

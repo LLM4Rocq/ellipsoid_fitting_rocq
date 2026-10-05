@@ -56,21 +56,6 @@ rewrite -finite_sum_scale -finite_sum_scale -finite_sum_plus.
 apply finite_sum_ext; intros i Hi; ring.
 Qed.
 
-Lemma paper_main_projection_cross_zero d A c xs :
-  (forall j, (j<d)%coq_nat -> finite_sum (fun i => A i j*c i) (List.seq 0 d)=0) ->
-  paper_main_projection_cross d A c xs=0.
-Proof.
-intro H; unfold paper_main_projection_cross,linear_form.
-transitivity (finite_sum (fun i => finite_sum
-  (fun j => A i j*c i*List.nth j xs 0) (List.seq 0 d)) (List.seq 0 d)).
-- apply finite_sum_ext; intros i Hi; rewrite <- finite_sum_scale_r.
-  apply finite_sum_ext; intros j Hj; ring.
-- rewrite finite_sum_swap.
-  transitivity (finite_sum (fun _ => 0) (List.seq 0 d)); [|apply finite_sum_zero].
-  apply finite_sum_ext; intros j Hj; apply in_seq in Hj.
-  rewrite finite_sum_scale_r (H j ltac:(lia)); ring.
-Qed.
-
 Lemma paper_main_projection_scalar_cancellation u v G X Y C :
   u<>0 -> v<>0 -> X=0 -> Y=0 ->
   ((2*u)*G+v*X)/(2*u)-((2*u)*Y+v*C)/(2*v)=G-C/2.

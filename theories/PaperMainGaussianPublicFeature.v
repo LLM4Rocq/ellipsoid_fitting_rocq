@@ -37,20 +37,6 @@ rewrite paper_main_matrix_public_pairing; [apply paper_main_matrix_internal_symm
 by rewrite paper_main_matrix_public_roundtrip.
 Qed.
 
-Theorem paper_main_public_gaussian_feature_bound n N u (T : 'M[R]_(S n)) xs :
-  List.length xs = Nat.mul N (paper_main_symmetric_dimension n) ->
-  paper_main_symmetric T ->
-  Rabs (sqrt(INR(S n))*paper_main_public_gaussian_pairing n N u T xs) <=
-  sqrt 2*paper_main_gordon_operator_norm N (paper_main_symmetric_dimension n) xs *
-    euclidean_norm u (List.seq 0 N)*paper_main_frobenius T.
-Proof.
-intros Hxs HT.
-rewrite (paper_main_public_gaussian_pairing_transport n N u T xs HT).
-rewrite <- (paper_main_matrix_internal_frobenius n T).
-apply paper_main_gaussian_feature_normalized_bound; [exact Hxs|].
-apply paper_main_matrix_internal_symmetric; exact HT.
-Qed.
-
 Theorem paper_main_public_gaussian_feature_exceptional_event n N t :
   Nat.lt 0 N -> 0 < t ->
   exists E : set ((N*paper_main_symmetric_dimension n).-tuple (measurableTypeR R)),

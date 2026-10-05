@@ -228,23 +228,6 @@ apply: pmdf_regular_add; last exact: pmdf_regular_scale (pmdf_regular_const _ _)
 exact: pmdf_regular_mult (pmdf_regular_nth _ _ Ha) (pmdf_regular_nth _ _ Hb).
 Qed.
 
-Theorem pmdf_centered_mean n a b :
-  (a <= n)%coq_nat -> (b <= n)%coq_nat ->
-  gaussian_covariance_domain (S n) (pmdf_centered a b) /\
-  gaussian_iterated_expectation (S n) (pmdf_centered a b) = 0.
-Proof.
-move=> Ha Hb.
-split; first exact: pmdf_regular_domain (pmdf_regular_centered (S n) a b ltac:(lia) ltac:(lia)).
-have [Dab Eab] := pmdf_second_moment n a b Ha Hb.
-have [Ic Ec] := gaussian_iterated_constant (S n) (- pmdf_kron a b).
-have [_ E] := gaussian_iterated_add (S n) _ _ (proj1 Dab) Ic.
-have -> : gaussian_iterated_expectation (S n) (pmdf_centered a b) =
-  gaussian_iterated_expectation (S n)
-    (fun xs => List.nth a xs 0 * List.nth b xs 0 + - pmdf_kron a b).
-  by apply: gaussian_iterated_expectation_ext => xs _; rewrite /pmdf_centered; ring.
-rewrite E Eab Ec; ring.
-Qed.
-
 (* E[(x_a x_b - delta_ab)(x_c x_e - delta_ce)] = delta_ac delta_be + delta_ae delta_bc. *)
 Theorem pmdf_centered_moment n a b c e :
   (a <= n)%coq_nat -> (b <= n)%coq_nat -> (c <= n)%coq_nat -> (e <= n)%coq_nat ->

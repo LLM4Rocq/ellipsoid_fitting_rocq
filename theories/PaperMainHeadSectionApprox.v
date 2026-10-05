@@ -139,19 +139,6 @@ apply: le_trans (pmh_pairing_frobenius_bound _ Z (P - B t)) _.
 rewrite [X in X <= _]mulrC; apply: ler_wpM2r; [exact: pmh_frobenius_ge0 | exact: HPt].
 Qed.
 
-Theorem paper_main_head_section_net_support {d m : nat} (kappa : R) (W : 'I_m -> 'M[R]_d)
-    (B : nat -> 'M[R]_d) (s : nat) (eps : R) (Z : 'M[R]_d) :
-  (0 < s)%N -> paper_main_head_section_net kappa W B s eps ->
-  0 <= paper_main_head_support Z (paper_main_head_section kappa W) -
-    finite_max (fun t => paper_main_pairing Z (B t)) (List.seq 0 s) <=
-  eps * paper_main_frobenius Z.
-Proof.
-move=> Hs Hnet.
-have H1 := paper_main_head_section_net_max_le kappa W B s Z Hs (proj1 Hnet).
-have H2 := paper_main_head_section_net_support_le kappa W B s eps Z Hs Hnet.
-by rewrite subr_ge0 H1 /= lerBlDl.
-Qed.
-
 (* The lower bounds: hard and soft. *)
 
 Lemma paper_main_head_section_net_point {d m : nat} (kappa : R) q (Y : (nat -> R) -> Prop)
@@ -325,21 +312,4 @@ have -> : [set paper_main_head_support (paper_main_head_section_combination q y 
   apply/seteqP; split=> x //.
   by case=> y Hy _; apply: HY; exists y.
 exact: inf0.
-Qed.
-
-Lemma paper_main_head_section_minimax_empty_section {d m : nat} (kappa : R) q
-    (Y : (nat -> R) -> Prop) (W : 'I_m -> 'M[R]_d) (V : nat -> 'M[R]_d) :
-  ~ (exists P, paper_main_head_section kappa W P) ->
-  paper_main_head_section_minimax kappa q Y W V = 0.
-Proof.
-move=> HS.
-have [[y0 Hy0]|HY] := pselect (exists y, Y y); last first.
-  exact: paper_main_head_section_minimax_empty_dual.
-rewrite /paper_main_head_section_minimax.
-have -> : [set paper_main_head_support (paper_main_head_section_combination q y V)
-    (paper_main_head_section kappa W) | y in Y] = [set 0].
-  apply/seteqP; split.
-  - by move=> _ [y _ <-]; exact: paper_main_head_section_support_empty.
-  - move=> _ ->; exists y0 => //; exact: paper_main_head_section_support_empty.
-exact: inf1.
 Qed.

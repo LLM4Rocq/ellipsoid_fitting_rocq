@@ -164,51 +164,6 @@ have Eentropy : goe_scale n * (Rpower.ln (INR r) / (goe_scale n * beta)) =
 rewrite /F; nra.
 Qed.
 
-Theorem paper_main_data_soft_margin n m r s beta gamma theta k y B :
-  (0 < r)%coq_nat -> (0 < s)%coq_nat ->
-  0 < beta -> 0 < gamma -> 0 < theta -> 0 <= k ->
-  (forall z, (z < r)%coq_nat -> euclidean_norm (y z) (List.seq 0 (Datatypes.S m)) = 1) ->
-  (forall z i, (z < r)%coq_nat -> (i <= m)%coq_nat ->
-    Rabs (y z i) <= theta / sqrt (INR (Datatypes.S n))) ->
-  (forall j, (j < s)%coq_nat -> paper_main_symmetric (B j)) ->
-  (forall j, (j < s)%coq_nat -> paper_main_frobenius (B j) = 1) ->
-  (forall j, (j < s)%coq_nat -> matrix_operator_norm n (paper_main_matrix_from_public n (B j)) <= k) ->
-  let d := INR (Datatypes.S n) in
-  let N := Datatypes.S m in
-  let err := (40/3) * k^3 * (beta+gamma)^2 * theta *
-    (d + 2*sqrt (d*Rpower.ln (INR N)) + 2*Rpower.ln (INR N)) / d^2 in
-  goe_scale n *
-    (paper_main_gordon_width (paper_main_symmetric_dimension n)
-      (fun j => paper_main_symmetric_coordinates n (paper_main_matrix_from_public n (B j)))
-      (List.seq 0 s) - sqrt (INR N)) - Rpower.ln (INR r) / beta - err <=
-  fine (\int[paper_main_probability N (Datatypes.S n)]_x
-    (paper_main_public_soft_minimax (Datatypes.S n) N beta gamma y B
-      (List.seq 0 r) (List.seq 0 s) (paper_main_head_feature x))%:E)%E.
-Proof.
-move=> Hr Hs Hb Hg Htheta Hk Hy Hlow HB HF Hop; cbv zeta.
-have HY : List.seq 0 r <> [].
-{ move=> H; have := f_equal (@List.length nat) H; rewrite length_seq /=; lia. }
-have HS : List.seq 0 s <> [].
-{ move=> H; have := f_equal (@List.length nat) H; rewrite length_seq /=; lia. }
-have Hunit : forall z, In z (List.seq 0 r) ->
-  euclidean_norm (y z) (List.seq 0 (Datatypes.S m)) = 1.
-{ move=> z Hz; apply Hy; apply List.in_seq in Hz; lia. }
-have Hlow' : forall z i, In z (List.seq 0 r) -> In i (List.seq 0 (Datatypes.S m)) ->
-    Rabs (y z i) <= theta / sqrt (INR (Datatypes.S n)).
-{ move=> z i Hz Hi; apply Hlow; apply List.in_seq in Hz; apply List.in_seq in Hi; lia. }
-have Hsym : forall j, In j (List.seq 0 s) -> paper_main_symmetric (B j).
-{ move=> j Hj; apply HB; apply List.in_seq in Hj; lia. }
-have Hop' : forall j, In j (List.seq 0 s) ->
-    matrix_operator_norm n (paper_main_matrix_from_public n (B j)) <= k.
-{ move=> j Hj; apply Hop; apply List.in_seq in Hj; lia. }
-have HC := paper_main_public_feature_soft_comparison n m beta gamma theta k y B
-  (List.seq 0 r) (List.seq 0 s) Hb Hg Htheta Hk HY HS Hunit Hlow' Hsym Hop'.
-have HM := paper_main_public_goe_soft_margin n m r s beta gamma y B Hr Hs Hb Hg Hy HB HF.
-cbv zeta in HC.
-apply Rabs_le_between in HC; destruct HC as [HC _].
-unfold paper_main_symmetric_dimension in HM |- *; lra.
-Qed.
-
 Theorem paper_main_data_soft_margin_coarse n m r s beta gamma theta k y B :
   (0 < r)%coq_nat -> (0 < s)%coq_nat ->
   0 < beta -> 0 < gamma -> 0 < theta -> 0 <= k ->

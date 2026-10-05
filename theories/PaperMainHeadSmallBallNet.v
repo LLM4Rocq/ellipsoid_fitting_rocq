@@ -174,22 +174,6 @@ Definition paper_main_head_small_ball_pset n : (nat -> R) -> Prop :=
     forall k, (k < (paper_main_symmetric_dimension n).+1)%coq_nat ->
       u k = paper_main_head_small_ball_pcode n H b k.
 
-Lemma paper_main_head_small_ball_pset_agree n (u : nat -> R) (H : 'M[R]_n.+1) (b : R)
-    (w : nat -> R) :
-  (forall k, (k < (paper_main_symmetric_dimension n).+1)%coq_nat ->
-    u k = paper_main_head_small_ball_pcode n H b k) ->
-  paper_main_gordon_dot (paper_main_symmetric_dimension n).+1
-    (fun i => Rminus (u i) (w i)) (fun i => Rminus (u i) (w i)) =
-  paper_main_gordon_dot (paper_main_symmetric_dimension n).+1
-    (fun i => Rminus (paper_main_head_small_ball_pcode n H b i) (w i))
-    (fun i => Rminus (paper_main_head_small_ball_pcode n H b i) (w i)).
-Proof.
-move=> Hu; rewrite /paper_main_gordon_dot; apply: finite_sum_ext => k Hk /=.
-have Hk' := proj1 (List.in_seq _ _ _) Hk.
-have HkD : (k < (paper_main_symmetric_dimension n).+1)%coq_nat by lia.
-by rewrite (Hu k HkD).
-Qed.
-
 Lemma paper_main_head_small_ball_pset_unit n u :
   paper_main_head_small_ball_pset n u ->
   paper_main_gordon_dot (paper_main_symmetric_dimension n).+1 u u = 1.

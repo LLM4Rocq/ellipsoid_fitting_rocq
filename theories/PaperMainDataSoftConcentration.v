@@ -114,38 +114,6 @@ exact: (paper_main_data_clipped_soft_lipschitz U n N k beta gamma Bf yf Y Q xs y
   (Rlt_le _ _ HU) (Rlt_le _ _ Hk) Hb Hg HY HQ Had).
 Qed.
 
-Theorem paper_main_data_soft_raw_lower_margin U n N k beta gamma Bf yf Y Q a b u :
-  0 < U -> 0 < k -> 0 < beta -> 0 < gamma -> Y <> [] -> Q <> [] -> 0 < a -> 0 < u ->
-  paper_main_data_clipped_admissible n N k Bf yf Y Q ->
-  b <= gaussian_iterated_expectation (N*S n) (paper_main_data_raw_soft n N beta gamma Bf yf Y Q) ->
-  (gaussian_product_law (N*S n)
-    [set x | Rle (paper_main_data_raw_soft n N beta gamma Bf yf Y Q (tval x))
-      (b-paper_main_data_soft_clipping_loss U n N k beta gamma Y Q a-u)] <=
-    (2*INR N*INR (S n)*exp(-U^2/2)+exp(-u^2/(2*(2*k*U)^2)))%:E)%E.
-Proof.
-move=> HU Hk Hb Hg HY HQ Ha Hu Had Hmean.
-have HM := paper_main_data_soft_clipped_mean_margin U n N k beta gamma Bf yf Y Q a b
-  HU (Rlt_le _ _ Hk) Hb Hg HY HQ Ha Had Hmean.
-have HL : 0 < 2*k*U by apply Rmult_lt_0_compat => //; apply Rmult_lt_0_compat => //; lra.
-have [mA Hp] := paper_main_data_coordinate_tail N (S n) U HU.
-apply: (paper_main_gaussian_clipping_lower_tail_bound (N*S n)
-  (paper_main_data_raw_soft n N beta gamma Bf yf Y Q)
-  (paper_main_data_clipped_soft U n N beta gamma Bf yf Y Q) (2*k*U)
-  (paper_main_data_coordinate_event N (S n) U) (2*INR N*INR (S n)*exp(-U^2/2))
-  (b-paper_main_data_soft_clipping_loss U n N k beta gamma Y Q a) u _ HL _ mA _ Hp HM Hu).
-- exact: (paper_main_data_raw_soft_continuous n N beta gamma Bf yf Y Q HY HQ).
-- move=> xs ys _ _.
-  exact: (paper_main_data_clipped_soft_lipschitz U n N k beta gamma Bf yf Y Q xs ys
-    (Rlt_le _ _ HU) (Rlt_le _ _ Hk) Hb Hg HY HQ Had).
-- move=> x Hx; exact: paper_main_data_raw_clipped_soft_eq Hx.
-Qed.
-
-Lemma paper_main_data_raw_soft_head n N beta gamma y B Y Q
-    (x : paper_main_sample N (S n)) :
-  paper_main_data_raw_soft n N beta gamma (fun _ q => B q) (fun z _ => y z) Y Q (tval x) =
-  paper_main_public_soft_minimax (S n) N beta gamma y B Y Q (paper_main_head_feature x).
-Proof. by []. Qed.
-
 Theorem paper_main_data_raw_soft_public_mean n N k beta gamma y B Y Q :
   0 <= k -> 0 < beta -> 0 < gamma -> Y <> [] -> Q <> [] ->
   paper_main_data_clipped_admissible n N k (fun _ q => B q) (fun z _ => y z) Y Q ->

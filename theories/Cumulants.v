@@ -109,12 +109,3 @@ Theorem gibbs_cumulant3_swap_right (c : R) (f : nat -> R) (I : list nat)
     (u v w : nat -> R) :
   gibbs_cumulant3 c f I u v w = gibbs_cumulant3 c f I u w v.
 Proof. unfold gibbs_cumulant3; apply gibbs_average_ext; intros; ring. Qed.
-
-Theorem gibbs_third_central_power (c : R) (f : nat -> R) (I : list nat)
-    (u : nat -> R) :
-  gibbs_third_central c f I u =
-  gibbs_average c f I (fun i => (u i - gibbs_average c f I u) ^ 3).
-Proof.
-  unfold gibbs_third_central, gibbs_cumulant3.
-  apply gibbs_average_ext; intros; ring.
-Qed.

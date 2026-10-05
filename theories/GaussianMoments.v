@@ -106,41 +106,9 @@ Proof.
   intro n; exact (proj1 (Hp n)).
 Qed.
 
-Corollary gaussian_raw_moments_exist :
-  whole_line_integrable gaussian_kernel ->
-  forall n, whole_line_integrable (fun x => x ^ n * gaussian_kernel x).
-Proof.
-  intros HI n.
-  exact (proj1 (gaussian_raw_moments (whole_line_integral gaussian_kernel)
-    (conj HI erefl) n)).
-Qed.
-
 Corollary gaussian_first_raw_moment J :
   whole_line_has_integral gaussian_kernel J ->
   whole_line_has_integral (fun x => x * gaussian_kernel x) 0.
 Proof.
   intros _; exact gaussian_first_moment_zero.
-Qed.
-
-Corollary gaussian_second_raw_moment J :
-  whole_line_has_integral gaussian_kernel J ->
-  whole_line_has_integral (fun x => x ^ 2 * gaussian_kernel x) J.
-Proof.
-  intro HJ.
-  pose proof (gaussian_raw_moments J HJ 2) as H.
-  change (whole_line_has_integral (fun x => x ^ 2 * gaussian_kernel x)
-    ((1 * 1) * J)) in H.
-  rewrite !Rmult_1_l in H; exact H.
-Qed.
-
-Corollary gaussian_fourth_raw_moment J :
-  whole_line_has_integral gaussian_kernel J ->
-  whole_line_has_integral (fun x => x ^ 4 * gaussian_kernel x) (3 * J).
-Proof.
-  intro HJ.
-  pose proof (gaussian_raw_moments J HJ 4) as H.
-  change (whole_line_has_integral (fun x => x ^ 4 * gaussian_kernel x)
-    (((1 + 1 + 1) * (1 * 1)) * J)) in H.
-  replace (((1 + 1 + 1) * (1 * 1)) * J) with (3 * J) in H by ring.
-  exact H.
 Qed.

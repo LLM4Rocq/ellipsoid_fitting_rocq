@@ -54,19 +54,6 @@ rewrite (Rabs_pos_eq _ (paper_main_gaussian_norm_nonnegative xs)) in HB.
 lra.
 Qed.
 
-Lemma paper_main_head_section_support_polynomial d (v : nat -> nat -> R) (S : list nat) :
-  S <> nil -> (forall t, In t S -> paper_main_gordon_dot d (v t) (v t) = 1) ->
-  finite_polynomial_bound d (1 + INR d) 2%nat (paper_main_gordon_support d v S).
-Proof.
-intros HS Hv.
-destruct (paper_main_gaussian_norm_polynomial d) as [HC HB]; split; [exact HC|].
-intros xs Hxs.
-pose proof (paper_main_gordon_support_abs_bound d v S xs HS Hxs Hv) as H.
-specialize (HB xs Hxs).
-rewrite (Rabs_pos_eq _ (paper_main_gaussian_norm_nonnegative xs)) in HB.
-lra.
-Qed.
-
 Local Open Scope ring_scope.
 
 (* The A18 width of a nonempty section is the Gordon set width of its code
@@ -97,42 +84,6 @@ Qed.
 
 (* The Gaussian width of a finite family of symmetric unit matrices, with the
    exact public coordinates. *)
-
-Theorem paper_main_head_section_net_width_law n (B : nat -> 'M[R]_n.+1) (s : nat) :
-  (0 < s)%N ->
-  (forall t, (t < s)%N -> paper_main_symmetric (B t) /\ paper_main_frobenius (B t) = 1) ->
-  (gaussian_product_law (paper_main_symmetric_dimension n)).-integrable setT
-    (fun z => (finite_max (fun t => paper_main_pairing
-      (paper_main_public_symmetric_gaussian n (tval z)) (B t)) (List.seq 0 s))%:E) /\
-  (\int[gaussian_product_law (paper_main_symmetric_dimension n)]_z
-    (finite_max (fun t => paper_main_pairing
-      (paper_main_public_symmetric_gaussian n (tval z)) (B t)) (List.seq 0 s))%:E =
-  (paper_main_gordon_width (paper_main_symmetric_dimension n)
-    (fun t => paper_main_cone_code n (B t)) (List.seq 0 s))%:E)%E.
-Proof.
-move=> Hs HB.
-have Hne := paper_main_head_section_seq_ne s Hs.
-have HV : forall t, List.In t (List.seq 0 s) ->
-    paper_main_gordon_dot (paper_main_symmetric_dimension n)
-      (paper_main_cone_code n (B t)) (paper_main_cone_code n (B t)) = 1.
-  move=> t Ht; have [Hsym H1] := HB t (proj1 (paper_main_head_section_seq_lt t s) Ht).
-  exact: paper_main_cone_code_unit.
-have [HI HE] := paper_main_gaussian_law_transport (paper_main_symmetric_dimension n)
-  (paper_main_gordon_support (paper_main_symmetric_dimension n)
-    (fun t => paper_main_cone_code n (B t)) (List.seq 0 s)) _ _
-  (paper_main_gordon_support_continuous _ _ _)
-  (paper_main_head_section_support_polynomial _ _ _ Hne HV).
-have Heq : (fun z : (paper_main_symmetric_dimension n).-tuple T =>
-    (finite_max (fun t => paper_main_pairing
-      (paper_main_public_symmetric_gaussian n (tval z)) (B t)) (List.seq 0 s))%:E) =
-  (fun z => (paper_main_gordon_support (paper_main_symmetric_dimension n)
-    (fun t => paper_main_cone_code n (B t)) (List.seq 0 s) (tval z))%:E).
-  apply: funext => z; congr (_%:E).
-  rewrite /paper_main_gordon_support; apply: paper_main_gordon_finite_max_ext => t Ht.
-  have [Hsym _] := HB t (proj1 (paper_main_head_section_seq_lt t s) Ht).
-  by rewrite (paper_main_cone_code_gaussian n (B t) (tval z) Hsym).
-rewrite Heq; split; [exact: HI | exact: HE].
-Qed.
 
 (* A contained Frobenius eps-net of the section: width error at most
    eps sqrt D. *)
@@ -166,31 +117,6 @@ split; first exact: paper_main_head_section_width_set_width.
 split.
 - by rewrite -subr_ge0; apply/RleP.
 - by rewrite -lerBlDl; apply/RleP.
-Qed.
-
-Corollary paper_main_head_section_net_width_integral n m (kappa : R)
-    (h : paper_main_sample m (S n)) (B : nat -> 'M[R]_n.+1) (s : nat) (eps : R) :
-  1 <= kappa -> (0 < s)%N ->
-  paper_main_head_section_net kappa (fun k : 'I_m => paper_main_head_feature h k) B s eps ->
-  (\int[gaussian_product_law (paper_main_symmetric_dimension n)]_z
-      (finite_max (fun t => paper_main_pairing
-        (paper_main_public_symmetric_gaussian n (tval z)) (B t)) (List.seq 0 s))%:E <=
-    paper_main_head_section_width n m kappa h)%E /\
-  (paper_main_head_section_width n m kappa h <=
-    \int[gaussian_product_law (paper_main_symmetric_dimension n)]_z
-      (finite_max (fun t => paper_main_pairing
-        (paper_main_public_symmetric_gaussian n (tval z)) (B t)) (List.seq 0 s))%:E +
-    (eps * sqrt (INR (paper_main_symmetric_dimension n)))%:E)%E.
-Proof.
-move=> Hk Hs Hnet.
-have HB : forall t, (t < s)%N ->
-    paper_main_symmetric (B t) /\ paper_main_frobenius (B t) = 1.
-  move=> t Ht; have HBt := (proj1 Hnet) t Ht; split.
-  - exact: (paper_main_cone_section_symmetric n m kappa _ _ HBt).
-  - exact: (paper_main_head_section_unit kappa _ _ HBt).
-have [_ HE] := paper_main_head_section_net_width_law n B s Hs HB.
-have [w [Hw [H1 H2]]] := paper_main_head_section_net_width n m kappa h B s eps Hk Hs Hnet.
-by rewrite HE Hw -EFinD !lee_fin; split.
 Qed.
 
 (* The combined existence corollary for a head sample: actual nets from the

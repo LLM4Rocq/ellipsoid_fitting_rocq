@@ -7,7 +7,7 @@ From mathcomp Require Import topology normedtype derive.
 From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import SoftDefinitions MatrixDefinitions OperatorDefinitions
   LowerDefinitions LowerNormBounds LowerFrechet LowerBounds
-  FullThirdDefinitions FullThirdFrechet FullThirdContinuity FullThirdBounds.
+  FullThirdDefinitions FullThirdBounds.
 Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
@@ -47,36 +47,6 @@ Open Scope R_scope.
 
    The proofs keep their steps. *)
 
-(* Successive derivatives after evaluation at arbitrary full block directions. *)
-Theorem lower_block_third_derivatives n m beta gamma y B Y S :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  forall A : block_array n m,
-  is_diff A (lower_block_phi n m beta gamma y B Y S : block_array n m -> R^o)
-    (lower_block_first n m beta gamma y B Y S A) /\
-  forall U : block_array n m,
-  is_diff A
-    ((fun M => lower_block_first n m beta gamma y B Y S M U) : block_array n m -> R^o)
-    (lower_block_second n m beta gamma y B Y S A U) /\
-  forall V : block_array n m,
-  is_diff A
-    ((fun M => lower_block_second n m beta gamma y B Y S M U V) : block_array n m -> R^o)
-    (lower_block_third n m beta gamma y B Y S A U V).
-Proof.
-  intros Hb Hg HY HS A.
-  destruct (lower_block_derivatives n m beta gamma y B Y S Hb Hg HY HS A) as [HF HD].
-  split; [exact HF|]; intros U; split; [apply HD|]; intros V.
-  apply lower_third_frechet; try assumption; intros; apply lower_block_score_linear.
-Qed.
-
-Theorem lower_block_third_continuous n m beta gamma y B Y S
-    (A U V W : block_array n m) :
-  0 < gamma -> Y <> [] -> S <> [] ->
-  {for A, continuous (fun M => lower_block_third n m beta gamma y B Y S M U V W)}.
-Proof.
-  intros Hg HY HS; apply lower_third_continuous; try assumption.
-  intros; apply lower_block_score_linear.
-Qed.
-
 (* The Euclidean product norm on the complete matrix block space appears
    here. No symmetry, coordinate restriction, or low-influence hypothesis
    is needed for this uniform bound. *)
@@ -93,34 +63,4 @@ Proof.
   - apply Rmult_le_pos; [apply sqrt_pos|exact Hk].
   - intros z s Hz Hs P; apply (lower_block_score_bound n m y B S k z s P); try assumption.
     apply Hunit; exact Hz.
-Qed.
-
-Theorem lower_block_uniform_third_derivative n m beta gamma y B Y S k :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 <= k ->
-  (forall z, In z Y -> euclidean_norm (y z) (List.seq 0 (Datatypes.S m)) = 1) ->
-  (forall s, In s S -> matrix_operator_norm n (B s) <= k) ->
-  forall A : block_array n m,
-  is_diff A (lower_block_phi n m beta gamma y B Y S : block_array n m -> R^o)
-    (lower_block_first n m beta gamma y B Y S A) /\
-  (forall U : block_array n m,
-    is_diff A
-      ((fun M => lower_block_first n m beta gamma y B Y S M U) : block_array n m -> R^o)
-      (lower_block_second n m beta gamma y B Y S A U)) /\
-  (forall U V : block_array n m,
-    is_diff A
-      ((fun M => lower_block_second n m beta gamma y B Y S M U V) : block_array n m -> R^o)
-      (lower_block_third n m beta gamma y B Y S A U V)) /\
-  (forall U V W : block_array n m,
-    {for A, continuous (fun M => lower_block_third n m beta gamma y B Y S M U V W)}) /\
-  (forall U V W : block_array n m,
-    Rabs (lower_block_third n m beta gamma y B Y S A U V W) <=
-      8 * (sqrt (INR (Datatypes.S n)) * k) ^ 3 * (beta + gamma) ^ 2 *
-        (`|U|)%R * (`|V|)%R * (`|W|)%R).
-Proof.
-  intros Hb Hg HY HS Hk Hunit HB A.
-  destruct (lower_block_third_derivatives n m beta gamma y B Y S Hb Hg HY HS A) as [HF HD].
-  split; [exact HF|]; split; [intros U; exact (proj1 (HD U))|].
-  split; [intros U V; exact (proj2 (HD U) V)|]; split.
-  - intros U V W; apply lower_block_third_continuous; assumption.
-  - intros U V W; apply lower_block_third_bound; assumption.
 Qed.

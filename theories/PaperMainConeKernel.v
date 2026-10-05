@@ -184,16 +184,6 @@ have := lt_le_trans Hobj Hv; rewrite oppr_gt0 => HnX.
 by have := lt_trans HX HnX; rewrite ltxx.
 Qed.
 
-(* Zero rows: the conclusion is the nonemptiness of the cone sphere. *)
-Corollary paper_main_cone_kernel_exists_zero d (kappa : R) (W : 'I_0 -> 'M[R]_d) :
-  (0 < d)%N -> 1 <= kappa ->
-  exists P, paper_main_head_cone_sphere kappa P /\
-    forall i, paper_main_pairing (W i) P = 0.
-Proof.
-move=> Hd Hk; apply: paper_main_cone_kernel_exists => // y [i _].
-by case: i.
-Qed.
-
 (* Unit coefficient vectors suffice. *)
 Theorem paper_main_cone_kernel_exists_unit d m (kappa : R) (W : 'I_m -> 'M[R]_d) :
   (0 < d)%N -> 1 <= kappa ->

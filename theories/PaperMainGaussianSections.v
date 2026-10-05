@@ -7,7 +7,7 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From mathcomp Require Import probability normal_distribution.
-From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions PaperMainGaussianLinear.
+From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions.
 Import Order.TTheory GRing.Theory Num.Theory.
 Open Scope ring_scope.
 Open Scope classical_set_scope.

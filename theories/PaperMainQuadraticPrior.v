@@ -46,21 +46,6 @@ pose proof(Rmult_le_compat_l (4*L) _ _ ltac:(Stdlib.micromega.Lra.lra) HM).
 Stdlib.micromega.Lra.nra.
 Qed.
 
-Corollary paper_main_quadratic_prior_witness n N x (T : 'M[R]_(S n) -> R -> Prop)
-  s A b err a :
-  (forall B c, T B c -> exists j, (j<s)%coq_nat /\
-    Rabs(paper_main_quadratic_risk N (S n) x B c-
-      paper_main_quadratic_risk N (S n) x (A j) (b j))<=err) ->
-  (exists B c, T B c /\ paper_main_quadratic_risk N (S n) x B c<=a) ->
-  exists j, (j<s)%coq_nat /\ paper_main_quadratic_risk N (S n) x (A j) (b j)<=a+err.
-Proof.
-intros Hcover [B [c [HT HB]]]; destruct(Hcover B c HT) as [j [Hj HD]].
-exists j; split; [exact Hj|].
-pose proof(Rle_abs(paper_main_quadratic_risk N (S n) x (A j) (b j)-
-  paper_main_quadratic_risk N (S n) x B c)) as HA.
-rewrite Rabs_minus_sym in HA; Stdlib.micromega.Lra.lra.
-Qed.
-
 Theorem paper_main_quadratic_prior_positive d (T : 'M[R]_d -> R -> Prop) L delta :
   (0<d)%coq_nat -> 0<=L -> 0<delta -> (exists A b, T A b) ->
   (forall A b, T A b -> paper_main_symmetric A /\

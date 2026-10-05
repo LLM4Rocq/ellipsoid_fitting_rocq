@@ -12,14 +12,7 @@ theories/AnalysisBridge2.v
 theories/AnalysisIntegralDefinitions.v
 theories/BlockAlongContinuity.v
 theories/BlockBasis.v
-theories/BlockC3Assembly.v
-theories/BlockC3Definitions.v
-theories/BlockGibbsC3.v
-theories/BlockOperatorCalculus.v
 theories/BlockOperatorDefinitions.v
-theories/BlockOperatorNormedDefinitions.v
-theories/BlockOperatorRepresentation.v
-theories/BlockOperatorSpaces.v
 theories/BlockRowEvaluation.v
 theories/CoefficientBounds.v
 theories/CoefficientDefinitions.v
@@ -34,9 +27,7 @@ theories/FiniteMoments.v
 theories/FiniteSets.v
 theories/FullThirdBlock.v
 theories/FullThirdBounds.v
-theories/FullThirdContinuity.v
 theories/FullThirdDefinitions.v
-theories/FullThirdFrechet.v
 theories/GaussianAdmissible.v
 theories/GaussianBlockExchange.v
 theories/GaussianBlockPermutation.v
@@ -121,7 +112,6 @@ theories/GaussianVectorStein.v
 theories/GibbsDefinitions.v
 theories/GibbsDerivatives.v
 theories/GibbsMomentBounds.v
-theories/GibbsNested.v
 theories/GibbsWeights.v
 theories/GoeDefinitions.v
 theories/GoeGibbs.v
@@ -148,7 +138,6 @@ theories/JointStein.v
 theories/JointTimeCalculus.v
 theories/JointTimeSecond.v
 theories/JointUniform.v
-theories/JointValueGrowth.v
 theories/LowerBounds.v
 theories/LowerDefinitions.v
 theories/LowerFrechet.v
@@ -190,15 +179,11 @@ theories/MultirowTimeCalculusResults.v
 theories/MultirowTimeEmptyFamilies.v
 theories/NormBounds.v
 theories/NormEquivalence.v
-theories/NormedTransport.v
 theories/OperatorBounds.v
 theories/OperatorDefinitions.v
 theories/OperatorDefinitionsAux.v
-theories/OperatorNormedDefinitions.v
 theories/OperatorProperties.v
 theories/OperatorRepresentation.v
-theories/OperatorSpaceDefinitions.v
-theories/OperatorSpaces.v
 theories/PaperMainAsymptotics.v
 theories/PaperMainBalancedLaw.v
 theories/PaperMainBalancedLimit.v
@@ -294,8 +279,6 @@ theories/PaperMainGaussianFeatureTail.v
 theories/PaperMainGaussianForward.v
 theories/PaperMainGaussianGordonTail.v
 theories/PaperMainGaussianJointFeature.v
-theories/PaperMainGaussianJointTail.v
-theories/PaperMainGaussianLinear.v
 theories/PaperMainGaussianLinearDensity.v
 theories/PaperMainGaussianLinearLaw.v
 theories/PaperMainGaussianLinearMGF.v

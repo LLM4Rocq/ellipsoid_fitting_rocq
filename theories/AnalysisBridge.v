@@ -90,10 +90,6 @@ Lemma derivable_of_is_derive (f : R -> R) (x l : R) :
   @is_derive R R^o R^o x 1 f l -> @derivable R R^o R^o f x 1.
 Proof. by move=> [H _]. Qed.
 
-Lemma ex_derive_Reals_1 (f : R -> R) (x : R) :
-  derivable_pt f x -> @derivable R R^o R^o f x 1.
-Proof. by move=> [l Hl]; exact: derivable_of_is_derive (is_derive_of_Reals Hl). Qed.
-
 Lemma ex_derive_Reals_0 (f : R -> R) (x : R) :
   @derivable R R^o R^o f x 1 -> derivable_pt f x.
 Proof.
@@ -101,34 +97,10 @@ move=> Hd; exists (@derive R R^o R^o f x 1).
 by apply: Reals_of_is_derive; exact: derivableP.
 Qed.
 
-Lemma is_derive_unique (f : R -> R) (x l : R) :
-  @is_derive R R^o R^o x 1 f l -> @derive R R^o R^o f x 1 = l.
-Proof. by move=> [_ H]. Qed.
-
-Lemma Derive_Reals (f : R -> R) (x : R) (pr : derivable_pt f x) :
-  derive_pt f x pr = @derive R R^o R^o f x 1.
-Proof.
-by case: pr => l Hl; rewrite /derive_pt /= (is_derive_unique _ _ _ (is_derive_of_Reals Hl)).
-Qed.
-
-Lemma is_derive_unique_l (f : R -> R) (x l1 l2 : R) :
-  @is_derive R R^o R^o x 1 f l1 -> @is_derive R R^o R^o x 1 f l2 -> l1 = l2.
-Proof. by move=> [_ <-] [_ <-]. Qed.
-
 Lemma is_derive_ext (f g : R -> R) (x l : R) :
   (forall t, f t = g t) ->
   @is_derive R R^o R^o x 1 f l -> @is_derive R R^o R^o x 1 g l.
 Proof. by move=> Hfg; rewrite (funext Hfg). Qed.
-
-Lemma is_derive_ext_loc (f g : R -> R) (x l : R) :
-  (exists delta, 0 < delta /\ forall t, Rabs (t - x) < delta -> f t = g t) ->
-  @is_derive R R^o R^o x 1 f l -> @is_derive R R^o R^o x 1 g l.
-Proof.
-move=> [d [d0 Hfg]]; apply: near_eq_is_derive.
-have d0' : (0 < d)%R by apply/RltP.
-apply/nbhs_ballP; exists d => // t; rewrite /ball /= => /RltP.
-by rewrite -RabsE -RminusE Rabs_minus_sym; exact: Hfg.
-Qed.
 
 Lemma is_derive_continuous (f : R -> R) (x l : R) :
   @is_derive R R^o R^o x 1 f l -> {for x, continuous f}.
@@ -333,9 +305,6 @@ Proof. by move=> x0; exact: is_derive_continuous (is_derive_Rinv x x0). Qed.
 Lemma continuous_Rpow (n : nat) : continuous (fun y : R => y ^ n).
 Proof. by move=> x; exact: is_derive_continuous (is_derive_Rpow n x). Qed.
 
-Lemma continuous_Rsqr : continuous Rsqr.
-Proof. by move=> x; exact: is_derive_continuous (is_derive_Rsqr x). Qed.
-
 (* ---- a replacement for Coquelicot's auto_derive ----
 
    On a goal @is_derive R R^o R^o x 1 (fun y => e y) l the tactic applies
@@ -445,24 +414,6 @@ split.
   by apply/nbhs_Reals; exists d; split=> // y /Hd /HA.
 Qed.
 
-Lemma cvg_Reals_dnbhs (f : R -> R) (x l : R) :
-  (f y @[y --> x^'] --> l)%classic <->
-  (forall eps, 0 < eps -> exists delta, 0 < delta /\
-     forall y, y <> x -> Rabs (y - x) < delta -> Rabs (f y - l) < eps).
-Proof.
-split.
-- move=> H eps eps0.
-  have Hl : nbhs l (fun z => Rabs (z - l) < eps) by apply/nbhs_Reals; exists eps.
-  have /nbhs_Reals [d [d0 Hd]] :
-      nbhs x (fun y => y != x -> Rabs (f y - l) < eps) := H _ Hl.
-  by exists d; split=> // y yx Hy; apply: (Hd y Hy); exact/eqP.
-- move=> H A /nbhs_Reals [eps [eps0 HA]].
-  have [d [d0 Hd]] := H eps eps0.
-  suff : nbhs x (fun y => y != x -> A (f y)) by [].
-  apply/nbhs_Reals; exists d; split=> // y Hy /eqP yx.
-  by apply: HA; exact: Hd.
-Qed.
-
 Lemma cvg_Reals_pinfty (f : R -> R) (l : R) :
   (f x @[x --> +oo%R] --> l)%classic <->
   (forall eps, 0 < eps -> exists M, forall x, M < x -> Rabs (f x - l) < eps).
@@ -512,9 +463,6 @@ Proof. exact: cvg_Reals_nbhs. Qed.
 Lemma scaleRE (a x : R) : (a *: (x : R^o))%R = a * x.
 Proof. by []. Qed.
 
-Lemma normRE (x : R) : (`|x|)%R = Rabs x.
-Proof. by rewrite RabsE. Qed.
-
 (* ---- continuity combinators at real-valued functions ---- *)
 
 Section ContinuityCombinators.
@@ -546,13 +494,6 @@ Proof. by move=> Hf Hg; exact (continuousM (K := R) Hf Hg). Qed.
 Lemma continuous_opp f x :
   {for x, continuous f} -> {for x, continuous (fun y => - f y)}.
 Proof. by move=> Hf; exact (continuousN (V := R^o) Hf). Qed.
-
-Lemma continuous_inv f x :
-  f x <> 0 -> {for x, continuous f} -> {for x, continuous (fun y => / f y)}.
-Proof.
-move=> fx0 Hf; have fx0' : f x != 0%R by apply/eqP.
-exact (continuousV (K := R) fx0' Hf).
-Qed.
 
 End ContinuityCombinators.
 
@@ -587,13 +528,6 @@ Qed.
 
 Lemma Rabs_div (a b : R) : b <> 0 -> Rabs (a / b) = Rabs a / Rabs b.
 Proof. by move=> b0; rewrite /Rdiv Rabs_mult Rabs_inv. Qed.
-
-Lemma Rln_div (x y : R) :
-  0 < x -> 0 < y -> Rpower.ln (x / y) = Rpower.ln x - Rpower.ln y.
-Proof.
-move=> x0 y0.
-by rewrite /Rdiv (ln_mult _ _ x0 (Rinv_0_lt_compat _ y0)) (ln_Rinv _ y0); ring.
-Qed.
 
 (* ---- mean value theorems ---- *)
 
@@ -647,59 +581,7 @@ Qed.
 
 (* ---- integrability of continuous functions on a segment ---- *)
 
-Lemma continuous_segment_integrable (f : R -> R) (a b : R) :
-  (forall x, a <= x <= b -> continuity_pt f x) ->
-  lebesgue_measure.-integrable `[a, b]%classic (EFin \o f).
-Proof.
-move=> Hc; apply: continuous_compact_integrable; first exact: segment_compact.
-apply: continuous_in_subspaceT => x /[1!inE].
-rewrite /= in_itv /= => /andP [/RleP ax /RleP xb].
-by apply/continuity_ptE; exact: Hc.
-Qed.
-
 (* ---- fundamental theorem of calculus ---- *)
-
-Lemma FTC2_Reals (f F : R -> R) (a b : R) : a < b ->
-  (forall x, a <= x <= b -> continuity_pt f x) ->
-  (forall x, a <= x <= b -> continuity_pt F x) ->
-  (forall x, a < x < b -> @is_derive R R^o R^o x 1 F (f x)) ->
-  Rintegral lebesgue_measure `[a, b]%classic f = F b - F a.
-Proof.
-move=> ab Hf HF HdF.
-have ab' : (a < b)%R by apply/RltP.
-have Hint : (\int[lebesgue_measure]_(x in `[a, b]) (f x)%:E = (F b)%:E - (F a)%:E)%E.
-  apply: continuous_FTC2 => //.
-  - apply: continuous_in_subspaceT => x /[1!inE].
-    rewrite /= in_itv /= => /andP [/RleP ax /RleP xb].
-    by apply/continuity_ptE; exact: Hf.
-  - split.
-    + move=> x; rewrite in_itv /= => /andP [/RltP ax /RltP xb].
-      by have [Hd _] := HdF x (conj ax xb); exact Hd.
-    + apply: cvg_at_right_filter.
-      by apply/continuity_ptE; apply: HF; lra.
-    + apply: cvg_at_left_filter.
-      by apply/continuity_ptE; apply: HF; lra.
-  - move=> x; rewrite in_itv /= => /andP [/RltP ax /RltP xb].
-    have [_ Hv] := HdF x (conj ax xb).
-    by rewrite derive1E; exact Hv.
-by rewrite /Rintegral Hint -EFinB.
-Qed.
-
-Lemma FTC1_Reals (f : R -> R) (a u x : R) : a < x < u ->
-  (forall t, a <= t <= u -> continuity_pt f t) ->
-  @is_derive R R^o R^o x 1
-    (fun y => Rintegral lebesgue_measure `[a, y]%classic f) (f x).
-Proof.
-move=> [ax xu] Hf.
-have Hint : lebesgue_measure.-integrable `[a, u]%classic (EFin \o f).
-  exact: continuous_segment_integrable.
-have Hcx : {for x, continuous f}.
-  by apply/continuity_ptE; apply: Hf; lra.
-have [Hd Hv] := @continuous_FTC1_closed _ f a x u (introT RltP xu) Hint
-  (introT RltP ax) Hcx.
-apply: DeriveDef; first exact Hd.
-by rewrite -derive1E; exact Hv.
-Qed.
 
 (* Coquelicot's MVT_cor4: the mean value theorem on a ball around a. *)
 Lemma MVT_cor4 (f df : R -> R) (a eps : R) :

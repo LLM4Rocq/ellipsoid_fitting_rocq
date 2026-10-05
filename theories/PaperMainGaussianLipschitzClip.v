@@ -64,26 +64,9 @@ Theorem paper_main_gaussian_clipped_abs_bound K F xs :
   0 <= K -> Rabs (paper_main_gaussian_clipped K F xs) <= K.
 Proof. intros HK; apply paper_main_gaussian_clip_bound; exact HK. Qed.
 
-Theorem paper_main_gaussian_clipped_polynomial_bound d K F :
-  0 <= K -> finite_polynomial_bound d K 0 (paper_main_gaussian_clipped K F).
-Proof.
-intros HK; apply (proj2 (paper_main_polynomial_zero_bound d K _)); split;
-  [exact HK|].
-intros xs _; apply paper_main_gaussian_clip_bound; exact HK.
-Qed.
-
 Theorem paper_main_gaussian_clipped_eq K F xs :
   Rabs (F xs) <= K -> paper_main_gaussian_clipped K F xs = F xs.
 Proof. intros H; apply paper_main_gaussian_clip_eq; exact H. Qed.
-
-Theorem paper_main_gaussian_clipped_continuous d K F :
-  finite_joint_continuous d F ->
-  finite_joint_continuous d (paper_main_gaussian_clipped K F).
-Proof.
-intros HF z eps; destruct (HF z eps) as [delta Hd]; exists delta; intros w Hw.
-unfold paper_main_gaussian_clipped.
-eapply Rle_lt_trans; [apply paper_main_gaussian_clip_lipschitz|exact (Hd w Hw)].
-Qed.
 
 Theorem paper_main_gaussian_lipschitz_continuous d F L :
   0 <= L ->

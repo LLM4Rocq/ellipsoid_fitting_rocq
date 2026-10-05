@@ -28,14 +28,6 @@ Proof.
     intros x Hx; apply/RleP; apply Hb; exact Hx.
 Qed.
 
-Lemma operator_sup_default (E : R -> Prop) :
-  ~ (bound E /\ (exists r, E r)) -> sup E = 0.
-Proof.
-  intros H; apply sup_out; intros [[r Hr] [M HM]]; apply H; split.
-  - exists M; intros x Hx; apply/RleP; exact (HM x Hx).
-  - exists r; exact Hr.
-Qed.
-
 (* The form in which OperatorBounds uses the definition: once the unit image
    is known to be bounded and nonempty, the operator norm is its least upper
    bound. *)

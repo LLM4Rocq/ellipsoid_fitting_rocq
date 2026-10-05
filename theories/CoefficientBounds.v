@@ -63,20 +63,6 @@ Proof.
   apply tuple_entry_norm_bound.
 Qed.
 
-Theorem hessian_entry_norm_bound n (H : hessian_array n) i j :
-  (`|hessian_entry n H i j|)%R <= (`|H|)%R.
-Proof.
-  unfold hessian_entry.
-  eapply Rle_trans; [apply tuple_entry_norm_bound | apply tuple_entry_norm_bound].
-Qed.
-
-Theorem third_entry_norm_bound n (T : third_array n) i j :
-  (`|third_entry n T i j|)%R <= (`|T|)%R.
-Proof.
-  unfold third_entry.
-  eapply Rle_trans; [apply tuple_entry_norm_bound | apply tuple_entry_norm_bound].
-Qed.
-
 Lemma norm_pair_le_sum {U V : normedModType R} (x : U) (y : V) :
   (`|(x, y) : euclidean_product U V|)%R <= (`|x|)%R + (`|y|)%R.
 Proof.
@@ -152,80 +138,4 @@ Proof.
     + apply Rmult_le_pos; assumption.
     + intros j Hj; rewrite Rabs_mult.
       apply Rmult_le_compat; try apply Rabs_pos; apply matrix_entry_norm_bound.
-Qed.
-
-Theorem coefficient_contract_product_bound (V : normedModType R) n F W K :
-  0 <= K -> (forall i j, (i <= n)%coq_nat -> (j <= n)%coq_nat -> (`|F i j|)%R <= K) ->
-  (`|coefficient_contract V n F W|)%R <= INR (S n) ^ 2 * K * (`|W|)%R.
-Proof.
-  intros HK HF; unfold coefficient_contract.
-  assert (HW : 0 <= (`|W|)%R) by (apply/RleP; apply normr_ge0).
-  replace (INR (S n) ^ 2 * K * (`|W|)%R) with
-    (INR (S n) * (INR (S n) * ((`|W|)%R * K))) by ring.
-  apply module_coordinate_sum_norm_bound.
-  - repeat apply Rmult_le_pos; try apply pos_INR; assumption.
-  - intros i Hi; apply module_coordinate_sum_norm_bound.
-    + apply Rmult_le_pos; assumption.
-    + intros j Hj; rewrite normrZ -RmultE -RabsE.
-      apply Rmult_le_compat.
-      * apply Rabs_pos.
-      * apply/RleP; apply normr_ge0.
-      * apply matrix_entry_norm_bound.
-      * apply HF; assumption.
-Qed.
-
-Theorem third_action_product_bound n (T : third_array n) (W : matrix n) :
-  (`|third_action n T W|)%R <= INR (S n) ^ 2 * (`|T|)%R * (`|W|)%R.
-Proof.
-  unfold third_action; apply coefficient_contract_product_bound.
-  - apply/RleP; apply normr_ge0.
-  - intros; apply third_entry_norm_bound.
-Qed.
-
-Theorem hessian_action_product_bound n (H : hessian_array n) (V : matrix n) :
-  (`|hessian_action n H V|)%R <= INR (S n) ^ 4 * (`|H|)%R * (`|V|)%R.
-Proof.
-  unfold hessian_action.
-  assert (HH : 0 <= (`|H|)%R) by (apply/RleP; apply normr_ge0).
-  assert (HV : 0 <= (`|V|)%R) by (apply/RleP; apply normr_ge0).
-  replace (INR (S n) ^ 4 * (`|H|)%R * (`|V|)%R) with
-    (INR (S n) ^ 2 * (INR (S n) ^ 2 * (`|H|)%R * (`|V|)%R)) by ring.
-  apply matrix_build_norm_bound.
-  - apply Rmult_le_pos; [apply Rmult_le_pos; [apply pow2_ge_0 | exact HH] | exact HV].
-  - intros i j Hi Hj; eapply Rle_trans; [apply trace_pair_product_bound |].
-    apply Rmult_le_compat_r; [exact HV |].
-    apply Rmult_le_compat_l; [apply pow2_ge_0 | apply hessian_entry_norm_bound].
-Qed.
-
-Theorem hessian_evaluation_product_bound n (H : hessian_array n) (U V : matrix n) :
-  Rabs (hessian_evaluation n H U V) <=
-    INR (S n) ^ 6 * (`|H|)%R * (`|U|)%R * (`|V|)%R.
-Proof.
-  unfold hessian_evaluation; eapply Rle_trans; [apply trace_pair_product_bound |].
-  assert (HU : 0 <= (`|U|)%R) by (apply/RleP; apply normr_ge0).
-  replace (INR (S n) ^ 6 * (`|H|)%R * (`|U|)%R * (`|V|)%R) with
-    (INR (S n) ^ 2 * (INR (S n) ^ 4 * (`|H|)%R * (`|V|)%R) * (`|U|)%R) by ring.
-  apply Rmult_le_compat_r; [exact HU |].
-  apply Rmult_le_compat_l; [apply pow2_ge_0 | apply hessian_action_product_bound].
-Qed.
-
-Theorem third_evaluation_product_bound n (T : third_array n) (U V W : matrix n) :
-  Rabs (third_evaluation n T U V W) <=
-    INR (S n) ^ 8 * (`|T|)%R * (`|U|)%R * (`|V|)%R * (`|W|)%R.
-Proof.
-  unfold third_evaluation, hessian_evaluation.
-  assert (HU : 0 <= (`|U|)%R) by (apply/RleP; apply normr_ge0).
-  assert (HV : 0 <= (`|V|)%R) by (apply/RleP; apply normr_ge0).
-  eapply Rle_trans; [apply trace_pair_product_bound |].
-  eapply Rle_trans with (INR (S n) ^ 2 *
-    (INR (S n) ^ 4 * (`|third_action n T W|)%R * (`|V|)%R) * (`|U|)%R).
-  - apply Rmult_le_compat_r; [exact HU |].
-    apply Rmult_le_compat_l; [apply pow2_ge_0 | apply hessian_action_product_bound].
-  - replace (INR (S n) ^ 8 * (`|T|)%R * (`|U|)%R * (`|V|)%R * (`|W|)%R) with
-      (INR (S n) ^ 2 * (INR (S n) ^ 4 *
-        (INR (S n) ^ 2 * (`|T|)%R * (`|W|)%R) * (`|V|)%R) * (`|U|)%R) by ring.
-    apply Rmult_le_compat_r; [exact HU |].
-    apply Rmult_le_compat_l; [apply pow2_ge_0 |].
-    apply Rmult_le_compat_r; [exact HV |].
-    apply Rmult_le_compat_l; [apply pow_le; apply pos_INR | apply third_action_product_bound].
 Qed.

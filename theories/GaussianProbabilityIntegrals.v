@@ -54,16 +54,6 @@ split.
   apply: lte_mul_pinfty => //; by rewrite lee_fin invr_ge0 ltW.
 Qed.
 
-Lemma gpb_law_on (A : set (measurableTypeR R)) : measurable A ->
-  gaussian_law A = (\int[gpb_mu]_(x in A) (gaussian_density x)%:E)%E.
-Proof.
-move=> _; rewrite /gaussian_law /normal_prob; apply: eq_integral => x _.
-by rewrite -gpb_density.
-Qed.
-
-Lemma gpb_law_setT : gaussian_law setT = 1%E.
-Proof. exact: probability_setT. Qed.
-
 Lemma gpb_RNc_ae : ae_eq gpb_mu setT
   (Radon_Nikodym (charge_of_finite_measure gaussian_law) gpb_mu)
   (fun x => (normal_pdf 0 1 x)%:E).
@@ -99,30 +89,4 @@ rewrite integralZl //.
 have hI := integrable_fin_num measurableT hf2.
 rewrite -(fineK hI) -EFinM /gaussian_expectation /gaussian_integral /whole_line_integral /Rintegral gpb_mass.
 by rewrite RdivE mulrC.
-Qed.
-
-Lemma gpb_law_expectation (f : R -> R) : gaussian_integral_exists f ->
-  gaussian_law_expectation f = gaussian_expectation f.
-Proof. by move=> hf; rewrite /gaussian_law_expectation gpb_law_integral. Qed.
-
-Lemma gpb_mass_neq0 : gaussian_mass != 0.
-Proof. by rewrite gpb_mass; exact: lt0r_neq0 gpb_sqrt_pos. Qed.
-
-Lemma gpb_first_moment :
-  gaussian_integral_exists (fun x => x) /\ gaussian_expectation (fun x => x) = 0.
-Proof.
-have [HI HV] := GaussianMoments.gaussian_first_raw_moment _ GaussianMass.gaussian_kernel_mass_integral.
-split; first exact: HI.
-by rewrite /gaussian_expectation /gaussian_integral /= HV RdivE mul0r.
-Qed.
-
-Lemma gpb_second_moment :
-  gaussian_integral_exists (fun x => x * x) /\ gaussian_expectation (fun x => x * x) = 1.
-Proof.
-have [HI HV] := GaussianMoments.gaussian_second_raw_moment _ GaussianMass.gaussian_kernel_mass_integral.
-have E : (fun x => x ^ 2 * gaussian_kernel x) = (fun x => (x * x) * gaussian_kernel x).
-{ by apply: funext => x; rewrite /= Rmult_1_r. }
-rewrite E in HI HV.
-split; first exact: HI.
-by rewrite /gaussian_expectation /gaussian_integral /= HV RdivE divff // gpb_mass_neq0.
 Qed.

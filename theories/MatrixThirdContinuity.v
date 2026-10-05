@@ -77,11 +77,6 @@ Open Scope R_scope.
    unification, as for the lemmas of FiniteGibbsContinuity. Use ssreflect's
    apply:, as in apply: matrix_build_continuous, or give E explicitly. *)
 
-Lemma pair_continuous {E U V : topologicalType} (f : E -> U) (g : E -> V) (A : E) :
-  {for A, continuous f} -> {for A, continuous g} ->
-  {for A, continuous (fun M => (f M, g M))}.
-Proof. intros HF HG; exact: cvg_pair HF HG. Qed.
-
 Theorem tuple_build_continuous {E : topologicalType} (V : normedModType R)
     n (F : nat -> E -> V) (A : E) :
   (forall i, (i <= n)%coq_nat -> {for A, continuous (F i)}) ->
@@ -247,44 +242,4 @@ Proof.
   intros Hg HY HS; unfold matrix_nested_third_coefficients.
   apply: third_build_continuous; intros i j Hi Hj.
   apply matrix_hessian_derivative_continuous; assumption.
-Qed.
-
-Theorem matrix_third_coefficients_entry n beta gamma offset coeff Y S
-    (A : matrix n) i j k l r s :
-  (i <= n)%coq_nat -> (j <= n)%coq_nat -> (k <= n)%coq_nat -> (l <= n)%coq_nat ->
-  (r <= n)%coq_nat -> (s <= n)%coq_nat ->
-  matrix_entry n
-    (hessian_entry n
-      (third_entry n (matrix_nested_third_coefficients n beta gamma offset coeff Y S A) i j) k l) r s =
-  matrix_nested_third_derivative n beta gamma offset coeff Y S A
-    (matrix_basis n j i) (matrix_basis n l k) (matrix_basis n s r).
-Proof.
-  intros Hi Hj Hk Hl Hr Hs.
-  unfold matrix_nested_third_coefficients, third_entry, third_build.
-  rewrite (tuple_entry_build _ n i _ Hi) (tuple_entry_build _ n j _ Hj).
-  rewrite (matrix_nested_hessian_derivative_coefficient n beta gamma offset coeff Y S
-    A (matrix_basis n j i) k l r s Hk Hl Hr Hs).
-  rewrite (matrix_nested_third_swap_right n beta gamma offset coeff Y S A
-    (matrix_basis n l k) (matrix_basis n s r) (matrix_basis n j i)).
-  apply matrix_nested_third_swap_left.
-Qed.
-
-Theorem matrix_soft_minimax_continuous_third_coefficients n beta gamma offset coeff Y S :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  forall A : matrix n,
-  is_diff A
-    ((fun M => soft_minimax beta gamma (matrix_affine_scores n offset coeff M) Y S)
-      : matrix n -> R^o)
-    (trace_pair n (matrix_nested_gradient n beta gamma offset coeff Y S A)) /\
-  is_diff A (matrix_nested_gradient n beta gamma offset coeff Y S)
-    (hessian_action n (matrix_nested_hessian n beta gamma offset coeff Y S A)) /\
-  is_diff A (matrix_nested_hessian n beta gamma offset coeff Y S)
-    (matrix_nested_hessian_derivative n beta gamma offset coeff Y S A) /\
-  {for A, continuous (matrix_nested_third_coefficients n beta gamma offset coeff Y S)}.
-Proof.
-  intros Hb Hg HY HS A.
-  destruct (matrix_soft_minimax_hessian_frechet n beta gamma offset coeff Y S Hb Hg HY HS A)
-    as [HF [HG HH]].
-  split; [exact HF |]; split; [exact HG |]; split; [exact HH |].
-  apply matrix_third_coefficients_continuous; assumption.
 Qed.

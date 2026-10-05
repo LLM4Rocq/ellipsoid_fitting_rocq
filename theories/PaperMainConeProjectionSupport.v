@@ -36,9 +36,6 @@ Local Open Scope classical_set_scope.
 #[local] Arguments paper_main_psd_projection {d} Z.
 #[local] Arguments paper_main_psd_negative_part {d} Z.
 
-(* The PSD unit ball and unit sphere in Frobenius norm. *)
-Definition paper_main_psd_ball {d : nat} : set 'M[R]_d :=
-  [set S | paper_main_psd S /\ paper_main_frobenius S <= 1].
 Definition paper_main_psd_sphere {d : nat} : set 'M[R]_d :=
   [set S | paper_main_psd S /\ paper_main_frobenius S = 1].
 
@@ -94,26 +91,6 @@ apply: paper_main_psd_scale; last exact: paper_main_psd_projection_psd.
 by rewrite invr_ge0; exact: pmh_frobenius_ge0.
 Qed.
 
-(* The PSD unit ball: h(Z) = |P|_F. *)
-Theorem paper_main_psd_ball_support Z :
-  paper_main_symmetric Z ->
-  paper_main_head_support Z paper_main_psd_ball =
-  paper_main_frobenius (paper_main_psd_projection Z).
-Proof.
-move=> HZ; apply: pmcs_sup_attained.
-  have [HP0|HP0] := eqVneq (paper_main_psd_projection Z) 0.
-    exists 0; first by split; [exact: pmcp_psd0 | rewrite pmh_frobenius0 ler01].
-    by rewrite pmh_pairing0r HP0 pmh_frobenius0.
-  exists ((paper_main_frobenius (paper_main_psd_projection Z))^-1 *:
-    paper_main_psd_projection Z).
-    by have [Hs Hn] := pmcs_normalized_sphere _ HP0; split => //; rewrite Hn.
-  exact: pmcs_value_normalized.
-move=> _ [S [HS HS1] <-].
-have H := pmcs_pairing_le _ _ HZ HS.
-have := pmh_frobenius_ge0 _ (paper_main_psd_projection Z).
-have := pmh_frobenius_ge0 _ S; nra.
-Qed.
-
 (* The PSD unit sphere when P <> 0. *)
 Theorem paper_main_psd_sphere_support_pos Z :
   paper_main_symmetric Z -> paper_main_psd_projection Z != 0 ->
@@ -152,37 +129,6 @@ have [HP0|HP0] := eqVneq (paper_main_psd_projection Z) 0.
   by rewrite max_r // HP0 pmh_frobenius0.
 rewrite paper_main_psd_sphere_support_pos // max_l //.
 exact: pmh_frobenius_ge0.
-Qed.
-
-Lemma pmcs_pairing_le_trace_sqr S :
-  paper_main_psd S -> paper_main_pairing S S <= paper_main_trace S ^+ 2.
-Proof.
-move=> HS; rewrite /paper_main_pairing /paper_main_trace expr2 mulr_suml.
-apply: ler_sum => i _; rewrite mulr_sumr; apply: ler_sum => j _.
-rewrite -expr2; exact: pmg_entry_sqr_le.
-Qed.
-
-(* Equality without the maximum fails: Z = -I. *)
-Theorem paper_main_psd_sphere_support_neg_identity :
-  (0 < d)%N ->
-  paper_main_psd_projection (- 1%:M : 'M[R]_d) = 0 /\
-  paper_main_head_support (- 1%:M : 'M[R]_d) paper_main_psd_sphere <= -1.
-Proof.
-move=> Hd; split.
-  have H1 : paper_main_psd (1%:M : 'M[R]_d) by exact: pmh_psd_id.
-  have Hm : - 1%:M = 0 - (1%:M : 'M[R]_d) by rewrite sub0r.
-  by have [<- _] := paper_main_psd_moreau_unique _ _ _ _ (pmcp_psd0 d) H1 Hm (pmh_pairing0l _ _).
-apply: ge_sup.
-  by exists (paper_main_pairing (- 1%:M : 'M[R]_d) ((Num.sqrt d%:R)^-1 *: (1%:M : 'M[R]_d))),
-    ((Num.sqrt d%:R)^-1 *: (1%:M : 'M[R]_d)); last by []; exact: pmcs_sphere_nonempty.
-move=> _ [S [HS HS1] <-].
-rewrite pmh_pairingNl pmh_pairing_id.
-have Htr := pmh_trace_psd_ge0 _ _ HS.
-have Hsq := pmcs_pairing_le_trace_sqr _ HS.
-have HSS : paper_main_pairing S S = 1 by rewrite -pmh_frobenius_sqr HS1 expr1n.
-rewrite HSS in Hsq.
-have : 1 <= paper_main_trace S by nra.
-lra.
 Qed.
 
 End ConeSupport.

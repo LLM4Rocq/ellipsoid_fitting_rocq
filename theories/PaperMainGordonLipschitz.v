@@ -37,55 +37,6 @@ assert (HE : finite_sum (fun i => finite_sum (fun j => (f i * g j - f j * g i)^2
 rewrite HE in Hpos; change (C^2 <= A * B); nra.
 Qed.
 
-Lemma paper_main_gordon_max_lipschitz f g I B :
-  I <> [] -> (forall i, In i I -> Rabs (f i - g i) <= B) ->
-  Rabs (finite_max f I - finite_max g I) <= B.
-Proof.
-intros HI HB.
-destruct (finite_max_attained f I HI) as [i [Hi Ei]].
-destruct (finite_max_attained g I HI) as [j [Hj Ej]].
-pose proof (finite_max_member g I i Hi) as Hgi.
-pose proof (finite_max_member f I j Hj) as Hfj.
-pose proof (HB i Hi) as HBi; pose proof (HB j Hj) as HBj.
-pose proof (Rle_abs (f i - g i)) as HPi.
-pose proof (Rle_abs (g i - f i)) as HNi.
-pose proof (Rle_abs (f j - g j)) as HPj.
-pose proof (Rle_abs (g j - f j)) as HNj.
-rewrite Rabs_minus_sym in HNi, HNj.
-rewrite Ej in Hgi; rewrite Ei in Hfj.
-rewrite Ei, Ej; apply Rabs_le; lra.
-Qed.
-
-Lemma paper_main_gordon_min_lipschitz f g I B :
-  I <> [] -> (forall i, In i I -> Rabs (f i - g i) <= B) ->
-  Rabs (finite_min f I - finite_min g I) <= B.
-Proof.
-intros HI HB.
-destruct (finite_min_attained f I HI) as [i [Hi Ei]].
-destruct (finite_min_attained g I HI) as [j [Hj Ej]].
-pose proof (finite_min_member g I i Hi) as Hgi.
-pose proof (finite_min_member f I j Hj) as Hfj.
-pose proof (HB i Hi) as HBi; pose proof (HB j Hj) as HBj.
-pose proof (Rle_abs (f i - g i)) as HPi.
-pose proof (Rle_abs (g i - f i)) as HNi.
-pose proof (Rle_abs (f j - g j)) as HPj.
-pose proof (Rle_abs (g j - f j)) as HNj.
-rewrite Rabs_minus_sym in HNi, HNj.
-rewrite Ej in Hgi; rewrite Ei in Hfj.
-rewrite Ei, Ej; apply Rabs_le; lra.
-Qed.
-
-Lemma paper_main_gordon_minimax_lipschitz F G Y S B :
-  Y <> [] -> S <> [] ->
-  (forall y s, In y Y -> In s S -> Rabs (F y s - G y s) <= B) ->
-  Rabs (finite_minimax F Y S - finite_minimax G Y S) <= B.
-Proof.
-intros HY HS HB; unfold finite_minimax.
-apply paper_main_gordon_min_lipschitz; [exact HY|].
-intros y Hy; apply paper_main_gordon_max_lipschitz; [exact HS|].
-intros s Hs; apply HB; assumption.
-Qed.
-
 Lemma paper_main_gordon_distance_nonnegative d xs ys :
   0 <= paper_main_gordon_distance d xs ys.
 Proof.
@@ -151,45 +102,4 @@ assert (HC : gaussian_covariance_entry (N * M) P 0 0 <= 1^2).
 { unfold P; rewrite paper_main_gordon_raw_matrix_covariance; rewrite Hu, Hv; lra. }
 pose proof (paper_main_gordon_row_lipschitz (N * M) P 0 xs ys 1 ltac:(lra) HC) as H.
 unfold P in H; rewrite !paper_main_gordon_raw_matrix_row, Rmult_1_l in H; exact H.
-Qed.
-
-Lemma paper_main_gordon_auxiliary_lipschitz N M u v xs ys :
-  paper_main_gordon_dot N u u = 1 -> paper_main_gordon_dot M v v = 1 ->
-  Rabs (paper_main_gordon_auxiliary N M u v xs -
-    paper_main_gordon_auxiliary N M u v ys) <=
-  sqrt 2 * paper_main_gordon_distance (N + M) xs ys.
-Proof.
-intros Hu Hv.
-set (Q := paper_main_gordon_vector_loading N (fun _ => u) (fun _ => v)).
-assert (HC : gaussian_covariance_entry (N + M) Q 0 0 <= (sqrt 2)^2).
-{ unfold Q; rewrite paper_main_gordon_vector_covariance; rewrite Hu, Hv.
-  rewrite pow2_sqrt by lra; lra. }
-pose proof (paper_main_gordon_row_lipschitz (N + M) Q 0 xs ys (sqrt 2) (sqrt_pos 2) HC) as H.
-unfold Q in H; rewrite !paper_main_gordon_vector_row in H; exact H.
-Qed.
-
-Theorem paper_main_gordon_matrix_minimax_lipschitz N M z v Y S xs ys :
-  Y <> [] -> S <> [] ->
-  (forall y, In y Y -> paper_main_gordon_dot N (z y) (z y) = 1) ->
-  (forall s, In s S -> paper_main_gordon_dot M (v s) (v s) = 1) ->
-  Rabs (finite_minimax (fun y s => paper_main_gordon_matrix_value N M (z y) (v s) xs) Y S -
-    finite_minimax (fun y s => paper_main_gordon_matrix_value N M (z y) (v s) ys) Y S) <=
-  paper_main_gordon_distance (N * M) xs ys.
-Proof.
-intros HY HS Hz Hv.
-apply paper_main_gordon_minimax_lipschitz; try assumption.
-intros y s Hy Hs; apply paper_main_gordon_matrix_value_lipschitz; [apply Hz|apply Hv]; assumption.
-Qed.
-
-Theorem paper_main_gordon_auxiliary_minimax_lipschitz N M z v Y S xs ys :
-  Y <> [] -> S <> [] ->
-  (forall y, In y Y -> paper_main_gordon_dot N (z y) (z y) = 1) ->
-  (forall s, In s S -> paper_main_gordon_dot M (v s) (v s) = 1) ->
-  Rabs (finite_minimax (fun y s => paper_main_gordon_auxiliary N M (z y) (v s) xs) Y S -
-    finite_minimax (fun y s => paper_main_gordon_auxiliary N M (z y) (v s) ys) Y S) <=
-  sqrt 2 * paper_main_gordon_distance (N + M) xs ys.
-Proof.
-intros HY HS Hz Hv.
-apply paper_main_gordon_minimax_lipschitz; try assumption.
-intros y s Hy Hs; apply paper_main_gordon_auxiliary_lipschitz; [apply Hz|apply Hv]; assumption.
 Qed.

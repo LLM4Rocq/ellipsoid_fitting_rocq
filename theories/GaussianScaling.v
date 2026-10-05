@@ -68,20 +68,6 @@ Proof.
   move=> x /RltP Hx; apply/RleP; exact: key.
 Qed.
 
-Lemma positive_dilation_limit_negative a :
-  0 < a -> ((a * x) @[x --> -oo%R] --> -oo%R)%classic.
-Proof.
-  move=> Ha.
-  have key : forall M x : R, x < M / a -> a * x <= M.
-  { move=> M x Hx.
-    assert (H : a * x < a * (M / a)) by nra.
-    replace (a * (M / a)) with M in H by (field; lra).
-    lra. }
-  apply/cvgrNyPle => M.
-  exists (M / a); split; first exact: num_real.
-  move=> x /RltP Hx; apply/RleP; exact: key.
-Qed.
-
 (* The limit L : Rbar of the original becomes any set system L on R
    (header, item 2). *)
 Lemma positive_dilation_comp_limit_positive (f : R -> R) a
@@ -91,17 +77,6 @@ Lemma positive_dilation_comp_limit_positive (f : R -> R) a
 Proof.
   move=> Ha HL.
   exact: (cvg_comp _ _ (positive_dilation_limit_positive a Ha) HL).
-Qed.
-
-(* The limit L : Rbar of the original becomes any set system L on R
-   (header, item 2). *)
-Lemma positive_dilation_comp_limit_negative (f : R -> R) a
-    (L : set_system R) :
-  0 < a -> (f x @[x --> -oo%R] --> L)%classic ->
-  (f (a * x) @[x --> -oo%R] --> L)%classic.
-Proof.
-  move=> Ha HL.
-  exact: (cvg_comp _ _ (positive_dilation_limit_negative a Ha) HL).
 Qed.
 
 Lemma gaussian_scaled_primitive_derivative a x :

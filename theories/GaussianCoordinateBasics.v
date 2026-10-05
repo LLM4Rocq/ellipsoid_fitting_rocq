@@ -93,25 +93,3 @@ Proof.
   intros Hx Hy; rewrite coordinates_close_iff.
   rewrite !coordinates_list_roundtrip by assumption; reflexivity.
 Qed.
-
-Lemma coordinates_bounded_iff d (a b z : Tn d R) :
-  bounded_n d a b z <-> forall i, (i<d)%nat ->
-    nth i (coordinates_to_list d a) 0 <= nth i (coordinates_to_list d z) 0 <=
-      nth i (coordinates_to_list d b) 0.
-Proof.
-  induction d; [simpl; split; [intros _ i Hi; lia|intros; exact I]|].
-  destruct a as [a aa], b as [b bb], z as [z zz]; simpl; split.
-  - intros [H0 Hs] [|i] Hi; simpl; [exact H0|].
-    apply IHd; [exact Hs|lia].
-  - intro H; split.
-    + exact (H O ltac:(lia)).
-    + apply IHd; intros i Hi; exact (H (S i) ltac:(lia)).
-Qed.
-Lemma coordinates_bounded_dec d (a b z : Tn d R) :
-  {bounded_n d a b z}+{~bounded_n d a b z}.
-Proof.
-  induction d; [left; exact I|].
-  destruct a as [a aa], b as [b bb], z as [z zz]; simpl.
-  destruct (Rle_dec a z), (Rle_dec z b), (IHd aa bb zz);
-    [left|right|right|right|right|right|right|right]; tauto.
-Qed.

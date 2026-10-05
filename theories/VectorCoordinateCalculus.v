@@ -87,16 +87,6 @@ Proof.
   by apply/funext => h /=; rewrite add0r.
 Qed.
 
-Lemma vector_coordinate_line_derive n (x : vector n) i (a t : R) :
-  @is_derive R R^o (vector_NormedModule n) t 1%R
-    (fun u : R => (x + (u - a) *: chaos_basis n i)%R) (chaos_basis n i).
-Proof.
-  have HL := vector_coordinate_line_is_diff n x (chaos_basis n i) a t.
-  apply: DeriveDef.
-    exact/diff_derivable/ex_diff.
-  by rewrite deriveE ?diff_val //= scale1r.
-Qed.
-
 Lemma vector_frechet_coordinate_line n (F dF : vector n -> R) (x : vector n) i
     (a : R) :
   is_diff x (F : vector n -> R^o) dF ->

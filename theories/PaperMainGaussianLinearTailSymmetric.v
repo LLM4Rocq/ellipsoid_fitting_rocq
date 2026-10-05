@@ -26,23 +26,6 @@ have Hs := lt0r_neq0 (pmsb_goe_scale_gt0 n).
 by rewrite (mulVf Hs) scale1r in H.
 Qed.
 
-Theorem paper_main_public_symmetric_bilinear_tail n (u v : 'cV[R]_(S n)) b :
-  ((u^T *m u)%R) ord0 ord0 = 1 -> ((v^T *m v)%R) ord0 ord0 = 1 -> 0 < b ->
-  (gaussian_product_law (paper_main_symmetric_dimension n)
-    [set x | Rle b (Rabs (((u^T *m paper_main_public_symmetric_gaussian n (tval x) *m v)%R) ord0 ord0))] <=
-    (2*exp(-b^2/2))%:E)%E.
-Proof.
-move=> Hu Hv Hb.
-have HC := paper_main_symmetric_bilinear_coefficients_unit n u v Hu Hv.
-move/RleP: HC => HC.
-have HE : [set x : (paper_main_symmetric_dimension n).-tuple (measurableTypeR R) |
-    Rle b (Rabs (((u^T *m paper_main_public_symmetric_gaussian n (tval x) *m v)%R) ord0 ord0))] =
-  [set x | Rle b (Rabs (paper_main_gaussian_linear_form (paper_main_symmetric_dimension n)
-    (paper_main_symmetric_bilinear_coefficients n u v) (tval x)))].
-  apply/seteqP; split=> x /=; by rewrite paper_main_public_symmetric_bilinear_linear.
-rewrite HE; exact: paper_main_gaussian_linear_form_tail.
-Qed.
-
 Definition paper_main_public_symmetric_bilinear_union {I : Type} n
     (u v : I -> 'cV[R]_(S n)) (ids : list I) b :=
   paper_main_gaussian_linear_union (paper_main_symmetric_dimension n)

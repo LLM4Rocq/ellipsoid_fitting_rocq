@@ -123,38 +123,3 @@ have HH := Rmult_le_compat_r _ _ _ HD HM.
 eapply Rle_trans; first exact HH.
 right; field; lra.
 Qed.
-
-Theorem paper_main_soft_public_comparison_coarse n m beta gamma theta k y B Y S :
-  0 < beta -> 0 < gamma -> 0 < theta -> 0 <= k -> Y <> [] -> S <> [] ->
-  (forall z, In z Y -> euclidean_norm (y z) (List.seq 0 (Datatypes.S m)) = 1) ->
-  (forall z i, In z Y -> In i (List.seq 0 (Datatypes.S m)) ->
-    Rabs (y z i) <= theta / sqrt (INR (Datatypes.S n))) ->
-  (forall s, In s S -> symmetric_matrix n (B s)) ->
-  (forall s, In s S -> matrix_operator_norm n (B s) <= k) ->
-  Rpower.ln (INR (Datatypes.S m)) <= INR (Datatypes.S n) ->
-  let d := INR (Datatypes.S n) in
-  let N := Datatypes.S m in
-  let DG := Nat.mul N (Datatypes.S (goe_vector_index n)) in
-  let DW := Nat.mul N (Datatypes.S n) in
-  let EG := (\int[gaussian_product_law DG]_x
-    (multirow_goe_value n m beta gamma y B Y S (tval x))%:E)%E in
-  let EW := (\int[gaussian_product_law DW]_x
-    (multirow_quadratic_value n m beta gamma y B Y S (tval x))%:E)%E in
-  Rabs (fine EW - fine EG) <= (200/3) * k^3 * (beta+gamma)^2 * theta / d.
-Proof.
-move=> Hb Hg Htheta Hk HY HS Hunit Hlow Hsym Hop Hlog.
-cbv zeta.
-eapply Rle_trans.
-- exact: (paper_main_soft_public_comparison n m beta gamma theta k y B Y S
-    Hb Hg Htheta Hk HY HS Hunit Hlow Hsym Hop).
-- apply: paper_main_soft_comparison_coarse => //; try lra.
-  + apply lt_0_INR; lia.
-  + split; last exact Hlog.
-    have HN : 1 <= INR (Datatypes.S m).
-    { change (INR 1 <= INR (Datatypes.S m)); apply le_INR; lia. }
-    case: (Rle_dec (INR (Datatypes.S m)) 1) => H.
-    * have -> : INR (Datatypes.S m) = 1 by lra.
-      rewrite ln_1; lra.
-    * have HH := ln_increasing 1 (INR (Datatypes.S m)) ltac:(lra) ltac:(lra).
-      rewrite ln_1 in HH; lra.
-Qed.

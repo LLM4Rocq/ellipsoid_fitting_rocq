@@ -98,24 +98,3 @@ Proof.
 move=> Hs HG; rewrite paper_main_head_gram_sub.
 exact: paper_main_head_principal_coercive.
 Qed.
-
-(* The exact correction and normalized support transfer on an arbitrary
-   head s of a family with coercive full Gram matrix. *)
-Theorem paper_main_head_principal_transfer d n m (W : 'I_n -> 'M[R]_d)
-    (s : 'I_m -> 'I_n) (P Z : 'M[R]_d) (mu eta : R) :
-  injective s -> 0 < mu -> paper_main_head_coercive (paper_main_head_gram W) mu ->
-  ((paper_main_head_residual (fun i => W (s i)) P)^T *m
-    paper_main_head_residual (fun i => W (s i)) P) 0 0 <= mu * eta ^+ 2 ->
-  0 <= eta -> eta < 1 -> paper_main_frobenius P = 1 ->
-  let Ws := fun i => W (s i) in
-  let Pt := paper_main_head_normalize
-    (P + paper_main_head_correction Ws (paper_main_head_coefficients Ws P)) in
-  [/\ paper_main_head_gram Ws \in unitmx, paper_main_frobenius Pt = 1,
-      (forall i : 'I_m, paper_main_pairing (W (s i)) Pt = 0),
-      paper_main_frobenius (Pt - P) <= 2 * eta &
-      paper_main_pairing Z P - 2 * eta * paper_main_frobenius Z <= paper_main_pairing Z Pt].
-Proof.
-move=> Hs Hmu HG Hr Heta0 Heta HP Ws Pt.
-have HQ := paper_main_head_sub_coercive _ _ _ _ _ _ Hs HG.
-exact: (paper_main_head_coercive_transfer _ _ _ P Z mu eta Hmu HQ Hr Heta0 Heta HP).
-Qed.

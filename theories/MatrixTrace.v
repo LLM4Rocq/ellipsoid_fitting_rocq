@@ -55,13 +55,6 @@ Open Scope R_scope.
    duplicates; the warning is silenced in this file only. *)
 Local Set Warnings "-redundant-canonical-projection".
 
-Theorem trace_pair_is_trace_product n (B H : matrix n) :
-  trace_pair n B H = matrix_trace n (matrix_mul n B H).
-Proof.
-  unfold trace_pair, matrix_trace; apply coordinate_sum_ext; intros i Hi.
-  rewrite matrix_mul_entry //.
-Qed.
-
 Theorem trace_pair_linear n (B : matrix n) :
   linear (trace_pair n B : matrix n -> R^o) /\
   exists M : R, 0 < M /\
@@ -109,10 +102,6 @@ HB.instance Definition _ n (B : matrix n) :=
   GRing.isLinear.Build R (matrix_NormedModule n) R^o *:%R (trace_pair n B)
     (proj1 (trace_pair_linear n B)).
 
-Theorem matrix_trace_frechet n (A : matrix n) :
-  is_diff A (matrix_trace n : matrix n -> R^o) (matrix_trace n).
-Proof. apply matrix_linear_is_diff, matrix_trace_linear. Qed.
-
 Theorem trace_pair_add n (B H K : matrix n) :
   trace_pair n B (matrix_add n H K) = trace_pair n B H + trace_pair n B K.
 Proof. unfold matrix_add; rewrite linearD; reflexivity. Qed.
@@ -125,44 +114,3 @@ Proof. unfold matrix_scale; rewrite linearZ; reflexivity. Qed.
 Theorem trace_pair_frechet n (B A : matrix n) :
   is_diff A (trace_pair n B : matrix n -> R^o) (trace_pair n B).
 Proof. apply matrix_linear_is_diff, trace_pair_linear. Qed.
-
-Theorem exp_trace_pair_frechet n (B A : matrix n) :
-  is_diff A ((fun M => exp (trace_pair n B M)) : matrix n -> R^o)
-    (fun H => exp (trace_pair n B A) * trace_pair n B H).
-Proof.
-  set x := trace_pair n B A.
-  (* The derivative of Stdlib's exp at x, as a differential on R^o. *)
-  have Hexp : is_diff (x : R^o) (exp : R^o -> R^o) (fun h : R^o => h * exp x).
-  { have Ee : (exp : R^o -> R^o) = (expR : R^o -> R^o).
-    { apply: funext => t; rewrite RexpE; reflexivity. }
-    rewrite Ee.
-    have [Ed0 Hv0] := is_derive_expR x.
-    have Ed : derivable (expR : R^o -> R^o) x 1 by exact Ed0.
-    have Hv : 'D_1 (expR : R^o -> R^o) x = expR x by exact Hv0.
-    have Dd : differentiable (expR : R^o -> R^o) x by apply/derivable1_diffP.
-    apply: DiffDef; first exact Dd.
-    rewrite diff1E // derive1E Hv; apply: funext => h /=.
-    reflexivity. }
-  have HC := is_diff_comp (trace_pair_frechet n B A) Hexp.
-  apply: (is_diff_eq HC).
-  apply: funext => H /=; rewrite /x; apply Rmult_comm.
-Qed.
-
-(* The same concrete matrix lines use the derivative predicate already used
-   in the ellipsoid Gibbs development. *)
-Theorem trace_pair_line_derivative n (B A U : matrix n) x :
-  derivable_pt_lim
-    (fun t => trace_pair n B (matrix_add n A (matrix_scale n t U))) x
-    (trace_pair n B U).
-Proof.
-  apply (derivable_pt_lim_ext (fun t => trace_pair n B A + t * trace_pair n B U)).
-  - intros t; rewrite trace_pair_add trace_pair_scale; reflexivity.
-  - assert (H0 : derivable_pt_lim (fun _ => trace_pair n B A) x 0)
-      by apply derivable_pt_lim_const.
-    assert (H1 : derivable_pt_lim (fun t => t * trace_pair n B U) x
-      (1 * trace_pair n B U)).
-    { apply derivable_pt_lim_scal_right, derivable_pt_lim_id. }
-    pose proof (derivable_pt_lim_plus (fun _ => trace_pair n B A)
-      (fun t => t * trace_pair n B U) x 0 (1 * trace_pair n B U) H0 H1) as HD.
-    rewrite Rmult_1_l Rplus_0_l in HD; exact HD.
-Qed.

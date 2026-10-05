@@ -103,25 +103,6 @@ Proof.
   nra.
 Qed.
 
-(* Added hypothesis, the last one: df t * gaussian_kernel t is integrable on
-   the line (header, item 1). *)
-Theorem gaussian_stein_polynomial (f df : R -> R) C p :
-  (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
-  (forall t, {for t, continuous df}) ->
-  (forall x, Rabs (f x) <= C * (1 + Rabs x ^ p)) ->
-  whole_line_integrable (fun t => df t * gaussian_kernel t) ->
-  whole_line_has_integral (gaussian_stein_integrand f df) 0.
-Proof.
-  intros Hd Hc Hb Hi.
-  have Hx := gaussian_stein_moment_integrable f df Hd Hc Hi.
-  apply gaussian_stein_improper_decay; [exact Hd | exact Hc | | | ].
-  - exact (gaussian_polynomial_envelope_decay_neg f C p Hb).
-  - exact (gaussian_polynomial_envelope_decay_pos f C p Hb).
-  - apply: (eq_integrable measurableT _ _ _ (integrableB measurableT Hi Hx)).
-    move=> y _ /=.
-    by rewrite -EFinB /gaussian_stein_integrand -RminusE.
-Qed.
-
 Theorem gaussian_stein_polynomial_split (f df : R -> R) C p l :
   (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
   (forall t, {for t, continuous df}) ->
@@ -134,32 +115,6 @@ Proof.
     [exact Hd | exact Hc | | | exact Hl].
   - exact (gaussian_polynomial_envelope_decay_neg f C p Hb).
   - exact (gaussian_polynomial_envelope_decay_pos f C p Hb).
-Qed.
-
-(* Added hypothesis, the last one: ddf x * gaussian_kernel x is integrable
-   on the line (header, item 2). *)
-Theorem gaussian_stein_second_polynomial (f df ddf : R -> R) C p D q :
-  (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
-  (forall t, @is_derive R R^o R^o t 1 df (ddf t)) ->
-  (forall t, {for t, continuous ddf}) ->
-  (forall x, Rabs (f x) <= C * (1 + Rabs x ^ p)) ->
-  (forall x, Rabs (df x) <= D * (1 + Rabs x ^ q)) ->
-  whole_line_integrable (fun x => ddf x * gaussian_kernel x) ->
-  whole_line_has_integral
-    (fun x => (ddf x - (x*x - 1) * f x) * gaussian_kernel x) 0.
-Proof.
-  intros Hd Hdd Hc Hf Hdf Hi.
-  pose proof (gaussian_polynomial_times_identity f C p
-    (gaussian_polynomial_constant_nonnegative f C p Hf) Hf) as Hxf.
-  have Iz := gaussian_stein_second_integrand_integrable f df ddf Hd Hdd Hc Hi.
-  apply gaussian_stein_second_decay with (df := df);
-    [exact Hd | exact Hdd | exact Hc | | | | | exact Iz].
-  - exact (gaussian_polynomial_envelope_decay_neg df D q Hdf).
-  - exact (gaussian_polynomial_envelope_decay_pos df D q Hdf).
-  - exact (gaussian_polynomial_envelope_decay_neg (fun x => x*f x)
-      (2*C) (S p) Hxf).
-  - exact (gaussian_polynomial_envelope_decay_pos (fun x => x*f x)
-      (2*C) (S p) Hxf).
 Qed.
 
 Theorem gaussian_stein_second_polynomial_split (f df ddf : R -> R) C p D q l :

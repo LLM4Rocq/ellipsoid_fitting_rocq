@@ -76,14 +76,6 @@ Qed.
 
 (* The degenerate cases, stated honestly. *)
 
-(* d = 0: every sample is in both events. *)
-Lemma paper_main_fit_event_dim0 n (x : paper_main_sample n 0) :
-  paper_main_fit_event n 0 x.
-Proof.
-exists 0; split; first exact: paper_main_psd0.
-by move=> i; rewrite paper_main_quadratic_formE mulmx0 mul0mx mxE.
-Qed.
-
 Lemma paper_main_balanced_event_dim0 n (x : paper_main_sample n 0) :
   paper_main_balanced_pd_event n 0 x.
 Proof.
@@ -99,11 +91,4 @@ Lemma paper_main_fit_event_n0 d (x : paper_main_sample 0 d) :
 Proof.
 exists 0; split; first exact: paper_main_psd0.
 by move=> i; have := ltn_ord i; rewrite ltn0.
-Qed.
-
-Lemma paper_main_balanced_event_n0 d (x : paper_main_sample 0 d) :
-  (0 < d)%nat -> ~ paper_main_balanced_pd_event 0 d x.
-Proof.
-move=> d0 [y [_ HM]].
-by have := paper_main_pd_neq0 _ _ d0 HM; rewrite big_ord0 eqxx.
 Qed.

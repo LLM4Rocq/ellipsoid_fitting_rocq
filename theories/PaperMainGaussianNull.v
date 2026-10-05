@@ -19,15 +19,3 @@ have Hdom := normal_prob_dominates (0 : R) 1.
 move/null_content_dominatesP: Hdom => Hdom.
 apply: Hdom; [exact: measurable_set1 | exact: lebesgue_measure_set1].
 Qed.
-
-Lemma paper_main_gaussian_coordinate_singleton (m i : nat) (a : R) :
-  (i < m)%N ->
-  gaussian_product_law m [set x : m.-tuple (measurableTypeR R) |
-    List.nth i (tval x) 0 = a] = 0%E.
-Proof.
-move=> hi.
-have mA : measurable ([set a] : set (measurableTypeR R)) by exact: measurable_set1.
-have E := gpp_coordinate_law m i [set a] hi mA.
-rewrite E.
-exact: paper_main_gaussian_singleton.
-Qed.

@@ -211,32 +211,6 @@ move=> HJu HJs HJa Hu; apply: paper_main_head_extension_nth.
 by rewrite (paper_main_head_complement_size k q J HJu HJs HJa).
 Qed.
 
-Theorem paper_main_head_extension_capped k q n (theta : R) (J : seq nat) (y : nat -> R) :
-  uniq J -> size J = k -> all (fun i => i < k + q)%N J -> 0 <= theta ->
-  paper_main_head_capped_dual q (S n) theta y ->
-  let t := paper_main_head_extension (paper_main_head_complement (k + q) J) y in
-  euclidean_norm t (List.seq 0 (k + q)) = 1 /\
-  (forall i, List.In i J -> t i = 0) /\
-  (forall i, Rle (Rabs (t i)) (Rdiv theta (sqrt (INR (S n))))).
-Proof.
-move=> HJu HJs HJa Hth [H1 Hcap] t.
-have Ht0 : forall i, List.In i J -> t i = 0.
-  by move=> i Hi; exact: paper_main_head_extension_head.
-split.
-  rewrite (paper_main_head_restriction_norm k q J t HJu HJs HJa Ht0).
-  have -> : euclidean_norm (fun u => t (nth 0%N (paper_main_head_complement (k + q) J) u))
-      (List.seq 0 q) = euclidean_norm y (List.seq 0 q).
-    rewrite /euclidean_norm /squared_norm; congr sqrt; apply: finite_sum_ext => u Hu.
-    have Hu' : (u < q)%N by apply/paper_main_head_section_seq_lt.
-    by rewrite /t (paper_main_head_extension_restriction k q J y u HJu HJs HJa Hu').
-  exact: paper_main_head_section_euclidean_unit.
-split => // i.
-rewrite /t /paper_main_head_extension; case: ifP => Hi.
-  apply: Hcap.
-  by rewrite -[X in (_ < X)%N](paper_main_head_complement_size k q J HJu HJs HJa) index_mem.
-rewrite Rabs_R0; apply/RleP; rewrite RdivE; apply: divr_ge0 => //; apply/RleP; exact: sqrt_pos.
-Qed.
-
 Theorem paper_main_head_extension_combination {d : nat} k q (J : seq nat)
     (W : nat -> 'M[R]_d) (y : nat -> R) :
   uniq J -> size J = k -> all (fun i => i < k + q)%N J ->

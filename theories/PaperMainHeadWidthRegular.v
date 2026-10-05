@@ -172,22 +172,3 @@ split.
   have Hbase := HD0 n ltac:(lia).
   nra.
 Qed.
-
-Theorem paper_main_head_width_regular_event K c c0 Q L eps :
-  (0 <= K)%Rcoq -> (0 < c)%Rcoq -> (0 < c0)%Rcoq ->
-  (0 <= Q)%Rcoq -> (0 <= L)%Rcoq -> (0 < eps)%Rcoq ->
-  exists kappa, (1 <= kappa)%Rcoq /\ exists D : nat, forall n, Nat.le D n -> forall N,
-    exists A : set (paper_main_sample N (S n)), measurable A /\
-      (paper_main_probability N (S n) A <=
-        (2*INR N*(INR (S n))^4*exp(-sqrt(INR (S n))/2))%Rcoq%:E)%E /\
-      forall x, ~ A x -> forall m (h : paper_main_sample m (S n)) (s : 'I_m -> 'I_N),
-        paper_main_head_regular N n m x s K c c0 Q L ->
-        (forall k : 'I_m, paper_main_head_feature h k = paper_main_head_feature x (s k)) ->
-        ((1/2-eps)*INR (S n) <= fine (paper_main_head_section_width n m kappa h))%Rcoq.
-Proof.
-move=> HK Hc Hc0 HQ HL Heps.
-have [k0 [Hk0 Hbase]] := paper_main_gaussian_condition_width_large (eps/2)%Rcoq ltac:(lra).
-exists (2*k0^2)%Rcoq; split; first nra.
-exact: paper_main_head_width_regular_event_fixed K c c0 Q L k0 eps
-  HK Hc Hc0 HQ HL Heps Hk0 Hbase.
-Qed.

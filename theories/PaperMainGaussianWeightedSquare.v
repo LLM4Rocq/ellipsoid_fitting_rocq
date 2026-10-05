@@ -354,29 +354,3 @@ have Hpos : forall i, (i < d)%coq_nat -> 0 < 1 - 2 * t * a i.
 have [_ [_ HE]] := paper_main_weighted_square_mgf d t a Hpos.
 rewrite HE; exact: paper_main_weighted_square_product_bound.
 Qed.
-
-Corollary paper_main_weighted_square_log_mgf_bound d (a : nat -> R) L t :
-  (forall i, (i < d)%coq_nat -> Rabs (a i) <= L) -> 2 * Rabs t * L < 1 ->
-  Rpower.ln (gaussian_iterated_expectation d
-    (fun xs => exp (t * paper_main_weighted_square d a xs))) <=
-    t * t * finite_sum (fun i => a i ^ 2) (List.seq 0 d) / (1 - 2 * Rabs t * L).
-Proof.
-move=> Ha HtL.
-have Hpos : forall i, (i < d)%coq_nat -> 0 < 1 - 2 * t * a i.
-  move=> i Hi; have HaL := Ha i Hi.
-  have Hta := Rabs_pos t.
-  have Hu : Rabs (2 * t * a i) <= 2 * Rabs t * L.
-    rewrite !Rabs_mult (Rabs_pos_eq 2 ltac:(lra)).
-    by apply: Rmult_le_compat_l; [nra | exact HaL].
-  by have := Rle_abs (2 * t * a i); lra.
-have [_ [_ HE]] := paper_main_weighted_square_mgf d t a Hpos.
-have HP := paper_main_weighted_square_product_pos d t a Hpos.
-have HB := paper_main_weighted_square_mgf_bound d a L t Ha HtL.
-rewrite -[X in _ <= X](ln_exp (t * t * finite_sum (fun i => a i ^ 2) (List.seq 0 d) /
-  (1 - 2 * Rabs t * L))).
-have HEpos : 0 < gaussian_iterated_expectation d
-    (fun xs => exp (t * paper_main_weighted_square d a xs)) by rewrite HE.
-case: (Rle_lt_or_eq_dec _ _ HB) => [Hlt | Heq].
-  by left; apply: ln_increasing.
-by rewrite Heq; right.
-Qed.

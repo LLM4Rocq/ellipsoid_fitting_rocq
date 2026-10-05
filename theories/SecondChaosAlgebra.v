@@ -124,26 +124,6 @@ Proof.
   rewrite (matrix_action_basis_entry n A a b Ha Hb); reflexivity.
 Qed.
 
-Theorem matrix_action_product n (A B : matrix n) (x : vector n) :
-  matrix_action n (matrix_mul n A B) x = matrix_action n A (matrix_action n B x).
-Proof.
-  apply (tuple_ext R^o n); intros i Hi.
-  change (vector_entry n (matrix_action n (matrix_mul n A B) x) i =
-    vector_entry n (matrix_action n A (matrix_action n B x)) i).
-  rewrite (matrix_action_entry n (matrix_mul n A B) x i Hi).
-  rewrite (matrix_action_entry n A (matrix_action n B x) i Hi).
-  transitivity (coordinate_sum n (fun j => coordinate_sum n
-    (fun k => matrix_entry n A i k * matrix_entry n B k j * vector_entry n x j))).
-  - apply coordinate_sum_ext; intros j Hj; rewrite (matrix_mul_entry n A B i j Hi Hj).
-    rewrite (Rmult_comm (coordinate_sum _ _)) -normeq_coordinate_sum_scale.
-    apply coordinate_sum_ext; intros; ring.
-  - rewrite normeq_coordinate_sum_swap.
-    apply coordinate_sum_ext; intros k Hk.
-    rewrite (matrix_action_entry n B x k Hk).
-    rewrite -normeq_coordinate_sum_scale.
-    apply coordinate_sum_ext; intros; ring.
-Qed.
-
 Theorem chaos_pure_contraction_inner n (A1 A2 A3 : matrix n) (x : vector n) :
   symmetric_matrix n A1 -> symmetric_matrix n A2 -> symmetric_matrix n A3 ->
   chaos_contraction n (fun H1 H2 H3 =>
@@ -163,16 +143,4 @@ Proof.
   rewrite (trace_pair_chaos_first n A1 x a H1 Ha).
   rewrite (trace_pair_chaos_first n A2 x b H2 Hb).
   rewrite (trace_pair_chaos_second n A3 a b H3 Ha Hb); ring.
-Qed.
-
-Theorem chaos_pure_contraction n (A1 A2 A3 : matrix n) (x : vector n) :
-  symmetric_matrix n A1 -> symmetric_matrix n A2 -> symmetric_matrix n A3 ->
-  chaos_contraction n (fun H1 H2 H3 =>
-    trace_pair n A1 H1 * trace_pair n A2 H2 * trace_pair n A3 H3) x =
-  4 * vector_inner n x (matrix_action n (matrix_mul n A1 (matrix_mul n A3 A2)) x).
-Proof.
-  intros H1 H2 H3; rewrite (chaos_pure_contraction_inner n A1 A2 A3 x H1 H2 H3).
-  rewrite !matrix_action_product.
-  rewrite (vector_inner_action_symmetric n A1 x (matrix_action n A3 (matrix_action n A2 x)) H1).
-  reflexivity.
 Qed.

@@ -94,15 +94,6 @@ Proof.
   rewrite (cubic_unit_squared_norm y I Hunit) in Hbound; nra.
 Qed.
 
-Theorem cubic_mass_unit_low_influence
-    (y : nat -> R) (I : list nat) (d : nat) (theta : R) :
-  (1 <= d)%nat -> 0 < theta -> euclidean_norm y I = 1 ->
-  (forall i, In i I -> Rabs (y i) <= theta / sqrt (INR d)) ->
-  cubic_mass y I <= theta / sqrt (INR d).
-Proof.
-  intros Hd Htheta; apply cubic_mass_unit_cap.
-Qed.
-
 (* A probability distribution is given concretely by nonnegative weights
    whose finite sum is one. Repeated indices are counted with multiplicity. *)
 Theorem weighted_cubic_mass_unit_cap
@@ -132,28 +123,4 @@ Theorem weighted_cubic_mass_low_influence
   finite_sum (fun k => q k * cubic_mass (y k) I) Y <= theta / sqrt (INR d).
 Proof.
   intros Hd Htheta; apply weighted_cubic_mass_unit_cap.
-Qed.
-
-Lemma cubic_sum_expectation_identity
-    (y : nat -> nat -> R) (q : nat -> R) (I Y : list nat) :
-  finite_sum (fun i => finite_sum (fun k => q k * Rabs (y k i) ^ 3) Y) I =
-  finite_sum (fun k => q k * cubic_mass (y k) I) Y.
-Proof.
-  rewrite cubic_sum_swap.
-  apply cubic_sum_ext; intros k Hk.
-  unfold cubic_mass; apply cubic_sum_scale.
-Qed.
-
-Theorem coordinate_expected_cubic_low_influence
-    (y : nat -> nat -> R) (q : nat -> R) (I Y : list nat)
-    (d : nat) (theta : R) :
-  (1 <= d)%nat -> 0 < theta ->
-  (forall k, In k Y -> 0 <= q k) -> finite_sum q Y = 1 ->
-  (forall k, In k Y -> euclidean_norm (y k) I = 1) ->
-  (forall k i, In k Y -> In i I -> Rabs (y k i) <= theta / sqrt (INR d)) ->
-  finite_sum (fun i => finite_sum (fun k => q k * Rabs (y k i) ^ 3) Y) I <=
-  theta / sqrt (INR d).
-Proof.
-  rewrite cubic_sum_expectation_identity.
-  apply weighted_cubic_mass_low_influence.
 Qed.

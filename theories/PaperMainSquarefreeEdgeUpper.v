@@ -241,16 +241,4 @@ apply: le_trans H _; rewrite ler_nat.
 exact: pmeu_walk_weight_le.
 Qed.
 
-Theorem paper_main_squarefree_offdiag_law_trace_le (N d L : nat) : (0 < N)%N -> (0 < d)%N ->
-  (N <= d ^ 2)%N -> (32 <= L)%N -> (16 * L ^ 2 * (2 * L) ^ 45 <= d)%N ->
-  (\int[gaussian_product_law (N * d)]_x (\tr (paper_main_squarefree_offdiag N d x ^+ L))%:E <=
-   (N * (52 * d ^ 2) ^ L)%N%:R%:E)%E.
-Proof.
-move=> HN Hd HNd HL HLd.
-have HL1 : L.-1.+1 = L by rewrite prednK // (leq_trans _ HL).
-have H := paper_main_squarefree_offdiag_law_weight N d L.-1; rewrite HL1 in H.
-apply: le_trans H _; rewrite lee_fin ler_nat.
-exact: pmeu_walk_weight_le.
-Qed.
-
 End TraceMoment.

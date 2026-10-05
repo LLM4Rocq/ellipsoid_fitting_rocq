@@ -188,13 +188,3 @@ by apply: lt_le_trans B3; rewrite subr_gt0.
 Qed.
 
 End Support.
-
-(* For d = S n the unit direction has internal operator norm at most 1. *)
-Corollary paper_main_frobenius_unit_operator n (M : 'M[R]_(S n)) :
-  paper_main_symmetric M -> M != 0 ->
-  matrix_operator_norm n (paper_main_matrix_from_public n (paper_main_frobenius_unit _ M)) <= 1.
-Proof.
-move=> HM HM0; have [Hlo Hup] := paper_main_frobenius_unit_box _ M HM HM0.
-apply: paper_main_matrix_operator_loewner => //.
-exact: paper_main_symmetric_scale.
-Qed.

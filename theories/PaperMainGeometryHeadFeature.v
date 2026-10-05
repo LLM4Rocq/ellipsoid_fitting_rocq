@@ -44,10 +44,6 @@ Definition paper_main_head_data_gram {n d m : nat} (x : paper_main_sample n d)
     (s : 'I_m -> 'I_n) : 'M[R]_d :=
   \sum_(k < m) paper_main_point x (s k) *m (paper_main_point x (s k))^T.
 
-Lemma paper_main_head_feature_dim0 n (x : paper_main_sample n 0) (i : nat) :
-  paper_main_head_feature x i = 0.
-Proof. by apply/matrixP => -[]. Qed.
-
 Section Features.
 Variables (n d : nat) (x : paper_main_sample n d).
 Implicit Types (A B S P Z : 'M[R]_d) (v : 'cV[R]_d).
@@ -114,15 +110,6 @@ have [Hd|Hd] := posnP d.
   by rewrite /paper_main_quadratic_form /paper_main_trace !E0.
 have Hc : (Num.sqrt d%:R)^-1 != 0 :> R by rewrite invr_eq0 sqrtr_eq0 -ltNge ltr0n.
 by move/eqP: H; rewrite mulf_eq0 (negbTE Hc) /= subr_eq0 => /eqP.
-Qed.
-
-Theorem paper_main_head_feature_kernelP (i : nat) S :
-  (0 < d)%N ->
-  (paper_main_pairing (paper_main_head_feature x i) S = 0 <->
-   paper_main_quadratic_form S (paper_main_point x i) = paper_main_trace S).
-Proof.
-move=> Hd; split; first exact: paper_main_head_feature_kernel.
-by move=> H; rewrite paper_main_head_feature_pairing H subrr mulr0.
 Qed.
 
 (* eq:EJ-formula. *)

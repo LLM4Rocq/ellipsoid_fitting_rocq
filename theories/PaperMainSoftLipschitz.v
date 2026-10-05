@@ -101,19 +101,6 @@ apply paper_main_soft_minimax_lipschitz; try assumption.
 intros z s Hz Hs; apply HF; assumption.
 Qed.
 
-Theorem paper_main_soft_gaussian_law d beta gamma F Y S L :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 <= L ->
-  (forall xs ys z s, List.length xs = d -> List.length ys = d ->
-    In z Y -> In s S -> Rabs (F xs z s-F ys z s) <= L * paper_main_gordon_distance d xs ys) ->
-  (gaussian_product_law d).-integrable setT
-    (fun x => (soft_minimax beta gamma (F (tval x)) Y S)%:E) /\
-  (\int[gaussian_product_law d]_x (soft_minimax beta gamma (F (tval x)) Y S)%:E =
-    (gaussian_iterated_expectation d (fun xs => soft_minimax beta gamma (F xs) Y S))%:E)%E.
-Proof.
-intros Hb Hg HY HS HL HF; apply (paper_main_gaussian_lipschitz_law d (fun xs => soft_minimax beta gamma (F xs) Y S) L); first exact HL.
-exact (paper_main_soft_sample_lipschitz d beta gamma F Y S L Hb Hg HY HS HF).
-Qed.
-
 Theorem paper_main_soft_gaussian_le_measurable d beta gamma F Y S L c :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 <= L ->
   (forall xs ys z s, List.length xs = d -> List.length ys = d ->
@@ -124,24 +111,4 @@ Proof.
 intros Hb Hg HY HS HL HF; apply (paper_main_gaussian_continuous_le_measurable d (fun xs => soft_minimax beta gamma (F xs) Y S) c).
 apply (paper_main_gaussian_lipschitz_continuous d (fun xs => soft_minimax beta gamma (F xs) Y S) L); first exact HL.
 exact (paper_main_soft_sample_lipschitz d beta gamma F Y S L Hb Hg HY HS HF).
-Qed.
-
-Theorem paper_main_soft_gaussian_lower_tail d beta gamma F Y S L u :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 < L -> 0 < u ->
-  (forall xs ys z s, List.length xs = d -> List.length ys = d ->
-    In z Y -> In s S -> Rabs (F xs z s-F ys z s) <= L * paper_main_gordon_distance d xs ys) ->
-  (gaussian_product_law d [set x | Rle (soft_minimax beta gamma (F (tval x)) Y S)
-      (fine (\int[gaussian_product_law d]_v (soft_minimax beta gamma (F (tval v)) Y S)%:E)%E - u)] <=
-    (exp (-u^2/(2*L^2)))%:E)%E.
-Proof.
-intros Hb Hg HY HS HL Hu HF.
-pose G := fun xs => soft_minimax beta gamma (F xs) Y S.
-have Hlip := paper_main_soft_sample_lipschitz d beta gamma F Y S L Hb Hg HY HS HF.
-have [_ HE] := paper_main_gaussian_lipschitz_law d G L ltac:(lra) Hlip.
-have HEfine : fine (\int[gaussian_product_law d]_v (G (tval v))%:E)%E =
-    gaussian_iterated_expectation d G by rewrite HE.
-change (gaussian_product_law d [set x | Rle (G (tval x))
-      (fine (\int[gaussian_product_law d]_v (G (tval v))%:E)%E - u)] <=
-    (exp (-u^2/(2*L^2)))%:E)%E.
-rewrite HEfine; exact: (paper_main_gaussian_lipschitz_lower_tail d G L u HL Hlip Hu).
 Qed.

@@ -46,14 +46,6 @@ Proof.
   - specialize (IH HI Hin); lra.
 Qed.
 
-Lemma gibbs_sum_const (a : R) (I : list nat) :
-  finite_sum (fun _ => a) I = INR (length I) * a.
-Proof.
-  induction I as [|i I IH]; [simpl; ring|].
-  change (a + finite_sum (fun _ => a) I = INR (S (length I)) * a).
-  rewrite IH, S_INR; ring.
-Qed.
-
 Theorem partition_positive (c : R) (f : nat -> R) (I : list nat) :
   I <> [] -> 0 < partition c f I.
 Proof.
@@ -87,16 +79,6 @@ Proof.
   - rewrite gibbs_sum_scale.
     change (/ partition c f I * partition c f I = 1).
     apply Rinv_l; pose proof (partition_positive c f I HI); lra.
-Qed.
-
-Theorem gibbs_weight_at_most_one (c : R) (f : nat -> R)
-    (I : list nat) (i : nat) :
-  I <> [] -> In i I -> gibbs_weight c f I i <= 1.
-Proof.
-  intros HI Hi.
-  rewrite <- (gibbs_weights_normalized c f I HI).
-  apply gibbs_sum_member; [|exact Hi].
-  intros; apply gibbs_weight_nonnegative; exact HI.
 Qed.
 
 Theorem gibbs_average_ratio (c : R) (f : nat -> R) (I : list nat)
@@ -173,14 +155,4 @@ Proof.
     repeat rewrite gibbs_average_scale.
     rewrite gibbs_average_const by exact HI; ring.
   - apply gibbs_average_ext; intros; ring.
-Qed.
-
-Theorem gibbs_variance_nonnegative (c : R) (f : nat -> R)
-    (I : list nat) (u : nat -> R) :
-  I <> [] -> 0 <= gibbs_variance c f I u.
-Proof.
-  intros HI; unfold gibbs_variance.
-  rewrite gibbs_covariance_centered by exact HI.
-  apply gibbs_average_nonnegative; [exact HI|].
-  intros i _; cbn; apply Rle_0_sqr.
 Qed.

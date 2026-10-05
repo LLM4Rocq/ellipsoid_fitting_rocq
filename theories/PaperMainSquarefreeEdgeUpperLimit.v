@@ -390,22 +390,4 @@ rewrite (_ : 106%:R = 104%:R + 2%:R :> R); first by rewrite -natrD.
 by rewrite RmultE => H1 H2; lra.
 Qed.
 
-(* The upper edge: a measurable event of vanishing probability, outside
-   which V V^T <= 106 d^2 I. *)
-Corollary paper_main_squarefree_upper_edge (N : nat -> nat) :
-  (exists D, forall d, (D <= d)%N -> (0 < N d)%N /\ (N d <= d ^ 2)%N) ->
-  exists B : forall d, set (paper_main_sample (N d) d),
-    (forall d, measurable (B d)) /\
-    paper_main_tends_to (fun d => paper_main_probability (N d) d (B d)) 0 /\
-    (forall d (x : paper_main_sample (N d) d), (0 < d)%N -> ~ B d x ->
-      paper_main_loewner_le
-        (paper_main_squarefree_block (N d) d x *m (paper_main_squarefree_block (N d) d x)^T)
-        ((106%:R * d%:R ^+ 2) *: 1%:M)).
-Proof.
-move=> HN; exists (fun d => paper_main_squarefree_upper_event (N d) d); split.
-  by move=> d; exact: paper_main_squarefree_upper_event_measurable.
-split; first exact: paper_main_squarefree_upper_event_tends_to_zero.
-by move=> d x Hd Hx; exact: paper_main_squarefree_upper_bound.
-Qed.
-
 End Upper.

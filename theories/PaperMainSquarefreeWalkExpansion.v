@@ -201,16 +201,6 @@ Lemma pmsw_word_reg (i : 'I_N) t (j : 'I_N) ps :
   pmdf_regular (N * d) (pmsw_mono (pmsw_word i t j ps)).
 Proof. exact: pmsw_mono_reg (pmsw_word_bound i t j ps). Qed.
 
-(* 5. The expected traces. *)
-Lemma pmsw_trace_expand K xs :
-  \tr (pmsw_G xs ^+ K.+1) =
-  \sum_(i < N) \sum_(t <- pmsw_seqs (index_enum 'I_N) K)
-    \sum_(ps <- pmsw_seqs pmsw_pairs K.+1) pmsw_mono (pmsw_word i t i ps) xs.
-Proof.
-rewrite pmsw_trace_path; apply: eq_bigr => i _; apply: eq_big_seq => t Ht.
-by rewrite pmsw_path_G (pmsw_seqs_size Ht).
-Qed.
-
 Lemma pmsw_offdiag_expand K xs :
   \tr (pmsw_W xs ^+ K.+1) =
   \sum_(i < N) \sum_(t <- pmsw_seqs (index_enum 'I_N) K)
@@ -221,15 +211,6 @@ rewrite pmsw_trace_path; apply: eq_bigr => i _; apply: eq_big_seq => t Ht.
 by rewrite pmsw_path_W pmsw_path_G (pmsw_seqs_size Ht).
 Qed.
 
-Lemma pmsw_trace_reg K : pmdf_regular (N * d) (fun xs => \tr (pmsw_G xs ^+ K.+1)).
-Proof.
-apply: (pmdf_regular_ext _ (fun xs => \sum_(i < N) \sum_(t <- pmsw_seqs (index_enum 'I_N) K)
-    \sum_(ps <- pmsw_seqs pmsw_pairs K.+1) pmsw_mono (pmsw_word i t i ps) xs)) => [xs|].
-  by rewrite pmsw_trace_expand.
-apply: pmdm_reg_sum => i; apply: pmsw_reg_seq => t; apply: pmsw_reg_seq => ps.
-exact: pmsw_word_reg.
-Qed.
-
 Lemma pmsw_offdiag_reg K : pmdf_regular (N * d) (fun xs => \tr (pmsw_W xs ^+ K.+1)).
 Proof.
 apply: (pmdf_regular_ext _ (fun xs => \sum_(i < N) \sum_(t <- pmsw_seqs (index_enum 'I_N) K)
@@ -238,29 +219,6 @@ apply: (pmdf_regular_ext _ (fun xs => \sum_(i < N) \sum_(t <- pmsw_seqs (index_e
   by rewrite pmsw_offdiag_expand.
 apply: pmdm_reg_sum => i; apply: pmsw_reg_seq => t; apply: pmdm_reg_scale.
 by apply: pmsw_reg_seq => ps; exact: pmsw_word_reg.
-Qed.
-
-Theorem paper_main_squarefree_trace_walks K :
-  gaussian_iterated_expectation (N * d) (fun xs => \tr (pmsw_G xs ^+ K.+1)) =
-  \sum_(i < N) \sum_(t <- pmsw_seqs (index_enum 'I_N) K)
-    \sum_(ps <- pmsw_seqs pmsw_pairs K.+1) pmsw_moment (N * d) (pmsw_word i t i ps).
-Proof.
-have R3 i t : pmdf_regular (N * d) (fun xs =>
-    \sum_(ps <- pmsw_seqs pmsw_pairs K.+1) pmsw_mono (pmsw_word i t i ps) xs).
-  by apply: pmsw_reg_seq => ps; exact: pmsw_word_reg.
-have R2 i : pmdf_regular (N * d) (fun xs => \sum_(t <- pmsw_seqs (index_enum 'I_N) K)
-    \sum_(ps <- pmsw_seqs pmsw_pairs K.+1) pmsw_mono (pmsw_word i t i ps) xs).
-  by apply: pmsw_reg_seq => t; exact: R3.
-transitivity (gaussian_iterated_expectation (N * d) (fun xs =>
-  \sum_(i < N) \sum_(t <- pmsw_seqs (index_enum 'I_N) K)
-    \sum_(ps <- pmsw_seqs pmsw_pairs K.+1) pmsw_mono (pmsw_word i t i ps) xs)).
-  apply: gaussian_iterated_expectation_ext => xs _.
-  rewrite pmsw_trace_path; apply: eq_bigr => i _; apply: eq_big_seq => t Ht.
-  by rewrite pmsw_path_G (pmsw_seqs_size Ht).
-rewrite (pmdm_E_sum _ _ _ R2); apply: eq_bigr => i _.
-rewrite (pmsw_E_seq _ _ _ _ (R3 i)); apply: eq_bigr => t _.
-rewrite (pmsw_E_seq _ _ _ _ (fun ps => pmsw_word_reg i t i ps)); apply: eq_bigr => ps _.
-exact: paper_main_gaussian_monomial_moment (pmsw_word_bound i t i ps).
 Qed.
 
 Theorem paper_main_squarefree_offdiag_walks K :
@@ -304,43 +262,6 @@ Lemma paper_main_squarefree_offdiag_list (x : paper_main_sample N d) :
 Proof.
 apply/matrixP => i j.
 by rewrite /paper_main_squarefree_offdiag paper_main_squarefree_gram_list !mxE.
-Qed.
-
-Theorem paper_main_squarefree_trace_law K :
-  (gaussian_product_law (N * d)).-integrable setT (fun x =>
-    (\tr ((paper_main_squarefree_block N d x *m
-      (paper_main_squarefree_block N d x)^T) ^+ K.+1))%:E) /\
-  (\int[gaussian_product_law (N * d)]_x
-    (\tr ((paper_main_squarefree_block N d x *m
-      (paper_main_squarefree_block N d x)^T) ^+ K.+1))%:E =
-   (\sum_(i < N) \sum_(t <- pmsw_seqs (index_enum 'I_N) K)
-      \sum_(ps <- pmsw_seqs pmsw_pairs K.+1)
-        pmsw_moment (N * d) (pmsw_word i t i ps))%R%:E)%E.
-Proof.
-have -> : (fun x : paper_main_sample N d =>
-    (\tr ((paper_main_squarefree_block N d x *m
-      (paper_main_squarefree_block N d x)^T) ^+ K.+1))%:E) =
-    (fun x => (\tr (pmsw_G (tval x) ^+ K.+1))%:E).
-  by apply: functional_extensionality => x; rewrite paper_main_squarefree_gram_list.
-have [HI HE] := pmdf_actual (N * d) _ (pmsw_trace_reg K).
-by split => //; rewrite HE paper_main_squarefree_trace_walks.
-Qed.
-
-Theorem paper_main_squarefree_offdiag_law K :
-  (gaussian_product_law (N * d)).-integrable setT (fun x =>
-    (\tr (paper_main_squarefree_offdiag x ^+ K.+1))%:E) /\
-  (\int[gaussian_product_law (N * d)]_x (\tr (paper_main_squarefree_offdiag x ^+ K.+1))%:E =
-   (\sum_(i < N) \sum_(t <- pmsw_seqs (index_enum 'I_N) K)
-      (pmsw_steps i t i)%:R *
-      \sum_(ps <- pmsw_seqs pmsw_pairs K.+1)
-        pmsw_moment (N * d) (pmsw_word i t i ps))%R%:E)%E.
-Proof.
-have -> : (fun x : paper_main_sample N d =>
-    (\tr (paper_main_squarefree_offdiag x ^+ K.+1))%:E) =
-    (fun x => (\tr (pmsw_W (tval x) ^+ K.+1))%:E).
-  by apply: functional_extensionality => x; rewrite paper_main_squarefree_offdiag_list.
-have [HI HE] := pmdf_actual (N * d) _ (pmsw_offdiag_reg K).
-by split => //; rewrite HE paper_main_squarefree_offdiag_walks.
 Qed.
 
 End Gram.

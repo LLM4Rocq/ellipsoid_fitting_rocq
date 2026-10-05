@@ -24,14 +24,6 @@ rewrite /paper_main_projection_matrix mxE.
 reflexivity.
 Qed.
 
-Lemma paper_main_projection_quadratic_mean n A :
-  gaussian_iterated_expectation (S n) (paper_main_projection_quadratic (S n) A)=0.
-Proof.
-transitivity (gaussian_iterated_expectation (S n) (pmdf_quad n (paper_main_projection_matrix (S n) A))).
-- apply gaussian_iterated_expectation_ext; intros xs Hxs; apply paper_main_projection_quad_matrix.
-- exact(pmdf_quad_mean n (paper_main_projection_matrix (S n) A)).
-Qed.
-
 Theorem paper_main_projection_quadratic_covariance n A B :
   gaussian_iterated_integrable (S n) (fun xs => paper_main_projection_quadratic (S n) A xs*
     paper_main_projection_quadratic (S n) B xs) /\
@@ -52,13 +44,6 @@ split.
     rewrite -big_split paper_main_finite_sum_public; apply: eq_bigr => j _.
     rewrite /paper_main_projection_matrix !mxE.
     change (A i j*B i j+A i j*B j i=A i j*(B i j+B j i)); ring.
-Qed.
-
-Lemma paper_main_projection_square_coefficients_nonnegative d A :
-  0<=paper_main_projection_square_coefficients d A.
-Proof.
-unfold paper_main_projection_square_coefficients; apply finite_sum_nonneg; intros i Hi.
-apply finite_sum_nonneg; intros j Hj; apply pow2_ge_0.
 Qed.
 
 Theorem paper_main_projection_quadratic_variance n A :

@@ -40,32 +40,3 @@ split.
   + intros t; f_equal; apply functional_extensionality; intros z; ring.
   + exact (paper_main_gaussian_shift_weighted_expectation_derivative eps h K a Heps HK Hh Hb).
 Qed.
-
-Theorem paper_main_gaussian_smoothing_smooth_test n K L eps G :
-  0 <= K -> 0 <= L -> 0 < eps ->
-  (forall xs, List.length xs = n -> Rabs (G xs) <= K) ->
-  (forall xs ys, List.length xs = n -> List.length ys = n ->
-    Rabs (G xs - G ys) <= L * paper_main_gordon_distance n xs ys) ->
-  paper_main_gaussian_smooth_test n (paper_main_gaussian_smoothing n eps G)
-    (paper_main_gaussian_smoothing_first n eps G)
-    (paper_main_gaussian_smoothing_second n eps G)
-    (paper_main_gaussian_smoothing_constant n K eps) 0.
-Proof.
-intros HK HL Heps HG Hlip.
-exact (paper_main_gaussian_smoothing_smooth_test_conditional n K L eps G
-  (paper_main_gaussian_shift_derivative_proved eps Heps) HK HL Heps HG Hlip).
-Qed.
-
-Theorem paper_main_gaussian_smoothing_gradient n K L eps G :
-  0 <= K -> 0 <= L -> 0 < eps ->
-  (forall xs, List.length xs = n -> Rabs (G xs) <= K) ->
-  (forall xs ys, List.length xs = n -> List.length ys = n ->
-    Rabs (G xs - G ys) <= L * paper_main_gordon_distance n xs ys) ->
-  forall xs, List.length xs = n ->
-    finite_sum (fun a => paper_main_gaussian_smoothing_first n eps G a xs ^ 2)
-      (List.seq 0 n) <= L ^ 2.
-Proof.
-intros HK HL Heps HG Hlip.
-exact (paper_main_gaussian_smoothing_gradient_conditional n K L eps G
-  (paper_main_gaussian_shift_derivative_proved eps Heps) HK HL Heps HG Hlip).
-Qed.

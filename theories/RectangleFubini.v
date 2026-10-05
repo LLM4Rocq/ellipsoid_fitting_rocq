@@ -109,50 +109,17 @@ Lemma continuity_2d_pt_mult (f g : R -> R -> R) x y :
   continuity_2d_pt (fun u v => f u v * g u v) x y.
 Proof. by move=> hf hg; exact: (continuousM (K := R) hf hg). Qed.
 
-Lemma continuity_2d_pt_plus (f g : R -> R -> R) x y :
-  continuity_2d_pt f x y -> continuity_2d_pt g x y ->
-  continuity_2d_pt (fun u v => f u v + g u v) x y.
-Proof. by move=> hf hg; exact: (continuousD (V := R^o) hf hg). Qed.
-
-Lemma continuity_2d_pt_minus (f g : R -> R -> R) x y :
-  continuity_2d_pt f x y -> continuity_2d_pt g x y ->
-  continuity_2d_pt (fun u v => f u v - g u v) x y.
-Proof. by move=> hf hg; exact: (continuousB (V := R^o) hf hg). Qed.
-
-Lemma continuity_2d_pt_opp (f : R -> R -> R) x y :
-  continuity_2d_pt f x y -> continuity_2d_pt (fun u v => - f u v) x y.
-Proof. by move=> hf; exact: (continuousN (V := R^o) hf). Qed.
-
-Lemma continuity_2d_pt_const x y c : continuity_2d_pt (fun _ _ => c) x y.
-Proof. exact: cvg_cst. Qed.
-
 Lemma continuity_2d_pt_id1 x y : continuity_2d_pt (fun u _ => u) x y.
 Proof. exact: cvg_fst. Qed.
 
 Lemma continuity_2d_pt_id2 x y : continuity_2d_pt (fun _ v => v) x y.
 Proof. exact: cvg_snd. Qed.
 
-Lemma continuity_2d_pt_ext (f g : R -> R -> R) x y :
-  (forall u v, f u v = g u v) ->
-  continuity_2d_pt f x y -> continuity_2d_pt g x y.
-Proof.
-move=> hfg; have -> : g = f by apply/funext => u; apply/funext => v.
-done.
-Qed.
-
 (* The hypothesis on f is Stdlib's continuity_pt, as in Coquelicot. *)
 Lemma continuity_1d_2d_pt_comp (f : R -> R) (g : R -> R -> R) x y :
   continuity_pt f (g x y) -> continuity_2d_pt g x y ->
   continuity_2d_pt (fun u v => f (g u v)) x y.
 Proof. by move=> /continuity_ptE hf hg; exact: (continuous_comp hg hf). Qed.
-
-(* Coquelicot's filterlim (fun z => f (fst z) (snd z)) (locally (x, y))
-   (locally (f x y)) becomes MathComp's limit below. The equivalence holds
-   by definition. *)
-Lemma continuity_2d_pt_filterlim (f : R -> R -> R) x y :
-  continuity_2d_pt f x y <->
-  (fun z : R * R => f z.1 z.2) @ (x, y) --> f x y.
-Proof. by []. Qed.
 
 (* Helpers: joint continuity, integrability on segments, bounds. *)
 
@@ -560,16 +527,6 @@ rewrite (RintegralZl k (rectangle_segment_measurable a b) hf).
 set I := Rintegral _ _ _; rewrite -RmultE; ring.
 Qed.
 
-Lemma rectangle_oriented_plus (f g : R -> R) a b :
-  segment_integrable f a b -> segment_integrable g a b ->
-  oriented_integral (fun x => f x + g x) a b =
-  oriented_integral f a b + oriented_integral g a b.
-Proof.
-move=> hf hg; rewrite !rectangle_oriented_integral_segment.
-rewrite (RintegralD (rectangle_segment_measurable a b) hf hg).
-set I := Rintegral _ _ _; set J := Rintegral _ _ _; rewrite -RplusE; ring.
-Qed.
-
 Lemma rectangle_oriented_minus (f g : R -> R) a b :
   segment_integrable f a b -> segment_integrable g a b ->
   oriented_integral (fun x => f x - g x) a b =
@@ -578,42 +535,6 @@ Proof.
 move=> hf hg; rewrite !rectangle_oriented_integral_segment.
 rewrite (RintegralB (rectangle_segment_measurable a b) hf hg).
 set I := Rintegral _ _ _; set J := Rintegral _ _ _; rewrite -RminusE; ring.
-Qed.
-
-Lemma rectangle_oriented_opp (f : R -> R) a b :
-  segment_integrable f a b ->
-  oriented_integral (fun x => - f x) a b = - oriented_integral f a b.
-Proof.
-move=> hf.
-have -> : (fun x => - f x) = (fun x => -1 * f x) by apply/funext => x; ring.
-rewrite (rectangle_oriented_scal f a b (-1) hf); ring.
-Qed.
-
-(* Coquelicot's RInt_const a b k = scal (b - a) k. *)
-Lemma rectangle_oriented_const (k : R) a b :
-  oriented_integral (fun _ => k) a b = (b - a) * k.
-Proof.
-have HD : forall x, @is_derive R R^o R^o x 1 id 1 by move=> x; exact: is_derive_id.
-have H1 : oriented_integral (fun _ => 1) a b = b - a.
-  apply: (rectangle_oriented_FTC id (fun _ => 1) a b HD).
-  exact: cst_continuous.
-have hi : segment_integrable (fun _ => 1) a b.
-  apply: rectangle_continuous_segment_integrable; exact: cst_continuous.
-have -> : (fun _ : R => k) = (fun x => k * (fun _ => 1) x).
-  by apply/funext => x /=; ring.
-rewrite (rectangle_oriented_scal _ a b k hi) H1; ring.
-Qed.
-
-(* Coquelicot's ex_RInt_continuous: continuity at every point of the closed
-   segment gives integrability on it. *)
-Lemma rectangle_continuous_on_segment_integrable (f : R -> R) a b :
-  (forall z, Rmin a b <= z <= Rmax a b -> {for z, continuous f}) ->
-  segment_integrable f a b.
-Proof.
-move=> hf; rewrite /segment_integrable.
-apply: continuous_compact_integrable; first exact: segment_compact.
-apply: continuous_in_subspaceT => z /set_mem /rectangle_segment_memE hz.
-exact: hf.
 Qed.
 
 (* Primitives in the first variable. *)
@@ -670,18 +591,4 @@ rewrite (rectangle_oriented_FTC _ _ a b HD HK).
 have -> : (fun y => oriented_integral (fun t => f t y) a a) = (fun _ => 0).
   by apply/funext => y; exact: rectangle_oriented_point.
 by rewrite rectangle_oriented_zero Rminus_0_r.
-Qed.
-
-Theorem continuous_rectangle_iterated_integrals (f : R -> R -> R) a b c d :
-  (forall x y, continuity_2d_pt f x y) ->
-  segment_integrable (fun x => oriented_integral (f x) c d) a b /\
-  segment_integrable (fun y => oriented_integral (fun x => f x y) a b) c d /\
-  oriented_integral (fun x => oriented_integral (f x) c d) a b =
-  oriented_integral (fun y => oriented_integral (fun x => f x y) a b) c d.
-Proof.
-move=> H; split; [|split].
-- apply: rectangle_continuous_segment_integrable => x.
-  exact: rectangle_parameter_integral_continuous.
-- exact: rectangle_primitive_integrable.
-- exact: continuous_rectangle_fubini.
 Qed.

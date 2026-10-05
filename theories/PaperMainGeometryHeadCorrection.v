@@ -103,23 +103,6 @@ Proof.
 by move=> HQ; rewrite /paper_main_head_coefficients mulmxA mulmxV // mul1mx.
 Qed.
 
-Corollary paper_main_head_correction_kernel_invertible W P :
-  paper_main_head_gram W \in unitmx -> forall i : 'I_m,
-  paper_main_pairing (W i)
-    (P + paper_main_head_correction W (paper_main_head_coefficients W P)) = 0.
-Proof.
-move=> HQ; apply: paper_main_head_correction_kernel.
-exact: paper_main_head_coefficients_solve.
-Qed.
-
-Lemma paper_main_head_gram_empty (W0 : 'I_0 -> 'M[R]_d) :
-  paper_main_head_gram W0 \in unitmx.
-Proof. by rewrite unitmxE det_mx00 unitr1. Qed.
-
-Lemma paper_main_head_correction_empty (W0 : 'I_0 -> 'M[R]_d) (a0 : 'cV[R]_0) :
-  paper_main_head_correction W0 a0 = 0.
-Proof. by rewrite /paper_main_head_correction big_ord0 oppr0. Qed.
-
 Lemma paper_main_head_correction_symmetric W a :
   (forall i, paper_main_symmetric (W i)) ->
   paper_main_symmetric (paper_main_head_correction W a).
@@ -283,15 +266,6 @@ Proof.
 move=> H1 H2 H3 H4; split.
 - rewrite scalerDl; exact: pmh_loewner_add.
 - rewrite scalerDl; exact: pmh_loewner_add.
-Qed.
-
-Theorem paper_main_head_loewner_pd P E (lm delta : R) :
-  paper_main_loewner_le (lm *: 1%:M) P -> paper_main_loewner_le ((- delta) *: 1%:M) E ->
-  delta < lm -> paper_main_pd (P + E).
-Proof.
-move=> H1 H3 Hd.
-apply: (@pmh_loewner_pd (lm - delta)); first by rewrite subr_gt0.
-rewrite scalerDl; exact: pmh_loewner_add.
 Qed.
 
 Theorem paper_main_head_loewner_scale S (c lo hi : R) : 0 < c ->

@@ -34,16 +34,3 @@ Lemma projective_operator_norm_greatest n
   (forall c : R, tensor_cost_set T c -> (l <= c%:E)%E) ->
   (l <= projective_operator_norm T)%E.
 Proof. by move=> Hl; apply/ereal_infP => _ [c Hc <-]; exact: Hl. Qed.
-
-(* The shape of Coquelicot's is_glb_Rbar (tensor_cost_set T) N. *)
-Lemma projective_operator_norm_glb n
-    (T : matrix n -> matrix n -> matrix n -> R) :
-  (forall c : R, tensor_cost_set T c ->
-    (projective_operator_norm T <= c%:E)%E) /\
-  (forall l : \bar R, (forall c : R, tensor_cost_set T c -> (l <= c%:E)%E) ->
-    (l <= projective_operator_norm T)%E).
-Proof.
-  split.
-  - exact: projective_operator_norm_lower_bound.
-  - exact: projective_operator_norm_greatest.
-Qed.

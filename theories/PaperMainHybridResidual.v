@@ -435,15 +435,6 @@ Qed.
 (* The case r = 0: the head is the genuine 0 x 0 head, K(H, b) = - b 1, and
    the head energy bound holds deterministically. *)
 
-Lemma paper_main_hybrid_head_value_zero N (h : paper_main_sample N 0) (H : 'M[R]_0)
-    (b : R) :
-  paper_main_hybrid_head_value N 0 h H b = \col_(i < N) (- b).
-Proof.
-apply/colP => i; rewrite !mxE /paper_main_head_small_ball_value.
-rewrite /paper_main_quadratic_form /paper_main_trace !big_ord0.
-by rewrite RminusE RminusE subrr sub0r.
-Qed.
-
 Lemma paper_main_hybrid_head_energy_zero N k (h : paper_main_sample N 0) :
   (INR N / 4864 <= INR (N - k)%nat)%Rcoq ->
   forall (H : 'M[R]_0) (b : R) (J : {set 'I_N}), (N - k <= #|J|)%N ->

@@ -163,31 +163,6 @@ Proof.
   apply matrix_nested_second_symmetric.
 Qed.
 
-Theorem matrix_nested_hessian_evaluation n beta gamma offset coeff Y S (A U V : matrix n) :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  hessian_evaluation n (matrix_nested_hessian n beta gamma offset coeff Y S A) U V =
-  matrix_nested_second_derivative n beta gamma offset coeff Y S A U V.
-Proof.
-  intros Hb Hg HY HS; unfold hessian_evaluation.
-  rewrite (matrix_nested_hessian_action n beta gamma offset coeff Y S A V Hb Hg HY HS).
-  apply matrix_nested_gradient_derivative_trace; assumption.
-Qed.
-
-Theorem matrix_nested_hessian_coefficient n beta gamma offset coeff Y S
-    (A : matrix n) i j k l :
-  (i <= n)%coq_nat -> (j <= n)%coq_nat -> (k <= n)%coq_nat -> (l <= n)%coq_nat ->
-  matrix_entry n
-    (hessian_entry n (matrix_nested_hessian n beta gamma offset coeff Y S A) i j) k l =
-  matrix_nested_second_derivative n beta gamma offset coeff Y S A
-    (matrix_basis n j i) (matrix_basis n l k).
-Proof.
-  intros Hi Hj Hk Hl; unfold matrix_nested_hessian.
-  rewrite (hessian_entry_build n _ i j Hi Hj).
-  unfold matrix_nested_gradient_derivative.
-  rewrite (matrix_entry_build n _ k l Hk Hl).
-  apply matrix_nested_second_symmetric.
-Qed.
-
 Theorem matrix_nested_hessian_frechet n beta gamma offset coeff Y S :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
   forall A : matrix n,
@@ -231,42 +206,4 @@ Proof.
   rewrite (matrix_nested_hessian_derivative_action n beta gamma offset coeff Y S
     A V W Hb Hg HY HS).
   apply matrix_nested_gradient_second_trace; assumption.
-Qed.
-
-Theorem matrix_nested_hessian_derivative_coefficient n beta gamma offset coeff Y S
-    (A W : matrix n) i j k l :
-  (i <= n)%coq_nat -> (j <= n)%coq_nat -> (k <= n)%coq_nat -> (l <= n)%coq_nat ->
-  matrix_entry n
-    (hessian_entry n (matrix_nested_hessian_derivative n beta gamma offset coeff Y S A W) i j) k l =
-  matrix_nested_third_derivative n beta gamma offset coeff Y S A
-    (matrix_basis n j i) (matrix_basis n l k) W.
-Proof.
-  intros Hi Hj Hk Hl; unfold matrix_nested_hessian_derivative.
-  rewrite (hessian_entry_build n _ i j Hi Hj).
-  unfold matrix_nested_gradient_second_derivative.
-  rewrite (matrix_entry_build n _ k l Hk Hl).
-  apply matrix_nested_third_swap_left.
-Qed.
-
-Theorem matrix_soft_minimax_hessian_frechet n beta gamma offset coeff Y S :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  forall A : matrix n,
-  is_diff A
-    ((fun M => soft_minimax beta gamma (matrix_affine_scores n offset coeff M) Y S)
-      : matrix n -> R^o)
-    (trace_pair n (matrix_nested_gradient n beta gamma offset coeff Y S A)) /\
-  is_diff A (matrix_nested_gradient n beta gamma offset coeff Y S)
-    (hessian_action n (matrix_nested_hessian n beta gamma offset coeff Y S A)) /\
-  is_diff A (matrix_nested_hessian n beta gamma offset coeff Y S)
-    (matrix_nested_hessian_derivative n beta gamma offset coeff Y S A).
-Proof.
-  intros Hb Hg HY HS A; split.
-  - exact (proj1 (matrix_soft_minimax_gradient_frechet n beta gamma offset coeff Y S
-      Hb Hg HY HS A)).
-  - split.
-    + apply: (is_diff_eq
-        (matrix_nested_gradient_frechet n beta gamma offset coeff Y S Hb Hg HY HS A)).
-      apply: funext => V; symmetry.
-      apply matrix_nested_hessian_action; assumption.
-    + apply matrix_nested_hessian_frechet; assumption.
 Qed.

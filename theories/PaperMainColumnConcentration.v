@@ -272,21 +272,3 @@ have -> : paper_main_column_q N d x a b / N%:R - 1 =
     (paper_main_column_q N d x a b - N%:R) / N%:R by rewrite mulrBl divff.
 by rewrite normrM normfV (gtr0_norm HN0) ler_pdivrMr.
 Qed.
-
-(* The actual column event endpoint. *)
-Corollary paper_main_column_concentration (N : nat -> nat) (c eps : R) :
-  0 < c -> 0 < eps -> paper_main_eventually_ge (paper_main_density N) c ->
-  exists E : forall d, set (paper_main_sample (N d) d),
-    (forall d, measurable (E d)) /\
-    paper_main_tends_to (fun d => paper_main_probability (N d) d (E d)) 0 /\
-    forall d (x : paper_main_sample (N d) d), ~ E d x ->
-      forall a b : 'I_d, (a < b)%N ->
-        `|paper_main_column_q (N d) d x a b - (N d)%:R| <= eps * (N d)%:R /\
-        ((0 < N d)%N -> `|paper_main_column_q (N d) d x a b / (N d)%:R - 1| <= eps).
-Proof.
-move=> Hc Heps HN.
-exists (fun d => paper_main_column_event (N d) d eps); split.
-  by move=> d; exact: paper_main_column_event_measurable.
-split; first exact: (paper_main_column_concentration_limit N c eps Hc Heps HN).
-by move=> d x Hx a b Hab; exact: paper_main_column_event_complement.
-Qed.

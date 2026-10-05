@@ -79,9 +79,3 @@ Theorem gaussian_suffix_marginal_continuous d n F C p :
   finite_joint_continuous (d+n) F -> finite_polynomial_bound (d+n) C p F ->
   finite_joint_continuous d (gaussian_suffix_marginal n F).
 Proof. intros HC HB; exact (proj1 (gaussian_suffix_marginal_regular d n F C p HC HB)). Qed.
-
-Theorem gaussian_suffix_marginal_polynomial_bound d n F C p :
-  finite_joint_continuous (d+n) F -> finite_polynomial_bound (d+n) C p F ->
-  finite_polynomial_bound d (C*gaussian_coordinate_weight_moment p^n) p
-    (gaussian_suffix_marginal n F).
-Proof. intros HC HB; exact (proj2 (gaussian_suffix_marginal_regular d n F C p HC HB)). Qed.

@@ -160,19 +160,6 @@ Proof.
   unfold Lam; apply linear_image_continuous_comp; exact (HDc c Hc).
 Qed.
 
-Lemma gc_acceleration_continuous t : finite_joint_continuous d (gc_acceleration t).
-Proof.
-  unfold gc_acceleration.
-  apply finite_joint_continuous_sum; intros c Hc; apply in_seq_lt in Hc.
-  apply finite_joint_continuous_add.
-  - apply finite_joint_continuous_mult; [|apply linear_form_continuous].
-    apply finite_joint_continuous_sum; intros b Hb; apply in_seq_lt in Hb.
-    apply finite_joint_continuous_mult; [|apply linear_form_continuous].
-    unfold Lam; apply linear_image_continuous_comp; exact (HD2c c b Hc Hb).
-  - apply finite_joint_continuous_mult; [|apply linear_form_continuous].
-    unfold Lam; apply linear_image_continuous_comp; exact (HDc c Hc).
-Qed.
-
 Lemma gc_velocity_bound M lo hi t :
   0 <= M -> 0 < lo -> hi < 1 -> lo <= t <= hi ->
   (forall a k, (a < K)%coq_nat -> (k < p)%coq_nat -> Rabs (P a k) <= M) ->

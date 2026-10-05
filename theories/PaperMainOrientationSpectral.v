@@ -206,11 +206,3 @@ exact: paper_main_spectral_projection_square.
 Qed.
 
 (* A dimension above 1/eps^2 leaves a positive bulk dimension. *)
-
-Corollary paper_main_orientation_spectral_rank_lt (d r : nat) (eps : R) :
-  r%:R <= 1 / eps ^+ 2 -> 1 / eps ^+ 2 < d%:R -> (r < d)%N.
-Proof.
-move=> Hr Hd.
-have H : r%:R < d%:R :> R by apply: le_lt_trans Hr Hd.
-by rewrite ltr_nat in H.
-Qed.

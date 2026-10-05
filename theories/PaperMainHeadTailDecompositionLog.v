@@ -133,20 +133,6 @@ Proof.
   - rewrite Rabs_R0; exact Hc.
 Qed.
 
-Theorem paper_main_head_tail_list_decompose (y : nat -> R) (n : nat) (J : list nat) i :
-  0 < euclidean_norm y (tail_indices n J) -> In i (seq 0 n) ->
-  y i = (if in_dec Nat.eq_dec i J then y i else 0) +
-    euclidean_norm y (tail_indices n J) * paper_main_tail_list_vector y n J i.
-Proof.
-  intros Hr Hi; unfold paper_main_tail_list_vector.
-  destruct (in_dec Nat.eq_dec i J) as [HiJ|HiJ];
-    destruct (in_dec Nat.eq_dec i (tail_indices n J)) as [HT|HT].
-  - apply outside_in in HT as [_ HT]; contradiction.
-  - ring.
-  - field; lra.
-  - exfalso; apply HT, outside_in; split; assumption.
-Qed.
-
 (* 4. The decomposition, from the checked HeadTail theorem. *)
 Theorem paper_main_head_tail_regularity (theta : R) (d n : nat) (y : nat -> R) :
   0 < theta -> (1 <= d)%nat -> euclidean_norm y (seq 0 n) = 1 ->
@@ -173,22 +159,4 @@ Proof.
   apply paper_main_tail_list_vector_cap; [|exact Hcap].
   assert (Hsd : 0 < sqrt (INR d)) by (apply sqrt_lt_R0, lt_0_INR; lia).
   apply Rlt_le, Rdiv_lt_0_compat; assumption.
-Qed.
-
-(* The O_theta (d log d) form with an explicit positive constant. *)
-Corollary paper_main_head_tail_regularity_constant (theta : R) :
-  0 < theta -> 0 < head_tail_constant theta /\
-  forall (d n : nat) (y : nat -> R),
-    (1 <= d)%nat -> euclidean_norm y (seq 0 n) = 1 ->
-    exists J : list nat,
-      NoDup J /\ incl J (seq 0 n) /\
-      INR (length J) <= head_tail_constant theta * INR d * ln (INR d) /\
-      squared_norm y J + squared_norm y (tail_indices n J) = 1 /\
-      (euclidean_norm y (tail_indices n J) <= 1 / INR d ^ 2 \/
-       (0 < euclidean_norm y (tail_indices n J) /\
-        euclidean_norm (paper_main_tail_list_vector y n J) (seq 0 n) = 1 /\
-        forall i, Rabs (paper_main_tail_list_vector y n J i) <= theta / sqrt (INR d))).
-Proof.
-  intro Htheta; split; [now apply head_tail_constant_positive|].
-  intros d n y Hd Hy; exact (paper_main_head_tail_regularity theta d n y Htheta Hd Hy).
 Qed.

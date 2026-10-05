@@ -165,35 +165,3 @@ Proof.
   exact (@joint_time_is_diff_of_derive (matrix_NormedModule n) _ t _
     (joint_matrix_time_derivative n C t x z Ht)).
 Qed.
-
-Lemma joint_time_velocity_trace n beta gamma offset coeff Y S C t x z :
-  trace_pair n (matrix_nested_gradient n beta gamma offset coeff Y S (joint_matrix n C t x z))
-    (joint_time_velocity n t x z) =
-  joint_quadratic_trace n beta gamma offset coeff Y S C t x z/(2*sqrt t) -
-  joint_goe_trace n beta gamma offset coeff Y S C t x z/(2*sqrt(1-t)).
-Proof.
-  unfold joint_time_velocity; rewrite trace_pair_add.
-  rewrite (trace_pair_scale n _ (joint_quadratic_input n x))
-    (trace_pair_scale n _ (goe_matrix n z)).
-  unfold joint_quadratic_trace, joint_goe_trace.
-  assert (HC : forall A B : matrix n, trace_pair n A B = trace_pair n B A).
-  { apply symmetric_trace_pair_comm. }
-  rewrite (HC _ (joint_quadratic_input n x)) (HC _ (goe_matrix n z)); unfold Rdiv; ring.
-Qed.
-
-Theorem joint_soft_time_derivative n beta gamma offset coeff Y S C t x z :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 < t < 1 ->
-  @is_derive R R^o R^o t 1 (fun u => joint_soft_value n beta gamma offset coeff Y S C u x z)
-    (joint_quadratic_trace n beta gamma offset coeff Y S C t x z/(2*sqrt t) -
-     joint_goe_trace n beta gamma offset coeff Y S C t x z/(2*sqrt(1-t))).
-Proof.
-  intros Hb Hg HY HS Ht; unfold joint_soft_value.
-  have HP := joint_matrix_time_is_diff n C t x z Ht.
-  have HF := matrix_nested_soft_minimax_frechet n beta gamma offset coeff Y S
-    (joint_matrix n C t x z) Hb Hg HY HS.
-  have HC := is_diff_comp HP HF.
-  apply: DeriveDef.
-    exact/diff_derivable/ex_diff.
-  rewrite deriveE ?diff_val //= scale1r.
-  rewrite -matrix_nested_gradient_trace joint_time_velocity_trace; reflexivity.
-Qed.

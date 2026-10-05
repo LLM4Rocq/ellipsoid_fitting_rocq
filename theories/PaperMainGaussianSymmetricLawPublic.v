@@ -93,55 +93,7 @@ Proof.
 apply: paper_main_matrix_public_symmetric; exact: paper_main_symmetric_gaussian_symmetric.
 Qed.
 
-Lemma paper_main_public_symmetric_gaussian_entry n xs (i j : 'I_(S n)) :
-  paper_main_public_symmetric_gaussian n xs i j =
-    matrix_entry n (paper_main_symmetric_gaussian n xs) i j.
-Proof. exact: paper_main_matrix_to_public_entry. Qed.
-
 (* Coordinates in the transported orthonormal basis. *)
-
-Lemma paper_main_public_symmetric_basis_symmetric n k :
-  paper_main_symmetric (paper_main_public_symmetric_basis n k).
-Proof. apply: paper_main_matrix_public_symmetric; exact: goe_basis_symmetric. Qed.
-
-Theorem paper_main_public_symmetric_basis_orthonormal n k l :
-  (k < paper_main_symmetric_dimension n)%coq_nat ->
-  (l < paper_main_symmetric_dimension n)%coq_nat ->
-  paper_main_pairing (paper_main_public_symmetric_basis n k)
-    (paper_main_public_symmetric_basis n l) = if Nat.eqb k l then 1 else 0.
-Proof.
-move=> Hk Hl; rewrite /paper_main_public_symmetric_basis.
-rewrite -(paper_main_matrix_public_pairing _ _ _ (goe_basis_symmetric n l)).
-rewrite /paper_main_symmetric_dimension in Hk Hl.
-apply: goe_basis_orthonormal; lia.
-Qed.
-
-Theorem paper_main_public_symmetric_gaussian_coordinate n xs k :
-  (k < paper_main_symmetric_dimension n)%coq_nat ->
-  paper_main_pairing (paper_main_public_symmetric_basis n k)
-    (paper_main_public_symmetric_gaussian n xs) = List.nth k xs 0.
-Proof.
-move=> Hk; rewrite /paper_main_public_symmetric_basis /paper_main_public_symmetric_gaussian.
-rewrite -(paper_main_matrix_public_pairing _ _ _ (paper_main_symmetric_gaussian_symmetric n xs)).
-exact: (paper_main_symmetric_gaussian_coordinate n xs k Hk).
-Qed.
-
-Theorem paper_main_public_symmetric_gaussian_pairing n xs ys :
-  paper_main_pairing (paper_main_public_symmetric_gaussian n xs)
-    (paper_main_public_symmetric_gaussian n ys) =
-  finite_sum (fun k => List.nth k xs 0 * List.nth k ys 0)
-    (List.seq 0 (paper_main_symmetric_dimension n)).
-Proof.
-rewrite /paper_main_public_symmetric_gaussian.
-rewrite -(paper_main_matrix_public_pairing _ _ _ (paper_main_symmetric_gaussian_symmetric n ys)).
-rewrite -(paper_main_symmetric_coordinate_pairing n _ _
-  (paper_main_symmetric_gaussian_symmetric n xs) (paper_main_symmetric_gaussian_symmetric n ys)).
-rewrite /paper_main_gordon_dot; apply: finite_sum_ext => k Hk.
-have Hk' := proj1 (List.in_seq _ _ _) Hk.
-have HkD : (k < paper_main_symmetric_dimension n)%coq_nat by lia.
-by rewrite (paper_main_symmetric_gaussian_coordinate n xs k HkD)
-  (paper_main_symmetric_gaussian_coordinate n ys k HkD).
-Qed.
 
 (* Frobenius norm, negation and isometry. *)
 
@@ -150,15 +102,6 @@ Theorem paper_main_public_symmetric_gaussian_frobenius n xs :
     (`|paper_main_symmetric_gaussian n xs|)%R.
 Proof.
 by rewrite /paper_main_public_symmetric_gaussian -paper_main_matrix_public_frobenius.
-Qed.
-
-Theorem paper_main_public_symmetric_gaussian_frobenius_squared n xs :
-  paper_main_frobenius (paper_main_public_symmetric_gaussian n xs) ^ 2 =
-    finite_sum (fun k => List.nth k xs 0 * List.nth k xs 0)
-      (List.seq 0 (paper_main_symmetric_dimension n)).
-Proof.
-rewrite paper_main_public_symmetric_gaussian_frobenius.
-exact: paper_main_symmetric_gaussian_frobenius_squared.
 Qed.
 
 Theorem paper_main_public_symmetric_gaussian_frobenius_sum_squares n xs :
@@ -330,15 +273,6 @@ split; first exact: paper_main_symmetric_gaussian_frobenius_moment.
 exact: paper_main_symmetric_gaussian_trace_moments.
 Qed.
 
-Theorem paper_main_public_symmetric_gaussian_norm_expectation n :
-  gaussian_iterated_expectation (paper_main_symmetric_dimension n)
-    (fun xs => paper_main_frobenius (paper_main_public_symmetric_gaussian n xs)) =
-  gaussian_iterated_expectation (paper_main_symmetric_dimension n) paper_main_gaussian_norm.
-Proof.
-apply: gaussian_iterated_expectation_ext => xs Hxs.
-exact: paper_main_public_symmetric_gaussian_norm.
-Qed.
-
 (* Sign symmetry. *)
 
 Theorem paper_main_public_symmetric_gaussian_sign_symmetry n (Phi : 'M[R]_(S n) -> R) C p :
@@ -413,43 +347,6 @@ exact: (paper_main_public_symmetric_gaussian_sign_symmetry n Phi _ 2
 Qed.
 
 (* Transport to the public law gaussian_product_law D. *)
-
-Theorem paper_main_public_symmetric_lipschitz_law n (Phi : 'M[R]_(S n) -> R) L :
-  0 <= L ->
-  (forall A B : 'M[R]_(S n), paper_main_symmetric A -> paper_main_symmetric B ->
-    Rabs (Phi A - Phi B) <= L * paper_main_frobenius (A - B)%R) ->
-  (gaussian_product_law (paper_main_symmetric_dimension n)).-integrable setT
-    (fun x => (Phi (paper_main_public_symmetric_gaussian n (tval x)))%:E) /\
-  (\int[gaussian_product_law (paper_main_symmetric_dimension n)]_x
-      (Phi (paper_main_public_symmetric_gaussian n (tval x)))%:E =
-    (gaussian_iterated_expectation (paper_main_symmetric_dimension n)
-      (fun xs => Phi (paper_main_public_symmetric_gaussian n xs)))%:E)%E.
-Proof.
-move=> HL HPhi.
-exact: (paper_main_gaussian_lipschitz_law _ _ L HL
-  (paper_main_public_symmetric_lipschitz_transfer n Phi L HPhi)).
-Qed.
-
-Theorem paper_main_public_symmetric_sign_symmetry_law n (Phi : 'M[R]_(S n) -> R) L :
-  0 <= L ->
-  (forall A B : 'M[R]_(S n), paper_main_symmetric A -> paper_main_symmetric B ->
-    Rabs (Phi A - Phi B) <= L * paper_main_frobenius (A - B)%R) ->
-  (gaussian_product_law (paper_main_symmetric_dimension n)).-integrable setT
-    (fun x => (Phi (- paper_main_public_symmetric_gaussian n (tval x))%R)%:E) /\
-  (\int[gaussian_product_law (paper_main_symmetric_dimension n)]_x
-      (Phi (- paper_main_public_symmetric_gaussian n (tval x))%R)%:E =
-    \int[gaussian_product_law (paper_main_symmetric_dimension n)]_x
-      (Phi (paper_main_public_symmetric_gaussian n (tval x)))%:E)%E.
-Proof.
-move=> HL HPhi.
-have [HI HE] := paper_main_gaussian_lipschitz_law _
-  (fun xs => Phi (- paper_main_public_symmetric_gaussian n xs)%R) L HL
-  (paper_main_public_symmetric_neg_lipschitz_transfer n Phi L HPhi).
-have [_ HE'] := paper_main_public_symmetric_lipschitz_law n Phi L HL HPhi.
-split; first exact: HI.
-rewrite HE HE'; congr (_%:E).
-exact: (paper_main_public_symmetric_lipschitz_sign_symmetry n Phi L HL HPhi).
-Qed.
 
 Theorem paper_main_public_symmetric_gaussian_law_moments n :
   (gaussian_product_law (paper_main_symmetric_dimension n)).-integrable setT

@@ -146,37 +146,3 @@ Proof.
     split; [exact HGt|].
     split; [split; [lra|exact Hclose]|lra].
 Qed.
-
-(* The box, with a real valued positive gauge and an exists. *)
-Lemma compactness_value_exists n (a b : Tn n R) (delta : Tn n R -> R) :
-  (forall t, 0 < delta t) ->
-  exists d, 0 < d /\ forall x, bounded_n n a b x ->
-    exists t, bounded_n n a b t /\ close_n n (delta t) x t /\ d <= delta t.
-Proof.
-  intros Hdelta.
-  destruct (compactness_value_gauge n a b (fun t e => e = delta t)
-    (fun t => ex_intro _ (delta t) (conj (Hdelta t) eq_refl))) as [d [Hd Hcov]].
-  exists d; split; [exact Hd|].
-  intros x Hx.
-  destruct (Hcov x Hx) as [t [e [Ht [He [Hclose Hde]]]]].
-  exists t. rewrite <- He. split; [exact Ht|]. split; [exact Hclose|exact Hde].
-Qed.
-
-(* Coquelicot's compactness_value without the double negation. *)
-Lemma compactness_value_pos n (a b : Tn n R) (delta : Tn n R -> posreal) :
-  {d : posreal | forall x : Tn n R, bounded_n n a b x ->
-    exists t : Tn n R, bounded_n n a b t /\ close_n n (delta t) x t /\ d <= delta t}.
-Proof.
-  destruct (cid (compactness_value_exists n a b (fun t => delta t)
-    (fun t => cond_pos (delta t)))) as [d [Hd Hcov]].
-  exists (mkposreal d Hd). exact Hcov.
-Qed.
-
-(* The statement of Coquelicot.Compactness.compactness_value. *)
-Lemma compactness_value n (a b : Tn n R) (delta : Tn n R -> posreal) :
-  {d : posreal | forall x : Tn n R, bounded_n n a b x ->
-    ~ ~ (exists t : Tn n R, bounded_n n a b t /\ close_n n (delta t) x t /\ d <= delta t)}.
-Proof.
-  destruct (compactness_value_pos n a b delta) as [d Hd].
-  exists d. intros x Hx Hnot. exact (Hnot (Hd x Hx)).
-Qed.

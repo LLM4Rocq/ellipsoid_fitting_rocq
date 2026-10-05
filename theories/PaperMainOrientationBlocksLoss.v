@@ -124,19 +124,6 @@ congr paper_main_loss.
 exact: (paper_main_orientation_head_value O S b _ HO).
 Qed.
 
-Theorem paper_main_orientation_data_array_rotate N r mi (Hs : nat -> 'M[R]_r) (bs : nat -> R)
-    (Bs : nat -> 'M[R]_(S mi)) (O : 'M[R]_(r + S mi))
-    (x : (N * (r + S mi)).-tuple (measurableTypeR R)) (j : nat) :
-  O^T *m O = 1%:M ->
-  paper_main_loss_array (r + S mi)%coq_nat N (paper_main_hybrid_finite_data_loss r mi Hs bs Bs)
-    (tval (paper_main_orientation_rotate N (r + S mi) O x)) j =
-  (INR N * paper_main_quadratic_risk N (r + S mi) x
-     (O^T *m block_mx (Hs j) 0 0 (Bs j) *m O) (bs j))%Rcoq.
-Proof.
-move=> HO.
-by rewrite paper_main_orientation_data_array paper_main_orientation_risk_rotate.
-Qed.
-
 (* 4. A good candidate bounds the normalized finite soft loss. *)
 
 Theorem paper_main_orientation_candidate_bound N r mi beta (I : list nat)

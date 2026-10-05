@@ -258,10 +258,6 @@ intros HN; split.
   rewrite Hq1, Hq2; reflexivity.
 Qed.
 
-Lemma paper_main_gordon_transpose_length N M xs :
-  length (paper_main_gordon_transpose N M xs) = (M * N)%nat.
-Proof. apply paper_main_gordon_reindex_length. Qed.
-
 Lemma paper_main_gordon_transpose_nth N M xs i j :
   (i < N)%nat -> (j < M)%nat ->
   List.nth (j * N + i) (paper_main_gordon_transpose N M xs) 0 = List.nth (i * M + j) xs 0.

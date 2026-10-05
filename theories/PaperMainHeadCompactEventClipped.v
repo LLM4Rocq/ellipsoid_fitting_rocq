@@ -134,36 +134,6 @@ move=> Hx [u [a H]]; apply: Hx; exists (pi (rshift k u)), a.
 by rewrite -(paper_main_head_selection_tail_point k q (S n) pi x u).
 Qed.
 
-Corollary paper_main_head_compact_clipped_selection_eq n k q (kappa theta U : R)
-    (pi : 'S_(k + q)) (x : paper_main_sample (k + q) (S n)) :
-  ~ paper_main_data_coordinate_event (k + q) (S n) U x ->
-  paper_main_head_compact_clipped_value n k q kappa theta U
-    (paper_main_head_selection k q (S n) pi x).1 (paper_main_head_selection k q (S n) pi x).2 =
-  paper_main_head_compact_value n k q kappa theta
-    (paper_main_head_selection k q (S n) pi x).1 (paper_main_head_selection k q (S n) pi x).2.
-Proof.
-move=> Hx; apply: paper_main_head_compact_clipped_eq.
-exact: paper_main_head_compact_coordinate_tail.
-Qed.
-
-Corollary paper_main_head_compact_clipped_event_eq n k q (kappa theta U c : R)
-    (pi : 'S_(k + q)) :
-  [set x : paper_main_sample (k + q) (S n) |
-    c <= paper_main_head_compact_value n k q kappa theta
-      (paper_main_head_selection k q (S n) pi x).1
-      (paper_main_head_selection k q (S n) pi x).2]
-    `\` paper_main_data_coordinate_event (k + q) (S n) U =
-  [set x : paper_main_sample (k + q) (S n) |
-    c <= paper_main_head_compact_clipped_value n k q kappa theta U
-      (paper_main_head_selection k q (S n) pi x).1
-      (paper_main_head_selection k q (S n) pi x).2]
-    `\` paper_main_data_coordinate_event (k + q) (S n) U.
-Proof.
-apply/seteqP; split => x [Hc Hx]; split => //=.
-  by rewrite (paper_main_head_compact_clipped_selection_eq n k q kappa theta U pi x Hx).
-by rewrite -(paper_main_head_compact_clipped_selection_eq n k q kappa theta U pi x Hx).
-Qed.
-
 (* Measurability and the law of the clipped threshold events. *)
 
 Lemma paper_main_head_compact_clipped_feature_snd n k q (U : R) (i : nat) (a b : 'I_(S n)) :
@@ -172,35 +142,6 @@ Lemma paper_main_head_compact_clipped_feature_snd n k q (U : R) (i : nat) (a b :
 Proof.
 exact: (measurableT_comp (paper_main_head_clipped_feature_entry_measurable U n q i a b)
   measurable_snd).
-Qed.
-
-Theorem paper_main_head_compact_clipped_ge_measurable n k q (kappa theta U c : R) :
-  1 <= kappa ->
-  measurable [set hx : paper_main_sample k (S n) * paper_main_sample q (S n) |
-    c <= paper_main_head_compact_clipped_value n k q kappa theta U hx.1 hx.2].
-Proof.
-move=> Hk.
-have [HY|HY] := pselect (exists y, paper_main_head_capped_dual q (S n) theta y).
-  have H := (paper_main_head_section_minimax_ge_measurable n k kappa q _
-    (fun i hx => paper_main_head_feature hx.1 i)
-    (fun i (hx : paper_main_sample k (S n) * paper_main_sample q (S n)) =>
-      paper_main_data_clipped_feature U n i (tval hx.2))
-    c Hk HY (@paper_main_head_capped_dual_unit q (S n) theta)
-    (fun i a b => paper_main_head_compact_feature_fst n k q i a b)
-    (fun i a b => paper_main_head_compact_clipped_feature_snd n k q U i a b)).
-  exact: H.
-have -> : [set hx : paper_main_sample k (S n) * paper_main_sample q (S n) |
-    c <= paper_main_head_compact_clipped_value n k q kappa theta U hx.1 hx.2] =
-    [set _ | c <= 0].
-  by apply/seteqP; split => hx /=;
-    rewrite /paper_main_head_compact_clipped_value paper_main_head_section_minimax_empty_dual.
-have [Hc|Hc] := pselect (c <= 0).
-  have -> : [set _ : paper_main_sample k (S n) * paper_main_sample q (S n) | c <= 0] = setT.
-    by apply/seteqP; split => hx.
-  exact: measurableT.
-have -> : [set _ : paper_main_sample k (S n) * paper_main_sample q (S n) | c <= 0] = set0.
-  by apply/seteqP; split => hx // H; apply: Hc.
-exact: measurable0.
 Qed.
 
 Theorem paper_main_head_compact_clipped_measurable n k q (kappa theta U : R) :
@@ -223,34 +164,6 @@ have -> : (fun hx : paper_main_sample k (S n) * paper_main_sample q (S n) =>
   apply: funext => hx.
   by rewrite /paper_main_head_compact_clipped_value paper_main_head_section_minimax_empty_dual.
 exact: measurable_cst.
-Qed.
-
-Theorem paper_main_head_compact_clipped_selection n k q (kappa theta U c : R)
-    (pi : 'S_(k + q)) :
-  1 <= kappa ->
-  measurable [set x : paper_main_sample (k + q) (S n) |
-    c <= paper_main_head_compact_clipped_value n k q kappa theta U
-      (paper_main_head_selection k q (S n) pi x).1
-      (paper_main_head_selection k q (S n) pi x).2] /\
-  paper_main_probability (k + q) (S n) [set x : paper_main_sample (k + q) (S n) |
-    c <= paper_main_head_compact_clipped_value n k q kappa theta U
-      (paper_main_head_selection k q (S n) pi x).1
-      (paper_main_head_selection k q (S n) pi x).2] =
-  (gaussian_product_law (k * S n)%N \x gaussian_product_law (q * S n)%N)%E
-    [set hx | c <= paper_main_head_compact_clipped_value n k q kappa theta U hx.1 hx.2].
-Proof.
-move=> Hk.
-have mE := paper_main_head_compact_clipped_ge_measurable n k q kappa theta U c Hk.
-have -> : [set x : paper_main_sample (k + q) (S n) |
-    c <= paper_main_head_compact_clipped_value n k q kappa theta U
-      (paper_main_head_selection k q (S n) pi x).1
-      (paper_main_head_selection k q (S n) pi x).2] =
-  paper_main_head_selection k q (S n) pi @^-1`
-    [set hx | c <= paper_main_head_compact_clipped_value n k q kappa theta U hx.1 hx.2] by [].
-split.
-  have H := paper_main_head_selection_measurable k q (S n) pi measurableT _ mE.
-  by rewrite setTI in H.
-exact: paper_main_head_selection_law.
 Qed.
 
 (* The clipped operator-good event. *)
@@ -278,18 +191,6 @@ have H := (paper_main_head_operator_event_measurable q
 exact: H.
 Qed.
 
-Corollary paper_main_head_compact_clipped_operator_selection n k q (U L : R)
-    (pi : 'S_(k + q)) :
-  measurable [set x : paper_main_sample (k + q) (S n) |
-    paper_main_head_section_operator_bound q
-      (fun i => paper_main_data_clipped_feature U n i
-        (tval (paper_main_head_selection k q (S n) pi x).2)) L].
-Proof.
-have mE := paper_main_head_compact_clipped_operator_measurable n k q U L.
-have H := paper_main_head_selection_measurable k q (S n) pi measurableT _ mE.
-by rewrite setTI in H.
-Qed.
-
 Corollary paper_main_head_compact_clipped_operator_eq n q (U L : R)
     (x : paper_main_sample q (S n)) :
   ~ paper_main_data_coordinate_event q (S n) U x ->
@@ -299,22 +200,4 @@ Corollary paper_main_head_compact_clipped_operator_eq n q (U L : R)
 Proof.
 move=> Hx; apply: paper_main_head_operator_ext => i Hi.
 exact: paper_main_head_compact_clipped_features.
-Qed.
-
-Corollary paper_main_head_compact_clipped_operator_event_eq n k q (U L : R)
-    (pi : 'S_(k + q)) :
-  [set x : paper_main_sample (k + q) (S n) |
-    paper_main_head_section_operator_bound q
-      (fun i => paper_main_head_feature (paper_main_head_selection k q (S n) pi x).2 i) L]
-    `\` paper_main_data_coordinate_event (k + q) (S n) U =
-  [set x : paper_main_sample (k + q) (S n) |
-    paper_main_head_section_operator_bound q
-      (fun i => paper_main_data_clipped_feature U n i
-        (tval (paper_main_head_selection k q (S n) pi x).2)) L]
-    `\` paper_main_data_coordinate_event (k + q) (S n) U.
-Proof.
-apply/seteqP; split => x [Hc Hx]; split => //=;
-  have Ht := paper_main_head_compact_coordinate_tail n k q U pi x Hx.
-  by apply/(paper_main_head_compact_clipped_operator_eq n q U L _ Ht).
-by apply/(paper_main_head_compact_clipped_operator_eq n q U L _ Ht).
 Qed.

@@ -89,17 +89,4 @@ move=> Hd Hk; apply: paper_main_head_support_lipschitz.
 by move=> S [_ HS].
 Qed.
 
-(* The width of a head section that contains some matrix, for instance
-   the normalized head correction. *)
-Corollary paper_main_head_section_support_lipschitz m (W : 'I_m -> 'M[R]_d)
-    (kappa : R) Z Y :
-  paper_main_head_section kappa W !=set0 ->
-  `|paper_main_head_support Z (paper_main_head_section kappa W) -
-    paper_main_head_support Y (paper_main_head_section kappa W)| <=
-  paper_main_frobenius (Z - Y).
-Proof.
-move=> Hne; apply: paper_main_head_support_lipschitz => //.
-by move=> S [_ [HS _]].
-Qed.
-
 End WidthLipschitz.

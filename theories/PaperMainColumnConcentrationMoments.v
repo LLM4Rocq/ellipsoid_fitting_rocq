@@ -92,14 +92,6 @@ Qed.
 (* 2. Y = (u w)^2 - 1, shifted by a constant. *)
 Definition pmccm_y (u w : R) : R := ((u * w) ^+ 2 - 1)%R.
 
-Lemma pmccm_shift_reg d a b (s : R) k : (a < d)%N -> (b < d)%N ->
-  pmdf_regular d (fun ys => (s + pmccm_y (List.nth a ys 0) (List.nth b ys 0)) ^+ k).
-Proof.
-move=> Ha Hb; apply: pmdm_reg_exp; apply: pmdm_reg_add; first exact: pmdm_reg_const.
-rewrite /pmccm_y; apply: pmdm_reg_sub; last exact: pmdm_reg_const.
-by apply: pmdm_reg_exp; apply: pmdm_reg_mul; exact: pmdm_reg_nth.
-Qed.
-
 Lemma pmccm_poly_eval d a b (f : R -> R -> R) cs : (a < d)%N -> (b < d)%N -> a <> b ->
   (forall u w, f u w = pmccm_poly cs u w) ->
   gaussian_iterated_expectation d (fun ys => f (List.nth a ys 0) (List.nth b ys 0)) =
@@ -160,28 +152,6 @@ have Hid : forall u w : R, (s + pmccm_y u w) ^+ 4 =
 have := pmccm_poly_eval d a b (fun u w => (s + pmccm_y u w) ^+ 4) _ Ha Hb Hab Hid.
 move=> ->.
 rewrite !pmccm_poly_moment_cons pmccm_poly_moment_nil !pmdm_mfS !pmdm_mf0; ring.
-Qed.
-
-(* The one-row moments themselves (s = 0). *)
-Corollary pmccm_y_moments d a b : (a < d)%N -> (b < d)%N -> a <> b ->
-  [/\ gaussian_iterated_expectation d (fun ys => pmccm_y (List.nth a ys 0) (List.nth b ys 0)) = 0,
-      gaussian_iterated_expectation d
-        (fun ys => pmccm_y (List.nth a ys 0) (List.nth b ys 0) ^+ 2) = 8 &
-      gaussian_iterated_expectation d
-        (fun ys => pmccm_y (List.nth a ys 0) (List.nth b ys 0) ^+ 4) = 10176].
-Proof.
-move=> Ha Hb Hab; split.
-- rewrite (pmccm_poly_eval d a b (fun u w => pmccm_y u w) [:: (1, 2%N); (-1, 0%N)]) //.
-    by move=> u w; rewrite /pmccm_y !pmccm_poly_cons pmccm_poly_nil; ring.
-  by rewrite !pmccm_poly_moment_cons pmccm_poly_moment_nil !pmdm_mfS !pmdm_mf0; ring.
-- rewrite (pmccm_poly_eval d a b (fun u w => pmccm_y u w ^+ 2)
-    [:: (1, 4%N); (-2, 2%N); (1, 0%N)]) //.
-    by move=> u w; rewrite /pmccm_y !pmccm_poly_cons pmccm_poly_nil; ring.
-  by rewrite !pmccm_poly_moment_cons pmccm_poly_moment_nil !pmdm_mfS !pmdm_mf0; ring.
-- rewrite (pmccm_poly_eval d a b (fun u w => pmccm_y u w ^+ 4)
-    [:: (1, 8%N); (-4, 6%N); (6, 4%N); (-4, 2%N); (1, 0%N)]) //.
-    by move=> u w; rewrite /pmccm_y !pmccm_poly_cons pmccm_poly_nil; ring.
-  by rewrite !pmccm_poly_moment_cons pmccm_poly_moment_nil !pmdm_mfS !pmdm_mf0; ring.
 Qed.
 
 (* 3. Rows of a list of n * d coordinates. *)
@@ -312,12 +282,4 @@ rewrite pmdm_E_scale; [exact: R2 |].
 rewrite pmdm_E_scale; [exact: R1 |].
 rewrite pmdm_E_const IH (pmccm_S_moment2 d a b n Ha Hb Hab) (pmccm_S_mean d a b n Ha Hb Hab).
 rewrite mulrSr; ring.
-Qed.
-
-Corollary pmccm_S_moment4_le d a b n : (a < d)%N -> (b < d)%N -> a <> b -> (0 < n)%N ->
-  gaussian_iterated_expectation (n * d) (fun xs => pmccm_S d a b n xs ^+ 4) <= 10368 * n%:R ^+ 2.
-Proof.
-move=> Ha Hb Hab Hn; rewrite pmccm_S_moment4 //.
-have H1 : 1 <= n%:R :> R by rewrite ler1n.
-nra.
 Qed.

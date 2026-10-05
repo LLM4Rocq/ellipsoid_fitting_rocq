@@ -91,50 +91,6 @@ Qed.
 Lemma gpp_mass d : gaussian_product_law d setT = 1%E.
 Proof. exact: probability_setT. Qed.
 
-Lemma gpp_coordinate_law d i (A : set (measurableTypeR R)) :
-  (i < d)%N -> measurable A ->
-  gaussian_product_law d [set x : d.-tuple (measurableTypeR R) |
-    A (List.nth i (tval x) 0%R)] = gaussian_law A.
-Proof.
-elim: d i => [|d IH] i hi mA; first by rewrite ltn0 in hi.
-case: i hi => [|i] hi.
-- change ((gaussian_law_probability \x gaussian_product_law d)%E
-    (gaussian_cons_tuple d @^-1` [set x : d.+1.-tuple (measurableTypeR R) |
-      A (List.nth 0 (tval x) 0%R)]) = gaussian_law A).
-  have -> : (gaussian_cons_tuple d @^-1` [set x : d.+1.-tuple (measurableTypeR R) |
-      A (List.nth 0 (tval x) 0%R)]) = (A `*` setT).
-    apply/seteqP; split.
-    + by move=> [a xs] h; split.
-    + by move=> [a xs] [h _].
-  etransitivity; first exact: (@product_measure1E _ _ (measurableTypeR R)
-    (d.-tuple (measurableTypeR R)) R gaussian_law_probability
-    (gaussian_product_law d) A setT mA measurableT).
-  etransitivity; first exact: (congr1
-    (fun z : \bar R => (gaussian_law_probability A * z)%E) (gpp_mass d)).
-  by rewrite mule1.
-- change ((gaussian_law_probability \x gaussian_product_law d)%E
-    (gaussian_cons_tuple d @^-1` [set x : d.+1.-tuple (measurableTypeR R) |
-      A (List.nth i.+1 (tval x) 0%R)]) = gaussian_law A).
-  have -> : (gaussian_cons_tuple d @^-1` [set x : d.+1.-tuple (measurableTypeR R) |
-      A (List.nth i.+1 (tval x) 0%R)]) =
-      (setT `*` [set x : d.-tuple (measurableTypeR R) | A (List.nth i (tval x) 0%R)]).
-    apply/seteqP; split.
-    + by move=> [a xs] h; split.
-    + by move=> [a xs] [_ h].
-  have mAi : measurable [set x : d.-tuple (measurableTypeR R) |
-      A (List.nth i (tval x) 0%R)].
-    have hm := gpp_coordinate_measurable d i hi.
-    by have := hm measurableT A mA; rewrite setTI.
-  etransitivity; first exact: (@product_measure1E _ _ (measurableTypeR R)
-    (d.-tuple (measurableTypeR R)) R gaussian_law_probability
-    (gaussian_product_law d) setT _ measurableT mAi).
-  have hp : gaussian_law_probability setT = 1%E by exact: probability_setT.
-  etransitivity; first exact: (congr1
-    (fun z : \bar R => (z * gaussian_product_law d
-      [set x : d.-tuple (measurableTypeR R) | A (List.nth i (tval x) 0%R)])%E) hp).
-  rewrite mul1e; exact: IH i hi mA.
-Qed.
-
 Lemma gpp_cons_measurable d (F : list R -> R) :
   measurable_fun [set: d.+1.-tuple (measurableTypeR R)]
     (fun x => (F (tval x))%:E) ->

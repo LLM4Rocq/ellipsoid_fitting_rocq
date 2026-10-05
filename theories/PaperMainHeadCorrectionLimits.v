@@ -14,21 +14,6 @@ move=> Hd; have [_ [HE _]] := paper_main_head_scale_powers d Hd.
 by rewrite HE /paper_main_residual_threshold.
 Qed.
 
-Theorem paper_main_head_inverse_power_tends_to_zero C k :
-  0 <= C -> (0 < k)%coq_nat ->
-  paper_main_tends_to (fun d => ((C/(paper_main_head_scale (INR d))^k)%Rcoq)%:E) 0.
-Proof.
-move=> HC Hk eps Heps.
-have HepsR : 0 < eps by exact/RltP.
-have [D HD] := paper_main_head_inverse_power_small C k eps HC Hk HepsR.
-exists D => d Hdd.
-have HddN : Nat.le D d by exact: (elimT ssrnat.leP Hdd).
-have [H0 Hlt] := HD d HddN.
-have Hp : (0 <= ((C/(paper_main_head_scale (INR d))^k)%Rcoq)%:E)%E.
-{ rewrite lee_fin; exact/RleP. }
-rewrite sube0 (gee0_abs Hp) lte_fin; exact/RltP.
-Qed.
-
 Lemma paper_main_head_width_error_large E eps :
   0 <= E -> 0 < eps -> exists D : nat, forall d, (D <= d)%coq_nat ->
     0 < INR d /\

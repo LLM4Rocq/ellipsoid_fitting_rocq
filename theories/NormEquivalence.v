@@ -158,41 +158,6 @@ Proof.
       (tuple_entry (tuple_NormedModule R^o n) n i A)).
 Qed.
 
-Theorem matrix_action_frobenius_bound n (A : matrix n) (x : vector n) :
-  (`|matrix_action n A x|)%R <= (`|A|)%R * (`|x|)%R.
-Proof.
-  assert (Hrow : forall i, (i <= n)%coq_nat ->
-    vector_entry n (matrix_action n A x) i ^ 2 <=
-      (`|x|)%R ^ 2 * coordinate_sum n (fun j => matrix_entry n A i j ^ 2)).
-  { intros i Hi; rewrite (matrix_action_entry n A x i Hi).
-    pose proof (coordinate_cauchy_schwarz_squared n
-      (matrix_entry n A i) (vector_entry n x)) as H.
-    rewrite -(vector_norm_squared n x) in H; nra. }
-  pose proof (normeq_coordinate_sum_le n
-    (fun i => vector_entry n (matrix_action n A x) i ^ 2)
-    (fun i => (`|x|)%R ^ 2 *
-      coordinate_sum n (fun j => matrix_entry n A i j ^ 2)) Hrow) as H.
-  rewrite -(vector_norm_squared n (matrix_action n A x)) in H.
-  rewrite (normeq_coordinate_sum_scale n ((`|x|)%R ^ 2)
-    (fun i => coordinate_sum n (fun j => matrix_entry n A i j ^ 2))) in H.
-  rewrite -(matrix_frobenius_norm_squared n A) in H.
-  assert (HA : 0 <= (`|A|)%R) by (apply/RleP; apply normr_ge0).
-  assert (Hx : 0 <= (`|x|)%R) by (apply/RleP; apply normr_ge0).
-  assert (HAx : 0 <= (`|matrix_action n A x|)%R)
-    by (apply/RleP; apply normr_ge0).
-  assert (Hprod : 0 <= (`|A|)%R * (`|x|)%R) by (apply Rmult_le_pos; assumption).
-  nra.
-Qed.
-
-Theorem matrix_operator_norm_le_frobenius n (A : matrix n) :
-  matrix_operator_norm n A <= (`|A|)%R.
-Proof.
-  apply matrix_operator_norm_upper; intros x Hx.
-  pose proof (matrix_action_frobenius_bound n A x).
-  assert (HA : 0 <= (`|A|)%R) by (apply/RleP; apply normr_ge0).
-  nra.
-Qed.
-
 Theorem operator_basis_vector_norm n j :
   (j <= n)%coq_nat -> (`|operator_basis_vector n j|)%R = 1.
 Proof.
@@ -221,69 +186,4 @@ Proof.
   rewrite (vector_norm_squared n (matrix_action n A (operator_basis_vector n j))).
   apply coordinate_sum_ext; intros i Hi.
   rewrite (matrix_action_basis_entry n A i j Hi Hj); reflexivity.
-Qed.
-
-Theorem matrix_frobenius_operator_squared_bound n (A : matrix n) :
-  (`|A|)%R ^ 2 <= INR (S n) * matrix_operator_norm n A ^ 2.
-Proof.
-  rewrite (matrix_frobenius_column_identity n A).
-  rewrite -(normeq_coordinate_sum_const n (matrix_operator_norm n A ^ 2)).
-  apply normeq_coordinate_sum_le; intros j Hj.
-  apply pow_incr; split; [apply/RleP; apply normr_ge0|].
-  apply matrix_action_unit_bound.
-  rewrite (operator_basis_vector_norm n j Hj); lra.
-Qed.
-
-Theorem matrix_frobenius_le_sqrt_dimension_operator n (A : matrix n) :
-  (`|A|)%R <= sqrt (INR (S n)) * matrix_operator_norm n A.
-Proof.
-  pose proof (matrix_frobenius_operator_squared_bound n A) as H.
-  assert (Hd : 0 <= INR (S n)) by (apply pos_INR).
-  assert (HE : (sqrt (INR (S n)) * matrix_operator_norm n A) ^ 2 =
-    INR (S n) * matrix_operator_norm n A ^ 2).
-  { rewrite Rpow_mult_distr (pow2_sqrt _ Hd); reflexivity. }
-  rewrite -HE in H.
-  assert (HA : 0 <= (`|A|)%R) by (apply/RleP; apply normr_ge0).
-  assert (Hp : 0 <= sqrt (INR (S n)) * matrix_operator_norm n A).
-  { apply Rmult_le_pos; [apply sqrt_pos|apply matrix_operator_norm_nonnegative]. }
-  nra.
-Qed.
-
-Theorem matrix_frobenius_le_dimension_operator n (A : matrix n) :
-  (`|A|)%R <= INR (S n) * matrix_operator_norm n A.
-Proof.
-  eapply Rle_trans; [apply matrix_frobenius_le_sqrt_dimension_operator|].
-  apply Rmult_le_compat_r; [apply matrix_operator_norm_nonnegative|].
-  assert (Hd : 1 <= INR (S n)) by (change (INR 1 <= INR (S n)); apply le_INR; lia).
-  pose proof (sqrt_pos (INR (S n))) as Hs.
-  pose proof (pow2_sqrt (INR (S n)) ltac:(lra)) as Hsq; nra.
-Qed.
-
-(* Both norms are the existing concrete norms: the induced Euclidean
-   operator norm and the iterated Euclidean product norm of
-   MatrixDefinitions, which is Coquelicot's. *)
-Theorem matrix_norm_equivalence n (A : matrix n) :
-  matrix_operator_norm n A <= (`|A|)%R /\
-  (`|A|)%R <= INR (S n) * matrix_operator_norm n A.
-Proof.
-  split; [apply matrix_operator_norm_le_frobenius|
-    apply matrix_frobenius_le_dimension_operator].
-Qed.
-
-(* Applying this to a difference of matrices gives both inclusions between
-   norm neighborhoods, without replacing either concrete norm definition. *)
-Theorem matrix_norm_ball_comparison n (A : matrix n) eps :
-  0 < eps ->
-  ((`|A|)%R < eps -> matrix_operator_norm n A < eps) /\
-  (matrix_operator_norm n A < eps / INR (S n) -> (`|A|)%R < eps).
-Proof.
-  intros Heps; split.
-  - intros H; pose proof (matrix_operator_norm_le_frobenius n A); lra.
-  - intros H.
-    assert (Hd : 0 < INR (S n)) by (apply lt_0_INR; lia).
-    assert (Hlt : INR (S n) * matrix_operator_norm n A <
-      INR (S n) * (eps / INR (S n))).
-    { apply Rmult_lt_compat_l; assumption. }
-    replace (INR (S n) * (eps / INR (S n))) with eps in Hlt by (field; lra).
-    pose proof (matrix_frobenius_le_dimension_operator n A); lra.
 Qed.

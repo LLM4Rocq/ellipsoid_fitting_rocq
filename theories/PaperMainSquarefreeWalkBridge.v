@@ -64,15 +64,6 @@ move=> Hs; rewrite (pmsw_count_word N d r c i t i ps Hs) pmsw_rows_closed.
 by [].
 Qed.
 
-Lemma pmsw_bridge_moment i t ps : size ps = (size t).+1 ->
-  pmsw_moment (N * d) (pmsw_word N d i t i ps) =
-  \prod_(r < N) \prod_(c < d) moment_factor (pmsc_deg N d (i :: t) ps r c).
-Proof.
-move=> Hs; rewrite /pmsw_moment.
-rewrite (pmsw_big_coord _ _ _ N d (fun k => moment_factor (count_mem k (pmsw_word N d i t i ps)))).
-by apply: eq_bigr => r _; apply: eq_bigr => c _; rewrite pmsw_bridge_count.
-Qed.
-
 Lemma pmsw_bridge_excess i t ps : size ps = (size t).+1 ->
   (\sum_(k < N * d) ((count_mem (k : nat) (pmsw_word N d i t i ps))./2 -
       (0 < count_mem (k : nat) (pmsw_word N d i t i ps))))%N =
@@ -150,15 +141,6 @@ case Hst: (pmsw_steps N i t i); last by rewrite !mul0r.
 rewrite !mul1r big_seq [X in _ <= X]big_seq; apply: ler_sum => ps Hps.
 rewrite natrM natrX -(pmsw_seqs_size Ht).
 by apply: pmsw_bridge_weight; rewrite ?(pmsw_seqs_size Ht).
-Qed.
-
-Theorem paper_main_squarefree_offdiag_law_weight K :
-  (\int[gaussian_product_law (N * d)]_x (\tr (paper_main_squarefree_offdiag N d x ^+ K.+1))%:E <=
-   (pmsw_walk_weight K)%:R%:E)%E.
-Proof.
-have [_ ->] := paper_main_squarefree_offdiag_law N d K.
-rewrite lee_fin -paper_main_squarefree_offdiag_walks.
-exact: paper_main_squarefree_offdiag_weight.
 Qed.
 
 End Bridge.

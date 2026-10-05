@@ -28,50 +28,6 @@ Local Open Scope ring_scope.
 
 (* 1. Product-law forms. *)
 
-Lemma paper_main_concentration_mean_law d (F : list R -> R) (C : R) :
-  finite_joint_continuous d F ->
-  (forall xs, length xs = d -> (Rabs (F xs) <= C)%Rcoq) ->
-  (gaussian_product_law d).-integrable setT (fun x => (F (tval x))%:E) /\
-  (\int[gaussian_product_law d]_x (F (tval x))%:E =
-    (gaussian_iterated_expectation d F)%:E)%E.
-Proof.
-move=> HF HB.
-apply: gpp_all_sections.
-- apply/measurable_EFinP; exact: gpp_joint_measurable.
-- exact: (paper_main_concentration_integrable d F C HF HB).
-- apply: (gaussian_iterated_polynomial_absolutely_integrable d F C 0 HF).
-  exact: paper_main_concentration_poly0.
-Qed.
-
-Theorem paper_main_concentration_rows_law N p (F : list R -> R) (C c lam : R) :
-  (0 <= c)%Rcoq -> finite_joint_continuous (N * p) F ->
-  (forall xs, length xs = (N * p)%nat -> (Rabs (F xs) <= C)%Rcoq) ->
-  paper_main_row_oscillation N p c F ->
-  (\int[gaussian_product_law (N * p)]_x
-     ((exp (lam * (F (tval x) - gaussian_iterated_expectation (N * p) F)))%Rcoq)%:E <=
-   ((exp (lam ^ 2 * INR N * c ^ 2 / 2))%Rcoq)%:E)%E.
-Proof.
-move=> Hc HF HB Hosc.
-set m := gaussian_iterated_expectation (N * p) F.
-have HGc : finite_joint_continuous (N * p) (fun xs => exp (lam * (F xs - m))).
-  exact: (paper_main_concentration_comp _ F _ (paper_main_concentration_exp_continuous lam m) HF).
-have HGb : forall xs, length xs = (N * p)%nat ->
-    (Rabs (exp (lam * (F xs - m))) <= exp (Rabs lam * (C + Rabs m)))%Rcoq.
-  move=> xs Hxs; rewrite Rabs_right; first exact: Rle_ge (Rlt_le _ _ (exp_pos _)).
-  apply: paper_main_concentration_exp_le.
-  have H1 := Rle_abs (lam * (F xs - m)); rewrite Rabs_mult in H1.
-  have H2 := HB xs Hxs; have H3 := Rabs_pos lam.
-  have H4 : (Rabs (F xs - m) <= C + Rabs m)%Rcoq.
-    have := Rabs_triang (F xs) (- m); rewrite Rabs_Ropp /Rminus; lra.
-  apply: Rle_trans H1 _; by apply: Rmult_le_compat_l.
-rewrite (gpp_nonnegative (N * p) (fun xs => exp (lam * (F xs - m)))).
-- apply/measurable_EFinP; exact: (gpp_joint_measurable (N * p) _ HGc).
-- by move=> xs; apply/RleP; apply: Rlt_le; apply: exp_pos.
-- exact: (paper_main_concentration_integrable _ _ _ HGc HGb).
-- rewrite lee_fin; apply/RleP.
-  exact: (paper_main_concentration_rows N p F C c lam Hc HF HB Hosc).
-Qed.
-
 (* 2. The measurable lower tail. *)
 
 Theorem paper_main_concentration_lower_tail N p (F : list R -> R) (C c t : R) :
@@ -166,43 +122,3 @@ right; rewrite /lam; field; split; lra.
 Qed.
 
 (* The upper tail, from the lower tail of - F. *)
-
-Corollary paper_main_concentration_upper_tail N p (F : list R -> R) (C c t : R) :
-  (0 < N)%N -> (0 < c)%Rcoq -> (0 < t)%Rcoq ->
-  finite_joint_continuous (N * p) F ->
-  (forall xs, length xs = (N * p)%nat -> (Rabs (F xs) <= C)%Rcoq) ->
-  paper_main_row_oscillation N p c F ->
-  measurable [set x : (N * p).-tuple (measurableTypeR R) |
-    (gaussian_iterated_expectation (N * p) F + t <= F (tval x))%R] /\
-  (gaussian_product_law (N * p)
-     [set x | (gaussian_iterated_expectation (N * p) F + t <= F (tval x))%R] <=
-   ((exp (- (t ^ 2) / (2 * INR N * c ^ 2)))%Rcoq)%:E)%E.
-Proof.
-move=> HN Hc Ht HF HB Hosc.
-set G := fun xs => (- F xs)%Rcoq.
-have HGc : finite_joint_continuous (N * p) G.
-  apply: (paper_main_concentration_comp _ F (fun y => (- y)%Rcoq)) => //.
-  by move=> y; reg.
-have HGb : forall xs, length xs = (N * p)%nat -> (Rabs (G xs) <= C)%Rcoq.
-  by move=> xs Hxs; rewrite /G Rabs_Ropp; exact: HB.
-have HGo : paper_main_row_oscillation N p c G.
-  move=> k a z z' b Hk Ha Hz Hz' Hb; rewrite /G.
-  have -> : (- F (a ++ z ++ b) - - F (a ++ z' ++ b) =
-      - (F (a ++ z ++ b) - F (a ++ z' ++ b)))%Rcoq by ring.
-  by rewrite Rabs_Ropp; exact: (Hosc k a z z' b Hk Ha Hz Hz' Hb).
-have HFi := paper_main_concentration_integrable _ F C HF HB.
-have HEG : gaussian_iterated_expectation (N * p) G =
-    (- gaussian_iterated_expectation (N * p) F)%Rcoq.
-  rewrite (gaussian_iterated_expectation_ext _ G (fun xs => (-1 * F xs)%Rcoq)).
-    by move=> xs _; rewrite /G; ring.
-  by rewrite (proj2 (gaussian_iterated_scale _ _ (-1) HFi)); ring.
-have [mE PE] := paper_main_concentration_lower_tail N p G C c t HN Hc Ht HGc HGb HGo.
-rewrite HEG in mE PE.
-have Hset : [set x : (N * p).-tuple (measurableTypeR R) |
-    (G (tval x) <= - gaussian_iterated_expectation (N * p) F - t)%R] =
-  [set x | (gaussian_iterated_expectation (N * p) F + t <= F (tval x))%R].
-  apply/seteqP; split => x /= /RleP H; apply/RleP; rewrite /G in H *;
-    move: H; rewrite -?RminusE -?RplusE -?RoppE; lra.
-rewrite Hset in mE PE.
-by split.
-Qed.

@@ -190,22 +190,3 @@ split.
   exists (paper_main_trace S + b) => i.
   by rewrite -(Hb i) addrC subrK.
 Qed.
-
-(* lem:homogeneous (ii), exclusion half, kernel form: no spanning, any n
-   and d. *)
-Theorem paper_main_homogeneous_exclusion n d (x : paper_main_sample n d) (S : 'M[R]_d) :
-  paper_main_psd S -> S != 0 -> paper_main_kernel x S ->
-  paper_main_balanced_pd_event n d x -> False.
-Proof.
-move=> HS S0 [c Hc] [y [Hy HM]].
-have Hpair : paper_main_pairing S
-    (\sum_(i < n) y i *: (paper_main_point x i *m (paper_main_point x i)^T)) = 0.
-  rewrite paper_main_pairing_sum.
-  have -> : \sum_(i < n) y i * paper_main_pairing S
-      (paper_main_point x i *m (paper_main_point x i)^T) = c * \sum_(i < n) y i.
-    rewrite mulr_sumr; apply: eq_bigr => i _.
-    by rewrite paper_main_pairing_outer Hc mulrC.
-  by rewrite Hy mulr0.
-have := paper_main_pairing_pd_psd_gt0 _ _ _ HM HS S0.
-by rewrite paper_main_pairingC Hpair ltxx.
-Qed.

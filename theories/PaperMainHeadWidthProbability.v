@@ -82,22 +82,3 @@ split.
   rewrite /A Hdn in Hx.
   exact: (proj2 (proj2 (Hpick n Hn)) x Hx).
 Qed.
-
-Theorem paper_main_head_width_regular_probability
-    (N : nat -> nat) K c c0 Q L C eps :
-  (0 <= K)%Rcoq -> (0 < c)%Rcoq -> (0 < c0)%Rcoq ->
-  (0 <= Q)%Rcoq -> (0 <= L)%Rcoq -> (0 <= C)%Rcoq -> (0 < eps)%Rcoq ->
-  (exists D, forall d, Nat.le D d -> (INR (N d) <= C*(INR d)^2)%Rcoq) ->
-  exists kappa, (1 <= kappa)%Rcoq /\
-    exists A : forall d, set (paper_main_sample (N d) d),
-      (forall d, measurable (A d)) /\
-      paper_main_tends_to (fun d => paper_main_probability (N d) d (A d)) 0 /\
-      exists D, forall n, Nat.le D n -> forall x, ~ A (S n) x ->
-        paper_main_regular_heads_width_good (N (S n)) n K c c0 Q L kappa eps x.
-Proof.
-move=> HK Hc Hc0 HQ HL HC Heps HN.
-have [k0 [Hk0 Hbase]] := paper_main_gaussian_condition_width_large (eps/2)%Rcoq ltac:(lra).
-exists (2*k0^2)%Rcoq; split; first nra.
-exact: paper_main_head_width_regular_probability_fixed N K c c0 Q L C k0 eps
-  HK Hc Hc0 HQ HL HC Heps HN Hk0 Hbase.
-Qed.

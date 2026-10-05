@@ -2,7 +2,7 @@
    connect the covariance contraction to actual first and second derivatives. *)
 From Stdlib Require Import Reals List Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeights
-  GibbsDerivatives GibbsNested GibbsMomentBounds PaperMainGordonCovariance.
+  GibbsDerivatives GibbsMomentBounds PaperMainGordonCovariance.
 Import ListNotations.
 Open Scope R_scope.
 
@@ -23,17 +23,6 @@ Lemma paper_main_gordon_hessian_diagonal beta gamma H U Y S :
   paper_main_gordon_hessian beta gamma H U U Y S =
   nested_gibbs_curvature beta gamma H U Y S 0.
 Proof. symmetry; apply paper_main_gordon_curvatureE. Qed.
-
-Lemma paper_main_gordon_meanE beta gamma H U Y S :
-  paper_main_gordon_mean beta gamma H U Y S =
-  nested_gibbs_mean beta gamma H U Y S 0.
-Proof.
-assert (H0 : affine_scores H U 0 = H).
-{ extensionality y; extensionality s; unfold affine_scores; ring. }
-unfold nested_gibbs_mean, inner_scores, inner_means, paper_main_gordon_mean,
-  paper_main_gordon_outer, paper_main_gordon_inner.
-rewrite H0; reflexivity.
-Qed.
 
 Theorem paper_main_gordon_curve_derivative beta gamma
     (F : R -> nat -> nat -> R) (D : nat -> nat -> R) Y S x :

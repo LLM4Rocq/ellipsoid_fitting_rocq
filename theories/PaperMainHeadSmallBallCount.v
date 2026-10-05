@@ -36,13 +36,6 @@ Definition paper_main_head_row_count n d (rho : 'cV[R]_d -> Prop)
     (x : paper_main_sample n d) : R :=
   finite_sum (fun i => if pselect (rho (paper_main_point x i)) then 1 else 0) (List.seq 0 n).
 
-Lemma paper_main_head_row_count_nonneg n d rho (x : paper_main_sample n d) :
-  0 <= paper_main_head_row_count n d rho x.
-Proof.
-apply: finite_sum_nonnegative => i _.
-by case: (pselect _) => Hp /=; lra.
-Qed.
-
 Lemma paper_main_head_row_count0 d rho (x : paper_main_sample 0 d) :
   paper_main_head_row_count 0 d rho x = 0.
 Proof. by []. Qed.

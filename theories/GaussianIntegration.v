@@ -54,14 +54,6 @@ From EllipsoidFitting Require Import GaussianDefinitions GaussianKernel Gaussian
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
 
-Theorem gaussian_density_continuous (x : R) :
-  {for x, continuous gaussian_density}.
-Proof.
-  unfold gaussian_density, Rdiv.
-  apply (continuous_mult R);
-    [apply gaussian_kernel_continuous | apply (continuous_const R)].
-Qed.
-
 Theorem gaussian_polynomial_admissible (f : R -> R) C p :
   (forall x : R, {for x, continuous f}) ->
   (forall x, Rabs (f x) <= C * (1 + Rabs x ^ p)) ->

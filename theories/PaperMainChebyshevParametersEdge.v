@@ -50,27 +50,10 @@ elim: K => [|K IH] /=; first by rewrite mulr0.
 by rewrite IH; ring.
 Qed.
 
-(* Additive in rho. *)
-Lemma pmchpe_rhoD (beta rho1 rho2 : R) (K : nat) :
-  pmlo_rho beta (rho1 + rho2) K = pmlo_rho beta rho1 K + pmlo_rho beta rho2 K.
-Proof.
-elim: K => [|K IH] /=; first by rewrite addr0.
-by rewrite IH; ring.
-Qed.
-
 (* Linear in rho: rho times the value at rho = 1. *)
 Lemma pmchpe_rho_lin (beta rho : R) (K : nat) :
   pmlo_rho beta rho K = rho * pmlo_rho beta 1 K.
 Proof. by rewrite -pmchpe_rhoZ mulr1. Qed.
-
-(* Nondecreasing in rho for beta >= 0. *)
-Lemma pmchpe_rho_le (beta rho rho' : R) (K : nat) : 0 <= beta -> rho <= rho' ->
-  pmlo_rho beta rho K <= pmlo_rho beta rho' K.
-Proof.
-move=> Hb Hr.
-rewrite (pmchpe_rho_lin _ rho) (pmchpe_rho_lin _ rho').
-by apply: ler_wpM2r => //; apply: pmchpe_rho_ge0 => //; exact: ler01.
-Qed.
 
 (* 2. The choice of eta. *)
 
@@ -158,54 +141,6 @@ have HA0 : 0 <= A by lra.
 have Htau : 0 <= A * ((2 ^ k.+1)%:R + 1).
   by apply: mulr_ge0 => //; apply: addr_ge0; [exact: ler0n | exact: ler01].
 have H3K : 0 <= 3 * (2 ^ k.+1)%:R * eta.
-  by apply: mulr_ge0; [apply: mulr_ge0; [exact: ler0n | exact: ler0n] | exact: ltW].
-apply: Hrho; last exact: lexx.
-exact: mulr_ge0.
-Qed.
-
-(* The concrete consumer, theta = 49/24, A = 12, k = 17 (K = 2^18), for
-   every beta >= 0. *)
-Theorem paper_main_chebyshev_edge_parameters_concrete_beta (beta : R) : 0 <= beta ->
-  exists eta : R, 0 < eta /\
-    forall rho : R, 0 <= rho ->
-      rho <= 3 * (2 ^ 17.+1)%:R * eta * (12 * ((2 ^ 17.+1)%:R + 1)) ->
-      2 ^+ (2 ^ 17.+1) * (12 * ((2 ^ 17.+1)%:R + 1)) + pmlo_rho beta rho (2 ^ 17.+1)
-      <= (49 / 24) ^+ (2 ^ 17.+1).
-Proof.
-move=> Hb.
-have [g [Hg Hgap]] := paper_main_chebyshev_parameters_concrete.
-have Htau : 0 <= 12 * ((2 ^ 17.+1)%:R + 1) :> R.
-  by apply: mulr_ge0; [exact: ler0n | apply: addr_ge0; [exact: ler0n | exact: ler01]].
-exact: pmchpe_combine Hb Htau Hg Hgap.
-Qed.
-
-(* The concrete consumer at beta = tau + 1. *)
-Theorem paper_main_chebyshev_edge_parameters_concrete :
-  exists eta : R, 0 < eta /\
-    forall rho : R, 0 <= rho ->
-      rho <= 3 * (2 ^ 17.+1)%:R * eta * (12 * ((2 ^ 17.+1)%:R + 1)) ->
-      2 ^+ (2 ^ 17.+1) * (12 * ((2 ^ 17.+1)%:R + 1)) +
-      pmlo_rho (12 * ((2 ^ 17.+1)%:R + 1) + 1) rho (2 ^ 17.+1)
-      <= (49 / 24) ^+ (2 ^ 17.+1).
-Proof.
-apply: paper_main_chebyshev_edge_parameters_concrete_beta.
-apply: addr_ge0; last exact: ler01.
-by apply: mulr_ge0; [exact: ler0n | apply: addr_ge0; [exact: ler0n | exact: ler01]].
-Qed.
-
-(* The concrete consumer at beta = tau + 1 and rho = 3 K eta tau. *)
-Corollary paper_main_chebyshev_edge_parameters_concrete_exact :
-  exists eta : R, 0 < eta /\
-    2 ^+ (2 ^ 17.+1) * (12 * ((2 ^ 17.+1)%:R + 1)) +
-    pmlo_rho (12 * ((2 ^ 17.+1)%:R + 1) + 1)
-      (3 * (2 ^ 17.+1)%:R * eta * (12 * ((2 ^ 17.+1)%:R + 1))) (2 ^ 17.+1)
-    <= (49 / 24) ^+ (2 ^ 17.+1).
-Proof.
-have [eta [He Hrho]] := paper_main_chebyshev_edge_parameters_concrete.
-exists eta; split => //.
-have Htau : 0 <= 12 * ((2 ^ 17.+1)%:R + 1) :> R.
-  by apply: mulr_ge0; [exact: ler0n | apply: addr_ge0; [exact: ler0n | exact: ler01]].
-have H3K : 0 <= 3 * (2 ^ 17.+1)%:R * eta :> R.
   by apply: mulr_ge0; [apply: mulr_ge0; [exact: ler0n | exact: ler0n] | exact: ltW].
 apply: Hrho; last exact: lexx.
 exact: mulr_ge0.

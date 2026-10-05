@@ -106,39 +106,3 @@ Proof.
   assert (Hs : 0 < sqrt (1-2*t)) by (apply sqrt_lt_R0; lra).
   field; split; lra.
 Qed.
-
-(* The conclusion is the Lebesgue integral over the line (header, item 1). *)
-Theorem gaussian_quadratic_exponential_density_integral t :
-  t < 1/2 ->
-  whole_line_has_integral (fun x => exp (t * (x*x)) * gaussian_density x)
-    (1 / sqrt (1-2*t)).
-Proof.
-  intro Ht.
-  pose proof gaussian_mass_positive as HM.
-  assert (Hs : 0 < sqrt (1-2*t)) by (apply sqrt_lt_R0; lra).
-  pose proof (gaussian_has_integral_scale (fun x => exp (t * (x*x)))
-    (gaussian_mass / sqrt (1-2*t)) (/gaussian_mass)
-    (gaussian_quadratic_exponential_has_integral t Ht)) as HI.
-  unfold gaussian_has_integral in HI.
-  replace (/gaussian_mass * (gaussian_mass / sqrt (1-2*t))) with
-    (1 / sqrt (1-2*t)) in HI by (field; split; lra).
-  replace (fun x => exp (t * (x*x)) * gaussian_density x) with
-    (fun x => /gaussian_mass * exp (t * (x*x)) * gaussian_kernel x).
-  - exact HI.
-  - apply functional_extensionality; intro x.
-    unfold gaussian_density, Rdiv; ring.
-Qed.
-
-Theorem gaussian_quadratic_exponential_moment t :
-  t < 1/2 ->
-  gaussian_has_integral (fun x => exp (t * (x*x)))
-    (gaussian_mass / sqrt (1-2*t)) /\
-  gaussian_integral_exists (fun x => exp (t * (x*x))) /\
-  gaussian_absolutely_integrable (fun x => exp (t * (x*x))) /\
-  gaussian_expectation (fun x => exp (t * (x*x))) = 1 / sqrt (1-2*t).
-Proof.
-  intro Ht; split; [apply gaussian_quadratic_exponential_has_integral; exact Ht | ].
-  split; [apply gaussian_quadratic_exponential_integrable; exact Ht | ].
-  split; [apply gaussian_quadratic_exponential_absolute_integrable; exact Ht | ].
-  apply gaussian_quadratic_exponential_expectation; exact Ht.
-Qed.

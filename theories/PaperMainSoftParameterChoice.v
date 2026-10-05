@@ -146,8 +146,3 @@ assert (Heq : (sqrt(2/d)*sqrt d)^2=2).
 assert (Hge : 0 <= sqrt(2/d)*sqrt d) by (apply Rmult_le_pos; assumption).
 nra.
 Qed.
-
-Lemma paper_main_soft_margin_after_clipping g d margin loss :
-  (g/2)*sqrt d <= margin -> loss <= (g/8)*sqrt d ->
-  (g/4)*sqrt d <= margin-loss-(g/8)*sqrt d.
-Proof. intros; lra. Qed.

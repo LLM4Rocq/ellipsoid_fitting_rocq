@@ -18,13 +18,6 @@ Open Scope classical_set_scope.
 Definition paper_main_fixed_count (alpha : R) (d : nat) : nat :=
   Num.truncn (alpha * d%:R ^+ 2).
 
-Lemma paper_main_density_nonnegative (n : nat -> nat) (d : nat) :
-  0 <= paper_main_density n d.
-Proof.
-rewrite /paper_main_density.
-by apply: mulr_ge0; rewrite ?ler0n ?invr_ge0 ?sqr_ge0.
-Qed.
-
 Lemma paper_main_fixed_count_dominates (n : nat -> nat) (alpha : R) (d : nat) :
   0 <= alpha -> (0 < d)%N -> paper_main_density n d <= alpha ->
   (n d <= paper_main_fixed_count alpha d)%N.

@@ -191,18 +191,3 @@ Proof.
     rewrite (tuple_entry_build R^o n k _ Hk); reflexivity.
   - apply operator_coordinate_sum_select; exact Hj.
 Qed.
-
-Theorem matrix_operator_norm_definite n (A : matrix n) :
-  matrix_operator_norm n A = 0 -> A = matrix_zero n.
-Proof.
-  intros Hnorm.
-  have Haction : forall x : vector n, matrix_action n A x = 0%R.
-  { intros x; apply: normr0_eq0.
-    have H := matrix_action_norm_bound n A x.
-    have H0 : 0 <= (`|matrix_action n A x|)%R by apply/RleP; apply normr_ge0.
-    rewrite Hnorm Rmult_0_l in H.
-    change ((`|matrix_action n A x|)%R = 0); lra. }
-  apply matrix_ext; intros i j Hi Hj.
-  rewrite -(matrix_action_basis_entry n A i j Hi Hj) Haction matrix_entry_zero.
-  unfold vector_entry; exact (linear0 (tuple_entry R^o n i)).
-Qed.

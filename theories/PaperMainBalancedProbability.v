@@ -50,14 +50,6 @@ rewrite sube0 -abseN oppeB.
 - by rewrite addeC.
 Qed.
 
-Lemma paper_main_probability_finite (n d : nat)
-    (E : set (paper_main_sample n d)) :
-  measurable E -> paper_main_probability n d E \is a fin_num.
-Proof.
-move=> mE; rewrite /paper_main_probability.
-exact: fin_num_measure.
-Qed.
-
 Lemma paper_main_balanced_from_sat :
   (forall n d : nat, measurable (paper_main_fit_event n d)) ->
   (forall n d : nat, measurable (paper_main_balanced_pd_event n d)) ->

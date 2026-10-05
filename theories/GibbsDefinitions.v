@@ -37,11 +37,6 @@ Definition inner_variances (gamma : R) (a b : nat -> nat -> R)
     (S : list nat) (t : R) (y : nat) : R :=
   gibbs_variance gamma (affine_scores a b t y) S (b y).
 
-Definition nested_gibbs_mean (beta gamma : R) (a b : nat -> nat -> R)
-    (Y S : list nat) (t : R) : R :=
-  gibbs_average (- beta) (inner_scores gamma a b S t) Y
-    (inner_means gamma a b S t).
-
 Definition nested_gibbs_curvature (beta gamma : R) (a b : nat -> nat -> R)
     (Y S : list nat) (t : R) : R :=
   gamma * gibbs_average (- beta) (inner_scores gamma a b S t) Y

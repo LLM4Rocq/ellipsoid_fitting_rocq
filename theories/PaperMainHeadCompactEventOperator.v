@@ -195,30 +195,3 @@ by apply: paper_main_finite_pairing_measurable;
 Qed.
 
 (* Instances: the actual tail features. *)
-
-Corollary paper_main_head_operator_tail_measurable n q (L : R) :
-  measurable [set x : paper_main_sample q (S n) |
-    paper_main_head_section_operator_bound q (fun i => paper_main_head_feature x i) L].
-Proof.
-exact: (paper_main_head_operator_event_measurable q (fun i x => paper_main_head_feature x i) L
-  (fun i a b => paper_main_gaussian_residual_feature_entry_measurable q (S n) i a b)).
-Qed.
-
-Corollary paper_main_head_operator_pair_measurable n k q (L : R) :
-  measurable [set hx : paper_main_sample k (S n) * paper_main_sample q (S n) |
-    paper_main_head_section_operator_bound q (fun i => paper_main_head_feature hx.2 i) L].
-Proof.
-exact: (paper_main_head_operator_event_measurable q
-  (fun i hx => paper_main_head_feature hx.2 i) L
-  (fun i a b => paper_main_head_compact_feature_snd n k q i a b)).
-Qed.
-
-Corollary paper_main_head_operator_selection_measurable n k q (L : R) (pi : 'S_(k + q)) :
-  measurable [set x : paper_main_sample (k + q) (S n) |
-    paper_main_head_section_operator_bound q
-      (fun i => paper_main_head_feature (paper_main_head_selection k q (S n) pi x).2 i) L].
-Proof.
-have mE := paper_main_head_operator_pair_measurable n k q L.
-have H := paper_main_head_selection_measurable k q (S n) pi measurableT _ mE.
-by rewrite setTI in H.
-Qed.

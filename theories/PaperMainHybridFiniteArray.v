@@ -179,14 +179,6 @@ move=> HI Hb; apply: paper_main_loss_normalized_array_regular => //.
 by move=> i j xs _ _ _; exact: paper_main_hybrid_finite_goe_loss_bounds.
 Qed.
 
-Lemma paper_main_hybrid_finite_data_bounds N r mi beta I Hs bs Bs xs :
-  (0 < N)%coq_nat -> I <> nil -> (0 < beta)%Rcoq -> length xs = (N * (r + S mi))%coq_nat ->
-  (0 <= paper_main_hybrid_finite_data N r mi beta I Hs bs Bs xs <= 1)%Rcoq.
-Proof.
-move=> HN HI Hb Hxs; apply: paper_main_loss_normalized_array_bounds => //.
-by move=> i j ys _ _ _; exact: paper_main_hybrid_finite_data_loss_bounds.
-Qed.
-
 Lemma paper_main_hybrid_finite_goe_bounds N r mi beta I Hs bs Bs xs :
   (0 < N)%coq_nat -> I <> nil -> (0 < beta)%Rcoq ->
   length xs = (N * (r + paper_main_symmetric_dimension mi))%coq_nat ->

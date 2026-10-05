@@ -171,17 +171,6 @@ have Hc : 0 <= - (2 * paper_main_pairing (Z - P) (S - P)).
 lra.
 Qed.
 
-Theorem pmcp_variational_min Z P :
-  (forall S, paper_main_psd S -> paper_main_pairing (Z - P) (S - P) <= 0) ->
-  forall S, paper_main_psd S -> paper_main_pairing (Z - P) (Z - P) <=
-                                paper_main_pairing (Z - S) (Z - S).
-Proof.
-move=> HV S HS; have H := HV S HS.
-have -> : Z - S = (Z - P) - (S - P) by apply/matrixP => i j; rewrite !mxE; ring.
-rewrite (pmcp_sub_expand (Z - P) (S - P)).
-have := paper_main_pairing_self_ge0 _ (S - P); lra.
-Qed.
-
 Theorem pmcp_variational_unique Z P1 P2 :
   paper_main_psd P1 -> paper_main_psd P2 ->
   (forall S, paper_main_psd S -> paper_main_pairing (Z - P1) (S - P1) <= 0) ->

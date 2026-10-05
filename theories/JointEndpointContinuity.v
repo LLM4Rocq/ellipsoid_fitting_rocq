@@ -70,7 +70,7 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates Operato
   GaussianVectorDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateWeightDefinitions JointDefinitions JointCoordinates
   GaussianPairExchange GaussianExpectationContinuity TimeDefinitions
-  JointTimeCalculus JointValueGrowth JointLipschitz.
+  JointTimeCalculus JointLipschitz.
 From EllipsoidFitting Require Import GaussianProduct GaussianCoordinateMarginals
   GaussianVectorDomain GaussianVectorAlgebra.
 Import ListNotations.
@@ -91,61 +91,6 @@ Proof.
     apply continuous_minus; [apply continuous_const|apply continuous_id].
 Qed.
 
-Theorem joint_soft_value_pair_domain n beta gamma offset coeff Y S C t :
-  0<beta -> 0<gamma -> Y<>nil -> S<>nil -> 0<=t<=1 ->
-  gaussian_pair_domain n (goe_vector_index n)
-    (joint_soft_value n beta gamma offset coeff Y S C t).
-Proof.
-  intros Hb Hg HY HS Ht.
-  destruct (joint_soft_value_polynomial_regular n beta gamma offset coeff Y S C Hb Hg HY HS)
-    as [K [HK Hregular]].
-  exact (proj1 (gaussian_pair_polynomial_exchange n (goe_vector_index n)
-    (joint_soft_value n beta gamma offset coeff Y S C t) K 2
-    (proj1 (Hregular t)) HK (proj2 (Hregular t) Ht))).
-Qed.
-
-Theorem joint_soft_value_expectation_continuous n beta gamma offset coeff Y S C a :
-  0<beta -> 0<gamma -> Y<>nil -> S<>nil -> 0<=a<=1 ->
-  ((fun t => gaussian_pair_expectation n (goe_vector_index n)
-      (joint_soft_value n beta gamma offset coeff Y S C t)) @
-    within (fun t => 0<=t<=1) (nbhs a) -->
-    gaussian_pair_expectation n (goe_vector_index n)
-      (joint_soft_value n beta gamma offset coeff Y S C a))%classic.
-Proof.
-  intros Hb Hg HY HS Ha.
-  destruct (joint_soft_value_polynomial_regular n beta gamma offset coeff Y S C Hb Hg HY HS)
-    as [K [HK Hregular]].
-  destruct (joint_soft_value_difference_bound n beta gamma offset coeff Y S Hb Hg HY HS)
-    as [L [HL Hdifference]].
-  unfold gaussian_pair_expectation.
-  refine (proj1 (gaussian_iterated_expectation_continuous_modulus_within
-    (Datatypes.S n+Datatypes.S(goe_vector_index n))%coq_nat
-    (fun t => gaussian_pair_pullback n (goe_vector_index n)
-      (joint_soft_value n beta gamma offset coeff Y S C t))
-    (fun t => 0<=t<=1) a K 2 2
-    (fun t => L*(Rabs(sqrt t-sqrt a)+Rabs(sqrt(1-t)-sqrt(1-a))))
-    Ha _ _ _ _ _)).
-  - apply joint_polynomial_pullback; [exact HK|exact (proj2 (Hregular a) Ha)].
-  - exists 1; split; [lra|].
-    intros b Hb' Hnear; apply joint_continuous_pullback; exact (proj1 (Hregular b)).
-  - apply joint_endpoint_modulus_continuous.
-  - cbv beta.
-    replace (sqrt a-sqrt a) with 0 by ring.
-    replace (sqrt(1-a)-sqrt(1-a)) with 0 by ring.
-    rewrite Rabs_R0. lra.
-  - exists 1; split; [lra|].
-    intros b Hb' Hnear.
-    change (finite_polynomial_bound (Datatypes.S n+Datatypes.S(goe_vector_index n))%coq_nat
-      (L*(Rabs(sqrt b-sqrt a)+Rabs(sqrt(1-b)-sqrt(1-a)))) 2
-      (gaussian_pair_pullback n (goe_vector_index n) (fun x z =>
-        joint_soft_value n beta gamma offset coeff Y S C b x z-
-        joint_soft_value n beta gamma offset coeff Y S C a x z))).
-    apply joint_polynomial_pullback.
-    + pose proof (Rabs_pos (sqrt b-sqrt a));
-        pose proof (Rabs_pos (sqrt(1-b)-sqrt(1-a))); nra.
-    + intro q; exact (Hdifference C a b q Ha Hb').
-Qed.
-
 Lemma joint_matrix_at_zero n C x z :
   joint_matrix n C 0 x z=matrix_add n C (goe_matrix n z).
 Proof.
@@ -162,88 +107,4 @@ Proof.
   replace (1-1) with 0 by ring; rewrite sqrt_0 sqrt_1.
   apply matrix_ext; intros i j Hi Hj.
   rewrite !matrix_entry_add !matrix_entry_scale; ring.
-Qed.
-
-Theorem joint_soft_value_zero_endpoint n beta gamma offset coeff Y S C :
-  0<beta -> 0<gamma -> Y<>nil -> S<>nil ->
-  gaussian_vector_domain (goe_vector_index n) (fun z =>
-    soft_minimax beta gamma (matrix_affine_scores n offset coeff (matrix_add n C (goe_matrix n z))) Y S) /\
-  gaussian_pair_expectation n (goe_vector_index n)
-    (joint_soft_value n beta gamma offset coeff Y S C 0) =
-  gaussian_vector_expectation (goe_vector_index n) (fun z =>
-    soft_minimax beta gamma (matrix_affine_scores n offset coeff (matrix_add n C (goe_matrix n z))) Y S).
-Proof.
-  intros Hb Hg HY HS.
-  destruct (joint_soft_value_polynomial_regular n beta gamma offset coeff Y S C Hb Hg HY HS)
-    as [K [HK Hregular]].
-  destruct (gaussian_pair_polynomial_exchange n (goe_vector_index n)
-    (joint_soft_value n beta gamma offset coeff Y S C 0) K 2
-    (proj1 (Hregular 0)) HK (proj2 (Hregular 0) ltac:(lra)))
-    as [Hpair [Hz [Hx [Houterx [Houterz [Hforward Hreverse]]]]]].
-  split.
-  - eapply gaussian_vector_domain_ext; [|exact (Hz (0%R : vector_NormedModule n))].
-    intro z; unfold joint_soft_value; rewrite joint_matrix_at_zero; reflexivity.
-  - rewrite Hreverse.
-    apply gaussian_vector_expectation_ext; intro z.
-    replace (joint_soft_value n beta gamma offset coeff Y S C 0)
-      with (fun (_ : vector n) (z : vector (goe_vector_index n)) => soft_minimax beta gamma
-        (matrix_affine_scores n offset coeff (matrix_add n C (goe_matrix n z))) Y S).
-    + apply (proj2 (gaussian_vector_constant n _)).
-    + apply functional_extensionality; intro x; apply functional_extensionality; intro w.
-      unfold joint_soft_value; rewrite joint_matrix_at_zero; reflexivity.
-Qed.
-
-Theorem joint_soft_value_one_endpoint n beta gamma offset coeff Y S C :
-  0<beta -> 0<gamma -> Y<>nil -> S<>nil ->
-  gaussian_vector_domain n (fun x =>
-    soft_minimax beta gamma (matrix_affine_scores n offset coeff (matrix_add n C (joint_quadratic_input n x))) Y S) /\
-  gaussian_pair_expectation n (goe_vector_index n)
-    (joint_soft_value n beta gamma offset coeff Y S C 1) =
-  gaussian_vector_expectation n (fun x =>
-    soft_minimax beta gamma (matrix_affine_scores n offset coeff (matrix_add n C (joint_quadratic_input n x))) Y S).
-Proof.
-  intros Hb Hg HY HS.
-  destruct (joint_soft_value_polynomial_regular n beta gamma offset coeff Y S C Hb Hg HY HS)
-    as [K [HK Hregular]].
-  destruct (gaussian_pair_polynomial_exchange n (goe_vector_index n)
-    (joint_soft_value n beta gamma offset coeff Y S C 1) K 2
-    (proj1 (Hregular 1)) HK (proj2 (Hregular 1) ltac:(lra)))
-    as [Hpair [Hz [Hx [Houterx [Houterz [Hforward Hreverse]]]]]].
-  split.
-  - eapply gaussian_vector_domain_ext;
-      [|exact (Hx (0%R : vector_NormedModule (goe_vector_index n)))].
-    intro x; unfold joint_soft_value; rewrite joint_matrix_at_one; reflexivity.
-  - rewrite Hforward.
-    apply gaussian_vector_expectation_ext; intro x.
-    replace (joint_soft_value n beta gamma offset coeff Y S C 1 x)
-      with (fun (_ : vector (goe_vector_index n)) => soft_minimax beta gamma
-        (matrix_affine_scores n offset coeff (matrix_add n C (joint_quadratic_input n x))) Y S).
-    + apply (proj2 (gaussian_vector_constant (goe_vector_index n) _)).
-    + apply functional_extensionality; intro z.
-      unfold joint_soft_value; rewrite joint_matrix_at_one; reflexivity.
-Qed.
-
-Theorem joint_soft_value_endpoint_limits n beta gamma offset coeff Y S C :
-  0<beta -> 0<gamma -> Y<>nil -> S<>nil ->
-  gaussian_vector_domain (goe_vector_index n) (fun z =>
-    soft_minimax beta gamma (matrix_affine_scores n offset coeff (matrix_add n C (goe_matrix n z))) Y S) /\
-  gaussian_vector_domain n (fun x =>
-    soft_minimax beta gamma (matrix_affine_scores n offset coeff (matrix_add n C (joint_quadratic_input n x))) Y S) /\
-  ((fun t => gaussian_pair_expectation n (goe_vector_index n)
-      (joint_soft_value n beta gamma offset coeff Y S C t)) @
-    within (fun t => 0<=t<=1) (nbhs 0) -->
-    gaussian_vector_expectation (goe_vector_index n) (fun z =>
-      soft_minimax beta gamma (matrix_affine_scores n offset coeff (matrix_add n C (goe_matrix n z))) Y S))%classic /\
-  ((fun t => gaussian_pair_expectation n (goe_vector_index n)
-      (joint_soft_value n beta gamma offset coeff Y S C t)) @
-    within (fun t => 0<=t<=1) (nbhs 1) -->
-    gaussian_vector_expectation n (fun x =>
-      soft_minimax beta gamma (matrix_affine_scores n offset coeff (matrix_add n C (joint_quadratic_input n x))) Y S))%classic.
-Proof.
-  intros Hb Hg HY HS.
-  destruct (joint_soft_value_zero_endpoint n beta gamma offset coeff Y S C Hb Hg HY HS) as [HD0 HE0].
-  destruct (joint_soft_value_one_endpoint n beta gamma offset coeff Y S C Hb Hg HY HS) as [HD1 HE1].
-  split; [exact HD0|]; split; [exact HD1|]; split.
-  - rewrite <- HE0; apply joint_soft_value_expectation_continuous; try assumption; lra.
-  - rewrite <- HE1; apply joint_soft_value_expectation_continuous; try assumption; lra.
 Qed.

@@ -34,9 +34,6 @@ Definition paper_main_symmetric_gaussian n (xs : list R) : matrix n :=
 Definition paper_main_symmetric_identity n : matrix n :=
   matrix_build n (fun i j => if Nat.eqb i j then 1 else 0).
 
-Lemma paper_main_symmetric_goe_scale n : goe_scale n = sqrt (2 / INR (S n)).
-Proof. reflexivity. Qed.
-
 Lemma paper_main_symmetric_feature_conversion n xs i j :
   matrix_entry n (paper_main_gaussian_feature_row n 0 xs) i j =
     goe_scale n * matrix_entry n (paper_main_symmetric_gaussian n xs) i j.
@@ -377,44 +374,3 @@ rewrite paper_main_feature_coordinate_sum; reflexivity.
 Qed.
 
 (* Sign symmetry. *)
-
-Theorem paper_main_symmetric_gaussian_sign_symmetry n (Phi : matrix n -> R) C p :
-  finite_joint_continuous (paper_main_symmetric_dimension n)
-    (fun xs => Phi (paper_main_symmetric_gaussian n xs)) ->
-  finite_polynomial_bound (paper_main_symmetric_dimension n) C p
-    (fun xs => Phi (paper_main_symmetric_gaussian n xs)) ->
-  gaussian_iterated_expectation (paper_main_symmetric_dimension n)
-    (fun xs => Phi (matrix_scale n (-1) (paper_main_symmetric_gaussian n xs))) =
-  gaussian_iterated_expectation (paper_main_symmetric_dimension n)
-    (fun xs => Phi (paper_main_symmetric_gaussian n xs)).
-Proof.
-intros HC HB.
-rewrite <- (paper_main_gaussian_iterated_reflect _ _ C p HC HB).
-apply gaussian_iterated_expectation_ext; intros xs _.
-cbv beta; rewrite paper_main_symmetric_gaussian_neg; reflexivity.
-Qed.
-
-Theorem paper_main_symmetric_gaussian_lipschitz_transfer n (Phi : matrix n -> R) L :
-  (forall A B : matrix n, Rabs (Phi A - Phi B) <= L * (`|A - B|)%R) ->
-  forall xs ys, List.length xs = paper_main_symmetric_dimension n ->
-    List.length ys = paper_main_symmetric_dimension n ->
-    Rabs (Phi (paper_main_symmetric_gaussian n xs) - Phi (paper_main_symmetric_gaussian n ys)) <=
-      L * paper_main_gordon_distance (paper_main_symmetric_dimension n) xs ys.
-Proof.
-intros HPhi xs ys _ _.
-rewrite <- paper_main_symmetric_gaussian_isometry; apply HPhi.
-Qed.
-
-Theorem paper_main_symmetric_gaussian_lipschitz_sign_symmetry n (Phi : matrix n -> R) L :
-  0 <= L -> (forall A B : matrix n, Rabs (Phi A - Phi B) <= L * (`|A - B|)%R) ->
-  gaussian_iterated_expectation (paper_main_symmetric_dimension n)
-    (fun xs => Phi (matrix_scale n (-1) (paper_main_symmetric_gaussian n xs))) =
-  gaussian_iterated_expectation (paper_main_symmetric_dimension n)
-    (fun xs => Phi (paper_main_symmetric_gaussian n xs)).
-Proof.
-intros HL HPhi.
-pose proof (paper_main_symmetric_gaussian_lipschitz_transfer n Phi L HPhi) as HLip.
-exact (paper_main_symmetric_gaussian_sign_symmetry n Phi _ 2
-  (paper_main_gaussian_lipschitz_continuous _ _ L HL HLip)
-  (paper_main_gaussian_lipschitz_polynomial_bound _ _ L HL HLip)).
-Qed.

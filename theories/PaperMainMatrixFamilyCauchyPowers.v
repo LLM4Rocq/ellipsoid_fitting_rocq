@@ -14,10 +14,6 @@ Definition pmfc_energy (I : finType) n (F : I -> 'M[R]_n) (u : 'cV[R]_n) : R :=
 Definition pmfc_energy_bound (I : finType) n (F : I -> 'M[R]_n) b : Prop :=
   0 <= b /\ forall u, pmfc_energy I n F u <= b^+2*(u^T *m u) 0 0.
 
-Lemma pmfc_energy_ge0 (I : finType) n (F : I -> 'M[R]_n) u :
-  0 <= pmfc_energy I n F u.
-Proof. apply: sumr_ge0=>i _; exact: pmh_vec_sqr_ge0. Qed.
-
 Lemma pmfc_energy_form (I : finType) n (F : I -> 'M[R]_n) u :
   pmfc_energy I n F u = (u^T *m (\sum_i (F i)^T *m F i) *m u) 0 0.
 Proof.
@@ -93,10 +89,3 @@ Qed.
 
 Lemma pmfc_opb_identity n : pmlo_opb n (1%:M : 'M[R]_n) 1.
 Proof. split; first exact: ler01. by move=>v; rewrite mul1mx expr1n mul1r. Qed.
-
-Lemma pmfc_opb_power n (M : 'M[R]_n) b : pmlo_opb n M b ->
-  forall p, pmlo_opb n (M^+p) (b^+p).
-Proof.
-move=>HM; elim=>[|p IH]; first by rewrite !expr0; exact: pmfc_opb_identity.
-rewrite !exprS -mulmxE; exact: pmlo_opb_mul.
-Qed.

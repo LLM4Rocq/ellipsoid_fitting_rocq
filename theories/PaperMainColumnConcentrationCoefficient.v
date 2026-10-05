@@ -94,19 +94,6 @@ apply: paper_main_opnorm_to_action => //.
 exact: paper_main_cone_opnorm_of_loewner.
 Qed.
 
-(* The same with an explicit active set: inactive columns have R_c = 0. *)
-Corollary paper_main_weighted_rankone_opbound_active N (C : finType) (X : 'I_N -> C -> R)
-    (a : C -> R) (P : pred C) (U e : R) :
-  0 <= U -> 0 <= e ->
-  (forall u : 'cV[R]_N, (u^T *m (\sum_c pmcr_rankone N C X c) *m u) 0 0 <= U * (u^T *m u) 0 0) ->
-  (forall c, P c -> `|a c| <= e) -> (forall c, ~~ P c -> pmcr_rankone N C X c = 0) ->
-  pmlo_opb N (\sum_c a c *: pmcr_rankone N C X c) (e * U).
-Proof.
-move=> HU He HG HP Hnp.
-apply: paper_main_weighted_rankone_opbound => // c.
-by case: (boolP (P c)) => Hc; [right; exact: HP | left; exact: Hnp].
-Qed.
-
 (* 2. Normalized powers. *)
 Lemma paper_main_power_error (x delta : R) (p : nat) :
   0 <= x -> 0 <= delta -> delta <= 1 -> `|x - 1| <= delta ->

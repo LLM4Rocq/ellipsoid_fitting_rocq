@@ -103,14 +103,3 @@ Proof.
     rewrite tensor_value_append (HT U V W HU HV HW) (HS U V W HU HV HW).
     reflexivity.
 Qed.
-
-Theorem projective_operator_norm_add_cost_bound n
-    (T S : matrix n -> matrix n -> matrix n -> R) left right :
-  tensor_represents T left -> tensor_represents S right ->
-  (projective_operator_norm (fun U V W => Rplus (T U V W) (S U V W)) <=
-    (Rplus (tensor_cost left) (tensor_cost right))%:E)%E.
-Proof.
-  intros HT HS; rewrite -tensor_cost_append.
-  apply projective_operator_norm_representation_bound, tensor_represents_add;
-    assumption.
-Qed.

@@ -81,12 +81,3 @@ pose proof (paper_main_gibbs_row_increment_bounds beta f I ell Hb HI H1).
 pose proof (paper_main_gibbs_row_increment_bounds beta f I ell' Hb HI H2).
 apply Rabs_le; lra.
 Qed.
-
-Corollary paper_main_loss_row_change beta f I a z a' z' :
-  0 < beta -> I <> nil ->
-  Rabs(soft_min beta (fun s => f s+paper_main_loss(a+z s)) I-
-    soft_min beta (fun s => f s+paper_main_loss(a'+z' s)) I) <= 1.
-Proof.
-intros Hb HI; apply paper_main_gibbs_row_change; try assumption;
-  intros s Hs; apply paper_main_loss_bounds.
-Qed.

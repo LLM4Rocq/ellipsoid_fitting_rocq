@@ -27,15 +27,6 @@ Qed.
 Definition paper_main_loss_soft_normalized N beta f I :=
   /INR N*(soft_min beta f I+Rpower.ln(INR(List.length I))/beta).
 
-Lemma paper_main_loss_entropy_nonnegative beta (I : list nat) : 0<beta -> I<>nil ->
-  0<=Rpower.ln(INR(List.length I))/beta.
-Proof.
-intros Hb HI.
-assert (HL : 1<=INR(List.length I)) by (change (INR 1<=INR(List.length I)); apply le_INR; destruct I; [contradiction|simpl; lia]).
-pose proof(ln_monotone 1 (INR(List.length I)) ltac:(lra) HL) as Hln; rewrite ln_1 in Hln.
-unfold Rdiv; apply Rmult_le_pos; [exact Hln|apply Rlt_le,Rinv_0_lt_compat; exact Hb].
-Qed.
-
 Theorem paper_main_loss_soft_normalized_bounds N beta f I : Nat.lt 0 N -> 0<beta -> I<>nil ->
   (forall j, In j I -> 0<=f j<=INR N) -> 0<=paper_main_loss_soft_normalized N beta f I<=1.
 Proof.

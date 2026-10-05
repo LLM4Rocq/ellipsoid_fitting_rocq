@@ -68,17 +68,6 @@ Proof.
   - apply (IH i (fun j => f (S j))); lia.
 Qed.
 
-Lemma tuple_entry_outside (V : normedModType R) n i
-    (x : tuple_NormedModule V n) :
-  (n < i)%coq_nat -> tuple_entry V n i x = 0%R.
-Proof.
-  revert i x; induction n as [|n IH]; intros [|i] x Hi; simpl.
-  - lia.
-  - reflexivity.
-  - lia.
-  - apply IH; lia.
-Qed.
-
 Lemma tuple_ext (V : normedModType R) n
     (x y : tuple_NormedModule V n) :
   (forall i, (i <= n)%coq_nat -> tuple_entry V n i x = tuple_entry V n i y) ->
@@ -187,20 +176,6 @@ Proof.
   unfold matrix_entry, matrix_zero; rewrite !linear0; reflexivity.
 Qed.
 
-Lemma matrix_entry_outside n (A : matrix n) i j :
-  ((n < i)%coq_nat \/ (n < j)%coq_nat) -> matrix_entry n A i j = 0.
-Proof.
-  intros [Hi|Hj]; unfold matrix_entry.
-  - rewrite (tuple_entry_outside (tuple_NormedModule R^o n) n i A Hi).
-    rewrite linear0; reflexivity.
-  - exact (tuple_entry_outside R^o n j _ Hj).
-Qed.
-
-Lemma matrix_rebuild n (A : matrix n) : matrix_build n (matrix_entry n A) = A.
-Proof.
-  apply matrix_ext; intros i j Hi Hj; apply matrix_entry_build; assumption.
-Qed.
-
 (* Added by the port. Coquelicot's is_linear contains the norm bound, which
    makes the map continuous. MathComp's linear does not, so continuity is
    derived from the bound here. *)
@@ -301,9 +276,3 @@ Proof.
     + apply H; lia.
     + apply IH; intros i Hi; apply H; lia.
 Qed.
-
-Lemma matrix_mul_entry n (A B : matrix n) i j :
-  (i <= n)%coq_nat -> (j <= n)%coq_nat ->
-  matrix_entry n (matrix_mul n A B) i j =
-    coordinate_sum n (fun k => matrix_entry n A i k * matrix_entry n B k j).
-Proof. intros; unfold matrix_mul; apply matrix_entry_build; assumption. Qed.

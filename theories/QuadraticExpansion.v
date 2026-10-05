@@ -45,25 +45,6 @@ Open Scope R_scope.
    matrix_third_is_diff_linear of MatrixThird. Stdlib's "rewrite A, B" and
    "rewrite ... by tac" are written in the forms that ssreflect accepts. *)
 
-Theorem quadratic_entry_second_frechet n beta gamma offset coeff Y S lambda C
-    (x : vector n) a b :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
-  is_diff x
-    ((fun z => matrix_entry n
-      (quadratic_gradient_first n beta gamma offset coeff Y S lambda C z (chaos_basis n a)) a b)
-      : vector n -> R^o)
-    (fun v => matrix_entry n
-      (quadratic_gradient_second n beta gamma offset coeff Y S lambda C x (chaos_basis n a) v) a b).
-Proof.
-  intros Hb Hg HY HS.
-  exact (is_diff_comp
-    (quadratic_gradient_first_frechet n beta gamma offset coeff Y S lambda C x
-      (chaos_basis n a) Hb Hg HY HS)
-    (matrix_entry_frechet n
-      (quadratic_gradient_first n beta gamma offset coeff Y S lambda C x (chaos_basis n a))
-      a b)).
-Qed.
-
 Lemma quadratic_double_sum_scale n c f :
   coordinate_sum n (fun a => coordinate_sum n (fun b => c * f a b)) =
   c * coordinate_sum n (fun a => coordinate_sum n (f a)).
@@ -131,42 +112,4 @@ Proof.
           (quadratic_matrix n lambda C x)))).
     rewrite (quadratic_gradient_second_contraction n beta gamma offset coeff Y S
       (quadratic_matrix n lambda C x) x Hb Hg HY HS HC); ring.
-Qed.
-
-Theorem quadratic_gradient_time_sum n beta gamma offset coeff Y S t C (x : vector n) :
-  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 <= t ->
-  (forall y s, In y Y -> In s S -> symmetric_matrix n (coeff y s)) ->
-  / sqrt (INR (Datatypes.S n)) *
-    coordinate_sum n (fun a => coordinate_sum n (fun b =>
-      matrix_entry n
-        (quadratic_gradient_second n beta gamma offset coeff Y S
-          (sqrt (t / INR (Datatypes.S n))) C x (chaos_basis n a) (chaos_basis n b)) a b)) =
-  (2 * sqrt t / INR (Datatypes.S n)) * symmetric_divergence n
-    (matrix_nested_gradient_derivative n beta gamma offset coeff Y S
-      (quadratic_matrix n (sqrt (t / INR (Datatypes.S n))) C x)) +
-  (t / (INR (Datatypes.S n) * sqrt (INR (Datatypes.S n)))) * chaos_contraction n
-    (matrix_nested_third_derivative n beta gamma offset coeff Y S
-      (quadratic_matrix n (sqrt (t / INR (Datatypes.S n))) C x)) x.
-Proof.
-  intros Hb Hg HY HS Ht HC.
-  rewrite (quadratic_gradient_second_sum n beta gamma offset coeff Y S
-    (sqrt (t / INR (Datatypes.S n))) C x Hb Hg HY HS HC).
-  set (D := symmetric_divergence n
-    (matrix_nested_gradient_derivative n beta gamma offset coeff Y S
-      (quadratic_matrix n (sqrt (t / INR (Datatypes.S n))) C x))).
-  set (Rc := chaos_contraction n
-    (matrix_nested_third_derivative n beta gamma offset coeff Y S
-      (quadratic_matrix n (sqrt (t / INR (Datatypes.S n))) C x)) x).
-  assert (Hd : 0 < INR (Datatypes.S n)) by (apply lt_0_INR; lia).
-  assert (Hds : 0 < sqrt (INR (Datatypes.S n))) by (apply sqrt_lt_R0; exact Hd).
-  rewrite (sqrt_div t (INR (Datatypes.S n)) Ht Hd).
-  pose proof (sqrt_def t Ht) as Htsq.
-  pose proof (sqrt_def (INR (Datatypes.S n)) (Rlt_le _ _ Hd)) as Hdsq.
-  field_simplify.
-  - rewrite (pow2_sqrt t Ht).
-    replace (sqrt (INR (Datatypes.S n)) ^ 3) with
-      (sqrt (INR (Datatypes.S n)) * (sqrt (INR (Datatypes.S n)) * sqrt (INR (Datatypes.S n)))) by ring.
-    rewrite Hdsq; f_equal; ring.
-  - split; lra.
-  - lra.
 Qed.
