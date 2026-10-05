@@ -102,13 +102,20 @@ by explaining why not; you then delete the answered entry. Agent 1 deletes
 
 ## Git
 
-All clones live on the VM and share one local bare repository, the hub
-(for example `/srv/ellipsoid-fitting/hub.git`; the user creates it). There
-is no other remote.
+All clones live on the VM, in `/srv/ellipsoid-fitting/`, and share one
+local bare repository there, the hub `hub.git`. There is no other remote.
 
-- Each agent clones the hub and works in its own clone, on its lane branch:
-  `lane/a`, `lane/b` or `lane/c`. It pushes only that branch, and only to
-  the hub.
+| Clone | Used by | tmux session |
+|---|---|---|
+| `agent1` | agent 1, for phase 1 and lane A | `arthur` |
+| `integration` | agent 1, for merging | `arthur` |
+| `agent2` | agent 2, for lane B | `marcol` |
+| `agent3` | agent 3, for lane C | `lancelot` |
+
+- Each agent works in its own clone, on its lane branch: `lane/a`,
+  `lane/b` or `lane/c`. It pushes only that branch, and only to the hub.
+- The hub refuses pushes that rewrite history. Merge; do not rebase or
+  force-push commits that are on the hub.
 - Agent 1 merges in a separate integration clone, not in its lane clone, so
   that merging does not invalidate its lane build. Agent 1 alone pushes
   `main` and tags to the hub.
@@ -248,13 +255,24 @@ never go in `library/`.
   MathComp-Analysis 1.16.0). Inside a container where those binaries are on
   `PATH`, use `make check ROCQ_SWITCH=`. Never install or upgrade packages;
   if one seems necessary, ask the user.
+- On the VM, this toolchain exists only in the pinned Docker image. The
+  host's opam switches are older; never use them. Run every `make` and
+  `rocq` command through the wrapper, with the name of the clone, from that
+  clone:
+  `/srv/ellipsoid-fitting/environment/proof-shell.sh agent2 make check ROCQ_SWITCH= JOBS=4`.
+  It mounts that clone writable and the rest of `/srv/ellipsoid-fitting/`
+  read-only, with 4 CPUs and 12 GiB.
 - On a 16-vCPU machine shared by three agents, use `JOBS=4`. On a Mac with
   16 cores and `JOBS=12`, a full build took 13 minutes; expect longer here.
 - `make build` recompiles only what changed and what depends on it.
 - Each agent has its own clone and its own build. Never share `.vo` files.
-- `.mcp.json` starts `rocq-mcp-evolve` in the switch `rocq-analysis`. One
-  agent owns one server session. A proof found interactively counts only
-  once it is saved in the `.v` file and `make check` passes.
+- `.mcp.json` starts `rocq-mcp-evolve` in the switch `rocq-analysis`. On
+  the VM, `/srv/ellipsoid-fitting/environment/start-agent.sh` starts each
+  client in its clone with only one server, `rocq-evolve`, which runs in
+  the image on that clone; it ignores `.mcp.json` and the servers of the
+  earlier project. One agent owns one server session. A proof found
+  interactively counts only once it is saved in the `.v` file and
+  `make check` passes.
 
 ## Writing
 
