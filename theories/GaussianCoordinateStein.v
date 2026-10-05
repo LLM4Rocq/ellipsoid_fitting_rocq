@@ -59,7 +59,8 @@ From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefiniti
   GaussianCoordinateWeightDefinitions GaussianCoordinateWeights GaussianCoordinateMarginals
   GaussianCoordinatePermutationDefinitions GaussianCoordinatePermutations GaussianPermutationContinuity
   GaussianPermutationWeights GaussianCoordinatePolynomialContinuity GaussianCoordinateSwap
-  GaussianCoordinateDerivativeDefinitions GaussianCoordinateDerivatives GaussianCoordinateLastStein.
+  GaussianCoordinateDerivativeDefinitions GaussianCoordinateDerivatives GaussianCoordinateLastStein
+  GaussianLawBridge.
 Import ListNotations.
 Open Scope R_scope.
 
@@ -71,34 +72,7 @@ Theorem gaussian_iterated_coordinate_first_stein d i F DF C p D q :
   gaussian_iterated_expectation (S d) DF =
   gaussian_iterated_expectation (S d) (fun xs => nth i xs 0 * F xs).
 Proof.
-  intro Hi.
-  assert (Hrel : (i+(d-i)=d)%nat) by lia.
-  remember (d-i)%nat as k eqn:Hk; clear Hk Hi.
-  revert i F DF C D Hrel.
-  induction k as [|k IH]; intros i F DF C D Hrel HCF HCDF HF HDF HD.
-  - assert (Hi : i=d) by lia; subst i.
-    apply (gaussian_iterated_last_first_stein d F DF C p D q); try assumption.
-    exact (finite_coordinate_derivative_last d F DF HD).
-  - assert (Hi : (S i < S d)%nat) by lia.
-    transitivity (gaussian_iterated_expectation (S d) (fun xs => DF (swap_adjacent i xs))).
-    + exact (gaussian_iterated_swap_adjacent (S d) i DF D q Hi HCDF HDF).
-    + transitivity (gaussian_iterated_expectation (S d)
-        (fun xs => nth (S i) xs 0 * F (swap_adjacent i xs))).
-      * apply (IH (S i) (fun xs => F (swap_adjacent i xs))
-          (fun xs => DF (swap_adjacent i xs)) C D); try lia.
-        -- apply finite_joint_continuous_swap_adjacent; exact HCF.
-        -- apply finite_joint_continuous_swap_adjacent; exact HCDF.
-        -- apply finite_polynomial_bound_swap_adjacent; exact HF.
-        -- apply finite_polynomial_bound_swap_adjacent; exact HDF.
-        -- apply finite_coordinate_derivative_swap_right; assumption.
-      * symmetry.
-        pose proof (gaussian_iterated_swap_adjacent (S d) i
-          (fun xs => nth i xs 0 * F xs) C (S p) Hi
-          (finite_joint_continuous_times_coordinate (S d) F i HCF ltac:(lia))
-          (finite_polynomial_bound_times_coordinate (S d) C p F i HF ltac:(lia))) as H.
-        etransitivity; [exact H|].
-        apply gaussian_iterated_expectation_ext; intros xs Hxs.
-        rewrite swap_adjacent_nth_left by lia; reflexivity.
+  intro Hi; apply gaussian_iterated_coordinate_stein_gauss; lia.
 Qed.
 
 Theorem gaussian_iterated_coordinate_second_stein d i F DF DDF C p D q E r :

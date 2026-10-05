@@ -10,6 +10,7 @@ library/gaussian/normal_integral.v
 library/gaussian/gauss.v
 library/gaussian/gauss_ibp.v
 library/gaussian/gauss_moments.v
+library/gaussian/partial_derivative.v
 library/gaussian/gauss_interpolation.v
 
 theories/AffineGaussianGibbs.v
