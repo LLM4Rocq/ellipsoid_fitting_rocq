@@ -5,6 +5,10 @@
 -arg -w -arg -notation-incompatible-prefix
 -arg -w -arg -hiding-delimiting-key
 
+library/gaussian/measurable_matrix.v
+library/gaussian/normal_integral.v
+library/gaussian/gauss.v
+
 theories/AffineGaussianGibbs.v
 theories/AffineGaussianRegular.v
 theories/AnalysisBridge.v
@@ -79,6 +83,7 @@ theories/GaussianJensen.v
 theories/GaussianKernel.v
 theories/GaussianLastDefinitions.v
 theories/GaussianLastIntegration.v
+theories/GaussianLawBridge.v
 theories/GaussianMass.v
 theories/GaussianMatrixComponents.v
 theories/GaussianMoments.v
