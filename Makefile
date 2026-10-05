@@ -1,8 +1,9 @@
 # Build and check the proof of the main theorems.
 #
 #   make build    compile theories/ with JOBS parallel jobs
-#   make check    build, then compare the axioms of the main theorem with
-#                 check/assumptions.expected
+#   make check    build, compare the axioms of the main theorem with
+#                 check/assumptions.expected, and check that the frozen files
+#                 are unchanged (scripts/check_sources.py)
 #   make clean    remove compiled files
 #
 # ROCQ_SWITCH names the opam switch with the toolchain of README.md. Set it
@@ -25,7 +26,8 @@ check: build
 	mkdir -p build
 	$(EXEC) rocq compile -noglob -Q theories EllipsoidFitting -o build/Assumptions.vo check/Assumptions.v > build/assumptions.txt
 	diff -u check/assumptions.expected build/assumptions.txt
-	@echo "The main theorem is proved and uses only the axioms of check/assumptions.expected."
+	python3 scripts/check_sources.py
+	@echo "The main theorem is proved, uses only the axioms of check/assumptions.expected, and its statement is unchanged."
 
 clean:
 	if [ -f Makefile.rocq ]; then $(EXEC) $(MAKE) -f Makefile.rocq clean; fi

@@ -26,8 +26,9 @@ Each result also states that the events it measures are measurable.
 ## Status
 
 - **Proved.** The kernel accepts `ellipsoid_fitting_main : main_statement`
-  (`theories/MainTheorem.v`). `make check` builds the proof and compares
-  the axioms of this theorem with `check/assumptions.expected`.
+  (`theories/MainTheorem.v`). `make check` builds the proof, compares
+  the axioms of this theorem with `check/assumptions.expected`, and checks
+  that the statement and its definitions are unchanged.
 - **Reviewed.** On 5 October 2026 Marc Lelarge compared the formal
   statement and its definitions with the paper and found no problem. The
   kernel checks that the statement is proved; this review is the check that
@@ -99,6 +100,11 @@ warnings; they do not affect the proof.
   are `MainStatement.v`, `MainTheorem.v` and the 647 modules of the proof.
 - `check/Assumptions.v`: prints the axioms of the main theorem.
   `check/assumptions.expected` is the expected output.
+- `scripts/check_sources.py`: checks that the statement, the theorem and the
+  five definition modules of the statement have the same code as at the
+  commit in `check/frozen-baseline` (comments may differ), and that no
+  module contains `Admitted`, `Axiom`, `Parameter` or `Conjecture`.
+  `make check` runs it.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
 
