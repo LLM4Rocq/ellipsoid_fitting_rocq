@@ -13,7 +13,10 @@ From GaussianAnalysis.matrix Require Import euclidean real_spectral.
 (* inequality `|mxdot y (A *m x)| <= b * frobenius y * frobenius x            *)
 (* (opnorm_bilinearP). For a symmetric matrix, it is the smallest b such that *)
 (* `|mxdot x (A *m x)| <= b * mxdot x x for every x (opnorm_symP), and the    *)
-(* largest absolute value of an eigenvalue (opnorm_spectral).                 *)
+(* largest absolute value of an eigenvalue (opnorm_spectral). For a           *)
+(* symmetric matrix and an even exponent p > 0, tr (A ^+ p) <= t ^+ p, or     *)
+(* mxdot x (A ^+ p *m x) <= t ^+ p * mxdot x x for every x, gives             *)
+(* opnorm A <= t (opnorm_le_trace_exp, opnorm_le_form_exp).                   *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*   opnorm A == the operator norm of A, the supremum of frobenius (A *m x)   *)
@@ -251,6 +254,20 @@ Lemma opnorm_le_trace_exp n (A : 'M[R]_n) p (t : R) : A \is symmetricmx ->
 Proof.
 move=> Asym ep p0 t0 At; have := le_trans (opnorm_exp_le_trace_even Asym ep p0) At.
 by rewrite ler_pXn2r ?nnegrE ?opnorm_ge0.
+Qed.
+
+(* For a symmetric matrix and an even exponent p > 0, a bound t^p on the
+   quadratic form of A^p bounds the operator norm by t. *)
+Lemma opnorm_le_form_exp n (A : 'M[R]_n) p (t : R) : A \is symmetricmx ->
+  ~~ odd p -> (0 < p)%N -> 0 <= t ->
+  (forall x : 'cV[R]_n, mxdot x (A ^+ p *m x) <= t ^+ p * mxdot x x) ->
+  opnorm A <= t.
+Proof.
+move=> Asym ep p0 t0 Ax; have [P Po [d AE]] := symmetric_spectral Asym.
+have dp := proj1 (spectral_form_le _ Po (spectral_exp p Po AE)) Ax.
+apply/(opnorm_symP Asym t0)/(spectral_form_abs _ Po AE) => i.
+rewrite -(ler_pXn2r p0) ?nnegrE // -normrX ger0_norm ?exprn_even_ge0 //.
+by have := dp i; rewrite mxE.
 Qed.
 
 End opnorm.
