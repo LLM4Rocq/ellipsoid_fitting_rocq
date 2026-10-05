@@ -52,6 +52,28 @@ Qed.
 
 End symmetricmx.
 
+Section trace_inequality.
+Variable R : realFieldType.
+
+Lemma mxtrace_ABAB_le n (A B : 'M[R]_n) : A \is symmetricmx -> B \is symmetricmx ->
+  \tr (A *m B *m A *m B) <= \tr (A *m A *m B *m B).
+Proof.
+move=> /symmetricmxP AT /symmetricmxP BT.
+set X := A *m B - B *m A.
+have XT : X^T = - X by rewrite /X linearB /= !trmx_mul AT BT opprB.
+have := mxdot_ge0 X; rewrite mxdot_trace XT mulmxN raddfN /= oppr_ge0.
+rewrite /X mulmxBl !mulmxBr !raddfB /= !mulmxA.
+have -> : \tr (A *m B *m B *m A) = \tr (A *m A *m B *m B).
+  by rewrite mxtrace_mulC !mulmxA.
+have -> : \tr (B *m A *m A *m B) = \tr (A *m A *m B *m B).
+  by rewrite -!mulmxA mxtrace_mulC !mulmxA.
+have -> : \tr (B *m A *m B *m A) = \tr (A *m B *m A *m B).
+  by rewrite mxtrace_mulC !mulmxA.
+by rewrite opprK [- _ + _]addrC -mulr2n pmulrn_lle0 // subr_le0.
+Qed.
+
+End trace_inequality.
+
 Section continuity.
 Variable R : realType.
 
@@ -371,6 +393,25 @@ split=> [H i|H].
 move=> x; rewrite ler_norml; apply/andP; split.
   by rewrite -mulNr; apply: (proj2 ge) => i; rewrite lerNl; have /ler_normlP[] := H i.
 by apply: (proj2 le) => i; have /ler_normlP[] := H i.
+Qed.
+
+Lemma diag_mx_mul n (a b : 'rV[R]_n) :
+  diag_mx a *m diag_mx b = diag_mx (\row_i (a 0 i * b 0 i)).
+Proof.
+apply/matrixP => i j; rewrite mul_diag_mx !mxE.
+by have [->|ij] := eqVneq i j; rewrite ?mulr1n ?mulr0n ?mulr0.
+Qed.
+
+Lemma spectral_exp n (A P : 'M[R]_n) (d : 'rV[R]_n) k :
+  P \is orthogonalmx -> A = P^T *m diag_mx d *m P ->
+  A ^+ k = P^T *m diag_mx (\row_i d 0 i ^+ k) *m P.
+Proof.
+move=> Po AE; elim: k => [|k IH].
+  rewrite expr0 (_ : diag_mx _ = 1%:M) ?mulmx1 ?orthogonalmxT //.
+  by apply/matrixP => i j; rewrite !mxE expr0.
+rewrite exprSr IH -mulmxE AE !mulmxA -(mulmxA _ P) (orthogonalmxP _ Po) mulmx1.
+rewrite -(mulmxA _ (diag_mx _)) diag_mx_mul.
+by congr (_ *m diag_mx _ *m _); apply/rowP => i; rewrite !mxE exprSr.
 Qed.
 
 (* A chosen orthogonal diagonalization. *)
