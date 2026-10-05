@@ -40,6 +40,37 @@ Import numFieldTopology.Exports.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
 
+Section integral_image.
+Context d1 d2 (T1 : measurableType d1) (T2 : measurableType d2) (R : realType).
+Variables (mu : {measure set T1 -> \bar R}) (nu : {measure set T2 -> \bar R}).
+Variable g : T1 -> T2.
+Hypothesis mg : measurable_fun [set: T1] g.
+Hypothesis gnu : forall A, measurable A -> mu (g @^-1` A) = nu A.
+
+(* If nu is the image of mu under g, integrating f against nu is integrating
+   f \o g against mu. *)
+Lemma integrable_image (f : T2 -> \bar R) :
+  nu.-integrable [set: T2] f -> mu.-integrable [set: T1] (f \o g).
+Proof.
+move=> fi; have mf := measurable_int _ fi.
+have E : (\int[pushforward mu g]_y `|f y| = \int[nu]_y `|f y|)%E.
+  by apply: eq_measure_integral => A mA _; exact: gnu.
+apply/integrableP; split; first exact: measurableT_comp.
+have -> : (\int[mu]_x `|(f \o g) x| = \int[pushforward mu g]_y `|f y|)%E.
+  by rewrite ge0_integral_pushforward //; exact: measurableT_comp.
+by rewrite E; case/integrableP: fi.
+Qed.
+
+Lemma integral_image (f : T2 -> \bar R) :
+  nu.-integrable [set: T2] f -> (\int[mu]_x f (g x) = \int[nu]_y f y)%E.
+Proof.
+move=> fi; have mf := measurable_int _ fi; have fgi := integrable_image fi.
+transitivity (\int[pushforward mu g]_y f y)%E; first by rewrite integral_pushforward.
+by apply: eq_measure_integral => A mA _; exact: gnu.
+Qed.
+
+End integral_image.
+
 Section rV_cons.
 Context {R : realType} (n : nat).
 
@@ -189,23 +220,7 @@ Lemma integral_gauss_col_perm n (s : 'S_n) (f : 'rV[R]_n -> \bar R) :
   (gauss n).-integrable [set: 'rV[R]_n] f ->
   (\int[gauss n]_x f (col_perm s x) = \int[gauss n]_x f x)%E.
 Proof.
-move=> fi; have mf := measurable_int _ fi.
-pose g : {mfun 'rV[R]_n >-> 'rV[R]_n} := HB.pack (col_perm s)
-  (isMeasurableFun.Build _ _ _ _ (col_perm s) (measurable_col_perm s)).
-have E A : measurable A -> distribution (gauss n) g A = gauss n A.
-  by move=> mA; exact: gauss_col_perm.
-have fgi : (gauss n).-integrable [set: 'rV[R]_n] (f \o g).
-  apply/integrableP; split; first exact: measurableT_comp.
-  have mfa : measurable_fun [set: 'rV[R]_n] (fun y => `|f y|)%E.
-    exact: measurableT_comp.
-  have -> : (\int[gauss n]_x `|(f \o g) x| =
-      \int[distribution (gauss n) g]_y `|f y|)%E.
-    by rewrite ge0_integral_distribution.
-  rewrite (eq_measure_integral (gauss n)); first by move=> A mA _; exact: E.
-  by have /integrableP[] := fi.
-transitivity (\int[distribution (gauss n) g]_y f y)%E.
-  by rewrite (@integral_distribution _ _ _ _ _ (gauss n) g f).
-by rewrite (eq_measure_integral (gauss n)); first by move=> A mA _; exact: E.
+by apply: integral_image; [exact: measurable_col_perm|exact: gauss_col_perm].
 Qed.
 
 Lemma gauss_row_mx n m (X : set 'rV[R]_(n + m)) : measurable X ->
@@ -239,6 +254,48 @@ rewrite product_measure1E.
 rewrite big_split_ord; congr (_ * _)%E.
 - by apply: gauss_box => i; exact: mA.
 - by apply: gauss_box => j; exact: mA.
+Qed.
+
+Lemma gauss_lsubmx n m (X : set 'rV[R]_n) : measurable X ->
+  gauss (n + m) (@lsubmx R 1 n m @^-1` X) = gauss n X.
+Proof.
+move=> mX.
+have mlX : measurable (@lsubmx R 1 n m @^-1` X).
+  by rewrite -[_ @^-1` _]setTI; exact: measurable_lsubmx.
+rewrite gauss_row_mx//.
+have -> : (fun p : 'rV[R]_n * 'rV[R]_m => row_mx p.1 p.2) @^-1` (lsubmx @^-1` X) =
+    X `*` [set: 'rV[R]_m].
+  by apply/seteqP; split => -[x y] /=; rewrite row_mxKl// => -[].
+rewrite product_measure1E// -[RHS]mule1 -(probability_setT (gauss m)).
+by congr (_ * _)%E.
+Qed.
+
+Lemma gauss_rsubmx n m (Y : set 'rV[R]_m) : measurable Y ->
+  gauss (n + m) (@rsubmx R 1 n m @^-1` Y) = gauss m Y.
+Proof.
+move=> mY.
+have mrY : measurable (@rsubmx R 1 n m @^-1` Y).
+  by rewrite -[_ @^-1` _]setTI; exact: measurable_rsubmx.
+rewrite gauss_row_mx//.
+have -> : (fun p : 'rV[R]_n * 'rV[R]_m => row_mx p.1 p.2) @^-1` (rsubmx @^-1` Y) =
+    [set: 'rV[R]_n] `*` Y.
+  by apply/seteqP; split => -[x y] /=; rewrite row_mxKr// => -[].
+rewrite product_measure1E// -[RHS]mul1e -(probability_setT (gauss n)).
+by congr (_ * _)%E.
+Qed.
+
+Lemma integral_gauss_lsubmx n m (f : 'rV[R]_n -> \bar R) :
+  (gauss n).-integrable [set: 'rV[R]_n] f ->
+  (\int[gauss (n + m)]_x f (lsubmx x) = \int[gauss n]_x f x)%E.
+Proof.
+by apply: integral_image; [exact: measurable_lsubmx|exact: gauss_lsubmx].
+Qed.
+
+Lemma integral_gauss_rsubmx n m (f : 'rV[R]_m -> \bar R) :
+  (gauss m).-integrable [set: 'rV[R]_m] f ->
+  (\int[gauss (n + m)]_x f (rsubmx x) = \int[gauss m]_x f x)%E.
+Proof.
+by apply: integral_image; [exact: measurable_rsubmx|exact: gauss_rsubmx].
 Qed.
 
 Lemma gauss_coord n (i : 'I_n) (A : set R) : measurable A ->
