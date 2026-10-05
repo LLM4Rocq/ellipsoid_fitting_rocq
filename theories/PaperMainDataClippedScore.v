@@ -38,10 +38,19 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Matr
   PaperMainGordonProcessCovariance PaperMainGordonLipschitz
   PaperMainGaussianFeatureCoordinates PaperMainSymmetricBilinear
   PaperMainConeConditionOperator PaperMainDataFeatureMomentsCoordinates
-  PaperMainDataFeatureMoments PaperMainDataHeadOperator PaperMainMatrixOperatorTransport
-  PaperMainSymmetricOperatorNet.
+  PaperMainDataFeatureMoments PaperMainDataHeadOperator PaperMainMatrixOperatorTransport.
 Import GRing.Theory Num.Theory Order.TTheory.
 Open Scope R_scope.
+
+(* Differences of columns and of bilinear values. *)
+Lemma pmdc_column_sub n (f g : nat -> R) :
+  paper_main_symmetric_column n (fun i => Rminus (f i) (g i)) =
+  (paper_main_symmetric_column n f - paper_main_symmetric_column n g)%R.
+Proof. by apply/matrixP => i j; rewrite !mxE RminusE. Qed.
+
+Lemma pmdc_bilinear_sub_l n (Z : 'M[R]_(S n)) (x x' y : 'cV[R]_(S n)) :
+  (((x - x')^T *m Z *m y) 0 0 = (x^T *m Z *m y) 0 0 - (x'^T *m Z *m y) 0 0)%R.
+Proof. by rewrite linearB /= !mulmxBl [LHS]mxE [X in (_ + X)%R]mxE. Qed.
 
 (* 1. From the internal operator norm to public vectors. *)
 Lemma pmdc_action_bound n (A : matrix n) (k : R) (x : vector n) :
@@ -135,7 +144,7 @@ Proof.
 move=> HB Hk HA; have HBt : (B^T)%R = B by exact/paper_main_symmetricP.
 have E : ((c^T *m B *m c) 0 0 - (c'^T *m B *m c') 0 0 =
     ((c - c')^T *m (B *m c)) 0 0 + ((c - c')^T *m (B *m c')) 0 0)%R.
-  rewrite !mulmxA pmon_bilinear_sub_l pmon_bilinear_sub_l.
+  rewrite !mulmxA pmdc_bilinear_sub_l pmdc_bilinear_sub_l.
   by rewrite (paper_main_cross_sym _ B c c' HBt) addrA subrK.
 have -> : (c^T *m B *m c)%R ord0 ord0 - (c'^T *m B *m c')%R ord0 ord0 =
     ((c - c')^T *m (B *m c))%R ord0 ord0 + ((c - c')^T *m (B *m c'))%R ord0 ord0.
@@ -182,7 +191,7 @@ Lemma pmdc_row_dist phi n i xs ys :
     List.nth (i * S n + j)%N ys 0) ^ 2) (List.seq 0 (S n))).
 Proof.
 move=> Hl.
-rewrite /pmdc_norm /pmdc_col -pmon_column_sub paper_main_symmetric_column_norm.
+rewrite /pmdc_norm /pmdc_col -pmdc_column_sub paper_main_symmetric_column_norm.
 apply: sqrt_le_1_alt; rewrite /paper_main_gordon_dot.
 apply: finite_sum_le => j _; rewrite /pmdc_row.
 set a := List.nth (i * S n + j)%N xs 0; set b := List.nth (i * S n + j)%N ys 0.
