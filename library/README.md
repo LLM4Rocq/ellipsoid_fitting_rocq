@@ -66,6 +66,8 @@ will review.
 | `gaussian/gauss_ibp.v` | `gauss_ibp` | Gaussian integration by parts: `E[x_i F(x)] = E[d_i F(x)]` for `x` of law `gauss n`, `F` continuous with a continuous partial derivative `d_i F` (along `delta_mx 0 i`), both of polynomial growth. | |
 | `gaussian/gauss_ibp.v` | `integrable_nondecreasing_set_cvg_integral` | If `F i` increases to `U` and `g` is integrable on `U`, the integrals of `g` over `F i` converge to its integral over `U`. | |
 | `gaussian/measurable_matrix.v` | `continuous_mxP` | A map into real matrices is continuous if each of its entries is. | |
+| `gaussian/gauss_moments.v` | `normal_momentS`, `normal_moment_odd`, `normal_moment_even` | Moments of the standard normal law: `E[X^(k+2)] = (k + 1) E[X^k]`, so the odd moments vanish and `E[X^(2k)] = 1 * 3 * ... * (2k - 1)`. | |
+| `gaussian/gauss_moments.v` | `gauss_mean`, `gauss_cov`, `gauss_mulmx_cov` | A vector `x` of law `gauss n` has mean 0 and covariance the identity, and `x *m A` has covariance `A^T *m A`. | |
 | `gaussian/gauss_interpolation.v` | `gauss_interpolation` | Gaussian interpolation: for `x` of law `gauss n`, a differentiable path of matrices `M t` with derivative `M' t`, and `F` of class C^2 with derivatives of polynomial growth, the derivative of `t \|-> E[F (x *m M t)]` is `\sum_(j, l) ((M' t)^T M t)_(j, l) E[d_l d_j F (x *m M t)]`. | |
 | `gaussian/gauss_interpolation.v` | `gauss_comparison` | Kahane's comparison inequality: if `\sum_(j, l) (A^T A - B^T B)_(j, l) d_l d_j F <= 0` everywhere, then `E[F (x *m A)] <= E[F (y *m B)]` for `x` of law `gauss n` and `y` of law `gauss m`. | |
 | `gaussian/gauss_interpolation.v` | `gauss_ibp_mulmx` | Integration by parts through a linear map: `E[x_i d_j F (x *m M)] = \sum_l M_(i, l) E[d_l d_j F (x *m M)]`. | |
