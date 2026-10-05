@@ -1,0 +1,15 @@
+*.vo
+*.vos
+*.vok
+*.glob
+*.aux
+.*.aux
+.lia.cache
+.nia.cache
+.nra.cache
+.csdp.cache
+Makefile.rocq
+Makefile.rocq.conf
+.Makefile.rocq.d
+build/
+__pycache__/

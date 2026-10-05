@@ -1,0 +1,142 @@
+From Stdlib Require Import Reals List Lia Lra.
+From EllipsoidFitting Require Import GaussianCoordinateDefinitions GaussianCoordinateBasics
+  GaussianCoordinatePermutationDefinitions GaussianCoordinatePermutations.
+Import ListNotations.
+Open Scope R_scope.
+
+(* Port of theories/GaussianPermutationContinuity.v from Coquelicot to
+   MathComp-Analysis.
+
+   The original imported Coquelicot and its Compactness library for two
+   names only, Tn and close_n. Both now come from the port of
+   GaussianCoordinateDefinitions, where they are copies of the definitions
+   of Coquelicot.Compactness (Coquelicot 3.4.4) and are convertible with
+   them. posreal, cond_pos, Rabs and Forall2 are Stdlib's, as before. So
+   every statement below is the original text, word for word, and says the
+   same thing, and the proofs are the original ones. No statement changed
+   form.
+
+   This module loads no MathComp library itself, so the notations and the
+   tactic syntax are Stdlib's, as in the original. A module that imports
+   this one after MathComp sees the same constants. *)
+
+Lemma coordinates_close_forall2 d e (z w : Tn d R) :
+  close_n d e z w <-> List.Forall2 (fun x y => Rabs (x-y)<e)
+    (coordinates_to_list d z) (coordinates_to_list d w).
+Proof.
+  split; intro H.
+  - apply coordinate_nth_forall2.
+    + rewrite !coordinates_to_list_length; reflexivity.
+    + intros i Hi; rewrite coordinates_to_list_length in Hi.
+      apply coordinates_close_iff; assumption.
+  - apply coordinates_close_iff; intros i Hi.
+    apply (coordinate_forall2_nth _ _ _ H); rewrite coordinates_to_list_length; exact Hi.
+Qed.
+
+Lemma coordinate_forall2_close_center (e : posreal) xs :
+  List.Forall2 (fun x y => Rabs (x-y)<e) xs xs.
+Proof.
+  induction xs; constructor; auto.
+  rewrite Rminus_diag_eq, Rabs_R0; [apply cond_pos|reflexivity].
+Qed.
+
+Lemma finite_joint_continuous_list_map d k (transform : list R -> list R) F :
+  (forall xs, length xs = d -> length (transform xs) = k) ->
+  (forall (e : posreal) xs ys, length xs = d -> length ys = d ->
+    List.Forall2 (fun x y => Rabs (x-y)<e) xs ys ->
+    List.Forall2 (fun x y => Rabs (x-y)<e) (transform xs) (transform ys)) ->
+  finite_joint_continuous k F ->
+  finite_joint_continuous d (fun xs => F (transform xs)).
+Proof.
+  intros HL HP HF z eps.
+  pose proof (HL (coordinates_to_list d z) (coordinates_to_list_length d z)) as Hz.
+  destruct (HF (coordinates_of_list k (transform (coordinates_to_list d z))) eps)
+    as [delta HD].
+  exists delta; intros w Hclose.
+  pose proof (HL (coordinates_to_list d w) (coordinates_to_list_length d w)) as Hw.
+  assert (Htrans : close_n k delta
+    (coordinates_of_list k (transform (coordinates_to_list d w)))
+    (coordinates_of_list k (transform (coordinates_to_list d z)))).
+  { apply coordinates_close_forall2.
+    rewrite !coordinates_list_roundtrip by assumption.
+    apply HP; try apply coordinates_to_list_length.
+    apply coordinates_close_forall2; exact Hclose. }
+  specialize (HD _ Htrans).
+  rewrite !coordinates_list_roundtrip in HD by assumption; exact HD.
+Qed.
+
+Lemma finite_joint_continuous_swap_adjacent d i F :
+  finite_joint_continuous d F ->
+  finite_joint_continuous d (fun xs => F (swap_adjacent i xs)).
+Proof.
+  apply finite_joint_continuous_list_map.
+  - intros xs HL; rewrite swap_adjacent_length; exact HL.
+  - intros e xs ys Hx Hy H; apply swap_adjacent_forall2, H.
+Qed.
+
+Lemma finite_joint_continuous_move_last d i F :
+  finite_joint_continuous d F ->
+  finite_joint_continuous d (fun xs => F (move_coordinate_last i xs)).
+Proof.
+  apply finite_joint_continuous_list_map.
+  - intros xs HL; rewrite move_coordinate_last_length; exact HL.
+  - intros e xs ys Hx Hy H; apply move_coordinate_last_forall2, H.
+Qed.
+
+Lemma finite_joint_continuous_replace_coordinate d i value F :
+  finite_joint_continuous d F ->
+  finite_joint_continuous d (fun xs => F (replace_coordinate i value xs)).
+Proof.
+  apply finite_joint_continuous_list_map.
+  - intros xs HL; rewrite replace_coordinate_length; exact HL.
+  - intros e xs ys Hx Hy H; apply replace_coordinate_forall2; [|exact H].
+    rewrite Rminus_diag_eq, Rabs_R0; [apply cond_pos|reflexivity].
+Qed.
+
+Lemma finite_joint_continuous_prefix d prefix F :
+  finite_joint_continuous (length prefix + d) F ->
+  finite_joint_continuous d (fun xs => F (prefix ++ xs)).
+Proof.
+  apply finite_joint_continuous_list_map.
+  - intros xs HL; rewrite length_app, HL; reflexivity.
+  - intros e xs ys Hx Hy H; apply Forall2_app; [apply coordinate_forall2_close_center|exact H].
+Qed.
+
+Lemma finite_joint_continuous_suffix d suffix F :
+  finite_joint_continuous (d + length suffix) F ->
+  finite_joint_continuous d (fun xs => F (xs ++ suffix)).
+Proof.
+  apply finite_joint_continuous_list_map.
+  - intros xs HL; rewrite length_app, HL; reflexivity.
+  - intros e xs ys Hx Hy H; apply Forall2_app; [exact H|apply coordinate_forall2_close_center].
+Qed.
+
+Lemma coordinates_swap_adjacent_close d i e (z w : Tn d R) :
+  close_n d e z w -> close_n d e
+    (coordinates_of_list d (swap_adjacent i (coordinates_to_list d z)))
+    (coordinates_of_list d (swap_adjacent i (coordinates_to_list d w))).
+Proof.
+  intro H; apply coordinates_close_forall2.
+  rewrite !coordinates_list_roundtrip by (rewrite swap_adjacent_length; apply coordinates_to_list_length).
+  apply swap_adjacent_forall2, coordinates_close_forall2, H.
+Qed.
+
+Lemma coordinates_move_last_close d i e (z w : Tn d R) :
+  close_n d e z w -> close_n d e
+    (coordinates_of_list d (move_coordinate_last i (coordinates_to_list d z)))
+    (coordinates_of_list d (move_coordinate_last i (coordinates_to_list d w))).
+Proof.
+  intro H; apply coordinates_close_forall2.
+  rewrite !coordinates_list_roundtrip by (rewrite move_coordinate_last_length; apply coordinates_to_list_length).
+  apply move_coordinate_last_forall2, coordinates_close_forall2, H.
+Qed.
+
+Lemma coordinates_replace_close d i e x y (z w : Tn d R) :
+  Rabs (x-y)<e -> close_n d e z w -> close_n d e
+    (coordinates_of_list d (replace_coordinate i x (coordinates_to_list d z)))
+    (coordinates_of_list d (replace_coordinate i y (coordinates_to_list d w))).
+Proof.
+  intros Hxy H; apply coordinates_close_forall2.
+  rewrite !coordinates_list_roundtrip by (rewrite replace_coordinate_length; apply coordinates_to_list_length).
+  apply replace_coordinate_forall2; [exact Hxy|apply coordinates_close_forall2, H].
+Qed.

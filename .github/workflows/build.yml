@@ -1,0 +1,29 @@
+# Builds the proof and compares the axioms of the main theorem with
+# check/assumptions.expected. MathComp-Analysis is installed from opam on
+# top of the MathComp image, so a run takes a while.
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: coq-community/docker-coq-action@v1
+        with:
+          opam_file: rocq-ellipsoid-fitting.opam
+          custom_image: mathcomp/mathcomp:2.6.0-rocq-prover-9.1
+          before_script: |
+            startGroup "Let the container user write to the checkout"
+              sudo chown -R $(id -u):$(id -g) .
+            endGroup
+          script: |
+            startGroup "Build and check"
+              opam list
+              make check ROCQ_SWITCH= JOBS=4
+            endGroup

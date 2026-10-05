@@ -1,0 +1,398 @@
+From Stdlib Require Import Reals List Lia Lra Psatz.
+From HB Require Import structures.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
+From mathcomp Require Import boolp.
+From mathcomp Require Import Rstruct.
+From mathcomp Require Import topology normedtype derive.
+From mathcomp Require Import Rstruct_topology.
+From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates MatrixTrace OperatorBounds
+  GradientDefinitions MatrixGradient HessianDefinitions MatrixThird MatrixHessian
+  MatrixThirdDefinitions ContinuityDefinitions MatrixThirdContinuity CoefficientDefinitions.
+Import ListNotations.
+Import GRing.Theory Num.Theory.
+Open Scope R_scope.
+
+(* Port of theories/CoefficientMaps.v from Coquelicot to MathComp-Analysis.
+
+   Every lemma and theorem of the original keeps its name and its arguments,
+   in the same order. No item is added. The statements change form in the
+   ways of the port of MatrixCoordinates.
+
+   1. Linear maps. Coquelicot's is_linear l is a record with three fields:
+      l (plus x y) = plus (l x) (l y), l (scal k x) = scal k (l x), and
+      exists M, 0 < M /\ forall x, norm (l x) <= M * norm x.
+      As in MatrixCoordinates, MatrixTrace and OperatorBounds, the port
+      states it as the conjunction
+        linear l /\
+        exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R
+      of MathComp's algebraic linearity, which is equivalent to the first two
+      fields, and of Coquelicot's norm bound. The bound uses Stdlib's order
+      and product around MathComp's norms. The norms are those of
+      MatrixDefinitions, HessianDefinitions and ContinuityDefinitions: the
+      Euclidean norm of all entries on tuples, matrices, Hessian arrays and
+      third-order arrays, and the absolute value on R, as in Coquelicot. So
+      the statements mean the same, constants included.
+
+   2. Coquelicot's NormedModule R_AbsRing becomes normedModType R and its
+      R_NormedModule becomes R^o. A map into R is written with codomain R^o
+      where linear needs a module structure on the codomain, as in
+      (hessian_evaluation n H U : matrix n -> R^o). R^o is R by definition,
+      so the map is the same. Coquelicot's plus and scal on a module become
+      MathComp's + and *:, written (_ + _)%R and (_ *: _)%R.
+
+   3. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
+      boolean leq. The original means Stdlib's Peano order le, so the
+      statements write (i <= n)%coq_nat, which is Stdlib's le.
+
+   The proofs of linear_module_coordinate_sum and
+   matrix_linear_basis_reconstruction use only the algebraic part of the
+   hypothesis; the bound is kept in the hypothesis to match the original.
+   In the proof of actual_third_action, the linearity of the Frechet
+   derivative, which the original takes from proj1 of Coquelicot's
+   filterdiff, comes from matrix_third_is_diff_linear of MatrixThird. That is
+   why this port imports MatrixThird, which the original reaches only
+   through MatrixHessian. *)
+
+Lemma module_coordinate_sum_ext (V : normedModType R) n (f g : nat -> V) :
+  (forall i, (i <= n)%coq_nat -> f i = g i) ->
+  module_coordinate_sum V n f = module_coordinate_sum V n g.
+Proof.
+  revert f g; induction n as [|n IH]; intros f g H; simpl.
+  - apply H; lia.
+  - f_equal.
+    + apply H; lia.
+    + apply IH; intros i Hi; apply H; lia.
+Qed.
+
+Lemma module_linear_sum {E V : normedModType R} (f g : E -> V) :
+  (linear f /\
+    exists M : R, 0 < M /\ forall x : E, (`|f x|)%R <= M * (`|x|)%R) ->
+  (linear g /\
+    exists M : R, 0 < M /\ forall x : E, (`|g x|)%R <= M * (`|x|)%R) ->
+  linear (fun x => (f x + g x)%R) /\
+    exists M : R, 0 < M /\ forall x : E, (`|f x + g x|)%R <= M * (`|x|)%R.
+Proof.
+  intros [Lf [Mf [Mf0 HMf]]] [Lg [Mg [Mg0 HMg]]]; split.
+  - intros a u v; rewrite /= Lf Lg scalerDr.
+    by rewrite addrACA.
+  - exists (Mf + Mg); split; [lra|]; intros x.
+    apply (Rle_trans _ ((`|f x|)%R + (`|g x|)%R)).
+    + apply/RleP; apply ler_normD.
+    + specialize (HMf x); specialize (HMg x); lra.
+Qed.
+
+Lemma module_coordinate_sum_linear {E V : normedModType R} n (F : nat -> E -> V) :
+  (forall i, (i <= n)%coq_nat ->
+    linear (F i) /\
+    exists M : R, 0 < M /\ forall x : E, (`|F i x|)%R <= M * (`|x|)%R) ->
+  linear (fun x => module_coordinate_sum V n (fun i => F i x)) /\
+    exists M : R, 0 < M /\
+      forall x : E,
+        (`|module_coordinate_sum V n (fun i => F i x)|)%R <= M * (`|x|)%R.
+Proof.
+  revert F; induction n as [|n IH]; intros F HF; simpl.
+  - apply HF; lia.
+  - apply (module_linear_sum (F O)
+      (fun x => module_coordinate_sum V n (fun i => F (S i) x))).
+    + apply HF; lia.
+    + apply (IH (fun i => F (S i))); intros i Hi; apply HF; lia.
+Qed.
+
+Theorem matrix_build_linear {E : normedModType R} n (F : nat -> nat -> E -> R) :
+  (forall i j, (i <= n)%coq_nat -> (j <= n)%coq_nat ->
+    linear (F i j : E -> R^o) /\
+    exists M : R, 0 < M /\ forall x : E, (`|F i j x|)%R <= M * (`|x|)%R) ->
+  linear (fun x => matrix_build n (fun i j => F i j x)) /\
+    exists M : R, 0 < M /\
+      forall x : E, (`|matrix_build n (fun i j => F i j x)|)%R <= M * (`|x|)%R.
+Proof.
+  intros HF; unfold matrix_build.
+  apply (tuple_build_linear n
+    (fun i x => tuple_build R^o n (fun j => F i j x))); intros i Hi.
+  apply (@tuple_build_linear E R^o n (fun j x => F i j x)); intros j Hj.
+  apply HF; assumption.
+Qed.
+
+Theorem hessian_entry_linear n i j :
+  linear (fun H : hessian_array n => hessian_entry n H i j) /\
+  exists M : R, 0 < M /\
+    forall H : hessian_array n, (`|hessian_entry n H i j|)%R <= M * (`|H|)%R.
+Proof.
+  unfold hessian_entry.
+  apply (matrix_linear_comp
+    (tuple_entry (tuple_NormedModule (matrix_NormedModule n) n) n i)
+    (tuple_entry (matrix_NormedModule n) n j)); apply tuple_entry_linear.
+Qed.
+
+Theorem third_entry_linear n i j :
+  linear (fun T : third_array n => third_entry n T i j) /\
+  exists M : R, 0 < M /\
+    forall T : third_array n, (`|third_entry n T i j|)%R <= M * (`|T|)%R.
+Proof.
+  unfold third_entry.
+  apply (matrix_linear_comp
+    (tuple_entry (tuple_NormedModule (hessian_NormedModule n) n) n i)
+    (tuple_entry (hessian_NormedModule n) n j)); apply tuple_entry_linear.
+Qed.
+
+Theorem hessian_action_linear_array n (V : matrix n) :
+  linear (fun H : hessian_array n => hessian_action n H V) /\
+  exists M : R, 0 < M /\
+    forall H : hessian_array n, (`|hessian_action n H V|)%R <= M * (`|H|)%R.
+Proof.
+  unfold hessian_action.
+  apply (matrix_build_linear n
+    (fun i j (H : hessian_array n) => trace_pair n (hessian_entry n H i j) V)).
+  intros i j Hi Hj.
+  apply (matrix_linear_comp (fun H : hessian_array n => hessian_entry n H i j)
+    (fun B : matrix n => trace_pair n B V : R^o)).
+  - apply hessian_entry_linear.
+  - apply trace_pair_left_linear.
+Qed.
+
+Theorem hessian_action_linear_direction n (H : hessian_array n) :
+  linear (hessian_action n H) /\
+  exists M : R, 0 < M /\
+    forall V : matrix n, (`|hessian_action n H V|)%R <= M * (`|V|)%R.
+Proof.
+  unfold hessian_action.
+  apply (matrix_build_linear n
+    (fun i j (V : matrix n) => trace_pair n (hessian_entry n H i j) V)).
+  intros i j Hi Hj.
+  apply trace_pair_linear.
+Qed.
+
+Theorem coefficient_contract_linear_direction (V : normedModType R) n F :
+  linear (coefficient_contract V n F) /\
+  exists M : R, 0 < M /\
+    forall W : matrix n, (`|coefficient_contract V n F W|)%R <= M * (`|W|)%R.
+Proof.
+  unfold coefficient_contract.
+  apply (module_coordinate_sum_linear n (fun i (W : matrix n) =>
+    module_coordinate_sum V n (fun j => (matrix_entry n W j i *: F i j)%R))).
+  intros i Hi.
+  apply (module_coordinate_sum_linear n (fun j (W : matrix n) =>
+    (matrix_entry n W j i *: F i j)%R)).
+  intros j Hj.
+  apply (matrix_linear_comp (fun W : matrix n => matrix_entry n W j i : R^o)
+    (fun c : R^o => (c *: F i j)%R)).
+  - apply matrix_entry_linear.
+  - split.
+    + intros a u v; rewrite /= scalerDl.
+      by rewrite scalerA.
+    + exists ((`|F i j|)%R + 1); split.
+      * assert (0 <= (`|F i j|)%R) by (apply/RleP; apply normr_ge0); lra.
+      * intros c; rewrite normrZ -RmultE.
+        assert (0 <= (`|F i j|)%R) by (apply/RleP; apply normr_ge0).
+        assert (0 <= (`|c|)%R) by (apply/RleP; apply normr_ge0).
+        have Hle : forall a b : R, 0 <= a -> 0 <= b -> a * b <= (b + 1) * a.
+        { intros a b Ha Hb; nra. }
+        apply Hle; assumption.
+Qed.
+
+Theorem third_action_linear_array n (W : matrix n) :
+  linear (fun T : third_array n => third_action n T W) /\
+  exists M : R, 0 < M /\
+    forall T : third_array n, (`|third_action n T W|)%R <= M * (`|T|)%R.
+Proof.
+  unfold third_action, coefficient_contract.
+  apply (module_coordinate_sum_linear n (fun i (T : third_array n) =>
+    module_coordinate_sum (hessian_NormedModule n) n
+      (fun j => (matrix_entry n W j i *: third_entry n T i j)%R))).
+  intros i Hi.
+  apply (module_coordinate_sum_linear n (fun j (T : third_array n) =>
+    (matrix_entry n W j i *: third_entry n T i j)%R)).
+  intros j Hj.
+  apply (matrix_linear_comp (fun T : third_array n => third_entry n T i j)
+    (fun H : hessian_array n => (matrix_entry n W j i *: H)%R)).
+  - apply third_entry_linear.
+  - split.
+    + intros a u v; rewrite /= scalerDr !scalerA.
+      by rewrite mulrC.
+    + exists (Rabs (matrix_entry n W j i) + 1); split.
+      * assert (0 <= Rabs (matrix_entry n W j i)) by apply Rabs_pos; lra.
+      * intros H; rewrite normrZ -RmultE RabsE.
+        assert (0 <= (`|matrix_entry n W j i|)%R)
+          by (apply/RleP; apply normr_ge0).
+        assert (0 <= (`|H|)%R) by (apply/RleP; apply normr_ge0).
+        have Hle : forall a h : R, 0 <= a -> 0 <= h -> a * h <= (a + 1) * h.
+        { intros a h Ha Hh; nra. }
+        apply Hle; assumption.
+Qed.
+
+Theorem third_action_linear_direction n (T : third_array n) :
+  linear (third_action n T) /\
+  exists M : R, 0 < M /\
+    forall W : matrix n, (`|third_action n T W|)%R <= M * (`|W|)%R.
+Proof. unfold third_action; apply coefficient_contract_linear_direction. Qed.
+
+Theorem hessian_evaluation_linear_array n (U V : matrix n) :
+  linear (fun H : hessian_array n => hessian_evaluation n H U V : R^o) /\
+  exists M : R, 0 < M /\
+    forall H : hessian_array n,
+      (`|hessian_evaluation n H U V|)%R <= M * (`|H|)%R.
+Proof.
+  unfold hessian_evaluation.
+  apply (matrix_linear_comp (fun H : hessian_array n => hessian_action n H V)
+    (fun B : matrix n => trace_pair n B U : R^o)).
+  - apply hessian_action_linear_array.
+  - apply trace_pair_left_linear.
+Qed.
+
+Theorem hessian_evaluation_linear_first n (H : hessian_array n) (V : matrix n) :
+  linear (fun U : matrix n => hessian_evaluation n H U V : R^o) /\
+  exists M : R, 0 < M /\
+    forall U : matrix n, (`|hessian_evaluation n H U V|)%R <= M * (`|U|)%R.
+Proof. unfold hessian_evaluation; apply trace_pair_linear. Qed.
+
+Theorem hessian_evaluation_linear_last n (H : hessian_array n) (U : matrix n) :
+  linear (hessian_evaluation n H U : matrix n -> R^o) /\
+  exists M : R, 0 < M /\
+    forall V : matrix n, (`|hessian_evaluation n H U V|)%R <= M * (`|V|)%R.
+Proof.
+  unfold hessian_evaluation.
+  apply (matrix_linear_comp (hessian_action n H)
+    (fun B : matrix n => trace_pair n B U : R^o)).
+  - apply hessian_action_linear_direction.
+  - apply trace_pair_left_linear.
+Qed.
+
+Theorem third_evaluation_linear_array n (U V W : matrix n) :
+  linear (fun T : third_array n => third_evaluation n T U V W : R^o) /\
+  exists M : R, 0 < M /\
+    forall T : third_array n,
+      (`|third_evaluation n T U V W|)%R <= M * (`|T|)%R.
+Proof.
+  unfold third_evaluation.
+  apply (matrix_linear_comp (fun T : third_array n => third_action n T W)
+    (fun H : hessian_array n => hessian_evaluation n H U V : R^o)).
+  - apply third_action_linear_array.
+  - apply hessian_evaluation_linear_array.
+Qed.
+
+Theorem third_evaluation_linear_first n (T : third_array n) (V W : matrix n) :
+  linear (fun U : matrix n => third_evaluation n T U V W : R^o) /\
+  exists M : R, 0 < M /\
+    forall U : matrix n, (`|third_evaluation n T U V W|)%R <= M * (`|U|)%R.
+Proof. unfold third_evaluation; apply hessian_evaluation_linear_first. Qed.
+
+Theorem third_evaluation_linear_second n (T : third_array n) (U W : matrix n) :
+  linear (fun V : matrix n => third_evaluation n T U V W : R^o) /\
+  exists M : R, 0 < M /\
+    forall V : matrix n, (`|third_evaluation n T U V W|)%R <= M * (`|V|)%R.
+Proof. unfold third_evaluation; apply hessian_evaluation_linear_last. Qed.
+
+Theorem third_evaluation_linear_last n (T : third_array n) (U V : matrix n) :
+  linear (third_evaluation n T U V : matrix n -> R^o) /\
+  exists M : R, 0 < M /\
+    forall W : matrix n, (`|third_evaluation n T U V W|)%R <= M * (`|W|)%R.
+Proof.
+  unfold third_evaluation.
+  apply (matrix_linear_comp (third_action n T)
+    (fun H : hessian_array n => hessian_evaluation n H U V : R^o)).
+  - apply third_action_linear_direction.
+  - apply hessian_evaluation_linear_array.
+Qed.
+
+Lemma linear_module_coordinate_sum {E V : normedModType R} n (f : nat -> E) (L : E -> V) :
+  (linear L /\
+    exists M : R, 0 < M /\ forall x : E, (`|L x|)%R <= M * (`|x|)%R) ->
+  L (module_coordinate_sum E n f) = module_coordinate_sum V n (fun i => L (f i)).
+Proof.
+  intros [HL _].
+  have HD : forall u v : E, L (u + v)%R = (L u + L v)%R.
+  { intros u v; have := HL 1%R u v; rewrite !scale1r; exact. }
+  revert f; induction n as [|n IH]; intros f; simpl; [reflexivity|].
+  rewrite HD IH; reflexivity.
+Qed.
+
+Lemma module_coordinate_sum_real n f :
+  module_coordinate_sum R^o n f = coordinate_sum n f.
+Proof. revert f; induction n; intros f; simpl; [reflexivity|rewrite IHn; reflexivity]. Qed.
+
+Theorem matrix_basis_expansion n (M : matrix n) :
+  module_coordinate_sum (matrix_NormedModule n) n (fun i =>
+    module_coordinate_sum (matrix_NormedModule n) n (fun j =>
+      matrix_scale n (matrix_entry n M j i) (matrix_basis n j i))) = M.
+Proof.
+  apply matrix_ext; intros r c Hr Hc.
+  change ((fun B : matrix n => matrix_entry n B r c : R^o)
+    (module_coordinate_sum (matrix_NormedModule n) n (fun i =>
+      module_coordinate_sum (matrix_NormedModule n) n (fun j =>
+        matrix_scale n (matrix_entry n M j i) (matrix_basis n j i)))) = matrix_entry n M r c).
+  etransitivity; [exact (@linear_module_coordinate_sum (matrix_NormedModule n) R^o n
+    (fun i => module_coordinate_sum (matrix_NormedModule n) n (fun j =>
+      matrix_scale n (matrix_entry n M j i) (matrix_basis n j i)))
+    (fun B : matrix n => matrix_entry n B r c : R^o) (matrix_entry_linear n r c)) |].
+  rewrite module_coordinate_sum_real.
+  transitivity (coordinate_sum n (fun i => coordinate_sum n (fun j =>
+    matrix_entry n M j i * (if (Nat.eqb r j && Nat.eqb c i)%bool then 1 else 0)))).
+  - apply coordinate_sum_ext; intros i Hi.
+    etransitivity; [exact (@linear_module_coordinate_sum (matrix_NormedModule n) R^o n
+      (fun j => matrix_scale n (matrix_entry n M j i) (matrix_basis n j i))
+      (fun B : matrix n => matrix_entry n B r c : R^o) (matrix_entry_linear n r c)) |].
+    rewrite module_coordinate_sum_real.
+    apply coordinate_sum_ext; intros j Hj.
+    rewrite matrix_entry_scale (matrix_basis_entry n j i r c Hr Hc); reflexivity.
+  - transitivity (coordinate_sum n (fun i =>
+      matrix_entry n M r i * (if Nat.eqb i c then 1 else 0))).
+    + apply coordinate_sum_ext; intros i Hi.
+      transitivity (coordinate_sum n (fun j =>
+        (matrix_entry n M j i * (if Nat.eqb i c then 1 else 0)) *
+        (if Nat.eqb j r then 1 else 0))).
+      * apply coordinate_sum_ext; intros j Hj.
+        rewrite (Nat.eqb_sym r j) (Nat.eqb_sym c i).
+        destruct (Nat.eqb j r), (Nat.eqb i c); simpl; ring.
+      * exact (gradient_coordinate_sum_select n r
+          (fun j => matrix_entry n M j i * (if Nat.eqb i c then 1 else 0)) Hr).
+    + exact (gradient_coordinate_sum_select n c (matrix_entry n M r) Hc).
+Qed.
+
+Theorem matrix_linear_basis_reconstruction {V : normedModType R}
+    n (L : matrix n -> V) (W : matrix n) :
+  (linear L /\
+    exists M : R, 0 < M /\ forall x : matrix n, (`|L x|)%R <= M * (`|x|)%R) ->
+  coefficient_contract V n (fun i j => L (matrix_basis n j i)) W = L W.
+Proof.
+  intros HL.
+  pose L' : {linear matrix_NormedModule n -> V} :=
+    HB.pack L (GRing.isLinear.Build R (matrix_NormedModule n) V *:%R L (proj1 HL)).
+  have HZ : forall (c : R) (x : matrix n), L (c *: x)%R = (c *: L x)%R.
+  { intros c x; exact (linearZ_LR L' c x). }
+  have E := matrix_basis_expansion n W.
+  rewrite -{2}E.
+  rewrite (linear_module_coordinate_sum n _ L HL).
+  unfold coefficient_contract; apply module_coordinate_sum_ext; intros i Hi.
+  rewrite (linear_module_coordinate_sum n _ L HL).
+  apply module_coordinate_sum_ext; intros j Hj.
+  unfold matrix_scale; rewrite HZ; reflexivity.
+Qed.
+
+Theorem actual_third_action n beta gamma offset coeff Y S (A W : matrix n) :
+  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
+  third_action n (matrix_nested_third_coefficients n beta gamma offset coeff Y S A) W =
+  matrix_nested_hessian_derivative n beta gamma offset coeff Y S A W.
+Proof.
+  intros Hb Hg HY HS.
+  unfold third_action.
+  transitivity (coefficient_contract (hessian_NormedModule n) n
+    (fun i j => matrix_nested_hessian_derivative n beta gamma offset coeff Y S A (matrix_basis n j i)) W).
+  - unfold coefficient_contract; apply module_coordinate_sum_ext; intros i Hi.
+    apply module_coordinate_sum_ext; intros j Hj.
+    unfold matrix_nested_third_coefficients, third_entry, third_build.
+    rewrite (tuple_entry_build _ n i _ Hi) (tuple_entry_build _ n j _ Hj).
+    reflexivity.
+  - apply matrix_linear_basis_reconstruction.
+    exact (matrix_third_is_diff_linear _ _ A
+      (matrix_nested_hessian_frechet n beta gamma offset coeff Y S Hb Hg HY HS A)).
+Qed.
+
+Theorem actual_third_evaluation n beta gamma offset coeff Y S (A U V W : matrix n) :
+  0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
+  third_evaluation n (matrix_nested_third_coefficients n beta gamma offset coeff Y S A) U V W =
+  matrix_nested_third_derivative n beta gamma offset coeff Y S A U V W.
+Proof.
+  intros Hb Hg HY HS; unfold third_evaluation.
+  rewrite (actual_third_action n beta gamma offset coeff Y S A W Hb Hg HY HS).
+  apply matrix_nested_hessian_derivative_evaluation; assumption.
+Qed.

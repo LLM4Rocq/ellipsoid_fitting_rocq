@@ -1,0 +1,24 @@
+opam-version: "2.0"
+synopsis: "Rocq proof of the three main theorems on ellipsoid fitting of Gaussian points"
+description: """
+A machine-checked proof of the sharp ellipsoid fitting transition at
+n/d^2 = 1/4, of well-conditioned fits below it, and of the balanced
+positive-definite alternative, for n independent standard Gaussian points
+of R^d. The statement is theories/MainStatement.v.
+"""
+maintainer: "Marc Lelarge"
+build: [make "build" "ROCQ_SWITCH=" "JOBS=%{jobs}%"]
+depends: [
+  "rocq-core" {>= "9.1" & < "9.2~"}
+  "rocq-stdlib"
+  "rocq-hierarchy-builder" {>= "1.10.3"}
+  "rocq-mathcomp-ssreflect" {= "2.6.0"}
+  "rocq-mathcomp-fingroup" {= "2.6.0"}
+  "rocq-mathcomp-algebra" {= "2.6.0"}
+  "rocq-mathcomp-finmap" {>= "2.2.4"}
+  "rocq-mathcomp-classical" {= "1.16.0"}
+  "rocq-mathcomp-reals" {= "1.16.0"}
+  "rocq-mathcomp-reals-stdlib" {= "1.16.0"}
+  "rocq-mathcomp-analysis" {= "1.16.0"}
+  "rocq-mathcomp-analysis-stdlib" {= "1.16.0"}
+]

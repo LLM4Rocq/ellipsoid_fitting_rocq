@@ -1,0 +1,228 @@
+From Stdlib Require Import Reals Lia Lra Psatz.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
+From mathcomp Require Import Rstruct.
+From mathcomp Require Import topology normedtype.
+From mathcomp Require Import Rstruct_topology.
+From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates MatrixTrace
+  OperatorDefinitions OperatorProperties NormEquivalence TensorDefinitions
+  SecondChaosDefinitions SecondChaosAlgebra SymmetricDefinitions.
+Import Num.Theory.
+Open Scope R_scope.
+
+(* Port of theories/SymmetricBasis.v from Coquelicot to MathComp-Analysis.
+
+   Every lemma of the original keeps its name and its arguments, in the same
+   order, and the statements keep their meaning. They change form in two
+   ways, and the proofs in one.
+
+   1. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
+      boolean leq. The original means Stdlib's Peano order le, so the
+      statements write (i <= n)%coq_nat, which is ssrnat's notation for
+      Stdlib's le. This is the convention of the ports of MatrixCoordinates,
+      TensorDefinitions and SecondChaosAlgebra. The statements are the same
+      terms as in the original.
+
+   2. Norm. Coquelicot's norm A in symmetric_basis_unit_norm becomes
+      MathComp's norm (`|A|)%R. The norm on matrix n is the one of the port
+      of MatrixDefinitions, the Frobenius norm, as in Coquelicot, so the
+      statement means the same. The arithmetic, the square root, the
+      literals and the tests Nat.eqb and Nat.ltb are Stdlib's, as before,
+      because R_scope is opened last.
+
+   3. Proofs. Stdlib's "rewrite A, B" and "rewrite ... by tac" are not
+      available once ssreflect is loaded, so the proofs chain the rewrites
+      and discharge their side conditions with //. Coquelicot's norm_ge_0
+      becomes MathComp's normr_ge0, read in Stdlib's order through RleP. *)
+
+Lemma symmetric_trace_pair_comm n (A B : matrix n) : trace_pair n A B = trace_pair n B A.
+Proof.
+  unfold trace_pair; rewrite normeq_coordinate_sum_swap.
+  apply coordinate_sum_ext; intros i Hi; apply coordinate_sum_ext; intros j Hj; ring.
+Qed.
+
+Lemma symmetric_trace_unit n a b (A : matrix n) :
+  (a <= n)%coq_nat -> (b <= n)%coq_nat ->
+  trace_pair n (vector_outer n (chaos_basis n a) (chaos_basis n b)) A =
+    matrix_entry n A b a.
+Proof.
+  intros Ha Hb.
+  rewrite symmetric_trace_pair_comm trace_pair_outer (vector_inner_basis _ _ b Hb).
+  change (vector_entry n (matrix_action n A (operator_basis_vector n a)) b = matrix_entry n A b a).
+  apply matrix_action_basis_entry; assumption.
+Qed.
+
+Theorem symmetric_diagonal_trace n a (A : matrix n) :
+  (a <= n)%coq_nat -> trace_pair n (symmetric_diagonal_basis n a) A = matrix_entry n A a a.
+Proof. intros; apply symmetric_trace_unit; assumption. Qed.
+
+Theorem symmetric_offdiagonal_trace n a b (A : matrix n) :
+  (a <= n)%coq_nat -> (b <= n)%coq_nat ->
+  trace_pair n (symmetric_offdiagonal_basis n a b) A =
+    / sqrt 2 * (matrix_entry n A a b + matrix_entry n A b a).
+Proof.
+  intros Ha Hb; unfold symmetric_offdiagonal_basis.
+  rewrite symmetric_trace_pair_comm trace_pair_scale.
+  unfold chaos_second; rewrite trace_pair_add.
+  rewrite (symmetric_trace_pair_comm n A) (symmetric_trace_pair_comm n A).
+  rewrite (symmetric_trace_unit n a b A Ha Hb) (symmetric_trace_unit n b a A Hb Ha).
+  ring.
+Qed.
+
+Lemma symmetric_diagonal_entry n a i j : (i <= n)%coq_nat -> (j <= n)%coq_nat ->
+  matrix_entry n (symmetric_diagonal_basis n a) i j =
+    (if Nat.eqb i a then 1 else 0) * (if Nat.eqb j a then 1 else 0).
+Proof.
+  intros Hi Hj; unfold symmetric_diagonal_basis.
+  rewrite (vector_outer_entry n _ _ i j Hi Hj).
+  rewrite (chaos_basis_entry n a i Hi) (chaos_basis_entry n a j Hj); reflexivity.
+Qed.
+
+Lemma symmetric_offdiagonal_entry n a b i j : (i <= n)%coq_nat -> (j <= n)%coq_nat ->
+  matrix_entry n (symmetric_offdiagonal_basis n a b) i j = / sqrt 2 *
+    ((if Nat.eqb i a then 1 else 0) * (if Nat.eqb j b then 1 else 0) +
+     (if Nat.eqb i b then 1 else 0) * (if Nat.eqb j a then 1 else 0)).
+Proof.
+  intros Hi Hj; unfold symmetric_offdiagonal_basis, chaos_second.
+  rewrite matrix_entry_scale matrix_entry_add.
+  rewrite (vector_outer_entry n _ _ i j Hi Hj) (vector_outer_entry n _ _ i j Hi Hj).
+  rewrite (chaos_basis_entry n a i Hi) (chaos_basis_entry n b j Hj).
+  rewrite (chaos_basis_entry n b i Hi) (chaos_basis_entry n a j Hj); reflexivity.
+Qed.
+
+Theorem symmetric_basis_symmetric n a b : symmetric_matrix n (symmetric_basis n a b).
+Proof.
+  unfold symmetric_basis; destruct (Nat.eqb a b).
+  - intros i j Hi Hj.
+    rewrite (symmetric_diagonal_entry n a i j Hi Hj) (symmetric_diagonal_entry n a j i Hj Hi).
+    ring.
+  - intros i j Hi Hj.
+    rewrite (symmetric_offdiagonal_entry n a b i j Hi Hj).
+    rewrite (symmetric_offdiagonal_entry n a b j i Hj Hi).
+    ring.
+Qed.
+
+Lemma symmetric_inv_sqrt2_square : / sqrt 2 * / sqrt 2 = / 2.
+Proof.
+  pose proof (sqrt_def 2 ltac:(lra)) as H.
+  assert (H0 : sqrt 2 <> 0) by nra.
+  apply (Rmult_eq_reg_r (sqrt 2 * sqrt 2)); [field_simplify; nra|nra].
+Qed.
+
+Theorem symmetric_basis_orthonormal n a b c d :
+  (a <= b)%coq_nat -> (b <= n)%coq_nat -> (c <= d)%coq_nat -> (d <= n)%coq_nat ->
+  trace_pair n (symmetric_basis n a b) (symmetric_basis n c d) =
+    if andb (Nat.eqb a c) (Nat.eqb b d) then 1 else 0.
+Proof.
+  intros Hab Hb Hcd Hd.
+  pose proof symmetric_inv_sqrt2_square as Hsqrt.
+  assert (Ha : (a <= n)%coq_nat) by lia.
+  assert (Hc : (c <= n)%coq_nat) by lia.
+  unfold symmetric_basis.
+  destruct (Nat.eqb a b) eqn:Habeq; destruct (Nat.eqb c d) eqn:Hcdeq.
+  - apply Nat.eqb_eq in Habeq; apply Nat.eqb_eq in Hcdeq; subst b d.
+    rewrite (symmetric_diagonal_trace n a _ Ha) (symmetric_diagonal_entry n c a a Ha Ha).
+    destruct (Nat.eqb a c); simpl; ring.
+  - apply Nat.eqb_eq in Habeq; apply Nat.eqb_neq in Hcdeq; subst b.
+    rewrite (symmetric_diagonal_trace n a _ Ha) (symmetric_offdiagonal_entry n c d a a Ha Ha).
+    destruct (Nat.eqb a c) eqn:Hac; destruct (Nat.eqb a d) eqn:Had; simpl;
+      try (apply Nat.eqb_eq in Hac; apply Nat.eqb_eq in Had; lia); ring.
+  - apply Nat.eqb_neq in Habeq; apply Nat.eqb_eq in Hcdeq; subst d.
+    rewrite (symmetric_offdiagonal_trace n a b _ Ha Hb).
+    rewrite (symmetric_diagonal_entry n c a b Ha Hb) (symmetric_diagonal_entry n c b a Hb Ha).
+    destruct (Nat.eqb a c) eqn:Hac; destruct (Nat.eqb b c) eqn:Hbc; simpl;
+      try (apply Nat.eqb_eq in Hac; apply Nat.eqb_eq in Hbc; lia); ring.
+  - apply Nat.eqb_neq in Habeq; apply Nat.eqb_neq in Hcdeq.
+    rewrite (symmetric_offdiagonal_trace n a b _ Ha Hb).
+    rewrite (symmetric_offdiagonal_entry n c d a b Ha Hb).
+    rewrite (symmetric_offdiagonal_entry n c d b a Hb Ha).
+    destruct (Nat.eqb a c) eqn:Hac; destruct (Nat.eqb a d) eqn:Had;
+      destruct (Nat.eqb b c) eqn:Hbc; destruct (Nat.eqb b d) eqn:Hbd; simpl;
+      try (apply Nat.eqb_eq in Hac); try (apply Nat.eqb_eq in Had);
+      try (apply Nat.eqb_eq in Hbc); try (apply Nat.eqb_eq in Hbd);
+      try lia; nra.
+Qed.
+
+Theorem symmetric_basis_normalized n a b : (a <= b)%coq_nat -> (b <= n)%coq_nat ->
+  trace_pair n (symmetric_basis n a b) (symmetric_basis n a b) = 1.
+Proof.
+  intros Hab Hb; rewrite (symmetric_basis_orthonormal n a b a b Hab Hb Hab Hb).
+  rewrite !Nat.eqb_refl; reflexivity.
+Qed.
+
+Theorem chaos_second_diagonal n a :
+  chaos_second n a a = matrix_scale n 2 (symmetric_diagonal_basis n a).
+Proof.
+  apply matrix_ext; intros i j Hi Hj; unfold chaos_second, symmetric_diagonal_basis.
+  rewrite matrix_entry_add matrix_entry_scale; ring.
+Qed.
+
+Theorem chaos_second_offdiagonal n a b :
+  chaos_second n a b = matrix_scale n (sqrt 2) (symmetric_offdiagonal_basis n a b).
+Proof.
+  assert (H0 : sqrt 2 <> 0) by (pose proof (sqrt_def 2 ltac:(lra)); nra).
+  apply matrix_ext; intros i j Hi Hj; unfold symmetric_offdiagonal_basis.
+  rewrite !matrix_entry_scale; field; exact H0.
+Qed.
+
+Theorem chaos_second_swap n a b : chaos_second n a b = chaos_second n b a.
+Proof.
+  apply matrix_ext; intros i j Hi Hj; unfold chaos_second; rewrite !matrix_entry_add; ring.
+Qed.
+
+Theorem symmetric_basis_unit_norm n a b : (a <= b)%coq_nat -> (b <= n)%coq_nat ->
+  (`|symmetric_basis n a b|)%R = 1.
+Proof.
+  intros Hab Hb.
+  assert (HE : trace_pair n (symmetric_basis n a b) (symmetric_basis n a b) =
+    (`|symmetric_basis n a b|)%R ^ 2).
+  { rewrite matrix_frobenius_norm_squared; unfold trace_pair.
+    apply coordinate_sum_ext; intros i Hi; apply coordinate_sum_ext; intros j Hj.
+    rewrite (symmetric_basis_symmetric n a b j i Hj Hi); ring. }
+  rewrite (symmetric_basis_normalized n a b Hab Hb) in HE.
+  assert (H0 : 0 <= (`|symmetric_basis n a b|)%R) by (apply/RleP; apply normr_ge0).
+  nra.
+Qed.
+
+Theorem symmetric_offdiagonal_reconstruction n (A : matrix n) i j :
+  symmetric_matrix n A -> (i <= n)%coq_nat -> (j <= n)%coq_nat ->
+  matrix_entry n A i j = / sqrt 2 * trace_pair n (symmetric_offdiagonal_basis n i j) A.
+Proof.
+  intros HA Hi Hj; rewrite (symmetric_offdiagonal_trace n i j A Hi Hj).
+  rewrite (HA j i Hj Hi).
+  replace (/ sqrt 2 * (/ sqrt 2 * (matrix_entry n A i j + matrix_entry n A i j))) with
+    ((/ sqrt 2 * / sqrt 2) * (2 * matrix_entry n A i j)) by ring.
+  rewrite symmetric_inv_sqrt2_square; field.
+Qed.
+
+(* Every coefficient below belongs to the independent upper-triangular family. *)
+Theorem symmetric_matrix_entry_reconstruction n (A : matrix n) i j :
+  symmetric_matrix n A -> (i <= n)%coq_nat -> (j <= n)%coq_nat ->
+  matrix_entry n A i j =
+    if Nat.eqb i j then trace_pair n (symmetric_basis n i j) A
+    else if Nat.ltb i j then / sqrt 2 * trace_pair n (symmetric_basis n i j) A
+    else / sqrt 2 * trace_pair n (symmetric_basis n j i) A.
+Proof.
+  intros HA Hi Hj; destruct (Nat.eqb i j) eqn:Heq.
+  - apply Nat.eqb_eq in Heq; subst j; unfold symmetric_basis; rewrite Nat.eqb_refl.
+    symmetry; apply symmetric_diagonal_trace; assumption.
+  - unfold symmetric_basis; rewrite Heq Nat.eqb_sym Heq.
+    destruct (Nat.ltb i j).
+    + apply symmetric_offdiagonal_reconstruction; assumption.
+    + rewrite (HA i j Hi Hj); apply symmetric_offdiagonal_reconstruction; assumption.
+Qed.
+
+Theorem symmetric_basis_coefficients_determine n (A B : matrix n) :
+  symmetric_matrix n A -> symmetric_matrix n B ->
+  (forall a b, (a <= b)%coq_nat -> (b <= n)%coq_nat ->
+    trace_pair n (symmetric_basis n a b) A = trace_pair n (symmetric_basis n a b) B) ->
+  A = B.
+Proof.
+  intros HA HB HC; apply matrix_ext; intros i j Hi Hj.
+  rewrite (symmetric_matrix_entry_reconstruction n A i j HA Hi Hj).
+  rewrite (symmetric_matrix_entry_reconstruction n B i j HB Hi Hj).
+  destruct (Nat.eqb i j) eqn:Heq.
+  - apply Nat.eqb_eq in Heq; subst j; apply HC; lia.
+  - destruct (Nat.ltb i j) eqn:Hlt; f_equal; apply HC; try assumption.
+    + apply Nat.ltb_lt in Hlt; lia.
+    + apply Nat.ltb_ge in Hlt; lia.
+Qed.
