@@ -17,11 +17,15 @@
      (finite_polynomial_bound) and the partial derivatives
      (finite_coordinate_derivative) of F over to x |-> F (list_of_row x), in
      the form that the library uses.
-   Together they let a statement about gaussian_iterated_expectation follow
-   from a result of the library about gauss d. *)
+   - Two results of the paper follow in this way from the library: the
+     coordinate Stein identity (gaussian_iterated_coordinate_stein_gauss,
+     from gauss_ibp), and the invariance of gaussian_iterated_expectation
+     under the exchange of two adjacent coordinates
+     (gaussian_iterated_swap_adjacent_gauss, from the invariance of gauss d
+     under permutations of the coordinates, integral_gauss_col_perm). *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
-From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_stieltjes_measure lebesgue_measure.
@@ -36,7 +40,8 @@ From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefiniti
   GaussianCoordinateDefinitions GaussianCoordinateBasics GaussianCoordinateWeightDefinitions
   GaussianCoordinateWeights GaussianCoordinateMarginals
   GaussianCoordinatePermutationDefinitions GaussianCoordinatePermutations
-  GaussianCoordinateDerivativeDefinitions GaussianCoordinatePolynomialContinuity.
+  GaussianCoordinateDerivativeDefinitions GaussianCoordinatePolynomialContinuity
+  GaussianPermutationContinuity GaussianPermutationWeights.
 Import GRing.Theory Num.Theory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -326,3 +331,62 @@ by rewrite (_ : i = i') // list_of_row_nth.
 Qed.
 
 End stein.
+
+Section swap.
+
+Lemma swap_adjacent_nth i j (xs : list R) : (i.+1 < length xs)%N ->
+  List.nth j (swap_adjacent i xs) 0%R =
+    List.nth (if j == i then i.+1 else if j == i.+1 then i else j) xs 0%R.
+Proof.
+elim: i xs j => [|i IH] xs j H.
+  by case: xs H => [|a [|b zs]] //= _; case: j => [|[|j]].
+case: xs H => [|a zs] //= H; case: j => [|j] //=.
+rewrite IH //; rewrite ?eqSS.
+by case: (j == i); case: (j == i.+1).
+Qed.
+
+(* Exchanging the coordinates i and i + 1 of the list of coordinates of x is
+   permuting the columns of x by the transposition of i and i + 1. *)
+Lemma swap_adjacent_list_of_row d i (ltid : (i < d)%N) (lti1d : (i.+1 < d)%N)
+    (x : 'rV[RR]_d) :
+  swap_adjacent i (list_of_row x) =
+    list_of_row (col_perm (tperm (Ordinal ltid) (Ordinal lti1d)) x).
+Proof.
+apply: (nth_ext _ _ 0%R 0%R).
+  by rewrite swap_adjacent_length !list_of_row_length.
+move=> j; rewrite swap_adjacent_length list_of_row_length => /ltP jd.
+rewrite swap_adjacent_nth ?list_of_row_length //.
+have -> : List.nth j (list_of_row (col_perm (tperm (Ordinal ltid) (Ordinal lti1d)) x)) 0%R
+    = x 0 (tperm (Ordinal ltid) (Ordinal lti1d) (Ordinal jd)).
+  by rewrite (list_of_row_nth _ (Ordinal jd)) mxE.
+case: (eqVneq j i) => [ji|ji].
+  have -> : Ordinal jd = Ordinal ltid by apply: val_inj.
+  by rewrite tpermL (list_of_row_nth x (Ordinal lti1d)).
+case: (eqVneq j i.+1) => [ji1|ji1].
+  have -> : Ordinal jd = Ordinal lti1d by apply: val_inj.
+  by rewrite tpermR (list_of_row_nth x (Ordinal ltid)).
+rewrite tpermD.
+- by apply/eqP => /(congr1 val) /= ij; move: ji; rewrite ij eqxx.
+- by apply/eqP => /(congr1 val) /= ij; move: ji1; rewrite ij eqxx.
+by rewrite (list_of_row_nth x (Ordinal jd)).
+Qed.
+
+(* Exchanging two adjacent coordinates does not change the iterated
+   expectation, by the invariance of gauss d under permutations of the
+   coordinates. *)
+Theorem gaussian_iterated_swap_adjacent_gauss d i (F : list R -> R) C p :
+  (S i < d)%coq_nat -> finite_joint_continuous d F -> finite_polynomial_bound d C p F ->
+  gaussian_iterated_expectation d F =
+    gaussian_iterated_expectation d (fun xs => F (swap_adjacent i xs)).
+Proof.
+move=> /ltP lti1d HC HB; have ltid := ltnW lti1d.
+have HCs := finite_joint_continuous_swap_adjacent d i F HC.
+have HBs := finite_polynomial_bound_swap_adjacent d C p F i HB.
+have [iF eF] := gaussian_iterated_expectation_gauss_poly _ _ _ _ HC HB.
+rewrite eF (gaussian_iterated_expectation_gauss_poly _ _ _ _ HCs HBs).2.
+under [RHS]eq_Rintegral do rewrite (swap_adjacent_list_of_row _ _ ltid lti1d).
+rewrite /Rintegral; congr fine.
+by rewrite (integral_gauss_col_perm (tperm (Ordinal ltid) (Ordinal lti1d)) iF).
+Qed.
+
+End swap.
