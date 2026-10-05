@@ -55,7 +55,7 @@ Lemma maximum_radius_continuous_firstn d k F :
   finite_joint_continuous (d+k) (fun xs => F (firstn d xs)).
 Proof.
   apply finite_joint_continuous_list_map.
-  - intros xs H; rewrite firstn_length, H, Nat.min_l by lia; reflexivity.
+  - intros xs H; rewrite length_firstn, H, Nat.min_l by lia; reflexivity.
   - intros e xs ys Hx Hy H; apply maximum_radius_forall2_firstn, H.
 Qed.
 
@@ -64,7 +64,7 @@ Lemma maximum_radius_continuous_skipn d k F :
   finite_joint_continuous (d+k) (fun xs => F (skipn d xs)).
 Proof.
   apply finite_joint_continuous_list_map.
-  - intros xs H; rewrite skipn_length, H; lia.
+  - intros xs H; rewrite length_skipn, H; lia.
   - intros e xs ys Hx Hy H; apply maximum_radius_forall2_skipn, H.
 Qed.
 

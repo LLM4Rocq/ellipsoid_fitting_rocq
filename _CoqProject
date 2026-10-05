@@ -592,6 +592,7 @@ theories/QuadraticGradient.v
 theories/QuadraticGrowthProofs.v
 theories/QuadraticSymmetry.v
 theories/RadiusAlgebra.v
+theories/RealsBridge.v
 theories/RectangleFubini.v
 theories/Rounds.v
 theories/RowArrayCoordinates.v

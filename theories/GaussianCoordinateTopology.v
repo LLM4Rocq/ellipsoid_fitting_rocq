@@ -87,6 +87,9 @@ Open Scope R_scope.
    they do not attach any structure to Tn d R itself. *)
 Definition coordinates_uniform_space (d : nat) : Type := Tn d R.
 
+(* The instances repeat projections that MathComp's generic instances
+   already give; Rocq warns that it ignores them. *)
+Set Warnings "-redundant-canonical-projection".
 HB.instance Definition _ d := gen_eqMixin (coordinates_uniform_space d).
 HB.instance Definition _ d := gen_choiceMixin (coordinates_uniform_space d).
 HB.instance Definition _ d :=
@@ -117,6 +120,7 @@ Qed.
 HB.instance Definition _ d := Nbhs_isPseudoMetric.Build R (coordinates_uniform_space d)
   erefl (@coordinates_uniform_space_ball_center d)
   (@coordinates_uniform_space_ball_sym d) (@coordinates_uniform_space_ball_triangle d) erefl.
+Set Warnings "redundant-canonical-projection".
 
 Lemma finite_joint_continuous_filter d F :
   finite_joint_continuous d F <->
