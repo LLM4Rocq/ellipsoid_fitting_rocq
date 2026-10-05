@@ -1,29 +1,35 @@
-(* The actual good events for the non-backtracking column frame (A35).
+(* The good event of the non-backtracking column frame: the bounds on the
+   square-free columns used by the column remainder estimates.
 
    For a sample x of N rows of d coordinates put C = 'I_d * 'I_d,
    X = pmnb_X d (tval x), so X i (a, b) = [a < b] x_ia x_ib,
    R_q = pmcr_rankone N C X q and Q_q = pmcr_column_norm N C X q.
-   1. Finite bridge (no probability):
-      - X i q ^ 2 = [q.1 < q.2] (x_i,q.1 x_i,q.2)^2;
-      - Q_q = [q.1 < q.2] paper_main_column_q N d x q.1 q.2, the A34 column norm;
-      - sum_q R_q = (1/2) V V^T for the square-free block V, whose columns
-        carry both orientations of a pair;
-      - the row sum sum_q X i q ^ 2 is the diagonal entry (sum_q R_q)_ii and
-        equals (1/2) (V V^T)_ii;
-      - 2 'C(d, 2) = d (d - 1).
-   2. Fix c > 0 and C0 = 2 + 109 / c. Let N(d) have eventual density >= c
-      and eventually 0 < N(d) <= d^2. For every delta > 0 the frame event of
-      PaperMainColumnConcentrationFrameEvents is measurable with probability
-      tending to 0, and for all large d, outside it, with U = C0 N, m = d and
-      M = 'C(d, 2):
+   1. Identities, deterministic:
+      - X i q ^ 2 = [q.1 < q.2] (x_i,q.1 x_i,q.2)^2 (pmccf_X_sq);
+      - Q_q = [q.1 < q.2] paper_main_column_q N d x q.1 q.2, the column norm
+        of PaperMainColumnConcentration (pmccf_column_norm);
+      - sum_q R_q = (1/2) V V^T for the square-free block V of
+        PaperMainFeatureGramBlocks, whose entries are sqrt 2 x_ia x_ib for
+        a < b and 0 otherwise (pmccf_rankone_sum);
+      - the row sum sum_q X i q ^ 2 is the diagonal entry (sum_q R_q)_ii
+        (pmccf_row_sum), so it equals (1/2) (V V^T)_ii;
+      - 2 'C(d, 2) = d (d - 1) (pmccf_bin2).
+   2. Fix c > 0 and C0 = 2 + 109 / c (paper_main_frame_constant). Let N(d)
+      have eventual density >= c and eventually 0 < N(d) <= d^2. For every
+      delta > 0 the frame event of PaperMainColumnConcentrationFrameEvents
+      is measurable with probability tending to 0, and for all large d,
+      outside it, with U = C0 N, m = d and M = 'C(d, 2), the conditions
+      paper_main_column_frame_good hold (paper_main_column_frame):
       - every Q_q <= U, and |Q_q / N - 1| <= delta when q.1 < q.2;
       - every X i q ^ 2 <= m, and 0 <= m <= U;
       - u^T (sum_q R_q) u <= U |u|^2 for every u;
       - every row sum sum_q X i q ^ 2 <= U;
       - every row sum satisfies |(sum_q X i q ^ 2) / M - 1| <= delta,
         from |(V V^T)_ii / d^2 - 1| <= delta / 4, 2 M = d (d - 1), d >= 2 and
-        delta (d - 1) >= 2.
-   No Gaussian moment or spectral premise. *)
+        delta (d - 1) >= 2 (pmccf_row_scalar).
+      The deterministic step, from the bounds of
+      paper_main_column_frame_raw outside the frame event, is
+      paper_main_column_frame_good_outside. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -38,7 +44,7 @@ Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
 
-(* 1. The finite bridge. *)
+(* 1. Identities for the square-free columns. *)
 Lemma pmccf_point N d (x : paper_main_sample N d) (i : nat) (a : 'I_d) :
   paper_main_point x i a 0 = List.nth (i * d + a) (tval x) 0.
 Proof. by rewrite /paper_main_point mxE. Qed.
@@ -118,7 +124,7 @@ have Hp2 : 0 <= k * (delta * (k - 1) - 2) by rewrite mulr_ge0 // ltW.
 nra.
 Qed.
 
-(* 2. The frame premises. *)
+(* 2. The frame conditions. *)
 Definition paper_main_column_frame_good N d (C0 delta : R) (x : paper_main_sample N d) : Prop :=
   [/\ (forall q : 'I_d * 'I_d,
          pmcr_column_norm N ('I_d * 'I_d)%type (@pmnb_X R d (tval x) N) q <= C0 * N%:R) /\
@@ -136,7 +142,7 @@ Definition paper_main_column_frame_good N d (C0 delta : R) (x : paper_main_sampl
          delta)].
 
 (* Deterministic: outside the frame event, for d >= 2, delta (d - 1) >= 2,
-   0 < N <= d^2 and c d^2 <= N, the frame premises hold. *)
+   0 < N <= d^2 and c d^2 <= N, the frame conditions hold. *)
 Theorem paper_main_column_frame_good_outside N d (c delta : R) (x : paper_main_sample N d) :
   0 < c -> 0 < delta -> (2 <= d)%N -> 2 <= delta * (d%:R - 1) -> (0 < N)%N -> (N <= d ^ 2)%N ->
   c * d%:R ^+ 2 <= N%:R -> ~ paper_main_column_frame_event N d delta x ->
@@ -199,7 +205,8 @@ split.
   exact: Hdiag i.
 Qed.
 
-(* The actual frame event endpoint. *)
+(* For every delta > 0, the frame event is measurable, its probability
+   tends to 0, and outside it the frame conditions hold for all large d. *)
 Theorem paper_main_column_frame (N : nat -> nat) (c : R) :
   0 < c -> paper_main_eventually_ge (paper_main_density N) c ->
   (exists D, forall d, (D <= d)%N -> (0 < N d)%N /\ (N d <= d ^ 2)%N) ->

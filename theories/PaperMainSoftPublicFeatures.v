@@ -1,4 +1,20 @@
-(* Pointwise transport of the retained soft interpolation to public features. *)
+(* The soft comparison of PaperMainSoftComparison, restated with public
+   matrices (MathComp's 'M[R]_d) and the head features of the sample.
+   paper_main_public_soft_minimax d N beta gamma y B Y S W is the soft
+   minimax over z in Y and s in S of sum_(i < N) y_z,i <W_i, B_s>.
+   - paper_main_quadratic_value_public and paper_main_goe_value_public: for
+     symmetric B_s, the values multirow_quadratic_value and
+     multirow_goe_value, computed with the internal matrices of
+     MatrixDefinitions, equal this soft minimax at the head features
+     paper_main_head_feature x i of the sample, and at the GOE features
+     paper_main_public_goe_feature.
+   - paper_main_public_feature_soft_comparison: hence, under the hypotheses
+     of paper_main_soft_public_comparison, the expectations of the soft
+     minimax at the head features (under paper_main_probability) and at the
+     GOE features differ by at most
+       (40/3) k^3 (beta + gamma)^2 theta (d + 2 sqrt (d ln N) + 2 ln N) / d^2,
+     and by at most (200/3) k^3 (beta + gamma)^2 theta / d when ln N <= d
+     (paper_main_public_feature_soft_comparison_coarse). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -1,6 +1,19 @@
-(* Probability assembly for the supercritical balanced alternative.
-   Separation, event measurability and the UNSAT limit remain explicit
-   premises, not assumptions admitted by a public theorem. *)
+(* The balanced alternative in the supercritical regime.
+
+   paper_main_balanced_from_unsat: assume that the fit event and the
+   balanced positive-definite event (eq:alt-cor-event) are measurable, that
+   every spanning sample with no fit lies in the balanced event, and that
+   the fit probability tends to 0 whenever the liminf of n(d) / d^2 exceeds
+   1/4. Then, in that regime, the probability of the balanced event tends
+   to 1. These three properties are hypotheses of the theorem.
+
+   The proof: for 0 < d <= n, paper_main_balanced_complement_from_separation
+   shows that the balanced event and the complement of the fit event agree
+   almost surely, since the Gaussian sample spans almost surely and a fit
+   excludes a balanced certificate. When the liminf of the density exceeds
+   1/4, d <= n(d) for every large d (paper_main_supercritical_spanning_count),
+   so the probability of the balanced event is eventually 1 minus the fit
+   probability. *)
 From Stdlib Require Import Reals Lra.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

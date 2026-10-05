@@ -1,19 +1,24 @@
-(* The A26 data loss as the public quadratic risk of a block matrix.
+(* The finite-prior data loss of PaperMainHybridFiniteArray as the quadratic
+   risk of a block matrix.
 
-   Row losses of PaperMainHybridFiniteArray with m = mi + 1 and fixed triples
-   (H_j, B_j, b_j):
-   1. pmdf_quad B y = y^T B y - Tr B, so on a row (g, y) the data row loss is
-      phi ((g, y)^T (block_mx H_j 0 0 B_j) (g, y) - Tr (block_mx H_j 0 0 B_j) - b_j)
-      (block form and trace of PaperMainBlockGeometry).
-   2. Row i of a sample x of N rows of r + m coordinates is paper_main_point x i,
-      so the loss array of state j equals
-      INR N * paper_main_quadratic_risk N (r + m) x (block_mx H_j 0 0 B_j) b_j.
+   Row losses of PaperMainHybridFiniteArray with m = mi + 1 and fixed
+   triples (H_j, B_j, b_j), and M_j = block_mx H_j 0 0 B_j:
+   1. pmdf_quad B y = y^T B y - Tr B, so on a row (g, y) the data row loss
+      is phi ((g, y)^T M_j (g, y) - Tr M_j - b_j) (block form and trace of
+      PaperMainBlockGeometry).
+   2. Row i of a sample x of N rows of r + m coordinates is
+      paper_main_point x i, so the loss array of state j equals
+      INR N * paper_main_quadratic_risk N (r + m) x M_j b_j
+      (paper_main_orientation_data_array).
    3. On the rotated sample paper_main_orientation_rotate N (r + m) O x the
       array is INR N times the quadratic risk of x for the conjugated matrix
-      O^T (block_mx H_j 0 0 B_j) O.
-   4. A state of the prior with risk at most a gives normalized finite soft
-      loss at most a + ln |I| / (beta N) (M110 witness bound), on the sample
-      and on the rotated sample. All positivity premises are explicit. *)
+      O^T M_j O (paper_main_orientation_risk_rotate).
+   4. For N > 0, beta > 0 and a nonempty prior I, a state of I with risk at
+      most a gives normalized finite soft loss at most
+      a + ln |I| / (beta N), by the witness bound
+      paper_main_loss_normalized_array_witness. This holds on the sample and
+      on the rotated sample (paper_main_orientation_candidate_bound and
+      paper_main_orientation_candidate_bound_rotate). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

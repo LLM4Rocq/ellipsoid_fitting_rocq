@@ -1,4 +1,15 @@
-(* All three column-remainder errors under the actual Gaussian frame premises. *)
+(* Operator norm bound on the error E_k of the non-backtracking recursion
+   (pmlo_E) for the square-free feature columns of a sample that satisfies
+   the frame conditions paper_main_column_frame_good.
+
+   paper_main_column_remainder_frame_scaled: if 0 < delta <= 1,
+   kap N <= 2, kap^2 N = 1/C(d,2) and d <= C0 N delta^2, then for every k
+   the operator norm of E_k is at most
+     ((k+2) (4 C0)^(k+2) + 4^(k+1) (2 C0) + 2^k) delta.
+   The proof splits E_k into three terms (paper_main_column_remainder_split)
+   and bounds each one: the cross term by pmcr_cross_opbound, the column
+   norm term by paper_main_column_coefficient_opbound and the diagonal term
+   by pmcr_diagonal_error. Deterministic. *)
 From Stdlib Require Import Reals List Lia FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

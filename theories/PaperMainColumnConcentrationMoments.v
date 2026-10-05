@@ -1,22 +1,23 @@
-(* Moments of one column of the square-free features under the actual
-   Gaussian law (A34, part 2, moments).
-   Coordinates are lists, as in PaperMainDiagonalBlockMoment. For a list ys
-   of length d and a <> b below d, Y(ys) = (y_a y_b)^2 - 1. For a list xs of
-   n * d coordinates, row i is xs_(i d), ..., xs_(i d + d - 1), and
-   S_n(xs) = sum_(i < n) Y(row i of xs). E_D is the iterated Gaussian
-   expectation gaussian_iterated_expectation in dimension D.
-   1. E_d [y_a^j y_b^k] = m_j m_k with m the Gaussian moments
-      (pmdm_factor and pmdm_marginal), so every polynomial in y_a^2 y_b^2
-      has an explicit expectation.
-   2. For a constant s: E_d (s + Y) = s, E_d (s + Y)^2 = s^2 + 8 and
+(* Moments of one column of the square-free features under the Gaussian
+   law. Coordinates are lists, as in PaperMainDiagonalBlockMoment. For a
+   list ys of length d and a <> b below d, Y(ys) = (y_a y_b)^2 - 1. For a
+   list xs of n * d coordinates, row i is xs_(i d), ..., xs_(i d + d - 1),
+   and S_n(xs) = sum_(i < n) Y(row i of xs) (pmccm_S). E_D is the iterated
+   Gaussian expectation gaussian_iterated_expectation in dimension D.
+   1. pmccm_mono2: E_d [y_a^j y_b^k] = m_j m_k with m the Gaussian moments
+      (from pmdm_factor and pmdm_marginal), so every polynomial in
+      y_a^2 y_b^2 has an explicit expectation (pmccm_poly_exp).
+   2. For a constant s (pmccm_shift1, pmccm_shift2, pmccm_shift4):
+      E_d (s + Y) = s, E_d (s + Y)^2 = s^2 + 8 and
       E_d (s + Y)^4 = s^4 + 48 s^2 + 800 s + 10176. In particular E Y = 0,
       E Y^2 = 8 and E Y^4 = 10176.
-   3. S_(n+1)(xs ++ ys) = S_n(xs) + Y(ys), so by induction over the rows
-      (gaussian_iterated_suffix_expectation through pmdm_split_eq):
-      E S_n = 0, E S_n^2 = 8 n and E S_n^4 = 10176 n + 192 n (n - 1),
-      which is at most 10368 n^2 for n >= 1.
-   Integrability comes from continuity with a polynomial bound (pmdf_regular).
-   No probability premise. *)
+   3. S_(n+1)(xs ++ ys) = S_n(xs) + Y(ys) (pmccm_S_app), so by induction
+      over the rows (gaussian_iterated_suffix_expectation through
+      pmdm_split_eq): E S_n = 0, E S_n^2 = 8 n and
+      E S_n^4 = 10176 n + 192 n (n - 1) (pmccm_S_mean, pmccm_S_moment2 and
+      pmccm_S_moment4). The last value is at most 10368 n^2 for n >= 1.
+   Integrability comes from continuity with a polynomial bound
+   (pmdf_regular). *)
 From Stdlib Require Import Reals List Lia FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

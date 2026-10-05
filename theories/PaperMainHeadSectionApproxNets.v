@@ -1,30 +1,31 @@
-(* The actual finite nets for the head-section minimax bridge of
-   PaperMainHeadSectionApprox, built from the fixed grids of
-   PaperMainGordonEntropy, and the existence corollary with no net or
-   cardinality premise. Matrices have size n+1, D =
-   paper_main_symmetric_dimension n > 0 is the number of public symmetric
-   coordinates and C(eps) = paper_main_gordon_entropy_constant eps.
+(* Finite nets for the head-section minimax bridge of
+   PaperMainHeadSectionApprox, built from the explicit grids of
+   PaperMainGordonEntropy, and the existence corollary, which constructs
+   the nets instead of assuming them. Matrices have size n+1,
+   D = paper_main_symmetric_dimension n > 0 is the number of coordinates of
+   a symmetric matrix and C(eps) = paper_main_gordon_entropy_constant eps.
    - Dual net. For a nonempty set Y of unit vectors for paper_main_gordon_dot q
      (so q > 0), paper_main_gordon_entropy_net_fixed gives an eps-net z of Y
      contained in Y, indexed by seq 0 r with
      r = length (paper_main_gordon_entropy_grid q eps) > 0, ln r <= C(eps) q.
-   - Net of the section. For a nonempty section, the same construction on the code
-     set paper_main_cone_code_set n section (PaperMainConeGaussianCoordinates)
+   - Net of the section (paper_main_head_section_entropy_net). For a
+     nonempty section, the same construction on the code set
+     paper_main_cone_code_set n section (PaperMainConeGaussianCoordinates)
      gives code points, each the code of a matrix of the section, chosen by
      classical choice. Codes of symmetric matrices are linear and their
      squared Gordon distance is the squared Frobenius distance, so these
      matrices B t (t < s) form a Frobenius eps-net of the section contained
      in it, with s = length (paper_main_gordon_entropy_grid D eps) > 0 and
      ln s <= C(eps) D. Conversely the codes of any such net form a Gordon
-     eps-net of the code set.
-   - Existence corollary. For every eps > 0 there are such nets, depending
-     only on Y, W and eps, such that for every linear map V with the operator
-     bound |sum_i y_i V_i|_F <= L |y|_2 and all beta, gamma > 0,
+     eps-net of the code set (paper_main_head_section_net_code).
+   - Existence corollary (paper_main_head_section_approx_exists). For every
+     eps > 0 there are such nets, depending only on Y, W and eps, such that
+     for every linear map V with the operator bound
+     |sum_i y_i V_i|_F <= L |y|_2 and all beta, gamma > 0,
        soft_minimax - C(eps) D / gamma - L eps <= minimax
                     <= soft_minimax + C(eps) q / beta + L eps,
      where soft_minimax is the soft minimax of <sum_i (z a)_i V_i, B t> over
-     a < r and t < s. So the nets are uniform in V. No measurable selection
-     is claimed. *)
+     a < r and t < s. So the nets are uniform in V. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -113,7 +114,7 @@ apply: paper_main_head_section_sq_mono; last by apply/RleP.
 by apply/RleP; exact: pmh_frobenius_ge0.
 Qed.
 
-(* The section net from the fixed entropy grid. *)
+(* The section net from the explicit entropy grid. *)
 
 Theorem paper_main_head_section_entropy_net n m (kappa : R) (W : 'I_m -> 'M[R]_n.+1)
     (eps : R) :
@@ -165,7 +166,7 @@ apply/RleP; apply: paper_main_head_section_sq_le => //.
 exact: Rlt_le.
 Qed.
 
-(* The existence corollary: no net or cardinality premise remains. *)
+(* The existence corollary: both nets exist, with their entropy bounds. *)
 
 Theorem paper_main_head_section_approx_exists n m (kappa : R) q (Y : (nat -> R) -> Prop)
     (W : 'I_m -> 'M[R]_n.+1) (eps : R) :

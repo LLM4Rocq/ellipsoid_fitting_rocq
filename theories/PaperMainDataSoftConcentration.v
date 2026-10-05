@@ -1,4 +1,26 @@
-(* Explicit concentration of quadratic data soft functionals under their actual law. *)
+(* Concentration of the soft minimax of quadratic data scores under the
+   Gaussian law, with explicit constants.
+
+   Let Y, Q be nonempty index lists and (B(z, q), y(z, q)) admissible pairs
+   as in PaperMainDataClippedSoft: B symmetric of operator norm at most k,
+   y a dual vector of norm at most 1. The raw soft functional is the soft
+   minimax of the scores sum_i y_i <W_i, B> of the data features W_i of
+   the sample; the clipped one uses the sample clipped at level U.
+   - paper_main_data_raw_clipped_soft_eq: the two agree when every
+     coordinate has absolute value below U.
+   - paper_main_data_soft_clipping_mean: for every a > 0, the mean of the
+     raw functional exceeds that of the clipped one by at most
+     V / a + a (2 N d exp(-U^2/2)). Here V = paper_main_data_soft_second_bound
+     bounds both second moments, and 2 N d exp(-U^2/2) bounds the
+     probability that some coordinate reaches U.
+   - paper_main_data_soft_clipped_lower_margin: if b is at most the mean of
+     the raw functional, the clipped functional falls below
+     b - paper_main_data_soft_clipping_loss - u with probability at most
+     exp(-u^2 / (2 (2 k U)^2)), by Gaussian concentration for the
+     2 k U-Lipschitz clipped functional.
+   - paper_main_data_raw_soft_public_mean: the mean of the soft minimax of
+     the head features under paper_main_probability is the iterated
+     Gaussian expectation of the raw functional. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

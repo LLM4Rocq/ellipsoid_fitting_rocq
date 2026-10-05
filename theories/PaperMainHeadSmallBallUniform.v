@@ -1,4 +1,4 @@
-(* The uniform head small ball under the actual Gaussian law. Let r = n + 1,
+(* The uniform head small ball under the Gaussian law. Let r = n + 1,
    let x be an m-point sample of R^r (paper_main_probability m r: m
    independent standard Gaussian rows g_1, ..., g_m), and for a symmetric
    H of size r and real b let
@@ -12,7 +12,7 @@
    symmetric H, every real b and every J : {set 'I_m} with
    |J| >= (1 - 1/1216) m,
      sum_(i in J) Y_i(H, b)^2 >= (m / 4864) sigma2(H, b).
-   Proof, replacing the VC bound of the manuscript.
+   Proof, by a net argument in place of the VC bound of the paper.
    - One row: P(Y^2 >= sigma2 / 2) >= 1/76 (PaperMainHeadSmallBallPZ) and,
      with A(g) = g g^T - I, E |A(g)|_F^2 = r (r + 1)
      (PaperMainDataFeatureMoments), so by Markov
@@ -28,11 +28,9 @@
    - Off B, for (H, b) on the unit sphere, #{i | Y_i^2 >= 1/4} > m/608;
      deleting at most m/1216 rows leaves more than m/1216 of them, so the
      sum over J is at least m/4864. Homogeneity gives every (H, b).
-   Corollaries (using 3/5 < ln 2 < 1): with c0 = (2 ln 2 - 1) / 2432,
-   P(B) <= exp (- c0 m) when m >= 306432 (r + 1)^3
-   (paper_main_head_small_ball_uniform_poly), and, for every gamma > 0 and
-   all large d, when r <= sqrt d + 1 (in particular r <= ceil (sqrt d)) and
-   m >= gamma d^2 (paper_main_head_small_ball_uniform_density). *)
+   Corollary (paper_main_head_small_ball_uniform_poly, using
+   3/5 < ln 2 < 1): with c0 = (2 ln 2 - 1) / 2432, P(B) <= exp (- c0 m)
+   when m >= 306432 (r + 1)^3. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval finset.
@@ -688,7 +686,3 @@ have Hb := Hexp _ _ Hii.
 rewrite E2 in Ha; rewrite E2 in Hb.
 lra.
 Qed.
-
-(* The regime of the manuscript: r <= ceil (sqrt d) (implied by
-   r <= sqrt d + 1) and m >= gamma d^2. For every gamma > 0 and all large d
-   the failure probability is at most exp (- c0 m). *)

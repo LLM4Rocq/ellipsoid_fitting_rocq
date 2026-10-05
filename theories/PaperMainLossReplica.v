@@ -1,4 +1,18 @@
-(* Finite replicated Gibbs averages for the translated-loss comparison. *)
+(* Replicated Gibbs averages, for the comparison of translated losses.
+
+   paper_main_loss_replica c f I k F is the average of F over k independent
+   replicas s_1, ..., s_k, each with the Gibbs weights of
+   gibbs_average c f I. For a product F = u(s_1) ... u(s_k)
+   (paper_main_loss_product) it is the k-th power of the Gibbs average of u
+   (paper_main_loss_replica_power), and every bound on |F| bounds it
+   (paper_main_loss_replica_bound).
+   paper_main_loss_row_poly beta f I n ell is the truncated series
+   sum_(j = 1..n) (1 - Z)^j / j of -ln Z, where Z is the Gibbs average of
+   exp(-beta ell) (paper_main_gibbs_row_factor). Each new term is a replica
+   average (paper_main_loss_row_poly_step). paper_main_loss_row_poly_uniform:
+   for losses 0 <= ell <= 1, the increment soft_min(f + ell) - soft_min(f)
+   of the soft minimum is within eps of paper_main_loss_row_poly / beta for
+   every large n, uniformly in f, I and ell. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GibbsDefinitions GibbsWeights GibbsMomentBounds
   PaperMainLossLogPolynomial PaperMainLossGibbs.

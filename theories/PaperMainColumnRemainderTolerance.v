@@ -1,12 +1,14 @@
-(* The finite scalar tolerance for the non-backtracking column remainder (A38).
+(* A scalar tolerance for the non-backtracking column remainder.
 
-   The remainder constant is
+   The remainder constant (paper_main_remainder_constant) is
      C_k(h) = (k + 2) (2 h)^(k + 2) + 4^(k + 1) h + 2^k,
-   nonnegative for h >= 0. For K and eta > 0 put
-     S = sum_(k < K) C_k(h),   delta = min(1, eta / (1 + S)).
-   Then 0 < delta <= 1 and C_k(h) delta <= eta for every k < K, since
+   nonnegative for h >= 0. At h = 2 C0 it is the constant of
+   paper_main_column_remainder_frame_scaled. For K and eta > 0 put
+     S = sum_(k < K) C_k(h),   delta = min(1, eta / (1 + S))
+   (paper_main_remainder_tolerance). paper_main_remainder_tolerance_spec:
+   0 < delta <= 1 and C_k(h) delta <= eta for every k < K, since
    0 <= C_k(h) <= S < 1 + S. K = 0 is included (S = 0, delta = min(1, eta)).
-   Only this constant and this finite choice; no probability, no matrix. *)
+   Scalar inequalities only. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.

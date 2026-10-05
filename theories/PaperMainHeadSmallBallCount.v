@@ -1,17 +1,21 @@
 (* Binomial tails for counts of rows of the Gaussian sample. For a predicate
    rho on R^d let A = {h : paper_main_sample 1 d | rho (row 0 of h)} be the
-   row event, with probability a under the law of one row, and
+   row event (paper_main_head_row_event), with probability a under the law of
+   one row, and
      count_n(x) = #{i < n | rho (row i of x)}      (paper_main_head_row_count).
    Splitting off the first row (paper_main_split_points 1 n d, whose law is
    the product law: paper_main_split_points_rectangle) gives the binomial
    recursion
      P_(n+1)(count <= s) = a P_n(count <= s - 1) + (1 - a) P_n(count <= s),
    and the same for {s <= count} with s - 1. By induction over n, for every
-   real s:
-   - if a >= p, then P_n(count <= s) <= 2^s (1 - p/2)^n;
-   - if a <= q, then P_n(s <= count) <= 2^(-s) (1 + q)^n.
-   The count events are measurable. Only the rectangle law of the sample is
-   used; no moment generating function or product integral. *)
+   real s, the count events are measurable and:
+   - paper_main_head_row_count_lower: if a >= p, then
+     P_n(count <= s) <= 2^s (1 - p/2)^n;
+   - paper_main_head_row_count_upper: if a <= q, then
+     P_n(s <= count) <= 2^(-s) (1 + q)^n.
+   paper_main_head_row_count_lower_exp and paper_main_head_row_count_upper_exp
+   give the exponential forms P_n(count <= p n / 4) <=
+   exp(-p n (1/2 - ln 2 / 4)) and P_n(s <= count) <= exp(q n - s ln 2). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

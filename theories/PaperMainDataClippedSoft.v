@@ -1,12 +1,15 @@
-(* Soft minimax of clipped data-feature scores (G11).
-   For finite index lists Y and Q, with a symmetric public B(z, q) of internal
-   operator norm at most k and a dual vector y(z, q) of Euclidean norm at most 1
-   on seq 0 N for every z in Y and q in Q, the soft minimax of the clipped
-   scores is 2 k U-Lipschitz in paper_main_gordon_distance (N * d), d = S n.
-   This instantiates the checked PaperMainSoftLipschitz results with
-   paper_main_data_clipped_score_lipschitz. The Gaussian statements are on
-   gaussian_product_law (N * d), exactly as in PaperMainSoftLipschitz. No other
-   law, tail or concentration statement is assumed. *)
+(* The soft minimax of clipped data-feature scores. Let Y and Q be finite
+   index lists and, for z in Y and q in Q, let B(z, q) be a symmetric
+   d x d matrix, d = S n, of operator norm at most k (matrix_operator_norm
+   of paper_main_matrix_from_public), and y(z, q) a dual vector of
+   Euclidean norm at most 1 on seq 0 N.
+   - paper_main_data_clipped_soft_lipschitz: the soft minimax of the
+     scores clipped at level U (paper_main_data_clipped_score) is
+     2 k U-Lipschitz for paper_main_gordon_distance (N * d).
+   - paper_main_data_clipped_soft_le_measurable: its sublevel sets are
+     measurable sets of tuples.
+   Both instantiate the results of PaperMainSoftLipschitz with
+   paper_main_data_clipped_score_lipschitz. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
@@ -47,7 +50,7 @@ have [HB [HA Hy]] := Had z q Hz Hq.
 exact: paper_main_data_clipped_score_lipschitz.
 Qed.
 
-(* 1. The soft minimax keeps the 2kU bound, for all lists. *)
+(* The soft minimax keeps the 2kU bound, for all lists. *)
 Theorem paper_main_data_clipped_soft_lipschitz U n N k beta gamma Bf yf Y Q xs ys :
   0 <= U -> 0 <= k -> 0 < beta -> 0 < gamma -> Y <> [] -> Q <> [] ->
   paper_main_data_clipped_admissible n N k Bf yf Y Q ->
@@ -61,7 +64,7 @@ have [HB [HA Hy]] := Had z q Hz Hq.
 exact: paper_main_data_clipped_score_lipschitz.
 Qed.
 
-(* 3. Measurability of the sublevel sets. *)
+(* Measurability of the sublevel sets. *)
 Theorem paper_main_data_clipped_soft_le_measurable U n N k beta gamma Bf yf Y Q c :
   0 <= U -> 0 <= k -> 0 < beta -> 0 < gamma -> Y <> [] -> Q <> [] ->
   paper_main_data_clipped_admissible n N k Bf yf Y Q ->

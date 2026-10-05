@@ -1,4 +1,14 @@
-(* Fixed-rank orientation unions are dominated by quadratic Gaussian tails. *)
+(* Fixed-rank orientation unions are dominated by quadratic Gaussian
+   tails: scalar rates for the unsatisfiable phase. Deterministic.
+   - paper_main_unsat_orientation_exponent: for d >= 1 and d >= 4 C / a,
+     exp(C (d + 1)) exp(-a d^2) <= exp(-a d^2 / 2).
+   - paper_main_unsat_quadratic_rate: exp(-a d^2 / 2) <= 2 / (a d) for
+     d >= 1.
+   - paper_main_unsat_orientation_union_limit: a nonnegative sequence that
+     is eventually at most K exp(C (d + 1)) exp(-a d^2), with a > 0, tends
+     to 0.
+   - paper_main_unsat_fixed_rank: if r <= R and d >= R^2 + 1, then r < d
+     and r <= sqrt d + 1. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

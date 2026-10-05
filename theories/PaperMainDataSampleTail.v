@@ -1,16 +1,17 @@
-(* Actual coordinate and pair-coherence events for the Gaussian data sample
-   (manuscript lem:data, eq:coord-max and eq:coherence, lines 636-658).
+(* Coordinate and pair-coherence events for the Gaussian data sample
+   (lem:data of the paper, eq:coord-max and eq:coherence).
 
    The sample x : paper_main_sample n d of n points of R^d has the law
    paper_main_probability n d, the measure gaussian_product_law (n * d). Its
    points are x_i = paper_main_point x i, with coordinates x_ia.
    1. Coordinates (paper_main_data_coordinate_tail): for u > 0, the event
-      "exists i < n, a < d, u <= |x_ia|" is measurable with probability at
-      most 2 n d exp(-u^2/2). Each coordinate is the unit linear form with a
-      Kronecker coefficient vector (paper_main_gaussian_unit_linear_absolute_tail),
-      then a union bound (paper_main_gaussian_union_bound).
+      that u <= |x_ia| for some i < n and a < d is measurable with
+      probability at most 2 n d exp(-u^2/2). Each coordinate is the unit
+      linear form with a Kronecker coefficient vector
+      (paper_main_gaussian_unit_linear_absolute_tail), then a union bound
+      (paper_main_gaussian_union_bound).
    2. Pairs (paper_main_data_pair_tail): for i < j < n and A, B > 0, the
-      event "|x_i|^2 <= A^2 and B <= |<x_i, x_j>|" is measurable with
+      event that |x_i|^2 <= A^2 and B <= |<x_i, x_j>| is measurable with
       probability at most 2 exp(-B^2/(2 A^2)). The sample splits before row
       j (paper_main_split_points, after the cast n = j + (n - j)). x_i lies
       in the first part and x_j is the first point of the second part. For
@@ -19,21 +20,19 @@
       the unit vector c = v/|v| padded with zeros. Its probability is then
       at most 2 exp(-B^2/(2|v|^2)) <= 2 exp(-B^2/(2 A^2)). The bound for the
       whole event is paper_main_split_points_section_bound
-      (PaperMainHeadLawBounds). No conditional law is assumed.
+      (PaperMainHeadLawBounds).
    3. Coherence. <W_i, W_j> = ((x_i^T x_j)^2 - |x_i|^2 - |x_j|^2 + d) / d
       (paper_main_data_feature_pairing_formula). It holds for every d; for
-      d = 0 both sides are 0, since division by 0 gives 0. The exceptional event
-      paper_main_data_coherence_event n d B is the union over i < j < n of
-      the pair events with A^2 = 4 d. For d > 0 and B > 0 it is measurable
-      with probability at most n^2 2 exp(-B^2/(8 d))
-      (paper_main_data_coherence_tail). Pairs with i > j are not treated as
-      separate events: <x_i, x_j> and <W_i, W_j> are symmetric, so the pairs
-      i < j suffice for the coherence bound. If every
-      row has |x_k|^2 <= 4 d, the form that paper_main_data_radius_good
-      gives, and x is outside it, then |<W_i, W_j>| <= B^2/d + 9 for all
-      distinct i, j < n (paper_main_data_coherence_good). The radius event
-      itself is not assumed or proved here. Nothing from the paper is
-      assumed. *)
+      d = 0 both sides are 0, since division by 0 gives 0. The exceptional
+      event paper_main_data_coherence_event n d B is the union over
+      i < j < n of the pair events with A^2 = 4 d. For d > 0 and B > 0 it is
+      measurable with probability at most n^2 2 exp(-B^2/(8 d))
+      (paper_main_data_coherence_tail). Since <x_i, x_j> and <W_i, W_j> are
+      symmetric in i and j, the pairs i < j suffice. If every row has
+      |x_k|^2 <= 4 d, as paper_main_data_radius_good gives outside the
+      radius event, and x is outside the coherence event, then
+      |<W_i, W_j>| <= B^2/d + 9 for all distinct i, j < n
+      (paper_main_data_coherence_good). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

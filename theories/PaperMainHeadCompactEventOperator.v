@@ -3,19 +3,18 @@
    measurable space. The event
      {x | paper_main_head_section_operator_bound q (V x) L}
        = {x | 0 <= L /\ forall y, |sum_(i<q) y_i V_i(x)|_F <= L |y|_2}
-   is measurable.
+   is measurable (paper_main_head_operator_event_measurable).
    - For q = 0 the combination is 0 and the event is {0 <= L}.
    - For q > 0 fix finite 1/(j+1)-nets of the unit sphere of
-     paper_main_gordon_dot q contained in it (paper_main_gordon_finite_net_exists).
+     paper_main_gordon_dot q contained in it
+     (paper_main_gordon_finite_net_exists).
      A unit y is within 1/(j+1) of a net point v, so
        |sum_i y_i V_i|_F <= |sum_i v_i V_i|_F + (j+1)^-1 sum_i |V_i|_F
-     for every j, and the bound for every y follows by homogeneity. So the
-     event is {0 <= L} intersected with the countably many events
+     for every j, and the bound for every y follows by homogeneity
+     (paper_main_head_operator_from_unit). So the event is {0 <= L}
+     intersected with the countably many events
      <sum_i v_i V_i, sum_i v_i V_i> <= L^2 at the net points.
-   No operator bound is assumed in any law and no net is selected
-   measurably. Instances: the tail sample with V i x = paper_main_head_feature x i,
-   the pair (head sample, tail sample), and the tail block of a row-permuted
-   full sample. *)
+   The nets are fixed once and for all and do not depend on x. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix interval.
@@ -193,5 +192,3 @@ apply: paper_main_head_section_le_measurable; last exact: measurable_cst.
 by apply: paper_main_finite_pairing_measurable;
   exact: (paper_main_head_section_combination_measurable q (v j t) V mV).
 Qed.
-
-(* Instances: the actual tail features. *)

@@ -1,4 +1,11 @@
-(* Deterministic count premises for the actual subcritical lower spectral law. *)
+(* Bounds on the sample count n(d) = floor(alpha d^2) of
+   paper_main_fixed_count for 0 < alpha < 1/4: the count and density
+   hypotheses of the lower spectral bound
+   paper_main_squarefree_lower_probability.
+   paper_main_fixed_subcritical_counts: for some c1 and every large d,
+   0 < n(d), 4 n(d) <= d^2 and d^2 <= c1 n(d).
+   paper_main_fixed_subcritical_density: n(d) / d^2 >= alpha / 2 for every
+   large d. Deterministic. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -1,17 +1,21 @@
 (* The diagonal block operator bound with probability tending to one
-   (G15, limit; manuscript lem:diagonal-feature-block, by a fourth trace
-   moment in place of matrix Bernstein).
+   (lem:diagonal-feature-block of the paper, proved with a fourth trace
+   moment instead of the matrix Bernstein inequality).
+
    For a sample x of N points of R^d, D = paper_main_diag_block N d x has
-   the entries x_ia^2 - 1, and Z = D^T D - 2 N I.
-   - The event tr Z^4 > N^4 is measurable (paper_main_diag_trace_event).
-     Outside it, D^T D <= 3 N I and D D^T <= 3 N I
-     (paper_main_diag_block_from_trace).
-   - Markov with MathComp's markov, the law transport pmdf_actual and the
-     moment bound of PaperMainDiagonalBlockMoment give
-     P (tr Z^4 > N^4) <= (N (2^21 d^4 + 16 d) + 3 N (N - 1) d (4 d + 52)^2) / N^4.
-   - If N(d) / d^2 >= c > 0 eventually, the bound is at most
-     ((2^21 + 16) / c^3 + 9408 / c^2) / d, so the probability tends to 0.
-   No probability premise. *)
+   the entries x_ia^2 - 1, and Z = D^T D - 2 N I (paper_main_diag_centered).
+   - paper_main_diag_trace_event_measurable: the event tr Z^4 > N^4
+     (paper_main_diag_trace_event) is measurable.
+     paper_main_diag_trace_event_bound: outside it, D^T D <= 3 N I and
+     D D^T <= 3 N I (paper_main_diag_block_from_trace).
+   - paper_main_diag_trace_event_markov: Markov's inequality (MathComp's
+     markov), the law transport pmdf_actual and the moment bound of
+     PaperMainDiagonalBlockMoment give
+       P (tr Z^4 > N^4)
+         <= (N (2^21 d^4 + 16 d) + 3 N (N - 1) d (4 d + 52)^2) / N^4.
+   - paper_main_diag_block_tends_to_zero: if N(d) / d^2 >= c > 0
+     eventually, the bound is at most ((2^21 + 16) / c^3 + 9408 / c^2) / d
+     (pmdbl_rate), so the probability tends to 0. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -221,4 +221,36 @@ rewrite (spectral_eigenvector _ Po AE) mxdotZr orthogonalmx_row_unit // mulr1.
 by rewrite -mulrA -expr2 frobenius_sqr orthogonalmx_row_unit // mulr1.
 Qed.
 
+Lemma opnorm_exp_le_trace n (A : 'M[R]_n) k : A \is symmetricmx ->
+  opnorm A ^+ k.+1.*2 <= \tr (A ^+ k.+1.*2).
+Proof.
+move=> Asym; have [P Po [d AE]] := symmetric_spectral Asym.
+rewrite (spectral_trace Po (spectral_exp _ Po AE)) (opnorm_spectral Po AE).
+set p := k.+1.*2.
+have dp (i : 'I_n) : (\row_j d 0 j ^+ p) 0 i = `|d 0 i| ^+ p.
+  by rewrite mxE /p -mul2n !exprM real_normK ?num_real.
+under [X in _ <= X]eq_bigr do rewrite dp.
+have S_ge (i : 'I_n) : `|d 0 i| ^+ p <= \sum_j `|d 0 j| ^+ p.
+  by rewrite (bigD1 i) //= lerDl; apply: sumr_ge0 => j _; exact: exprn_ge0.
+apply: (big_ind (fun x => x ^+ p <= \sum_j `|d 0 j| ^+ p)) => //.
+- by rewrite expr0n /=; apply: sumr_ge0 => j _; exact: exprn_ge0.
+- by move=> x y; rewrite /Num.max; case: ifP.
+Qed.
+
+Lemma opnorm_exp_le_trace_even n (A : 'M[R]_n) p : A \is symmetricmx ->
+  ~~ odd p -> (0 < p)%N -> opnorm A ^+ p <= \tr (A ^+ p).
+Proof.
+move=> Asym ep p0; have h0 : (0 < p./2)%N by case: p p0 ep => [|[|q]].
+have -> : p = (p./2).-1.+1.*2.
+  by rewrite prednK // -[LHS](odd_double_half p) (negbTE ep).
+exact: opnorm_exp_le_trace.
+Qed.
+
+Lemma opnorm_le_trace_exp n (A : 'M[R]_n) p (t : R) : A \is symmetricmx ->
+  ~~ odd p -> (0 < p)%N -> 0 <= t -> \tr (A ^+ p) <= t ^+ p -> opnorm A <= t.
+Proof.
+move=> Asym ep p0 t0 At; have := le_trans (opnorm_exp_le_trace_even Asym ep p0) At.
+by rewrite ler_pXn2r ?nnegrE ?opnorm_ge0.
+Qed.
+
 End opnorm.

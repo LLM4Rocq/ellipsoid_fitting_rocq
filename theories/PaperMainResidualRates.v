@@ -1,4 +1,14 @@
-(* A polynomially decaying residual threshold with a vanishing row-union bound. *)
+(* The residual threshold r = sqrt(4 + 4 kappa) / d^(1/4)
+   (paper_main_residual_threshold), which decays polynomially in d.
+   Deterministic.
+
+   - paper_main_residual_threshold_scale: for kappa >= 0 and d > 0, r > 0
+     and d r^2 = (4 + 4 kappa) sqrt d.
+   - paper_main_residual_threshold_small: r <= 1 when d >= (4 + 4 kappa)^2.
+   - paper_main_residual_exponential_rate: for such d,
+     exp(-d r^2 / (4 + 4 kappa r)) <= exp(-sqrt d / 2). This bounds the
+     exponential factor in the tail bound of
+     paper_main_cone_selector_conditional. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions PaperMainAsymptotics
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity PaperMainClippingLimits PaperMainClippingRates.

@@ -1,24 +1,25 @@
-(* G12 logarithmic corollary (manuscript lem:regularity) in the finite_sum and
-   euclidean_norm interface of the PaperMain soft margins.
-   The cardinality bound itself is the checked head_tail_decomposition_explicit
-   of HeadTail, the reviewed Policy target, with the explicit constant
-   head_tail_constant theta = 16 / (theta^2 ln 2). It is not re-derived here.
-   Added on top of it:
+(* The logarithmic head and tail decomposition (lem:regularity of the paper),
+   stated with the finite_sum and euclidean_norm of the soft margins.
+   The cardinality bound itself is head_tail_decomposition_explicit of
+   HeadTail, with the explicit constant
+   head_tail_constant theta = 16 / (theta^2 ln 2). This module adds:
    - the bridge vector_norm = euclidean_norm and squared_energy = squared_norm;
-   - the normalized tail vector on all indices, with unit norm on seq 0 n and
-     |entry| <= theta / sqrt d everywhere when the tail is positive;
-   - the head and tail mass split, and y = head part + r * tail vector.
-   For theta > 0, d >= 1 and a unit y on seq 0 n there is a duplicate-free
-   head J inside seq 0 n with length J <= (16 / (theta^2 ln 2)) d ln d. Either
-   the tail norm is at most d^-2, or it is positive and the normalized tail is
-   capped by theta / sqrt d. *)
+   - the normalized tail vector on all indices (paper_main_tail_list_vector),
+     with unit norm on seq 0 n and |entry| <= theta / sqrt d everywhere when
+     the tail is positive;
+   - the head and tail mass split (paper_main_head_tail_mass_split).
+   paper_main_head_tail_regularity: for theta > 0, d >= 1 and a unit y on
+   seq 0 n there is a duplicate-free head J inside seq 0 n with
+   length J <= (16 / (theta^2 ln 2)) d ln d. Either the tail norm is at most
+   d^-2, or it is positive and the normalized tail is capped by
+   theta / sqrt d. *)
 From Stdlib Require Import Reals List Lia Lra Psatz Permutation PeanoNat.
 From EllipsoidFitting Require Import Definitions Peeling FiniteSets HeadTail SoftDefinitions
   GaussianCovarianceSums.
 Import ListNotations.
 Open Scope R_scope.
 
-(* 1. The two norm interfaces agree. *)
+(* 1. The two definitions of the norm agree. *)
 Lemma pmhtl_energy_finite_sum (w : nat -> R) (A : list nat) :
   energy w A = finite_sum w A.
 Proof. induction A as [|i A IH]; simpl; [reflexivity | now rewrite IH]. Qed.
@@ -133,7 +134,7 @@ Proof.
   - rewrite Rabs_R0; exact Hc.
 Qed.
 
-(* 4. The decomposition, from the checked HeadTail theorem. *)
+(* 4. The decomposition, from head_tail_decomposition_explicit. *)
 Theorem paper_main_head_tail_regularity (theta : R) (d n : nat) (y : nat -> R) :
   0 < theta -> (1 <= d)%nat -> euclidean_norm y (seq 0 n) = 1 ->
   exists J : list nat,

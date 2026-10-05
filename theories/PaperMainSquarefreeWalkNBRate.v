@@ -219,14 +219,14 @@ split.
 Qed.
 
 Theorem pmnbr_rate (N d c1 k : nat) : (0 < N)%N -> (4 * N <= d ^ 2)%N ->
-  (d ^ 2 <= c1 * N)%N -> (2 ^ 9600 <= d)%N -> (pmnbr_A c1 k * pmel_L d ^ 1178 <= d)%N ->
+  (d ^ 2 <= c1 * N)%N -> (2 ^ (48 * 200) <= d)%N -> (pmnbr_A c1 k * pmel_L d ^ 1178 <= d)%N ->
   (paper_main_probability N d (pmnbv_union N d ((pmnbr_lam N d)^-1 ^+ 2)%R (2 ^ k.+1)
      (pmnbr_p d) (pmnbr_t k)) <= (1 / d%:R)%:E)%E.
 Proof.
 move=> HN H4N Hc1 Hd HA.
 have [F1 F2 F3] := pmel_L_facts d Hd.
 have Hd0 : (0 < d)%N by apply: leq_trans Hd; rewrite expn_gt0.
-have Hd2 : (2 <= d)%N by apply: leq_trans Hd; exact: (@leq_pexp2l 2 1 9600).
+have Hd2 : (2 <= d)%N by apply: leq_trans Hd; exact: (@leq_pexp2l 2 1 (48 * 200)).
 have HNd : (N <= d ^ 2)%N by apply: leq_trans H4N; exact: leq_pmull.
 have Hc10 : (0 < c1)%N.
   rewrite lt0n; apply/eqP => Hc; move: Hc1; rewrite Hc mul0n leqn0 expn_eq0 => /andP [/eqP Hd00 _].

@@ -1,24 +1,26 @@
-(* The exact walk expansion of the square-free feature Gram (G16,
-   checkpoint A2).
+(* The walk expansion of the square-free feature Gram matrix.
    For a list xs of N * d coordinates, x_ia = List.nth (i * d + a) xs 0, and
    G_ij = sum_(a != b) x_ia x_ib x_ja x_jb (pmsw_G). This is the Gram
-   V V^T of the G14 square-free block, whose sqrt 2 normalization over
-   a < b becomes the sum over ordered pairs a != b
-   (paper_main_squarefree_gram_list). W is G without its diagonal.
+   matrix V V^T of the square-free block V of PaperMainFeatureGramBlocks,
+   whose sqrt 2 normalization over a < b becomes the sum over ordered
+   pairs a != b (paper_main_squarefree_gram_list). W is G without its
+   diagonal (pmsw_W, and paper_main_squarefree_offdiag_list for a sample).
    - For any matrix A, an entry of A^(K+1) is the sum over row lists t of
      length K of the path products A_(i t_1) A_(t_1 t_2) ... A_(t_K j)
      (pmsw_power_path).
    - A path product of G is the sum over label lists ps of K + 1 ordered
      pairs p_s = (a_s, b_s), a_s != b_s, of the monomial of the walk word
      (i_s d + a_s, i_s d + b_s, i_(s+1) d + a_s, i_(s+1) d + b_s)_s
-     (pmsw_path_G). For W, the walk also has distinct consecutive rows.
-   - E tr G^(K+1) and E tr W^(K+1) are the sums over closed walks and labels
-     of prod_c moment_factor (multiplicity of c in the word)
-     (paper_main_squarefree_trace_walks and paper_main_squarefree_offdiag_walks,
-     with PaperMainSquarefreeWalkMoments); the same identities hold for the
-     actual sample under gaussian_product_law (N * d).
-   These are exact identities. No counting estimate and no probability
-   premise. *)
+     (pmsw_path_G). For W, the walk also has distinct consecutive rows
+     (pmsw_path_W).
+   - For the iterated Gaussian expectation E of the N * d coordinates,
+     E tr W^(K+1) is the sum over closed walks with distinct consecutive
+     rows, and over labels, of the moments pmsw_moment of the walk words:
+     the product over the coordinates c of moment_factor (multiplicity of
+     c in the word) (paper_main_squarefree_offdiag_walks, with
+     paper_main_gaussian_monomial_moment of
+     PaperMainSquarefreeWalkMoments).
+   These are exact identities. *)
 From Stdlib Require Import Reals List Lia FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -132,7 +134,7 @@ Proof.
 by rewrite /pmsw_pairs big_filter big_mkcond /= pair_big /=.
 Qed.
 
-(* The G14 Gram on an actual sample. *)
+(* The square-free Gram matrix of a sample. *)
 Lemma paper_main_squarefree_gram_list (x : paper_main_sample N d) :
   paper_main_squarefree_block N d x *m (paper_main_squarefree_block N d x)^T =
   pmsw_G (tval x).
@@ -252,7 +254,7 @@ exact: paper_main_gaussian_monomial_moment (pmsw_word_bound i t i ps).
 Qed.
 
 
-(* 6. The actual sample. *)
+(* 5. The off-diagonal part for a sample. *)
 Definition paper_main_squarefree_offdiag (x : paper_main_sample N d) : 'M[R]_N :=
   \matrix_(i, j) if i == j then 0 else
     (paper_main_squarefree_block N d x *m (paper_main_squarefree_block N d x)^T) i j.

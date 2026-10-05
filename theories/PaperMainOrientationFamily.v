@@ -1,18 +1,23 @@
 (* Simultaneous finite orientation families and their logarithmic size.
+   For an orthogonal O, P_r(O) = O^T diag(1_(i < r)) O is the projector of
+   rank r of paper_main_orientation_projector.
 
    Quantifier order: the family depends only on the dimension d and the
    scale tau, never on data.
-   1. For tau > 0, a choice over the A27 nets (PaperMainOrientationNet) gives
-      s : nat -> nat and Os : nat -> nat -> 'M_d such that for every r <= d:
-      s r > 0, each Os r k (k < s r) is orthogonal, every orthogonal O has some
-      k < s r with ||P_r(O) - P_r(Os r k)||_F <= tau, and
-      ln (s r) <= paper_main_orientation_entropy r tau * (d + 1). r = 0 is included.
-   2. paper_main_orientation_entropy r tau is nondecreasing in r for tau > 0, so
-      for r <= rmax every ln (s r) <= C (d + 1) with
+   1. For tau > 0, a choice over the nets of paper_main_orientation_net
+      gives s : nat -> nat and Os : nat -> nat -> 'M_d such that for every
+      r <= d: s r > 0, each Os r k (k < s r) is orthogonal, every
+      orthogonal O has some k < s r with ||P_r(O) - P_r(Os r k)||_F <= tau,
+      and ln (s r) <= paper_main_orientation_entropy r tau * (d + 1). r = 0
+      is included (paper_main_orientation_family).
+   2. paper_main_orientation_entropy r tau is nonnegative and nondecreasing
+      in r for tau > 0, so for r <= rmax every ln (s r) <= C (d + 1) with
       C = paper_main_orientation_entropy rmax tau >= 0, independent of d.
-   3. Hence s r <= exp (C (d + 1)) and the total count over r <= rmax is at most
-      (rmax + 1) exp (C (d + 1)).
-   4. For eps0 > 0 there is rmax with 1 / eps0^2 <= rmax (INR_unbounded). *)
+   3. Hence s r <= exp (C (d + 1)) and the total count over r <= rmax is
+      at most (rmax + 1) exp (C (d + 1))
+      (paper_main_orientation_family_uniform).
+   4. For eps0 > 0 there is rmax with 1 / eps0^2 <= rmax
+      (paper_main_orientation_rank_bound, from INR_unbounded). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

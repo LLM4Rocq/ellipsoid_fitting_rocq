@@ -1,20 +1,19 @@
-(* Gaussian moments of coordinate monomials (G16, checkpoint A: the moment
-   foundation for walk expansions of the square-free feature Gram).
+(* Gaussian moments of coordinate monomials, for the walk expansions of the
+   square-free feature Gram matrix.
+
    A word w is a finite list of coordinate indices. Its monomial is
-   x^w = prod_(t in w) x_t, with x_t = List.nth t xs 0. For a word in D
-   coordinates (every index < D):
-   - x^w is continuous with a polynomial bound (pmdf_regular), hence
-     integrable;
-   - E_D x^w = prod_(c < D) moment_factor (count of c in w)
-     (paper_main_gaussian_monomial_moment), by induction on D through the
-     definition of gaussian_iterated_expectation, with the one-coordinate
-     moments of PaperMainDiagonalBlockMoment.pmdm_pow_moment;
-   - the moment is 0 when some multiplicity is odd, and nonnegative, with
-     strict positivity when every multiplicity is even; the even moments
-     (2n - 1)!! are at most (2n)^n;
-   - the same value under the actual law gaussian_product_law D
-     (paper_main_gaussian_monomial_law, by pmdf_actual).
-   No probability premise. *)
+   x^w = prod_(t in w) x_t (pmsw_mono), with x_t = List.nth t xs 0. For a
+   word in D coordinates (every index < D):
+   - pmsw_mono_reg: x^w is continuous with a polynomial bound
+     (pmdf_regular), hence integrable;
+   - paper_main_gaussian_monomial_moment: the iterated Gaussian expectation
+     is E_D x^w = prod_(c < D) moment_factor (count of c in w)
+     (pmsw_moment), by induction on D through the definition of
+     gaussian_iterated_expectation, with the one-coordinate moments
+     pmdm_pow_moment of PaperMainDiagonalBlockMoment;
+   - moment_factor k is 0 for odd k, positive for even k and nonnegative
+     for every k (pmsw_mf_odd, pmsw_mf_gt0, pmsw_mf_ge0), so the moment is 0
+     when some multiplicity is odd (paper_main_monomial_moment_odd). *)
 From Stdlib Require Import Reals List Lia FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -110,7 +109,7 @@ rewrite /pmsw_moment big_ord_recl /= mulrC; congr (_ * _).
 by apply: eq_bigr => c _; rewrite pmsw_count_shift.
 Qed.
 
-(* 4. Odd multiplicities vanish; the moments are nonnegative. *)
+(* 4. Odd multiplicities vanish; the moment factors are nonnegative. *)
 Lemma pmsw_mf_odd_double n : moment_factor n.*2.+1 = 0.
 Proof.
 elim: n => [|n IH]; first by [].

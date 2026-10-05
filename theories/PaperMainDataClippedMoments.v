@@ -1,19 +1,23 @@
-(* Gaussian second moments of raw and clipped data-feature soft scores
-   (G11, checkpoint B, law part). D = N * d, d = S n, and S(xs) is the sum of
-   the squares of the D coordinates.
-   - The sum of squares has iterated expectation D (existing) and second
-     moment D^2 + 2 D (paper_main_gaussian_sum_squares_second_moment).
-   - A jointly continuous F with |F xs| <= c (S(xs) + D) + C is integrable
-     for gaussian_product_law D together with F * F. Both integrals are the
-     iterated expectations, and E (F * F) <= 2 c^2 (4 D^2 + 2 D) + 2 C^2
-     (paper_main_data_growth_law). The integrands have the form of the
-     premises of paper_main_gaussian_clipping_mean_loss, and the iterated
+(* Gaussian second moments of the raw and the clipped soft minimax of the
+   data-feature scores. D = N * d, d = S n, and S(xs) is the sum of the
+   squares of the D coordinates.
+   - The sum of squares has iterated expectation D
+     (gaussian_sum_squares_expectation) and second moment D^2 + 2 D
+     (paper_main_gaussian_sum_squares_second_moment).
+   - paper_main_data_growth_law: a jointly continuous F with
+     |F xs| <= c (S(xs) + D) + C is integrable for gaussian_product_law D
+     together with F * F. Both integrals are the iterated expectations, and
+     E (F * F) <= 2 c^2 (4 D^2 + 2 D) + 2 C^2. These conclusions are
+     collected in paper_main_data_square_law. They have the form of the
+     hypotheses of paper_main_gaussian_clipping_mean_loss, and the iterated
      expectation of F * F is stated with the Stdlib product in both places.
-   - The raw soft minimax and the clipped soft minimax of admissible
-     families satisfy this with c = k / sqrt d and the entropy C. The
-     clipped one also has the uniform bound.
-   Continuity of the raw scores is proved directly from coordinate
-   products. No moment, regularity or law statement is assumed. *)
+   - paper_main_data_raw_soft_square_law and
+     paper_main_data_clipped_soft_square_law: the raw and the clipped soft
+     minimax of admissible families satisfy this with c = k / sqrt d and
+     C the entropy term paper_main_data_soft_entropy.
+   Continuity of the raw scores is proved directly from coordinate products
+   (paper_main_data_raw_score_continuous). Continuity of the clipped soft
+   minimax follows from its Lipschitz bound. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval boolp.

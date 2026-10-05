@@ -49,11 +49,11 @@ Qed.
 
 (* 3. The rate. *)
 Theorem paper_main_squarefree_trace_rate (N d c1 k : nat) : (0 < N)%N -> (4 * N <= d ^ 2)%N ->
-  (d ^ 2 <= c1 * N)%N -> (2 ^ 9600 <= d)%N -> (pmnbr_A c1 k * pmel_L d ^ 1178 <= d)%N ->
+  (d ^ 2 <= c1 * N)%N -> (2 ^ (48 * 200) <= d)%N -> (pmnbr_A c1 k * pmel_L d ^ 1178 <= d)%N ->
   (paper_main_probability N d (paper_main_squarefree_trace_event N d k) <= (1 / d%:R)%:E)%E.
 Proof.
 move=> HN H4N Hc1 Hd HA.
-have Hd2 : (2 <= d)%N by apply: leq_trans Hd; exact: (@leq_pexp2l 2 1 9600).
+have Hd2 : (2 <= d)%N by apply: leq_trans Hd; exact: (@leq_pexp2l 2 1 (48 * 200)).
 rewrite /paper_main_squarefree_trace_event -(paper_main_squarefree_trace_kap N d HN Hd2).
 exact (pmnbr_rate N d c1 k HN H4N Hc1 Hd HA).
 Qed.
@@ -68,11 +68,11 @@ Proof.
 move=> [D HD].
 have [DA HDA] := pmlg_eventual (pmnbr_A c1 k) 1178.
 apply: (pmdbl_inv_rate _ 1) => //.
-exists (maxn D (maxn DA (2 ^ 9600))) => d Hd.
+exists (maxn D (maxn DA (2 ^ (48 * 200)))) => d Hd.
 have HdD : (D <= d)%N by exact: leq_trans (leq_maxl _ _) Hd.
-have Hd' : (maxn DA (2 ^ 9600) <= d)%N by exact: leq_trans (leq_maxr _ _) Hd.
+have Hd' : (maxn DA (2 ^ (48 * 200)) <= d)%N by exact: leq_trans (leq_maxr _ _) Hd.
 have HdA : (DA <= d)%N by exact: leq_trans (leq_maxl _ _) Hd'.
-have Hd96 : (2 ^ 9600 <= d)%N by exact: leq_trans (leq_maxr _ _) Hd'.
+have Hd96 : (2 ^ (48 * 200) <= d)%N by exact: leq_trans (leq_maxr _ _) Hd'.
 have [HN [H4N Hc1]] := HD d HdD.
 exact (paper_main_squarefree_trace_rate (N d) d c1 k HN H4N Hc1 Hd96 (HDA d HdA)).
 Qed.

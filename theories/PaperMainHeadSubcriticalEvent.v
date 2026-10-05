@@ -1,4 +1,20 @@
-(* Actual measurable compact bad events, with good width and operator bound included. *)
+(* The bad event of the clipped compact value for a subcritical tail, and its
+   probability.
+
+   For d = S n, a head h of m points and a tail x of q points of R^d,
+   paper_main_head_subcritical_bad is the event that capped unit duals
+   exist, the head section width is at least
+   (1/2 - (1/2 - sqrt alpha)/16) d, the tail features clipped at d^(1/4)
+   satisfy the operator bound L sqrt d, and yet the clipped compact value is
+   at most ((1/2 - sqrt alpha)/4) sqrt d.
+   - paper_main_head_subcritical_bad_measurable: it is measurable for
+     kappa >= 1.
+   - paper_main_head_subcritical_bad_probability: for 0 <= alpha < 1/4,
+     kappa >= 1 and L >= 0 there are theta, c > 0 such that, for all large
+     d, all m, all q <= alpha d^2 and every row permutation pi, the event
+     that the head selection by pi is bad is measurable with probability at
+     most exp(-c d sqrt d). It follows from
+     paper_main_head_subcritical_selected_tail. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix.

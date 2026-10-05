@@ -1,4 +1,14 @@
-(* An explicit finite family containing every bounded-size ordered head. *)
+(* A finite list of index lists that contains every ordered head of
+   bounded size, and its cardinality.
+   - paper_main_head_families N K lists sequences of at most K indices
+     below N, and paper_main_head_families_complete shows that every such
+     sequence is in it.
+   - paper_main_head_families_cardinality: it has at most (N + 1)^K
+     elements, so the log of its length is at most K ln(N + 1)
+     (paper_main_head_families_log).
+   - paper_main_head_families_entropy, paper_main_head_families_exp: if
+     N <= C d^2 and K <= B d ln d with d >= 1 and ln d >= 1, the log of its
+     length is at most B (ln(C + 1) + 2) d (ln d)^2. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import ssreflect.
 From EllipsoidFitting Require Import PaperMainHeadDataRates.

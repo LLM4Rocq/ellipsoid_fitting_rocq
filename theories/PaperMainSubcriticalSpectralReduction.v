@@ -1,4 +1,21 @@
-(* Conditional reduction: the actual spectral probability law remains an explicit premise. *)
+(* The subcritical conditioned limit from spectral bounds on the features.
+
+   paper_main_event_from_vanishing_exception: if, eventually, every sample
+   outside a measurable event E d lies in a measurable event F d, and
+   P(E d) -> 0, then P(F d) -> 1.
+   paper_main_subcritical_spectral_reduction: for 0 <= alpha < 1/4 there is
+   kappa >= 1 with the following property, for every L >= 0, c > 0 and
+   N(d) <= alpha d^2 eventually. If, outside measurable events B d with
+   P(B d) -> 0, the head Gram matrix is eventually coercive with constant
+   c d and the head section operator is bounded by L sqrt(d), then the
+   conditioned event with lm = ((kappa+1/2)/(1-1/2))^-1 and
+   lp = (kappa+1/2)/(1-1/2) has probability tending to 1. It combines
+   these bounds with the exceptional events of
+   paper_main_head_subcritical_fit_exception.
+   paper_main_subcritical_raw_spectral_reduction: the same with the
+   hypotheses stated on the raw feature Gram matrix: coercive with constant
+   c d^2 and bounded above by C d^2 I, for C >= 0. The spectral bounds are
+   hypotheses of both theorems. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

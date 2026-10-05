@@ -5,19 +5,24 @@
      paper_main_orientation_admissible r O eps L A b :=
        A PSD, paper_main_pinching U A = A, 1/4 <= ||A||_F^2 <= 4,
        paper_main_cone_opnorm_le ((1 - U) A (1 - U)) eps, and |b| <= L.
-   The equality says that A is block diagonal in O, so PaperMainOrientationBlocks
-   gives its head and bulk blocks, their PSD property and the norm split.
+   The equality says that A is block diagonal in O, so
+   PaperMainOrientationBlocks gives its head and bulk blocks, their PSD
+   property and the norm split (paper_main_orientation_admissible_blocks).
    1. P_r(O) is symmetric, and idempotent when O^T O = 1.
    2. For U U = U the pinching is idempotent, and the complement compression
       of paper_main_pinching U S equals (1 - U) S (1 - U).
-   3. Main target: an actual fit, a feature Gram bound K I with K <= N L^2 and a
-      finite family of orthogonal matrices that covers every orthogonal O
-      within tau in head-projector distance, for every r <= rmax, give r <= rmax,
-      a member k and an admissible candidate (A, b) with quadratic risk at most
-      16 L tau. A28 orders the spectral head at the cutoff eps0, the cover gives
-      the member, A is the pinching of the checked unit witness (M126), and the
-      M126 and M124 estimates give the norm annulus, the bulk operator bound,
-      the offset bound and the risk bound. r = 0 is included. *)
+   3. paper_main_orientation_fit_witness: a fit, a feature Gram bound K I
+      with K <= N L^2 and, for every r <= rmax, a finite family of
+      orthogonal matrices that covers every orthogonal O within tau in
+      head-projector distance, give some r <= rmax, a member k and an
+      admissible candidate (A, b) with quadratic risk at most 16 L tau.
+      The fit gives a unit witness S (paper_main_fit_unit_witness), whose
+      spectral head at the cutoff eps0 gives r and an orientation O
+      (paper_main_orientation_spectral_decomposition); the cover gives the
+      member k, and A is the pinching of S by the head projector of that
+      member. The estimates of PaperMainPinchingLoss and
+      PaperMainFeatureLossControl give the norm annulus, the bulk operator
+      bound, the offset bound and the risk bound. r = 0 is included. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

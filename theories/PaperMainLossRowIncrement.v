@@ -1,4 +1,24 @@
-(* Actual bounded soft-minimum row increments and their expectation comparison. *)
+(* The soft-minimum row increment of the loss, and the comparison of its
+   means for centered quadratic forms and for the Gaussian linear forms of
+   their GOE loadings.
+   The increment (paper_main_loss_row_increment) is
+     soft_min beta (fun j => f j + loss (a j + U j xs)) I - soft_min beta f I,
+   with the loss 1 - exp(-t^2) of PaperMainTranslatedLoss.
+   - paper_main_loss_row_increment_regular: it is continuous, and bounded
+     by 1 in absolute value, when every U j is regular.
+   - paper_main_loss_expected_difference: a pointwise bound B on |F - G|
+     bounds the difference of the means by B.
+   - paper_main_loss_row_expected_approximation: for beta, eta > 0, some
+     degree k makes the mean of the increment eta-close to 1/beta times the
+     mean of the row polynomial of degree k (PaperMainLossRowPolynomial),
+     uniformly in d, f, I, a and U.
+   - paper_main_loss_row_increment_comparison: there is C >= 0 such that,
+     for symmetric T_j with cone operator norm at most eps and Frobenius
+     norm at most S, the means of the increments for the centered
+     quadratic forms x^T T_j x - Tr T_j (pmdf_quad) and for the linear
+     forms of their GOE loadings differ by at most 2 eta + C eps S. The
+     two polynomial means are compared by
+     paper_main_loss_row_polynomial_comparison. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianProductDefinitions GaussianProduct

@@ -1,16 +1,18 @@
 (* Moments of the translated quadratic Gaussian form. For coefficients c on
-   d coordinates and real b let
-     Y(xs) = sum_(i < d) c_i (x_i^2 - 1) - b     (paper_main_head_small_ball_diag),
+   d coordinates and real b let Y = paper_main_head_small_ball_diag d c b,
+     Y(xs) = sum_(i < d) c_i (x_i^2 - 1) - b,
      s = sum c_i^2,  t = sum c_i^3,  u = sum c_i^4.
    Under the iterated standard Gaussian expectation, by induction over the
    coordinates (the first coordinate is integrated last), with the moments
-   E v = 0, E v^2 = 2, E v^3 = 8, E v^4 = 60 of v = x^2 - 1:
+   E v = 0, E v^2 = 2, E v^3 = 8, E v^4 = 60 of v = x^2 - 1
+   (paper_main_head_small_ball_diag_moments):
      E Y = -b,  E Y^2 = 2 s + b^2,  E Y^3 = 8 t - 6 b s - b^3,
      E Y^4 = 48 u + 12 s^2 - 32 b t + 12 b^2 s + b^4,
    all with iterated integrability. Since u <= s^2 and
-   -32 b t <= 16 b^2 s + 16 u, this gives E Y^4 <= 19 (2 s + b^2)^2, with no
-   hypercontractivity. Through the rotation of PaperMainHeadSmallBall, for
-   real symmetric H of size d,
+   -32 b t <= 16 b^2 s + 16 u, this gives E Y^4 <= 19 (2 s + b^2)^2
+   (paper_main_head_small_ball_diag_fourth), without hypercontractivity.
+   Through the rotation of PaperMainHeadSmallBall, for real symmetric H of
+   size d (paper_main_head_small_ball_moments),
      E (x^T H x - Tr H - b)^2 = 2 |H|_F^2 + b^2,
      E (x^T H x - Tr H - b)^4 <= 19 (2 |H|_F^2 + b^2)^2.
    d = 0 is included (Y = -b). *)

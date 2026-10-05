@@ -1,4 +1,19 @@
-(* Actual small exceptional events for every fixed orientation, with all parameters chosen in order. *)
+(* Small exceptional events for every fixed orientation, with all the
+   parameters chosen in order.
+   paper_main_unsat_orientation_constants: for gamma > 1/4 there are
+   positive constants kappa <= gamma/2, e, c, L with (gamma/2) L^2 = 109,
+   eps, and tau <= 1/8 with eps/2 + tau^2 <= eps, and a dimension d0, with
+   the following property. Let d >= d0, O orthogonal of size d and r < d
+   with r <= sqrt d + 1, and let |N - gamma d^2| <= kappa d^2 and
+   exp (- c d^2) <= 1/4. Then a measurable event E of probability at most
+   exp (- N (e/4)^2 / 2) contains every sample whose feature Gram matrix
+   is at most K I with K <= N L^2 and which has an admissible candidate
+   (A, b) for O (paper_main_orientation_admissible) of quadratic risk at
+   most 16 L tau. The constants come from paper_main_unsat_ordered_tail,
+   paper_main_loss_feature_constant, paper_main_unsat_net_parameters and
+   paper_main_unsat_cutoff_parameters, in this order. The event E is given
+   by paper_main_orientation_exception, with the tail bound of
+   paper_main_unsat_ordered_tail for the finite hybrid functional. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

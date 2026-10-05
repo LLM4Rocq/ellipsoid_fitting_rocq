@@ -1,20 +1,24 @@
-(* A finite contained section net and the actual Gaussian width of the head
-   section (PaperMainHeadSectionWidthLaw). Let D = paper_main_symmetric_dimension n,
-   z a D-tuple of Gaussian coordinates under gaussian_product_law D, Zp(z) the
-   public symmetric Gaussian matrix with these exact coordinates, and h a head
-   sample with features W k = paper_main_head_feature h k.
-   - For a nonempty section, the A18 width
-       paper_main_head_section_width n m kappa h = E[support (Zp z) section]
-     equals the Gordon set width of the code set of the section
-     (paper_main_cone_code_set), by the Gaussian law transport of the
-     continuous support function with the norm bound.
-   - For finitely many symmetric unit matrices B t (t < s, s > 0), the
-     integral of max_t <Zp z, B t> equals the Gordon width of their codes.
-   - If B is a Frobenius eps-net of the section contained in it
-     (paper_main_head_section_net), then the width is a real number w with
-       gordon_width(codes of B) <= w <= gordon_width(codes of B) + eps sqrt D,
-     equivalently E[max_t <Zp z, B t>] <= width <= E[max_t <Zp z, B t>] + eps sqrt D.
-   The section lower bounds themselves are not re-proved here. *)
+(* Finite nets of the head section and its Gaussian width
+   (paper_main_head_section_width of PaperMainHeadSectionWidthLaw). Let
+   D = paper_main_symmetric_dimension n, z a D-tuple of Gaussian
+   coordinates under gaussian_product_law D, Z(z) the symmetric Gaussian
+   matrix with these coordinates, and h a head sample with features
+   W k = paper_main_head_feature h k. The section (paper_main_head_section)
+   is the set of matrices S of unit Frobenius norm that satisfy the cone
+   condition paper_main_head_condition kappa and are orthogonal to every
+   W k.
+   - paper_main_head_section_width_set_width: for a nonempty section, the
+     width E[support (Z z) section] equals the Gordon set width of the code
+     set of the section (paper_main_cone_code_set), by the Gaussian law
+     transport of the continuous support function, which has polynomial
+     growth (paper_main_head_section_set_support_polynomial).
+   - paper_main_head_section_net_width: if B is a Frobenius eps-net of the
+     section contained in it (paper_main_head_section_net), then the width
+     is a real number w with
+       gordon_width(codes of B) <= w <= gordon_width(codes of B) + eps sqrt D.
+   - paper_main_head_section_approx_width_exists: nets taken from the
+     entropy grids, with these width bounds and the two-sided comparison of
+     the minimax over the section with a soft minimax over the nets. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.
@@ -56,7 +60,7 @@ Qed.
 
 Local Open Scope ring_scope.
 
-(* The A18 width of a nonempty section is the Gordon set width of its code
+(* The width of a nonempty section is the Gordon set width of its code
    set. *)
 
 Theorem paper_main_head_section_width_set_width n m (kappa : R)
@@ -82,8 +86,7 @@ rewrite /paper_main_head_section_support_value.
 by rewrite (paper_main_cone_section_support n m kappa _ (tval z) HA (size_tuple z)).
 Qed.
 
-(* The Gaussian width of a finite family of symmetric unit matrices, with the
-   exact public coordinates. *)
+(* Width bounds from finite nets of the section. *)
 
 (* A contained Frobenius eps-net of the section: width error at most
    eps sqrt D. *)
@@ -119,10 +122,14 @@ split.
 - by rewrite -lerBlDl; apply/RleP.
 Qed.
 
-(* The combined existence corollary for a head sample: actual nets from the
-   fixed entropy grids, chosen before the linear map V, the width error, and
-   the two-sided soft bridge for every V with an operator bound, with no net
-   or cardinality premise. *)
+(* For a head sample: eps-nets z of Y (r points) and B of the section
+   (s points), taken from the entropy grids and chosen before the linear
+   map V, with ln r <= C(eps) q and ln s <= C(eps) D, where C(eps) is
+   paper_main_gordon_entropy_constant eps; the width bounds of
+   paper_main_head_section_net_width; and, for every V with operator bound
+   L and all beta, gamma > 0, the minimax over the section lies between
+   soft - C(eps) D / gamma - L eps and soft + C(eps) q / beta + L eps,
+   where soft is the soft minimax over the nets. *)
 
 Corollary paper_main_head_section_approx_width_exists n m (kappa : R) q
     (Y : (nat -> R) -> Prop) (h : paper_main_sample m (S n)) (eps : R) :

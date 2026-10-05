@@ -1,4 +1,16 @@
-(* Bounded translated exponential factors and their actual C2 test record. *)
+(* The loss factor 1 - exp(-beta l(a + t)) as a smooth test function for
+   Gaussian comparison.
+
+   With l = paper_main_loss of PaperMainTranslatedLoss, the factor
+   paper_main_loss_factor beta a t = 1 - exp(-beta l(a + t)) lies in
+   [0, 1], and its first and second derivatives in t are at most 4 beta and
+   6 beta + 16 beta^2 in absolute value (paper_main_loss_factor_bounds).
+   paper_main_loss_coordinate_smooth: if F is twice differentiable with F''
+   continuous and F, F', F'' bounded by C, then the function F(x_j) of one
+   coordinate, with its first and second partial derivatives, satisfies
+   paper_main_gaussian_smooth_test with the constant bound C (degree 0).
+   paper_main_loss_factor_smooth applies this to the loss factor with
+   C = 1 + 10 beta + 16 beta^2 (paper_main_loss_factor_constant). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftExtrema PaperMainTranslatedLoss
   GaussianCoordinateDefinitions GaussianCoordinateDerivativeDefinitions

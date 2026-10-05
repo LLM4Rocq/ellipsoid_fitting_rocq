@@ -1,25 +1,32 @@
-(* The compact head/tail value with coordinate-clipped tail features, and its
-   agreement with the raw value outside the shared coordinate event. The
+(* The compact head/tail value with coordinate-clipped tail features, and
+   its agreement with the raw value outside the coordinate event. The
    clipped feature of tail row i is
      paper_main_data_clipped_feature U n i (tval x)
    (PaperMainDataClipped: every coordinate clipped to [-U, U]); the head
-   features stay raw. The clipped compact value is the original compact value
-   of PaperMainHeadSectionMinimax on the capped unit dual set
-   paper_main_head_capped_dual q (S n) theta with these tail features.
-   - The minimax only sees the tail features of index i < q.
-   - Outside the actual coordinate event paper_main_data_coordinate_event q (S n) U
+   features stay raw. The clipped compact value
+   paper_main_head_compact_clipped_value is the section minimax of
+   PaperMainHeadSectionMinimax on the capped unit dual set
+   paper_main_head_capped_dual q (S n) theta with these tail features, as
+   paper_main_head_compact_value (PaperMainHeadCompactEvent) is with the
+   raw ones.
+   - The minimax only sees the tail features of index i < q
+     (paper_main_head_compact_minimax_ext).
+   - Outside the coordinate event paper_main_data_coordinate_event q (S n) U
      of the tail sample (some coordinate with |.| >= U), every clipped tail
      feature equals the raw one, so the clipped and raw compact values are
-     equal. For a row-permuted full sample the same holds outside the
-     coordinate event of the full sample, and the raw and clipped threshold
-     events agree there.
-   - For kappa >= 1 the clipped threshold events are measurable in (h, x)
-     and have the product law under a fixed row permutation.
-   - The clipped operator-good event {|sum_i y_i Vclip_i|_F <= L |y|_2 for all y}
-     is measurable, and outside the coordinate event it is the raw
-     operator-good event.
-   The entry measurability of the clipped features is reproved here; no net
-   is chosen. *)
+     equal (paper_main_head_compact_clipped_eq). For a row permutation of
+     a full sample outside its coordinate event, the tail of the selection
+     is outside the coordinate event of the tail sample
+     (paper_main_head_compact_coordinate_tail).
+   - For kappa >= 1 the clipped compact value is measurable in (h, x)
+     (paper_main_head_compact_clipped_measurable).
+   - The clipped operator-good event
+     {|sum_i y_i Vclip_i|_F <= L |y|_2 for all y} is measurable, and
+     outside the coordinate event it is the raw operator-good event
+     (paper_main_head_compact_clipped_operator_measurable and
+     paper_main_head_compact_clipped_operator_eq).
+   The entry measurability of the clipped features is proved first
+   (paper_main_head_clipped_feature_entry_measurable). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix interval.
@@ -134,7 +141,7 @@ move=> Hx [u [a H]]; apply: Hx; exists (pi (rshift k u)), a.
 by rewrite -(paper_main_head_selection_tail_point k q (S n) pi x u).
 Qed.
 
-(* Measurability and the law of the clipped threshold events. *)
+(* Measurability of the clipped compact value. *)
 
 Lemma paper_main_head_compact_clipped_feature_snd n k q (U : R) (i : nat) (a b : 'I_(S n)) :
   measurable_fun [set: paper_main_sample k (S n) * paper_main_sample q (S n)]

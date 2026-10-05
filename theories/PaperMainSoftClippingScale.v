@@ -1,4 +1,19 @@
-(* Actual soft-score second-moment and clipping scales, with explicit constants. *)
+(* Scalar bounds, with explicit constants, for the soft minimax of the data
+   features at inverse temperature A d sqrt d and for its clipping error.
+   Deterministic, at Stdlib's R.
+   - paper_main_soft_entropy_scale: if q <= C d^2, D <= d^2 and the log
+     cardinalities satisfy lr <= E q and ls <= E D, then
+     lr/(A d sqrt d) + ls/(A d sqrt d) <= (E (C + 1)/A) sqrt d.
+   - paper_main_soft_second_scale: for N <= C d^2 and an entropy term at
+     most E sqrt d, the second moment bound 2 c^2 (4 D^2 + 2 D) + 2 C'^2 of
+     paper_main_data_growth_law, at c = kappa/d, D = N d and C' the entropy
+     term, is at most (8 kappa^2 C^2 + 4 kappa^2 C + 2 E^2) d^4.
+   - paper_main_soft_clipping_scale: for a variance V <= M d^4 and
+     N <= C d^2, V/d^6 plus the clipping error d^6 (2 N d exp(-sqrt d/2))
+     is at most M/d^2 + 2 C 38^19/sqrt d, by
+     paper_main_clipping_mean_error_rate.
+   - paper_main_soft_clipping_margin: this is at most eta sqrt d once
+     M + 2 C 38^19 <= eta d. *)
 From Stdlib Require Import Reals Lia Lra Psatz.
 From mathcomp Require Import ssreflect.
 From EllipsoidFitting Require Import PaperMainClippingRates.
