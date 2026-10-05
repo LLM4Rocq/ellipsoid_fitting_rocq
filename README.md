@@ -28,9 +28,10 @@ Each result also states that the events it measures are measurable.
 - **Proved.** The kernel accepts `ellipsoid_fitting_main : main_statement`
   (`theories/MainTheorem.v`). `make check` builds the proof and compares
   the axioms of this theorem with `check/assumptions.expected`.
-- **Not reviewed.** No human has yet compared the formal statement with the
-  paper. Until someone does, the proof shows that the formal statement holds,
-  not that it says what the paper says.
+- **Reviewed.** On 5 October 2026 Marc Lelarge compared the formal
+  statement and its definitions with the paper and found no problem. The
+  kernel checks that the statement is proved; this review is the check that
+  it says what the paper says.
 - **Axioms.** The theorem uses eight classical axioms and nothing else:
   excluded middle (`Classical_Prop.classic`), propositional extensionality
   and dependent functional extensionality (`boolp`, and Stdlib's
