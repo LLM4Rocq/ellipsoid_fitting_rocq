@@ -8,6 +8,11 @@
 library/gaussian/measurable_matrix.v
 library/gaussian/normal_integral.v
 library/gaussian/gauss.v
+library/matrix/euclidean.v
+library/matrix/real_spectral.v
+library/matrix/opnorm.v
+library/matrix/nets.v
+library/probability/moments.v
 
 theories/AffineGaussianGibbs.v
 theories/AffineGaussianRegular.v
