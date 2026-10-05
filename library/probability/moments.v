@@ -1,7 +1,7 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets functions reals.
-From mathcomp Require Import ereal topology normedtype sequences.
+From mathcomp Require Import ereal topology normedtype sequences exp.
 From mathcomp Require Import measure lebesgue_measure measurable_realfun.
 From mathcomp Require Import numfun lebesgue_integral hoelder probability.
 From mathcomp Require Import arithmetic_tactic field_tactic.
@@ -31,6 +31,31 @@ Local Open Scope ring_scope.
 Section paley_zygmund.
 Context d (T : measurableType d) (R : realType) (P : probability T R).
 
+Lemma integrable_sqr_Lfun2 (X : T -> R) : measurable_fun setT X ->
+  P.-integrable setT (EFin \o (fun x => X x ^+ 2)) -> X \in Lfun P 2%:E.
+Proof.
+move=> mX /integrableP[_ iX2]; rewrite inE; apply/andP; split; first by rewrite inE.
+rewrite inE /= /finite_norm unlock /Lnorm; apply: poweR_lty.
+apply: le_lt_trans iX2; rewrite le_eqVlt; apply/orP; left; apply/eqP.
+by apply: eq_integral => x _ /=; rewrite normrX powR_mulrn.
+Qed.
+
+Lemma Lfun2_sqr (X : T -> R) : X \in Lfun P 2%:E -> X ^+ 2 \in Lfun P 1.
+Proof.
+move=> X2; have := Lfun2_mul_Lfun1 X2 X2.
+by congr (_ \in _); apply/funext => x; rewrite /= expr2.
+Qed.
+
+Lemma expectation_sqr_le (X : T -> R) : X \in Lfun P 2%:E ->
+  fine 'E_P[X] ^+ 2 <= fine 'E_P[X ^+ 2].
+Proof.
+move=> X2; have X1 := Lfun_subset12 (fin_num_measure P _ measurableT) X2.
+have := variance_ge0 P X; rewrite varianceE //.
+rewrite -[X in (_ <= X - _)%E](fineK (expectation_fin_num (Lfun2_sqr X2))).
+rewrite -[X in (_ <= _ - X ^+ 2)%E](fineK (expectation_fin_num X1)).
+by rewrite -EFin_expe -EFinB lee_fin subr_ge0.
+Qed.
+
 Lemma paley_zygmund_point (z theta s : R) : 0 <= theta -> 0 <= s ->
   2 * s * z <= 2 * s * theta + s ^+ 2 * z ^+ 2 + ((theta <= z)%R)%:R.
 Proof.
@@ -46,9 +71,7 @@ Theorem paley_zygmund (X : T -> R) (theta : R) :
 Proof.
 move=> X2 th0 thE.
 have X1 : X \in Lfun P 1 := Lfun_subset12 (fin_num_measure P _ measurableT) X2.
-have XX1 : X ^+ 2 \in Lfun P 1.
-  have := Lfun2_mul_Lfun1 X2 X2.
-  by congr (_ \in _); apply/funext => x; rewrite /= expr2.
+have XX1 := Lfun2_sqr X2.
 have mX : measurable_fun setT X by have := sub_Lfun_mfun X1; rewrite inE.
 set A := [set x | (theta <= X x)%R].
 have mA : measurable A.

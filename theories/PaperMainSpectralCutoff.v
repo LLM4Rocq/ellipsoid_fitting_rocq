@@ -3,7 +3,8 @@ From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct.
-From mathcomp Require Import ring_tactic arithmetic_tactic.
+From mathcomp Require Import ring_tactic arithmetic_tactic sesquilinear.
+From GaussianAnalysis.matrix Require Import euclidean real_spectral.
 From EllipsoidFitting Require Import PaperMainDefinitions PaperMainGeometryPsd PaperMainGeometryHomogeneous
   PaperMainGeometryHeadFrobenius PaperMainSymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
@@ -16,16 +17,10 @@ Theorem paper_main_positive_diagonalization d (S : 'M[R]_d) : paper_main_psd S -
 Proof.
 move=> [HS HP].
 have [O [a [HO HE]]] := paper_main_symmetric_diagonalization d S HS.
-exists O,a; split=> //; split=> //; split.
-- move=> i.
-  have HO' := paper_main_symmetric_orthogonal_tr d O HO.
-  pose v : 'cV[R]_d := O^T *m delta_mx i 0.
-  have E : (v^T *m S *m v) 0 0 = a 0 i.
-    rewrite /v HE trmx_mul trmxK !mulmxA -(mulmxA _ O) HO' mulmx1.
-    rewrite -(mulmxA _ O) HO' mulmx1 trmx_delta.
-    by rewrite -rowE -colE !mxE eqxx mulr1n.
-  have H := HP v; by rewrite paper_main_quadratic_formE E in H.
-- by rewrite pmh_frobenius_sqr (paper_main_symmetric_frobenius_diagonal d S O a HO HE).
+exists O, a; split=> //; split=> //; split.
+  apply/(spectral_psd (paper_main_symmetric_orthogonalmx _ HO) HE) => x.
+  by rewrite -paper_main_quadratic_form_mxdot.
+by rewrite pmh_frobenius_sqr (paper_main_symmetric_frobenius_diagonal d S O a HO HE).
 Qed.
 
 Definition paper_main_spectral_large {d} (a : 'rV[R]_d) eps : {set 'I_d} :=
