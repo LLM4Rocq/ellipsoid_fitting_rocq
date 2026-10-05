@@ -96,8 +96,8 @@ warnings; they do not affect the proof.
 
 ## Layout
 
-- `theories/`: 649 modules under the logical root `EllipsoidFitting`. They
-  are `MainStatement.v`, `MainTheorem.v` and the 647 modules of the proof.
+- `theories/`: 632 modules under the logical root `EllipsoidFitting`. They
+  are `MainStatement.v`, `MainTheorem.v` and the 630 modules of the proof.
 - `check/Assumptions.v`: prints the axioms of the main theorem.
   `check/assumptions.expected` is the expected output.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
@@ -107,23 +107,36 @@ warnings; they do not affect the proof.
   `make check` runs it.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
+- `scripts/unused.py`: lists the declarations of `theories/` that the main
+  theorem does not use, from the `.glob` files of a build, and can delete
+  them. Its docstring says how it decides. `unused.txt` is its output on the
+  current tree.
 
 ## Where the proof comes from
 
 The proof was developed in
 [LLM4Rocq/ellipsoid_rocq](https://github.com/LLM4Rocq/ellipsoid_rocq), in its
 directory `analysis/`, and completed on 2 October 2026 (commit `212a249`).
-This repository copies it from commit `9556cdd` of that repository.
+Commit `29df54e` of this repository copies it from commit `9556cdd` of that
+repository.
 
-- The 647 modules are the dependency closure of `PaperMainResults` (the
-  proof) and `PaperMainDefinitions` (the definitions of the statement). The
-  only change is the logical root, `Tablet` replaced by `EllipsoidFitting`.
-  To verify this against a checkout of the source repository:
+- The 647 modules copied are the dependency closure of `PaperMainResults`
+  (the proof) and `PaperMainDefinitions` (the definitions of the statement).
+  The only change is the logical root, `Tablet` replaced by
+  `EllipsoidFitting`. The export script reproduces commit `29df54e`, not the
+  current tree. To verify that commit against a checkout of the source
+  repository, run in a checkout of commit `29df54e` of this repository:
 
   ```sh
   python3 scripts/export_from_ellipsoid_rocq.py ../ellipsoid_rocq 9556cdd --check
   ```
 
+- Since then, 17 of these modules and 714 declarations of the others have
+  been deleted, because the main theorem does not use them.
+  `scripts/unused.py` finds them from the `.glob` files of a build, and the
+  proof builds without them. Deleted code stays in the history: a general
+  result can be recovered from commit `29df54e`, for example with
+  `git show 29df54e:theories/OperatorSpaces.v`.
 - `MainStatement.v` is the statement of
   `analysis/challenges/paper_main_results/Challenge.v` in the source
   repository, copied verbatim, as a definition instead of an admitted
@@ -136,10 +149,10 @@ This repository copies it from commit `9556cdd` of that repository.
 
 ## Planned work
 
-This is a first, faithful copy. The modules keep their names from the source
-repository (many start with `PaperMain`), many comments still describe how
-the port was made, and much of the general mathematics is written for this
-paper only. The plan, described for the agents in `AGENTS.md`:
+This is the copy without what the main theorem does not use. The modules
+keep their names from the source repository (many start with `PaperMain`),
+many comments still describe how the port was made, and much of the general
+mathematics is written for this paper only. The plan, described for the agents in `AGENTS.md`:
 
 1. Build `library/` (logical root `GaussianAnalysis`): the general results
    of the proof (Gaussian integration by parts and interpolation,
