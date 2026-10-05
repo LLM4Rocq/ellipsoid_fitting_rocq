@@ -582,7 +582,6 @@ theories/PaperMainSupportConditionedFit.v
 theories/PaperMainSymmetricBilinear.v
 theories/PaperMainSymmetricDiagonalization.v
 theories/PaperMainSymmetricDiagonalizationBridge.v
-theories/PaperMainSymmetricDiagonalizationEigen.v
 theories/PaperMainSymmetricOperatorNet.v
 theories/PaperMainTranslatedLoss.v
 theories/PaperMainUnsatFiniteTail.v
