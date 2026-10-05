@@ -15,67 +15,18 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module GaussianVectorStein of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/GaussianVectorProofs.v), extracted to
-   build/agent2/unbundled/GaussianVectorStein.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
+(* Stein's identities for a standard Gaussian vector x of vector n. The
+   function f is differentiable (is_diff), the partial derivatives in the
+   identities are continuous, and f and these derivatives are bounded by
+   polynomials in `|x|. Write x_i for vector_entry n x i. The expectation
+   of df x (chaos_basis n i) is that of x_i * f x
+   (gaussian_vector_first_stein). The expectation of
+   ddf x (chaos_basis n a) (chaos_basis n b) is that of
+   (x_a * x_b - 1) * f x if a = b, and of x_a * x_b * f x otherwise
+   (gaussian_vector_second_stein). Both theorems also give
+   gaussian_vector_domain for every function involved. *)
 
-   The original imported the bundle GaussianCoordinateProofs and named its
-   inner modules GaussianProduct and GaussianCoordinateStein through it. The
-   port imports the standalone ported modules GaussianProduct and
-   GaussianCoordinateStein directly.
-
-   Both theorems keep their names and their arguments, in the same order.
-   Their statements change form in four ways, none of which changes their
-   meaning. The new forms are those of the vector Stein clauses of the
-   restated challenge ellipsoid_gaussian_matrix
-   (analysis/challenges/ellipsoid_gaussian_matrix/Challenge.v).
-
-   1. Indices. With ssreflect loaded, (i <= n)%nat would be ssrnat's boolean
-      leq. The statements write (i <= n)%coq_nat, which is Stdlib's Peano
-      order le, as in the original.
-
-   2. Frechet derivatives. Coquelicot's filterdiff f (locally x) (df x)
-      becomes is_diff x (f : vector n -> R^o) (df x) of MathComp-Analysis
-      (difference 2 of analysis/README.md): f is differentiable at x and its
-      differential 'd f x is df x. Both say that df x is linear and
-      continuous and that f (x + h) = f x + df x h + o (h). The cast to R^o
-      gives the real line its normed module structure; R^o is R by
-      definition, so f and df are unchanged. In the second theorem the same
-      change applies to the hypothesis on z |-> df z (chaos_basis n a).
-
-   3. Pointwise continuity. Coquelicot's continuous g x becomes MathComp's
-      {for x, continuous g} (difference 5), in the continuity hypotheses on
-      the derivatives.
-
-   4. Norms. Coquelicot's norm x becomes MathComp's (`|x|)%R in the
-      polynomial bounds. The vectors nest euclidean_product of
-      MatrixEuclideanProduct, so this is still the Euclidean norm.
-
-   The meaning of gaussian_vector_domain and gaussian_vector_expectation
-   follows the ported GaussianVectorDefinitions (difference 4): Lebesgue
-   integrability over the line against the Gaussian kernel at each level of
-   the iterated expectation, and Lebesgue integrals. Under the hypotheses of
-   each theorem, every function whose domain or expectation is asserted is
-   continuous and bounded by a polynomial in the norm, so it is absolutely
-   integrable against the kernel and the Lebesgue and improper Riemann
-   values agree. The domains are proved in the Lebesgue reading by the
-   ported gaussian_vector_polynomial_domain, gaussian_vector_coordinate_domain
-   and gaussian_vector_centered_product_domain, and the identities by the
-   ported Stein identities of GaussianCoordinateStein.
-
-   What changes in the proofs. Coquelicot's filterdiff_continuous becomes
-   MathComp's differentiable_continuous applied to the differentiability
-   that is_diff contains, through the one lemma the port adds,
-   gaussian_vector_stein_is_diff_continuous. The ported vector_frechet_coordinate_derivative
-   takes the is_diff hypotheses as they are. Stdlib's
-   "rewrite ... by tac" is written with explicit arguments, since
-   ssreflect's rewrite is loaded, and nth is written List.nth. *)
-
-(* Added by the port: a function with a Frechet derivative at every point is
-   continuous at every point. This replaces Coquelicot's
-   filterdiff_continuous in the two proofs below. *)
+(* A function with a Frechet derivative at every point is continuous. *)
 Lemma gaussian_vector_stein_is_diff_continuous n (f : vector n -> R)
     (df : vector n -> vector n -> R) :
   (forall x, is_diff x (f : vector n -> R^o) (df x)) ->

@@ -13,72 +13,16 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module GaussianVectorMoments of
-   theories/InterpolationProofs.v (also copied in GoeProofs.v and
-   JointProofs.v), extracted to build/agent2/unbundled/GaussianVectorMoments.v,
-   from Coquelicot to MathComp-Analysis, as a standalone module.
-
-   The original imported the bundle GaussianVectorProofs and named its inner
-   modules VectorCoordinates, GaussianVectorDomain, GaussianVectorStein,
-   GaussianVectorAlgebra and GaussianVectorFinite through it. The port
-   imports these standalone ported modules directly.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. No item is added. The statements change form in four ways, as in
-   the ports of MatrixCoordinates, GaussianVectorDomain, GaussianVectorStein
-   and the restated challenge ellipsoid_goe (group 3, whose three clauses
-   are gaussian_vector_coordinate_moment,
-   gaussian_vector_coordinate_product_moment and
-   gaussian_vector_linear_forms_covariance).
-
-   1. Linear maps. Coquelicot's is_linear f, for f : vector n -> R, becomes
-      the conjunction
-        linear (f : vector n -> R^o) /\
-        exists M : R, 0 < M /\ forall x, (`|f x|)%R <= M * (`|x|)%R
-      of MathComp's algebraic linearity and Coquelicot's norm bound
-      (analysis/README.md, difference 2). It is equivalent to Coquelicot's
-      record. This is the form of the ported tuple_entry_linear,
-      coordinate_sum_linear and matrix_linear_scale of MatrixCoordinates.
-      It concerns the hypotheses of gaussian_vector_linear_continuous,
-      gaussian_vector_linear_growth, gaussian_vector_linear_domain,
-      gaussian_vector_linear_product_domain and
-      gaussian_vector_linear_coordinate_moment, and the conclusion of
-      gaussian_vector_linear_form_is_linear. The cast to R^o gives the real
-      line its normed module structure; R^o is R by definition, so f is
-      unchanged.
-
-   2. Pointwise continuity. Coquelicot's continuous f x becomes MathComp's
-      {for x, continuous f} (difference 5), in the conclusion of
-      gaussian_vector_linear_continuous. This is the form of the hypothesis
-      of the ported gaussian_vector_polynomial_domain.
-
-   3. Norms. Coquelicot's norm x becomes MathComp's (`|x|)%R, in the bound of
-      item 1 and in the conclusion of gaussian_vector_linear_growth. The
-      vectors nest euclidean_product of MatrixEuclideanProduct, so this is
-      still the Euclidean norm and the constants keep their meaning
-      (difference 1).
-
-   4. Indices. With ssreflect loaded, (i <= n)%nat would be ssrnat's boolean
-      leq. The statements write (i <= n)%coq_nat, Stdlib's Peano order le,
-      as in the original and the restated challenge.
-
-   The meaning of gaussian_vector_domain and gaussian_vector_expectation
-   follows the ported GaussianVectorDefinitions (difference 4): at each
-   level of the iterated expectation, Lebesgue integrability over the line
-   against the Gaussian kernel, and Lebesgue integrals. Every function
-   whose domain is asserted here is continuous with at most quadratic
-   growth in the norm, so the ported gaussian_vector_polynomial_domain
-   establishes the Lebesgue reading, and the identities come from the
-   ported gaussian_vector_first_stein.
-
-   The proofs follow the original. Coquelicot's filterdiff_linear becomes
-   matrix_linear_is_diff of MatrixCoordinates, and the continuity that
-   filterdiff_continuous drew from it becomes matrix_linear_continuous.
-   filterdiff_const becomes is_diff_cst, continuous_const becomes
-   cst_continuous, continuous_mult becomes MathComp's continuousM, and
-   linear_norm becomes the second component of the conjunction of item 1.
-   Stdlib's "rewrite ... by tac" is written with explicit arguments, since
-   ssreflect's rewrite is loaded. *)
+(* Moments of linear functions of a standard Gaussian vector x of
+   vector n. A linear map f is MathComp's linear (f : vector n -> R^o) with
+   a bound `|f x| <= M * `|x|, as in MatrixCoordinates. Linear maps and
+   products of two of them satisfy gaussian_vector_domain
+   (gaussian_vector_linear_domain, gaussian_vector_linear_product_domain).
+   The coordinates are centered (gaussian_vector_coordinate_moment), the
+   expectation of vector_entry n x i * f x is f (chaos_basis n i)
+   (gaussian_vector_linear_coordinate_moment), and the expectation of the
+   product of the linear forms of u and v is the sum of the u i * v i
+   (gaussian_vector_linear_forms_covariance). *)
 
 Lemma gaussian_vector_linear_continuous n (f : vector n -> R) :
   (linear (f : vector n -> R^o) /\

@@ -1,44 +1,15 @@
-(* Port of theories/GaussianCoordinateMarginals.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma and theorem keeps its name, its arguments in the same order
-   and its text. The only change to the file is that the Coquelicot import
-   line is dropped: no statement or proof here names a Coquelicot notion.
-
-   The statements use finite_joint_continuous and finite_polynomial_bound,
-   whose texts are the original ones (in the ported
-   GaussianCoordinateDefinitions and GaussianCoordinateWeightDefinitions),
-   and the Gaussian integrability and expectation notions of the ported
-   GaussianDefinitions and GaussianProductDefinitions. Their meaning follows
-   those definitions. gaussian_integral_exists f now says that
-   x |-> f x * gaussian_kernel x is Borel measurable and Lebesgue integrable
-   over the line, in place of the convergence of an improper Riemann
-   integral (difference 4 of analysis/README.md), and
-   gaussian_iterated_integrable, gaussian_iterated_absolutely_integrable and
-   gaussian_iterated_has_expectation ask for the same Lebesgue notion at
-   each level. In the theorems whose hypotheses are finite_joint_continuous
-   and finite_polynomial_bound, every function integrated is continuous in
-   the integrated variable and bounded by a constant times a polynomial
-   weight. It is then absolutely integrable against the kernel, where the
-   two integrals agree, and the conclusions are the Lebesgue counterparts
-   of the original ones under the same hypotheses. The one theorem with an
-   integrability hypothesis, gaussian_iterated_polynomial_expectation_bound,
-   takes gaussian_iterated_integrable d F in the ported meaning; its
-   importers obtain it from gaussian_iterated_polynomial_integrable, as in
-   theories/. No statement is weakened.
-
-   The continuity arguments of the proofs are MathComp's pointwise
-   {for x, continuous f} (difference 5 of analysis/README.md). The ported
-   lemmas that produce them (finite_joint_continuous_last_section,
-   gaussian_coordinate_weight_continuous) and those that consume them
-   (gaussian_majorant_integrability, gaussian_expectation_majorant_bound,
-   gaussian_uniform_cutoff_convergence) agree on that form, so the proof
-   scripts are the original ones.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So ++, length, the %nat scope and the operations on R are
-   Stdlib's, as in the original, and the proofs are the original ones, word
-   for word. *)
+(* Integrating out the last coordinate of a function F of S d coordinates
+   that is continuous (finite_joint_continuous) and polynomially bounded
+   (finite_polynomial_bound). Its sections in the last coordinate are
+   Gaussian integrable (gaussian_last_section_admissible), and its marginal
+   gaussian_last_marginal F is again continuous and polynomially bounded
+   (gaussian_last_marginal_continuous,
+   gaussian_last_marginal_polynomial_bound). By induction, such a function
+   is integrable at every level of the iterated Gaussian expectation, and
+   the absolute value of its expectation is at most
+   C * gaussian_coordinate_weight_moment p ^ d
+   (gaussian_iterated_polynomial_admissible). The continuity of the
+   marginal is an eps/3 argument on expectations truncated to [-A, A]. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianExpectation GaussianProductDefinitions GaussianProduct

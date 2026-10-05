@@ -1,30 +1,24 @@
-(* Clause 3 of the draft challenge gaussian_covariance_interpolation of the
-   MathComp-Analysis port: the values of t |-> E f(Z(t)) at t = 1 and t = 0
-   are the expectations of f(X) over the p coordinates of xi and of f(Y) over
-   the q coordinates of eta, and t |-> E f(Z(t)) is continuous within [0, 1].
-   Solver module written on 30 September 2026 by a session that did not write
-   the statement. Nothing here is reviewed or accepted.
-
-   Endpoints: Z(1, zs) = P (firstn p zs) and Z(0, zs) = Q (skipn p zs)
-   (GaussianCovariancePath), and the iterated expectation over p + q
-   coordinates integrates the last q coordinates first
-   (gaussian_iterated_suffix_expectation of GaussianLastIntegration), where a
-   function of the first p coordinates is a constant
-   (gaussian_iterated_constant of GaussianProduct), and a function of the last
-   q coordinates has a constant marginal.
-
-   Continuity within [0, 1]: gaussian_iterated_expectation_continuous_modulus_within
-   of GaussianExpectationContinuity, with the modulus
-   c b = Cm (|sqrt b - sqrt a| + |sqrt (1-b) - sqrt (1-a)|): the difference
-   f(Z(b, zs)) - f(Z(a, zs)) is bounded by the mean value theorem along the
-   segment from Z(a, zs) to Z(b, zs), whose derivative is the chain rule of
-   GaussianCovarianceChainRule with the partial derivatives Df, polynomially
-   bounded on the segment, times the coordinate differences, which are linear
-   forms in zs with coefficients bounded by M (|sqrt b - sqrt a| + ...).
-
-   This module loads MathComp through AnalysisBridge2; %coq_nat marks Stdlib's
-   arithmetic on nat, (xs ++ ys)%list Stdlib's app, and the arithmetic on R is
-   Stdlib's, with R_scope opened last. *)
+(* The endpoints of the Gaussian interpolation, and its continuity in time.
+   Write Z(t, zs) = gaussian_covariance_path K p q P Q t zs for p + q
+   coordinates zs, and E for the iterated Gaussian expectation.
+   - gaussian_covariance_endpoint_one and gaussian_covariance_endpoint_zero:
+     E f(Z(1)) is the expectation of f(P xi) over the p coordinates of xi,
+     and E f(Z(0)) that of f(Q eta) over the q coordinates of eta.
+   - gaussian_covariance_path_difference_bound: when f has continuous,
+     polynomially bounded partial derivatives Df, the difference
+     f(Z(b, zs)) - f(Z(a, zs)) is bounded by a constant times
+     |sqrt b - sqrt a| + |sqrt (1-b) - sqrt (1-a)| times a polynomial
+     weight of zs.
+   - gaussian_covariance_expectation_continuous_within: t |-> E f(Z(t)) is
+     continuous within [0, 1] at every point of [0, 1].
+   For the endpoints, Z(1, zs) = P (firstn p zs) and Z(0, zs) =
+   Q (skipn p zs), and the iterated expectation over p + q coordinates
+   integrates the last q coordinates first
+   (gaussian_iterated_suffix_expectation). The difference bound applies
+   the mean value theorem along the segment from Z(a, zs) to Z(b, zs).
+   Continuity then follows from
+   gaussian_iterated_expectation_continuous_modulus_within, with this
+   bound as modulus. *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import AnalysisBridge2.
 From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions GaussianProduct

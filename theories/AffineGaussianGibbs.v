@@ -17,67 +17,32 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module AffineGaussianGibbs of
-   theories/InterpolationProofs.v (also copied in GoeProofs.v and
-   JointProofs.v), extracted to build/agent2/unbundled/AffineGaussianGibbs.v,
-   from Coquelicot to MathComp-Analysis, as a standalone module.
-
-   The original imported the bundle GaussianVectorProofs and named its inner
-   modules GaussianVectorStein and GaussianVectorDomain through it. The port
-   imports these standalone ported modules directly. It imports the three
-   inner modules of QuadraticGrowthProofs that the original named, through
-   QuadraticGrowthProofs as before.
-
-   The five theorems keep their names and their arguments, in the same
-   order. No item is added. The statements change form in five ways, as in
-   the ports of MatrixCoordinates, QuadraticGrowthProofs, GaussianVectorStein
-   and the restated challenge ellipsoid_goe (group 5, of which
-   affine_gaussian_trace_stein is the proof).
-
-   1. Linear maps. Coquelicot's is_linear T, a hypothesis of every theorem
-      but affine_gibbs_trace_uniform, becomes the conjunction
-        linear T /\ exists M : R, 0 < M /\ forall y, (`|T y|)%R <= M * (`|y|)%R
-      of MathComp's algebraic linearity and Coquelicot's norm bound
-      (analysis/README.md, difference 2). It is equivalent to Coquelicot's
-      record, and it is the form of group 5 of the restated challenge.
-
-   2. Frechet derivatives. Coquelicot's filterdiff f (locally x) l becomes
-      is_diff x f l of MathComp-Analysis, in affine_matrix_frechet and
-      affine_gibbs_trace_frechet: f is differentiable at x and its
-      differential 'd f x is l. Both say that l is linear and continuous and
-      that f (x + h) = f x + l h + o (h). The real-valued map of
-      affine_gibbs_trace_frechet is typed into R^o, the normed module view
-      of R; R^o is R by definition, so the map is unchanged. Coquelicot's
-      NormedModule R_AbsRing becomes normedModType R.
-
-   3. Pointwise continuity. Coquelicot's continuous f x becomes MathComp's
-      {for x, continuous f} (difference 5), in
-      affine_gibbs_trace_direction_continuous.
-
-   4. Norms. Coquelicot's norm becomes MathComp's (`|_|)%R, in the constants
-      of affine_gibbs_trace_uniform and in the bound of item 1. The norm of
-      matrix n is the Frobenius norm and that of vector m the Euclidean
-      norm, as in Coquelicot, because the port of MatrixDefinitions nests
-      euclidean_product (difference 1). So the constants are the same.
-
-   5. Indices. With ssreflect loaded, (i <= m)%nat would be ssrnat's boolean
-      leq. affine_gaussian_trace_stein writes (i <= m)%coq_nat, Stdlib's
-      Peano order le, as in the original and the restated challenge.
-
-   The meaning of gaussian_vector_domain and gaussian_vector_expectation, in
-   affine_gaussian_trace_stein, follows the ported GaussianVectorDefinitions
-   (difference 4): at each level of the iterated expectation, Lebesgue
-   integrability over the line against the Gaussian kernel, and Lebesgue
-   integrals. The three functions of the conclusion are continuous and
-   bounded by a polynomial in the norm, so the ported
-   gaussian_vector_first_stein establishes this reading.
-
-   The proofs follow the original. Coquelicot's filterdiff_linear becomes
-   matrix_linear_is_diff of MatrixCoordinates, filterdiff_const becomes
-   is_diff_cst, filterdiff_scal_r_fct becomes is_diffZ, filterdiff_plus_fct
-   becomes is_diffD, filterdiff_ext_lin becomes is_diff_eq with an equation
-   of functions, filterdiff_comp' becomes is_diff_comp, filterdiff_continuous
-   becomes differentiable_continuous, and norm_ge_0 becomes normr_ge0. *)
+(* Gaussian integration by parts for the nested Gibbs gradient along an
+   affine family of matrices. Here T : E -> matrix n is a bounded linear
+   map: MathComp's linear T with a bound `|T y| <= M * `|y|. The norm of
+   matrix n is the Frobenius norm and that of vector m the Euclidean norm.
+   Write G z for trace_pair n B applied to the nested gradient
+   matrix_nested_gradient at the matrix C + r * T z. The results on the
+   nested gradient assume 0 < beta, 0 < gamma and nonempty lists Y and S.
+   - affine_matrix_frechet: z |-> C + r * T z is differentiable at every
+     point (is_diff), with differential u |-> r * T u.
+   - affine_gibbs_trace_frechet: G is differentiable, and its differential
+     at x pairs B with matrix_nested_gradient_derivative at C + r * T x in
+     the direction r * T u.
+   - affine_gibbs_trace_direction_continuous: the pairing of B with the
+     derivative of the nested gradient in a fixed direction U is continuous
+     along the affine family.
+   - affine_gibbs_trace_uniform: the pairings of B with the nested gradient
+     and with its derivative in a direction U are bounded uniformly in the
+     matrix.
+   - affine_gaussian_trace_stein: for i <= m, the Gaussian expectation on
+     vector m of the derivative of G in the direction of coordinate i
+     equals that of z_i * G z, and the three functions involved satisfy
+     gaussian_vector_domain.
+   The last result applies gaussian_vector_first_stein with the constant
+   bounds of affine_gibbs_trace_uniform. Each level of the iterated
+   expectation gaussian_vector_expectation is a Lebesgue integral over the
+   line against the Gaussian kernel. *)
 
 Theorem affine_matrix_frechet {E : normedModType R} n
     (T : E -> matrix n) C r x :

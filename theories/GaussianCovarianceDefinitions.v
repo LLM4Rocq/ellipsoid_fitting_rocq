@@ -1,5 +1,4 @@
-(* Definitions of the draft challenge gaussian_covariance_interpolation of
-   the MathComp-Analysis port (analysis/challenges/gaussian_covariance_interpolation).
+(* Definitions for the Gaussian interpolation between two covariances.
 
    Centered Gaussian vectors of R^K are written as linear images of
    independent standard Gaussian coordinates: X = P xi with xi in R^p and
@@ -26,17 +25,14 @@
      sum_{a<K} sum_{b<K} ((P P^T)_{ab} - (Q Q^T)_{ab}) H a b, the pairing
      of the covariance difference with an array H, such as the second
      partial derivatives of a test function.
-   - gaussian_covariance_domain d G is, word for word, the body of
-     gaussian_list_domain of JointDefinitions: G is integrable and
-     absolutely integrable at every level of the iterated Gaussian
+   - gaussian_covariance_domain d G has the body of gaussian_list_domain of
+     JointDefinitions, which this module does not import: G is integrable
+     and absolutely integrable at every level of the iterated Gaussian
      expectation over d coordinates, with actual normalized-density
-     integrals for G and for its absolute value. It is restated here so
-     that the statement does not import JointDefinitions, whose Require
-     closure has 30 modules instead of the 9 of this challenge.
+     integrals for G and for its absolute value.
 
-   Only Stdlib, SoftDefinitions (finite_sum) and GaussianProductDefinitions
-   are imported. sqrt, *, + and - are Stdlib's, and sqrt of a negative
-   number is 0. The module contains definitions only, no proof. *)
+   sqrt, *, + and - are Stdlib's, and sqrt of a negative number is 0. The
+   module contains definitions only. *)
 From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions.
 Import ListNotations.

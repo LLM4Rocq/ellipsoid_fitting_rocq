@@ -12,46 +12,20 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixSecond.v from Coquelicot to MathComp-Analysis.
+(* Frechet derivatives of the finite Gibbs law on a real normed space, and
+   the second derivative of the soft minimax of matrices
+   (MatrixGibbsDefinitions). With differentiable scores, the partition
+   function, the Gibbs weights and the Gibbs averages are differentiable,
+   with the formulas of GibbsDerivatives (matrix_partition_frechet,
+   matrix_gibbs_weight_frechet, gibbs_average_frechet). On matrices, the
+   differential of matrix_nested_derivative is
+   matrix_nested_second_derivative (matrix_nested_derivative_frechet), which
+   is symmetric in its two directions (matrix_nested_second_symmetric).
+   Real-valued maps are given the codomain R^o, as is_diff requires. *)
 
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in the same three ways as in the port
-   of MatrixGibbs, which this module imports.
-
-   1. Normed spaces. Coquelicot's NormedModule R_AbsRing becomes
-      normedModType R, a real normed space of MathComp-Analysis. On
-      matrix n the norm is the Frobenius norm of MatrixDefinitions, as in
-      Coquelicot.
-
-   2. Frechet derivatives. Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis: f is differentiable at A and its
-      differential 'd f A is l. Both say that l is linear and continuous and
-      that f (A + H) = f A + l H + o(H) as H tends to 0. Coquelicot's
-      is_linear contains the continuity of l as a norm bound; in
-      MathComp-Analysis it comes with differentiable. So the hypotheses and
-      conclusions say the same thing as in the original.
-
-   3. Real-valued maps. A map into R is written with codomain R^o, the
-      normed module view of R, because is_diff needs a normed module on the
-      codomain, as in (F i : E -> R^o). R^o is R by definition, so F, D, DF,
-      U and DU keep the type nat -> E -> R of the original, and the maps are
-      the same.
-
-   The arithmetic in the statements is Stdlib's, as in the original, and so
-   is exp inside partition, gibbs_weight and gibbs_average. The definitions
-   of MatrixSecondDefinitions are unchanged.
-
-   The port adds one lemma, matrix_second_mult_frechet, marked below. It is
-   the product rule in the form of Coquelicot's filterdiff_mult_fct, which
-   the original applies twice. MathComp-Analysis states the product rule
-   (is_diffM) with its own operations on functions, so this lemma restates
-   it with Stdlib's product and sum. *)
-
-(* Added by the port. The product rule, with the arguments and the
-   derivative H |-> df H * g A + f A * dg H of Coquelicot's
-   filterdiff_mult_fct. Coquelicot's hypothesis that the product of the
-   scalars commutes is dropped, since the scalars are the reals. It is
-   proved from MathComp-Analysis's is_diffM. *)
+(* The product rule, with the differential H |-> df H * g A + f A * dg H
+   written with Stdlib's operations. It follows from MathComp-Analysis's
+   is_diffM. *)
 Lemma matrix_second_mult_frechet {E : normedModType R}
     (f g : E -> R) (A : E) (df dg : E -> R) :
   is_diff A (f : E -> R^o) df -> is_diff A (g : E -> R^o) dg ->

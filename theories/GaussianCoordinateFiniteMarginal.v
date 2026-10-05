@@ -1,26 +1,12 @@
-(* Port of theories/GaussianCoordinateFiniteMarginal.v from Coquelicot to
-   MathComp-Analysis.
-
-   The theorem keeps its name, its arguments in the same order and its text.
-   Its statement uses only finite_joint_continuous, a copy of the original
-   definition in the ported GaussianCoordinateDefinitions, and
-   gaussian_cutoff_expectation of the ported GaussianCutoffDefinitions. The
-   latter is oriented_integral of x |-> f x * gaussian_kernel x from -A to A,
-   divided by gaussian_mass (difference 3 of analysis/README.md). Here
-   0 <= A, and finite_joint_continuous d evaluates the function only at
-   lists xs of length d, where the integrand t |-> F (xs ++ [t]) *
-   gaussian_kernel t is continuous. So each value is the Lebesgue integral
-   over [-A, A] of a continuous function, which is the Riemann integral of
-   the original. The statement says what the original said.
-
-   The list append in the statement is Stdlib's app. This module imports no
-   MathComp library itself, so the notation ++ is Stdlib's list notation, as
-   in the original. The proof is the original one, word for word. The only
-   change of text is that the Coquelicot import line is dropped. The
-   continuity hypotheses of gaussian_cutoff_local_difference are now
-   MathComp's {for x, continuous f}, and the ported
-   finite_joint_continuous_last_section provides them in that form, so the
-   proof term is unchanged. *)
+(* The truncated Gaussian expectation in the last coordinate of a jointly
+   continuous function is jointly continuous in the other coordinates. If
+   0 <= A and F is a jointly continuous function of d + 1 coordinates, then
+   xs |-> gaussian_cutoff_expectation (fun t => F (xs ++ [t])) A is a
+   jointly continuous function of d coordinates
+   (gaussian_last_cutoff_continuous). The proof uses the uniform continuity
+   of F on a box (finite_joint_uniform_list_box of
+   GaussianCoordinateTopology) and the bound of
+   gaussian_cutoff_local_difference (GaussianCoordinateCutoff). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianCutoffDefinitions

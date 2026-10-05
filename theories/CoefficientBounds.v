@@ -8,41 +8,15 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates Gradien
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/CoefficientBounds.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma and theorem of the original keeps its name and its arguments,
-   in the same order. No item is added. The statements change form in the
-   ways of the ports of MatrixCoordinates and CoefficientMaps.
-
-   1. Norms. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. The norms
-      are those of MatrixDefinitions, HessianDefinitions and
-      ContinuityDefinitions: the Euclidean norm of all entries on tuples,
-      matrices, Hessian arrays and third-order arrays. So every bound below
-      means the same as in the original, constants included. The bounds are
-      stated with Stdlib's order, product, INR and power around MathComp's
-      norms. The absolute value Rabs of the original stays Stdlib's Rabs,
-      which is the norm of R^o (RabsE).
-
-   2. Coquelicot's NormedModule R_AbsRing becomes normedModType R and its
-      R_NormedModule becomes R^o.
-
-   3. The pair of norm_pair_le_sum. In the original, norm (x, y) is the norm
-      of Coquelicot's prod_NormedModule, sqrt (norm x ^ 2 + norm y ^ 2).
-      MathComp-Analysis gives U * V the max norm instead. The port writes the
-      pair as (x, y) : euclidean_product U V, the product of
-      MatrixEuclideanProduct that keeps Coquelicot's norm and that
-      tuple_NormedModule is built from. The statement therefore means the
-      same as the original, and it applies to the tuples of
-      tuple_build_norm_bound as before.
-
-   4. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (i <= n)%coq_nat, which is Stdlib's le.
-
-   The proofs follow the original. Coquelicot's norm_prod, norm_triangle and
-   norm_scal are replaced by euclidean_product_norm_fst,
-   euclidean_product_norm_snd and euclidean_product_norm_le of
-   MatrixEuclideanProduct, and by MathComp's ler_normD and normrZ. *)
+(* Bounds between the entries and the norms of tuples and matrices, for the
+   Euclidean norm of MatrixDefinitions (the Frobenius norm on matrices). An
+   entry is bounded by the norm (tuple_entry_norm_bound,
+   matrix_entry_norm_bound). A sum or a tuple of S n terms of norm at most
+   K has norm at most INR (S n) * K (module_coordinate_sum_norm_bound,
+   tuple_build_norm_bound), and
+   Rabs (trace_pair n A B) <= INR (S n) ^ 2 * `|A| * `|B|
+   (trace_pair_product_bound). In norm_pair_le_sum the pair lives in
+   euclidean_product U V, whose norm is Euclidean, not the max norm. *)
 
 Lemma tuple_entry_norm_bound (V : normedModType R) n i (x : tuple_NormedModule V n) :
   (`|tuple_entry V n i x|)%R <= (`|x|)%R.

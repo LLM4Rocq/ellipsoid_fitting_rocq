@@ -3,8 +3,11 @@ From EllipsoidFitting Require Import GaussianProductDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Consecutive rows of d scalar Gaussian coordinates in a list of length N*d.
-   The empty maximum is 0; all genuine squared row radii are nonnegative. *)
+(* A list of length N * d holds N consecutive rows of d Gaussian
+   coordinates. gaussian_maximum_radius N d xs is the largest squared norm
+   of a row (0 when N = 0; squared norms are nonnegative), and
+   gaussian_radius_exponential_sum N d t xs is the sum over the rows of
+   exp (t * (squared norm - d)). *)
 Fixpoint gaussian_maximum_radius (N d : nat) (xs : list R) : R :=
   match N with
   | O => 0

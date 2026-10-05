@@ -5,15 +5,11 @@ From mathcomp Require Import Rstruct.
 From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions.
 Open Scope R_scope.
 
-(* Facts about the port of OperatorDefinitions that need proofs, kept out of
-   the definitions module.
-
-   The original defined matrix_operator_norm as real (Lub_Rbar E), and its
-   importers used Coquelicot's Lub_Rbar_correct. The port uses MathComp's
-   sup E. The two lemmas below say what sup E is, in Stdlib's vocabulary:
-   the least upper bound (Stdlib's is_lub) when E is bounded above and
-   nonempty, and 0 otherwise. real (Lub_Rbar E) has exactly the same two
-   properties, which is why the port does not change the value. *)
+(* The operator norm of OperatorDefinitions as a least upper bound.
+   matrix_operator_norm n A is MathComp's sup of matrix_unit_image n A,
+   the set of the norms |A x| with |x| <= 1. operator_sup_is_lub: for a
+   set of reals that is nonempty and bounded above, sup is its least upper
+   bound in the sense of Stdlib's is_lub. *)
 
 Lemma operator_sup_is_lub (E : R -> Prop) :
   bound E -> (exists r, E r) -> is_lub E (sup E).

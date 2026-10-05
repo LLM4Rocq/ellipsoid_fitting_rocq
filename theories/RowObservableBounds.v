@@ -13,75 +13,31 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/RowObservableBounds.v from Coquelicot to
-   MathComp-Analysis.
+(* Polynomial bounds on the row observables of RowObservableDefinitions,
+   for rows y z of unit Euclidean norm and matrices B s of operator norm at
+   most k.
+   - row_chaos_contraction_norm_bound: if |T U V W| <= K |U| |V| |W|, then
+     |chaos_contraction n T x| is at most an explicit constant times
+     (1 + |x|) ^ 2.
+   - block_injected_uniform_bounds: lower_block_first and lower_block_third
+     in directions injected in block i are bounded by constants times the
+     norms of the directions, uniformly in the point A.
+   - row_observables_uniform_pair_growth: the expressions of the row
+     velocity and of the row remainder at a block array A and a joint
+     vector q are bounded by constants times (1 + |q|) ^ 2, uniformly in A.
+   - gaussian_row_observables_polynomial_bounds: hence
+     gaussian_row_velocity and gaussian_row_remainder satisfy
+     finite_polynomial_bound in degree 2 on the
+     S m * (S n + S (goe_vector_index n)) coordinates.
 
-   Imports. The original imported the bundles GaussianCoordinateProofs,
-   InterpolationFoundations and InterpolationProofs, and opened five of their
-   inner modules: MatrixTrace and CoefficientBounds (from
-   InterpolationFoundations), JointUniform and JointGrowth (from
-   InterpolationProofs.JointProofs) and GoeSynthesis (from
-   InterpolationProofs.JointProofs.GoeProofs). The port imports these five
-   standalone ported modules directly. It uses nothing else from the
-   bundles: the original named no inner module of GaussianCoordinateProofs.
-   The other imports are those of the original.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. No item is added. The statements change form in the following
-   ways, the ways of the ported modules this one uses. None changes meaning.
-
-   1. Norms. Coquelicot's norm U becomes MathComp's norm (`|U|)%R. On
-      vector n, matrix n and block_array n m the norms are those of the ports
-      of OperatorDefinitions, MatrixDefinitions and LowerDefinitions. They
-      nest euclidean_product of MatrixEuclideanProduct and keep Coquelicot's
-      product norm, so they are the Euclidean norm of all entries, as in the
-      original, and not MathComp's max norm (difference 1 of
-      analysis/README.md). Every bound therefore means the same, constants
-      included. The bounds are stated with Stdlib's order, product, sum,
-      power, inverse, sqrt and INR around MathComp's norms, and Rabs stays
-      Stdlib's.
-
-   2. Joint vectors. In row_observables_uniform_pair_growth, Coquelicot's
-        prod_NormedModule R_AbsRing (vector_NormedModule n)
-          (vector_NormedModule (goe_vector_index n))
-      becomes
-        euclidean_product (vector_NormedModule n)
-          (vector_NormedModule (goe_vector_index n)),
-      the joint vectors of the ported JointDefinitions, JointGrowth and
-      RowDecoderRegularity. Its norm is Coquelicot's product norm
-      sqrt (norm (fst q) ^ 2 + norm (snd q) ^ 2), so the bounds
-      (1 + norm q) ^ 2 mean what they meant.
-
-   3. Naturals and lists. With ssreflect loaded, (i <= m)%nat means
-      ssrnat's boolean leq, + and * on nat mean ssrnat's addn and muln, and
-      the bare name seq means MathComp's type of sequences. The original
-      means Stdlib's Peano order le, Nat.add, Nat.mul and the list
-      seq 0 (S m). The statements therefore write (i <= m)%coq_nat,
-      (S m * (S n + S (goe_vector_index n)))%coq_nat and
-      List.seq 0 (Datatypes.S m), as in the ported RowDecoderRegularity,
-      LowerBounds and FullThirdBlock. The order and the list are the terms of
-      the original. The dimension elaborates to
-      Nat.mul (S m) (addn (S n) (S (goe_vector_index n))), the term of
-      RowDecoderRegularity: Nat.mul reads its arguments in nat_scope, so the
-      inner sum is ssrnat's addn. In MathComp 2.6 addn is defined as Nat.add,
-      so the term is convertible with the original one and denotes the same
-      number.
-
-   The proofs follow the original. Coquelicot's linear_norm applied to
-   block_inject_linear becomes the second component of the ported
-   block_inject_linear, which states the norm bound of Coquelicot's
-   is_linear as a conjunct. norm_ge_0 becomes normr_ge0 through RleP, and
-   norm_prod with Rmax_l and Rmax_r becomes euclidean_product_norm_fst and
-   euclidean_product_norm_snd. The joint vector q is not destructed, as in
-   the port of JointGrowth: a pair written (x, z) without a type annotation
-   would get MathComp's max norm. Stdlib's "rewrite A, B" becomes an
-   ssreflect rewrite.
-
-   Assumptions. Print Assumptions lists the seven axioms of
-   analysis/README.md for row_chaos_contraction_norm_bound, and the seven
-   and Classical_Prop.classic for the three other items. Their statements
-   mention lower_block_first or lower_block_third, which are built from
-   soft_max and so from Stdlib's Rpower.ln; no proof here calls classic. *)
+   The norms of vector n, matrix n and block_array n m are the Euclidean
+   norms of all entries (MatrixEuclideanProduct), not MathComp's max norm.
+   The joint vector q has the type euclidean_product (vector_NormedModule
+   n) (vector_NormedModule (goe_vector_index n)), with the norm
+   sqrt (|fst q| ^ 2 + |snd q| ^ 2); the proofs do not destruct it, since
+   an untyped pair would get the max norm. With ssreflect loaded, the
+   statements write List.seq, and %coq_nat for Stdlib's order and
+   arithmetic on nat. *)
 
 (* A norm is nonnegative, stated with Stdlib's order. *)
 Local Ltac row_norm_nonneg := apply/RleP; apply normr_ge0.

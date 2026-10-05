@@ -9,14 +9,12 @@ From EllipsoidFitting Require Import MatrixDefinitions SoftDefinitions GibbsDefi
 Import ListNotations.
 Open Scope R_scope.
 
-(* Helper for the challenge multirow_time_calculus: the soft minimax and its
-   first derivative when one of the index families is empty. With Stdlib's
-   ln 0 = 0, an empty soft maximum is 0, so the block value lower_block_phi is
-   constant along any path, and every Gibbs average over an empty family is
-   0, so lower_block_first and the row velocities vanish. These are the cases
-   the checkpoint theorems of RowTimeCalculus exclude by Y <> [] and S <> [].
-   Written by the solving session on 30 September 2026; it uses only Stdlib's
-   functional extensionality, an axiom of the policy stdlib_mathcomp_classical. *)
+(* The soft minimax and its first derivative when one of the index families
+   Y and S is empty, the cases that the theorems of RowTimeCalculus exclude
+   by Y <> [] and S <> []. Since Stdlib's ln 0 is 0, an empty soft maximum
+   is 0, so the block value lower_block_phi does not depend on the array and
+   gaussian_array_value is constant in time. Every Gibbs average over an
+   empty family is 0, so lower_block_first and the row velocities vanish. *)
 
 Lemma multirow_time_ln_0 : Rpower.ln 0 = 0.
 Proof. unfold Rpower.ln; destruct (Rlt_dec _ _) as [H|_]; [exact (False_ind _ (Rlt_irrefl _ H))|reflexivity]. Qed.

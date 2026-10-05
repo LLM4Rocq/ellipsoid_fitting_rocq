@@ -18,40 +18,20 @@ Import QuadraticGrowthProofs.QuadraticUniformBounds
   QuadraticGrowthProofs.QuadraticPolynomialGrowth.
 Open Scope R_scope.
 
-(* Port of the inner module JointUniform of theories/InterpolationProofs.v
-   (also copied in JointProofs.v) from Coquelicot to MathComp-Analysis, as a
-   standalone module. The original imports the bundle GoeProofs and names
-   GoeProofs.GoePairs and GoeProofs.GoeSynthesis through it; this port
-   imports the standalone modules GoePairs and GoeSynthesis instead. It
-   imports the inner modules QuadraticUniformBounds and
-   QuadraticPolynomialGrowth of QuadraticGrowthProofs, as the original did.
-
-   Every lemma and theorem of the original keeps its name and its
-   arguments, in the same order. No item is added. The statements change
-   form in two ways, the ways of the ports of QuadraticGrowthProofs,
-   NormEquivalence and GoeSynthesis, which this module uses.
-
-   1. Norms. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. On
-      vector n and matrix n the norms are those of the ports of
-      OperatorDefinitions and MatrixDefinitions. They nest euclidean_product
-      of MatrixEuclideanProduct and keep Coquelicot's product norm, so they
-      are the Euclidean norm of all entries, as in the original, and not
-      MathComp's max norm (analysis/README.md, difference 1). Every bound
-      therefore means the same, constants included. The bounds are stated
-      with Stdlib's order, product, sum, power, inverse and INR around
-      MathComp's norms, and Rabs stays Stdlib's.
-
-   2. Order on indices. With ssreflect loaded, (a <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements of joint_chaos_basis_norm, joint_chaos_first_norm and
-      joint_chaos_second_norm write (a <= n)%coq_nat, which is Stdlib's le.
-      The meaning is unchanged.
-
-   The proofs follow the original. Coquelicot's norm_ge_0 becomes MathComp's
-   normr_ge0, read in Stdlib's order through RleP, in the local tactic
-   joint_norm_nonneg, which is not a lemma and is not visible to importers.
-   Stdlib's "rewrite A, B" and "rewrite ... by tac" become ssreflect
-   rewrites with the side conditions given as explicit arguments. *)
+(* Uniform bounds on the derivatives of the nested Gibbs function of a
+   matrix. Let G be matrix_nested_gradient, dG its derivative
+   matrix_nested_gradient_derivative and T the third derivative
+   matrix_nested_third_derivative, for 0 < beta, 0 < gamma and nonempty Y
+   and S. There are constants K0, K1, K2 >= 0 such that, for all matrices
+   A, U, V, W, |<U, G A>| <= K0 |U|, |<U, dG A V>| <= K1 |U| |V| and
+   |T A U V W| <= K2 |U| |V| |W| (joint_gibbs_uniform), where <_, _> is
+   trace_pair. A bound of the second kind bounds the divergence
+   symmetric_divergence (dG A) (joint_divergence_uniform), and one of the
+   third kind bounds chaos_contraction (T A) x by a constant times
+   (1 + |x|) ^ 2 (joint_remainder_uniform). The norms are the Euclidean
+   norms of all entries, so the Frobenius norm on matrices. The index
+   bounds are written (a <= n)%coq_nat, Stdlib's le, because %nat would
+   give ssrnat's boolean leq. *)
 
 (* A norm is nonnegative, stated with Stdlib's order. *)
 Local Ltac joint_norm_nonneg := apply/RleP; apply normr_ge0.

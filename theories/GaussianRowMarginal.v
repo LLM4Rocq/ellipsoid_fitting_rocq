@@ -1,30 +1,23 @@
-(* Port of theories/GaussianRowMarginal.v from Coquelicot to
-   MathComp-Analysis.
+(* Marginals of the iterated Gaussian expectation on rows. row_prefixes
+   N d D reads a list as N rows of d + D coordinates and keeps the first d
+   coordinates of each row.
+   - row_prefixes_gaussian_expectation: for every F, the expectation of
+     F (row_prefixes N d D xs) over N * (d + D) coordinates is the
+     expectation of F over N * d coordinates.
+   - row_prefixes_continuous and row_prefixes_polynomial: composing with
+     row_prefixes preserves joint continuity and polynomial bounds.
+   - row_prefixes_gaussian_domain: for F continuous and polynomially
+     bounded, the composite and its absolute value are integrable at every
+     level, and their expectations are those of F and of its absolute value
+     over N * d coordinates.
+   gaussian_iterated_integrable, gaussian_iterated_absolutely_integrable
+   and gaussian_iterated_has_expectation (GaussianProductDefinitions) ask
+   at each level for the Lebesgue integrability over the line of the outer
+   function times the Gaussian kernel.
 
-   Every theorem and lemma keeps its name, its arguments in the same order,
-   and its text. The only change to the file is that the Coquelicot import
-   line is dropped: no statement or proof here names a Coquelicot notion.
-   The proofs are the original ones, word for word.
-
-   The meaning of the statements follows the ported definitions they use.
-   finite_joint_continuous (GaussianCoordinateDefinitions) and
-   finite_polynomial_bound (GaussianCoordinateWeightDefinitions) have the
-   original text. gaussian_iterated_integrable,
-   gaussian_iterated_absolutely_integrable and
-   gaussian_iterated_has_expectation (GaussianProductDefinitions) now ask at
-   each level for the Lebesgue integrability over the line of the outer
-   function times the Gaussian kernel, and record Lebesgue integrals
-   against gaussian_density, in place of improper Riemann integrals
-   (difference 4 of analysis/README.md). row_prefixes_gaussian_expectation
-   is an equality of iterated expectations that holds for every F, as in
-   the original. row_prefixes_gaussian_domain assumes continuity and a
-   polynomial bound, under which every integrand is absolutely integrable
-   against the kernel, and concludes the Lebesgue counterparts of the
-   original conclusions. No statement is weakened.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So ++, length, firstn, skipn, the %nat scope and the
-   operations on R are Stdlib's, as in the original. *)
+   This module imports no MathComp library, directly or through its
+   imports, so ++, length, firstn, skipn, the %nat scope and the operations
+   on R are Stdlib's. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import GaussianProductDefinitions GaussianProduct GaussianLastDefinitions GaussianLastIntegration

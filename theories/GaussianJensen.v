@@ -1,33 +1,17 @@
-(* Port of theories/GaussianJensen.v from Coquelicot to MathComp-Analysis.
+(* Jensen's inequality for the exponential under the iterated Gaussian
+   expectation E = gaussian_iterated_expectation d of
+   GaussianProductDefinitions. If F and G are integrable
+   (gaussian_iterated_integrable) and exp (F xs) <= G xs, then
+   exp (E F) <= E G (gaussian_iterated_exp_dominated_jensen). Hence, for
+   t > 0 and exp (t * F xs) <= G xs, E F <= ln (E G) / t
+   (gaussian_iterated_log_majorant_bound). The proof integrates the tangent
+   bound exp a * (1 + x - a) <= exp x (exponential_tangent_lower_bound) at
+   a = E F.
 
-   Every lemma and theorem of the original keeps its name and its arguments,
-   in the same order, and no statement gains or loses a hypothesis. The
-   iterated operators come from the ported GaussianProductDefinitions, where
-   gaussian_iterated_integrable asks at each level for the Lebesgue
-   integrability over the line of the outer function times the kernel
-   (difference 4 of analysis/README.md). The proofs use only
-   gaussian_iterated_constant, gaussian_iterated_add,
-   gaussian_iterated_scale and gaussian_iterated_monotone of the ported
-   GaussianProduct, whose statements keep the text of the originals.
-
-   One change of text, and none of meaning. The module loads MathComp's exp,
-   under which an unqualified ln is exp.ln. The two statements about the
-   logarithm, gaussian_iterated_log_exp_bound and
-   gaussian_iterated_log_majorant_bound, therefore write Rpower.ln, which is
-   Stdlib's logarithm, the ln of the original. The arithmetic, exp and
-   length in every statement are Stdlib's, as in the original. An importer
-   that loads MathComp's exp must also write Rpower.ln to use them.
-
-   Assumptions. Stdlib's exp_ineq1_le, which the original proof of
-   exponential_tangent_lower_bound used, rests on Classical_Prop.classic.
-   The port proves the inequality 1 + y <= exp y with MathComp's expR_ge1Dx
-   and RexpE instead, so exponential_tangent_lower_bound,
-   gaussian_iterated_exp_jensen and gaussian_iterated_exp_dominated_jensen
-   rest on the seven axioms of analysis/README.md only. The two statements
-   about Rpower.ln also carry classic, the eighth axiom of the README,
-   because Stdlib defines Rpower.ln through ln_exists, whose proof uses it.
-
-   The Coquelicot import is dropped; the original used nothing from it. *)
+   The module loads MathComp's exp, under which an unqualified ln is
+   exp.ln, so the statements write Rpower.ln for Stdlib's logarithm; an
+   importer that loads MathComp's exp must do the same. The arithmetic, exp
+   and length in every statement are Stdlib's. *)
 
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.

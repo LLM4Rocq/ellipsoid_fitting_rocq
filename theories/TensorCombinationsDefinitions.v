@@ -3,14 +3,14 @@ From EllipsoidFitting Require Import MatrixDefinitions TensorDefinitions TensorG
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/TensorCombinationsDefinitions.v from Coquelicot to
-   MathComp-Analysis. The original did not import Coquelicot; its only
-   Coquelicot content came through matrix n of MatrixDefinitions, through the
-   record trace_atom of TensorDefinitions and through tensor_scale_atoms of
-   TensorGibbsDefinitions. Their ports keep the same names, arguments and
-   fields, so the text below is the original's. MathComp is not imported
-   here, so map and flat_map are Stdlib's List.map and List.flat_map, and
-   the lists are Stdlib's, as before. *)
+(* Operations on lists of trace atoms. An atom with coefficient c and
+   matrices B1, B2, B3 stands for the trilinear form
+   (U, V, W) |-> c * trace_pair B1 U * trace_pair B2 V * trace_pair B3 W.
+   tensor_weighted_join joins the lists rows i, each scaled by q i, for i
+   in I. tensor_swap23_atoms swaps the second and third matrices of every
+   atom, and tensor_rotate_atoms moves (B1, B2, B3) to (B3, B1, B2).
+   mixed_trace_atoms is the list of the atoms (q i, B1 i, B2 i, B3 i) for i
+   in I. MathComp is not imported, so map and flat_map are Stdlib's. *)
 
 Definition tensor_weighted_join (n : nat) (q : nat -> R)
     (rows : nat -> list (trace_atom n)) (I : list nat) : list (trace_atom n) :=

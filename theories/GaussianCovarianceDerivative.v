@@ -1,27 +1,25 @@
-(* Clause 2 of the draft challenge gaussian_covariance_interpolation of the
-   MathComp-Analysis port: for 0 < t < 1 the derivative of t |-> E f(Z(t)) is
-   one half of the covariance difference paired with the expectations of the
-   second partial derivatives of f at Z(t). Solver module written on
-   30 September 2026 by a session that did not write the statement. Nothing
-   here is reviewed or accepted.
+(* The derivative of Gaussian interpolation between two covariances. Let
+   Z(t) = gaussian_covariance_path K p q P Q t zs be the interpolation
+   sqrt t * P xs + sqrt (1 - t) * Q ys, where xs and ys are the first p and
+   the last q coordinates of zs. Let f be a continuous function of K
+   coordinates whose first and second partial derivatives Df and D2f are
+   continuous and, like f, polynomially bounded. For 0 < t < 1, the
+   derivative of t |-> E f(Z(t)) is one half of the pairing of
+   P P^T - Q Q^T with the expectations E [D2f a b (Z(t))]
+   (gaussian_covariance_derivative_clause).
 
-   In the coefficient reading of GaussianCovariancePath, Z(t, zs) is the
-   linear image of zs by coef t, with velocity coefficients dcoef t and
-   acceleration coefficients ddcoef t on (0, 1). The derivative under the
-   expectation is finite_gaussian_parameter_differentiation of
-   FiniteGaussianParameter, whose hypotheses (the t-derivatives of f(Z(t, zs))
-   and of its velocity, continuity, and polynomial bounds uniform on a closed
-   subinterval of (0, 1)) come from the chain rule and the explicit bounds of
-   GaussianCovarianceLinear. The value E [sum_c Df c (Z) * sum_k dcoef c k z_k]
-   is then computed with the first-coordinate Stein identity
-   gaussian_iterated_coordinate_first_stein of GaussianCoordinateStein: the
-   coordinate derivative of Df c (Z(t, zs)) in z_k is
-   sum_b D2f c b (Z) * coef b k, and sum_k dcoef c k * coef b k is
-   (1/2) ((P P^T)_cb - (Q Q^T)_cb).
-
-   This module loads MathComp through AnalysisBridge2; %coq_nat marks Stdlib's
-   arithmetic on nat and the arithmetic on R is Stdlib's, with R_scope opened
-   last. *)
+   Z(t, zs) is the linear image of zs by the coefficients coef t, with
+   velocity dcoef t and acceleration ddcoef t (GaussianCovariancePath). The
+   derivative passes under the expectation by
+   finite_gaussian_parameter_differentiation (FiniteGaussianParameter),
+   whose hypotheses come from the chain rule and from polynomial bounds
+   uniform on a closed subinterval of (0, 1) (gc_expectation_derive). The
+   expectation of the velocity sum_c Df c (Z) * sum_k dcoef c k z_k is
+   computed with the Stein identity gaussian_iterated_coordinate_first_stein:
+   the derivative of Df c (Z(t, zs)) in z_k is sum_b D2f c b (Z) * coef b k,
+   and sum_k dcoef c k * coef b k = (1/2) ((P P^T)_cb - (Q Q^T)_cb)
+   (gc_velocity_expectation). MathComp is loaded, so %coq_nat marks
+   Stdlib's arithmetic on nat. *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import AnalysisBridge2.
 From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions GaussianProduct
@@ -470,7 +468,7 @@ Proof.
   rewrite (gaussian_covariance_stein_coefficients p q P Q a c b Ha); ring.
 Qed.
 
-(* Clause 2. *)
+(* The main result, with Z(t) written as gaussian_covariance_path. *)
 Theorem gaussian_covariance_derivative_clause :
   forall t, 0 < t < 1 ->
   @is_derive R R^o R^o t 1

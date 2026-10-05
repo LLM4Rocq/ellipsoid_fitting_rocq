@@ -5,24 +5,12 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates MatrixT
   SymmetricDivergence.
 Open Scope R_scope.
 
-(* Port of the inner module GoeParseval of theories/InterpolationProofs.v
-   (also copied in GoeProofs.v and JointProofs.v) from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original used nothing from Coquelicot directly. Its only Coquelicot
-   content came through matrix n, matrix_entry, coordinate_sum, trace_pair,
-   the second chaos and the symmetric basis. Their ports keep the same names,
-   arguments and values, so the import of Coquelicot is dropped and the
-   statements below are the text of the original.
-
-   This file loads no MathComp module, so (a <= n)%nat is Stdlib's Peano
-   order le, as in the original. The ports of SymmetricBasis and
-   SecondChaosAlgebra write the same order as (a <= n)%coq_nat, which is the
-   same term. The arithmetic, sqrt, the literals, Nat.eqb and Nat.ltb are
-   Stdlib's, as before.
-
-   The proofs are the original ones, unchanged: the lemmas they use keep
-   their statements in the ports, as the same terms. *)
+(* Parseval's identity in the orthonormal basis of the symmetric matrices
+   made of the diagonal units e_a e_a^T (symmetric_diagonal_basis) and of
+   the matrices (e_a e_b^T + e_b e_a^T) / sqrt 2 for a < b
+   (symmetric_offdiagonal_basis). goe_symmetric_parseval: for symmetric U
+   and V, the sum over this basis of trace_pair n W U * trace_pair n W V is
+   trace_pair n U V. *)
 
 Theorem goe_symmetric_parseval n (U V : matrix n) :
   symmetric_matrix n U -> symmetric_matrix n V ->

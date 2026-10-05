@@ -5,18 +5,15 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions ThirdDefin
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/TensorNestedDefinitions.v from Coquelicot to
-   MathComp-Analysis. The original used nothing from Coquelicot directly. Its
-   only Coquelicot content came through matrix n of MatrixDefinitions, the
-   record trace_atom of TensorDefinitions, and the definitions of
-   MatrixGibbsDefinitions, TensorGibbsDefinitions and
-   TensorCombinationsDefinitions. Their ports keep the same names, arguments
-   and fields, so the import of Coquelicot is dropped and nothing else
-   changes. MathComp is not imported here, so the lists, the concatenation
-   ++, and the arithmetic, including the powers gamma ^ 2 and beta ^ 2, the
-   product - beta * gamma and the minus sign of - beta, are Stdlib's, as
-   before. gibbs_weight comes from GibbsDefinitions, which is copied
-   unchanged, so its exp is Stdlib's. *)
+(* The third derivative of the soft minimax of matrices as a list of trace
+   atoms (TensorDefinitions), each a coefficient times
+   trace_pair n B1 U * trace_pair n B2 V * trace_pair n B3 W. The inner and
+   outer Gibbs weights, means and centered coefficients give the atoms of
+   the inner cumulant, covariance and outer cumulant terms
+   (nested_inner_atoms, nested_covariance_atoms, nested_outer_atoms), and
+   nested_third_atoms combines them with the factors gamma ^ 2,
+   - beta * gamma and beta ^ 2. TensorNestedRepresentation proves that it
+   represents matrix_nested_third_derivative on symmetric matrices. *)
 
 Definition nested_inner_weights n gamma offset coeff S (A : matrix n) y : nat -> R :=
   gibbs_weight gamma (matrix_affine_scores n offset coeff A y) S.

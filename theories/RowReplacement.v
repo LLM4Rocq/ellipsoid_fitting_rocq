@@ -2,6 +2,11 @@ From Stdlib Require Import List Arith Lia.
 From EllipsoidFitting Require Import RowCoordinateDefinitions RowCoordinates.
 Import ListNotations.
 
+(* Replacing one row leaves the other rows unchanged
+   (row_chunk_other_independent): in row_assemble N K i background row, a
+   row j <> i does not depend on row, among rows of length K. The two
+   lemmas before it locate the rows before and after a middle block. *)
+
 Lemma row_chunk_before_middle {A : Type} K i j (before row after : list A) :
   length before = i*K -> (j<i)%nat ->
   row_chunk K j (before++row++after) = row_chunk K j before.

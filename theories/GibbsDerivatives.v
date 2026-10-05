@@ -3,6 +3,17 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeigh
 Import ListNotations.
 Open Scope R_scope.
 
+(* Derivatives along a curve of the finite Gibbs law of GibbsDefinitions,
+   with Stdlib's derivable_pt_lim. If each score F i has derivative D i,
+   the partition function, the Gibbs weights and the Gibbs average of
+   observables U i with derivatives V i are differentiable
+   (gibbs_partition_derivative, gibbs_weight_derivative,
+   gibbs_average_derivative); the last derivative is
+   gibbs_average V + c * gibbs_covariance U D. The soft maximum has
+   derivative gibbs_average c D (soft_max_curve_derivative), and the soft
+   minimum with parameter beta has derivative gibbs_average (- beta) D
+   (soft_min_curve_derivative). *)
+
 Lemma gibbs_sum_derivative (F : nat -> R -> R) (D : nat -> R) I x :
   (forall i, In i I -> derivable_pt_lim (F i) x (D i)) ->
   derivable_pt_lim (fun t => finite_sum (fun i => F i t) I) x (finite_sum D I).

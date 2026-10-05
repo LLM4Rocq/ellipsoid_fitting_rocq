@@ -17,76 +17,23 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/RowObservableContinuity.v from Coquelicot to
-   MathComp-Analysis.
+(* Continuity of the row observables. Let E be a topological space and the
+   paths U, A, X, Z be continuous at q. Then the injection of U into block
+   i is continuous at q (block_inject_along_continuous). If 0 < gamma and Y
+   and S are nonempty, so are the velocity and remainder terms built from
+   lower_block_first and lower_block_third along A, X and Z
+   (row_velocity_along_continuous, row_remainder_along_continuous). Hence,
+   for i <= m, gaussian_row_velocity and gaussian_row_remainder are jointly
+   continuous functions of S m * (S n + S (goe_vector_index n)) coordinates
+   (gaussian_row_velocity_continuous, gaussian_row_remainder_continuous).
 
-   Imports. The original imported the bundles GaussianCoordinateProofs,
-   InterpolationFoundations and InterpolationProofs, and opened six of their
-   inner modules: GaussianCoordinateBasics and GaussianCoordinateTopology
-   (from GaussianCoordinateProofs), QuadraticGrowthProofs.QuadraticGrowthContinuity
-   and GaussianMatrixComponents (from InterpolationFoundations), JointContinuity
-   (from InterpolationProofs.JointProofs) and GoeSynthesis (from
-   InterpolationProofs.JointProofs.GoeProofs). The port imports these
-   standalone ported modules directly. QuadraticGrowthContinuity stays an
-   inner module of the ported QuadraticGrowthProofs, and is opened through
-   it. The other imports are those of the original.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. No item is added. The statements change form in the following
-   ways, the ways of the ported modules this one uses. None changes meaning.
-
-   1. Pointwise continuity. Coquelicot's continuous f q, continuity of f at
-      the one point q, becomes MathComp's {for q, continuous f} (difference 5
-      of analysis/README.md), in the hypotheses on the paths U, A, X, Z and
-      in the conclusions of block_inject_along_continuous,
-      row_velocity_along_continuous and row_remainder_along_continuous. The
-      paths take values in matrix n, vector n, vector (goe_vector_index n)
-      and block_array n m, whose ported norms are Coquelicot's Euclidean and
-      Frobenius norms (MatrixDefinitions, OperatorDefinitions,
-      LowerDefinitions), so their topologies are those of the original. The
-      codomain R of the two real-valued conclusions carries the topology of
-      Rstruct_topology, the topology of the absolute value, as in Coquelicot.
-
-   2. The domain. E, a Coquelicot UniformSpace in the original, is here any
-      topologicalType, as in the ported BlockAlongContinuity and
-      QuadraticGrowthProofs, whose lemmas these proofs apply. Every uniform
-      space of MathComp-Analysis is a topological space, and the statements
-      speak only of continuity at one point, so this generalizes the
-      original.
-
-   3. Naturals. With ssreflect loaded, (i <= m)%nat means ssrnat's boolean
-      leq, and + and * on nat mean ssrnat's addn and muln. The original means
-      Stdlib's Peano order le, Nat.add and Nat.mul, so
-      gaussian_row_velocity_continuous and gaussian_row_remainder_continuous
-      write (i <= m)%coq_nat and
-      (S m * (S n + S (goe_vector_index n)))%coq_nat, as the ported
-      RowDecoderRegularity does. The order is Stdlib's le, as in the
-      original. The dimension elaborates to
-      Nat.mul (S m) (addn (S n) (S (goe_vector_index n))), the term of
-      RowDecoderRegularity: Nat.mul reads its arguments in nat_scope, so the
-      inner sum is ssrnat's addn. In MathComp 2.6 addn is defined as Nat.add,
-      so the term is convertible with the original one and denotes the same
-      number. finite_joint_continuous is the definition of the ported
-      GaussianCoordinateDefinitions, whose text is the original one.
-
-   The proofs follow the original. Coquelicot's continuous_comp becomes
-   MathComp's continuous_comp, with the spaces given explicitly where the
-   domain is a concrete type. continuous_const becomes cst_continuous,
-   continuous_fst and continuous_snd on joint vectors become
-   euclidean_product_fst_continuous and euclidean_product_snd_continuous of
-   MatrixEuclideanProduct, and growth_linear_continuous is applied to the
-   ported block_inject_linear and goe_matrix_linear, which state
-   Coquelicot's is_linear as the conjunction of MathComp's linear and the
-   norm bound. The local function inject of gaussian_row_velocity and
-   gaussian_row_remainder is, token for token, block_inject of the ported
-   BlockOperatorDefinitions, so the two lemmas along paths apply to the
-   unfolded definitions by conversion, as in the original.
-
-   Assumptions. Print Assumptions lists the seven axioms of
-   analysis/README.md for block_inject_along_continuous, and the seven and
-   Classical_Prop.classic for the four other items. Their statements
-   mention lower_block_first or lower_block_third, which are built from
-   soft_max and so from Stdlib's Rpower.ln; no proof here calls classic. *)
+   Continuity at q is MathComp's {for q, continuous f}, for the Euclidean
+   and Frobenius norms of vectors, matrices and block arrays. The local
+   function inject of gaussian_row_velocity and gaussian_row_remainder is
+   block_inject unfolded, so the lemmas along paths apply to them by
+   conversion. The statements write (i <= m)%coq_nat, Stdlib's le, and the
+   dimension with %coq_nat; there the inner sum elaborates to ssrnat's
+   addn, which is convertible with Nat.add. *)
 
 Lemma block_inject_along_continuous {E : topologicalType} n m i (U : E -> matrix n) q :
   {for q, continuous U} -> {for q, continuous (fun x => block_inject n m i (U x))}.

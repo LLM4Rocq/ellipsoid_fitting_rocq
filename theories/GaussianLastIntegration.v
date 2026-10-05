@@ -1,29 +1,16 @@
-(* Port of theories/GaussianLastIntegration.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma and theorem keeps its name, its arguments in the same order,
-   and its text. The only change to the file is that the Coquelicot import is
-   dropped: no statement or proof here names a Coquelicot notion. The
-   iterated operators come from the ported GaussianProductDefinitions, the
-   marginals from GaussianLastDefinitions (unchanged text), and
-   gaussian_integral_exists from the ported GaussianDefinitions.
-
-   The meaning of the statements follows the ported definitions. In
-   gaussian_iterated_last_integrable, gaussian_integral_exists
-   (fun t => F (xs ++ [t])) now says that t |-> F (xs ++ [t]) times the
-   Gaussian kernel is Lebesgue integrable over the line, in place of the
-   convergence of an improper Riemann integral (difference 4 of
-   analysis/README.md). gaussian_iterated_integrable asks for the same
-   Lebesgue integrability at each level. The equalities of expectations are
-   definitional unfoldings and do not depend on which integral is used.
-
-   The proofs are those of the original. They use gaussian_integral_exists_ext,
-   gaussian_iterated_scale and gaussian_iterated_monotone of the ported
-   GaussianProduct, and Stdlib's functional_extensionality, whose axiom
-   functional_extensionality_dep is one of the seven of analysis/README.md.
-
-   This module imports no MathComp module, so length, ++, Rabs and the
-   operations on R are Stdlib's. *)
+(* Integrating out the last coordinates of an iterated Gaussian
+   expectation. The expectation over d + 1 coordinates is the expectation
+   over d coordinates of the last marginal
+   (gaussian_iterated_last_expectation), and the expectation over d + n
+   coordinates is the expectation over d coordinates of the suffix marginal
+   over n coordinates (gaussian_iterated_suffix_expectation). Iterated
+   integrability over d + 1 (or d + n) coordinates is equivalent to the
+   integrability of every section in the last coordinate (or in the last n
+   coordinates) together with the iterated integrability of the marginal
+   (gaussian_iterated_last_integrable, gaussian_iterated_suffix_integrable).
+   Finally, if F and G are integrable and Rabs F <= G, then the expectation
+   of G bounds the absolute value of that of F
+   (gaussian_iterated_majorant_bound). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefinitions GaussianProduct GaussianLastDefinitions.

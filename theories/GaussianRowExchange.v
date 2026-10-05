@@ -1,53 +1,12 @@
-(* Port of theories/GaussianRowExchange.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma and theorem keeps its name, its arguments in the same order,
-   and its text. The proofs are the original ones, word for word, except
-   for one qualified name described below. The changes are in the import
-   lines.
-   - "From Coquelicot Require Import Coquelicot." is dropped: no statement
-     or proof here names a Coquelicot notion.
-   - The original imported the bundles GaussianCoordinateProofs and
-     InterpolationProofs, and opened their inner modules GaussianProduct,
-     GaussianCoordinateTopology, GaussianCoordinateSuffixAlgebra,
-     GaussianPermutationWeights and GaussianLastIntegration (of the first)
-     and InterpolationProofs.JointProofs.GaussianBlockPermutation and
-     InterpolationProofs.JointProofs.GaussianBlockExchange (of the second).
-     Here the standalone ported modules of the same names are imported
-     directly, in the same order, so that every short name resolves to the
-     same module as before.
-   - The original named one lemma through the bundle, as
-     GaussianCoordinateProofs.GaussianCoordinateMarginals.finite_polynomial_bound_abs.
-     Here it is GaussianCoordinateMarginals.finite_polynomial_bound_abs, in
-     the standalone module, which is required but not imported, as the
-     original did not open that inner module either.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So (i < N)%nat is Peano's lt, N*K, N-1 and (N-1)*K are
-   Stdlib's operations on nat, and the lists (firstn, skipn, ++, length),
-   the arithmetic on R and the tactic syntax are Stdlib's, as in the
-   original. An importer that loads ssreflect reads (i < N)%nat as ssrnat's
-   boolean ltn; the statements here keep Peano's lt, which lia proves, as
-   the original RowStein does with [lia|].
-
-   The meaning of the statements follows the ported definitions they use.
-   finite_joint_continuous (GaussianCoordinateDefinitions),
-   finite_polynomial_bound (GaussianCoordinateWeightDefinitions) and
-   row_assemble (RowCoordinateDefinitions, a byte copy) have their original
-   texts. gaussian_iterated_integrable, gaussian_iterated_has_expectation
-   and gaussian_iterated_expectation (GaussianProductDefinitions), and
-   through them gaussian_list_domain (JointDefinitions), now use at each
-   level Lebesgue integrability over the line and the Lebesgue integral
-   against the Gaussian kernel, in place of Coquelicot's improper Riemann
-   integral (difference 4 of analysis/README.md). The statements keep their
-   text in that vocabulary, and none of them gains a hypothesis.
-   gaussian_list_domain_scale relates these notions to one another and holds
-   in either meaning. Under the hypotheses finite_joint_continuous and
-   finite_polynomial_bound of the two theorems, every function integrated at
-   every level is continuous and bounded by a constant times a polynomial
-   weight, so it is absolutely integrable against the kernel, where the two
-   meanings agree. This agreement is a mathematical argument and is not
-   proved in Rocq. No statement is weakened. *)
+(* Integrating out one row of a Gaussian matrix. A list of N * K
+   coordinates is read as N rows of K coordinates, and
+   row_assemble N K i background row puts row in place of row i. For F
+   continuous and polynomially bounded, the expectation of F is the
+   expectation over the background of the expectation over row i, and
+   every function integrated on the way is integrable
+   (gaussian_row_block_exchange). So if the expectations over row i of F
+   and of c * G agree for every background, the expectation of F is c
+   times that of G (gaussian_row_conditional_identity). *)
 
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import GaussianProductDefinitions GaussianCoordinateDefinitions

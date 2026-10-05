@@ -1,42 +1,19 @@
-(* Port of theories/GaussianDecay.v from Coquelicot to MathComp-Analysis.
+(* Decay of the Gaussian kernel against polynomials. From the bound
+   |x| ^ p * gaussian_kernel x <= exp (p |x| - x * x / 2), the product
+   |x| ^ p * gaussian_kernel x tends to 0 at +oo and at -oo
+   (gaussian_abs_power_decay_pos, gaussian_abs_power_decay_neg). Hence
+   f x * gaussian_kernel x tends to 0 at both infinities when
+   |f x| <= C * (1 + |x| ^ p) (gaussian_polynomial_envelope_decay_pos and
+   gaussian_polynomial_envelope_decay_neg).
 
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements use the vocabulary of the bridge and of the port of
-   GaussianKernel: Coquelicot's is_lim f p_infty l and is_lim f m_infty l,
-   for a finite l, become (f x @[x --> +oo%R] --> l)%classic and
-   (f x @[x --> -oo%R] --> l)%classic, and is_lim f p_infty m_infty and
-   is_lim f m_infty m_infty become (f x @[x --> +oo%R] --> -oo%R)%classic
-   and (f x @[x --> -oo%R] --> -oo%R)%classic. Coquelicot's neighbourhoods
-   of p_infty and m_infty are the sets that contain a half line
-   ]M, +oo[ or ]-oo, M[, and so are MathComp's +oo%R and -oo%R on R; the
-   neighbourhoods of a finite limit are the usual ones in both libraries.
-   These statements therefore say the same as the originals.
+   gaussian_polynomial_majorant_limit and gaussian_polynomial_envelope_decay
+   state the same along any filter z on R along which gaussian_kernel x and
+   |x| ^ p * gaussian_kernel x tend to 0: for example z := a^' (the
+   punctured neighbourhoods of a point a), +oo%R or -oo%R. Their filter
+   instance is an implicit argument; Stdlib's apply may leave it as a
+   subgoal, which exact _ closes.
 
-   Statements that change form.
-
-   1. gaussian_polynomial_majorant_limit and
-      gaussian_polynomial_envelope_decay. The point z : Rbar of the
-      original, a finite point or an infinity, becomes any filter z on R,
-      as in gaussian_bounded_product_limit of the port of GaussianKernel.
-      Coquelicot's is_lim f (Finite a) l is the limit along the punctured
-      neighbourhoods of a, which is z := a^' here, and is_lim f p_infty l and
-      is_lim f m_infty l are z := +oo%R and z := -oo%R. The two lemmas are
-      thus generalizations of the originals. The filter instance is an
-      implicit argument, so the arguments keep their order and a call
-      gaussian_polynomial_envelope_decay f C p (+oo%R) Hf Hk Hp has the
-      shape of the original one. The original proofs call it with
-      apply gaussian_polynomial_envelope_decay with (C := C) (p := p);
-      that tactic now leaves the instance Filter z as a first subgoal,
-      which exact _ closes, while the ssreflect form
-      apply: (gaussian_polynomial_envelope_decay f C p) resolves it.
-
-   The arithmetic in every statement is Stdlib's, as in the original.
-
-   Axioms. The original proof of gaussian_power_exp_majorant used Stdlib's
-   exp_ineq1_le, whose proof rests on Classical_Prop.classic. The port
-   proves 1 + a <= exp a with MathComp's expR_ge1Dx instead, so that no
-   lemma of this module needs more than the seven axioms of
-   analysis/README.md. *)
+   The arithmetic in every statement is Stdlib's. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz Classical_Prop.
 From EllipsoidFitting Require Import AnalysisBridge2.
@@ -129,8 +106,6 @@ Proof.
   apply/andP; split; apply/RleP; assumption.
 Qed.
 
-(* The point z : Rbar of the original becomes any filter z on R (header,
-   item 1). *)
 Lemma gaussian_polynomial_majorant_limit C p (z : set_system R)
     {Fz : Filter z} :
   (gaussian_kernel x @[x --> z] --> 0)%classic ->
@@ -154,8 +129,6 @@ Proof.
   exact: HC.
 Qed.
 
-(* The point z : Rbar of the original becomes any filter z on R (header,
-   item 1). *)
 Lemma gaussian_polynomial_envelope_decay (f : R -> R) C p (z : set_system R)
     {Fz : Filter z} :
   (forall x, Rabs (f x) <= C * (1 + Rabs x ^ p)) ->

@@ -5,23 +5,17 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsWeights MomentDefiniti
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/TensorCombinations.v from Coquelicot to MathComp-Analysis.
-
-   The original did not import Coquelicot. Its only Coquelicot content came
-   through matrix n of MatrixDefinitions, through the record trace_atom and
-   the predicates symmetric_matrix and tensor_represents of TensorDefinitions,
-   through matrix_operator_norm of OperatorDefinitions, and through the
-   lemmas of OperatorBounds, TensorBounds and TensorGibbs that it cites. The
-   ports of these modules keep the same names, arguments, fields and values,
-   so the text below is the original's, statements and proofs.
-
-   MathComp is not imported here. So map, flat_map, In and the lists are
-   Stdlib's, the tactics are Stdlib's (rewrite A, B keeps its meaning), and
-   the arithmetic, Rabs and the order are Stdlib's, as before.
-   weighted_average and finite_probability come from MomentDefinitions, and
-   the lemmas cited about them from GibbsWeights and FiniteMoments. These
-   modules never used Coquelicot and are unchanged. The meaning of every
-   statement is unchanged. *)
+(* Operations on representations of trilinear forms by trace atoms
+   (TensorDefinitions), with their costs. Joining weighted representations
+   of the T i represents the weighted average of the T i, with the
+   weighted average of the costs for probability weights
+   (tensor_weighted_join_represents, tensor_weighted_join_probability_cost).
+   Permuting the arguments of T permutes the matrices of each atom at the
+   same cost (tensor_swap23_atoms_represents,
+   tensor_rotate_atoms_represents). mixed_trace_atoms_cost_bound: for
+   probability weights q, the atoms q i trace (B1 i U) trace (B2 i V)
+   trace (B3 i W) cost at most K1 K2 K3 when the operator norms of B1 i,
+   B2 i and B3 i are at most K1, K2 and K3. *)
 
 Lemma tensor_weighted_join_value n q rows I (U V W : matrix n) :
   tensor_value (tensor_weighted_join n q rows I) U V W =

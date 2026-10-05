@@ -5,50 +5,18 @@ From EllipsoidFitting Require Import GaussianCoordinatePermutationDefinitions Ga
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/GaussianCoordinateDerivatives.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the
-   same order. Three kinds of change of text are made, and nothing else.
-
-   1. finite_coordinate_derivative_last. Coquelicot's
-        is_derive (fun u => F (xs++[u])) t (DF (xs++[t]))
-      is written
-        @is_derive R R^o R^o t 1 (fun u => F (xs++[u])%list) (DF (xs++[t])%list),
-      MathComp's derivative at the point t in the direction 1, on R with
-      its own normed module structure R^o. Both are the ordinary
-      derivative of a function R -> R, each being equivalent to Stdlib's
-      derivable_pt_lim (Coquelicot's is_derive_Reals, and is_derive_Reals
-      of AnalysisBridge), so the meaning is unchanged. This is the form of
-      the vocabulary table of build/agent2/PORT-GUIDE.md. The direction 1
-      is Stdlib's 1, as in the lemmas of AnalysisBridge; the definition
-      finite_coordinate_derivative writes MathComp's 1%R, and the two are
-      convertible, so exact and apply pass between both forms. The binders
-      xs and t are annotated with list R and R, so that the statement does
-      not mention R^o outside the derivative.
-
-   2. finite_coordinate_derivative_swap_right. The hypothesis
-      (S i < d)%nat is written (S i < d)%coq_nat. With ssreflect loaded,
-      %nat would denote ssrnat's boolean ltn; %coq_nat is Peano's lt, the
-      relation the original meant and the one the lemmas of
-      GaussianCoordinatePermutations take.
-
-   3. Concatenation. With ssreflect loaded, xs ++ [t] means MathComp's
-      cat, while the original means Stdlib's app. The statements write
-      (xs ++ [t])%list, which is app, as in the original and as in the
-      ported GaussianLastDefinitions. The ports of TensorBounds and
-      TensorResults follow the same convention. Likewise nth is written
-      List.nth, because the bare name is MathComp's seq.nth, whose
-      arguments are in another order. length and S are unchanged.
-
-   replace_coordinate_last and finite_coordinate_derivative_times_other
-   change only in these spellings.
-
-   Proofs. The Stdlib tactic scripts are kept. Coquelicot's is_derive_ext
-   and is_derive_scal are replaced by the lemmas of the same names in
-   AnalysisBridge, which have the same shapes. The comma forms of rewrite
-   and the "by" side conditions are spelled out, as ssreflect's rewrite
-   accepts neither. *)
+(* Coordinate derivatives under changes of coordinates. Here
+   finite_coordinate_derivative d i F DF says that DF is the derivative of
+   F : list R -> R in coordinate i, at every list of length d.
+   - finite_coordinate_derivative_last: for the last of S d coordinates,
+     DF (xs ++ [t]) is the derivative of u |-> F (xs ++ [u]) at t, for
+     every list xs of length d.
+   - finite_coordinate_derivative_swap_right: swapping coordinates i and
+     S i turns a derivative in coordinate i into one in coordinate S i.
+   - finite_coordinate_derivative_times_other: multiplying F by coordinate
+     j <> i multiplies its derivative in coordinate i by coordinate j.
+   The derivatives are MathComp's is_derive at t in the direction 1 on R^o,
+   the ordinary derivative of a function R -> R. *)
 
 Lemma replace_coordinate_last xs t u :
   replace_coordinate (length xs) u (xs++[t])%list = (xs++[u])%list.

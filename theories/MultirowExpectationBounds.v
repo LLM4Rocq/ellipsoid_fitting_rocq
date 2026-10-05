@@ -1,25 +1,28 @@
-(* Uniform bounds and continuity along the simultaneous N-row path, for the
-   challenge multirow_expectation_derivative.
+(* Uniform bounds and continuity along the simultaneous path of all rows.
 
    Z(t) = gaussian_row_array n m t xs is the block array of the
-   Z_i(t) = sqrt t W_i + sqrt (1-t) G_i of the N rows read from the list xs,
-   and Phi = lower_block_phi is the soft minimax on block arrays. This module
-   proves:
+   Z_i(t) = sqrt t W_i + sqrt (1-t) G_i of the m + 1 rows read from the
+   list xs, and Phi = lower_block_phi is the soft minimax on block arrays.
+   This module proves:
    - a Lipschitz bound |Phi A - Phi A'| <= K |A - A'| on block arrays, by the
      mean value theorem along a segment and the bound of the first
-     derivative (mexp_phi_lipschitz), and the continuity of Phi;
+     derivative (mexp_phi_lipschitz), and the continuity of Phi
+     (mexp_phi_continuous);
    - bounds on |Z(t)|, |Z(t) - Z(s)| and on the block velocity, by the
-     product weight of degree 2 of the coordinates;
+     product weight of degree 2 of the coordinates (mexp_row_array_bound,
+     mexp_row_array_difference, mexp_velocity_array_bound);
    - for the value Phi (Z(t)): continuity in the coordinates for every t, a
      polynomial bound uniform in t in [0,1], and a bound of the difference
-     of two times by L (|sqrt t - sqrt s| + |sqrt (1-t) - sqrt (1-s)|);
+     of two times by L (|sqrt t - sqrt s| + |sqrt (1-t) - sqrt (1-s)|)
+     (mexp_value_continuous, mexp_value_polynomial, mexp_value_difference);
    - a polynomial bound of degree 4 of the sum of the row accelerations of
-     MultirowExpectationCalculus, uniform for t in [tau, 1 - tau].
+     MultirowExpectationCalculus, uniform for t in [tau, 1 - tau]
+     (mexp_acceleration_sum_bound).
 
    The constants come from the uniform score bound
    MultirowFullSteinBounds.multirow_block_score_bound_uniform, so the
-   hypotheses are 0 < beta, 0 < gamma, Y <> [] and S <> []; no norm
-   hypothesis on y or B is used here. No Axiom, Parameter or Admitted. *)
+   hypotheses are 0 < beta, 0 < gamma, Y <> [] and S <> []; there is no
+   hypothesis on the norms of y or B. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.

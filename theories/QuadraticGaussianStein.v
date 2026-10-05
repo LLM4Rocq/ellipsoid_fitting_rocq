@@ -13,46 +13,21 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of the inner module QuadraticGaussianStein of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/QuadraticGaussianProofs.v), extracted to
-   build/agent2/unbundled/QuadraticGaussianStein.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
+(* Stein's identity in two coordinates for an entry of the quadratic
+   gradient. quadratic_gaussian_entry_stein: for beta, gamma > 0, nonempty
+   Y and S and a, b <= n, let g x be the entry (a, b) of quadratic_gradient
+   at x. Then g, the entries (a, b) of its first derivative along
+   chaos_basis n a and of its second derivative along chaos_basis n a and
+   chaos_basis n b, and (x_a * x_b - [a = b]) * g x satisfy
+   gaussian_vector_domain, and the Gaussian expectation of the second
+   derivative equals that of (x_a * x_b - [a = b]) * g x. The proof applies
+   gaussian_vector_second_stein of GaussianVectorStein, with the
+   regularity given by quadratic_gradient_entry_polynomial_regular.
 
-   The original imported the bundles QuadraticGrowthProofs and
-   GaussianVectorProofs, and named their inner modules
-   QuadraticGrowthProofs.QuadraticGrowth and
-   GaussianVectorProofs.GaussianVectorStein. The port imports
-   analysis/QuadraticGrowthProofs.v, whose inner module QuadraticGrowth
-   keeps that name, and the standalone ported module GaussianVectorStein.
-
-   The theorem keeps its name, its arguments in the same order and its
-   hypotheses. No item is added. Its statement changes form in one way,
-   which does not change its meaning.
-
-   1. Indices. With ssreflect loaded, (a <= n)%nat would mean ssrnat's
-      boolean leq. The statement writes (a <= n)%coq_nat and
-      (b <= n)%coq_nat, which are Stdlib's Peano order le, as in the
-      original and in the ported gaussian_vector_second_stein and
-      quadratic_gradient_entry_polynomial_regular.
-
-   The test Nat.eqb a b is a boolean in both libraries, so the if of the
-   original is unchanged. The meaning of gaussian_vector_domain and
-   gaussian_vector_expectation follows the ported GaussianVectorDefinitions
-   (difference 4 of analysis/README.md): Lebesgue integrability against the
-   Gaussian kernel at each level of the iterated expectation, and Lebesgue
-   integrals. The four functions of the statement are continuous and bounded
-   by a polynomial in the Euclidean norm of the vector, so they are
-   absolutely integrable against the kernel and the Lebesgue and improper
-   Riemann values agree. The statement is the text of the clause
-   "Concrete entrywise Gaussian identity" of the restated challenge
-   ellipsoid_gaussian_matrix.
-
-   The proof is the original one. The ported
-   quadratic_gradient_entry_polynomial_regular states the derivatives with
-   is_diff at the codomain R^o and the continuity with {for x, continuous _},
-   which are the forms of the hypotheses of the ported
-   gaussian_vector_second_stein. *)
+   gaussian_vector_domain and gaussian_vector_expectation ask for Lebesgue
+   integrability against the Gaussian kernel at each level of the iterated
+   expectation. With ssreflect loaded, the statement writes
+   (a <= n)%coq_nat for Stdlib's order on nat. *)
 
 Theorem quadratic_gaussian_entry_stein n beta gamma offset coeff Y S lambda C a b :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->

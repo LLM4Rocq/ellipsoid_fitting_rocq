@@ -13,35 +13,18 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module QuadraticGaussianTime of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/QuadraticGaussianProofs.v), extracted to
-   build/agent2/unbundled/QuadraticGaussianTime.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original imported the bundle GaussianVectorProofs and named its inner
-   modules GaussianVectorDomain, GaussianVectorAlgebra and
-   GaussianVectorFinite through it. The port imports these standalone
-   ported modules directly.
-
-   The three statements keep their names, their arguments in the same order,
-   their hypotheses and their text. No item is added.
-   quadratic_centered_trace_scale and quadratic_gaussian_time_coefficients
-   mention no analytic notion and mean the same as before. The meaning of
-   quadratic_gaussian_time_stein changes only through the ported definitions
-   it mentions: gaussian_vector_domain and gaussian_vector_expectation follow
-   the ported GaussianVectorDefinitions (difference 4 of analysis/README.md),
-   that is Lebesgue integrability against the Gaussian kernel at each level
-   of the iterated expectation, and Lebesgue integrals. The functions of the
-   statement are continuous and bounded by a polynomial in the Euclidean
-   norm of the vector (by the ported QuadraticGaussianMatrix), so they are
-   absolutely integrable against the kernel, and the Lebesgue and improper
-   Riemann values agree. The statement of quadratic_gaussian_time_stein is
-   the text of the clause "Paper-normalized fixed-time identity" of the
-   restated challenge ellipsoid_gaussian_matrix.
-
-   The proofs are the original ones. Stdlib's "rewrite ... by tac" is written
-   with explicit arguments, in the form that ssreflect accepts. *)
+(* The Gaussian integration by parts identity of QuadraticGaussianMatrix at
+   time t. Let x be a standard Gaussian vector of dimension d = n + 1, and
+   M x = quadratic_matrix n (sqrt (t / d)) C x = C + sqrt (t / d) (x x^T - I).
+   If 0 < beta, 0 < gamma, Y and S are nonempty, the coefficient matrices
+   are symmetric and 0 <= t, then the expectation of the trace pairing of
+   (x x^T - I) / sqrt d with the gradient of the nested Gibbs function at
+   M x is 2 sqrt t / d times that of symmetric_divergence of its derivative
+   at M x, plus t / (d sqrt d) times that of chaos_contraction of its third
+   derivative at M x, and the three functions are in the Gaussian domain
+   (quadratic_gaussian_time_stein). The proof rescales
+   quadratic_gaussian_matrix_stein, the case lambda = sqrt (t / d)
+   (quadratic_centered_trace_scale, quadratic_gaussian_time_coefficients). *)
 
 Lemma quadratic_centered_trace_scale n c (A : matrix n) (x : vector n) :
   trace_pair n (quadratic_matrix n c (matrix_zero n) x) A =

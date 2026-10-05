@@ -1,59 +1,13 @@
-(* Port of the inner module GaussianBlockExchange from Coquelicot to
-   MathComp-Analysis.
-
-   In theories/ this module exists only inside the bundles
-   InterpolationProofs and JointProofs, whose copies are identical. The copy
-   extracted to build/agent2/unbundled/GaussianBlockExchange.v is ported here
-   as a standalone module.
-
-   Every lemma and theorem keeps its name, its arguments in the same order,
-   and its text. The proofs are the original ones, word for word, except
-   for the two qualified names described below. The changes are in the
-   import lines.
-   - "From Coquelicot Require Import Coquelicot." and
-     "Import Coquelicot Compactness." are dropped: no statement or proof here
-     names a Coquelicot notion. Tn and close_n, which finite_joint_continuous
-     uses, come from the port of GaussianCoordinateDefinitions.
-   - The bundle imported GaussianCoordinateProofs and named its inner
-     modules GaussianProduct, GaussianLastIntegration,
-     GaussianCoordinateTopology, GaussianCoordinateMarginals,
-     GaussianCoordinateSuffixAlgebra, GaussianCoordinateSuffix and
-     GaussianPermutationContinuity through it. Here the standalone ported
-     modules of the same names are imported directly, in the same order, so
-     that a name defined twice (finite_joint_continuous_prefix, in
-     GaussianCoordinateTopology and in GaussianPermutationContinuity, with
-     the same statement) resolves to the same module as before.
-   - The original named two lemmas through the bundle, as
-     GaussianCoordinateProofs.GaussianCoordinateWeights.<lemma>. Here they are
-     named GaussianCoordinateWeights.<lemma>, in the standalone module, which
-     is required but not imported, as in the original.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So the notations, the arithmetic on R, the lists
-   (firstn, skipn, ++, length) and the tactic syntax are Stdlib's, as in the
-   original.
-
-   The meaning of the statements follows the ported definitions they use.
-   finite_joint_continuous (GaussianCoordinateDefinitions) and
-   finite_polynomial_bound (GaussianCoordinateWeightDefinitions) have their
-   original texts, so finite_polynomial_bound_suffix and
-   gaussian_block_rotation_append say what they said.
-   gaussian_iterated_integrable, gaussian_iterated_has_expectation and
-   gaussian_iterated_expectation (GaussianProductDefinitions), and through
-   them gaussian_list_domain (JointDefinitions), now use at each level
-   Lebesgue integrability over the line and the Lebesgue integral against
-   the Gaussian kernel, in place of Coquelicot's improper Riemann integral
-   (difference 4 of analysis/README.md). The statements of this module keep
-   their text in that vocabulary, and none of them gains a hypothesis.
-   gaussian_list_domain_of_integrable, gaussian_list_domain_ext and
-   gaussian_block_reverse_marginal only relate these notions to one another
-   and hold in either meaning. Under the hypotheses finite_joint_continuous
-   and finite_polynomial_bound of the other theorems, every function
-   integrated at every level is continuous and
-   bounded by a constant times a polynomial weight, so it is absolutely
-   integrable against the kernel, where the two meanings agree. This
-   agreement is a mathematical argument and is not proved in Rocq. No
-   statement is weakened. *)
+(* Exchange of two blocks of coordinates in the iterated Gaussian
+   expectation of GaussianProductDefinitions. For F continuous in d + e
+   coordinates (finite_joint_continuous) and polynomially bounded
+   (finite_polynomial_bound), the expectation of F can be computed by
+   integrating the last e coordinates first or the first d coordinates
+   first (gaussian_block_exchange_signed). gaussian_block_exchange adds the
+   same identities for Rabs (F zs), the integrability of every function
+   integrated on the way (gaussian_list_domain), and the continuity and
+   polynomial bounds of both partial expectations. The expectations are
+   iterated Lebesgue integrals. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import GaussianProductDefinitions GaussianCoordinateDefinitions

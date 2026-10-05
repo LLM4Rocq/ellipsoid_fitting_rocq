@@ -15,44 +15,20 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/BlockRowEvaluation.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma and theorem of the original keeps its name and its arguments,
-   in the same order. No item is added. The statements mention only the
-   definitions of the ported modules MatrixDefinitions, LowerDefinitions,
-   FullThirdDefinitions, SoftMatrixDefinitions, RowSliceDefinitions,
-   MatrixGibbsDefinitions, MatrixSecondDefinitions, MatrixThirdDefinitions,
-   BlockOperatorDefinitions and BlockC3Definitions, Stdlib's lists and the
-   order on nat. Those ports keep the names, the arguments and the meaning of
-   the definitions, so each statement says the same thing as in the
-   original. Two changes of notation are forced by loading ssreflect.
-
-   1. Order on indices. With ssreflect loaded, (i <= m)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      hypotheses are written (i <= m)%coq_nat, which is Stdlib's le, as in
-      block_entry_inject of BlockBasis and tuple_entry_build of
-      MatrixCoordinates.
-
-   2. Lists of indices. With ssreflect loaded, seq is the type of
-      MathComp's lists. The original's seq 0 (S m) is Stdlib's list
-      function, so it is written List.seq 0 (S m), as in LowerDefinitions.
-      The term is the original's.
-
-   The original took three lemmas from the bundle ComparisonProofs, through
-   its inner modules TensorGibbs, SoftMatrixCalculus and RowSlice. The port
-   imports the ported standalone modules of these names instead:
-   trace_pair_left_scale of TensorGibbs, soft_matrix_single_sum of
-   SoftMatrixCalculus, and soft_matrix_row_shared_inner and
-   soft_matrix_row_shared_scores of RowSlice.
-
-   Proofs. The sum in the proof of block_row_score is written with the match
-   that the original's if Nat.eq_dec j i then x else 0 stands for, the form
-   of soft_matrix_single_sum in the port of SoftMatrixCalculus. Coquelicot's
-   linear_zero on trace_pair_linear becomes MathComp's linear0, since the
-   port of MatrixTrace declares trace_pair n B a linear map. Stdlib's
-   "rewrite A, B" and "rewrite ... by tac" are written in the forms that
-   ssreflect accepts. *)
+(* Derivatives of the block soft minimax in the directions of one block.
+   Fix a block index i <= m. The block scores are affine in the block A_i:
+   the other blocks give the offset soft_matrix_row_offset (the scores with
+   block i replaced by 0), and block i enters through the coefficient
+   matrices soft_matrix_coefficients n y B i z s = y z i * B s
+   (block_row_score). So the derivatives of the block soft minimax at A in
+   directions block_inject n m i U, supported on block i, are the
+   derivatives of the matrix nested soft minimax at the matrix A_i, with
+   these offsets and coefficients: block_row_first for the first derivative
+   and block_row_third for the third. The lemmas block_row_inner_value,
+   block_row_inner_first, block_row_inner_covariance and
+   block_row_inner_cumulant match the inner terms first.
+   block_row_first_from_array and block_row_third_from_array state the same
+   for the block array whose blocks are rows 0, ..., rows m. *)
 
 Lemma block_rows_entry n m (rows : nat -> matrix n) j : (j <= m)%coq_nat ->
   block_entry n m (tuple_build (matrix_NormedModule n) m rows) j = rows j.

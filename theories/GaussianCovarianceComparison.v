@@ -1,21 +1,24 @@
-(* Clause 4 of the draft challenge gaussian_covariance_interpolation of the
-   MathComp-Analysis port: if the covariance difference paired with the
-   Hessian of f is nonnegative at every point of R^K, then E f(Y) <= E f(X).
-   Solver module written on 30 September 2026 by a session that did not write
-   the statement. Nothing here is reviewed or accepted.
+(* Comparison of Gaussian expectations by interpolation. Let X = P xi and
+   Y = Q eta be the Gaussian vectors of R^K of GaussianCovarianceDefinitions,
+   and let f be continuous with continuous first and second partial
+   derivatives, f and these derivatives all bounded by
+   C * prod_i (1 + |x_i|) ^ r (finite_polynomial_bound). If the pairing of
+   the covariance difference P P^T - Q Q^T with the Hessian of f is
+   nonnegative at every point of R^K, then E f(Y) <= E f(X)
+   (gaussian_covariance_comparison).
 
-   phi(t) = E f(Z(t)) is continuous within [0, 1] at 0 and at 1
-   (GaussianCovarianceEndpoints), differentiable on (0, 1) with derivative
-   (1/2) times the pairing of the expectations of the second partial
-   derivatives (GaussianCovarianceDerivative); that pairing is the expectation
-   of the pointwise pairing, which is nonnegative, so the derivative is
-   nonnegative and unit_interval_derivative_nonpositive of WeightedComparison,
-   applied to -phi, gives phi(0) <= phi(1), that is E f(Y) <= E f(X) by the
-   endpoint identities.
+   Proof. phi(t) = E f(Z(t)) along the interpolation path Z(t) is
+   continuous within [0, 1] at 0 and at 1 (GaussianCovarianceEndpoints).
+   On (0, 1) its derivative is one half of the pairing of the expectations
+   of the second partial derivatives (GaussianCovarianceDerivative). That
+   pairing is the expectation of the pointwise pairing, so it is
+   nonnegative, and unit_interval_derivative_nonpositive of
+   WeightedComparison, applied to - phi, gives phi(0) <= phi(1), that is
+   E f(Y) <= E f(X) by the endpoint identities.
 
-   This module loads MathComp through AnalysisBridge2; %coq_nat marks Stdlib's
-   arithmetic on nat and the arithmetic on R is Stdlib's, with R_scope opened
-   last. *)
+   This module loads MathComp through AnalysisBridge2; %coq_nat marks
+   Stdlib's order on nat, and the arithmetic on R is Stdlib's, with
+   R_scope opened last. *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import AnalysisBridge2.
 From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions GaussianProduct

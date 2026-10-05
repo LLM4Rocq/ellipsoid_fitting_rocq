@@ -3,6 +3,14 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 
+(* Basic facts on finite sums and on the finite Gibbs law with weights
+   exp (c * f i) / partition c f I. On a nonempty index list the partition
+   function is positive, the weights are positive and sum to 1, and
+   gibbs_average is linear, nonnegative on nonnegative functions and equal
+   to a on the constant a. gibbs_average_ratio writes the average as a ratio
+   of sums, and gibbs_covariance_centered writes the covariance as the
+   average of a product of centered functions. *)
+
 Lemma gibbs_sum_ext (f g : nat -> R) (I : list nat) :
   (forall i, In i I -> f i = g i) -> finite_sum f I = finite_sum g I.
 Proof.

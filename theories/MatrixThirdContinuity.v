@@ -14,68 +14,23 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixThirdContinuity.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. No lemma is added. The statements change form in four ways, the
-   same ways as in the ports of FiniteGibbsContinuity, MatrixCoordinates,
-   MatrixGradient, MatrixThird and MatrixHessian, which this module imports.
-
-   1. Pointwise continuity. Coquelicot's continuous f A is continuity of f at
-      the one point A. It becomes MathComp's {for A, continuous f}
-      (difference 5 of analysis/README.md). MathComp's continuous f alone
-      would mean continuity at every point, which is not what the original
-      says.
-
-   2. Spaces. The domain E, a Coquelicot UniformSpace in the original, is
-      here any topologicalType, as in the port of FiniteGibbsContinuity.
-      Every uniform space of MathComp-Analysis is a topological space and the
-      statements only speak of continuity at one point, so this generalizes
-      the original. In pair_continuous, U and V are topological types too,
-      and the pair lives in MathComp's product U * V, whose topology is the
-      product topology, as for Coquelicot's product of uniform spaces.
-      Coquelicot's NormedModule R_AbsRing becomes normedModType R. The
-      spaces matrix n, hessian_array n and third_array n are those of the
-      ports of MatrixDefinitions, HessianDefinitions and
-      ContinuityDefinitions. They nest euclidean_product of
-      MatrixEuclideanProduct and keep Coquelicot's Euclidean product norm, so
-      their topology is the product topology, as in the original
-      (euclidean_product_nbhsE). The codomain R carries the topology of
-      Rstruct_topology, the topology of the absolute value, which is also the
-      topology that Coquelicot puts on R.
-
-   3. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (i <= n)%coq_nat, which is ssrnat's notation for
-      Stdlib's le. The meaning is unchanged.
-
-   4. Frechet derivatives. In the conclusion of
-      matrix_soft_minimax_continuous_third_coefficients, Coquelicot's
-      filterdiff f (locally A) l becomes is_diff A f l of MathComp-Analysis,
-      as in the port of MatrixHessian: f is differentiable at A and its
-      differential 'd f A is l. The one real-valued map there is typed into
-      R^o, the normed module view of R. R^o is R by definition, so the map is
-      the same.
-
-   The arithmetic in the statements is Stdlib's, as in the original, and so
-   is exp inside the Gibbs weights. This file does not import MathComp's exp
-   module; no ln occurs.
-
-   In the proofs, Coquelicot's continuous_comp_2 with continuous_id, in
-   pair_continuous, becomes MathComp's cvg_pair. A tuple is a
-   euclidean_product and not MathComp's product U * V, so
-   tuple_build_continuous uses euclidean_product_pair_continuous of
-   MatrixEuclideanProduct where the original used pair_continuous; the two
-   products have the same neighbourhoods. filterdiff_continuous becomes
-   differentiable_continuous applied to the differentiability in is_diff,
-   and continuous_const becomes cst_continuous.
-
-   Using these lemmas. When E is a variable of type topologicalType, plain
-   apply works, as in this file. When E is a concrete type, such as
-   matrix n or R^o, plain apply fails to find the topology of E by
-   unification, as for the lemmas of FiniteGibbsContinuity. Use ssreflect's
-   apply:, as in apply: matrix_build_continuous, or give E explicitly. *)
+(* Continuity in the matrix of the third derivative
+   matrix_nested_third_derivative and of the arrays built from it. Every
+   statement is continuity at one point A, {for A, continuous f}.
+   - tuple_build_continuous, matrix_build_continuous,
+     hessian_build_continuous and third_build_continuous: a tuple, a matrix
+     or an array whose entries are maps from a topological space continuous
+     at A is continuous at A.
+   - matrix_nested_third_continuous: matrix_nested_third_derivative is
+     continuous in the matrix. So are the arrays built from it,
+     matrix_nested_gradient_second_derivative,
+     matrix_nested_hessian_derivative and matrix_nested_third_coefficients
+     (matrix_gradient_second_continuous,
+     matrix_hessian_derivative_continuous and
+     matrix_third_coefficients_continuous).
+   When E is a concrete type, such as matrix n or R^o, plain apply does not
+   find the topology of E by unification: use ssreflect's apply:, as in
+   apply: matrix_build_continuous, or give E explicitly. *)
 
 Theorem tuple_build_continuous {E : topologicalType} (V : normedModType R)
     n (F : nat -> E -> V) (A : E) :

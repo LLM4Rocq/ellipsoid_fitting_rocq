@@ -4,17 +4,18 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions ThirdDefin
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/TensorGibbsDefinitions.v from Coquelicot to
-   MathComp-Analysis. The original used nothing from Coquelicot directly: its
-   only Coquelicot content came through matrix_zero, matrix_add,
-   matrix_scale and trace_pair of MatrixDefinitions, and through the record
-   trace_atom of TensorDefinitions. Their ports keep the same names,
-   arguments and fields; matrix_zero, matrix_add and matrix_scale are now
-   MathComp's 0, + and *: on the nested tuples, which are componentwise as
-   Coquelicot's zero, plus and scal were. So the import of Coquelicot is
-   dropped and nothing else changes. MathComp is not imported here, so map
-   is Stdlib's List.map, the lists are Stdlib's, and the arithmetic,
-   including the scalar -1 and the product a * _, is Stdlib's, as before. *)
+(* Weighted means of matrices, the third cumulant of trace scores, and
+   lists of trace atoms.
+   - matrix_weighted_sum n q B I is sum_{i in I} q i B i, and
+     matrix_gibbs_mean is this sum with the Gibbs weights.
+   - matrix_centered n q B I i is B i minus the weighted sum.
+   - weighted_matrix_cumulant n q B I U V W is the third cumulant, under the
+     weights q, of the scores tr (B i U), tr (B i V), tr (B i W).
+   - diagonal_trace_atoms n q B I has, for each index i, the atom with
+     coefficient q i and the three matrices B i, whose value at U, V, W is
+     q i tr (B i U) tr (B i V) tr (B i W). centered_trace_atoms does the
+     same with the centered matrices, and tensor_scale_atoms multiplies the
+     coefficients of a list of atoms by a. *)
 
 Fixpoint matrix_weighted_sum (n : nat) (q : nat -> R) (B : nat -> matrix n)
     (I : list nat) : matrix n :=

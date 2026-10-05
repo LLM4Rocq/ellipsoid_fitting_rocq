@@ -3,6 +3,17 @@ From EllipsoidFitting Require Import SoftDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 
+(* Soft maxima and minima compared with true maxima and minima over a
+   nonempty finite family. soft_max_bounds: for gamma > 0,
+     max f <= soft_max gamma f <= max f + ln |I| / gamma,
+   where |I| is the length of the index list I. soft_min_bounds gives the
+   mirror bounds for the soft minimum, and soft_minimax_bounds combines
+   them:
+     minimax H - ln |Y| / beta <= soft_minimax beta gamma H
+       <= minimax H + ln |S| / gamma.
+   The first lemmas are basic facts on finite sums, finite maxima and
+   minima (attained at an index), and monotonicity of exp and ln. *)
+
 Lemma finite_sum_nonnegative (f : nat -> R) I :
   (forall i, In i I -> 0 <= f i) -> 0 <= finite_sum f I.
 Proof.

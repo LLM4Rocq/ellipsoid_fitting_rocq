@@ -3,27 +3,23 @@ From EllipsoidFitting Require Import SoftDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Helper for the challenge multirow_integrated_bound: the real arithmetic of
-   the integrated estimate, separated from the analysis. Written by the
-   solving session on 30 September 2026; it depends on Stdlib and on
-   SoftDefinitions only, and proves nothing about expectations.
-
-   The constants of the statement: with d = INR (S n), M3 = 10 k^3
-   (beta+gamma)^2 theta / sqrt d, radius the expected maximum squared radius
-   and radius_bound = d + 2 sqrt (d ln N) + 2 ln N,
-   - the derivative bound: the derivative of the interpolation is
-     sqrt t / (2 d sqrt d) times the sum of the row remainder expectations,
-     and that sum is at most 4 M3 radius in absolute value, which gives
-     (2 sqrt t / (d sqrt d)) radius M3;
-   - the scalar integration lemma of WeightedComparison gives 2 K / 3 from
-     the bound K sqrt t, with K = 2 radius M3 / (d sqrt d);
-   - the explicit constant: (4 radius / (3 d sqrt d)) M3 is
+(* The real arithmetic of the integrated bound of the multirow
+   interpolation (MultirowIntegratedBoundResults), apart from the analysis.
+   Let d = INR (S n), M3 = 10 k^3 (beta+gamma)^2 theta / sqrt d, radius the
+   expected maximum squared radius and
+   radius_bound = d + 2 sqrt (d ln N) + 2 ln N.
+   - multirow_integrated_derivative_bound and
+     multirow_integrated_derivative_bound_K: the derivative of the
+     interpolation is sqrt t / (2 d sqrt d) times a sum s of row remainder
+     expectations with |s| <= 4 M3 radius, so it is at most
+     (2 sqrt t / (d sqrt d)) radius M3 = K sqrt t in absolute value, with
+     K = 2 radius M3 / (d sqrt d).
+   - multirow_integrated_two_thirds: the integration lemma of
+     WeightedComparison turns the bound K sqrt t into 2 K / 3, which is
+     (4 radius / (3 d sqrt d)) M3.
+   - multirow_integrated_explicit_constant: this is
      (40/3) k^3 (beta+gamma)^2 theta radius / d^2, at most the same with
-     radius_bound in place of radius.
-   Also the two forms of the unit-vector hypothesis: the statement of the
-   integrated bound writes euclidean_norm (y z) I = 1, the expectation
-   derivative challenge writes finite_sum (fun i => y z i * y z i) I = 1;
-   they are equivalent since euclidean_norm is the square root of that sum. *)
+     radius_bound in place of radius. *)
 
 (* |c * s| <= (2 sqrt t / (d sqrt d)) * radius * M3 when c = sqrt t / (2 d sqrt d)
    and |s| <= 4 * M3 * radius, for d > 0, radius >= 0, M3 >= 0, t >= 0. *)

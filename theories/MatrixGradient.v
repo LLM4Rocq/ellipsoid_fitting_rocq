@@ -13,34 +13,24 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixGradient.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in three ways, the same ways as in the
-   ports of MatrixCoordinates, MatrixGibbs and MatrixSecond, which this
-   module imports.
-
-   1. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (i <= n)%coq_nat, which is ssrnat's notation for
-      Stdlib's le. The meaning is unchanged.
-
-   2. Frechet derivatives. Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis: f is differentiable at A and its
-      differential 'd f A is l. Both say that l is linear and continuous and
-      that f (A + H) = f A + l H + o(H) as H tends to 0, for the Frobenius
-      norm that matrix n carries in MatrixDefinitions, as in Coquelicot.
-
-   3. Real-valued maps. A map into R given to is_diff is written with
-      codomain R^o, the normed module view of R, as in
-      (fun M => soft_minimax ... : matrix n -> R^o). R^o is R by definition,
-      so the map is the same.
-
-   The literals 0 and 1, the products and sums, Nat.eqb and the test && are
-   Stdlib's, as in the original. The definitions used here, matrix_basis,
-   matrix_inner_gradient, matrix_nested_gradient and
-   matrix_nested_gradient_derivative of GradientDefinitions, are unchanged.
-   No lemma is added. *)
+(* The gradient matrix of the nested soft minimax of matrices
+   (GradientDefinitions) and its derivative.
+   - trace_pair_basis: trace_pair n B (matrix_basis n j i) is the entry
+     (i, j) of B, where matrix_basis n i j is the matrix unit
+     (matrix_basis_entry).
+   - matrix_inner_gradient_trace and matrix_nested_gradient_trace: the
+     trace pairing of the inner or nested gradient with U is the directional
+     derivative in the direction U (matrix_inner_derivative,
+     matrix_nested_derivative). Hence the entry (i, j) of the nested
+     gradient is the derivative in the direction matrix_basis n j i
+     (matrix_nested_gradient_entry).
+   - matrix_nested_gradient_frechet: for beta, gamma > 0 and nonempty Y
+     and S, the nested gradient is differentiable at every A, with
+     differential matrix_nested_gradient_derivative.
+   Differentiability is MathComp's is_diff, for the Frobenius norm that
+   matrix n carries in MatrixDefinitions. With ssreflect loaded, the
+   statements write (i <= n)%coq_nat for Stdlib's order on nat; the
+   literals, the arithmetic and Nat.eqb are Stdlib's. *)
 
 Lemma gradient_coordinate_sum_zero n : coordinate_sum n (fun _ => 0) = 0.
 Proof. induction n; simpl; lra. Qed.
@@ -86,11 +76,9 @@ Proof.
     + exact (gradient_coordinate_sum_select n i (fun r => matrix_entry n B r j) Hi).
 Qed.
 
-(* The original uses the fields linear_zero, linear_plus and linear_scal of
-   Coquelicot's is_linear for the map B |-> trace_pair n B U. Here the
-   algebraic part of trace_pair_left_linear of MatrixTrace is packed as a
-   {linear _ -> _} of MathComp inside the proof, and linear0, linearD and
-   linearZ play the same roles. *)
+(* The map B |-> trace_pair n B U is linear: the proof packs the algebraic
+   part of trace_pair_left_linear of MatrixTrace as a {linear _ -> _} of
+   MathComp, and uses linear0, linearD and linearZ. *)
 Lemma gradient_weighted_sum_trace n q B I (U : matrix n) :
   trace_pair n (matrix_weighted_sum n q B I) U =
   finite_sum (fun i => q i * trace_pair n (B i) U) I.
@@ -146,8 +134,8 @@ Theorem matrix_nested_gradient_frechet n beta gamma offset coeff Y S :
     (matrix_nested_gradient_derivative n beta gamma offset coeff Y S A).
 Proof.
   intros Hb Hg HY HS A; unfold matrix_nested_gradient_derivative.
-  (* The gradient is rebuilt from its entries, as filterdiff_ext with
-     matrix_rebuild and matrix_nested_gradient_entry did in the original. *)
+  (* The gradient is rebuilt from its entries
+     (matrix_nested_gradient_entry). *)
   have E : matrix_nested_gradient n beta gamma offset coeff Y S =
     (fun M => matrix_build n (fun i j =>
       matrix_nested_derivative n beta gamma offset coeff Y S M

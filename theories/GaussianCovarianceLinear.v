@@ -1,8 +1,4 @@
-(* Linear forms and linear images of the coordinates, for the draft challenge
-   gaussian_covariance_interpolation of the MathComp-Analysis port. Solver
-   module written on 30 September 2026 by a session that did not write the
-   statement. Nothing here is reviewed or accepted.
-
+(* Linear forms and linear images of the coordinates.
    linear_form d c zs = sum_{k<d} c k * zs_k and linear_image d K c zs is the
    list of the K linear forms with coefficient rows c a. The module proves,
    with explicit constants: continuity of a linear form and of a composite
@@ -11,9 +7,9 @@
    the polynomial bound of a composite of a polynomially bounded g, with the
    constant C * (1 + M d)^(r K) and degree r K; the coordinate derivatives of
    a linear form and of a composite; and the derivative in a parameter of a
-   composite along coefficients differentiable in that parameter. The
-   composites are the path sqrt t X + sqrt (1 - t) Y of the statement and its
-   endpoints, in the coefficient reading of GaussianCovariancePath.
+   composite along coefficients differentiable in that parameter.
+   GaussianCovariancePath applies them to the interpolation path
+   sqrt t X + sqrt (1 - t) Y and its endpoints, written as linear images.
 
    This module loads MathComp through AnalysisBridge2, so List.nth, List.map,
    List.seq and %coq_nat are written explicitly; the arithmetic on R is

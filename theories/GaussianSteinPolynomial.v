@@ -1,65 +1,14 @@
-(* Port of theories/GaussianSteinPolynomial.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements use the vocabulary of AnalysisIntegralDefinitions
-   and of the bridge, as in the ports of GaussianKernel and GaussianStein:
-   Coquelicot's is_derive f x l becomes @is_derive R R^o R^o x 1 f l,
-   continuous f x becomes {for x, continuous f}, and
-   is_RInt_gen f (Rbar_locally m_infty) (Rbar_locally p_infty) l becomes
-   whole_line_has_integral f l, which is Lebesgue integrability on the line
-   with integral l (difference 4 of analysis/README.md). The arithmetic in
-   every statement is Stdlib's, as in the original.
-
-   gaussian_abs_linear_polynomial_bound, gaussian_polynomial_times_identity
-   and gaussian_polynomial_constant_nonnegative are statements about real
-   numbers only. They keep their text and their proofs.
-
-   Statements that change form.
-
-   1. gaussian_stein_polynomial has one more hypothesis, the last one:
-      whole_line_integrable (fun t => df t * gaussian_kernel t), which is
-      gaussian_integral_exists df. Without an added hypothesis the
-      statement is false for the Lebesgue integral, as the header of
-      GaussianDefinitions says: f x = sin (exp (x * x)) is bounded, so it
-      satisfies the polynomial bound with C = 1 and p = 0, and it has a
-      continuous derivative df, but gaussian_stein_integrand f df is not
-      absolutely integrable. The improper Riemann integral of the original
-      exists in that case; the Lebesgue integral does not. The header of
-      GaussianDefinitions asks for the integrability of the integrand
-      gaussian_stein_integrand f df. Under the other hypotheses the two are
-      equivalent, because x * f x * gaussian_kernel x is then integrable.
-      From the added hypothesis this is gaussian_stein_moment_integrable of
-      GaussianStein; from the integrability of the integrand it follows
-      from the polynomial bound on the continuous function f, a fact that
-      this module does not prove. The integrability of
-      df t * gaussian_kernel t is the form that the challenge statements
-      provide, since they bound df by a polynomial. This is the same choice
-      as for gaussian_stein_improper in the port of GaussianKernel.
-
-   2. gaussian_stein_second_polynomial has one more hypothesis, the last
-      one: whole_line_integrable (fun x => ddf x * gaussian_kernel x), which
-      is gaussian_integral_exists ddf. The example of the header of
-      GaussianStein shows that some added hypothesis is needed: take
-      df x = sin (exp (x * x)) and f its primitive from 0, which is bounded;
-      f and df satisfy the polynomial bounds, but ddf x * gaussian_kernel x
-      is not absolutely integrable. Under the other hypotheses the added
-      one implies the integrability of the integrand of the conclusion
-      (gaussian_stein_second_integrand_integrable of GaussianStein). The
-      converse holds too, since (x*x - 1) * f x * gaussian_kernel x is
-      integrable when f is continuous and bounded by a polynomial, but this
-      module does not prove it.
-
-   gaussian_stein_polynomial_split and gaussian_stein_second_polynomial_split
-   need no new hypothesis: their hypothesis gives the integrability of the
-   term with the highest derivative. They say the same thing as before, in
-   the new vocabulary, and their proofs apply gaussian_stein_split_decay and
-   gaussian_stein_second_split_decay of the port of GaussianStein, as
-   before.
-
-   The original imported Classical_Prop but did not use it. This port does
-   not import it, so the assumptions of the module are the seven axioms of
-   analysis/README.md. *)
+(* Gaussian integration by parts for functions of polynomial growth, with
+   the kernel gaussian_kernel x = exp (- x ^ 2 / 2), not normalized.
+   gaussian_stein_polynomial_split: if f has a continuous derivative df,
+   |f x| <= C * (1 + |x| ^ p), and df * gaussian_kernel has integral l on
+   the line, then x |-> x * f x * gaussian_kernel x has integral l too.
+   gaussian_stein_second_polynomial_split: if f and its derivative df have
+   polynomial growth, df has a continuous derivative ddf, and
+   ddf * gaussian_kernel has integral l, then
+   x |-> (x * x - 1) * f x * gaussian_kernel x has integral l. Integrals
+   over the line are Lebesgue integrals, so the hypotheses include the
+   absolute integrability of the term with the highest derivative. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

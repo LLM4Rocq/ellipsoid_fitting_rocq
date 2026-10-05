@@ -1,35 +1,29 @@
-(* The four clauses of the challenge multirow_expectation_derivative, one
-   lemma each, with the notation and imports of its Challenge.v first, so
-   that the results module can conclude with exact.
-
-   D = S m (S n + S (goe_vector_index n)) coordinates, f t is the iterated
-   Gaussian expectation of Phi(Z(t)) = gaussian_array_value ... t.
-
-   - mexp_clause_domain (clause 1): for t in [0,1], Phi(Z(t)) is continuous
-     and bounded by a polynomial weight (MultirowExpectationBounds), so it
-     has a Gaussian domain (gaussian_list_domain_polynomial).
-   - mexp_clause_derivative (clause 2): finite_gaussian_parameter_differentiation
-     with F t = Phi(Z(t)), D t = the sum of the row velocities (derivative in
-     t from MultirowTimeCalculusResults) and D2 t = the sum of the row
-     accelerations (derivative from MultirowExpectationCalculus, with the
-     mixed-row terms through Z(t)), on the interval |t - a| <= rho,
-     rho = min(a, 1-a)/2, where all bounds are uniform. The domains of the
-     remainders and the Stein identity come from MultirowFullSteinResults.
-   - mexp_value_expectation_continuous (clause 3):
+(* The expectation f t of Phi(Z(t)) = gaussian_array_value ... t xs along
+   the multirow interpolation. The list xs holds
+   D = S m * (S n + S (goe_vector_index n)) Gaussian coordinates, read as
+   S m rows, each a vector of S n coordinates followed by the coordinates
+   of a GOE matrix.
+   - mexp_clause_domain: for t in [0,1], Phi(Z(t)) is continuous and has a
+     polynomial bound (MultirowExpectationBounds), so it has a Gaussian
+     domain (gaussian_list_domain_polynomial).
+   - mexp_clause_derivative: for 0 < a < 1, f is differentiable at a with
+     derivative the expectation of the sum of the row velocities, which the
+     Stein identity of MultirowFullSteinResults rewrites as
+     sqrt a / (2 d sqrt d), d = S n, times the sum of the expectations of
+     the row remainders. The proof applies
+     finite_gaussian_parameter_differentiation on |t - a| <= rho, with
+     rho = min(a, 1-a)/2, where all bounds are uniform; the second
+     derivative in t is the sum of the row accelerations.
+   - mexp_value_expectation_continuous: f is continuous within [0, 1], by
      gaussian_iterated_expectation_continuous_modulus_within with the
      modulus L (|sqrt t - sqrt a| + |sqrt (1-t) - sqrt (1-a)|).
-   - mexp_clause_endpoints (clause 4): Z(0) keeps only the GOE blocks and
-     Z(1) only the quadratic blocks. So Phi(Z(0)) is the GOE value of the
-     row suffixes and Phi(Z(1)) the quadratic value of the row prefixes,
-     whose expectations are those over the fewer coordinates
-     (mexp_row_suffixes_gaussian_expectation,
-     row_prefixes_gaussian_expectation). Continuity and bounds of the
-     endpoint functions come from those of Phi(Z(0)) and Phi(Z(1)) through
-     the zero-padding lifts. The limits are clause 3 at 0 and at 1.
-
-   The hypotheses used are 0 < beta, 0 < gamma, Y <> [], S <> [], the
-   symmetry of the B s (for the Stein identity only) and the range of the
-   time. No Axiom, Parameter or Admitted. *)
+   - mexp_clause_endpoints: Z(0) keeps only the GOE blocks and Z(1) only the
+     quadratic blocks. So f 0 and f 1 are the expectations of the GOE value
+     of the row suffixes and of the quadratic value of the row prefixes,
+     over fewer coordinates, and f tends to them at 0 and at 1.
+   The hypotheses are 0 < beta, 0 < gamma, Y <> [], S <> [], the range of
+   t, and the symmetry of the matrices B s, used for the Stein identity
+   only. *)
 
 From Stdlib Require Import Reals List.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum classical_sets.
@@ -143,7 +137,7 @@ Lemma mexp_bound_ext d C p (F G : list R -> R) :
   finite_polynomial_bound d C p F -> finite_polynomial_bound d C p G.
 Proof. move=> E [HC HF]; split => // xs HL; rewrite -E //; exact: HF. Qed.
 
-(* Clause 1. *)
+(* The domain of Phi(Z(t)). *)
 
 Theorem mexp_clause_domain n m beta gamma y B Y S t :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 <= t <= 1 ->
@@ -157,7 +151,7 @@ Proof.
     (mexp_value_continuous n m beta gamma y B Y S t Hb Hg HY HS) (HP t Ht)).
 Qed.
 
-(* Clause 3. *)
+(* Continuity of the expectation within [0, 1]. *)
 
 Theorem mexp_value_expectation_continuous n m beta gamma y B Y S a :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 <= a <= 1 ->
@@ -189,7 +183,7 @@ Proof.
     + move=> xs Hxs; exact: (HD a b xs (proj1 Ha) (proj1 Hb') Hxs).
 Qed.
 
-(* Clause 2. *)
+(* The derivative of the expectation. *)
 
 Theorem mexp_clause_derivative n m beta gamma y B Y S a :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
@@ -312,7 +306,7 @@ Proof.
   rewrite -Hcancel; exact: HE'.
 Qed.
 
-(* Clause 4. *)
+(* The endpoints. *)
 
 Theorem mexp_clause_endpoints n m beta gamma y B Y S :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->

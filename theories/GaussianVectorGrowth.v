@@ -9,35 +9,26 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module GaussianVectorGrowth of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/GaussianVectorProofs.v) from Coquelicot to MathComp-Analysis.
+(* Polynomial growth of functions of a vector, read on the list of its
+   coordinates. The Euclidean norm of x : vector n is at most the sum of
+   the absolute values of its S n coordinates (vector_norm_le_coordinate_l1,
+   vector_of_list_norm_l1), so 1 + |x| is at most the product weight
+   gaussian_coordinate_product_weight 1 of its coordinates
+   (vector_norm_product_weight, vector_of_list_norm_product_weight). Hence,
+   if |f x| <= C * (1 + |x|) ^ p, then f read on lists through
+   vector_of_list satisfies finite_polynomial_bound (S n) C p
+   (vector_polynomial_bound_pullback).
 
-   Every lemma keeps its name and its arguments, in the same order. The
-   statements change form in four ways, none of which changes their meaning.
-
-   1. Norms. Coquelicot's norm x becomes MathComp's (`|x|)%R. The vectors of
-      OperatorDefinitions nest euclidean_product of MatrixEuclideanProduct, so
-      the norm of a vector is still the Euclidean norm, as in Coquelicot, and
-      the bounds below keep their constants.
-
-   2. Pairs. Coquelicot's norm (x, y) on U * V is the norm of
-      prod_NormedModule, sqrt (norm x ^ 2 + norm y ^ 2). MathComp puts the max
-      norm on U * V, so vector_growth_pair_bound names the type of the pair,
-      (x, y) : euclidean_product U V, whose norm is Coquelicot's formula.
-
-   3. Differences. Coquelicot's minus x y becomes (x - y)%R of MathComp, which
-      is also x plus the opposite of y, componentwise on the nested pairs.
-
-   4. Indices and lists. With ssreflect loaded, (i <= n)%nat would mean
-      ssrnat's boolean leq, and map, seq and nth would mean MathComp's
-      functions on seq. The statements write (i <= n)%coq_nat, which is
-      Stdlib's le as in the original, and List.map, List.seq and List.nth,
-      which are the functions the original used. *)
+   The vectors of OperatorDefinitions nest euclidean_product of
+   MatrixEuclideanProduct, so their norm (`|x|)%R is the Euclidean norm.
+   vector_growth_pair_bound bounds by |x| + |y| the norm
+   sqrt (|x| ^ 2 + |y| ^ 2) of a pair of type euclidean_product U V; a pair
+   without this type would get MathComp's max norm. With ssreflect loaded,
+   the statements write List.map and List.seq for Stdlib's functions on
+   lists. *)
 
 (* On a vector of dimension 0, which is R^o, the norm is the absolute
-   value. Added by the port: Coquelicot's norm on R is Rabs by definition,
-   MathComp's is Num.norm, equal to Rabs by Rstruct's RabsE. *)
+   value (RabsE of Rstruct). *)
 Lemma vector_growth_norm_R (a : R^o) : (`|a|)%R = Rabs a.
 Proof. by rewrite RabsE. Qed.
 

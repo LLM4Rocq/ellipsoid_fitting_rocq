@@ -11,37 +11,14 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/LowerNormBounds.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in three ways, and keep their meaning.
-
-   1. Norms. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. The norms
-      are those of MatrixDefinitions and LowerDefinitions: the Euclidean norm
-      on tuples and vectors, the Frobenius norm on matrices, the square root
-      of the sum of the squared Frobenius norms of the blocks on block
-      arrays, and the absolute value on R^o, as in Coquelicot. The port of
-      MatrixDefinitions nests euclidean_product of MatrixEuclideanProduct,
-      which keeps Coquelicot's product norm
-      sqrt (norm x.1 ^ 2 + norm x.2 ^ 2) instead of MathComp's max norm, so
-      the constant sqrt (INR (S n)) of the bounds is stated against the same
-      norm as in the original. Comparisons, products, powers and square roots
-      around these norms are Stdlib's, as before.
-
-   2. NormedModule R_AbsRing becomes normedModType R, and R_NormedModule
-      becomes R^o, in lower_tuple_entry_norm_bound and in its use for
-      vector entries.
-
-   3. Lists. With ssreflect loaded, the bare name seq means MathComp's type
-      of sequences. The original's seq a k is Stdlib's list [a; ...; a+k-1]
-      and is written List.seq here, as in the port of LowerDefinitions.
-
-   The proof of lower_tuple_entry_norm_bound changes: Coquelicot's norm_prod
-   bounded the larger component norm of a pair by its norm. Here
-   euclidean_product_norm_fst and euclidean_product_norm_snd of
-   MatrixEuclideanProduct give the same two bounds for the Euclidean product
-   norm. The other proofs keep their steps, with Stdlib's "rewrite A, B" and
-   "rewrite ... by tac" written in the forms that ssreflect accepts. *)
+(* Norm bounds for the scores of the soft minimax of block arrays
+   (LowerDefinitions). Rabs (trace_pair n B U) is at most
+   sqrt (INR (S n)) * matrix_operator_norm n B * `|U|, with the Frobenius
+   norm of U (trace_pair_operator_frobenius_bound). With the Cauchy-Schwarz
+   inequality for a unit vector y (lower_block_unit_cauchy), this bounds
+   the score lower_block_scores n m y B z s U by
+   sqrt (INR (S n)) * k * `|U| when every B t has operator norm at most k
+   (lower_block_score_bound). *)
 
 Lemma lower_tuple_entry_norm_bound (V : normedModType R) n i (x : tuple_NormedModule V n) :
   (`|tuple_entry V n i x|)%R <= (`|x|)%R.

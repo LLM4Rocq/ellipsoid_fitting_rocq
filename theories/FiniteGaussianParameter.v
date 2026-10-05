@@ -1,56 +1,20 @@
-(* Port of the inner module FiniteGaussianParameter of
-   theories/InterpolationProofs.v, extracted to
-   build/agent2/unbundled/FiniteGaussianParameter.v, from Coquelicot to
-   MathComp-Analysis.
-
-   The three results keep their names, their arguments in the same order and
-   their hypotheses. The arithmetic in every statement is Stdlib's, as in the
-   original.
-
-   Statements that change form, without a change of meaning.
-
-   1. Coquelicot's is_derive f x l, for f : R -> R, becomes
-      @is_derive R R^o R^o x 1 f l of MathComp-Analysis. This concerns the
-      two derivative hypotheses of finite_gaussian_parameter_remainder and
-      finite_gaussian_parameter_differentiation, and the last conjunct of
-      the conclusion of finite_gaussian_parameter_differentiation. Both
-      forms say that (f (x + h) - f x) / h tends to l when h tends to 0
-      (is_derive_Reals of AnalysisBridge proves the equivalence of the new
-      form with Stdlib's derivable_pt_lim). The text of
-      finite_gaussian_parameter_differentiation is that of clause 3.1 of
-      analysis/challenges/ellipsoid_interpolation_time/Challenge.v.
-
-   2. The power gaussian_coordinate_weight_moment p^d of
-      finite_gaussian_parameter_remainder is written with spaces,
-      gaussian_coordinate_weight_moment p ^ d: under MathComp, ^d is a
-      token (the dual order notation), so p^d does not parse as a power.
-      The term is Stdlib's pow, as before.
-
-   gaussian_iterated_linear_remainder keeps its text.
-
-   The Gaussian notions come from the ported GaussianDefinitions,
-   GaussianProductDefinitions, GaussianCoordinateWeightDefinitions and
-   JointDefinitions, whose texts are the original ones:
-   gaussian_iterated_integrable and gaussian_list_domain ask at each level
-   of the iteration for Borel measurability and Lebesgue integrability over
-   the line against the kernel, in place of the convergence of an improper
-   Riemann integral (difference 4 of analysis/README.md). Under the
-   hypotheses of the two theorems every function whose domain or
-   expectation is asserted is continuous and bounded by a polynomial, and
-   for such functions both readings hold and the values agree.
-
-   Imports. The bundle imported GaussianCoordinateProofs and JointProofs and
-   named their inner modules GaussianProduct, GaussianCoordinateMarginals,
-   GaussianCoordinatePolynomialContinuity and GaussianBlockExchange through
-   them. This port imports the standalone ported modules of the same names,
-   in the same order, and AnalysisBridge2 for the MathComp notations and
-   is_derive. The Coquelicot import is dropped.
-
-   Proofs. They are the original ones, except that Stdlib's
-   "rewrite A, B by tac", which does not parse once ssreflect is loaded,
-   is replaced by rewrites with explicit arguments, and the proof of a = a
-   is written erefl a, since ssreflect's eq_refl is a lemma about boolean
-   equality. *)
+(* Differentiation of an iterated Gaussian expectation E with respect to a
+   parameter. Let F t xs depend on a real t with |t - a| <= rho and on d
+   coordinates xs, with derivative D t xs in t, and let D2 t xs be the
+   derivative of D in t. Assume that F t and D a are jointly continuous and
+   polynomially bounded in xs, and that D2 t has a polynomial bound with
+   constants C and p uniform in t.
+   - finite_gaussian_parameter_remainder: for |b - a| <= rho, the functions
+     involved satisfy gaussian_list_domain, and the Taylor remainder
+     E [F b] - E [F a] - (b - a) * E [D a] is at most
+     C * gaussian_coordinate_weight_moment p ^ d * |b - a| ^ 2 in absolute
+     value.
+   - finite_gaussian_parameter_differentiation: t |-> E [F t] has
+     derivative E [D a] at a.
+   gaussian_iterated_linear_remainder is the linearity of E used for the
+   remainder. Each level of E is a Lebesgue integral over the line against
+   the Gaussian kernel; continuous, polynomially bounded functions are
+   integrable there (gaussian_list_domain_polynomial). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

@@ -1,49 +1,13 @@
-(* Port of theories/GaussianIntegration.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every theorem and lemma of the original keeps its name and its
-   arguments, in the same order, and no statement gains or loses a
-   hypothesis. The statements use the vocabulary of the ported
-   GaussianDefinitions and of the bridge:
-   - continuous f x becomes {for x, continuous f} (difference 5 of
-     analysis/README.md);
-   - is_derive f x l becomes @is_derive R R^o R^o x 1 f l;
-   - the bound variable in front of a derivative or a continuity
-     hypothesis is written x : R, as in the restated challenge
-     ellipsoid_gaussian (analysis/challenges/ellipsoid_gaussian), so that
-     its type is literally R.
-   The arithmetic in every statement is Stdlib's, as in the original.
-
-   Meaning. gaussian_integral_exists, gaussian_has_integral,
-   gaussian_absolutely_integrable and gaussian_expectation keep their text,
-   and follow the ported GaussianDefinitions: they now state Borel
-   measurability and Lebesgue integrability over the line of
-   x |-> f x * gaussian_kernel x (difference 4 of analysis/README.md).
-   Every integrand of this module is continuous and bounded in absolute
-   value by a polynomial times the kernel under the hypotheses of its
-   statement, and for such a function the Lebesgue and the improper Riemann
-   readings both hold and give the same value. So the statements say the
-   same as before. They are, in this order, the clauses 2 (continuity of
-   the density), 3, 5 and 6 of the restated challenge ellipsoid_gaussian.
-
-   gaussian_first_stein and gaussian_second_stein keep their hypotheses.
-   The added integrability hypotheses of gaussian_stein_polynomial and
-   gaussian_stein_second_polynomial (see the header of the ported
-   GaussianSteinPolynomial) do not reach them, because their proofs go
-   through gaussian_stein_polynomial_split and
-   gaussian_stein_second_polynomial_split, whose hypothesis is the
-   integral of the highest derivative, which the polynomial bound on that
-   derivative provides.
-
-   What changes in the proofs. The continuity arguments use continuous_mult,
-   continuous_minus, continuous_const and continuous_id of the bridge in
-   place of Coquelicot's, and is_derive_continuous of the bridge in place of
-   ex_derive_continuous. The rest is unchanged.
-
-   The original imported Classical_Prop but did not use it. This port does
-   not import it. Print Assumptions on the theorems of this module lists
-   only the seven axioms of analysis/README.md (the real-number lemmas
-   need fewer), so Classical_Prop.classic is not among them. *)
+(* Gaussian integrals on the line for functions of polynomial growth. A
+   continuous f with Rabs (f x) <= C * (1 + Rabs x ^ p) is Gaussian
+   integrable (gaussian_polynomial_admissible). The n-th moment is
+   moment_factor n, which is (n-1)!! for even n and 0 for odd n
+   (gaussian_power_moments, gaussian_standard_moments). Stein's identities:
+   if f has a continuous derivative df, both of polynomial growth, the
+   expectation of df is that of x * f x (gaussian_first_stein); if df has
+   a continuous derivative ddf of polynomial growth, the expectation of ddf
+   is that of (x*x - 1) * f x (gaussian_second_stein). Integrability is the
+   Lebesgue integrability of x |-> f x * gaussian_kernel x over the line. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

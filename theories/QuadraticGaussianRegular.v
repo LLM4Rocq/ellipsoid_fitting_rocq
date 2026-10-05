@@ -13,44 +13,20 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of the inner module QuadraticGaussianRegular of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/QuadraticGaussianProofs.v) from Coquelicot to MathComp-Analysis.
-   The source is build/agent2/unbundled/QuadraticGaussianRegular.v. The
-   bundle's reference QuadraticGrowthProofs.QuadraticGrowthContinuity and
-   QuadraticGrowthProofs.QuadraticGrowth now names the inner modules of
-   analysis/QuadraticGrowthProofs.v.
+(* Regularity of the entries of the quadratic gradient weighted by a
+   centered coordinate product. The product x_a * x_b - [a = b] is
+   continuous and bounded by (1 + |x|) ^ 2
+   (gaussian_centered_coordinate_product_continuous,
+   gaussian_centered_coordinate_product_bound).
+   quadratic_gaussian_weighted_entry_regular: for beta, gamma > 0,
+   nonempty Y and S and a, b <= n, the product of x_a * x_b - [a = b] with
+   the entry (a, b) of quadratic_gradient at x is continuous at every x
+   and bounded by K * (1 + |x|) ^ 2 for some K >= 0.
 
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. No item is added. The statements change form in the ways of the
-   ports of MatrixCoordinates and QuadraticGrowthProofs.
-
-   1. Norms. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. On
-      vector n this is the norm of the port of OperatorDefinitions, which
-      nests euclidean_product of MatrixEuclideanProduct and so keeps
-      Coquelicot's Euclidean norm, not MathComp's max norm
-      (analysis/README.md, difference 1). The bounds therefore mean the same,
-      constants included. They are stated with Stdlib's order, sum, product
-      and power around MathComp's norm, and Rabs stays Stdlib's.
-
-   2. Pointwise continuity. Coquelicot's continuous f x, continuity of f at
-      the point x, becomes MathComp's {for x, continuous f}
-      (README difference 5). The topology of vector n is the one of the port
-      of MatrixDefinitions, whose neighbourhoods are those of the product
-      topology, as Coquelicot's were.
-
-   3. Order on indices. With ssreflect loaded, (a <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statement writes (a <= n)%coq_nat, which is Stdlib's le.
-
-   The test Nat.eqb a b is a boolean in both libraries, so the if of the
-   original is unchanged.
-
-   In the proofs, Coquelicot's norm_ge_0 becomes normr_ge0 through RleP,
-   continuous_minus and continuous_mult become continuous_Rminus_fct and
-   continuous_Rmult_fct of FiniteGibbsContinuity, continuous_const becomes
-   cst_continuous, and the continuity of a coordinate comes from
-   growth_linear_continuous with tuple_entry_linear, at the codomain R^o. *)
+   On vector n, (`|x|)%R is the Euclidean norm, since OperatorDefinitions
+   nests euclidean_product of MatrixEuclideanProduct; the order, sums,
+   products and powers around it are Stdlib's. With ssreflect loaded, the
+   statement writes (a <= n)%coq_nat for Stdlib's order on nat. *)
 
 Lemma gaussian_centered_coordinate_product_bound n (x : vector n) a b :
   Rabs (vector_entry n x a * vector_entry n x b - if Nat.eqb a b then 1 else 0)

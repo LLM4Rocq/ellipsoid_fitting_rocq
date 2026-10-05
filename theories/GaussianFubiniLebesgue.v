@@ -1,83 +1,36 @@
-(* Parameter integrals over the real line, for the ports of the Gaussian
-   modules that integrate a jointly continuous function of two variables
-   against the Gaussian kernel: GaussianSections, GaussianRectangle,
-   GaussianFubini, GaussianParameterBounds and the GaussianMixed modules.
-   This is a helper module of the port of theories/ from Coquelicot to
-   MathComp-Analysis. It has no counterpart in theories/: the original
-   modules took these facts from Coquelicot (RInt_gen, is_RInt_gen and the
-   improper integral lemmas of ImproperBounds, ImproperCutoff and
-   ImproperDomination) or proved them in place. Every integral here is the
-   Lebesgue integral of AnalysisIntegralDefinitions: whole_line_integral,
-   whole_line_integrable, oriented_integral and segment_integrable, with
-   Stdlib's operations on R in every statement.
+(* Parameter integrals over the real line, with the Lebesgue integrals of
+   AnalysisIntegralDefinitions and of MathComp, and Stdlib's operations on
+   R in every statement.
+   - whole_line_parameter_continuous: x |-> whole_line_integral (F x) is
+     continuous when F is jointly continuous and dominated by g x * h y,
+     with g continuous and h nonnegative and integrable. The proof applies
+     MathComp's continuity_under_integral on ]x - 1, x + 1[.
+     whole_line_parameter_continuous_weighted is the same for the
+     integrand F x y * w y, with a nonnegative continuous weight w.
+   - whole_line_parameter_derivative: on the band |t - a| <= rho, let
+     every F t be integrable, let F t x have the derivative D t x in t,
+     and let D be dominated by an integrable G >= 0. Then D a is
+     integrable and t |-> whole_line_integral (F t) has the derivative
+     whole_line_integral (D a) at a. The proof applies MathComp's
+     derivable_under_integral and differentiation_under_integral; the
+     measurability of D a comes from the difference quotients along
+     a + rho / 2 * harmonic n.
+   - fubini_cutoff_cvg: for f integrable on the line, the integral of f
+     over [-n, n] tends to its integral over the line, by dominated
+     convergence.
+   The other lemmas are tools: continuity of the sections and products of
+   jointly continuous functions, boundedness on segments, integrability
+   and bounds on a measurable set (fubini_dominated_integrable,
+   fubini_Rintegral_bound), and the oriented integral over [-A, A]
+   (fubini_oriented_symmetric, fubini_segment_integrable).
 
-   Contents.
-   - Slices and products of jointly continuous functions: fubini_slice_left,
-     fubini_slice_right (continuity of the sections), fubini_abs_2d (joint
-     continuity of the absolute value), fubini_joint_continuous_left and
-     fubini_joint_continuous_right (a function of one variable seen as a
-     function of two), fubini_mult_1d_2d and fubini_mult_2d_1d (product with
-     a continuous weight in one variable).
-   - continuous_bounded_segment: a continuous function is bounded on a
-     segment.
-   - Integrability tools on a measurable set D of R, with the Lebesgue
-     integral of MathComp: fubini_continuous_measurable,
-     fubini_integrable_scale, fubini_integrable_scale_r, fubini_integrable_abs,
-     fubini_integrable_norm, fubini_dominated_integrable (a measurable
-     function dominated by c times an integrable function is integrable),
-     fubini_Rintegral_bound and fubini_Rintegral_abs_le (bounds on the
-     integral), fubini_segment_le_whole_line (the integral of a nonnegative
-     integrable function over a measurable set is at most its integral over
-     the line), fubini_integral_scale_l and fubini_integral_scale_r (the
-     integral of a scaled function).
-   - fubini_cutoff_cvg: for f integrable on the line, the integral of f over
-     [-n, n] tends to the integral of f over the line as n tends to infinity
-     through the natural numbers. Proved by dominated convergence.
-   - whole_line_parameter_continuous: continuity in x of
-     whole_line_integral (F x) when F is jointly continuous and dominated by
-     g x * h y with g continuous and h integrable and nonnegative. Proved with
-     MathComp's continuity_under_integral on the interval ]x - 1, x + 1[,
-     with the dominating function (bound of g on [x - 1, x + 1]) * h.
-     whole_line_parameter_continuous_weighted is the same for the integrand
-     F x y * w y with a nonnegative continuous weight w, under
-     whole_line_integrable (fun y => h y * w y).
-   - whole_line_parameter_derivative: derivative in the parameter of
-     whole_line_integral (F t) at a, when F is differentiable in t with
-     derivative D t x on the band Rabs (t - a) <= rho, the slices F t are
-     integrable there and D is dominated on the band by an integrable
-     nonnegative G. It concludes whole_line_integrable (D a) and the
-     derivative whole_line_integral (D a). Proved with MathComp's
-     derivable_under_integral and differentiation_under_integral on the
-     interval ]a - rho, a + rho[; the measurability of D a comes from the
-     difference quotients along the sequence a + rho / 2 * harmonic n.
-   - Fubini on the line: whole_line_fubini_inner_integrable,
-     whole_line_fubini_inner_bound, whole_line_fubini_outer_integrable,
-     fubini_iterated_cutoff_cvg and whole_line_fubini, for a jointly
-     continuous F with Rabs (F x y) <= g x * h y, g and h continuous,
-     nonnegative and integrable on the line: the two iterated integrals of F
-     over the line are equal, and the outer integrands are integrable. The
-     proof follows theories/GaussianFubini.v: Fubini on the squares [-n, n]^2
-     (continuous_rectangle_fubini of RectangleFubini), then the limit n to
-     infinity of both iterated integrals by dominated convergence, and the
-     uniqueness of limits. whole_line_fubini_weighted is the form with a
-     nonnegative continuous weight w on each variable, under
-     whole_line_integrable (fun x => g x * w x) and
-     whole_line_integrable (fun y => h y * w y); with w the Gaussian kernel it
-     gives the exchange of two Gaussian integrals.
-
-   Conventions. Measurability of f : R -> R is stated
-   measurable_fun (setT : set (measurableTypeR R))
-     (f : measurableTypeR R -> measurableTypeR R).
-   The bounds of an interval `[a, b] are parsed in MathComp's ring scope, so
-   the interval `[- INR n, INR n] carries MathComp's opposite; it is
-   convertible with Stdlib's, and the lemmas on it are used through exact and
-   apply, which work up to conversion. The header omits Import ListNotations:
-   with it, the open interval `]l, r[ does not parse, because the token [
-   after r starts a list. The module imports measurable_realfun for
-   continuous_measurable_fun, measurable_EFinP, measurable_funM,
-   measurable_funB and measurable_fun_cvg, which the bridge header does not
-   reach. The scope classical_set_scope is opened locally for the notations
-   \oo, @, --> and the set intervals. *)
+   Conventions. Measurability of f : R -> R is stated for f seen as a map
+   measurableTypeR R -> measurableTypeR R, on setT. The bounds of an
+   interval `[a, b] are parsed in MathComp's ring scope, so
+   `[- INR n, INR n] carries MathComp's opposite, which is convertible with
+   Stdlib's. The module does not import ListNotations, under which the
+   open interval `]l, r[ does not parse, and it imports measurable_realfun,
+   which AnalysisBridge does not export. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.
@@ -449,10 +402,3 @@ have iDa : whole_line_integrable (D a).
 split; first exact: iDa.
 exact: hFd.
 Qed.
-
-(* Fubini on the line for a separably dominated jointly continuous
-   integrand. *)
-
-(* Fubini with a nonnegative continuous weight on each variable. With w the
-   Gaussian kernel, the hypotheses on g and h are gaussian_integral_exists g
-   and gaussian_integral_exists h. *)

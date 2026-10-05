@@ -10,43 +10,22 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/LowerBounds.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem of the original keeps its name and its arguments, in the
-   same order. No lemma is added. The statements change form in four ways,
-   the ways of the ports of LowerNormBounds and LowerFrechet, which this
-   module imports, and of the restated challenge ellipsoid_lower_bounds in
-   analysis/challenges.
-
-   1. Norms. Coquelicot's norm U becomes MathComp's norm (`|U|)%R. On
-      block_array n m it is the norm of LowerDefinitions, the square root of
-      the sum of the squared Frobenius norms of the blocks, as in the
-      original, because the port of MatrixDefinitions nests
-      euclidean_product of MatrixEuclideanProduct and keeps Coquelicot's
-      product norm. So the constants sqrt (INR (S n)) and
-      2 * INR (S n) * k ^ 2 * (beta + gamma) are stated against the same
-      norm as before. Comparisons, products and powers around the norms are
-      Stdlib's.
-
-   2. NormedModule R_AbsRing becomes normedModType R in
-      lower_first_uniform_bound and lower_second_uniform_bound. The space E
-      is only the type of the points A, U, V and of the arguments of F, so
-      the values are those of the original.
-
-   3. Frechet derivatives. Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis in
-      lower_block_uniform_derivative_bounds, as in lower_block_derivatives of
-      the port of LowerFrechet: f is differentiable at A and its differential
-      'd f A is l, which is linear and continuous. The real-valued maps are
-      typed into R^o, the normed module view of R, which is R by definition.
-
-   4. Lists. With ssreflect loaded, the bare name seq means MathComp's type
-      of sequences, so Stdlib's seq 0 (S m) is written List.seq 0 (S m), as
-      in the port of LowerDefinitions. The list is the same.
-
-   The proofs keep their steps. norm_ge_0 becomes normr_ge0 through RleP,
-   and Stdlib's "rewrite A, B" and "rewrite ... by tac" are written in the
-   forms that ssreflect accepts. *)
+(* Uniform bounds on lower_first and lower_second of LowerDefinitions, the
+   first two derivatives of the nested soft minimax, when the scores
+   satisfy |F z s W| <= K * |W|:
+   - lower_gibbs_covariance_uniform_bound: if |u| <= Ku and |v| <= Kv on
+     I, the Gibbs covariance of u and v is at most 2 * Ku * Kv in absolute
+     value;
+   - lower_first_uniform_bound: |lower_first ... A U| <= K * |U|;
+   - lower_second_uniform_bound:
+     |lower_second ... A U V| <= 2 * K ^ 2 * (beta + gamma) * |U| * |V|;
+   - lower_block_first_bound: for the block scores, with rows y z of unit
+     Euclidean norm and matrices B s of operator norm at most k,
+     |lower_block_first ... A U| <= sqrt (n + 1) * k * |U|.
+   The space E is any normedModType R. On block_array n m the norm
+   (`|U|)%R is the square root of the sum of the squared Frobenius norms of
+   the blocks. With ssreflect loaded, Stdlib's seq 0 (S m) is written
+   List.seq 0 (S m). *)
 
 Theorem lower_gibbs_covariance_uniform_bound c f I u v Ku Kv :
   I <> [] -> 0 <= Ku -> 0 <= Kv ->

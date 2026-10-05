@@ -1,27 +1,10 @@
-(* Port of the inner module ScalarParameterCalculus of
-   theories/InterpolationProofs.v, extracted to
-   build/agent2/unbundled/ScalarParameterCalculus.v, from Coquelicot to
-   MathComp-Analysis.
-
-   Both lemmas keep their names, their arguments in the same order and
-   their hypotheses. The only change of form is the derivative: Coquelicot's
-   is_derive f x l, for f : R -> R, becomes @is_derive R R^o R^o x 1 f l of
-   MathComp-Analysis. Both say that (f (x + h) - f x) / h tends to l when h
-   tends to 0 (is_derive_Reals of AnalysisBridge proves the equivalence with
-   Stdlib's derivable_pt_lim), so the meaning is unchanged. The arithmetic
-   in every statement is Stdlib's, as in the original.
-
-   The two lemmas have the same text as the lemmas of the same names in
-   theories/GaussianParameterBounds.v, and their proofs are those of the
-   port analysis/GaussianParameterBounds.v. The derivative arguments use
-   is_derive_minus, is_derive_const, auto_derive, MVT_cor4 and
-   is_derive_Reals of the bridge in place of Coquelicot's lemmas of the same
-   names. Stdlib's rewrite A, B ... by tac, which does not parse once
-   ssreflect is loaded, is replaced by rewrites with explicit side
-   conditions.
-
-   The original imported Classical_Prop but did not use it. This port does
-   not import it. *)
+(* Second-order Taylor bounds for a real function of one real variable.
+   If f has derivative df and second derivative ddf, with
+   Rabs (ddf t) <= C, on the interval Rabs (t-a) <= rho, then
+   Rabs (f b - f a - (b-a)*df a) <= C * Rabs (b-a)^2 on that interval
+   (local_second_derivative_remainder, by the mean value theorem applied
+   twice). Conversely, a remainder bounded by K * Rabs (b-a)^2 near a
+   makes df the derivative of f at a (quadratic_remainder_derivative). *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

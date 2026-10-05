@@ -1,43 +1,14 @@
-(* Port of theories/GaussianCutoff.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order, and no statement gains or loses a hypothesis. The statements use
-   the vocabulary of AnalysisIntegralDefinitions and of the bridge:
-   Coquelicot's continuous f x becomes {for x, continuous f}, and
-   is_lim h p_infty l becomes (h A @[A --> +oo%R] --> l)%classic, the limit
-   of MathComp at +oo. The bound variable in front of a continuity
-   hypothesis is written x : R, as in the restated challenge
-   ellipsoid_gaussian_fubini, so that Rocq does not infer a MathComp carrier
-   for it. The arithmetic in every statement is Stdlib's, as in the
-   original.
-
-   Meaning. gaussian_integral, gaussian_integral_exists,
-   gaussian_absolutely_integrable, gaussian_expectation and the cutoff
-   definitions follow the ported GaussianDefinitions and
-   GaussianCutoffDefinitions: the integral over the line is the Lebesgue
-   integral (difference 4 of analysis/README.md) and the cutoff integral is
-   oriented_integral over [-A, A] (difference 3). Every statement here
-   concerns a continuous f dominated by C * g with g integrable against the
-   kernel, or a nonnegative g, so each one is the Lebesgue counterpart of the
-   original.
-
-   Statements that change form, besides the vocabulary.
-   - gaussian_cutoff_integral_limit and gaussian_cutoff_majorant_limit
-     conclude a limit at +oo in MathComp's notation, as in the port of
-     improper_symmetric_cutoff_limit (ImproperCutoff). The bridge lemma
-     cvg_Reals_pinfty turns it into the epsilon form that the original
-     obtained with is_lim_spec.
-
-   What changes in the proofs. The scaled integral of C * g comes from
-   fubini_integrable_scale and fubini_integral_scale_l of
-   GaussianFubiniLebesgue, in place of Coquelicot's is_RInt_gen_scal, and
-   the scaled cutoff integral from rectangle_oriented_scal of RectangleFubini,
-   in place of RInt_scal. The limit of the majorant is proved in epsilon form
-   with cvg_Reals_pinfty, in place of is_lim_minus' and is_lim_scal_l. In
-   gaussian_majorant_integrability, the continuity of f gives the
-   measurability of f * gaussian_kernel. The continuity of g is passed on
-   to continuous_improper_dominated_integrable, whose port keeps that
-   hypothesis without using it; the Lebesgue integral does not need it. *)
+(* Truncation of Gaussian integrals to a symmetric interval [-A, A]
+   (gaussian_cutoff_integral and gaussian_cutoff_expectation of
+   GaussianCutoffDefinitions), for a continuous f with |f| <= C * g and a
+   continuous g integrable against the kernel. Then f is integrable
+   (gaussian_majorant_integrability); for A >= 0 its truncation error is
+   at most C times that of g (gaussian_raw_cutoff_error_bound,
+   gaussian_normalized_cutoff_error_bound); the truncated integral tends
+   to the integral as A tends to +oo (gaussian_cutoff_integral_limit), and
+   the truncated expectations converge uniformly over such f
+   (gaussian_uniform_cutoff_convergence). Integrals over the line are
+   Lebesgue integrals, which require absolute integrability. *)
 
 From Stdlib Require Import Reals Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

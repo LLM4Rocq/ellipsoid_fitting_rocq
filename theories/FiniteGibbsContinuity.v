@@ -10,26 +10,24 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/FiniteGibbsContinuity.v from Coquelicot to
-   MathComp-Analysis.
+(* Continuity at one point of the finite Gibbs quantities. Let [E] be a
+   topological space, [A] a point of [E], [I] a nonempty list of indices,
+   and [F j] a score [E -> R], continuous at [A], for each [j] in [I]. Then
+   the Gibbs weight of each index of [I] is continuous at [A]
+   ([gibbs_weight_continuous]). If the observables [U i], [V i], [W i] are
+   continuous at [A] too, so are the Gibbs average, covariance and third
+   cumulant ([gibbs_average_continuous], [gibbs_covariance_continuous],
+   [gibbs_cumulant3_continuous]). Continuity at [A] is MathComp's
+   [{for A, continuous f}], and [R] has the topology of the absolute value
+   (Rstruct_topology). The first lemmas treat sums, differences, products
+   and finite sums written with Stdlib's operations.
 
-   Coquelicot's pointwise continuity [continuous f A] becomes
-   [{for A, continuous f}], MathComp's continuity at the point [A]
-   (difference 5 of analysis/README.md). The domain [E], a Coquelicot
-   [UniformSpace] in the original, is here any [topologicalType]. Every
-   uniform space of MathComp-Analysis is a topological space, and the
-   statements only speak of continuity at one point, so this generalizes
-   the original. The codomain is Stdlib's [R] with the topology of
-   Rstruct_topology, the topology of the absolute value, which is also the
-   topology Coquelicot puts on [R]. The arithmetic in the statements is
-   Stdlib's, as in the original, so the statements say the same thing.
-
-   Using these lemmas. When [E] is a concrete type ([R], a matrix type, a
-   product) or a [uniformType], Rocq's plain [apply] fails to find the
-   topology of [E] by unification, as it does for MathComp's own
-   [continuousM]. Use ssreflect's [apply:], [refine], or give [E]
-   explicitly, as in [apply (@gibbs_average_continuous R)]. When [E] is a
-   variable of type [topologicalType], plain [apply] works. *)
+   When [E] is a concrete type ([R], a matrix type, a product) or a
+   [uniformType], Rocq's plain [apply] does not find the topology of [E] by
+   unification, as for MathComp's own [continuousM]. Use ssreflect's
+   [apply:], [refine], or give [E] explicitly, as in
+   [apply (@gibbs_average_continuous R)]. When [E] is a variable of type
+   [topologicalType], plain [apply] works. *)
 
 Lemma continuous_Rplus_fct {E : topologicalType} (f g : E -> R) (A : E) :
   {for A, continuous f} -> {for A, continuous g} ->

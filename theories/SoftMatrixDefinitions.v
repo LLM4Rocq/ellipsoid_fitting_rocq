@@ -3,19 +3,16 @@ From EllipsoidFitting Require Import SoftDefinitions MatrixDefinitions MatrixGib
   MatrixSecondDefinitions MatrixThirdDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/SoftMatrixDefinitions.v from Coquelicot to
-   MathComp-Analysis. The original used nothing from Coquelicot directly: its
-   only Coquelicot content came through matrix n, matrix_zero, matrix_add,
-   matrix_scale and trace_pair of MatrixDefinitions, and through the nested
-   derivatives of MatrixGibbsDefinitions, MatrixSecondDefinitions and
-   MatrixThirdDefinitions. Their ports keep the same names and arguments;
-   matrix_zero, matrix_add and matrix_scale are now MathComp's 0, + and *: on
-   the nested tuples, which are componentwise as Coquelicot's zero, plus and
-   scal were. So the import of Coquelicot is dropped and nothing else
-   changes. MathComp is not imported here, so the arithmetic and the test
-   Nat.eq_dec j i are Stdlib's, as before. finite_sum, soft_max and
-   soft_minimax come from SoftDefinitions, which is copied unchanged, so the
-   ln and exp inside soft_max are Stdlib's. *)
+(* Soft min-max of matrix scores, for arrays of matrix blocks. For an array
+   A of matrices, the score of the pair (z, s) is
+   soft_matrix_scores y B I A z s, the sum over i in I of
+   y z i * trace_pair (B s) (A i). soft_matrix_inner is the soft maximum of
+   these scores over s in S, and soft_matrix_phi their soft min-max over Y
+   and S. soft_matrix_block_add adds a matrix M to block i.
+   soft_matrix_third is matrix_nested_third_derivative at the zero matrix,
+   with offsets soft_matrix_scores y B I A and coefficient matrices
+   soft_matrix_coefficients y B i z s = y z i * B s. MathComp is not
+   imported, so the arithmetic, ln and exp are Stdlib's. *)
 
 (* An array is observed on the finite coordinate list I.  The matrix index n
    represents positive matrix dimension S n.  These formulas extend the

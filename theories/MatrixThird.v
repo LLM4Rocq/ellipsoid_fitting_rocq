@@ -12,52 +12,18 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixThird.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in four ways, the same ways as in the
-   ports of MatrixCoordinates, MatrixTrace, MatrixGibbs and MatrixSecond.
-
-   1. Normed spaces. Coquelicot's NormedModule R_AbsRing becomes
-      normedModType R, a real normed space of MathComp-Analysis. On
-      matrix n the norm is the Frobenius norm of MatrixDefinitions, as in
-      Coquelicot.
-
-   2. Frechet derivatives. Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis: f is differentiable at A and its
-      differential 'd f A is l. Both say that l is linear and continuous and
-      that f (A + H) = f A + l H + o(H) as H tends to 0. Coquelicot's
-      is_linear contains the continuity of l as a norm bound; in
-      MathComp-Analysis it comes with differentiable. So the hypotheses and
-      conclusions say the same thing as in the original.
-
-   3. Real-valued maps. A map into R is written with codomain R^o, the
-      normed module view of R, because is_diff and linear need a normed
-      module on the codomain, as in (F i : E -> R^o). R^o is R by
-      definition, so F, DF, U, DU, V and DV keep the type nat -> E -> R of
-      the original, and the maps are the same.
-
-   4. Linear maps. Coquelicot's is_linear l, in the conclusion of
-      matrix_nested_third_linear_last, is a record with three fields:
-      l (plus x y) = plus (l x) (l y), l (scal k x) = scal k (l x), and
-      exists M, 0 < M /\ forall x, norm (l x) <= M * norm x.
-      As in MatrixCoordinates and MatrixTrace, the port states it as
-        linear l /\
-        exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R,
-      MathComp's algebraic linearity together with Coquelicot's norm bound.
-      The norms are the Frobenius norm on matrices and the absolute value on
-      R, as in Coquelicot, so the bound means the same, constants included.
-
-   The arithmetic in the statements is Stdlib's, as in the original, and so
-   is exp inside partition, gibbs_weight and gibbs_average. This file does
-   not import MathComp's exp module, so an unqualified ln would be Stdlib's;
-   none occurs. matrix_covariance_differential_identity and the four swap
-   theorems keep their statements word for word.
-
-   The port adds one lemma, matrix_third_is_diff_linear, marked below. It
-   takes the place of the step proj1 of Coquelicot's filterdiff, which
-   extracts is_linear l from filterdiff f F l, in the proof of
-   matrix_nested_third_linear_last. *)
+(* Third derivatives of the nested soft minimax of matrix scores.
+   gibbs_covariance_frechet differentiates a Gibbs covariance whose scores
+   and observables depend on a point of a normed space; the derivative of
+   the scores enters through a third cumulant (gibbs_cumulant3).
+   matrix_nested_second_evaluation_frechet: the second derivative
+   matrix_nested_second_derivative ... A U V, as a function of A, has
+   differential matrix_nested_third_derivative ... A U V, which is
+   symmetric in its three directions (matrix_nested_third_swap_left,
+   matrix_nested_third_swap_right). matrix_third_is_diff_linear: a
+   differential is linear and bounded. is_diff A f l says that f is
+   differentiable at A with differential l; on matrix n the norm is the
+   Frobenius norm. *)
 
 Lemma matrix_covariance_differential_identity c f I u v w du dv :
   I <> [] ->
@@ -289,11 +255,9 @@ Proof.
     (matrix_inner_derivative n gamma offset coeff S A W)); ring.
 Qed.
 
-(* Added by the port, in place of proj1 of Coquelicot's filterdiff: the
-   derivative l in is_diff A f l is linear, and it is bounded, in the form
-   of Coquelicot's is_linear. The differential 'd f A is a linear map of
-   MathComp, and it is continuous because f is differentiable at A; a
-   continuous linear map between normed spaces is bounded. *)
+(* The differential l in is_diff A f l is linear and bounded: l is 'd f A,
+   a linear map, which is continuous because f is differentiable at A, and
+   a continuous linear map between normed spaces is bounded. *)
 Lemma matrix_third_is_diff_linear {U W : normedModType R} (f l : U -> W) (A : U) :
   is_diff A f l ->
   linear l /\

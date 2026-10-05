@@ -1,33 +1,13 @@
-(* Port of theories/GaussianCoordinateCutoff.v from Coquelicot to
-   MathComp-Analysis.
-
-   Both lemmas keep their names and their arguments, in the same order, and
-   no statement gains or loses a hypothesis. Coquelicot's continuous f x
-   becomes {for x, continuous f}, as in the vocabulary table of the port.
-   The bound variable in front of a continuity hypothesis is written x : R,
-   as in the ported GaussianCutoff, so that Rocq does not infer a MathComp
-   carrier for it. The arithmetic in every statement is Stdlib's, as in the
-   original.
-
-   Meaning. gaussian_cutoff_expectation f A follows the ported
-   GaussianCutoffDefinitions: it is oriented_integral of
-   x |-> f x * gaussian_kernel x from -A to A, divided by gaussian_mass
-   (difference 3 of analysis/README.md). For a continuous f and 0 <= A it is
-   the Lebesgue integral over [-A, A] of a continuous function, whose value
-   is the Riemann integral of the original. So both statements say what the
-   originals said.
-
-   What changes in the proofs. The bound on the integral over [-A, A] comes
-   from fubini_Rintegral_bound of GaussianFubiniLebesgue, which asks for the
-   pointwise bound only on the segment, in place of Coquelicot's
-   norm_RInt_le. The integrability of the two integrands on the segment
-   comes from fubini_segment_integrable, and fubini_oriented_symmetric turns
-   the oriented integrals into integrals over [-A, A]. The bound of the
-   integral of the kernel over [-A, A] by gaussian_mass is
-   improper_nonnegative_interval_bound, as in the original. The continuity
-   of f - g is continuous_minus of the bridge. The Coquelicot imports
-   (Coquelicot, Compactness) and FunctionalExtensionality, which the
-   original did not use, are dropped. *)
+(* Bounds on the truncated Gaussian expectation
+   gaussian_cutoff_expectation f A, the integral of f x * gaussian_kernel x
+   over [-A, A] divided by gaussian_mass. If f is continuous, 0 <= A and
+   Rabs (f x) <= C on [-A, A], then
+   Rabs (gaussian_cutoff_expectation f A) <= C (gaussian_cutoff_local_bound),
+   because the integral of the kernel over [-A, A] is at most gaussian_mass
+   (improper_nonnegative_interval_bound). Applied to f - g, this bounds the
+   difference of two truncated expectations
+   (gaussian_cutoff_local_difference). The continuity hypotheses write the
+   binder as x : R, so that Rocq does not infer a MathComp carrier for x. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.
