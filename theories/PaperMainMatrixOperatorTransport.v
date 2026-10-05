@@ -31,7 +31,8 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology normedtype derive Rstruct_topology.
-From mathcomp Require Import ring_tactic arithmetic_tactic.
+From mathcomp Require Import ring_tactic arithmetic_tactic sesquilinear.
+From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums MatrixDefinitions MatrixCoordinates
   OperatorDefinitions OperatorBounds PaperMainDefinitions PaperMainGeometryPsd
   PaperMainGeometryGram PaperMainGeometryHomogeneous PaperMainGeometrySeparation
@@ -39,45 +40,14 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Matr
   PaperMainGeometryHeadCoefficients PaperMainGeometryHeadFeature
   PaperMainGeometryHeadSpectral PaperMainGeometryHeadWidth PaperMainMatrixTransport
   PaperMainGordonProcessCovariance PaperMainGaussianFeatureCoordinates
-  PaperMainSymmetricBilinear PaperMainConeConditionOperator.
+  PaperMainSymmetricBilinear PaperMainConeConditionOperator
+  PaperMainSymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
 Section Bilinear.
 Variable d : nat.
-Implicit Types (Z : 'M[R]_d) (u v x y : 'cV[R]_d).
-
-Lemma pmmo_bilinD_l Z x x' y :
-  ((x + x')^T *m Z *m y) 0 0 = (x^T *m Z *m y) 0 0 + (x'^T *m Z *m y) 0 0.
-Proof. by rewrite [(x + x')^T]linearD /= !mulmxDl mxE. Qed.
-
-Lemma pmmo_bilinD_r Z x y y' :
-  (x^T *m Z *m (y + y')) 0 0 = (x^T *m Z *m y) 0 0 + (x^T *m Z *m y') 0 0.
-Proof. by rewrite mulmxDr mxE. Qed.
-
-Lemma pmmo_bilinZ_l Z (c : R) x y :
-  ((c *: x)^T *m Z *m y) 0 0 = c * (x^T *m Z *m y) 0 0.
-Proof. by rewrite [(c *: x)^T]linearZ /= -!scalemxAl mxE. Qed.
-
-Lemma pmmo_bilinZ_r Z (c : R) x y :
-  (x^T *m Z *m (c *: y)) 0 0 = c * (x^T *m Z *m y) 0 0.
-Proof. by rewrite -scalemxAr mxE. Qed.
-
-Lemma pmmo_form_comb Z u v (lam : R) :
-  ((lam *: u + v)^T *m Z *m (lam *: u + v)) 0 0 =
-  lam * lam * (u^T *m Z *m u) 0 0 + lam * (u^T *m Z *m v) 0 0 +
-  lam * (v^T *m Z *m u) 0 0 + (v^T *m Z *m v) 0 0.
-Proof.
-rewrite pmmo_bilinD_l !pmmo_bilinD_r !pmmo_bilinZ_l !pmmo_bilinZ_r; ring.
-Qed.
-
-Lemma pmmo_norm_comb u v (lam : R) :
-  ((lam *: u + v)^T *m (lam *: u + v)) 0 0 =
-  lam * lam * (u^T *m u) 0 0 + 2%:R * lam * (u^T *m v) 0 0 + (v^T *m v) 0 0.
-Proof.
-have := pmmo_form_comb 1%:M u v lam; rewrite !mulmx1 => ->.
-by rewrite (paper_main_inner_sym _ v u); ring.
-Qed.
+Implicit Types (Z : 'M[R]_d).
 
 (* -b I <= Z <= b I gives the bilinear bound. *)
 Theorem paper_main_cone_opnorm_of_loewner Z (b : R) :
@@ -85,42 +55,9 @@ Theorem paper_main_cone_opnorm_of_loewner Z (b : R) :
   paper_main_loewner_le ((- b) *: 1%:M) Z -> paper_main_loewner_le Z (b *: 1%:M) ->
   paper_main_cone_opnorm_le Z b.
 Proof.
-move=> HZ Hb [_ Hlo] [_ Hup] u v.
-have HZt : Z^T = Z by exact/paper_main_symmetricP.
-have Ha := pmh_vec_sqr_ge0 _ u; have Hc := pmh_vec_sqr_ge0 _ v.
-have Hcross := paper_main_cross_sym _ Z v u HZt.
-have Hq : forall lam : R, 0 <= b * (u^T *m u) 0 0 * (lam * lam) -
-    2%:R * (u^T *m Z *m v) 0 0 * lam + b * (v^T *m v) 0 0.
-  move=> lam.
-  have H1 := Hup (lam *: u + v).
-  have H2 := Hlo ((- lam) *: u + v).
-  rewrite pms_formB paper_main_form_scale pmh_form_id paper_main_quadratic_formE in H1.
-  rewrite pms_formB paper_main_form_scale pmh_form_id paper_main_quadratic_formE in H2.
-  rewrite pmmo_form_comb pmmo_norm_comb Hcross in H1.
-  rewrite pmmo_form_comb pmmo_norm_comb Hcross in H2.
-  lra.
-set a := (u^T *m u) 0 0 in Ha Hq *; set c := (v^T *m v) 0 0 in Hc Hq *.
-set p := (u^T *m Z *m v) 0 0 in Hq *.
-have Hbc : 0 <= b ^+ 2 * (a * c) by rewrite mulr_ge0 ?sqr_ge0 ?mulr_ge0.
-case: (eqVneq (b * a) 0) => Hba.
-  have Hp : p = 0.
-    apply/eqP; apply/negP => /negP Hp0.
-    have H2p : 2%:R * p != 0 by rewrite mulf_neq0 // pnatr_eq0.
-    have := Hq ((b * c + 1) / (2%:R * p)).
-    rewrite Hba mul0r add0r.
-    have -> : 2%:R * p * ((b * c + 1) / (2%:R * p)) = b * c + 1.
-      by rewrite mulrCA (mulfV H2p) mulr1.
-    lra.
-  by rewrite Hp expr0n /=.
-have Hba' : 0 < b * a by rewrite lt0r Hba mulr_ge0.
-have Hl : b * a * (p / (b * a)) = p by rewrite mulrCA (mulfV Hba) mulr1.
-have H0 := Hq (p / (b * a)).
-set l := p / (b * a) in Hl H0.
-have H1 : 0 <= b * a * (b * a * (l * l) - 2%:R * p * l + b * c).
-  by apply: mulr_ge0 => //; exact: ltW.
-have E : b * a * (b * a * (l * l) - 2%:R * p * l + b * c) =
-    (b * a * l) * (b * a * l) - 2%:R * p * (b * a * l) + b ^+ 2 * (a * c) by ring.
-rewrite E Hl in H1; lra.
+move=> _ Hb Hlo Hup; apply/paper_main_cone_opnorm_leP; rewrite ger0_norm //.
+have [Zs Zb] := proj1 (paper_main_loewner_boxP Z b) (conj Hlo Hup).
+exact/(opnorm_symP Zs Hb).
 Qed.
 
 End Bilinear.

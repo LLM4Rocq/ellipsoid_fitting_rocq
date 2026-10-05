@@ -25,7 +25,7 @@ From mathcomp Require Import ring_tactic.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums GaussianCovarianceDefinitions
   PaperMainDefinitions PaperMainGeometryPsd PaperMainConeConditionOperator
   PaperMainMatrixDuality PaperMainGaussianWeightedSquare PaperMainGaussianOrthogonal
-  PaperMainSymmetricDiagonalizationEigen PaperMainSymmetricDiagonalization.
+  PaperMainSymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 

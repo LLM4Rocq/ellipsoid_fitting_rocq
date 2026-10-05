@@ -18,12 +18,14 @@ From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp reals Rstruct.
-From mathcomp Require Import ring_tactic arithmetic_tactic.
+From mathcomp Require Import ring_tactic arithmetic_tactic sesquilinear.
+From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 From EllipsoidFitting Require Import PaperMainDefinitions PaperMainGeometryPsd
   PaperMainGeometryHomogeneous PaperMainGeometrySeparation
   PaperMainGeometryHeadFrobenius PaperMainGeometryHeadFeature
   PaperMainGeometryHeadCorrection PaperMainGeometryHeadCoefficients
-  PaperMainSymmetricBilinear PaperMainConeConditionOperator.
+  PaperMainSymmetricBilinear PaperMainConeConditionOperator
+  PaperMainSymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
@@ -33,128 +35,37 @@ Implicit Types (A B M S X Z : 'M[R]_d).
 
 (* 1. The commutator inequality. *)
 Lemma pmdb_trace_gram_ge0 X : 0 <= \tr (X *m X^T).
-Proof.
-rewrite /mxtrace; apply: sumr_ge0 => i _; rewrite mxE.
-by apply: sumr_ge0 => j _; rewrite mxE -expr2; exact: sqr_ge0.
-Qed.
+Proof. by rewrite -mxdot_trace mxdot_ge0. Qed.
 
 Theorem paper_main_trace_abab A B :
   A^T = A -> B^T = B -> \tr (A *m B *m A *m B) <= \tr (A *m A *m B *m B).
-Proof.
-move=> HA HB.
-set X := A *m B - B *m A.
-have HXt : X^T = - X by rewrite /X linearB /= !trmx_mul HA HB opprB.
-have H := pmdb_trace_gram_ge0 X.
-rewrite HXt mulmxN raddfN /= oppr_ge0 in H.
-have E1 : \tr (A *m B *m B *m A) = \tr (A *m A *m B *m B).
-  by rewrite mxtrace_mulC !mulmxA.
-have E2 : \tr (B *m A *m A *m B) = \tr (A *m A *m B *m B).
-  by rewrite -!mulmxA mxtrace_mulC !mulmxA.
-have E3 : \tr (B *m A *m B *m A) = \tr (A *m B *m A *m B).
-  by rewrite mxtrace_mulC !mulmxA.
-have E : \tr (X *m X) = 2 * \tr (A *m B *m A *m B) - 2 * \tr (A *m A *m B *m B).
-  rewrite /X mulmxBl !mulmxBr !raddfB /= !mulmxA E1 E2 E3; ring.
-rewrite E in H; lra.
-Qed.
+Proof. by move=> /symmetricmxP HA /symmetricmxP HB; exact: mxtrace_ABAB_le. Qed.
 
 (* 2. Trace-fourth control of a quadratic form. *)
 Lemma pmdb_form_cs Z (v : 'cV[R]_d) :
   Z^T = Z ->
   ((v^T *m Z *m v) 0 0) ^+ 2 <= (v^T *m v) 0 0 * (v^T *m (Z *m Z) *m v) 0 0.
 Proof.
-move=> HZ.
-have H := pmco_vec_cauchy_schwarz _ v (Z *m v).
-have -> : (v^T *m (Z *m Z) *m v) 0 0 = ((Z *m v)^T *m (Z *m v)) 0 0.
-  by rewrite trmx_mul HZ !mulmxA.
-by rewrite -mulmxA.
+move=> HZ; rewrite -!mulmxA -!mxdot_colE.
+have -> : mxdot v (Z *m (Z *m v)) = mxdot (Z *m v) (Z *m v) by rewrite mxdot_mulmxl HZ.
+exact: mxdot_cauchy_schwarz.
 Qed.
 
 Lemma pmdb_form_frobenius Z (v : 'cV[R]_d) :
   ((Z *m v)^T *m (Z *m v)) 0 0 <= \tr (Z^T *m Z) * (v^T *m v) 0 0.
 Proof.
-rewrite [X in X <= _]pmh_vec_dot.
-have Hrow : forall a : 'I_d, (Z *m v) a 0 ^+ 2 <=
-    (\sum_(b < d) Z a b ^+ 2) * (v^T *m v) 0 0.
-  move=> a; have H := pmco_vec_cauchy_schwarz _ ((row a Z)^T) v.
-  have E1 : (((row a Z)^T)^T *m v) 0 0 = (Z *m v) a 0.
-    by rewrite trmxK !mxE; apply: eq_bigr => b _; rewrite !mxE.
-  have E2 : ((((row a Z)^T)^T *m (row a Z)^T)) 0 0 = \sum_(b < d) Z a b ^+ 2.
-    by rewrite trmxK mxE; apply: eq_bigr => b _; rewrite !mxE expr2.
-  by rewrite E1 E2 in H.
-have Htr : \tr (Z^T *m Z) = \sum_(a < d) \sum_(b < d) Z a b ^+ 2.
-  rewrite /mxtrace exchange_big; apply: eq_bigr => b _; rewrite mxE.
-  by apply: eq_bigr => a _; rewrite !mxE expr2.
-rewrite Htr mulr_suml; apply: ler_sum => a _.
-by rewrite -expr2; exact: Hrow.
+rewrite -!mxdot_colE mxtrace_mulC -mxdot_trace -!frobenius_sqr -exprMn.
+by rewrite ler_sqr ?nnegrE ?mulr_ge0 ?frobenius_ge0 // frobenius_mulmx.
 Qed.
 
-Theorem paper_main_trace_fourth_form Z (v : 'cV[R]_d) :
-  Z^T = Z ->
-  ((v^T *m Z *m v) 0 0) ^+ 4 <= ((v^T *m v) 0 0) ^+ 4 * \tr (Z *m Z *m Z *m Z).
-Proof.
-move=> HZ.
-have HZ2 : (Z *m Z)^T = Z *m Z by rewrite trmx_mul HZ.
-set n := (v^T *m v) 0 0.
-set q1 := (v^T *m Z *m v) 0 0.
-set q2 := (v^T *m (Z *m Z) *m v) 0 0.
-set q4 := (v^T *m (Z *m Z *m (Z *m Z)) *m v) 0 0.
-have Hn : 0 <= n by rewrite /n; exact: pmh_vec_sqr_ge0.
-have H1 : q1 ^+ 2 <= n * q2 by exact: pmdb_form_cs.
-have H2 : q2 ^+ 2 <= n * q4 by exact: pmdb_form_cs.
-have Hq2 : 0 <= q2.
-  have E : v^T *m (Z *m Z) *m v = (Z *m v)^T *m (Z *m v) by rewrite trmx_mul HZ !mulmxA.
-  by rewrite /q2 E; exact: pmh_vec_sqr_ge0.
-have H4 : q4 <= \tr (Z *m Z *m Z *m Z) * n.
-  have E : q4 = (((Z *m Z) *m v)^T *m ((Z *m Z) *m v)) 0 0.
-    by rewrite /q4 trmx_mul HZ2 !mulmxA.
-  rewrite E; apply: le_trans (pmdb_form_frobenius (Z *m Z) v) _.
-  by rewrite HZ2 !mulmxA.
-set T := \tr (Z *m Z *m Z *m Z) in H4 *.
-have Hq1sq : 0 <= q1 ^+ 2 := sqr_ge0 q1.
-have S1 : (q1 ^+ 2) ^+ 2 <= (n * q2) ^+ 2.
-  rewrite ler_sqr ?nnegrE //; exact: mulr_ge0.
-have S2 : (n * q2) ^+ 2 <= n ^+ 3 * q4.
-  rewrite exprMn.
-  have := ler_wpM2l (sqr_ge0 n) H2.
-  have E : n ^+ 2 * (n * q4) = n ^+ 3 * q4 by ring.
-  by rewrite E.
-have S3 : n ^+ 3 * q4 <= n ^+ 4 * T.
-  have := ler_wpM2l (exprn_ge0 3 Hn) H4.
-  have E : n ^+ 3 * (T * n) = n ^+ 4 * T by ring.
-  by rewrite E.
-have E4 : q1 ^+ 4 = (q1 ^+ 2) ^+ 2 by rewrite -exprM.
-by rewrite E4; apply: le_trans S1 (le_trans S2 S3).
-Qed.
-
-(* A trace-fourth bound is a Loewner box, with no spectral theorem. *)
+(* A trace-fourth bound is a Loewner box. *)
 Theorem paper_main_trace_fourth_box Z (t : R) :
   Z^T = Z -> 0 <= t -> \tr (Z *m Z *m Z *m Z) <= t ^+ 4 ->
   paper_main_loewner_le ((- t) *: 1%:M) Z /\ paper_main_loewner_le Z (t *: 1%:M).
 Proof.
-move=> HZ Ht HT.
-have HZs : paper_main_symmetric Z by exact/paper_main_symmetricP.
-have Hform : forall v : 'cV[R]_d,
-    `|(v^T *m Z *m v) 0 0| <= t * (v^T *m v) 0 0.
-  move=> v.
-  have Hn : 0 <= (v^T *m v) 0 0 by exact: pmh_vec_sqr_ge0.
-  have H := paper_main_trace_fourth_form Z v HZ.
-  have H' : ((v^T *m Z *m v) 0 0) ^+ 4 <= (t * (v^T *m v) 0 0) ^+ 4.
-    apply: le_trans H _; rewrite exprMn mulrC.
-    by apply: ler_wpM2r => //; exact: exprn_ge0.
-  have Hx : `|(v^T *m Z *m v) 0 0| ^+ 4 <= (t * (v^T *m v) 0 0) ^+ 4.
-    by rewrite -normrX ger0_norm ?exprn_even_ge0.
-  move: Hx; rewrite ler_pXn2r // ?nnegrE //; exact: mulr_ge0.
-have HtI : paper_main_symmetric (t *: (1%:M : 'M[R]_d)).
-  by apply: paper_main_symmetric_scale; exact: pmh_symmetric_id.
-have HmtI : paper_main_symmetric ((- t) *: (1%:M : 'M[R]_d)).
-  by apply: paper_main_symmetric_scale; exact: pmh_symmetric_id.
-split; split.
-- exact: pmh_symmetricB.
-- move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id paper_main_quadratic_formE.
-  have := Hform v; rewrite ler_norml => /andP [H1 _]; lra.
-- exact: pmh_symmetricB.
-- move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id paper_main_quadratic_formE.
-  have := Hform v; rewrite ler_norml => /andP [_ H2]; lra.
+move=> /symmetricmxP HZ Ht HT; apply/paper_main_loewner_boxP; split => //.
+apply/(opnorm_symP HZ Ht)/(opnorm_le_trace_exp HZ (p := 4)) => //.
+by rewrite (_ : Z ^+ 4 = Z *m Z *m Z *m Z) // !exprSr expr0 mul1r.
 Qed.
 
 (* 3. Rank-one formulas. *)
