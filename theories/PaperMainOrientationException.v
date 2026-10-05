@@ -1,4 +1,22 @@
-(* A fixed orientation has a small measurable exception containing every low-risk admissible candidate. *)
+(* For a fixed orientation, a small measurable event contains every sample
+   with a low-risk admissible candidate.
+   paper_main_orientation_exception: let O be orthogonal of size
+   d = r + S mi, let N > 0 with c d^2 <= N, and assume the margin condition
+   a + 4 (L + 1) delta + 3 C / (c beta) <= z, where C is the entropy
+   constant paper_main_gordon_entropy_constant (delta / (L + 3)). Assume
+   also that, for every finite family of states (H_j, b_j, B_j) with H_j and
+   B_j PSD, |H_j|_F^2 + |B_j|_F^2 in [1/4, 4] and B_j of operator norm at
+   most eps, the event that the finite hybrid functional
+   paper_main_hybrid_finite_data is at most z is measurable with
+   probability at most p. Then there is a measurable event E of
+   probability at most p that contains every sample whose feature Gram
+   matrix is at most K I with K <= N L^2 and which has an admissible
+   candidate (A, b) for O (paper_main_orientation_admissible) of quadratic
+   risk at most a. The proof takes the finite family of states of
+   paper_main_orientation_prior and lets E be the preimage of that event
+   under the rotation by O, which preserves the Gaussian law;
+   paper_main_entropy_density_bound bounds the entropy term ln s / (beta N)
+   by 3 C / (c beta). *)
 From Stdlib Require Import Reals List Lia Lra Psatz Classical_Prop.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

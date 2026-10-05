@@ -1,6 +1,6 @@
-(* The fourth trace moment of the centered diagonal block under the actual
-   Gaussian law (G15, checkpoint B; manuscript lem:diagonal-feature-block,
-   by a fourth trace moment in place of matrix Bernstein).
+(* The fourth trace moment of the centered diagonal block under the
+   Gaussian law. It replaces the matrix Bernstein inequality in the proof of
+   lem:diagonal-feature-block of the paper.
    Coordinates are lists. For a list ys of length d, u(ys) has the entries
    v(y_a) = y_a^2 - 1 and M(ys) = u u^T - 2 I. For a list xs of n * d
    coordinates, S_n(xs) = sum_(i < n) M(row i of xs). E_D is the iterated
@@ -10,16 +10,19 @@
    - E v = 0, E v^2 = 2, E v^4 = 60 and E v^8 <= 2^21, from the polynomial
      moments moment_factor (pmdm_poly_exp).
    - One row: E M = 0, E M^2 = (4 d + 52) I and
-     m4 = E tr M^4 <= 2^21 d^4 + 16 d.
+     m4 = E tr M^4 <= 2^21 d^4 + 16 d (pmdm_M_mean, pmdm_M_sq_mean and
+     pmdm_m4_bound).
    - E S_n = 0 and E tr S_n^2 = n d (4 d + 52), by induction over the rows
-     with gaussian_iterated_suffix_expectation.
-   - E tr S_n^4 <= n m4 + 3 n (n - 1) d (4 d + 52)^2, from the expansion of
-     tr (S + M)^4 and tr (S M S M) <= tr (S^2 M^2) of
-     PaperMainDiagonalBlockTrace.
+     with gaussian_iterated_suffix_expectation (pmdm_S_mean and
+     pmdm_S_trace2).
+   - E tr S_n^4 <= n m4 + 3 n (n - 1) d (4 d + 52)^2 (pmdm_S_trace4), from
+     the expansion of tr (S + M)^4 and tr (S M S M) <= tr (S^2 M^2) of
+     PaperMainDiagonalBlockTrace. With the bound on m4, this is
+     paper_main_diag_trace_moment.
    - For a sample x, D^T D - 2 N I = S_N (tval x) for the diagonal block D
-     of PaperMainFeatureGramBlocks.
+     of PaperMainFeatureGramBlocks (paper_main_diag_block_centered).
    Integrability comes from continuity with a polynomial bound
-   (pmdf_regular, pmdf_bigsum). No probability premise. *)
+   (pmdf_regular, pmdf_bigsum). *)
 From Stdlib Require Import Reals List Lia FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -881,7 +884,7 @@ have E : (S N xs *m S N xs)^T = S N xs *m S N xs by rewrite trmx_mul pmdm_S_sym.
 by rewrite -mulmxA -[X in _ *m X]E; exact: pmdb_trace_gram_ge0.
 Qed.
 
-(* The centered Gram of the diagonal block of an actual sample. *)
+(* The centered Gram of the diagonal block of a sample. *)
 Lemma paper_main_diag_block_centered N (x : paper_main_sample N d) :
   (paper_main_diag_block N d x)^T *m paper_main_diag_block N d x - (2 * N%:R) *: 1%:M =
   S N (tval x).

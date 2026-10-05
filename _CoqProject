@@ -9,11 +9,19 @@ library/gaussian/measurable_matrix.v
 library/gaussian/normal_integral.v
 library/gaussian/gauss.v
 library/gaussian/gauss_ibp.v
+library/gaussian/gauss_moments.v
+library/gaussian/gauss_interpolation.v
 library/matrix/euclidean.v
 library/matrix/real_spectral.v
 library/matrix/opnorm.v
 library/matrix/nets.v
 library/probability/moments.v
+library/probability/lindeberg.v
+library/comparison/normal_mgf.v
+library/comparison/chi_square.v
+library/comparison/normal_linear.v
+library/comparison/gauss_linear.v
+library/comparison/gauss_rotation.v
 
 theories/AffineGaussianGibbs.v
 theories/AffineGaussianRegular.v
@@ -575,7 +583,6 @@ theories/PaperMainSupportConditionedFit.v
 theories/PaperMainSymmetricBilinear.v
 theories/PaperMainSymmetricDiagonalization.v
 theories/PaperMainSymmetricDiagonalizationBridge.v
-theories/PaperMainSymmetricDiagonalizationEigen.v
 theories/PaperMainSymmetricOperatorNet.v
 theories/PaperMainTranslatedLoss.v
 theories/PaperMainUnsatFiniteTail.v

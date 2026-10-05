@@ -1,4 +1,18 @@
-(* Data soft expectation margin on the actual bounded-condition cone. *)
+(* A lower bound for the expected data soft minimax, for matrices of the
+   bounded-condition cone sphere.
+   - paper_main_soft_cone_error_scale: the algebra
+     A (kappa / sqrt d)^3 / d = A kappa^3 / (d^2 sqrt d).
+   - paper_main_data_soft_cone_margin: let B_j (j < s) be in the cone
+     sphere paper_main_head_cone_sphere kappa, kappa >= 1, and let y_z
+     (z < r) be unit dual vectors of length N = m + 1 with entries at most
+     theta / sqrt d, d = n + 1, and ln N <= d. Then the expectation of the
+     soft minimax of sum_i y_z(i) <W_i, B_j> over the features W_i of the
+     sample is at least
+       goe_scale n (w - sqrt N) - ln r / beta
+         - (200/3) kappa^3 (beta + gamma)^2 theta / (d^2 sqrt d),
+     where w is the Gordon width of the B_j in GOE coordinates. This is
+     paper_main_data_soft_margin_coarse with the operator bound
+     kappa / sqrt d of the cone sphere. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

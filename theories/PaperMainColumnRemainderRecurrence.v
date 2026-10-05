@@ -1,4 +1,16 @@
-(* Operator bounds for the finite NB recurrence remainder sums. *)
+(* Operator bounds for the remainder sums of the non-backtracking
+   recursion of PaperMainSquarefreeEdgeLower:
+   Psi_L = sum_(k < L) (-1)^k E_k T_(L-k-1) (pmlo_Psi), with the errors E_k
+   (pmlo_E) and the non-backtracking matrices T_j (pmlo_T). Operator
+   bounds are pmlo_opb.
+   - pmcr_psi_opbound: if |E_k| <= eta and |T_j| <= t for k, j < L, then
+     |Psi_L| <= L eta t.
+   - pmcr_psi_uniform: if these bounds hold for k, j < K, then
+     |Psi_L| <= K eta t for every L <= K.
+   - pmcr_recurrence_opbound: for 0 <= s <= 2 and m <= K,
+     |Psi_m + s Psi_(m-1)| <= 3 K eta t. This sum is the remainder of the
+     three-term recurrence pmlo_knh.
+   Deterministic. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

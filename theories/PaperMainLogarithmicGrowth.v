@@ -1,4 +1,10 @@
-(* Arbitrary fixed polynomial growth of the dyadic logarithmic walk length. *)
+(* Every fixed power of the walk length is eventually below d.
+   The walk length is L(d) = 2^(k+3) with k = log2 (log2 d) (pmel_L of
+   PaperMainSquarefreeEdgeUpperLimit), so L(d) <= 8 log2 d
+   (pmlg_walk_length_bound). With m^2 <= 2^m for m >= 4 (pmlg_square_exp)
+   and its consequence A l^k <= 2^l for large l (pmlg_poly_exp), this gives
+   pmlg_eventual: for all A and k, A L(d)^k <= d for every large d, from the
+   explicit threshold pmlg_threshold A k on. Natural numbers only. *)
 From Stdlib Require Import Lia PeanoNat.
 From mathcomp Require Import all_ssreflect_compat.
 From EllipsoidFitting Require Import PaperMainSquarefreeEdgeUpperLimit.

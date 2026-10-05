@@ -1,4 +1,20 @@
-(* Finite-prior bounded loss arrays, with their entropy correction and actual mean. *)
+(* The normalized soft minimum of a loss array over a finite prior.
+
+   paper_main_loss_entropy_shift N beta I F xs = (F xs + ln |I| / beta) / N
+   is regular (pmdf_regular) when F is, and its iterated Gaussian
+   expectation is (E F + ln |I| / beta) / N. The normalized array
+   paper_main_loss_normalized_array p N beta I ell is this shift of the soft
+   minimum over j in I of paper_main_loss_array p N ell xs j
+   (paper_main_loss_normalized_arrayE). Let N > 0, I be nonempty and
+   beta > 0.
+   - paper_main_loss_normalized_array_regular: if every ell i j is
+     continuous with values in [0, 1], the normalized array is regular.
+   - paper_main_loss_normalized_array_bounds: if every ell i j takes values
+     in [0, 1], the normalized array lies in [0, 1].
+   - paper_main_loss_normalized_array_gap: if every array value is at least
+     N e, the normalized array is at least e.
+   - paper_main_loss_normalized_array_witness: the normalized array is at
+     most (array value at j) / N + ln |I| / (beta N) for every j in I. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions PaperMainDataFeatureMomentsCoordinates

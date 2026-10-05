@@ -18,7 +18,8 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral probability.
-From mathcomp Require Import ring_tactic arithmetic_tactic.
+From mathcomp Require Import ring_tactic arithmetic_tactic sesquilinear.
+From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefinitions
   GaussianProbabilityProductDefinitions PaperMainSquarefreeWalkMoments
   PaperMainSquarefreeWalkExpansion PaperMainSquarefreeWalkWeight
@@ -27,7 +28,8 @@ From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefiniti
   PaperMainSquarefreeWalkShapeBound PaperMainDefinitions PaperMainGeometryPsd
   PaperMainGeometryHomogeneous PaperMainGeometrySeparation PaperMainGeometryHeadFrobenius
   PaperMainGeometryHeadFeature PaperMainGeometryHeadCorrection PaperMainGeometryHeadCoefficients
-  PaperMainSymmetricBilinear PaperMainConeConditionOperator PaperMainDiagonalBlockTrace.
+  PaperMainSymmetricBilinear PaperMainConeConditionOperator PaperMainDiagonalBlockTrace
+  PaperMainSymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
 
 (* 1. Sums over lists of a fixed length and over tuples. *)
@@ -149,78 +151,25 @@ Lemma pmeu_form_pow Z v j : Z^T = Z ->
   ((v^T *m Z *m v) 0 0) ^+ (2 ^ j.+1) <=
   ((v^T *m v) 0 0) ^+ (2 ^ j.+1) * \tr (Z ^+ (2 ^ j.+1)).
 Proof.
-move=> HZ.
-set nn := (v^T *m v) 0 0.
-have Hn : 0 <= nn by exact: pmh_vec_sqr_ge0.
-pose q k := (v^T *m Z ^+ (2 ^ k) *m v) 0 0.
-have HZk k : (Z ^+ (2 ^ k))^T = Z ^+ (2 ^ k) by exact: pmeu_trmx_exp.
-have Hsq k : Z ^+ (2 ^ k.+1) = Z ^+ (2 ^ k) *m Z ^+ (2 ^ k).
-  by rewrite expnS mul2n -addnn exprD mulmxE.
-(* Cauchy-Schwarz at each doubling. *)
-have Hcs k : q k ^+ 2 <= nn * q k.+1.
-  by have := pmdb_form_cs _ (Z ^+ (2 ^ k)) v (HZk k); rewrite -Hsq.
-have Hqpos k : 0 <= q k.+1.
-  have E : q k.+1 = ((Z ^+ (2 ^ k) *m v)^T *m (Z ^+ (2 ^ k) *m v)) 0 0.
-    by rewrite /q Hsq trmx_mul HZk !mulmxA.
-  by rewrite E; exact: pmh_vec_sqr_ge0.
-have Hind k : q 0 ^+ (2 ^ k.+1) <= nn ^+ (2 ^ k.+1).-1 * q k.+1.
-  elim: k => [|k IH]; first by rewrite expn1 /= expr1; exact: Hcs 0.
-  have Ha : (2 ^ k.+2).-1 = ((2 ^ k.+1).-1 * 2).+1.
-    rewrite expnS; case: (2 ^ k.+1)%N (expn_gt0 2 k.+1) => [//|a] _.
-    by rewrite -!multE; lia.
-  have H0 : 0 <= q 0 ^+ (2 ^ k.+1) by rewrite expnS exprM exprn_ge0 // sqr_ge0.
-  rewrite Ha.
-  have EL : q 0 ^+ (2 ^ k.+2) = (q 0 ^+ (2 ^ k.+1)) ^+ 2 by rewrite -exprM -expnSr.
-  have ER : nn ^+ ((2 ^ k.+1).-1 * 2).+1 * q k.+2 =
-      (nn ^+ (2 ^ k.+1).-1) ^+ 2 * (nn * q k.+2).
-    by rewrite exprS exprM mulrA [_ * nn]mulrC.
-  rewrite EL ER.
-  have S1 : (q 0 ^+ (2 ^ k.+1)) ^+ 2 <= (nn ^+ (2 ^ k.+1).-1 * q k.+1) ^+ 2.
-    by rewrite ler_sqr ?nnegrE // mulr_ge0 ?exprn_ge0 // Hqpos.
-  apply: le_trans S1 _; rewrite exprMn; apply: ler_wpM2l; first by rewrite sqr_ge0.
-  exact: Hcs.
-(* The last power is bounded by the trace. *)
-have Hfin : q j.+1 <= \tr (Z ^+ (2 ^ j.+1)) * nn.
-  have E : q j.+1 = ((Z ^+ (2 ^ j) *m v)^T *m (Z ^+ (2 ^ j) *m v)) 0 0.
-    by rewrite /q Hsq trmx_mul HZk !mulmxA.
-  rewrite E; apply: le_trans (pmdb_form_frobenius _ (Z ^+ (2 ^ j)) v) _.
-  by rewrite HZk -Hsq.
-have Hq0 : q 0 = (v^T *m Z *m v) 0 0 by rewrite /q expn0 expr1.
-have Hnn : nn ^+ (2 ^ j.+1) = nn ^+ (2 ^ j.+1).-1 * nn.
-  by rewrite -exprSr prednK // expn_gt0.
-rewrite -Hq0 Hnn -mulrA; apply: le_trans (Hind j) _.
-by apply: ler_wpM2l; [exact: exprn_ge0 | rewrite mulrC].
+move=> /symmetricmxP HZ; set p := (2 ^ j.+1)%N.
+have ep : ~~ odd p by rewrite oddX.
+have p0 : (0 < p)%N by rewrite expn_gt0.
+rewrite -mulmxA -!mxdot_colE -[_ ^+ p]ger0_norm ?exprn_even_ge0 // normrX.
+have q_le : `|mxdot v (Z *m v)| <= opnorm Z * mxdot v v.
+  by rewrite -frobenius_sqr expr2 mulrA mxdot_opnorm.
+apply: le_trans (lerXn2r p _ _ q_le) _;
+  rewrite ?nnegrE ?mulr_ge0 ?opnorm_ge0 ?mxdot_ge0 //.
+by rewrite exprMn mulrC ler_wpM2l ?exprn_ge0 ?mxdot_ge0 ?opnorm_exp_le_trace_even.
 Qed.
 
 Theorem pmeu_trace_box Z (t : R) j : Z^T = Z -> 0 <= t ->
   \tr (Z ^+ (2 ^ j.+1)) <= t ^+ (2 ^ j.+1) ->
   paper_main_loewner_le ((- t) *: 1%:M) Z /\ paper_main_loewner_le Z (t *: 1%:M).
 Proof.
-move=> HZ Ht HT.
-have HZs : paper_main_symmetric Z by exact/paper_main_symmetricP.
-have Hev : ~~ odd (2 ^ j.+1)%N by rewrite oddX.
-have HL0 : (0 < 2 ^ j.+1)%N by rewrite expn_gt0.
-have Hform : forall v : 'cV[R]_n, `|(v^T *m Z *m v) 0 0| <= t * (v^T *m v) 0 0.
-  move=> v.
-  have Hn : 0 <= (v^T *m v) 0 0 by exact: pmh_vec_sqr_ge0.
-  have H := pmeu_form_pow Z v j HZ.
-  have H' : ((v^T *m Z *m v) 0 0) ^+ (2 ^ j.+1) <= (t * (v^T *m v) 0 0) ^+ (2 ^ j.+1).
-    apply: le_trans H _; rewrite exprMn mulrC.
-    by apply: ler_wpM2r => //; exact: exprn_ge0.
-  have Hx : `|(v^T *m Z *m v) 0 0| ^+ (2 ^ j.+1) <= (t * (v^T *m v) 0 0) ^+ (2 ^ j.+1).
-    by rewrite -normrX ger0_norm ?exprn_even_ge0.
-  move: Hx; rewrite ler_pXn2r // ?nnegrE //; exact: mulr_ge0.
-have HtI : paper_main_symmetric (t *: (1%:M : 'M[R]_n)).
-  by apply: paper_main_symmetric_scale; exact: pmh_symmetric_id.
-have HmtI : paper_main_symmetric ((- t) *: (1%:M : 'M[R]_n)).
-  by apply: paper_main_symmetric_scale; exact: pmh_symmetric_id.
-split; split.
-- exact: pmh_symmetricB.
-- move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id paper_main_quadratic_formE.
-  have := Hform v; rewrite ler_norml => /andP [H1 _]; lra.
-- exact: pmh_symmetricB.
-- move=> v; rewrite pms_formB paper_main_form_scale pmh_form_id paper_main_quadratic_formE.
-  have := Hform v; rewrite ler_norml => /andP [_ H2]; lra.
+move=> /symmetricmxP HZ Ht HT; apply/paper_main_loewner_boxP; split => //.
+apply/(opnorm_symP HZ Ht)/(opnorm_le_trace_exp HZ (p := 2 ^ j.+1)) => //.
+  by rewrite oddX.
+by rewrite expn_gt0.
 Qed.
 
 End TracePower.

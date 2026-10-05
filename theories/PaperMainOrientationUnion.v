@@ -1,24 +1,29 @@
-(* The finite orientation and rank union contains the actual fits.
+(* A finite union over ranks and orientations contains the fits.
 
-   Sample space: paper_main_sample N d with the actual product law
+   Sample space: paper_main_sample N d with the product law
    paper_main_probability N d = gaussian_product_law (N * d).
    1. Finite unions of measurable events with event-dependent bounds have
-      probability at most the sum of the bounds (as in PaperMainGaussianUnion,
-      which uses a common bound).
-   2. For a family s : nat -> nat and events Ev r k, the union over r <= rmax and
-      k < s r is measurable with probability at most sum_r s_r p when every event
-      has probability at most p.
-   3. Main assembly. Suppose that for every rank r <= rmax and every orthogonal O
-      an event E is supplied: measurable, of probability at most p, and containing
-      every sample x with a feature Gram bound K I (any K >= 0 with
-      K <= N L^2) that admits an admissible candidate in orientation O with
-      quadratic risk at most 16 L tau. With the A31 family (fixed before data),
-      a choice of one supplied event for each member, and the A30 witness, the
-      union F of the chosen events is measurable, has probability at most
-        (rmax + 1) exp (C (d + 1)) p,  C = paper_main_orientation_entropy rmax tau,
-      and contains every fit with such a Gram bound. r = 0 and out-of-range
-      indices are included (out of range the chosen event is arbitrary and
-      unused). *)
+      probability at most the sum of the bounds
+      (paper_main_orientation_union_bound_var; PaperMainGaussianUnion has
+      the case of a common bound).
+   2. For a family s : nat -> nat and events Ev r k, the union over
+      r <= rmax and k < s r is measurable with probability at most
+      sum_r s_r p when every event has probability at most p
+      (paper_main_orientation_family_union_bound).
+   3. paper_main_orientation_union_fit. Suppose that for every rank
+      r <= rmax and every orthogonal O there is an event E: measurable, of
+      probability at most p, and containing every sample x with a feature
+      Gram bound K I (any K >= 0 with K <= N L^2) that admits an admissible
+      candidate in orientation O with quadratic risk at most 16 L tau. Take
+      the finite family of orientations of
+      paper_main_orientation_family_uniform, which does not depend on the
+      sample, choose one such event for each member, and use the witness
+      paper_main_orientation_fit_witness. Then the union F of the chosen
+      events is measurable, has probability at most
+        (rmax + 1) exp (C (d + 1)) p
+      with C = paper_main_orientation_entropy rmax tau, and contains every
+      fit with such a Gram bound. r = 0 and out-of-range indices are
+      included (out of range the chosen event is arbitrary and unused). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -107,7 +112,7 @@ right; rewrite RmultE mulr_suml; apply: eq_bigr => i _.
 by rewrite INRE RmultE.
 Qed.
 
-(* 3. The finite orientation and rank union contains the actual fits. *)
+(* 3. The finite union over ranks and orientations contains the fits. *)
 
 Theorem paper_main_orientation_union_fit d (eps0 eps tau L p : R) (rmax N : nat) :
   0 < eps0 -> 0 <= eps -> 0 < tau -> tau <= 1 / 8 -> eps0 + tau ^+ 2 <= eps -> 0 <= L ->

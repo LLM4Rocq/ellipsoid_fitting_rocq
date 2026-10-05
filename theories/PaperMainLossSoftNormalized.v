@@ -1,4 +1,16 @@
-(* Entropy-shifted normalized soft minima stay in the bounded-loss range. *)
+(* The entropy-shifted normalized soft minimum
+     Z = (soft_min beta f I + ln |I| / beta) / N
+   (paper_main_loss_soft_normalized), for beta > 0, N > 0 and a nonempty
+   list I. Deterministic.
+   - paper_main_loss_soft_min_monotone: soft_min is monotone in f.
+     paper_main_loss_soft_min_constant: the soft minimum of a constant c is
+     c - ln |I| / beta.
+   - paper_main_loss_soft_normalized_bounds: if 0 <= f j <= N on I, then
+     0 <= Z <= 1.
+   - paper_main_loss_soft_normalized_minimum:
+     min f / N <= Z <= min f / N + ln |I| / (beta N).
+   - paper_main_loss_soft_normalized_gap: if f j >= N e on I, then
+     Z >= e. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GaussianCovarianceSums PaperMainSoftLipschitz
   PaperMainLossArray PaperMainDataFeatureMomentsCoordinates.

@@ -1,4 +1,25 @@
-(* A fixed finite prior of head/bulk blocks for each fixed orientation. *)
+(* A finite prior of head and bulk blocks for a fixed orientation O of
+   R^d, d = r + mi + 1. With P = O^T diag(1_r, 0) O (the projector
+   paper_main_orientation_projector r O), a candidate (A, b) is admissible
+   (paper_main_orientation_admissible of PaperMainOrientationWitness) when
+   A >= 0, P A P + (I - P) A (I - P) = A, 1/4 <= |A|_F^2 <= 4,
+   (I - P) A (I - P) has cone operator norm at most eps, and |b| <= L.
+   - paper_main_orientation_admissible_standard: an admissible A is
+     symmetric with |A|_F^2 <= 4, and |b| <= L.
+   - paper_main_orientation_prior: let O be orthogonal, L >= 0, delta > 0,
+     and assume some admissible candidate exists. There are s > 0 head
+     blocks H_j >= 0 of size r, bulk blocks B_j >= 0 of size mi + 1 with
+     cone operator norm at most eps, and offsets b_j, with
+     1/4 <= |H_j|_F^2 + |B_j|_F^2 <= 4 and
+     ln s <= 3 C(delta / (L + 3)) d^2, where C is
+     paper_main_gordon_entropy_constant, such that the following holds.
+     For every sample x of N > 0 points whose feature Gram matrix is at
+     most K I with K <= N L^2, if some admissible candidate has quadratic
+     risk at most a, then the finite hybrid data functional of the blocks
+     at the sample rotated by O is at most
+     a + 4 (L + 1) delta + ln s / (beta N). The blocks are the diagonal
+     blocks of O A_j O^T for the finite prior A_j of
+     paper_main_quadratic_prior_positive. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

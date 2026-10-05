@@ -1,4 +1,17 @@
-(* One actual finite exceptional event covers every ordered head in the budget. *)
+(* One exceptional event for all heads of at most K sample points.
+
+   paper_main_head_subcritical_family_event: for 0 <= alpha < 1/4,
+   kappa >= 1 and L >= 0 there are theta, c > 0 with the following property
+   for every large d = S n and N <= alpha d^2. Some measurable event E has
+   probability at most |paper_main_head_families N K| exp(-c d sqrt d), and
+   for every sample x outside E whose coordinates are all below d^(1/4) and
+   whose head features have operator bound L sqrt d, every list J of at
+   most K distinct indices below N satisfies paper_main_head_list_positive,
+   provided the heads of size |J| have head-section width at least
+   (1/2 - (1/2 - sqrt alpha)/16) d (paper_main_head_size_width).
+   E is the union, over the finite family paper_main_head_families N K, of
+   the events given for each list by
+   paper_main_head_subcritical_fixed_event. *)
 From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix.

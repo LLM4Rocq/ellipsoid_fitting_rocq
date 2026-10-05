@@ -1,5 +1,24 @@
-(* Public product-law comparison, reusing the retained completed multirow proof.
-   Continued proof work after the immutable publication checkpoint. *)
+(* The soft minimax at quadratic data features and at GOE features, compared
+   under the Gaussian product law. Let d = n + 1 and N = m + 1.
+   multirow_quadratic_value and multirow_goe_value are the soft minimax
+   lower_block_phi at the N quadratic data features (x_i x_i^T - I) / sqrt d
+   of the rows x_i of a list of coordinates, and at the N GOE matrices built
+   from the rows of a list of coordinates. Under the Gaussian product law
+   the rows are independent standard Gaussian vectors, and the GOE matrices
+   are independent.
+   - paper_main_soft_endpoint_laws: both values are integrable under
+     gaussian_product_law, and their integrals are the iterated Gaussian
+     expectations (paper_main_soft_domain_law, with the continuity of
+     paper_main_soft_endpoint_continuous).
+   - paper_main_soft_public_comparison: if the dual vectors y z are unit
+     vectors with entries at most theta / sqrt d, and the B s are symmetric
+     with operator norm at most k, the two integrals differ by at most
+       (40/3) k^3 (beta + gamma)^2 theta (d + 2 sqrt (d ln N) + 2 ln N) / d^2.
+     This is the bound paper_multirow_integrated_bound_results, proved by
+     interpolation between the two arrays, transported to the integrals of
+     gaussian_product_law.
+   - paper_main_soft_comparison_coarse: when 0 <= ln N <= d, this bound is
+     at most (200/3) k^3 (beta + gamma)^2 theta / d. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

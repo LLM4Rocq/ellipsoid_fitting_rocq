@@ -1,4 +1,17 @@
-(* Deterministic cross-power and diagonal estimates for the NB error split. *)
+(* Operator norm bounds for the column powers in the error of the
+   non-backtracking recurrence. Deterministic.
+
+   For a family X : 'I_N -> C -> R with columns X_c, write R_c = X_c X_c^T
+   (pmcr_rankone), D_c = diag(X_ic^2) (pmcr_diagonal) and
+   Q_c = sum_i X_ic^2 (pmcr_column_norm).
+   - pmcr_cross_opbound: if every Q_c <= U, every X_ic^2 <= m, every row sum
+     sum_c X_ic^2 is at most U, sum_c R_c <= U I as quadratic forms,
+     0 <= m <= b <= U and m U <= b^2, then for p >= 2 the operator norm of
+     sum_c ((R_c - D_c)^p - R_c^p) is at most p (2 U)^(p - 1) b.
+   - pmcr_cross_scaled: the same bound after scaling by kap^p.
+   - pmcr_diagonal_sum and pmcr_diagonal_error: sum_c D_c is the diagonal
+     matrix of the row sums, so if |a sum_c X_ic^2 - 1| <= delta for every
+     row i, then a sum_c D_c - I has operator norm at most delta. *)
 From Stdlib Require Import Reals List FunctionalExtensionality Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -1,4 +1,16 @@
-(* Finite arrays of bounded continuous row losses under actual Gaussian coordinates. *)
+(* Sums of row losses over the blocks of a list, and their soft minimum.
+   For a list xs of N blocks of length p,
+     paper_main_loss_array p N ell xs j = sum_(i < N) ell i j (block i),
+   and paper_main_loss_array_soft p N beta f I ell xs is the soft minimum
+   over j in I of f j + paper_main_loss_array p N ell xs j.
+   - paper_main_loss_array_bounds: if every ell i j takes values in [0, 1],
+     the sum takes values in [0, N].
+   - paper_main_loss_array_continuous: if every ell i j is continuous, so is
+     the sum, as a function of the N p coordinates.
+   - paper_main_loss_array_soft_regular: for nonempty I and beta > 0, under
+     both hypotheses the soft minimum is continuous and bounded by
+     |soft_min beta f I| + N, so it satisfies pmdf_regular (continuity and
+     a polynomial bound). *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions SoftExtrema
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity

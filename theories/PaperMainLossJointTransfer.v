@@ -1,4 +1,13 @@
-(* Joint matrix/scalar finite nets transfer a positive empirical loss gap. *)
+(* Lipschitz bounds for the joint empirical risk
+     paper_main_loss_joint_risk n N F A b
+       = (1/N) sum_(i < N) loss(F_i(A) - b),
+   loss(t) = 1 - exp(-t^2) (paper_main_loss), in the matrix A and the
+   scalar b.
+   - paper_main_loss_shift_lipschitz: changing the shift b to c changes the
+     empirical loss by at most 4 |b - c|.
+   - paper_main_loss_joint_risk_lipschitz: if
+     sum_i (F_i(A) - F_i(B))^2 <= N (L |A - B|_F)^2, the risks at (A, b)
+     and (B, c) differ by at most 4 L |A - B|_F + 4 |b - c|. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums

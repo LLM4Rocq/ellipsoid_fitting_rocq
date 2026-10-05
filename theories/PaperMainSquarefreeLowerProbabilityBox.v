@@ -1,14 +1,19 @@
-(* Deterministic composition for the actual lower spectral law (A40, box).
+(* Coercivity of the raw feature Gram matrix from operator bounds on the
+   non-backtracking remainders. Deterministic.
 
-   With kap = (sqrt (N 'C(d, 2)))^-1 and s = kap N: for 0 < N, d >= 9 and
-   4 N <= d^2 (so 0 <= s <= 3/4 <= 1, A39), if a sample lies outside the NB
-   union event pmnbv_union N d kap (2^(k+1)) (2^(j+2)) t with t >= 1, every
-   remainder E_m with m < 2^(k+1) has operator bound eta >= 0, the gap
-     2^(2^(k+1)) t + pmlo_rho (t + 1) (3 2^(k+1) eta t) (2^(k+1)) <= (49/24)^(2^(k+1))
-   holds, and every row sum satisfies |D_i / 'C(d, 2) - 1| <= 1/64, then
+   paper_main_squarefree_coercivity_from_remainders: let
+   kap = (sqrt (N 'C(d, 2)))^-1 and s = kap N, with 0 < N, d >= 9 and
+   4 N <= d^2, so that 0 <= s <= 3/4 <= 1
+   (paper_main_squarefree_coercivity_scale). Let a sample lie outside the
+   non-backtracking union event pmnbv_union N d kap (2^(k+1)) (2^(j+2)) t
+   with t >= 1, let every remainder E_m with m < 2^(k+1) have operator norm
+   at most eta >= 0, let the gap condition
+     2^(2^(k+1)) t + pmlo_rho (t + 1) (3 2^(k+1) eta t) (2^(k+1))
+       <= (49/24)^(2^(k+1))
+   hold, and let every row sum satisfy |D_i / 'C(d, 2) - 1| <= 1/64. Then
    paper_main_squarefree_box_from_remainders gives the box
-   -(49/24) I <= pmlo_T 1 - s I and paper_main_squarefree_coercivity_from_box
-   gives raw-feature coercivity with constant d^2 / 128. *)
+   -(49/24) I <= pmlo_T 1 - s I, and paper_main_squarefree_coercivity_from_box
+   shows that the Gram matrix of the raw features is at least (d^2 / 128) I. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

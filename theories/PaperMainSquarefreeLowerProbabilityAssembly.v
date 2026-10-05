@@ -1,18 +1,21 @@
-(* The actual lower spectral law at fixed scalar parameters (A40, assembly).
+(* The lower spectral law at fixed scalar parameters
+   (paper_main_squarefree_lower_probability_at).
 
    Let N : nat -> nat, c > 0 and c1 with eventual density >= c and,
    eventually, 0 < N(d), 4 N(d) <= d^2 and d^2 <= c1 N(d). Fix k and
    eta > 0 with K = 2^(k+1), t = pmnbr_t k = 12 (K + 1) and the scalar gap
      2^K t + pmlo_rho (t + 1) (3 K eta t) K <= (49/24)^K.
-   The union of three actual measurable events,
-   - the A38 remainder event at K and eta (all E_m, m < K, have operator
-     bound eta outside it),
-   - the A35 row event at 1/64 (checkpoint 72),
-   - the NB trace event at the exact normalization (checkpoint 74),
+   The union of three measurable events,
+   - the remainder event of paper_main_column_remainder_probability at K
+     and eta (all E_m, m < K, have operator bound eta outside it),
+   - the row event of paper_main_squarefree_row_event, outside which every
+     row i of X = pmnb_X d (tval x) has |sum_q X_iq^2 / C(d, 2) - 1| <= 1/64,
+   - the non-backtracking trace event paper_main_squarefree_trace_event at
+     the exact normalization,
    has probability tending to 0, and for all large d every sample outside
-   it has raw-feature coercivity with constant d^2 / 128 (checkpoint 74,
-   coercivity outside the trace event). The scalar gap is the only
-   assumption on (k, eta); it is deterministic. *)
+   it has raw-feature coercivity with constant d^2 / 128
+   (paper_main_squarefree_coercivity_outside_trace). The scalar gap is the
+   only hypothesis on (k, eta); it is deterministic. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

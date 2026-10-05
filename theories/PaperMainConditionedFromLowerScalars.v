@@ -1,11 +1,11 @@
-(* The scalars of the conditioned reduction (G17), base libraries only.
-   For kappa >= 1, lambda = (kappa+1/2)/(1-1/2) satisfies 1 <= lambda
-   (pmcfls_lambda_ge1) and 0 < lambda^-1 <= lambda (pmcfls_bounds), in the
-   MathComp order on R; pmcfls_bounds_coq states the same for the Stdlib
-   order. The hypothesis Rle 1 kappa is the term (1 <= kappa)%Rcoq of the
-   EllipsoidFitting files, and lambda is written exactly as in
-   paper_main_subcritical_raw_spectral_reduction (MathComp operations).
-   No EllipsoidFitting import. *)
+(* The scalars of the conditioned reduction. For kappa >= 1, the number
+   lambda = (kappa+1/2)/(1-1/2) satisfies 1 <= lambda (pmcfls_lambda_ge1)
+   and 0 < lambda^-1 <= lambda (pmcfls_bounds), in the MathComp order on
+   R. The hypothesis Rle 1 kappa is the Stdlib form of kappa >= 1, as in
+   paper_main_subcritical_raw_spectral_reduction, and lambda is written
+   exactly as there (MathComp operations). PaperMainConditionedFromLower
+   uses lm = lambda^-1 and lp = lambda as the constants of the
+   well-conditioned fit event. *)
 From Stdlib Require Import Reals.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp reals Rstruct.

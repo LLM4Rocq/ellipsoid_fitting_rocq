@@ -1,4 +1,18 @@
-(* Actual simultaneous logarithmic raw head-data Gram control. *)
+(* A bound, uniform over the heads and with logarithmic factors, on the
+   Gram matrices of the heads of the data sample.
+
+   For a head s : 'I_m -> 'I_N of distinct rows, X_J X_J^T is the sum of
+   x_(s k) x_(s k)^T over k < m (paper_main_head_data_gram).
+   - paper_main_head_data_log_event: for C, K >= 0 there is L > 0 such that,
+     for d >= 1, ln d >= 1 and N <= C d^2, outside a measurable event of
+     probability at most 2 / d, every head of size m <= K d ln d satisfies
+     X_J X_J^T <= L d (ln d)^2 I. It applies
+     paper_main_data_head_operator_uniform with u = ln d.
+   - paper_main_head_data_log_probability: if N(d) <= C d^2 eventually,
+     there are L > 0 and measurable events E_d with probability tending to 0
+     such that, for all large d, every sample outside E_d satisfies this
+     bound (paper_main_head_data_log_good). The events are chosen with
+     Hilbert's epsilon. *)
 From Stdlib Require Import Reals Lia Lra Psatz Epsilon.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

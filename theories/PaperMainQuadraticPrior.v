@@ -1,4 +1,17 @@
-(* The finite prior is fixed before all data, with loss control on the actual feature event. *)
+(* A finite prior for the quadratic risk, chosen before the data. Let T be
+   a nonempty set of pairs (A, b) with A symmetric, |A|_F^2 <= 4 and
+   |b| <= L, and let paper_main_quadratic_risk N d x A b be the empirical
+   loss of the residuals x_i^T A x_i - tr A - b of the sample x.
+   - paper_main_quadratic_prior: for delta > 0 there are finitely many
+     pairs (A_j, b_j) in T, j < s, with
+     ln s <= C(delta / (L + 3)) (D + 2), D = paper_main_symmetric_dimension n
+     and C = paper_main_gordon_entropy_constant, such that for every sample
+     whose feature Gram matrix is at most K I with K <= N L^2, every pair
+     (B, c) of T is within 4 (L + 1) delta in risk of some (A_j, b_j).
+   - paper_main_quadratic_prior_positive: the same in dimension d > 0, with
+     ln s <= 3 C(delta / (L + 3)) d^2.
+   The proof takes a joint net of T (paper_main_loss_joint_net) and the
+   Lipschitz bound paper_main_loss_joint_risk_lipschitz. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums

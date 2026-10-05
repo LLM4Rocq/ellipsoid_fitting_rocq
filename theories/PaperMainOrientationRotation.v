@@ -3,20 +3,19 @@
    Conventions: an orientation is O : 'M[R]_d with O^T *m O = 1%:M (then also
    O *m O^T = 1%:M). A sample of N data rows of d coordinates is an
    (N * d)-tuple with coordinate b of row i at position i * d + b. The
-   rotated sample has rows O x_i.
+   rotated sample (paper_main_orientation_rotate) has rows O x_i.
    1. The rotation is the covariance image of the block-diagonal loading
       L (k, l) = O (k mod d, l mod d) [k / d = l / d], whose rows are
-      orthonormal in R^(N d). The A23 exact law (PaperMainProjectedBulkLaw)
-      with arrays of width 1 is the law of any covariance image with
-      orthonormal rows, so the rotation keeps the actual Gaussian product
-      law for every measurable event. No smooth-test restriction and no
-      data-dependent rotation is used.
-   2. Point evaluation: row i of the rotated sample is O x_i. The centered
-      quadratic value is invariant under conjugation:
-      (O g)^T H (O g) - Tr H - b = g^T (O^T H O) g - Tr (O^T H O) - b.
-   3. Pullbacks of measurable events by a finite list of rotations have
-      union probability at most (number of rotations) times the common
-      bound (PaperMainGaussianUnion). *)
+      orthonormal in R^(N d) (paper_main_orientation_loading_orthonormal).
+      By paper_main_projected_law (PaperMainProjectedBulkLaw), for arrays of
+      width 1, a covariance image with orthonormal rows has the standard
+      Gaussian law. So the rotation preserves gaussian_product_law (N * d):
+      every measurable event has the same probability as its pullback
+      (paper_main_orientation_rotate_law).
+   2. Point evaluation: row i of the rotated sample is O x_i
+      (paper_main_orientation_rotate_nth). The centered quadratic value is
+      invariant under conjugation (paper_main_orientation_head_value):
+      (O g)^T H (O g) - Tr H - b = g^T (O^T H O) g - Tr (O^T H O) - b. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -128,7 +127,7 @@ have E2 : (Ordinal Hqa == Ordinal Hqa') = false.
 by rewrite E2.
 Qed.
 
-(* 2. The rotation map and its exact law. *)
+(* 2. The rotation map preserves the Gaussian law. *)
 
 Definition paper_main_orientation_rotate N d (O : 'M[R]_d) (x : (N * d).-tuple T) :
     (N * d).-tuple T :=
@@ -233,8 +232,3 @@ have -> : paper_main_trace (O^T *m H *m O) = paper_main_trace H.
   by rewrite mxtrace_mulC mulmxA HO' mul1mx.
 by [].
 Qed.
-
-(* 5. Finite lists of rotations: pullbacks of events with a common bound. *)
-
-(* 6. Pullback of the A26 finite-prior data tail by a finite list of
-   orientations, each with its own admissible finite prior. *)

@@ -1,40 +1,28 @@
-(* Actual moments of the quadratic data feature for one standard Gaussian
-   row, and its covariance in the symmetric orthonormal basis.
+(* Moments of the quadratic data feature of one standard Gaussian row.
 
-   The data sample. Let d = N = n + 1. The row x has the law
-   gaussian_product_law N on N-tuples: N independent standard normal
-   coordinates x_j = List.nth j (tval x) 0. Its feature is
-   W x = (x x^T - I) / sqrt N (paper_main_data_row_feature, an instance of
-   paper_main_data_feature). The feature of the point i of an m-point
-   sample is paper_main_data_feature at the coordinates of that row
+   Let N = n + 1. The row x has the law gaussian_product_law N on N-tuples:
+   N independent standard normal coordinates x_j = List.nth j (tval x) 0.
+   Its feature is W x = (x x^T - I) / sqrt N (paper_main_data_row_feature,
+   an instance of paper_main_data_feature). The feature of the point i of an
+   m-point sample is paper_main_data_feature at the coordinates of that row
    (paper_main_data_feature_head), so the head feature
-   paper_main_head_feature x i is this map applied to row i. The law of a
-   row of an m-point sample is not treated here.
+   paper_main_head_feature x i is this map applied to row i.
 
-   Moments under the actual law, all with actual integrability (MathComp's
-   integrable and Lebesgue integral):
-   - E <W, S> = 0 for every public S (paper_main_data_feature_mean);
-   - E <W, S> <W, T> = (<S, T> + <S, T^T>) / N for all S, T, and
-     (2 / N) <S, T> when T is symmetric (paper_main_data_feature_covariance,
-     paper_main_data_feature_covariance_symmetric);
-   - E |W|_F^2 = N + 1 (paper_main_data_feature_frobenius);
-   - with c_k(W) the coordinates of W in the orthonormal goe_basis
-     (paper_main_symmetric_coordinates), E c_k = 0 and
-     E c_k c_l = goe_scale n ^ 2 * delta_kl, where goe_scale n ^ 2 = 2 / N
-     (paper_main_data_feature_coefficient_mean,
-     paper_main_data_feature_coefficient_covariance). This is the
-     normalization goe_scale = sqrt (2 / N) of the Gaussian surrogate.
+   - pmdf_actual: an integrand F that is continuous and polynomially bounded
+     (pmdf_regular) is integrable under gaussian_product_law d, and its
+     Lebesgue integral is the iterated expectation
+     gaussian_iterated_expectation d F (from gpp_all_sections and
+     gpp_joint_measurable). pmdf_bigsum: regularity and linearity of the
+     iterated expectation over finite sums.
+   - pmdf_quad_covariance: for q_S = sum_ab S_ab (x_a x_b - delta_ab)
+     (pmdf_quad), E q_S q_T = <S, T> + <S, T^T>.
+   - paper_main_data_feature_frobenius: |W|_F^2 is integrable and
+     E |W|_F^2 = N + 1.
 
-   Proofs. <W, S> = (sqrt N)^-1 sum_ab S_ab (x_a x_b - delta_ab)
-   (pmdf_pairing_quad). The coordinate moments of
-   PaperMainDataFeatureMomentsCoordinates give E (x_a x_b - delta_ab) = 0 and
-   E (x_a x_b - delta_ab)(x_c x_e - delta_ce) = delta_ac delta_be +
+   Proofs. The coordinate moments of PaperMainDataFeatureMomentsCoordinates
+   give E (x_a x_b - delta_ab) (x_c x_e - delta_ce) = delta_ac delta_be +
    delta_ae delta_bc, and the expectation is linear over the finite sums
-   (pmdf_bigsum). The iterated expectation is the actual integral for
-   continuous polynomially bounded integrands (pmdf_actual, from
-   gpp_all_sections and gpp_joint_measurable). No probability beyond this
-   transport, no Wick formula, and nothing from the paper is assumed. The
-   moments alone do not prove a high-dimensional spectral event. *)
+   (pmdf_bigsum). *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.
@@ -56,7 +44,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions 
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
-(* W = (x x^T - I) / sqrt N for the coordinates f of a point of R^N. *)
+(* W f = (f f^T - I) / sqrt N for the coordinates f of a point of R^N. *)
 Definition paper_main_data_feature n (f : nat -> R) : 'M[R]_(S n) :=
   (Num.sqrt (S n)%:R)^-1 *:
     (paper_main_symmetric_column n f *m (paper_main_symmetric_column n f)^T - 1%:M).
@@ -68,7 +56,7 @@ Theorem paper_main_data_feature_head m n (x : paper_main_sample m (S n)) (i : na
   paper_main_data_feature n (fun j => List.nth (i * S n + j) (tval x) 0).
 Proof. by []. Qed.
 
-(* The iterated expectation is the actual integral for regular integrands. *)
+(* For regular integrands the iterated expectation is the Lebesgue integral. *)
 Lemma pmdf_actual d (F : list R -> R) :
   pmdf_regular d F ->
   (gaussian_product_law d).-integrable setT (fun x => (F (tval x))%:E) /\

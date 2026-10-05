@@ -3,7 +3,8 @@ From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct.
-From mathcomp Require Import ring_tactic arithmetic_tactic.
+From mathcomp Require Import ring_tactic arithmetic_tactic sesquilinear.
+From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 From EllipsoidFitting Require Import PaperMainDefinitions PaperMainGeometryPsd PaperMainGeometryHomogeneous
   PaperMainGeometryHeadFrobenius PaperMainGeometryHeadCoefficients PaperMainConeConditionOperator
   PaperMainSymmetricDiagonalization.
@@ -24,34 +25,12 @@ move=> [HA HP]; split.
   by rewrite !paper_main_quadratic_formE trmx_mul !mulmxA in H *.
 Qed.
 
-Lemma paper_main_orthogonal_vector_norm O : O^T *m O = 1%:M ->
-  forall v, ((O *m v)^T *m (O *m v)) 0 0 = (v^T *m v) 0 0.
-Proof.
-move=> HO v.
-by rewrite trmx_mul !mulmxA -(mulmxA v^T O^T O) HO mulmx1.
-Qed.
-
-Lemma paper_main_action_to_opnorm A b :
-  (forall v, ((A *m v)^T *m (A *m v)) 0 0<=b^+2*(v^T *m v) 0 0) ->
-  paper_main_cone_opnorm_le A b.
-Proof.
-move=> HA u v.
-have H1 := pmco_vec_cauchy_schwarz d u (A *m v).
-rewrite mulmxA in H1.
-have H2 := HA v; have Hu := pmh_vec_sqr_ge0 d u.
-have H3 : (u^T *m u) 0 0*((A *m v)^T *m (A *m v)) 0 0<=
-  (u^T *m u) 0 0*(b^+2*(v^T *m v) 0 0) by apply: ler_wpM2l.
-nra.
-Qed.
-
 Theorem paper_main_orthogonal_congruence_opnorm A O b : O^T *m O = 1%:M ->
   paper_main_cone_opnorm_le A b -> paper_main_cone_opnorm_le (O^T *m A *m O) b.
 Proof.
-move=> HO HA u v; have H := HA (O *m u) (O *m v).
-rewrite !paper_main_orthogonal_vector_norm // in H.
-have E : ((O *m u)^T *m A *m (O *m v)) 0 0 =
-  (u^T *m (O^T *m A *m O) *m v) 0 0 by rewrite trmx_mul !mulmxA.
-by rewrite E in H.
+move=> /paper_main_symmetric_orthogonalmx Oo /paper_main_cone_opnorm_leP HA.
+apply/paper_main_cone_opnorm_leP.
+by rewrite opnorm_orthogonalmxr // opnorm_orthogonalmxl ?trmx_orthogonal.
 Qed.
 
 Lemma paper_main_diagonal_vector_entry a v (i : 'I_d) :
@@ -73,11 +52,8 @@ Qed.
 Theorem paper_main_diagonal_opnorm a b : 0<=b -> (forall i, `|a 0 i|<=b) ->
   paper_main_cone_opnorm_le (diag_mx a) b.
 Proof.
-move=> Hb Ha; apply: paper_main_action_to_opnorm=>v.
-rewrite !pmh_vec_dot mulr_sumr; apply: ler_sum=>i _.
-rewrite paper_main_diagonal_vector_entry -!expr2 exprMn.
-apply: ler_wpM2r; first exact: sqr_ge0.
-have H : `|a 0 i|^+2<=b^+2 by rewrite ler_sqr ?nnegrE ?normr_ge0.
-by rewrite -normrX ger0_norm ?sqr_ge0 in H.
+move=> Hb Ha; apply/paper_main_cone_opnorm_leP; rewrite ger0_norm //.
+rewrite (@opnorm_spectral _ _ _ 1%:M a) ?orthogonalmx1 ?trmx1 ?mul1mx ?mulmx1 //.
+by apply/bigmax_leP; split.
 Qed.
 End Orthogonal.

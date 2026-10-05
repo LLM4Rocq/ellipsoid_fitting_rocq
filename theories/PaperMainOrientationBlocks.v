@@ -3,13 +3,17 @@
    Dimension d = r + m. For O with O^T O = 1 and any S, let
      P = P_r(O) = O^T diag(1_{i<r}) O,  M = O S O^T,
      H = ulsubmx M (r x r),  B = drsubmx M (m x m).
-   1. diag(1_{i<r}) = block_mx 1 0 0 0 and 1 - diag(1_{i<r}) = block_mx 0 0 0 1.
+   1. diag(1_{i<r}) = block_mx 1 0 0 0 and
+      1 - diag(1_{i<r}) = block_mx 0 0 0 1.
    2. P S P = O^T (block_mx H 0 0 0) O and
       (1 - P) S (1 - P) = O^T (block_mx 0 0 0 B) O.
-   3. paper_main_pinching P S = O^T (block_mx H 0 0 B) O. For PSD S the blocks
-      H and B are PSD, ||paper_main_pinching P S||_F^2 = ||H||_F^2 + ||B||_F^2,
-      and an operator bound on the compressed bulk (1 - P) S (1 - P) is an
-      operator bound on B. r = 0 is included. *)
+   3. paper_main_pinching P S = O^T (block_mx H 0 0 B) O
+      (paper_main_orientation_pinching_block). For PSD S the blocks H and B
+      are PSD (paper_main_orientation_blocks_psd). For every S,
+      ||paper_main_pinching P S||_F^2 = ||H||_F^2 + ||B||_F^2
+      (paper_main_orientation_pinching_frobenius), and an operator bound on
+      the compressed bulk (1 - P) S (1 - P) is an operator bound on B
+      (paper_main_orientation_bulk_opnorm). r = 0 is included. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

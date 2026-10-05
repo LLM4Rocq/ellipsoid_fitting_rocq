@@ -1,4 +1,13 @@
-(* Quantitative floor-count bounds for the fixed-density phase reductions. *)
+(* Bounds on the fixed count N(d) = floor(alpha d^2)
+   (paper_main_fixed_count of PaperMainFixedDensity).
+   - paper_main_fixed_count_error: alpha d^2 - 1 < N(d) <= alpha d^2 for
+     alpha >= 0.
+   - paper_main_fixed_count_near: for kappa > 0, eventually d > 0 and
+     |N(d) - alpha d^2| <= kappa d^2.
+   - paper_main_fixed_count_density_bounds: for 0 < alpha <= 1, eventually
+     0 < N(d) <= d^2 and N(d) >= alpha d^2 / 2.
+   - paper_main_fixed_count_eventually_lower: hence the density N(d) / d^2
+     is eventually at least alpha / 2. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum archimedean matrix.

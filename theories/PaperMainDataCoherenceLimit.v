@@ -1,4 +1,17 @@
-(* A logarithmic coherence bound for all actual sample feature pairs. *)
+(* A logarithmic coherence bound for all pairs of head features of the
+   sample. The threshold is B_d = sqrt(64 d ln d)
+   (paper_main_coherence_threshold), for which exp(-B_d^2 / (8 d)) = d^-8
+   (paper_main_coherence_threshold_scale). The coherence event of
+   PaperMainDataSampleTail at B_d says that some pair i < j < N has
+   |x_i|^2 <= 4 d and |<x_i, x_j>| >= B_d.
+   - paper_main_data_coherence_log_tail: for d > 1 it is measurable with
+     probability at most 2 N^2 / d^8.
+   - paper_main_data_coherence_log_tends_to_zero: if N(d) <= C d^2 for all
+     large d, its probability tends to 0, since 2 N^2 / d^8 <=
+     2 C^2 / sqrt d (paper_main_data_coherence_log_rate).
+   - paper_main_data_coherence_log_good: outside it, if ln d >= 1 and
+     |x_k|^2 <= 4 d for every k < N, the head features of two distinct
+     points satisfy |<W_i, W_j>| <= 64 ln d + 9 <= 73 ln d. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import matrix.
 From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions

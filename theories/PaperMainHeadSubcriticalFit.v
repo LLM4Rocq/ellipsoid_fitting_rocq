@@ -1,4 +1,19 @@
-(* All nonspectral subcritical exceptions, with original conditioned fits outside them. *)
+(* Conditioned fits for subcritical densities, outside exceptional events
+   of vanishing probability, given spectral bounds on the head features.
+
+   paper_main_head_subcritical_fit_exception: for 0 <= alpha < 1/4 there is
+   kappa >= 1 such that, for every L >= 0, c > 0 and N(d) <= alpha d^2
+   eventually, there are measurable events E d with P(E d) -> 0 with the
+   following property for every large d. A sample outside E d whose head
+   Gram matrix is coercive with constant c d and whose head section
+   operator is bounded by L sqrt(d) lies in the conditioned event with
+   lm = ((kappa+1/2)/(1-1/2))^-1 and lp = (kappa+1/2)/(1-1/2).
+   E d is the union of three events: the failure of the width bound of
+   paper_main_head_width_coercive_probability_uniform for head sets of size
+   at most a constant times d ln d, the failure of the head list property of
+   paper_main_head_subcritical_probability, and a coordinate of the sample
+   of absolute value at least d^(1/4). Outside them,
+   paper_main_cone_head_tail_conditioned_fit builds the fit. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

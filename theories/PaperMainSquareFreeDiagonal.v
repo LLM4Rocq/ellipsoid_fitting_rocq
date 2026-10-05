@@ -1,21 +1,25 @@
-(* The diagonal of the square-free feature Gram under the actual Gaussian
-   law: an explicit finite event bound (G14, checkpoint B; manuscript
-   lines 534-537, eq:R2-diag and eq:diag-limit).
+(* The diagonal of the square-free feature Gram matrix under the Gaussian
+   law: an explicit bound on the bad event (eq:R2-diag and eq:diag-limit
+   of the paper).
    For a sample of N rows of d coordinates, S_i is the squared norm of row
-   i and Q_i the sum of the fourth powers. By checkpoint A,
-   (V V^T)_ii = S_i^2 - Q_i.
-   - Deterministic step: suppose |S_i - d| < eta d and every coordinate of
-     row i has |x_ia| < U. Then Q_i <= U^2 S_i, and
+   i and Q_i the sum of the fourth powers. By paper_main_squarefree_gram_diag
+   (PaperMainFeatureGramBlocks), (V V^T)_ii = S_i^2 - Q_i
+   (paper_main_squarefree_diag_list).
+   - Deterministic step (paper_main_row_diag_bound): suppose
+     |S_i - d| < eta d and every coordinate of row i has |x_ia| < U. Then
+     Q_i <= U^2 S_i, and
      |(V V^T)_ii / d^2 - 1| < eta (2 + eta) + U^2 (1 + eta) / d.
    - Events on gaussian_product_law (N * d): the bad event is some row with
      eps < |(V V^T)_ii / d^2 - 1|. When
      eta (2 + eta) + U^2 (1 + eta) / d <= eps, it lies inside the union of
-     the row events eta d <= |S_i - d| and the coordinate event at U.
-   - Bound: P(bad) <= N 2 exp (-(eta d)^2 / (4 d + 4 eta d))
-     + 2 N d exp (- U^2 / 2). The row tails come from the checked
-     weighted-square Chernoff bound with row-indicator weights, the
-     coordinate tail from G8. Every event is measurable.
-   No moment, KNH, Bernstein or spectral statement is assumed. *)
+     the row events eta d <= |S_i - d| and the coordinate event at U
+     (paper_main_squarefree_diag_event_sub).
+   - Bound (paper_main_squarefree_diag_bound):
+       P(bad) <= N 2 exp (-(eta d)^2 / (4 d + 4 eta d)) + 2 N d exp (- U^2 / 2).
+     The row tails come from the weighted-square Chernoff bound
+     paper_main_weighted_square_two_sided_tail with row-indicator weights,
+     the coordinate tail from paper_main_data_coordinate_tail. Every event
+     is measurable. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -1,4 +1,17 @@
-(* From a tail bound for every good head to an unconditional bound. *)
+(* Bounds on the probability of an event of a split sample from bounds on
+   its sections.
+
+   A sample of k + m coordinates splits into a head of k coordinates and a
+   tail of m coordinates (paper_main_split_coordinates), whose law is the
+   product of the two Gaussian laws (paper_main_split_coordinates_law).
+   - paper_main_head_exception_bound: let E be a measurable set of pairs
+     (head, tail) and H a measurable set of heads. If every section of E at
+     a head outside H has probability at most p >= 0, then the event that
+     the split sample lies in E has probability at most p + P(H).
+   - paper_main_split_points_section_bound: if every section of E has
+     probability at most p, so does this event, for a sample of k + n points
+     of R^d split into its first k points and the other n
+     (paper_main_split_points). *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

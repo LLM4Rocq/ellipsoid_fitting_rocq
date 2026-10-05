@@ -1,4 +1,21 @@
-(* Finite telescoping of noncommuting column powers and family operator bounds. *)
+(* Telescoping of powers of noncommuting matrices, and operator bounds for
+   sums over a finite family of matrices.
+
+   pmcr_power_difference: A^p - R^p = sum_(j < p) A^j (A - R) R^(p-j-1).
+   pmcr_family_power_difference: summed over a finite family,
+     sum_c ((R_c - D_c)^p - R_c^p)
+       = - sum_(j < p) sum_c (R_c - D_c)^j D_c R_c^(p-j-1).
+   Here pmlo_opb M c says |M v| <= c |v| for every v, and the energy bound
+   pmfc_energy_bound F b says sum_i |F_i u|^2 <= b^2 |u|^2 for every u.
+   pmcr_mixed_powers: if the A_i and D_i are symmetric, every A_i and B_i
+     has operator norm at most t, every D_i at most m, 0 <= m <= b, and the
+     families A, B, D have energy bounds t, t, b, then for j + l > 0 the
+     operator norm of sum_i A_i^j D_i B_i^l is at most t^(j+l) b. The proof
+     splits each term into a product of two factors and applies the
+     Cauchy-Schwarz bound pmfc_energy_product.
+   pmcr_power_sum_error: under the same bounds for the families B - D, B
+     and D, for p >= 2 the operator norm of sum_i ((B_i - D_i)^p - B_i^p)
+     is at most p t^(p-1) b. *)
 From Stdlib Require Import Reals List FunctionalExtensionality Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -1,6 +1,7 @@
-(* The multiplicity excess of even square-free walks (G16, checkpoint B3).
-   For a closed walk (rs, ps) of PaperMainSquarefreeWalkCount, with row-color
-   degrees deg (r, c), let
+(* The multiplicity excess of even square-free walks.
+   For a closed walk (rs, ps) of PaperMainSquarefreeWalkCount, of length K
+   with R distinct rows, C distinct colors and row-color degrees
+   deg (r, c), let
      X = sum_(r, c) (deg (r, c) / 2 - [deg (r, c) > 0])
    be the multiplicity excess (the exponent of the weight bound of
    PaperMainSquarefreeWalkWeight) and e = 2 K + 2 - 2 R - C the deficiency.
@@ -11,8 +12,8 @@
      proof is the induction of PaperMainSquarefreeWalkCount: a contraction
      keeps X, R - K and C (pmsc_contract_X); an excursion lowers K by 2,
      R by 1 and X + C by at most 2 (pmsc_excursion_X); in the terminal case
-     2 R <= K.
-   No probability premise and no axiom. *)
+     2 R <= K. pmsc_X_le_e restates it with the deficiency pmsc_e.
+   Deterministic. *)
 From Stdlib Require Import Lia.
 From mathcomp Require Import all_ssreflect_compat.
 From EllipsoidFitting Require Import PaperMainSquarefreeWalkCount.

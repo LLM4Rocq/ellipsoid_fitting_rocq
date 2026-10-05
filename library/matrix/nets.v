@@ -144,3 +144,44 @@ by rewrite ler_pdivlMr // mulrBr mulr1 lerBlDr.
 Qed.
 
 End nets.
+
+(* Lists of natural numbers with a bounded sum, the codes of the grid points
+   of a net. *)
+Section budget.
+
+Fixpoint budget (n k : nat) : seq (seq nat) :=
+  if n is n'.+1 then
+    flatten [seq [seq a :: t | t <- budget n' (k - a)] | a <- iota 0 k.+1]
+  else [:: [::]].
+
+Lemma mem_budget n k (a : seq nat) :
+  size a = n -> (sumn a <= k)%N -> a \in budget n k.
+Proof.
+elim: n k a => [|n IH] k [|x a] // sa sk.
+apply/flattenP; exists [seq x :: t | t <- budget n (k - x)].
+  apply/mapP; exists x => //; rewrite mem_iota /= add0n ltnS.
+  exact: leq_trans (leq_addr _ _) sk.
+apply/mapP; exists a => //; apply: IH; first by case: sa.
+by rewrite -(leq_add2l x) subnKC // (leq_trans (leq_addr _ _) sk).
+Qed.
+
+Lemma sum_exp2_lt k : (\sum_(a < k.+1) 2 ^ (k - a) < 2 ^ k.+1)%N.
+Proof.
+elim: k => [|k IH]; first by rewrite big_ord1.
+rewrite big_ord_recl subn0 [in X in (_ < X)%N]expnS mul2n -addnn ltn_add2l.
+by under eq_bigr => a _ do rewrite lift0 subSS.
+Qed.
+
+Lemma size_budget n k : (size (budget n k) <= 2 ^ (n + k))%N.
+Proof.
+elim: n k => [|n IH] k; first by rewrite /= expn_gt0.
+rewrite /budget -/budget size_flatten /shape -map_comp sumnE big_map.
+apply: (@leq_trans (\sum_(a <- iota 0 k.+1) 2 ^ (n + (k - a)))).
+  by apply: leq_sum => a _; rewrite /= size_map IH.
+rewrite -[iota 0 k.+1]/(index_iota 0 k.+1) big_mkord.
+under eq_bigr do rewrite expnD.
+rewrite -big_distrr /= addSn expnS expnD mulnCA leq_mul2l.
+by rewrite -expnS ltnW ?sum_exp2_lt ?orbT.
+Qed.
+
+End budget.

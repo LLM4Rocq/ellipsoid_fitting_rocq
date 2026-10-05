@@ -1,4 +1,22 @@
-(* A measurable exponentially rare exception for each fixed ordered head. *)
+(* An exponentially rare exceptional event for each fixed ordered head,
+   in the subcritical regime. d = n + 1 and W_i is the feature of row i.
+   - paper_main_head_size_width: every head of m rows of the sample has
+     head-section width at least a.
+   - paper_main_head_list_positive: some P with the cone condition
+     paper_main_head_condition kappa is orthogonal to the W_i, i in J, and
+     every unit dual vector t vanishing on J with entries at most
+     theta / sqrt d has such a P with positive support score
+     paper_main_support_score.
+   - paper_main_head_subcritical_fixed_event: for 0 <= alpha < 1/4,
+     kappa >= 1 and L >= 0 there are theta, c > 0 such that, for large n,
+     every N <= alpha d^2 and every list J of distinct rows below N have a
+     measurable event E of probability at most exp(-c d sqrt d), outside
+     which paper_main_head_list_positive holds as soon as every coordinate
+     is below d^(1/4) in absolute value, every head of |J| rows has width
+     at least (1/2 - (1/2 - sqrt alpha)/16) d, and the features satisfy
+     the operator bound L sqrt d.
+   The proof moves J to the first rows with the row permutation of
+   paper_main_head_selection_perm_exists. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix.

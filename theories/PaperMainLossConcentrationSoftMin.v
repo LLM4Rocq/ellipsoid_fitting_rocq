@@ -6,12 +6,14 @@
      Z = paper_main_loss_normalized_array p N beta I ell
        = (soft_min beta (sum_i ell i j (row i)) I + ln |I| / beta) / N
    (PaperMainLossNormalizedArray: continuous, values in [0, 1]) has row
-   oscillation 1/N: replacing row k swaps one term ell k j z in every
-   state, which changes the soft minimum by at most 1
-   (paper_main_gibbs_row_change). The tails of
-   PaperMainLossConcentrationTail with c = 1/N then give, for t > 0,
-     P (Z <= E Z - t) <= exp (- N t^2 / 2),  P (E Z + t <= Z) <= exp (- N t^2 / 2),
-   with no dependence on |I|, beta or the translations inside ell. *)
+   oscillation 1/N (paper_main_softmin_row_oscillation): replacing row k
+   swaps one term ell k j z in every state (paper_main_softmin_array_row),
+   which changes the soft minimum by at most 1
+   (paper_main_gibbs_row_change). The lower tail of
+   PaperMainLossConcentrationTail with c = 1/N then gives, for t > 0,
+     P (Z <= E Z - t) <= exp (- N t^2 / 2)
+   (paper_main_softmin_lower_tail), with no dependence on |I|, beta or the
+   translations inside ell. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
@@ -136,7 +138,3 @@ have -> : (- (INR N * t ^ 2) / 2 = - (t ^ 2) / (2 * INR N * (/ INR N) ^ 2))%Rcoq
   by field; lra.
 exact: Hl.
 Qed.
-
-(* The upper tail: P (E Z + t <= Z) <= exp (- N t^2 / 2). *)
-
-(* The moment generating function: E exp (lam (Z - E Z)) <= exp (lam^2 / (2 N)). *)

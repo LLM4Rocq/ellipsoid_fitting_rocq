@@ -1,16 +1,19 @@
-(* Deterministic positive support by a Frobenius-unit perturbation (G13,
-   checkpoint A; manuscript lines 891-923, before convex separation).
+(* Positive support by a Frobenius-unit perturbation. Deterministic.
    - A symmetric N with |N|_F <= c lies in the Loewner box -c I <= N <= c I,
-     by Frobenius Cauchy-Schwarz against the rank-one v v^T.
-   - For a symmetric M <> 0, the unit N(M) = M / |M|_F satisfies
-     -I <= N(M) <= I and <M, N(M)> = |M|_F. For d = S n its internal
-     operator norm is at most 1.
-   - Perturbation: assume a I <= S0 <= b I, 0 < delta < a, <Mu, S0> = 0,
-     0 < h <= |Mu|_F and |Mv|_F <= v. Then S' = S0 + delta N(Mu) satisfies
+     by Frobenius Cauchy-Schwarz against the rank-one v v^T
+     (paper_main_frobenius_loewner_box).
+   - For a symmetric M <> 0, the unit N(M) = M / |M|_F
+     (paper_main_frobenius_unit) satisfies -I <= N(M) <= I and
+     <M, N(M)> = |M|_F.
+   - Perturbation (paper_main_support_perturbation): assume
+     a I <= S0 <= b I, 0 < delta < a, <Mu, S0> = 0, 0 < h <= |Mu|_F and
+     |Mv|_F <= v. Then S' = S0 + delta N(Mu) satisfies
      (a - delta) I <= S' <= (b + delta) I and
      <Mu + Mv, S'> >= delta h - v (b + delta) sqrt d. So the support is
-     positive when v (b + delta) sqrt d < delta h.
-   No matrix sign function, nuclear norm or diagonalization is used. *)
+     positive when v (b + delta) sqrt d < delta h
+     (paper_main_support_positive).
+   The proof uses only Cauchy-Schwarz for the Frobenius pairing and the
+   Loewner bounds on the Frobenius norm and on the trace. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

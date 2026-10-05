@@ -1,21 +1,29 @@
-(* Actual good events for the non-backtracking column frame (A35, events).
+(* Good events for the non-backtracking column frame.
 
-   Fix c > 0 and C0 = 2 + 109 / c (paper_main_frame_constant c) before delta.
-   For delta > 0 the frame event at (N, d, delta) is the union of
-   - the A34 column event at min(delta, 1),
-   - the M117 feature upper event,
-   - the coordinate clipping event at sqrt(sqrt d),
+   Fix c > 0 and C0 = 2 + 109 / c (paper_main_frame_constant c), which does
+   not depend on delta. For delta > 0 the frame event at (N, d, delta)
+   (paper_main_column_frame_event) is the union of
+   - the column event paper_main_column_event at min(delta, 1)
+     (PaperMainColumnConcentration);
+   - the feature upper event paper_main_feature_upper_event
+     (PaperMainFeatureUpperProbability), outside which the Gram matrix
+     Q Q^* of the raw features is at most (3 N + 106 d^2) I;
+   - the coordinate clipping event at sqrt(sqrt d);
    - the square-free diagonal event at delta / 4.
-   1. It is measurable for every N, d and delta. If N(d) has eventual density
-      >= c and eventually 0 < N(d) <= d^2, its probability tends to 0.
-   2. Outside it, for d > 0, 0 < N <= d^2 and c d^2 <= N:
+   1. paper_main_column_frame_event_measurable: it is measurable for every
+      N, d and delta. paper_main_column_frame_event_limit: if N(d) has
+      eventual density >= c and eventually 0 < N(d) <= d^2, its probability
+      tends to 0.
+   2. paper_main_column_frame_raw: outside it, for d > 0, 0 < N <= d^2 and
+      c d^2 <= N:
       - every column a < b has Q_ab <= 2 N and |Q_ab / N - 1| <= delta;
       - every product of two coordinates of one row has (x_ia x_ib)^2 <= d,
         since every coordinate has x_ia^2 <= sqrt d;
       - the square-free Gram V V^T satisfies u^T V V^T u <= (109 / c) N |u|^2,
         from V V^T <= Q Q^* <= (3 N + 106 d^2) I <= 109 d^2 I and d^2 <= N / c;
       - every row has |(V V^T)_ii / d^2 - 1| <= delta / 4.
-   The finite bridge to pmnb_X and pmcr_* is PaperMainColumnConcentrationFrame. *)
+   PaperMainColumnConcentrationFrame restates these bounds for pmnb_X,
+   pmcr_rankone and pmcr_column_norm. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -1,6 +1,5 @@
 (* The scalar parameter choice of the final Chebyshev step of the lower
-   spectral edge (task L1, part 1). Base library only: Stdlib's reals and
-   MathComp; no EllipsoidFitting module.
+   spectral edge. Deterministic.
 
    For theta > 2 and A >= 0, with K = 2^(k+1) and tau = A (K + 1), the
    power theta^K beats 2^K tau: 2^K tau < theta^K as soon as
@@ -14,14 +13,13 @@
    the hypothesis of pmlo_cheb_box (PaperMainSquarefreeEdgeLower):
    K is the natural number 2 ^ k.+1, 2 ^+ K and theta ^+ K are real powers
    at natural exponents, and tau is A * (K%:R + 1).
-   - pmchp_dyadic_at, pmchp_gap_at: the explicit criterion
-     3 A <= 2^k u^2 at a given k, strict and with the gap.
+   - pmchp_bernoulli: Bernoulli's inequality 1 + m u <= (1 + u)^m.
+   - pmchp_power_at, pmchp_dyadic_at: the explicit criterion
+     3 A <= 2^k u^2 at a given k.
    - pmchp_dyadic_eventually: for A >= 0, some k0 works for every k >= k0.
    - pmchp_dyadic_strict: for A >= 1, some k gives 2^K tau < theta^K.
    - paper_main_chebyshev_parameters: for A >= 1, some k and g > 0 give
-     2^K tau + g <= theta^K.
-   - paper_main_chebyshev_parameters_concrete: theta = 49/24, A = 12 at
-     the explicit k = 17 (K = 2^18), where 2^17 / 48^2 >= 36. *)
+     2^K tau + g <= theta^K. *)
 From Stdlib Require Import Reals.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import reals Rstruct.
@@ -110,8 +108,8 @@ apply: pmchp_dyadic_at => //.
 by apply: ltW; rewrite -ltr_pdivrMr //; exact: Hk0.
 Qed.
 
-(* The task statement: theta > 2 and A >= 1 give some k with
-   2^K tau < theta^K, K = 2^(k+1), tau = A (K + 1). *)
+(* theta > 2 and A >= 1 give some k with 2^K tau < theta^K,
+   K = 2^(k+1), tau = A (K + 1). *)
 Theorem pmchp_dyadic_strict (theta A : R) : 2 < theta -> 1 <= A ->
   exists k : nat, 2 ^+ (2 ^ k.+1) * (A * ((2 ^ k.+1)%:R + 1)) < theta ^+ (2 ^ k.+1).
 Proof.

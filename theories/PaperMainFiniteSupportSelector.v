@@ -1,17 +1,18 @@
 (* A measurable finite argmax for the Frobenius pairing. For a fixed family
-   B : nat -> 'M[R]_d of public matrices, a nonempty list q0 :: Q of indices
-   and a matrix M, paper_main_finite_argmax_index B M q0 Q compares
-   <M, B j> with <M, B q0>, where j is the index selected from Q, and keeps
-   q0 when <M, B j> <= <M, B q0>. So the selected index is the FIRST maximizer
-   in the list q0 :: Q, and every tie is resolved towards the earlier index.
-   The selected matrix paper_main_finite_argmax B M q0 Q = B (index) belongs
-   to the family, maximizes <M, B q> over the list, and its pairing equals the
-   finite maximum paper_main_finite_max B M q0 Q. If Z is a matrix-valued map
-   on any measurable space with measurable entries, the entries of
-   z |-> paper_main_finite_argmax B (Z z) q0 Q are measurable: every branch
-   is a measurable comparison of two measurable real functions. Only finitely
-   many candidates are compared; no measurable choice over an uncountable set
-   is claimed. *)
+   B : nat -> 'M[R]_d of matrices, a nonempty list q0 :: Q of indices and a
+   matrix M, paper_main_finite_argmax_index B M q0 Q compares <M, B j> with
+   <M, B q0>, where j is the index selected from Q, and keeps q0 when
+   <M, B j> <= <M, B q0>. So the selected index is the first maximizer in
+   the list q0 :: Q, and every tie is resolved towards the earlier index.
+   - paper_main_finite_argmax_index_mem: the selected index is in q0 :: Q.
+   - paper_main_finite_argmax_max: the selected matrix
+     paper_main_finite_argmax B M q0 Q = B (index) maximizes <M, B q> over
+     the list.
+   - paper_main_finite_argmax_measurable: if Z is a matrix-valued map on any
+     measurable space with measurable entries, the entries of
+     z |-> paper_main_finite_argmax B (Z z) q0 Q are measurable, since every
+     branch is a measurable comparison of two measurable real functions.
+   Only finitely many candidates are compared. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.
@@ -47,7 +48,7 @@ case: ifP => _; first by rewrite in_cons eqxx.
 by rewrite in_cons IH orbT.
 Qed.
 
-(* Maximality, the value, and the first-maximizer rule. *)
+(* Maximality. *)
 
 Theorem paper_main_finite_argmax_max {d : nat} (B : nat -> 'M[R]_d) M q0 Q :
   forall q, q \in q0 :: Q ->

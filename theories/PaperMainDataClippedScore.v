@@ -4,6 +4,8 @@
    d = S n, and the sample is a list xs of N rows of length d. Row i of the
    clipped sample is pmdc_row phi n i xs = (phi (nth (i * d + j) xs 0))_j,
    and its feature is paper_main_data_feature n (pmdc_row phi n i xs).
+   Public matrices and vectors are MathComp's 'M[R]_d and 'cV[R]_d; the
+   internal ones are those of MatrixDefinitions.
    - Operator bound. matrix_operator_norm n (paper_main_matrix_from_public n B)
      <= k gives |B v|^2 <= k^2 |v|^2 for public v (pmdc_public_action_sqr),
      the converse direction of PaperMainMatrixOperatorTransport.
@@ -21,8 +23,7 @@
      centering cancels. Then (c - c')^T B (c + c') <= k |c - c'| (|c| + |c'|)
      <= 2 k U sqrt d |c - c'|, and Cauchy-Schwarz over the rows.
    No length hypothesis is needed: only indices below N * d are read.
-   PaperMainDataClipped takes phi to be the checked clip.
-   Nothing from the paper is assumed. *)
+   PaperMainDataClipped takes phi to be the clip. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.
@@ -98,7 +99,7 @@ have Hx0 : 0 <= (`|x|)%R by apply/RleP; exact: normr_ge0.
 rewrite -!RpowE; nra.
 Qed.
 
-(* 2. Public norms with the Stdlib square root. *)
+(* 2. Norms of public vectors, with the Stdlib square root. *)
 Definition pmdc_norm {d : nat} (v : 'cV[R]_d) : R := sqrt ((v^T *m v)%R ord0 ord0).
 
 Lemma pmdc_norm_ge0 {d : nat} (v : 'cV[R]_d) : 0 <= pmdc_norm v.
@@ -200,7 +201,8 @@ rewrite /paper_main_gordon_distance (pow2_sqrt _ H0).
 by rewrite (pmdo_sum_blocks N d (fun l => (List.nth l xs 0 - List.nth l ys 0) ^ 2)).
 Qed.
 
-(* The pairing of two features differs by the quadratic difference over sqrt d. *)
+(* The pairings of two features differ by the quadratic difference over
+   sqrt d. *)
 Lemma pmdc_pairing_diff n (f g : nat -> R) (B : 'M[R]_(S n)) :
   (paper_main_pairing (paper_main_data_feature n f) B -
    paper_main_pairing (paper_main_data_feature n g) B =

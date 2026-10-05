@@ -1,4 +1,18 @@
-(* Dimension-free score perturbation bounds for finite soft extrema. *)
+(* Perturbation bounds for finite soft extrema, independent of the number of
+   terms and of the dimension.
+
+   soft_max gamma f I = ln (sum_(i in I) exp (gamma f_i)) / gamma, and
+   soft_min and soft_minimax are built from it (SoftDefinitions).
+   - paper_main_soft_max_monotone and paper_main_soft_max_shift: soft_max is
+     monotone in f, and adding a constant c to f adds c to it.
+   - paper_main_soft_max_lipschitz, paper_main_soft_min_lipschitz and
+     paper_main_soft_minimax_lipschitz: for nonempty index lists and
+     positive parameters, if two families of scores differ by at most b,
+     so do their soft extrema.
+   - paper_main_soft_sample_lipschitz: if every score is L-Lipschitz in the
+     sample xs of R^d, so is the soft minimax.
+     paper_main_soft_gaussian_le_measurable: its sublevel sets are then
+     measurable. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

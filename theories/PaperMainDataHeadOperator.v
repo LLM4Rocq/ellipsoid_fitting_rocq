@@ -1,32 +1,27 @@
-(* Raw head-data operator bound for one fixed injective selection of sample
-   points, under the actual law of the sample.
+(* The raw head-data operator bound for one fixed injective selection of
+   sample points: linear forms, net tests and their tails.
 
    x : paper_main_sample N d has the law paper_main_probability N d, the
    measure gaussian_product_law (N * d). For an injective s : 'I_m -> 'I_N,
    X_J is the d x m matrix with columns x_(s k). pmdo_list s xs lists its
-   entries in the layout of paper_main_gordon_matrix_value (PaperMainGordonScalar),
-   entry (a, k) at position a * m + k.
+   entries in the layout of paper_main_gordon_matrix_value
+   (PaperMainGordonScalar), entry (a, k) at position a * m + k.
    - Linear form. For list vectors u of R^d and v of R^m, u^T X_J v is the
      linear form of the sample coordinates with coefficients
      pmdo_coef u v, which is u_a v_k at position s_k d + a and 0 elsewhere
      (pmdo_linear_value). Since s is injective, its squared norm is
-     |u|^2 |v|^2 (pmdo_coef_norm). So for unit u, v the existing unit linear
-     tail applies in the actual law; no selected-row law is used.
+     |u|^2 |v|^2 (pmdo_coef_norm). So for unit u, v the tail of a unit
+     linear form of the sample applies; no law of the selected rows is
+     needed.
    - Net tests (pmdo_test_tail). For unit nets z (r points of R^d) and w
-     (q points of R^m), the event "B <= |z_y^T X_J w_t| for some y < r,
-     t < q" is measurable with probability at most r q 2 exp(-B^2/2).
+     (q points of R^m), the event that b <= |z_y^T X_J w_t| for some y < r
+     and t < q is measurable with probability at most r q 2 exp(-b^2/2).
    - Loewner bridge (pmdo_loewner). If |u^T X_J v| <= L |u| |v| for all
      u, v (paper_main_gordon_operator_bound d m), then
      paper_main_head_data_gram x s <= L^2 I in Loewner order.
-   - Fixed selection (paper_main_data_head_operator_fixed). For d, m > 0 and
-     t > 0 there is a measurable event of probability at most 2 exp(-t)
-     outside which paper_main_head_data_gram x s <= 8 (C (d + m) + t) I,
-     with C = paper_main_gordon_entropy_constant (1/4) = 20 ln 2. The nets
-     are those of paper_main_gordon_operator_discretization
-     (PaperMainGordonOperatorNet), with ln r + ln q <= C (d + m) and
-     operator norm at most twice the net bound.
-   No independence of rows, rotation law, tail bound or coercivity is
-   assumed. Nothing from the paper is assumed. *)
+   - Rate (pmdo_rate). If ln r + ln q <= C D and b^2 = 2 (C D + t), then
+     r q 2 exp(-b^2/2) <= 2 exp(-t).
+   PaperMainDataHeadOperatorUniform combines them over all selections. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

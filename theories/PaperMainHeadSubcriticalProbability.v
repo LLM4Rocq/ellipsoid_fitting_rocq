@@ -1,4 +1,23 @@
-(* The simultaneous small-head exception vanishes under strict subcritical density. *)
+(* Under a subcritical density, all small heads have positive tail support
+   outside events of probability tending to 0.
+
+   paper_main_head_subcritical_probability: let 0 <= alpha < 1/4,
+   kappa >= 1 and L >= 0. There is theta > 0 such that for every K >= 0 and
+   every N(d) with N(d) <= alpha d^2 eventually, there are measurable events
+   E_d with probability tending to 0 with the following property. For all
+   large d = S n, let x be a sample outside E_d and outside the coordinate
+   event at d^(1/4), whose features satisfy the operator bound L sqrt d.
+   Then every list J of distinct rows of length at most K d ln d, whose
+   heads have section width at least (1/2 - (1/2 - sqrt alpha)/16) d
+   (paper_main_head_size_width), satisfies paper_main_head_list_positive:
+   some cone matrix annihilates the features of J, and every unit tail dual
+   vanishing on J and capped by theta / sqrt d has a positive support score
+   at such a matrix.
+
+   For each d, paper_main_head_subcritical_family_event gives one event for
+   all heads, of probability at most the number of head families times
+   exp(-c d sqrt d), and paper_main_head_families_exp bounds this number by
+   exp(C d (ln d)^2). The events are chosen with Hilbert's epsilon. *)
 From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix.

@@ -1,12 +1,15 @@
-(* The diagonal of the square-free feature Gram concentrates under the
-   actual law (G14, checkpoint B, limit; manuscript eq:diag-limit).
-   For fixed eps > 0 and N(d) <= C d^2 eventually, the probability that some
-   row has |(V V^T)_ii / d^2 - 1| > eps tends to 0.
+(* The diagonal of the square-free feature Gram matrix concentrates
+   (eq:diag-limit of the paper): paper_main_squarefree_diag_tends_to_zero.
+   For fixed eps > 0 and N(d) <= C d^2 eventually, the probability of
+   paper_main_squarefree_diag_event, that some row has
+   |(V V^T)_ii / d^2 - 1| > eps, tends to 0.
    The clipping level is U = d^(1/4), so U^2 = sqrt d, and
-   eta = min(1, eps / 6). Then eventually
-   eta (2 + eta) + U^2 (1 + eta) / d <= eps, the row tail term is at most
-   2 C d^2 exp (- sqrt d / 2), and the coordinate term is
-   2 N d exp (- sqrt d / 2) <= 2 C d^3 exp (- sqrt d / 2). The checked
+   eta = min(1, eps / 6) (pmsdl_eta). Then eventually
+   eta (2 + eta) + U^2 (1 + eta) / d <= eps. In the bound
+   paper_main_squarefree_diag_bound of PaperMainSquareFreeDiagonal, the
+   row tail term is then at most 2 C d^2 exp (- sqrt d / 2)
+   (pmsdl_exp_compare), and the coordinate term is
+   2 N d exp (- sqrt d / 2) <= 2 C d^3 exp (- sqrt d / 2).
    paper_main_sqrt_polynomial_tends_to_zero finishes. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.

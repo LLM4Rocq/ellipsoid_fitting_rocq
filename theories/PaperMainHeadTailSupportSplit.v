@@ -1,19 +1,23 @@
-(* G13 checkpoint B: positive support in the spread and the tiny tail cases
-   (manuscript lines 891-923, before convex separation).
+(* Positive support in the spread and the tiny tail cases. Deterministic.
+
    Family W : nat -> 'M[R]_d on the indices seq 0 n. The score of a dual
-   vector y at S is sum_(i < n) y_i <W_i, S>, written as
-   paper_main_public_soft_minimax writes its scores. A unit y splits along a
-   head J into the head part and the tail part. r is the tail norm and t is
-   the G12 normalized tail vector.
-   - Spread: if S annihilates the head, the score of y is r times the score
-     of t. So a positive score for t gives a positive score for y.
-   - Tiny: assume r <= eps <= 1/2, a head Gram bound
-     mu |c|^2 <= |sum c_i W_i|_F^2 for c supported on J, and a full bound
-     |sum c_i W_i|_F <= A |c|. Then |sum u_i W_i|_F >= sqrt mu / 2 and
-     |sum v_i W_i|_F <= A eps. Checkpoint A then gives positive support when
-     A eps (b + delta) sqrt d < delta sqrt mu / 2.
-   All geometric and random-feature quantities are explicit premises. No
-   probability statement. *)
+   vector y at S is sum_(i < n) y_i <W_i, S> (paper_main_support_score),
+   written as paper_main_public_soft_minimax writes its scores. A unit y
+   splits along a head J into the head part and the tail part. r is the tail
+   norm and t is the normalized tail vector paper_main_tail_list_vector of
+   PaperMainHeadTailDecompositionLog.
+   - paper_main_support_spread: if S annihilates the head, the score of y is
+     r times the score of t (paper_main_support_score_tail). So a positive
+     score for t gives a positive score for y.
+   - paper_main_support_tiny: assume r <= eps <= 1/2, a head Gram bound
+     mu |c|^2 <= |sum c_i W_i|_F^2 for c supported on J, a full bound
+     |sum c_i W_i|_F <= A |c|, and some S0 with a I <= S0 <= b I that
+     annihilates the head. Then |sum u_i W_i|_F >= sqrt mu / 2 and
+     |sum v_i W_i|_F <= A eps for the head part u and the tail part v of y.
+     If moreover 0 < delta < a and A eps (b + delta) sqrt d < delta sqrt mu / 2,
+     the perturbation lemma paper_main_support_positive
+     (PaperMainHeadTailSupport) gives some S with
+     (a - delta) I <= S <= (b + delta) I at which y has a positive score. *)
 From Stdlib Require Import Reals List Lia Lra Psatz PeanoNat Permutation.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -221,7 +225,7 @@ have HMv : paper_main_frobenius (paper_main_support_combination v) <= A * eps.
   have -> : euclidean_norm v (List.seq 0 n) = euclidean_norm y (tail_indices n J).
     by rewrite /euclidean_norm Hv2.
   exact: Hr.
-(* Checkpoint A. *)
+(* The perturbation lemma paper_main_support_positive. *)
 have HMus := pmhss_combination_symmetric u HW.
 have H0 : paper_main_pairing (paper_main_support_combination u) S0 = 0.
   exact: pmhss_head_pairing0.

@@ -1,18 +1,17 @@
-(* The actual lower spectral probability law of the raw features (A40).
+(* The lower spectral bound of the raw features, outside events of
+   vanishing probability.
 
-   Let N : nat -> nat, c > 0 and c1 with eventual density N(d) / d^2 >= c
-   and, eventually, 0 < N(d), 4 N(d) <= d^2 and d^2 <= c1 N(d). There are
-   actual measurable events E_d with probability tending to 0 such that
-   for all large d every sample outside E_d has raw-feature coercivity
-   with constant d^2 / 128.
-   The scalar parameters are chosen before the data by the checked generic
-   Chebyshev edge lemma at theta = 49/24 and A = 12: some k, and for
-   beta = tau + 1 some eta > 0, with K = 2^(k+1) and
-   tau = 12 (K + 1) = pmnbr_t k, satisfy the gap of the assembly at fixed
-   parameters. No concrete k is reduced.
-   Corollary: with the checked actual upper event of
-   PaperMainFeatureUpperProbability, outside one vanishing measurable event
-   both raw bounds hold, d^2 / 128 below and 109 d^2 above. *)
+   paper_main_squarefree_lower_probability: let N : nat -> nat, c > 0 and
+   c1 with eventual density N(d) / d^2 >= c and, eventually, 0 < N(d),
+   4 N(d) <= d^2 and d^2 <= c1 N(d). There are measurable events E_d with
+   probability tending to 0 such that for all large d every sample outside
+   E_d has raw-feature coercivity with constant d^2 / 128.
+   The scalar parameters are chosen before the data by the Chebyshev edge
+   lemma paper_main_chebyshev_edge_parameters_exact at theta = 49/24 and
+   A = 12: some k, and for beta = tau + 1 some eta > 0, with K = 2^(k+1)
+   and tau = 12 (K + 1) = pmnbr_t k, satisfy the gap of
+   paper_main_squarefree_lower_probability_at. The value of k is not
+   computed. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

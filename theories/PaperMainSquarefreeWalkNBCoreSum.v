@@ -173,7 +173,7 @@ case: y => [[[k|j] [|]] | [[x c1] c2]] /=.
 - by apply/esym/eqP; case.
 - by apply/esym/eqP; case.
 - by apply/esym/eqP; case.
-- by apply/esym/eqP => -[].
+- by apply/esym/eqP.
 Qed.
 
 Lemma pmns_sum_all (c0 : R) : 0 < lam -> 0 <= c0 -> N%:R <= lam ^+ 2 -> d%:R <= c0 * lam ->

@@ -1,4 +1,21 @@
-(* Dimension scales for the explicit correction inequalities. *)
+(* The dimension scale t = d^(1/32) (paper_main_head_scale, five square
+   roots) and the constants of the head correction bounds of
+   lem:head-correction-bounds of the paper at that scale. Deterministic.
+   - paper_main_head_scale_powers: for d >= 1, t >= 1, t^8 = d^(1/4) and
+     t^32 = d. paper_main_head_scale_log: 0 <= ln d <= 32 t.
+   - paper_main_head_scale_eventually: t >= T for all large d.
+     paper_main_head_inverse_power_small: C / t^k tends to 0 for k > 0.
+   - paper_main_head_correction_eventual: for K, a, Q, L >= 0, c, c0 > 0
+     and kappa >= 1 there are constants E, A, B, F such that, for all large
+     d, if m <= K d ln d, q <= Q ln d and lam <= L d (ln d)^2, then the
+     quantities eta = E / t^7, A1 = A / t^7, Ainf = B / (d t^6) and
+     delta = F / (sqrt d t^4) satisfy
+       m (a/t^8)^2 <= c d eta^2, 0 <= eta < 1, m (a/t^8) <= c d A1,
+       a/t^8 + q A1 <= c0 d Ainf, (Ainf lam + A1) / sqrt d <= delta,
+       delta < 1 / (kappa sqrt d) and
+       kappa / sqrt d + delta <= 2 kappa^2 (1 / (kappa sqrt d) - delta).
+     The proof bounds ln d by 32 t and applies the scalar inequalities of
+     PaperMainHeadCorrectionRates. *)
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import PaperMainHeadCorrectionRates.
 Open Scope R_scope.
