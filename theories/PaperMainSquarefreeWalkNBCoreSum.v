@@ -1,4 +1,4 @@
-(* The terminal sum of the sharp NB count (G16, lower edge, part 5).
+(* The terminal sum of the sharp NB count, for the lower edge.
    Over any real field. Let lam > 0 with N 'C(d, 2) <= lam^4 and
    0 < theta <= 1. A step symbol y of PaperMainSquarefreeWalkShapeCode gets
    the weight (pmns_w)
@@ -18,8 +18,7 @@
      (PaperMainSquarefreeWalkNBCore) and 2 (R - 1) + C = 2 L - e.
    - pmns_T_le: the terminal sum is at most
      lam^(2L) N (1 + theta (1 + K))^L, since the root and the code
-     determine the walk (pmsk_inj).
-   No probability premise. *)
+     determine the walk (pmsk_inj). *)
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From EllipsoidFitting Require Import PaperMainSquarefreeWalkCount PaperMainSquarefreeWalkExcess
   PaperMainSquarefreeWalkShapeOnce PaperMainSquarefreeWalkShapeTwin

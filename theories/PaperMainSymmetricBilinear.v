@@ -15,7 +15,7 @@
    paper_main_symmetric_column maps a list-coordinate vector nat -> R to a
    public column whose squared norm is its Gordon dot product. Sums are the
    Gordon finite sums (paper_main_gordon_dot) of the existing Gaussian
-   modules. No probability is used. Nothing from the paper is assumed. *)
+   modules. No probability is used. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

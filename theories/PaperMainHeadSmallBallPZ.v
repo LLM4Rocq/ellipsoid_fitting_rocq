@@ -8,14 +8,13 @@
    - Law: Y^2 and Y^4 are integrable, E Y^2 = sigma2 and E Y^4 <= 19 sigma2^2
      (from PaperMainHeadSmallBallFourth through the orthogonal law transport
      of the rotated smooth test).
-   - Paley-Zygmund, proved here for any probability measure: if Z is
-     measurable, E Z = m, E Z^2 = M and 0 <= theta < m, then M > 0 and
-     P(theta <= Z) >= (m - theta)^2 / M. The proof integrates the pointwise
-     inequality 2 s Z <= 2 s theta + s^2 Z^2 + 1{theta <= Z} with
-     s = t (m - theta), and optimizes t; no Cauchy-Schwarz is used.
+   - Paley-Zygmund for any probability measure: if Z is measurable,
+     E Z = m, E Z^2 = M and 0 <= theta < m, then M > 0 and
+     P(theta <= Z) >= (m - theta)^2 / M
+     (paper_main_head_small_ball_paley_zygmund,
+     from paley_zygmund of GaussianAnalysis.probability.moments).
    - Hence P(sigma2 / 2 <= Y^2) >= 1 / 76 = 1 / (4 * 19). For sigma2 = 0
-     (H = 0, b = 0) the event is everything; r = 0 is included.
-   No hypercontractivity, Paley-Zygmund or paper lemma is assumed. *)
+     (H = 0, b = 0) the event is everything; r = 0 is included. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

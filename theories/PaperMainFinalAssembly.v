@@ -1,6 +1,7 @@
-(* Assembly implication only: the conditioned subcritical limit remains
-   an explicit premise until its actual spectral proof is supplied. The
-   conclusion text is copied from the fixed three-conjunct challenge. *)
+(* The three main theorems of the paper from the conditioned subcritical
+   limit, which is a hypothesis of paper_main_results_from_conditioned.
+   PaperMainResults discharges it with paper_main_conditioned_limit of
+   PaperMainConditionedLimit. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

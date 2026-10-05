@@ -4,9 +4,8 @@
 
    - Box to bilinear bound (paper_main_cone_opnorm_of_loewner). For symmetric
      Z with -b I <= Z <= b I and b >= 0, (u^T Z v)^2 <= b^2 |u|^2 |v|^2
-     (paper_main_cone_opnorm_le Z b). For every lam, the two Loewner bounds
-     at lam u + v and -lam u + v give 0 <= b |u|^2 lam^2 - 2 (u^T Z v) lam +
-     b |v|^2, and this quadratic in lam forces the bound. No eigenvalues.
+     (paper_main_cone_opnorm_le Z b), by opnorm_symP of
+     GaussianAnalysis.matrix.opnorm.
    - Vector transport. pmmo_column x is the public column of the internal
      vector x : vector n. Its squared norm is |x|^2 (pmmo_column_norm), and
      the internal action of paper_main_matrix_from_public n B is B times the
@@ -24,8 +23,7 @@
        has internal operator norm at most kappa / sqrt (INR N), through the
        Loewner box of PaperMainGeometryHeadSpectral
        (paper_main_matrix_operator_cone_sphere).
-   This is a deterministic bridge, not a probabilistic estimate. Nothing
-   from the paper is assumed. *)
+   This is a deterministic bridge, not a probabilistic estimate. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

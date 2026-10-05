@@ -1,4 +1,4 @@
-(* The fixed-density rate of the NB trace events (G16, lower edge, part 9).
+(* The fixed-density rate of the NB trace events, for the lower edge.
    - pmnbr_fact: k^k <= 3^k k! (by expR and exp 1 <= 3); pmnbr_bin:
      'C(n, k) k^k <= (3 n)^k; pmnbr_F_le: F(p (m+1), p) <= (6 (m+2))^p for
      the coefficient F of PaperMainSquarefreeWalkNBMarks.
@@ -14,8 +14,7 @@
      pmnbr_A c1 k L(d)^1178 <= d, the union of the NB trace events for
      T 1, ..., T K at exponent p and threshold t has probability at most
      1/d. The last premise is the only growth input (pmnbr_growth splits
-     it into the four polynomial bounds used).
-   No probability premise beyond those of PaperMainSquarefreeWalkNBEvent. *)
+     it into the four polynomial bounds used). *)
 From Stdlib Require Import Reals Lia Rpower.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

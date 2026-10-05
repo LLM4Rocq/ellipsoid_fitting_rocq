@@ -1,6 +1,6 @@
-(* The lower spectral edge of the square-free block (G16, lower edge),
-   deterministic part: the non-backtracking (NB) recursion and the
-   Chebyshev step. No probability premise and no counting estimate.
+(* The lower spectral edge of the square-free block, deterministic part:
+   the non-backtracking (NB) recursion and the Chebyshev step. No
+   probability and no counting estimate.
    1. Chebyshev step. Let B, T m, Rm m be n x n real matrices with T 0 = 1,
       B T 0 = T 1 - s T 0 and B T (m+1) = T (m+2) + T m + Rm (m+1). Then
       B^K = sum_(m <= K) gam K m T m + rem K (pmlo_cheb), with
