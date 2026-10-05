@@ -2,14 +2,15 @@
    minimax of PaperMainHeadSectionMinimax. Write
      f(y, S) = <sum_(i < q) y_i V_i, S>,
      minimax = inf_(y in Y) sup_(S in section) f(y, S),
-   with the actual section paper_main_head_section kappa W and the actual
-   linear map y |-> sum_(i < q) y_i V_i. Hypotheses, all explicit:
+   with the section paper_main_head_section kappa W and the linear map
+   y |-> sum_(i < q) y_i V_i. Hypotheses:
    - an upper operator bound |sum_(i < q) y_i V_i|_F <= L |y|_2 for every y
      (paper_main_head_section_operator_bound q V L, which includes 0 <= L);
    - Y is nonempty and z is a dual eps-net of Y contained in Y
      (paper_main_gordon_finite_net q Y z (seq 0 r) eps);
    - B t lies in the section for t < s, and s > 0.
-   Then, for beta, gamma > 0,
+   Then, for beta, gamma > 0 (paper_main_head_section_net_minimax_lower and
+   paper_main_head_section_soft_minimax_lower),
      finite_minimax f(z, B) - L eps <= minimax,
      soft_minimax beta gamma f(z, B) - ln s / gamma - L eps <= minimax.
    The dual net error is L eps, not eps sum_i |V_i|_F, and the soft-max
@@ -19,11 +20,12 @@
      0 <= support Z - max_t <Z, B t> <= eps' |Z|_F.
    If moreover Y consists of unit vectors for paper_main_gordon_dot q, the
    points z a (a < r) lie in Y and B is such a net, then
+   (paper_main_head_section_net_minimax_upper and
+   paper_main_head_section_soft_minimax_upper)
      minimax <= finite_minimax f(z, B) + L eps'
              <= soft_minimax beta gamma f(z, B) + ln r / beta + L eps'.
-   Empty cases are separate lemmas: the minimax is 0 for an empty Y (the
-   infimum of the empty set), and also for an empty section (every support
-   is 0). *)
+   For an empty Y the minimax is 0, the infimum of the empty set
+   (paper_main_head_section_minimax_empty_dual). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -300,7 +302,7 @@ rewrite lerD2r -lerBlDr.
 by apply/RleP; rewrite RminusE RdivE in Hlow.
 Qed.
 
-(* Empty cases. *)
+(* An empty dual set. *)
 
 Lemma paper_main_head_section_minimax_empty_dual {d m : nat} (kappa : R) q
     (Y : (nat -> R) -> Prop) (W : 'I_m -> 'M[R]_d) (V : nat -> 'M[R]_d) :

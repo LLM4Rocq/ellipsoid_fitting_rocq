@@ -1,4 +1,17 @@
-(* Logarithmic scales for the simultaneous raw head-data operator bound. *)
+(* Elementary logarithmic inequalities for the bound on the Gram matrix of
+   the raw head and data features that holds simultaneously for every head
+   of at most K d ln d sample points (paper_main_head_data_log_event).
+   Deterministic, at Stdlib's R.
+   - paper_main_log_successor_bound: 0 <= ln(x + 1) <= x for x >= 0.
+   - paper_main_log_quadratic_count: if N <= C d^2 and d >= 1, then
+     ln(N + 1) <= ln(C + 1) + 2 ln d, which is at most (ln(C + 1) + 2) ln d
+     when ln d >= 1 (paper_main_log_quadratic_count_coarse).
+   - paper_main_head_data_budget: the integer paper_main_gordon_ceiling of
+     K d ln d lies in the interval (K d ln d, (K + 1) d ln d].
+   - paper_main_head_data_operator_rate: for N <= C d^2 and k <= K d ln d,
+     8 (E (d + k) + ln(k + 1) + k ln(N + 1) + ln d) is at most an explicit
+     constant times d (ln d)^2.
+   - paper_main_head_data_tail_rate: 2 exp(-ln d) = 2/d <= 2/sqrt d. *)
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import PaperMainGordonQuantization.
 Open Scope R_scope.

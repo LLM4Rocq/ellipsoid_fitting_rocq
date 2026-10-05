@@ -1,4 +1,9 @@
-(* Actual data-law lower tails via coordinate clipping. *)
+(* Coordinates of a sample outside the coordinate event.
+   paper_main_data_coordinate_good: if no coordinate of the sample has
+   absolute value at least U (the complement of
+   paper_main_data_coordinate_event), then every entry of the underlying
+   tuple has absolute value at most U, so clipping at U changes nothing.
+   Deterministic. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

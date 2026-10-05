@@ -1,4 +1,14 @@
-(* Exchange actual Gaussian integration with finite Gibbs replica averages. *)
+(* Gaussian integration commutes with finite Gibbs replica averages.
+   paper_main_loss_replica c f I k F is the k-fold iterated Gibbs average
+   (gibbs_average c f I) of F over lists of k indices in I.
+   - paper_main_loss_gibbs_integral and paper_main_loss_replica_integral:
+     if every F js is integrable, the replica average of F is integrable,
+     and its expectation is the replica average of the expectations.
+   - paper_main_loss_replica_add and paper_main_loss_replica_difference:
+     the replica average is additive.
+   - paper_main_loss_replica_comparison: if the expectations of F js and
+     G js differ by at most B for every js, so do the expectations of
+     their replica averages. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
   GaussianProductDefinitions GaussianProduct GaussianFiniteSums GibbsDefinitions GibbsWeights

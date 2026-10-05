@@ -1,4 +1,22 @@
-(* The hybrid gap is chosen before the soft-min parameters and comparison constant. *)
+(* The lower tail of the normalized data loss Z_data
+   (paper_main_hybrid_finite_data of PaperMainHybridFiniteArray, for rows
+   made of a head of dimension r and a bulk of dimension mi + 1), with the
+   gap constants chosen before the soft-min parameters and the comparison
+   constant.
+
+   paper_main_unsat_ordered_tail: for gamma > 1/4 there are kappa, e, c > 0,
+   with kappa <= gamma / 2, and d0 such that for all beta, eta > 0 there is
+   C >= 0 with the following property. Let d >= d0,
+   |N - gamma d^2| <= kappa d^2, r <= sqrt d + 1, r + mi + 1 <= d, t > 0 and
+   eps, Sf >= 0. Let I be a nonempty prior of states (H_j, b_j, B_j) with
+   H_j symmetric, B_j positive semidefinite, |H_j|_F^2 + |B_j|_F^2 >= 1/4,
+   the operator norm of B_j at most eps and |B_j|_F <= Sf. Then the event
+     Z_data <= e (1 - exp(-c d^2)) - (2 eta + C eps Sf) - t
+   is measurable with probability at most exp(-N t^2 / 2).
+   The mean of the hybrid loss Z_goe is at least e (1 - exp(-c d^2))
+   (paper_main_hybrid_finite_goe_mean), the means of Z_data and Z_goe differ
+   by at most 2 eta + C eps Sf (paper_main_hybrid_finite_mean_comparison),
+   and paper_main_hybrid_finite_data_lower_tail gives the concentration. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix finset.

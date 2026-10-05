@@ -1,4 +1,15 @@
-(* Finite Gibbs row replacement for bounded losses, uniformly in translations. *)
+(* Adding one bounded loss to a soft minimum. Let beta > 0, I a nonempty
+   finite index list, f a function and ell a loss with values in [0, 1]
+   on I.
+   - paper_main_gibbs_row_increment: soft_min beta (f + ell) I -
+     soft_min beta f I = - ln A / beta, where A is the Gibbs average of
+     exp (- beta ell) under the weights exp (- beta f)
+     (paper_main_gibbs_row_factor), and exp (- beta) <= A <= 1
+     (paper_main_gibbs_row_bounds).
+   - paper_main_gibbs_row_increment_bounds: hence the increment lies in
+     [0, 1], whatever f.
+   - paper_main_gibbs_row_change: replacing ell by another loss with values
+     in [0, 1] changes the soft minimum by at most 1. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GibbsDefinitions GibbsWeights
   GibbsMomentBounds GibbsDerivatives PaperMainTranslatedLoss.

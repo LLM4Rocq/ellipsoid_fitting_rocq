@@ -1,4 +1,13 @@
-(* Bounded empirical loss and its deterministic Euclidean continuity estimate. *)
+(* The empirical loss (1/N) sum_(i < N) l(u_i) of the bounded loss
+   l(t) = 1 - exp(-t^2) of PaperMainTranslatedLoss, and its continuity in
+   the Euclidean norm. Deterministic.
+
+   - paper_main_loss_empirical_zero: it vanishes at u = 0.
+   - paper_main_loss_sum_absolute_bound: by Cauchy-Schwarz,
+     sum_i |w_i| <= N L D when sum_i w_i^2 <= N (L D)^2.
+   - paper_main_loss_empirical_lipschitz: since l is 4-Lipschitz
+     (paper_main_loss_lipschitz), if sum_i (u_i - v_i)^2 <= N (L D)^2 then
+     the empirical losses at u and v differ by at most 4 L D. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums
   PaperMainGordonLipschitz PaperMainTranslatedLoss.

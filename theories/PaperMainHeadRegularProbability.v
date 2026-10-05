@@ -1,4 +1,23 @@
-(* Auxiliary regularity and width outside vanishing actual exceptions. *)
+(* The head-section width is large for every head of a typical sample.
+
+   paper_main_head_width_coercive_probability_fixed: let N(d) <= C d^2 and
+   let k0 >= 1 be such that the Gaussian condition width
+   paper_main_gaussian_condition_width n k0 is eventually at least
+   (1/2 - eps/2) d, where d = S n. There are measurable events A_d with
+   probability tending to 0 such that, for every large d and every sample x
+   outside A_d whose head Gram matrix is coercive with constant c d, every
+   head h whose features are those of m <= K d ln d distinct points of x
+   has head-section width at least (1/2 - eps) d for kappa = 2 k0^2.
+   A_d is the union of four events of vanishing probability
+   (paper_main_head_exception_union_limit): the exception of
+   paper_main_head_width_regular_probability_fixed, the failure of the
+   bound on the Gram matrix of the raw head and data features, a large
+   data radius and a large data coherence. Outside A_d the selected points
+   satisfy paper_main_head_regular: the diagonal bound comes from the
+   coercivity (paper_main_head_coercive_diagonal) and the off-diagonal
+   bound from the coherence.
+   paper_main_head_width_coercive_probability_uniform chooses kappa from
+   eps alone, before N, C, K and c. *)
 From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

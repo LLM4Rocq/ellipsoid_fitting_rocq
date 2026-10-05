@@ -1,4 +1,23 @@
-(* Uniform finite-prior row-polynomial comparison for actual Gaussian laws. *)
+(* Comparison of the row polynomials at quadratic forms and at Gaussian
+   linear forms, uniformly over a finite prior.
+
+   paper_main_loss_row_polynomial beta f I k a U xs is the truncated series
+   paper_main_loss_row_poly beta f I k of PaperMainLossReplica for the
+   losses l(a_j + U_j(xs)), j in I. Each new term is a replica average of a
+   product of loss factors (paper_main_loss_row_polynomial_step).
+   - paper_main_loss_row_polynomial_integrable and
+     paper_main_loss_row_polynomial_expectation: for nonempty I, beta >= 0
+     and regular U_j (pmdf_regular), the row polynomial is integrable for
+     the iterated Gaussian expectation, which follows the same recursion.
+   - paper_main_loss_row_polynomial_comparison: let T_j, j in I, be
+     symmetric matrices of size n + 1 with operator norm at most eps
+     (paper_main_cone_opnorm_le) and Frobenius norm at most S. The
+     expectations of the row polynomial at the quadratic forms
+     Q_j(x) = x^T T_j x - Tr T_j of a standard Gaussian vector x (pmdf_quad)
+     and at the Gaussian linear forms G_j of PaperMainLossReplicaComparison
+     differ by at most paper_main_loss_row_constant beta k * eps * S. The
+     proof adds the bounds of paper_main_loss_replicated_comparison for the
+     k terms. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianProductDefinitions GaussianProduct

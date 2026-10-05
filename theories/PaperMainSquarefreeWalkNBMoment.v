@@ -1,19 +1,23 @@
-(* The sharp NB moment bound (G16, lower edge, part 7).
-   With kap = lam^-2 and B = 4 L, where L = (q+1)(m+1) (pmnct_moment_le):
+(* A moment bound for the traces of powers of the non-backtracking (NB)
+   matrices.
+
+   Let T m = pmlo_T N ('I_d * 'I_d) (pmnb_X d xs) kap m. With kap = lam^-2
+   and B = 4 L, where L = (q+1)(m+1), pmnct_moment_le states
      E tr T(m+1)^(q+1) <= F(L, q+1) (L+1)^2 (1 + delta)^L Theta,
    where F(L, n) = 2^n binom(L + n, n) (pmnm_F), delta = 2 L d B^4 N lam^-4,
    and Theta = N mu^L + N (1 + 13 c0^2)^2 + B^4 with mu = 1 + theta (1 + K_L)
    and K_L = 2 (L + 3) + (L + 1) (c0 + 2 L)^2.
-   The premises are deterministic: N 'C(d, 2) <= lam^4, N <= lam^2,
+   The hypotheses are deterministic: N 'C(d, 2) <= lam^4, N <= lam^2,
    d <= c0 lam, N <= d^2, B^2 <= lam theta^294 and B^2 4^45 <= d.
    - pmnct_tau: the largest terminal sum over all marks, at most Theta after
-     normalization for every length up to L (pmnct_tau_le): by
+     normalization for every length up to L (pmnct_tau_le): by pmns_T_le of
      PaperMainSquarefreeWalkNBCoreSum for lengths >= 3, by the shape bound
      pmsb_T_le for lengths 1 and 2, and B^4 for the empty walk.
    - pmnct_Z_le: the explicit bound pmnm_Z of PaperMainSquarefreeWalkNBMarks
      is at most (L+1)^2 (1 + delta)^L Theta after normalization, since
      N lam^-2 <= 1 and N X lam^-4 <= 1 + delta.
-   No probability premise beyond the expansion of the trace moment. *)
+   The expectation enters only through the walk expansion
+   pmnct_moment_walk. *)
 From Stdlib Require Import Reals Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -61,7 +65,7 @@ move=> [t1 t2]; apply/esym/eqP; congr (_, _); apply: val_inj.
 exact: size0nil (size_tuple _).
 Qed.
 
-(* Marked walks are among the walks of ShapeOnce. *)
+(* Marked walks are among the walks of PaperMainSquarefreeWalkShapeOnce. *)
 Lemma pmnct_T_pmso N d (q0 : 'I_d * 'I_d) B L ms : pmnm_T N d q0 B L ms <= pmso_T N d B L L.
 Proof.
 rewrite /pmso_T leqnn /pmnm_T; apply: leq_sum => W _.
@@ -165,7 +169,7 @@ have HA3 : 0 <= (B ^ 4)%:R :> R by exact: ler0n.
 have [ms Ems] := pmnct_tau_attained N d q0 B L.
 rewrite Ems.
 case: (ltnP 2 L) => HL3.
-  (* L >= 3: the weighted terminal bound of NBCoreSum. *)
+  (* L >= 3: the weighted terminal bound pmns_T_le. *)
   have H := pmns_T_le R N d B L q0 ms lam theta c0 HN HL3 Hl Ht Hc0 HNM HN2 Hdl HB.
   apply: (@le_trans _ _ (N%:R * mu ^+ L0)).
     set KL := (2 * (L.-1 + 4))%:R + (L.-1 + 2)%:R * (c0 + (2 * L)%:R) ^+ 2.
@@ -197,7 +201,7 @@ case: (ltnP 2 L) => HL3.
       by apply: lerXn2r; rewrite ?nnegrE.
     exact: (ler_weXn2l Hmu1 HLL0).
   by rewrite -addrA lerDl; apply: addr_ge0.
-(* L <= 2: the crude count of PaperMainSquarefreeWalkMoments. *)
+(* L <= 2: the empty walk, and the shape bound pmsb_T_le. *)
 case: L HL3 HLL0 ms Ems => [|L1] HL3 HLL0 ms Ems.
   rewrite muln0 expr0 mul1r.
   apply: (@le_trans _ _ (B ^ 4)%:R); first by rewrite ler_nat pmnct_T0.
@@ -237,7 +241,7 @@ apply: ler_weXn2l; last exact: HL3.
 by rewrite lerDl; apply: mulr_ge0; [exact: ler0n | exact: exprn_ge0].
 Qed.
 
-(* 3. The sharp NB moment, with kap = lam^-2 and B = 4 L, L = (q+1)(m+1). *)
+(* 3. The NB moment bound, with kap = lam^-2 and B = 4 L, L = (q+1)(m+1). *)
 Theorem pmnct_moment_le (lam theta c0 : R) N d m q :
   (0 < N)%N -> (0 < d)%N -> (N <= d ^ 2)%N -> 0 < lam -> 0 < theta <= 1 -> 0 <= c0 ->
   (N * 'C(d, 2))%:R <= lam ^+ 4 -> N%:R <= lam ^+ 2 -> d%:R <= c0 * lam ->
@@ -263,13 +267,13 @@ rewrite -exprM.
 set L := (q.+1 * m.+1)%N.
 set B := (4 * L)%N.
 set delta := (N * (2 * L * d * B ^ 4))%:R * lam^-1 ^+ 4.
-(* The marked count of NBMarks, with the largest terminal sum as tau. *)
+(* The marked count pmnm_count, with the largest terminal sum as tau. *)
 have Hcnt : count id (pmnct_ms0 m.+1 L) = q.+1 := pmnct_ms0_count m.+1 q.+1 (ltn0Sn _).
 have Hc := pmnm_count N d r0 q0 B q.+1 ('C(d, 2) + 2 * L * d * B ^ 4) (pmnct_tau N d q0 B) L
   (leqnn _) (fun L' ms _ Hs _ => pmnct_tau_ge N d q0 B L' ms Hs)
   L (pmnct_ms0 m.+1 L) (leqnn _) (pmnct_ms0_size _ _) (eq_leq Hcnt).
 rewrite Hcnt in Hc.
-(* The premises of pmnct_Z_le. *)
+(* The hypotheses of pmnct_Z_le. *)
 have HN' : N%:R * lam^-1 ^+ 2 <= 1.
   apply: (@le_trans _ _ (lam ^+ 2 * lam^-1 ^+ 2)).
     by apply: ler_wpM2r; [apply: exprn_ge0; exact: ltW | exact: HN2].

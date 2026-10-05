@@ -1,4 +1,14 @@
-(* Uniform polynomial approximation of a bounded Gibbs row logarithm. *)
+(* Uniform polynomial approximation of the logarithm on [a, 1], a > 0.
+   Deterministic. The Taylor polynomial P_n(z) = sum_(k=1..n) z^k / k
+   (paper_main_loss_log_poly) of -ln(1 - z) satisfies
+   0 <= -ln(1 - z) - P_n(z) <= q^n / (1 - q) for 0 <= z <= q < 1
+   (paper_main_loss_log_remainder), by the mean value theorem: the
+   remainder vanishes at 0 and has derivative z^n / (1 - z). Hence P_n
+   converges to -ln(1 - z) uniformly on [0, q]
+   (paper_main_loss_log_uniform), and P_n(1 - x) converges to -ln x
+   uniformly on [a, 1] (paper_main_loss_log_factor_uniform).
+   PaperMainLossReplica applies this to the Gibbs row factor, which lies
+   in [exp(-beta), 1]. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import SoftDefinitions GibbsDerivatives.
 Open Scope R_scope.

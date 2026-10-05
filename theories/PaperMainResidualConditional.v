@@ -1,4 +1,20 @@
-(* Polynomially small conditional residual exceptions for the actual data law. *)
+(* Conditional residual exceptions of the data sample. Let P be a map
+   from Gaussian coordinates z to matrices. The joint
+   residual set (paper_main_gaussian_residual_joint_set) contains the
+   pairs (z, x) for which some point i < N of x has head feature W_i with
+   |<W_i, P(z)>| >= r. A sample x is in the conditional event
+   paper_main_residual_conditional_event when its section
+   {z | (z, x) in the residual set} has probability at least tau.
+   - paper_main_residual_conditional_good: outside the conditional event,
+     the section has probability below tau.
+   - paper_main_cone_selector_conditional: for kappa >= 1 and eps, r,
+     tau > 0, the selector P of paper_main_cone_selector_residual takes
+     values in the cone sphere K_kappa \cap S_F and satisfies
+     support(Z(z)) - eps |Z(z)|_F <= <Z(z), P(z)> for the symmetric
+     Gaussian matrix Z(z). Its conditional event is measurable, with
+     probability at most tau^-1 N 2 exp(-d r^2 / (4 + 4 kappa r)) for
+     d = n + 1, by Markov's inequality applied to the probability of the
+     section, whose mean is the joint probability. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions PaperMainAsymptotics

@@ -1,4 +1,5 @@
-(* Twin steps of terminal square-free walks (G16, checkpoint B4, item 3).
+(* Twin steps of terminal square-free walks. Deterministic.
+
    For a valid closed walk (rs, ps) of length L, step s goes from rs_s to
    rs_(s+1 mod L) with label pair ps_s, and the multiplicity n_c of a color
    is the number of steps whose pair contains c. Two steps are twins when
@@ -9,15 +10,14 @@
    the lonely steps number at most 27 e (pmst_lonely_le), with
    e = 2 L + 2 - 2 R - C:
    - steps with a color of multiplicity >= 3 number at most 6 (L - C)
-     (pmst_multi_le), and L - C <= e for terminal walks;
+     (pmst_multi_le), and L - C <= e for terminal walks (pmst_terminal_R);
    - a step alone on its row pair has such a color (pmst_alone);
    - the steps on row pairs used >= 3 times number at most 3 (E1 + e), with
      E1 the number of steps alone on their row pair (pmst_M3_le), because
      the first arrivals at the R - 1 non-root rows use distinct row pairs
      (pmst_first_rows);
    - a lonely step has a color of multiplicity >= 3 or lies on a row pair
-     used >= 3 times (pmst_lonely_cases).
-   No probability premise. *)
+     used >= 3 times (pmst_lonely_cases). *)
 From Stdlib Require Import Lia.
 From mathcomp Require Import all_ssreflect_compat.
 From EllipsoidFitting Require Import PaperMainSquarefreeWalkCount PaperMainSquarefreeWalkExcess
@@ -457,5 +457,3 @@ by move=> /leP HR /leP HV /leP HC /leP HM /leP H3 /leP H1 /leP HU; apply/leP; li
 Qed.
 
 End Twin.
-
-

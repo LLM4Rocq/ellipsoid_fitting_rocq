@@ -1,4 +1,17 @@
-(* Scalar normalization and small-tolerance bounds for column remainders. *)
+(* Scalar inequalities for the normalization of the column remainder bounds
+   of PaperMainColumnRemainderCross.
+
+   - pmcr_tolerance_energy: for 0 <= r <= 1 and 0 <= m <= U r^2, the choice
+     b = U r satisfies m <= b <= U and m U <= b^2, the hypotheses of
+     pmcr_cross_opbound.
+   - pmcr_normalization and pmcr_normalized_count_bound: for n, M > 0,
+     kap = 1 / sqrt(n M) satisfies kap^2 n M = 1 and kap^2 n = 1 / M, and
+     n <= 4 M then gives kap n <= 2.
+   - pmcr_cross_radius_bound, pmcr_coefficient_radius_bound and
+     pmcr_diagonal_radius_bound: for nonnegative quantities,
+     kap^(p+1) (p+1) (2 U)^p (U r), a^p b (2^p - 1) delta and s^k delta are
+     at most (p+1) (2 h)^(p+1) r, 4^p h delta and 2^k delta, when
+     kap U <= h, a <= 2, b <= h and s <= 2. *)
 From Stdlib Require Import Reals List Lia FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

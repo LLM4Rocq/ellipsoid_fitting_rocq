@@ -1,4 +1,18 @@
-(* Dimension-independent parameter choices for the strict subcritical margin. *)
+(* Choice of the parameters of the soft comparison below density 1/4.
+   Deterministic, at Stdlib's R. Let g = 1/2 - sqrt alpha, positive for
+   0 <= alpha < 1/4 (paper_main_soft_subcritical_gap).
+   - paper_main_soft_parameters: for kappa >= 1 and L >= 0 there are
+     eps, A, theta > 0, independent of the dimension, such that eps, L eps,
+     the entropy term (4 + 4/eps) ln 2 (alpha + 1)/A and the smoothing term
+     (800/3) kappa^3 A^2 theta are each at most g/16.
+   - paper_main_soft_scaled_margin: with such parameters, the inverse
+     temperatures A d sqrt d, a width w >= (1/2 - g/16) d, at most
+     alpha d^2 tail points and a scale with scale sqrt d >= 1, the scaled
+     width minus the entropy, smoothing and operator error terms is at
+     least (g/2) sqrt d. paper_main_soft_scaled_error computes the
+     smoothing term at these temperatures.
+   - paper_main_soft_gaussian_scale: sqrt(2/d) sqrt d >= 1, for the scale
+     goe_scale of the Gaussian surrogate. *)
 From Stdlib Require Import Reals Lia Lra Psatz.
 From mathcomp Require Import ssreflect.
 Open Scope R_scope.

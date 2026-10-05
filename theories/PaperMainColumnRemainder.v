@@ -1,4 +1,14 @@
-(* Exact column-power splitting for the non-backtracking recurrence error. *)
+(* The exact column-power splitting of the error E_k of the
+   non-backtracking recursion (pmlo_E of PaperMainSquarefreeEdgeLower).
+   For columns X : 'I_N -> C -> R, let R_c = X_c X_c^T (pmcr_rankone),
+   D_c its diagonal part (pmcr_diagonal) and Q_c = |X_c|^2
+   (pmcr_column_norm). Then P_c = kap (R_c - D_c) (pmcr_column_split) and
+   R_c^(k+1) = Q_c^k R_c (pmcr_rankone_power).
+   paper_main_column_remainder_split: for s = kap N,
+     E_k = kap^(k+2) sum_c ((R_c - D_c)^(k+2) - R_c^(k+2))
+         + kap^(k+2) sum_c (Q_c^(k+1) - N^(k+1)) R_c
+         + s^k (kap^2 N sum_c D_c - I).
+   Deterministic. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

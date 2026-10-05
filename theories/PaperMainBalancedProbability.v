@@ -1,6 +1,14 @@
-(* Probability consequences of deterministic fit/balanced exclusion.
-   Measurability and phase estimates remain explicit hypotheses until
-   their independent proof modules are complete. *)
+(* Probability consequences of the deterministic exclusion between the fit
+   event and the balanced positive definite event: for d > 0 no sample lies
+   in both (paper_main_fit_balanced_exclusive).
+
+   paper_main_balanced_probability_le_complement bounds the probability of
+   the balanced event by one minus the probability of the fit event.
+   paper_main_balanced_from_sat: if the fit event has probability tending
+   to 1 for every sample-size sequence whose density has limsup below 1/4,
+   then the balanced event has probability tending to 0 for every such
+   sequence. The measurability of the two events and the limit of the fit
+   probability are hypotheses of these lemmas. *)
 From Stdlib Require Import Reals Lra.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

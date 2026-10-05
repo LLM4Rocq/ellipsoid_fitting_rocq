@@ -1,4 +1,19 @@
-(* Head-section support transfer from an approximate measurable maximizer. *)
+(* Transfer of the support on the cone sphere to the support on the head
+   section, from an approximate maximizer.
+   - paper_main_head_width_transfer_approx: if P maximizes <Z, .> on the
+     cone sphere of parameter kappa0 up to eps |Z|_F, and Pt lies in the
+     head section of parameter kappa1 with <Z, P> - 2 eta |Z|_F <= <Z, Pt>,
+     then the support of Z on the head section is at least its support on
+     the cone sphere minus (eps + 2 eta) |Z|_F.
+   - paper_main_head_width_transfer_features_approx: the same for the head
+     features W_k = paper_main_head_feature x (s k) of a sample, with Pt the
+     corrected and normalized matrix of paper_main_head_correction_bounds_cone,
+     under the scalar hypotheses of that theorem (coercivity of the Gram
+     matrix, bounds on the diagonal and off-diagonal pairings and on the
+     residuals <W_k, P>, and a Loewner bound on the head data Gram matrix).
+   - paper_main_residual_joint_good: outside the joint residual event of
+     PaperMainGaussianResidualJoint, every residual |<W_i, P(z)>| is at
+     most r. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

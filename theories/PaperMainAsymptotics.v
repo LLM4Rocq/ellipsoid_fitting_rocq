@@ -1,5 +1,16 @@
-(* Internal reductions for the fixed public main theorem. No public
-   definition or theorem statement is changed by this module. *)
+(* Elementary facts on the probabilities and the asymptotic notions of
+   PaperMainDefinitions, and the reduction of the satisfiable half of
+   thm:main to thm:conditioned.
+   - paper_main_limsup_lt_witness: limsup u < c gives some a < c with
+     limsup u <= a.
+   - paper_main_conditioned_subset: the well-conditioned fit event is
+     contained in the fit event.
+   - paper_main_probability_bounds, paper_main_probability_mono: the
+     probability of a measurable event is in [0, 1], and it is monotone.
+   - paper_main_tends_to_zero_squeeze, paper_main_tends_to_one_squeeze:
+     squeezing for the limits 0 and 1 of extended-real sequences.
+   - paper_main_sat_from_conditioned: thm:conditioned implies that the fit
+     event has probability tending to 1 when limsup n / d^2 < 1/4. *)
 From Stdlib Require Import Reals Lra.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -86,9 +97,10 @@ rewrite (lee0_abs (x := p d - 1)%E) ?sube_le0
   exact: leeB (Hpq d) (lexx _).
 Qed.
 
-(* This is an assembly implication. Its conditioned-limit premise is a
-   substantial theorem still to be proved, not an allowed assumption of
-   the final result. *)
+(* The second hypothesis is the statement of thm:conditioned. Given
+   limsup n / d^2 < 1/4, pick alpha < 1/4 with limsup n / d^2 <= alpha;
+   the well-conditioned fit event for the constants lm, lp of alpha is
+   contained in the fit event, whose probability is at most 1. *)
 Lemma paper_main_sat_from_conditioned :
   (forall n d : nat, measurable (paper_main_fit_event n d)) ->
   (forall alpha : R, alpha < 1 / 4%:R ->

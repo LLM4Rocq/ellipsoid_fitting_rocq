@@ -1,24 +1,29 @@
-(* Deterministic bridge from the non-backtracking lower box to raw-feature
-   coercivity (A39).
+(* From the non-backtracking lower box to the coercivity of the raw feature
+   Gram matrix. Deterministic.
 
    For a sample x of N rows of d coordinates put C = 'I_d * 'I_d,
    X = pmnb_X d (tval x), M = 'C(d, 2), R_c = pmcr_rankone N C X c and
    D_c = pmcr_diagonal N C X c, so pmlo_T 1 = kap (sum_c R_c - sum_c D_c)
    (pmlo_T1, pmcr_column_split) and u^T (sum_c D_c) u = sum_i D_i u_i^2 with
    the row sums D_i = sum_c X i c ^ 2.
-   1. Let kap > 0 with kap^2 N M = 1, s = kap N, so 1 / kap = M s. If
-      0 <= s <= 3/4, every |D_i / M - 1| <= 1/64 and the lower box
-      -(49/24) I <= pmlo_T 1 - s I holds, then for every u
-        u^T (sum_c R_c) u >= M (63/64 + s^2 - (49/24) s) |u|^2 >= (M / 64) |u|^2,
-      since 1 + s^2 - (49/24) s - 1/32 = (s - 3/4) (s - 31/24) >= 0 on [0, 3/4].
-      The square-free Gram is 2 sum_c R_c (pmccf_rankone_sum), so it is at
-      least (M / 32) I, and 2 M = d (d - 1) >= d^2 / 2 for d >= 2 gives
-      (d^2 / 128) I. The full raw feature Gram is above the square-free Gram
-      (paper_main_squarefree_gram_le), so it is coercive with constant d^2 / 128.
-   2. The exact normalization kap = (sqrt (N M))^-1 satisfies the premises
-      on kap (pmcr_normalization).
-   3. If d >= 9 and 4 N <= d^2, then s^2 = N / M <= 9 / 16, so 0 <= s <= 3/4.
-   Deterministic; no probability premise. *)
+   1. paper_main_squarefree_rankone_lower: let kap > 0 with kap^2 N M = 1
+      and s = kap N, so 1 / kap = M s. If 0 <= s <= 3/4, every
+      |D_i / M - 1| <= 1/64 and the lower box -(49/24) I <= pmlo_T 1 - s I
+      holds, then for every u
+        u^T (sum_c R_c) u >= M (63/64 + s^2 - (49/24) s) |u|^2
+                          >= (M / 64) |u|^2,
+      since 1 + s^2 - (49/24) s - 1/32 = (s - 3/4) (s - 31/24) >= 0 on
+      [0, 3/4]. paper_main_squarefree_coercivity_generic: the square-free
+      Gram is 2 sum_c R_c (pmccf_rankone_sum), so it is at least (M / 32) I,
+      and 2 M = d (d - 1) >= d^2 / 2 for d >= 2 gives (d^2 / 128) I. The
+      full raw feature Gram is above the square-free Gram
+      (paper_main_squarefree_gram_le), so it is coercive with constant
+      d^2 / 128.
+   2. paper_main_squarefree_coercivity: the exact normalization
+      kap = (sqrt (N M))^-1 satisfies the hypotheses on kap
+      (pmcr_normalization).
+   3. paper_main_squarefree_coercivity_scale: if d >= 9 and 4 N <= d^2,
+      then s^2 = N / M <= 9 / 16, so 0 <= s <= 3/4. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -56,7 +61,7 @@ have Hz : \sum_(j < N | j != i) u i 0 * (\sum_c pmcr_diagonal N C X c) i j * u j
 by rewrite Hz addr0 expr2; ring.
 Qed.
 
-(* The scalar constant check. *)
+(* The scalar inequality behind the constant 1/64. *)
 Lemma pmscv_scalar (s : R) : 0 <= s -> s <= 3 / 4 -> 1 / 32 <= 1 + s ^+ 2 - 49 / 24 * s.
 Proof.
 move=> Hs0 Hs1.
@@ -64,7 +69,7 @@ have H : 0 <= (3 / 4 - s) * (31 / 24 - s) by apply: mulr_ge0; lra.
 nra.
 Qed.
 
-(* 2. The generic bridge. *)
+(* 2. From the lower box to coercivity, for every kap with kap^2 N M = 1. *)
 Theorem paper_main_squarefree_rankone_lower N d (x : paper_main_sample N d) (kap : R) :
   (0 < N)%N -> (2 <= d)%N -> 0 < kap -> kap ^+ 2 * N%:R * ('C(d, 2))%:R = 1 ->
   0 <= kap * N%:R -> kap * N%:R <= 3 / 4 ->

@@ -1,20 +1,21 @@
-(* The shape bound for square-free walks (G16, checkpoint B4, item 5).
+(* The shape bound for square-free walks.
    Each step symbol of PaperMainSquarefreeWalkShapeCode gets a weight
    (pmsb_w). With y = 2 (n + 1), the weight of a symbol times
    N^(fresh row) d^(fresh colors) y^(index slots) is N d^2 y^3
    (pmsb_w_comp), and the weights of all symbols sum to 13 N d^2 y^3
    (pmsb_w_sum).
-   - pmsb_point: for a terminal walk, the fresh values and the at most
-     45 e index slots of its code pay for the moment weight B^(2e), when
-     N <= d^2 and B^2 y^45 <= d.
-   - pmsb_T_le: the terminal sum of phase 1 is at most N (13 d^2)^L for
-     L >= 1, when N <= d^2 and B^2 (2L)^45 <= d. The root and the code
-     determine the walk (pmsk_inj), and the sum over codes factors over
-     the steps.
+   - pmsb_point: for a terminal walk of length L (pmso_fv N rs = L: L <= 2,
+     or no row at a non-root position is visited once), the fresh values
+     and the at most 45 e index slots of its code pay for the moment weight
+     B^(2e), when N <= d^2 and B^2 y^45 <= d.
+   - pmsb_T_le: the sum pmso_T over the terminal walks of length L is at
+     most N (13 d^2)^L for L >= 1, when N <= d^2 and B^2 (2L)^45 <= d. The
+     root and the code determine the walk (pmsk_inj), and the sum over
+     codes factors over the steps.
    - pmsb_S_le: the sum over all valid walks is at most 2 N B^4 (26 d^2)^L
      when also L0 B^2 <= d and B^2 (2 L0)^45 <= d. This is pmso_bound with
      Lam 0 = B^4 and Lam L = 2 N B^4 (13 d^2)^L.
-   No probability premise. *)
+   Natural numbers only. *)
 From Stdlib Require Import Lia ArithRing.
 From mathcomp Require Import all_ssreflect_compat.
 From EllipsoidFitting Require Import PaperMainSquarefreeWalkCount PaperMainSquarefreeWalkExcess
@@ -196,7 +197,7 @@ move: (13 ^ L) (M ^ L) (d ^ (2 * L)) => a b c.
 by rewrite -!multE; ring.
 Qed.
 
-(* 4. The recursion of phase 1, with the terminal bound. *)
+(* 4. The recursion of pmso_bound, with the terminal bound. *)
 Lemma pmsb_arith (N D S B4 : nat) : N <= D -> S <= 4 * D -> 0 < B4 ->
   N * (13 * D) ^ 2 + 2 * (2 * N) * (2 * N * B4 * (13 * D)) + 2 * N * S * (2 * N * B4) <=
   2 * N * B4 * (13 * D) ^ 2.

@@ -1,7 +1,9 @@
-(* The split compact value and the full-sample tail duals of G13. Fix a
-   full sample x of N = k + q rows of R^(S n), with features
-   W i = paper_main_head_feature x i, an injective head J (uniq J, size J = k,
-   rows below N) and its ordered complement
+(* The compact value of a split sample and the tail duals of the full
+   sample.
+
+   Fix a full sample x of N = k + q rows of R^(S n), with features
+   W i = paper_main_head_feature x i, an injective head J (uniq J,
+   size J = k, rows below N) and its ordered complement
    C = paper_main_head_complement N J (the other rows, increasing). Let pi be
    a row permutation sending the first k positions to J in order and the last
    q positions to C in order (paper_main_head_selection_perm_exists), so the
@@ -9,22 +11,28 @@
    W (nth J t) and W (nth C u).
    - Zero extension and restriction. For y on the tail coordinates u < q,
      paper_main_head_extension C y is y (index i C) at i in C and 0 elsewhere,
-     in particular 0 on J. For a full t, its restriction is t (nth C u). Both
-     keep the Euclidean norm, the cap |.| <= theta / sqrt (S n) (theta >= 0
-     for the zeros), and the combination:
-       sum_(i < N) t_i W_i = sum_(u < q) t (nth C u) W (nth C u)
-     for t vanishing on J, which is the tail combination of the split value.
-     So the unit capped tails vanishing on J of G13 are exactly the zero
-     extensions of the capped unit dual set paper_main_head_capped_dual q (S n) theta.
+     in particular 0 on J. For a full t, its restriction is t (nth C u). For
+     t vanishing on J, the restriction keeps the Euclidean norm and the
+     combination:
+       sum_(i < N) t_i W_i = sum_(u < q) t (nth C u) W (nth C u),
+     which is the tail combination of the split value. So a unit t vanishing
+     on J with |t_i| <= theta / sqrt (S n), a tail dual of
+     paper_main_support_all, restricts to a vector of the capped unit dual
+     set paper_main_head_capped_dual q (S n) theta
+     (paper_main_head_restriction_capped).
    - Head constraints. The section of the head block is
-     {S | condition, |S|_F = 1, <W_j, S> = 0 for every j in J}.
-   - Main consequence: if c <= the split compact value at the blocks of
-     x, with c > 0, then every unit capped tail t vanishing on J has, for
-     each eps > 0, a matrix S of this section with
-     paper_main_support_score (S n) N W t S > c - eps; in particular a
-     positive score. This is the capped-tail premise of G13 in section form.
-   - A full-sample operator bound |sum_i c_i W_i|_F <= A |c| (the G13
-     premise) gives the operator bound of the tail block for every fixed head.
+     {S | condition, |S|_F = 1, <W_j, S> = 0 for every j in J}
+     (paper_main_head_selection_head_section).
+   - paper_main_head_compact_tail_duals: if c <= the compact value
+     paper_main_head_compact_value at the blocks of x, with c > 0, then
+     every such tail dual t has, for each eps > 0, a matrix S of this section
+     with paper_main_support_score (S n) N W t S > c - eps; in particular a
+     positive score (paper_main_head_compact_tail_duals_pos). This is the
+     hypothesis of paper_main_support_all on capped tails, in section form.
+   - paper_main_head_compact_operator_from_full: a full-sample operator
+     bound |sum_i c_i W_i|_F <= A |c|, also a hypothesis of
+     paper_main_support_all, gives the operator bound of the tail block for
+     every fixed head.
    The head J is fixed, not chosen from the data. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
@@ -199,7 +207,7 @@ rewrite -paper_main_gordon_euclidean_squared.
 by rewrite -(paper_main_head_restriction_norm k q J t HJu HJs HJa Ht) H1 RpowE expr1n.
 Qed.
 
-(* The zero extension of a capped unit dual vector is a G13 tail dual. *)
+(* Restriction after zero extension, and the combination of a zero extension. *)
 
 Lemma paper_main_head_extension_restriction k q (J : seq nat) (y : nat -> R) (u : nat) :
   uniq J -> size J = k -> all (fun i => i < k + q)%N J -> (u < q)%N ->
@@ -266,7 +274,7 @@ split.
   by apply: mem_nth; rewrite HJs.
 Qed.
 
-(* The main consequence: the capped-tail premise of G13 in section form. *)
+(* Main consequence: section points with a large score for the tail duals. *)
 
 Theorem paper_main_head_compact_tail_duals n k q (kappa theta c eps : R) (J : seq nat)
     (pi : 'S_(k + q)) (x : paper_main_sample (k + q) (S n)) :

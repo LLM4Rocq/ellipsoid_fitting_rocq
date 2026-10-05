@@ -1,16 +1,25 @@
-(* Deterministic growth of raw and clipped data-feature scores (G11,
-   checkpoint B). d = S n, N rows, D = N * d, and
-   S(xs) = sum_(l < D) (nth l xs 0)^2. For a public B with internal operator
-   norm at most k (symmetry is not needed for the score bounds) and a dual
-   vector y with euclidean_norm y (seq 0 N) <= 1:
-   - |tr B| <= d k and |<W f, B>| <= k (|f|^2 + d) / sqrt d;
-   - the raw score and the clipped score (U >= 0) are at most
-     (k / sqrt d) (S(xs) + D) in absolute value;
-   - the clipped score is at most k sqrt (N d) (U^2 + 1) in absolute value;
-   - for admissible families over nonempty Y and Q, the soft minimax of the
+(* Growth of the raw and clipped data-feature scores. Deterministic.
+
+   Let d = S n, N rows, D = N * d and S(xs) = sum_(l < D) (nth l xs 0)^2.
+   W f = (f f^T - I) / sqrt d is the data feature of the coordinates f
+   (paper_main_data_feature). Let B be a d x d matrix of operator norm at
+   most k (matrix_operator_norm of paper_main_matrix_from_public n B; the
+   score bounds do not need B symmetric) and y a dual vector with
+   euclidean_norm y (seq 0 N) <= 1.
+   - pmdcg_trace_bound and pmdcg_pairing_bound: |tr B| <= d k and
+     |<W f, B>| <= k (|f|^2 + d) / sqrt d.
+   - paper_main_data_raw_score_growth and
+     paper_main_data_clipped_score_growth: the raw score
+     sum_i y_i <W (row i of xs), B> and the clipped score (U >= 0) are at
+     most (k / sqrt d) (S(xs) + D) in absolute value. Both are instances of
+     paper_main_data_contraction_score_growth, for a coordinate map phi with
+     |phi z| <= |z|.
+   - paper_main_data_raw_soft_growth and paper_main_data_clipped_soft_growth:
+     for admissible families over nonempty Y and Q, the soft minimax of the
      raw or clipped scores is at most (k / sqrt d) (S(xs) + D) + C in
-     absolute value, with C = ln (length Y) / beta + ln (length Q) / gamma.
-   N = 0 is allowed. No probability statement. *)
+     absolute value, with C = ln (length Y) / beta + ln (length Q) / gamma
+     (paper_main_data_soft_entropy).
+   N = 0 is allowed. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval boolp.

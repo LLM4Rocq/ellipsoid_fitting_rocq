@@ -1,4 +1,4 @@
-(* The twin code of square-free walks (G16, checkpoint B4, item 4).
+(* The twin code of square-free walks.
    A valid walk (rs, ps) of length L <= n + 1 is coded step by step. The
    root rs_0 is kept apart. Step s, from rs_s to rs_(s+1 mod L) with label
    pair ps_s, gets one symbol (pmsk_sym):
@@ -9,8 +9,9 @@
      each color, fresh or by the step and side of an earlier occurrence.
    The symbol and the prefix take (s+1) rs, take s ps give back the step
    (pmsk_dec_code). So the code is injective on valid walks with the same
-   root (pmsk_inj).
-   No probability premise. *)
+   root (pmsk_inj). The second part of the module counts the fresh values
+   and the index slots of the code.
+   Deterministic. *)
 From Stdlib Require Import Lia.
 From mathcomp Require Import all_ssreflect_compat.
 From EllipsoidFitting Require Import PaperMainSquarefreeWalkCount PaperMainSquarefreeWalkExcess

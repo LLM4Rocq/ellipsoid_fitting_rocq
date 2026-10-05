@@ -1,6 +1,26 @@
-(* Internal reductions to floor(alpha*d^2) observations. These do not
-   assume or change any public theorem. Fixed-density phase estimates
-   remain separate mathematical obligations. *)
+(* Reduction of thm:conditioned and of the unsatisfiable half of thm:main
+   to the fixed sample sizes n = floor(beta d^2) (paper_main_fixed_count).
+   - paper_main_fixed_count_dominates, paper_main_fixed_count_below:
+     n(d) <= floor(beta d^2) when n(d) / d^2 <= beta, and
+     floor(beta d^2) <= n(d) when beta <= n(d) / d^2.
+   - paper_main_fit_probability_antitone,
+     paper_main_conditioned_probability_antitone: adding points can only
+     decrease the probability of the fit event and of the well-conditioned
+     fit event (from PaperMainSampling).
+   - paper_main_eventual_padding, paper_main_eventual_trimming: the
+     eventual comparisons of n(d) with floor(beta d^2) under the limsup and
+     liminf conditions.
+   - paper_main_conditioned_from_fixed: if, for every 0 < beta < 1/4, the
+     well-conditioned fit event has probability tending to 1 at
+     n = floor(beta d^2) for some constants lm, lp, then the limit of
+     thm:conditioned holds.
+   - paper_main_unsat_from_fixed: if, for every 1/4 < beta < 1/2, the fit
+     event has probability tending to 0 at n = floor(beta d^2), then it
+     tends to 0 whenever liminf n / d^2 > 1/4.
+   Both reductions pick an intermediate beta, compare n(d) with
+   floor(beta d^2) for all large d, and use the monotonicity in the number
+   of points with the squeezes paper_main_tends_to_one_squeeze_eventually
+   and paper_main_tends_to_zero_squeeze_eventually. *)
 From Stdlib Require Import Reals Lra.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum archimedean matrix.
@@ -14,7 +34,7 @@ Open Scope ring_scope.
 Open Scope classical_set_scope.
 
 (* Num.truncn is floor on nonnegative reals, and zero on negative reals.
-   Only nonnegative densities will be used in the phase reductions. *)
+   The reductions below use only nonnegative densities. *)
 Definition paper_main_fixed_count (alpha : R) (d : nat) : nat :=
   Num.truncn (alpha * d%:R ^+ 2).
 
@@ -146,8 +166,10 @@ case: (leP a 0) => Ha.
   + by split.
 Qed.
 
-(* Conditional assembly only: the fixed-density probability limit and
-   event measurability are still to be proved, not admitted foundations. *)
+(* thm:conditioned from its fixed-density form. Given alpha < 1/4, pick
+   beta with 0 < beta, alpha < beta < 1/4. For all large d,
+   n(d) <= floor(beta d^2), so the probability at n(d) is at least the
+   probability at floor(beta d^2), which tends to 1. *)
 Lemma paper_main_conditioned_from_fixed :
   (forall n d : nat, forall lm lp : R,
     measurable (paper_main_conditioned_event n d lm lp)) ->
@@ -201,8 +223,11 @@ case: (leP a t) => Hat.
   exact: lt_trans Hbt Hat.
 Qed.
 
-(* The fixed-density UNSAT input is only needed between 1/4 and 1/2.
-   Deleting observations then covers all strictly supercritical sequences. *)
+(* The unsatisfiable half of thm:main from its fixed-density form, which
+   is needed only for 1/4 < beta < 1/2. If n(d) / d^2 >= a > 1/4 for all
+   large d, pick 1/4 < beta < a with beta < 1/2. For all large d,
+   floor(beta d^2) <= n(d), so the probability at n(d) is at most the
+   probability at floor(beta d^2), which tends to 0. *)
 Lemma paper_main_unsat_from_fixed :
   (forall n d : nat, measurable (paper_main_fit_event n d)) ->
   (forall beta : R, 1 / 4%:R < beta -> beta < 1 / 2%:R ->

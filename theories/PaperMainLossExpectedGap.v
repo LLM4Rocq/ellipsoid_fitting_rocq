@@ -1,4 +1,10 @@
-(* Transfer a high-probability nonnegative loss gap to its actual Gaussian mean. *)
+(* A lower bound on the mean of a nonnegative loss that is large with high
+   probability. paper_main_loss_expected_gap: if F >= 0 is continuous with a
+   polynomial bound (pmdf_regular) and F >= e outside a measurable set A of
+   Gaussian probability at most p, then the Gaussian mean of F, written as
+   the iterated expectation gaussian_iterated_expectation, is at least
+   e (1 - p). The proof integrates e times the indicator of the complement
+   of A against gaussian_product_law. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix boolp classical_sets reals Rstruct.

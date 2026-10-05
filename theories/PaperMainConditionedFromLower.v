@@ -1,17 +1,17 @@
-(* Conditional reduction (G17): the fixed-density conditioned limit from a
-   lower coercivity law. This is NOT the main statement and completes no
-   main theorem. The lower spectral law is an explicit premise: actual
-   measurable events E d with P(E d) -> 0, outside which, eventually, the
-   raw feature Gram matrix of the sample of N d = floor(beta d^2) points is
-   coercive with constant d^2/128.
+(* The fixed-density conditioned limit from a lower coercivity bound.
+
+   The lower spectral bound is a hypothesis: measurable events E d with
+   P(E d) -> 0, outside which, eventually, the raw feature Gram matrix of
+   the sample of N d = floor(beta d^2) points is coercive with constant
+   d^2/128.
    - paper_main_conditioned_from_lower: for 0 < beta < 1/4 and such E, the
      conditioned event with lm = ((kappa+1/2)/(1-1/2))^-1 and
      lp = (kappa+1/2)/(1-1/2) has probability tending to 1, for the
      kappa >= 1 of paper_main_subcritical_raw_spectral_reduction; and
      0 < lm <= lp (pmcfls_bounds of PaperMainConditionedFromLowerScalars).
-     The upper input is the actual event of
-     paper_main_feature_upper_edge (raw Gram <= 109 d^2 I); the counts
-     satisfy N d <= beta d^2 and, eventually, 0 < N d <= d^2 and
+     The upper bound raw Gram <= 109 d^2 I holds outside the vanishing
+     event of paper_main_feature_upper_edge; the counts satisfy
+     N d <= beta d^2 and, eventually, 0 < N d <= d^2 and
      density >= beta/2 (PaperMainFixedCountBounds); the exceptional set is
      the union of E with the upper event.
    - paper_main_conditioned_from_lower_exists: the same with lm and lp

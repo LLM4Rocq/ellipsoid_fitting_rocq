@@ -1,4 +1,19 @@
-(* Coarse power bounds for the explicit head-correction coefficients. *)
+(* Scalar inequalities that fix the rates of the head correction: powers
+   of a parameter t >= 1 absorb the constants. Deterministic.
+   - paper_main_head_rate_frobenius, paper_main_head_rate_l1,
+     paper_main_head_rate_linfty, paper_main_head_rate_operator: from
+     hypotheses such as m <= K d t and K a^2 <= c E^2, coefficient bounds of
+     the forms m (a / t^8)^2 <= c d (E / t^7)^2 and
+     (B / (d t^6) lam + A / t^7) / sqrt d <= F / (sqrt d t^4).
+   - paper_main_head_rate_cone: if (1 + 2 kappa^2) F < kappa t^4, then
+     F / (sqrt d t^4) < 1 / (kappa sqrt d) and
+       kappa / sqrt d + F / (sqrt d t^4)
+         <= 2 kappa^2 (1 / (kappa sqrt d) - F / (sqrt d t^4)).
+   - paper_main_head_rate_eta: E < t^7 gives 0 <= E / t^7 < 1.
+   - paper_main_head_rate_constants: constants E, A, B, F satisfying
+     K a^2 <= c E^2, K a <= c A, a + Q A <= c0 B and B L + A <= F exist.
+   - paper_main_head_rate_cutoff: some T >= 1 gives 1 <= t, E < t^7 and
+     (1 + 2 kappa^2) F < kappa t^4 for every t >= T. *)
 From Stdlib Require Import Reals Lia Lra Psatz.
 Open Scope R_scope.
 

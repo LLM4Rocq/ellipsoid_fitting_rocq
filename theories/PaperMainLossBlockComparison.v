@@ -1,4 +1,16 @@
-(* Integrate a uniform conditional row comparison against actual Gaussian backgrounds. *)
+(* Comparison of Gaussian expectations block by block. F and G are
+   regular functions (pmdf_regular: continuous with a polynomial bound) of
+   the concatenation of two blocks of independent standard Gaussian
+   coordinates.
+   - paper_main_loss_prefix_integral_regular and
+     paper_main_loss_suffix_integral_regular: integrating out one block
+     keeps regularity.
+   - paper_main_loss_conditional_prefix_comparison: if, for every fixed
+     suffix ys of length m, the expectations of F and G over the prefix
+     (of lengths p and q) differ by at most B, then so do the full
+     expectations.
+   - paper_main_loss_conditional_suffix_comparison: the same with the
+     prefix fixed and the suffix integrated. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2 GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions GaussianLastDefinitions

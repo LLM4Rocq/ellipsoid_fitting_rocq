@@ -1,4 +1,4 @@
-(* Removing rows visited once in place (G16, checkpoint B4, item 2).
+(* Removing rows visited once, in place.
    A closed walk (rs, ps) of length L >= 3 is reduced at the first non-root
    position j whose row v is visited once (pmso_fv). With w and u the rows
    before and after v:
@@ -20,7 +20,7 @@
      S L k <= T L + sum_(k <= j < L)
        (2 N S (L-1) (j-1) + 2 N (d + L0 B^2)^2 S (L-2) (j-1)),
    so S L 0 <= Lam L * 2^L for every Lam that dominates the recursion
-   (pmso_bound). No probability premise. *)
+   (pmso_bound). Deterministic. *)
 From Stdlib Require Import Lia.
 From mathcomp Require Import all_ssreflect_compat.
 From EllipsoidFitting Require Import PaperMainSquarefreeWalkCount PaperMainSquarefreeWalkExcess

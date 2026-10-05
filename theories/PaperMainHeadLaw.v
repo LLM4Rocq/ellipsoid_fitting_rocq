@@ -1,4 +1,23 @@
-(* Independent consecutive coordinate blocks of the exact public Gaussian law. *)
+(* Independence of consecutive blocks of coordinates under the Gaussian
+   product law. The map paper_main_split_coordinates, which splits a tuple
+   of k + m coordinates into its first k and its last m coordinates, is
+   measurable and sends gaussian_product_law (k + m) to the product of
+   gaussian_product_law k and gaussian_product_law m.
+   - paper_main_split_coordinates_rectangle: the probability of the
+     preimage of A x B is P(A) P(B), by induction on k, writing the product
+     law of k + 1 coordinates as the product of the normal law and the law
+     of the last k coordinates.
+   - paper_main_split_coordinates_law: the image law is the product measure,
+     by uniqueness of product measures. paper_main_split_coordinates_fubini:
+     the probability of an event is the integral of the probabilities of
+     its sections.
+   - paper_main_take_coordinates_law: the first k coordinates have the law
+     gaussian_product_law k.
+   - paper_main_split_coordinates_section_bound: a bound on the probability
+     of every section bounds the probability of the event.
+   - paper_main_split_points_law, paper_main_split_points_rectangle: the
+     same for a sample of k + n points of R^d, split into its first k and
+     its last n points (paper_main_split_points). *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

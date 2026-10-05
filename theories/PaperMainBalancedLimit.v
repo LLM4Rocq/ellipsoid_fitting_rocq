@@ -1,16 +1,16 @@
 (* The balanced positive definite event has probability tending to 1 for every
-   sample-size sequence whose density has liminf greater than 1/4 (A34, part 1).
+   sample-size sequence whose density has liminf greater than 1/4: the
+   supercritical half of cor:alternative of the paper
+   (paper_main_balanced_supercritical_limit).
 
-   Inputs, all checked and without premises:
+   The reduction paper_main_balanced_from_unsat (PaperMainBalancedSupercritical)
+   turns the following facts into the limit 1:
    - paper_main_unsat_supercritical_limit (PaperMainUnsatLimit): the fit
      probability tends to 0 for every such sequence;
    - paper_main_not_fit_balanced (PaperMainBalancedLaw): for d > 0, a spanning
      sample that does not fit lies in the balanced event;
    - pm_fit_event_measurable and pm_balanced_pd_event_measurable: both events
-     are measurable for every n and d.
-   The existing reduction paper_main_balanced_from_unsat turns these into the
-   limit 1. This is the supercritical half only: the subcritical half and the
-   main result stay open. *)
+     are measurable for every n and d. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

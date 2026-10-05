@@ -1,4 +1,17 @@
-(* Products of bounded C2 factors on the same finite coordinate space. *)
+(* Products of bounded twice differentiable functions of the same finite
+   list of coordinates. paper_main_gaussian_smooth_test d F DF D2F M 0
+   says that F, with first and second partial derivatives DF and D2F, is
+   continuous with continuous derivatives, and that F, DF and D2F are
+   bounded by M in absolute value.
+   - paper_main_loss_smooth_multiply: if F and G satisfy it with bounds M
+     and N, their product, with the derivatives given by the Leibniz rule
+     (paper_main_loss_product_first, paper_main_loss_product_second),
+     satisfies it with the bound 4 M N.
+   - paper_main_loss_test_smooth: for beta >= 0, the product
+     paper_main_loss_test_product beta a J xs of the loss factors
+     paper_main_loss_factor beta (a j) at the coordinates x_j, j in J, all
+     below d, satisfies it with the bound (4 C)^(length J), where
+     C = paper_main_loss_factor_constant beta. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2 GaussianCoordinateDefinitions
   GaussianCoordinateDerivativeDefinitions GaussianCoordinateTopology

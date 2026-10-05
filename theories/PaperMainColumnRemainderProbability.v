@@ -1,19 +1,23 @@
-(* The actual non-backtracking column remainder endpoint (A38).
+(* The non-backtracking column remainder is small with high probability.
 
-   Interface (R) of the lower edge: for N(d) with eventual density >= c > 0
-   and eventually 0 < N(d) <= d^2, every K and eta > 0 have actual measurable
-   bad events E_d with probability tending to 0 such that, for all large d
-   and x outside E_d, every k < K satisfies
+   paper_main_column_remainder_probability: for N(d) with eventual density
+   >= c > 0 and eventually 0 < N(d) <= d^2, every K and eta > 0 have
+   measurable bad events E_d with probability tending to 0 such that, for
+   all large d and x outside E_d, every k < K satisfies
      pmlo_opb N (pmlo_E N C X kap s k) eta,
    with C = 'I_d * 'I_d, X = pmnb_X d (tval x), M = 'C(d, 2),
    kap = (sqrt (N M))^-1 and s = kap N.
-   The constants are chosen before the data: C0 = 2 + 109 / c (A35),
-   delta = paper_main_remainder_tolerance K (2 C0) eta (A38). E_d is the A35
-   frame event at delta. For large d outside it, the A35 frame premises,
-   the A37 entry radius d <= C0 N delta^2 and binomial bound N <= 4 M, and
-   the kap normalization (M142) feed the deterministic M143 bound
-     pmlo_opb N (pmlo_E ..k) (C_k(2 C0) delta),
-   and C_k(2 C0) delta <= eta for k < K. *)
+   The constants are chosen before the data: C0 = 2 + 109 / c
+   (paper_main_frame_constant) and
+   delta = paper_main_remainder_tolerance K (2 C0) eta. E_d is the bad
+   event of paper_main_column_frame at delta. For large d outside it, the
+   frame bounds paper_main_column_frame_good, the entry radius
+   d <= C0 N delta^2 (paper_main_frame_entry_radius), the binomial bound
+   N <= 4 M (paper_main_frame_binomial_bounds) and the normalization of kap
+   (pmcr_normalization) feed the deterministic bound
+     pmlo_opb N (pmlo_E ... k) (C_k(2 C0) delta)
+   of paper_main_column_remainder_frame_scaled, and C_k(2 C0) delta <= eta
+   for k < K (paper_main_remainder_tolerance_spec). *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

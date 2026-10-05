@@ -1,4 +1,13 @@
-(* The explicit family of all small ordered heads admits a vanishing union bound. *)
+(* Union bounds over the finite family paper_main_head_families N K of
+   ordered heads, the lists of length at most K with entries below N
+   (PaperMainHeadFamilyCount).
+   - paper_main_head_family_event: the union of events E J over the family.
+   - paper_main_head_family_event_complete: every such list J is in the
+     family, so E J is contained in the union.
+   - paper_main_head_family_event_measurable and
+     paper_main_head_family_event_bound: the union is measurable, and its
+     probability is at most the size of the family times a common bound b
+     on the probabilities of the E J. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

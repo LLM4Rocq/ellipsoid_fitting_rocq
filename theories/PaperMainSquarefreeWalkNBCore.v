@@ -1,4 +1,4 @@
-(* The terminal core of the sharp NB count (G16, lower edge, part 4).
+(* The terminal core of the sharp count of non-backtracking (NB) walks.
    A terminal valid walk (rs, ps) of length L >= 3 with increasing pairs
    is coded by PaperMainSquarefreeWalkShapeCode (pmsk_code). Its step
    symbols fall into three classes:
@@ -18,7 +18,7 @@
    For the weighted sum over codes: the explicit colors of an F symbol are
    increasing (pmnc_code_Fincr), and the code exponent is
    sum_s (2 rf + cf) = 2 (R - 1) + C = 2 L - e (pmnc_weight_exp).
-   No NB condition and no probability premise. *)
+   Deterministic, and the NB condition is not used. *)
 From Stdlib Require Import Lia.
 From mathcomp Require Import all_ssreflect_compat.
 From EllipsoidFitting Require Import PaperMainSquarefreeWalkCount PaperMainSquarefreeWalkExcess
@@ -379,7 +379,8 @@ move: Hm; rewrite (pmnc_ol_mem s.+1 _ Hs1) => /and3P [Hlt _ Hrow].
 have Ea : a s.+1 = b s by rewrite /pmst_a /pmst_b /pmst_succ Hs1.
 have Hin u : u <= s -> nth r0 rs u \in take s.+1 rs.
   by move=> Hu; rewrite -(nth_take r0 (Hu : u < s.+1)) mem_nth // size_takel.
-(* An open step at the fresh row b s, other than s, would have an old row there. *)
+(* An open step at the fresh row b s, other than s, would have an old row
+   there. *)
 rewrite ltnS leq_eqVlt in Hlt; case/orP: Hlt => [/eqP // | Hlt].
 exfalso; move: Hrow; rewrite Ea => /orP [] /eqP E; move: Hfr; rewrite E.
   by rewrite /pmst_a (Hin _ (ltnW Hlt)).

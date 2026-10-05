@@ -1,4 +1,25 @@
-(* From positive dual cone support to an exact trace-d conditioned fit. *)
+(* From positive support on the cone sphere to a well-conditioned fit of
+   trace d (paper_main_conditioned_event). W_i is the feature of the
+   sample point i (paper_main_head_feature).
+   - paper_main_cone_kernel_conditioned_fit: a matrix P of the cone sphere
+     paper_main_head_cone_sphere kappa, kappa >= 1, orthogonal to every
+     W_i, rescaled to trace d, is a fit S with kappa^-1 I <= S <= kappa I.
+   - paper_main_positive_support_conditioned_fit: such a P exists when
+     every unit combination sum_i y_i W_i has positive support on the cone
+     sphere (paper_main_cone_kernel_exists_support).
+   - paper_main_nat_support_conditioned_fit: the same with combinations
+     indexed by nat (paper_main_support_combination).
+   - paper_main_box_support_conditioned_fit: if for every unit y some S
+     with lo I <= S <= hi I has positive support score, the conditioned
+     event holds with the constants (hi / lo)^-1 and hi / lo.
+   - paper_main_head_tail_conditioned_fit: the hypotheses of
+     paper_main_support_all give the conditioned event with the constants
+     ((b + delta) / (a - delta))^-1 and (b + delta) / (a - delta). For
+     every small head J they ask for a matrix S0 with a I <= S0 <= b I
+     orthogonal to the W_i, i in J, a lower bound mu on the Gram form of
+     the combinations supported on J, and positive tail support; they
+     also ask for an operator bound A on all combinations and a smallness
+     condition relating A, b, delta and mu. *)
 From Stdlib Require Import Reals List Lia Lra.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

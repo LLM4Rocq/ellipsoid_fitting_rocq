@@ -1,4 +1,19 @@
-(* A positive compact comparison margin below density one quarter. *)
+(* Exponential lower tail of the head-section minimax below density 1/4.
+
+   paper_main_head_subcritical_clipped_tail: let 0 <= alpha < 1/4,
+   g = 1/2 - sqrt alpha, kappa >= 1 and L >= 0. There are eps, A, theta and
+   c > 0 such that the following holds for every large d = S n, every head h
+   with head-section width at least (1/2 - g/16) d, every set Y of unit
+   weight vectors with |y_i| <= theta / sqrt d, and S q <= alpha d^2 tail
+   points. A measurable event E on which the tail features clipped at
+   d^(1/4) have operator bound L sqrt d and the minimax over Y is at most
+   (g/4) sqrt d has probability at most exp(-c d sqrt d).
+   The proof takes eps, A and theta from paper_main_soft_parameters and
+   applies paper_main_head_compact_clipped_tail with the inverse
+   temperatures beta = gamma = A d sqrt d, after checking that the compact
+   level is at least (g/4) sqrt d (paper_main_soft_scaled_margin).
+   paper_main_subcritical_sample_log gives ln N <= d for 0 < N <= alpha d^2,
+   alpha <= 1 and d >= 16. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.

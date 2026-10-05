@@ -1,4 +1,18 @@
-(* Continuous bounded costs and the full one-row soft minimum. *)
+(* The soft minimum of the losses of one row, and its expectation.
+   - paper_main_loss_soft_regular: for continuous costs F_j bounded by C,
+     xs |-> soft_min beta (j |-> f_j + F_j xs) is regular (pmdf_regular).
+   - paper_main_loss_row_value: the one-row value
+     soft_min beta (j |-> f_j + loss(a_j + U_j xs)) over j in I.
+   - paper_main_loss_row_value_integral: for regular U_j it is integrable,
+     and its expectation is that of the row increment
+     paper_main_loss_row_increment plus soft_min beta f.
+   - paper_main_loss_row_value_comparison: for beta, eta > 0 there is C
+     such that, for symmetric T_j with operator norm at most eps
+     (paper_main_cone_opnorm_le) and |T_j|_F <= S, the expectations of the
+     row value with the centered quadratic forms pmdf_quad n (T_j) of a
+     Gaussian vector and with the linear forms of the GOE loadings
+     paper_main_projection_goe_loading n (T_j) differ by at most
+     2 eta + C eps S. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianProductDefinitions GaussianProduct

@@ -1,21 +1,23 @@
-(* Uniform concentration of the square-free column norms under the actual
-   Gaussian law (A34, part 2).
+(* Uniform concentration of the square-free column norms under the Gaussian
+   law.
 
    For a sample x of N rows of d coordinates and column indices a, b,
      Q_ab(x) = sum_(i < N) (x_(i d + a) x_(i d + b))^2,
    the same coordinates as pmnb_X for the column (a, b) with a < b, and
    Q_ab - N = S_N(tval x) with S_N of PaperMainColumnConcentrationMoments.
-   1. For N > 0, eps > 0 and a < b < d, Markov for S_N^4 (MathComp's markov,
-      the law transport pmdf_actual and the exact fourth moment) gives
+   1. paper_main_column_pair_markov: for N > 0, eps > 0 and a < b < d,
+      Markov's inequality for S_N^4 (MathComp's markov, the law transport
+      pmdf_actual and the exact fourth moment) gives
         P(eps N < |Q_ab - N|) <= (10176 N + 192 N (N - 1)) / (eps N)^4.
-   2. The column event is the union over a < b < d of these events. It is
-      measurable, and the finite union bound over the d^2 index pairs gives
+   2. paper_main_column_event_bound: the column event is the union over
+      a < b < d of these events. It is measurable, and the finite union
+      bound over the d^2 index pairs gives
         P(column event) <= d^2 (10176 N + 192 N (N - 1)) / (eps N)^4.
-   3. If N(d) >= c d^2 eventually with c > 0, this is at most
-      (10368 / (eps^4 c^2)) / d, so the column event probability tends to 0.
-      Outside the event every a < b satisfies |Q_ab - N| <= eps N, hence
-      |Q_ab / N - 1| <= eps when N > 0.
-   No moment, independence or concentration premise: all from the actual law. *)
+   3. paper_main_column_concentration_limit: if N(d) >= c d^2 eventually
+      with c > 0, this is at most (10368 / (eps^4 c^2)) / d, so the column
+      event probability tends to 0. By paper_main_column_event_complement,
+      outside the event every a < b satisfies |Q_ab - N| <= eps N, hence
+      |Q_ab / N - 1| <= eps when N > 0. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

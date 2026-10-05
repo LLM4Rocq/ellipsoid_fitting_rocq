@@ -1,4 +1,21 @@
-(* Column rank-one and diagonal energy bounds for the NB remainder. *)
+(* Operator and energy bounds for the column matrices of the
+   non-backtracking remainder (PaperMainColumnRemainder). For columns
+   X : 'I_N -> C -> R, let R_c = X_c X_c^T (pmcr_rankone), D_c its diagonal
+   part (pmcr_diagonal) and Q_c = |X_c|^2 (pmcr_column_norm). An operator
+   bound pmlo_opb M U says |M u| <= U |u|; an energy bound
+   pmfc_energy_bound F b says sum_c |F_c u|^2 <= b^2 |u|^2.
+   - R_c is symmetric and positive semidefinite, and
+     |R_c u|^2 = Q_c u^T R_c u (pmcr_rankone_action).
+   - pmcr_rankone_opbound: Q_c <= U gives |R_c u| <= U |u|, from
+     u^T R_c u <= Q_c |u|^2 (Cauchy-Schwarz, pmcr_rankone_form_upper).
+   - pmcr_diagonal_opbound: X_ic^2 <= m for every i gives |D_c u| <= m |u|.
+   - pmcr_rankone_energy_bound: if every Q_c <= U and
+     u^T (sum_c R_c) u <= U |u|^2, then sum_c |R_c u|^2 <= U^2 |u|^2.
+   - pmcr_diagonal_energy_bound: if every X_ic^2 <= m, every row sum
+     sum_c X_ic^2 <= U and m U <= b^2, then sum_c |D_c u|^2 <= b^2 |u|^2.
+   - pmcr_column_base_bounds: these bounds together, and the bound 2 U for
+     R_c - D_c, when m <= U and b <= U.
+   Deterministic. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

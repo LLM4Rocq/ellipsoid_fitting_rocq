@@ -1,4 +1,22 @@
-(* Finite deterministic NB box from uniform column remainders and trace events. *)
+(* A Loewner box for the first non-backtracking matrix, from operator bounds
+   on the column remainders, outside the trace events. Deterministic.
+
+   Let T m = pmlo_T N ('I_d * 'I_d) (pmnb_X d xs) kap m be the
+   non-backtracking matrices of the square-free columns of the sample, and
+   E m the column remainders pmlo_E.
+   - pmsb_out_opb: outside the trace union event
+     pmnbv_union N d kap K (2^(j+2)) t, with t >= 1, every T m with m <= K
+     has operator norm at most t.
+   - pmsb_shift_opb: if T has operator norm at most t and 0 <= s <= 1, then
+     T - s I has operator norm at most t + 1.
+   - paper_main_squarefree_box_from_remainders: let 0 <= s <= 1, t >= 1 and
+     eta, theta >= 0. Outside pmnbv_union N d kap (2^(k+1)) (2^(j+2)) t, if
+     every E m with m < 2^(k+1) has operator norm at most eta and
+       2^(2^(k+1)) t + pmlo_rho (t + 1) (3 2^(k+1) eta t) (2^(k+1))
+         <= theta^(2^(k+1)),
+     then -theta I <= T 1 - s I <= theta I. The remainders of the recurrence
+     are bounded by pmcr_recurrence_opbound, and the box comes from
+     pmnbv_box. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
