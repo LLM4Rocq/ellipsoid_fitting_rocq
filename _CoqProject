@@ -1,3 +1,4 @@
+-Q library GaussianAnalysis
 -Q theories EllipsoidFitting
 -arg -w -arg -notation-overridden
 -arg -w -arg -ambiguous-paths

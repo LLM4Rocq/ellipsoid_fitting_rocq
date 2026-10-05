@@ -134,17 +134,24 @@ This repository copies it from commit `9556cdd` of that repository.
 - Not copied: the 153 other modules of `analysis/`, the challenge files,
   reports and journals, and the older Coquelicot development in `theories/`.
 
-## Planned clean-up
+## Planned work
 
 This is a first, faithful copy. The modules keep their names from the source
-repository (many start with `PaperMain`), and many comments still describe
-how the port was made. Two further steps are planned:
+repository (many start with `PaperMain`), many comments still describe how
+the port was made, and much of the general mathematics is written for this
+paper only. The plan, described for the agents in `AGENTS.md`:
 
-1. Remove those notes from the comments, drop the `PaperMain` prefix, and
-   group the modules in folders by topic.
-2. Remove the lemmas that the main theorem does not use, and merge small
-   modules.
+1. Build `library/` (logical root `GaussianAnalysis`): the general results
+   of the proof (Gaussian integration by parts and interpolation,
+   concentration, Slepian and Gordon comparison, the spectral theorem for
+   real symmetric matrices, nets, moment inequalities), stated over an
+   arbitrary `R : realType` in MathComp-Analysis style, independent of the
+   paper. `library/README.md` gives its conventions.
+2. Make the proof of the paper use the library, and delete what it no
+   longer needs.
+3. Remove notes about the port from comments, then rename the remaining
+   modules and group them in folders.
 
-Both steps rename or remove modules and lemmas, so do not cite those names
-yet. The statement keeps its meaning in both steps: at most, the names of
-its definitions change. `make check` must pass after each step.
+These steps rename or remove modules and lemmas, so do not cite those names
+yet. The statement keeps its meaning throughout: `make check` checks after
+each step that its code and the code of its definitions are unchanged.
