@@ -185,6 +185,29 @@ transitivity (\prod_(j < n) N (A ((s^-1)%g j)))%E.
 by rewrite [RHS](reindex_inj (@perm_inj _ (s^-1)%g)).
 Qed.
 
+Lemma integral_gauss_col_perm n (s : 'S_n) (f : 'rV[R]_n -> \bar R) :
+  (gauss n).-integrable [set: 'rV[R]_n] f ->
+  (\int[gauss n]_x f (col_perm s x) = \int[gauss n]_x f x)%E.
+Proof.
+move=> fi; have mf := measurable_int _ fi.
+pose g : {mfun 'rV[R]_n >-> 'rV[R]_n} := HB.pack (col_perm s)
+  (isMeasurableFun.Build _ _ _ _ (col_perm s) (measurable_col_perm s)).
+have E A : measurable A -> distribution (gauss n) g A = gauss n A.
+  by move=> mA; exact: gauss_col_perm.
+have fgi : (gauss n).-integrable [set: 'rV[R]_n] (f \o g).
+  apply/integrableP; split; first exact: measurableT_comp.
+  have mfa : measurable_fun [set: 'rV[R]_n] (fun y => `|f y|)%E.
+    exact: measurableT_comp.
+  have -> : (\int[gauss n]_x `|(f \o g) x| =
+      \int[distribution (gauss n) g]_y `|f y|)%E.
+    by rewrite ge0_integral_distribution.
+  rewrite (eq_measure_integral (gauss n)); first by move=> A mA _; exact: E.
+  by have /integrableP[] := fi.
+transitivity (\int[distribution (gauss n) g]_y f y)%E.
+  by rewrite (@integral_distribution _ _ _ _ _ (gauss n) g f).
+by rewrite (eq_measure_integral (gauss n)); first by move=> A mA _; exact: E.
+Qed.
+
 Lemma gauss_row_mx n m (X : set 'rV[R]_(n + m)) : measurable X ->
   gauss (n + m) X =
   (gauss n \x gauss m)%E ((fun p : 'rV[R]_n * 'rV[R]_m => row_mx p.1 p.2) @^-1` X).

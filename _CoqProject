@@ -8,6 +8,7 @@
 library/gaussian/measurable_matrix.v
 library/gaussian/normal_integral.v
 library/gaussian/gauss.v
+library/gaussian/gauss_ibp.v
 library/matrix/euclidean.v
 library/matrix/real_spectral.v
 library/matrix/opnorm.v
