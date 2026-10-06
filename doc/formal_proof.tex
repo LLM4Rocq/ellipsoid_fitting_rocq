@@ -1,10 +1,24 @@
 \documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage{microtype}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
-\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{2em}
 
-\newcommand{\formal}[1]{\textnormal{[\texttt{\small #1}]}}
+% A formal name, in brackets, breakable after each dot and underscore.
+\makeatletter
+\newcommand{\formal@break}[1]{\@tfor\formal@tok:=#1\do{%
+  \formal@tok
+  \expandafter\ifx\formal@tok.\allowbreak\else
+  \expandafter\ifx\formal@tok\_\allowbreak\fi\fi}}
+\DeclareRobustCommand{\formal}[1]{\textnormal{[\texttt{\small\formal@break{#1}}]}}
+\makeatother
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\E}{\mathbb{E}}
@@ -83,7 +97,7 @@ Borel $\sigma$-algebra of the coordinates
 ($0 \le i < n$) is the column vector
 \[
 x_i = (x_{id}, x_{id + 1}, \dots, x_{id + d - 1})^{\top} \in \R^d
-\qquad\formal{PaperMainDefinitions.paper\_main\_point}.
+\tag*{\formal{PaperMainDefinitions.paper\_main\_point}.}
 \]
 The law of the sample is the probability measure $\Prob_{n, d}$ on
 $nd$-tuples defined by recursion on the number of coordinates: the law of
@@ -110,11 +124,11 @@ $v \ne 0$; $A \preceq B$ means $B - A \succeq 0$; $\tr S = \sum_i S_{ii}$.
 For $n, d \in \N$ and real numbers $\lambda_-, \lambda_+$:
 \begin{align*}
 \Fit_{n,d} &= \{x : \exists S \succeq 0,\ x_i^{\top} S x_i = d \text{ for all } i < n\}
-  &&\formal{PaperMainDefinitions.paper\_main\_fit\_event},\\
+  \tag*{\formal{PaperMainDefinitions.paper\_main\_fit\_event}}\\
 \Cond_{n,d}(\lambda_-, \lambda_+) &= \{x : \exists S \succeq 0,\ x_i^{\top} S x_i = d \ (i < n),\ \tr S = d,\ \lambda_- \Id \preceq S \preceq \lambda_+ \Id\}
-  &&\formal{PaperMainDefinitions.paper\_main\_conditioned\_event},\\
+  \tag*{\formal{PaperMainDefinitions.paper\_main\_conditioned\_event}}\\
 \Bal_{n,d} &= \Bigl\{x : \exists y \in \R^n,\ \sum_{i<n} y_i = 0,\ \sum_{i<n} y_i x_i x_i^{\top} \succ 0\Bigr\}
-  &&\formal{PaperMainDefinitions.paper\_main\_balanced\_pd\_event}.
+  \tag*{\formal{PaperMainDefinitions.paper\_main\_balanced\_pd\_event}}
 \end{align*}
 \end{definition}
 
@@ -193,6 +207,15 @@ assembles the three theorems.
 Where the formal proof follows another route than the paper, this is said
 in one sentence at the place in question, and the formal argument is given.
 
+Appendix~\ref{sec:correspondence} lists the 39 numbered results of the
+paper with their counterparts in this document and their relation to the
+formal statements, following the reconciled comparison
+\texttt{doc/paper\_correspondence.md} of the repository. By statement, 18 of them are the same as in the paper, 15 are weaker,
+6 are stronger and none absent; by argument, 26 follow the paper's route and
+13 are proved by another argument. The appendix also lists the results
+the paper cites without proof and what the formal proof does instead,
+and the changes of route.
+
 \section{Notation and conventions}\label{sec:notation}
 
 \begin{convention}[Vectors, matrices, norms]
@@ -267,7 +290,7 @@ For measurable $A_1, \dots, A_m \subseteq \R$,
 $\gauss_m(\prod_i A_i) = \prod_i N(0,1)(A_i)$
 \formal{GaussianAnalysis.gaussian.gauss.gauss\_box}. A probability
 measure on $\R^{1\times m}$ that gives every box this value is $\gauss_m$
-\formal{GaussianAnalysis.gaussian.gauss.gaussE}. Consequently $\gauss_m$
+\formal{GaussianAnalysis.gaussian.gauss.gauss\_unique}. Consequently $\gauss_m$
 is invariant under permutations of the coordinates
 \formal{GaussianAnalysis.gaussian.gauss.integral\_gauss\_col\_perm} and
 under $x \mapsto -x$ \formal{GaussianAnalysis.comparison.escape.integral\_gauss\_opp},
@@ -321,7 +344,7 @@ function of lists that is integrable at every level of the iterated
 expectation, in particular when $F$ has polynomial growth,
 \[
 \E^{(m)} F = \int F(\rho(x))\, d\gauss_m(x)
-\qquad\formal{Gaussian.LawBridge.gaussian\_iterated\_expectation\_gauss}.
+\tag*{\formal{Gaussian.LawBridge.gaussian\_iterated\_expectation\_gauss}.}
 \]
 \end{proposition}
 
@@ -354,7 +377,7 @@ vanish by the growth bound, and both integrands are integrable on the line
 by the growth bound and the Gaussian tail.
 \end{proof}
 
-\begin{theorem}[Gaussian integration by parts \formal{GaussianAnalysis.gaussian.gauss\_ibp.gauss\_ibp}, \formal{GaussianAnalysis.gaussian.gauss\_ibp.gauss\_ibp2}]\label{thm:ibp}
+\begin{theorem}[Gaussian integration by parts \formal{GaussianAnalysis.gaussian.gauss\_ibp.gauss\_ibp}, \formal{GaussianAnalysis.gaussian.gauss\_ibp.gauss\_ibp2}; paper Lemma~3.10, second-order identity]\label{thm:ibp}
 Let $F : \R^{1\times m} \to \R$ be continuous with partial derivative
 $\partial_i F$ along the $i$-th coordinate, continuous, both of
 polynomial growth $C(1 + \norm{x}^k)$. Then
@@ -452,7 +475,7 @@ $\sigma_A(j,l) - \sigma_B(j,l) \le 0$, and Theorem~\ref{thm:kahane}
 $\E \ell_\beta(xA) \le \E \ell_\beta(yB)$. Let $\beta \to \infty$.
 \end{proof}
 
-\begin{theorem}[Gordon's min--max comparison \formal{GaussianAnalysis.comparison.gordon.gordon}]\label{thm:gordon}
+\begin{theorem}[Gordon's min--max comparison \formal{GaussianAnalysis.comparison.gordon.gordon}; paper Lemma~2.3, expectation form]\label{thm:gordon}
 Let $p, q \ge 1$ and let $A \in \R^{n \times pq}$, $B \in \R^{m\times pq}$
 index the entries by pairs $(u, t)$, $u < p$, $t < q$. Suppose
 \[
@@ -483,7 +506,7 @@ on the explicit second derivatives of $s_\beta$.)
 The instance that the main proof uses is the comparison of a bilinear
 Gaussian process with its additive surrogate.
 
-\begin{corollary}[Bilinear processes \formal{GaussianAnalysis.comparison.escape.auxT\_bilT\_minmax}]\label{cor:bil}
+\begin{corollary}[Bilinear processes \formal{GaussianAnalysis.comparison.escape.auxT\_bilT\_minmax}; paper Lemma~2.3, bilinear case]\label{cor:bil}
 Let $z_0, \dots, z_{p-1}$ be unit vectors of $\R^N$ and $v_0, \dots, v_{q-1}$ unit
 vectors of $\R^M$, let $\Gamma \in \R^{N \times M}$ have independent
 $N(0,1)$ entries and let $g \sim \gauss_N$, $h \sim \gauss_M$ be
@@ -728,7 +751,7 @@ The \emph{raw feature} of the point $x_i$ is $Q_i = x_i x_i^{\top} - \Id \in \Sy
 and its \emph{head feature} is
 \[
 W_i = \frac{x_i x_i^{\top} - \Id}{\sqd}
-\qquad\formal{Geometry.HeadFeature.paper\_main\_head\_feature}.
+\tag*{\formal{Geometry.HeadFeature.paper\_main\_head\_feature}.}
 \]
 For $S \in \Sym^d$, $\ip{Q_i}{S} = x_i^{\top} S x_i - \tr S$, so the
 constraints $x_i^{\top} S x_i = d$ of $\Fit_{n,d}$ read $\ip{W_i}{S} = (d - \tr S)/\sqd$
@@ -756,7 +779,7 @@ by expanding $\ip{x_ix_i^{\top} - \Id}{x_jx_j^{\top} - \Id} = (x_i^{\top}x_j)^2 
 and $(x_i^{\top}x_j)^2 = \sum_{a,b} x_{ia}x_{ib}x_{ja}x_{jb}$.
 \end{proof}
 
-\begin{lemma}[From raw to head features \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_coercive}, \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_upper}]\label{lem:bridge_features}
+\begin{lemma}[From raw to head features \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_coercive}, \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_upper}; paper Corollary~2.9]\label{lem:bridge_features}
 If $Q Q^{*}$ is coercive with constant $c d^2$ then the Gram matrix of
 $(W_i)_{i<n}$ is coercive with constant $c d$; if $Q Q^{*} \preceq C d^2 \Id$
 then that Gram matrix is at most $C d\, \Id$. Consequently, under both
@@ -900,7 +923,7 @@ geometric and the arithmetic means), while
 $h(Z) \ge \ip{Z}{\Id/\sqd} = \tr Z/\sqd \ge -b/\sqd$. In both cases
 \[
 h_{\cone_\kappa\cap\mathbb{S}_\Fro}(Z) \ge \norm{Z_+}_\Fro - s d - \frac{\abs{\tr Z}}{\sqd}
-\qquad\formal{Cone.Condition.paper\_main\_cone\_shift\_cone\_support}.
+\tag*{\formal{Cone.Condition.paper\_main\_cone\_shift\_cone\_support}.}
 \]
 
 \emph{The operator-norm event.} With $C = 20$: outside a measurable set $A$
@@ -937,7 +960,7 @@ second statement take $s = \varepsilon/2$ and $d$ large.
 
 \subsection{Elementary estimates on the sample}\label{sec:data}
 
-\begin{lemma}[Radius \formal{Gaussian.DataRadius.paper\_main\_data\_radius\_probability}, \formal{Gaussian.DataRadius.paper\_main\_data\_radius\_good}; paper (2.17)]\label{lem:radius}
+\begin{lemma}[Radius \formal{Gaussian.DataRadius.paper\_main\_data\_radius\_probability}, \formal{Gaussian.DataRadius.paper\_main\_data\_radius\_good}; paper Lemma~2.10, (2.17)]\label{lem:radius}
 The event that some point has $\norm{x_i}_2 \ge 2\sqd$ is measurable with
 probability at most $n e^{-d/2}$; outside it, $\norm{x_i}_2^2 \le 4d$ for
 every $i < n$.
@@ -950,7 +973,7 @@ $x \mapsto \norm{x}_2$ is $1$-Lipschitz on $\R^d$ with mean at most $\sqd$
 $\gauss_d$ each (Proposition~\ref{prop:gaussE}), concludes.
 \end{proof}
 
-\begin{lemma}[Coordinates \formal{Data.SampleTail.paper\_main\_data\_coordinate\_tail}; paper (2.18)]\label{lem:coord}
+\begin{lemma}[Coordinates \formal{Data.SampleTail.paper\_main\_data\_coordinate\_tail}; paper Lemma~2.10, (2.18)]\label{lem:coord}
 For $u > 0$, the event that some coordinate satisfies $\abs{x_{ia}} \ge u$
 is measurable with probability at most $2nd\, e^{-u^2/2}$.
 \end{lemma}
@@ -966,7 +989,7 @@ where the probability is $2nd\,e^{-\sqd/2} \to 0$ for $n \le Cd^2$; it is
 the \emph{coordinate clipping event}, and all the coordinate-wise clippings
 below are at this level.
 
-\begin{lemma}[Coherence \formal{Data.SampleTail.paper\_main\_data\_coherence\_tail}, \formal{Data.CoherenceLimit.paper\_main\_data\_coherence\_log\_good}; paper (2.19)]\label{lem:coherence}
+\begin{lemma}[Coherence \formal{Data.SampleTail.paper\_main\_data\_coherence\_tail}, \formal{Data.CoherenceLimit.paper\_main\_data\_coherence\_log\_good}; paper Lemma~2.10, (2.19)]\label{lem:coherence}
 $\ip{W_i}{W_j} = \bigl((x_i^{\top}x_j)^2 - \norm{x_i}_2^2 - \norm{x_j}_2^2 + d\bigr)/d$.
 For $B > 0$, the event that some pair $i < j$ has $\norm{x_i}_2^2 \le 4d$ and
 $\abs{x_i^{\top}x_j} \ge B$ is measurable with probability at most
@@ -986,7 +1009,7 @@ probability \formal{Head.LawBounds.paper\_main\_split\_points\_section\_bound}.
 Union bound over pairs.
 \end{proof}
 
-\begin{lemma}[Sparse column norms \formal{Data.HeadOperatorUniform.paper\_main\_data\_head\_operator\_uniform}, \formal{Head.DataLog.paper\_main\_head\_data\_log\_event}; paper (2.20)]\label{lem:sparse}
+\begin{lemma}[Sparse column norms \formal{Data.HeadOperatorUniform.paper\_main\_data\_head\_operator\_uniform}, \formal{Head.DataLog.paper\_main\_head\_data\_log\_event}; paper Lemma~2.10, (2.20)]\label{lem:sparse}
 For $u > 0$ there is a measurable event of probability at most $2e^{-u}$
 outside which, for every $m \le K$ and every injective selection
 $J$ of $m$ points, the $d\times m$ matrix $X_J$ of the selected points satisfies
@@ -1155,7 +1178,7 @@ Finally $2(4L)^4 \le 2^L$ for $L \ge 32$ \formal{SquareFree.EdgeUpper.pmeu\_abso
 turns $2n(4L)^4(26d^2)^L$ into $n(52d^2)^L$.
 \end{proof}
 
-\begin{proposition}[Upper edge \formal{SquareFree.EdgeUpperLimit.paper\_main\_squarefree\_upper\_bound}, \formal{SquareFree.EdgeUpperLimit.paper\_main\_squarefree\_upper\_event\_tends\_to\_zero}; paper Lemma~2.6, upper part]\label{prop:upperedge}
+\begin{proposition}[Upper edge \formal{SquareFree.EdgeUpperLimit.paper\_main\_squarefree\_upper\_bound}, \formal{SquareFree.EdgeUpperLimit.paper\_main\_squarefree\_upper\_event\_tends\_to\_zero}; paper Lemma~2.6 and Proposition~2.8, upper part]\label{prop:upperedge}
 Let $L(d) = 2^{k+3}$ with $k = \lfloor\log_2\lfloor\log_2 d\rfloor\rfloor$ and
 $t = 104d^2$. The event
 $E_d^{\mathrm{up}} = \{\tr\mathcal{W}^{L(d)} > t^{L(d)}\} \cup \{\exists i : \abs{G_{ii}/d^2 - 1} > 1\}$
@@ -1605,7 +1628,7 @@ $\lceil 2\log_2 d\rceil + 1$ rounds. The size bound follows
 
 \subsection{From positive support values to a kernel element}
 
-\begin{proposition}[Kernel elements \formal{Cone.Kernel.paper\_main\_cone\_kernel\_exists\_support}, \formal{Cone.Kernel.paper\_main\_cone\_kernel\_exists}; replaces paper Lemma~3.2]\label{prop:kernel}
+\begin{proposition}[Kernel elements \formal{Cone.Kernel.paper\_main\_cone\_kernel\_exists\_support}, \formal{Cone.Kernel.paper\_main\_cone\_kernel\_exists}; paper Lemma~3.2, sufficient direction]\label{prop:kernel}
 Let $d > 0$, $\kappa \ge 1$ and $W_0, \dots, W_{m-1} \in \R^{d\times d}$. If for
 every unit $y \in \R^m$ some $P$ on the cone sphere $\cone_\kappa\cap\mathbb{S}_\Fro$
 has $\sum_iy_i\ip{W_i}{P} > 0$, then some $P$ on the cone sphere has
@@ -1632,7 +1655,7 @@ sphere (if $\lambda = 0$ at $S_0$ then $S_0 \preceq 0$, impossible with trace
 one, so $S_0$ has condition $\kappa$).
 \end{proof}
 
-\begin{lemma}[A kernel element is a well-conditioned fit \formal{Conditioned.SupportFit.paper\_main\_cone\_kernel\_conditioned\_fit}]\label{lem:kernel_fit}
+\begin{lemma}[A kernel element is a well-conditioned fit \formal{Conditioned.SupportFit.paper\_main\_cone\_kernel\_conditioned\_fit}; paper Lemma~3.2, from a kernel element to a fit]\label{lem:kernel_fit}
 If $d > 0$, $\kappa \ge 1$ and $P$ on $\cone_\kappa\cap\mathbb{S}_\Fro$ has
 $\ip{W_i}{P} = 0$ for all $i < N$, then $x \in \Cond_{N,d}(\kappa^{-1}, \kappa)$.
 \end{lemma}
@@ -1783,7 +1806,7 @@ $\norm{\tilde P - P}_\Fro \le 2\eta$ \formal{Geometry.HeadCorrection.paper\_main
 whence the support transfer.
 \end{proof}
 
-\begin{lemma}[Rates \formal{Head.CorrectionScale.paper\_main\_head\_correction\_eventual}]\label{lem:rates}
+\begin{lemma}[Rates \formal{Head.CorrectionScale.paper\_main\_head\_correction\_eventual}; paper Lemma~3.8, choice of rates]\label{lem:rates}
 Let $K, a \ge 0$, $c, c_0 > 0$, $Q, L \ge 0$, $\kappa_0 \ge 1$. There are
 $E > 0$, $A, B \ge 0$, $F > 0$ and $D$ such that for every $d \ge D$, with
 $t = d^{1/32}$, the choices $\eta = E/t^7$, $A_1 = A/t^7$, $A_\infty = B/(dt^6)$,
@@ -1803,7 +1826,7 @@ $\delta\sqd = Ft^{-4} \to 0$ while $\kappa_0/\sqd + \delta \le 2\kappa_0^2((\kap
 reads $\kappa_0 + \delta\sqd \le 2\kappa_0 - 2\kappa_0^2\delta\sqd$.
 \end{proof}
 
-\begin{proposition}[Width transfer \formal{Head.WidthRegular.paper\_main\_head\_width\_regular\_transfer}, \formal{Head.WidthExpectation.paper\_main\_head\_width\_expectation\_transfer}]\label{prop:width_transfer}
+\begin{proposition}[Width transfer \formal{Head.WidthRegular.paper\_main\_head\_width\_regular\_transfer}, \formal{Head.WidthExpectation.paper\_main\_head\_width\_expectation\_transfer}; paper Proposition~3.3, transfer inequality]\label{prop:width_transfer}
 Let $\varepsilon > 0$ and $\kappa_0 \ge 1$, and let $P$ be the selector of
 Lemma~\ref{lem:selector} at precision $\varepsilon/2$. For all large $d$,
 every sample outside the event of Lemma~\ref{lem:residual} (at $r$, $\tau = d^{-4}$)
@@ -1864,12 +1887,12 @@ nonempty, with features $V_i = W_i$, $i \notin J$. For a set $Y$ of unit
 vectors of $\R^q$ the \emph{section minimax} is
 \[
 \inf_{y\in Y}\ \sup_{S\in\mathcal{D}}\ \sum_{i<q}y_i\ip{V_i}{S}
-\qquad\formal{Head.SectionMinimax.paper\_main\_head\_section\_minimax}.
+\tag*{\formal{Head.SectionMinimax.paper\_main\_head\_section\_minimax}.}
 \]
 The \emph{capped sphere} is the set of unit $y$ with $\abs{y_i} \le \theta/\sqd$
 for all $i$.
 
-\begin{definition}[Soft minimax \formal{Soft.Definitions.soft\_minimax}]
+\begin{definition}[Soft minimax \formal{Soft.Definitions.soft\_minimax}; paper Lemma~3.12, sandwich bounds]\label{def:softmm}
 For finite index lists $Y, S$ and $H : Y \times S \to \R$, with $\beta, \gamma > 0$,
 \[
 \Phi_{\beta,\gamma}(H) = -\frac1\beta\ln\sum_{y\in Y}\exp\Bigl(-\beta\cdot\frac1\gamma\ln\sum_{s\in S}e^{\gamma H(y,s)}\Bigr).
@@ -1944,7 +1967,7 @@ The paper obtains a high-probability margin from Gordon's tail inequality
 and passes to expectations with a second-moment bound; the formal proof
 uses the expectation form directly.
 
-\begin{theorem}[Second-chaos interpolation for the soft minimax \formal{Soft.Comparison.paper\_main\_soft\_public\_comparison}, \formal{Soft.PublicFeatures.paper\_main\_public\_feature\_soft\_comparison\_coarse}, \formal{Multirow.IntegratedBound.paper\_multirow\_integrated\_bound\_results}; paper Lemmas~3.9, 3.10, 3.12 and 3.14 in the special case of the soft minimax]\label{thm:interp_soft}
+\begin{theorem}[Second-chaos interpolation for the soft minimax \formal{Soft.Comparison.paper\_main\_soft\_public\_comparison}, \formal{Soft.PublicFeatures.paper\_main\_public\_feature\_soft\_comparison\_coarse}, \formal{Multirow.IntegratedBound.paper\_multirow\_integrated\_bound\_results}; paper Lemmas~3.9, 3.10, 3.11 and 3.12 and Corollary~3.14, in the special case of the soft minimax]\label{thm:interp_soft}
 Let $y^a$ ($a \in Y$) be unit vectors of $\R^N$ with $\abs{y^a_i} \le \theta/\sqd$,
 and $B_t$ ($t \in S$) symmetric with $\norm{B_t}_\op \le k$. Let
 $\Phi(A) = \Phi_{\beta,\gamma}(\sum_iy^a_i\ip{A_i}{B_t})$ for a family
@@ -1999,7 +2022,7 @@ $\tr(y_iB_s\cdot)\tr(y_iB_{s'}\cdot)\tr(y_iB_{s''}\cdot)$ with Gibbs
 weights, and the computation of its projective norm gives
 \[
 \sum_i\norm{D_i^3\Phi}_{\pi,\op} \le \frac{10\,k^3(\beta + \gamma)^2\theta}{\sqd}
-\qquad\formal{Soft.MatrixProjectiveBound.soft\_matrix\_projective\_sum\_bound},
+\tag*{\formal{Soft.MatrixProjectiveBound.soft\_matrix\_projective\_sum\_bound},}
 \]
 using $\sum_i\abs{y_i}^3 \le \theta d^{-1/2}\sum_iy_i^2 = \theta/\sqd$ and
 $\norm{B_s}_\op \le k$. Hence
@@ -2055,7 +2078,7 @@ and $L\varepsilon\sqd \le \frac g{16}\sqd$. Since $\sqrt2\cdot\frac78 - \frac3{1
 the claim follows.
 \end{proof}
 
-\begin{lemma}[Clipping and concentration \formal{Data.ClippedScore.paper\_main\_data\_contraction\_score\_lipschitz}, \formal{Data.SoftConcentration.paper\_main\_data\_soft\_clipped\_lower\_margin}, \formal{Data.SoftScale.paper\_main\_data\_soft\_scaled\_clipping\_large}; replaces paper Lemma~3.15]\label{lem:clip}
+\begin{lemma}[Clipping and concentration \formal{Data.ClippedScore.paper\_main\_data\_contraction\_score\_lipschitz}, \formal{Data.SoftConcentration.paper\_main\_data\_soft\_clipped\_lower\_margin}, \formal{Data.SoftScale.paper\_main\_data\_soft\_scaled\_clipping\_large}; paper Lemma~3.15, with coordinate clipping]\label{lem:clip}
 Let $U > 0$ and let $\overline W_i$ be the feature of the point whose
 coordinates are clipped to $[-U, U]$. For unit $y$ and symmetric $B$ with
 $\norm{B}_\op \le k$, the score $x \mapsto \sum_iy_i\ip{\overline W_i}{B}$ is
@@ -2089,7 +2112,7 @@ are arithmetic: $V \le Md^4$, $2Nde^{-\sqd/2} \le 2C\cdot14^7/\sqd$, so
 $\ell \le M/(2d^2) + 2C\,38^{19}/\sqd$ \formal{Clipping.Rates.paper\_main\_clipping\_mean\_error\_rate}.
 \end{proof}
 
-\begin{proposition}[The bad event of a fixed head \formal{Head.SubcriticalTail.paper\_main\_head\_subcritical\_clipped\_tail}, \formal{Head.CompactTail.paper\_main\_head\_compact\_clipped\_tail}]\label{prop:fixed_head}
+\begin{proposition}[The bad event of a fixed head \formal{Head.SubcriticalTail.paper\_main\_head\_subcritical\_clipped\_tail}, \formal{Head.CompactTail.paper\_main\_head\_compact\_clipped\_tail}; paper Lemma~3.15, one head]\label{prop:fixed_head}
 Let $0 \le \alpha < 1/4$, $\kappa \ge 1$, $L \ge 0$ and $g = 1/2 - \sqrt\alpha$.
 There are $\varepsilon, A, \theta, c > 0$ and $D$ such that for all $d \ge D$,
 all $m, q$ with $q + 1 \le \alpha d^2$, every head sample $h$ of $m$ rows whose
@@ -2117,7 +2140,7 @@ the operator bound $L\sqd$ on the event) the section minimax of the clipped
 features over $Y$ exceeds $\frac g4\sqd$.
 \end{proof}
 
-\begin{proposition}[All heads \formal{Head.SubcriticalFamily.paper\_main\_head\_subcritical\_family\_event}, \formal{Head.SubcriticalProbability.paper\_main\_head\_subcritical\_probability}, \formal{Head.SelectionLaw.paper\_main\_head\_selection\_law}, \formal{Head.FamilyCount.paper\_main\_head\_families\_exp}]\label{prop:all_heads}
+\begin{proposition}[All heads \formal{Head.SubcriticalFamily.paper\_main\_head\_subcritical\_family\_event}, \formal{Head.SubcriticalProbability.paper\_main\_head\_subcritical\_probability}, \formal{Head.SelectionLaw.paper\_main\_head\_selection\_law}, \formal{Head.FamilyCount.paper\_main\_head\_families\_exp}; paper Proposition~3.4 and Lemma~3.15, union over heads]\label{prop:all_heads}
 Let $0 \le \alpha < 1/4$, $\kappa \ge 1$, $L \ge 0$. There is $\theta > 0$
 such that for every $K \ge 0$ and every $N(d) \le \alpha d^2$ eventually there
 are measurable events $E_d$ with $\Prob(E_d) \to 0$ with the following
@@ -2522,7 +2545,7 @@ holds because the infimum over $(v, c)$ is witnessed on countable nets
 \formal{Projected.BulkConditional.paper\_main\_projected\_conditional\_tail}.
 \end{proof}
 
-\begin{lemma}[Bulk operator bound \formal{Hybrid.Assembly.paper\_main\_hybrid\_operator\_event}; paper (2.16)]\label{lem:bulkop}
+\begin{lemma}[Bulk operator bound \formal{Hybrid.Assembly.paper\_main\_hybrid\_operator\_event}; paper Proposition~2.8, (2.16), and Lemma~4.11, upper bound]\label{lem:bulkop}
 Let $\rho > 0$ with $\rho m^2 \le N$. Outside a measurable event of
 probability at most $2e^{-N/2}$, $\norm{\mathsf{R}(B)}_2 \le C(\rho)\sqrt N\norm{B}_\Fro$
 for every symmetric $B$, with $C(\rho) = 4\sqrt{20\ln2(1 + 2/\rho) + 1}$.
@@ -2594,7 +2617,7 @@ $\beta_0 = c/\sqrt{\gamma + \eta}$ (as $cd \ge \beta_0\sqrt N$) and
 $C_0 = C(\rho)$.
 \end{proof}
 
-\begin{corollary}[Expectation under the hybrid law \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_goe\_mean}]\label{cor:goe_mean}
+\begin{corollary}[Expectation under the hybrid law \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_goe\_mean}; paper Lemma~4.12, mean bound]\label{cor:goe_mean}
 With $\gamma, \eta, e, c, d_0$ as in Theorem~\ref{thm:hybrid}, for all
 $d \ge d_0$, $N$, $r$, $m_i$ as there, every $\beta > 0$ and every prior
 $(H_j, b_j, B_j)_{j\in I}$ with $H_j$ symmetric, $B_j \succeq 0$ and
@@ -2626,7 +2649,7 @@ offsets,
 The free-entropy universality of Bandeira and Maillard, which the paper
 cites, is replaced by the following three steps.
 
-\begin{proposition}[Row replacement \formal{Loss.Replacement.paper\_main\_loss\_array\_comparison}, \formal{Loss.BlockComparison.paper\_main\_loss\_conditional\_prefix\_comparison}]\label{prop:replacement}
+\begin{proposition}[Row replacement \formal{Loss.Replacement.paper\_main\_loss\_array\_comparison}, \formal{Loss.BlockComparison.paper\_main\_loss\_conditional\_prefix\_comparison}; replaces paper Proposition~4.8, step 1]\label{prop:replacement}
 Let $\ell^{\mathrm{Q}}_{ij}$, $\ell^{\mathrm{G}}_{ij}$ ($i < N$, $j \in I$) be
 continuous row losses with values in $[0,1]$ on rows of lengths $p$ and $q$.
 If for every $i$ and every $f : I \to \R$,
@@ -2643,7 +2666,7 @@ functional is a soft minimum of $f'_j = f_j + \sum_{i'\ne i}\ell_{i'j}$ plus
 the $i$-th row loss), at most $B$ by hypothesis. Sum over $i$.
 \end{proof}
 
-\begin{proposition}[One row \formal{Loss.SoftCost.paper\_main\_loss\_row\_value\_comparison}, \formal{Loss.RowIncrement.paper\_main\_loss\_row\_increment\_comparison}]\label{prop:onerow}
+\begin{proposition}[One row \formal{Loss.SoftCost.paper\_main\_loss\_row\_value\_comparison}, \formal{Loss.RowIncrement.paper\_main\_loss\_row\_increment\_comparison}; replaces paper Proposition~4.8, step 2]\label{prop:onerow}
 For $\beta, \eta > 0$ there is $C \ge 0$ such that for every $n$, every
 $f : I \to \R$, offsets $(a_j)$ and symmetric $T_j \in \R^{(n+1)\times(n+1)}$
 with $\norm{T_j}_\op \le \varepsilon$ and $\norm{T_j}_\Fro \le S_f$, with
@@ -2690,7 +2713,7 @@ $\abs{\E(\text{truncated}^{\mathrm{Q}}) - \E(\text{truncated}^{\mathrm{G}})} \le
 Adding the two truncation errors $\eta$ gives the claim with $C = C'/\beta$.
 \end{proof}
 
-\begin{proposition}[Fixed-dimensional smooth comparison \formal{Projection.PublicOperator.paper\_main\_projection\_public\_comparison}, \formal{Projection.Comparison.paper\_main\_projection\_smooth\_comparison}]\label{prop:smooth_comparison}
+\begin{proposition}[Fixed-dimensional smooth comparison \formal{Projection.PublicOperator.paper\_main\_projection\_public\_comparison}, \formal{Projection.Comparison.paper\_main\_projection\_smooth\_comparison}; replaces paper Proposition~4.8, step 3]\label{prop:smooth_comparison}
 Let $T_0, \dots, T_{K-1}$ be symmetric $(n+1)\times(n+1)$ matrices with
 $\norm{T_a}_\op \le \varepsilon$ and $\norm{T_a}_\Fro \le S_f$, and let $F : \R^K \to \R$
 be of class $C^2$ with $F$ and its first and second partial derivatives
@@ -2908,5 +2931,170 @@ axioms of MathComp-Analysis (excluded middle, functional and propositional
 extensionality, and a choice principle), which also underlie the informal
 proof.
 \end{remark}
+
+\appendix
+\section{Correspondence with the paper}\label{sec:correspondence}
+
+This appendix is generated from the reconciled comparison
+\texttt{doc/paper\_correspondence.md} of the repository, which holds the
+full notes: for every row, the paper's lines, the formal statements, and,
+for the rows on which the two independent comparisons disagreed, the
+evidence and the verdict. The \emph{statement relation} compares the
+formal statement with the paper's: \emph{same} (equivalent up to
+notation, the values of unspecified constants and the thresholds on $d$),
+\emph{weaker} (implied by the paper's statement but not conversely: worse
+constants or rates, a missing direction or case, a special case, or an
+added hypothesis on the sample), \emph{stronger} (implies the paper's
+statement and says more), \emph{absent} (not needed). The \emph{argument
+relation} compares the proofs: \emph{paper's route} (the same
+construction, decomposition and intermediate claims, possibly with other
+constants or other proofs of individual steps) or \emph{replaced} (another
+argument). For a result the paper cites without proof, the argument
+relation compares the formal proof with the proof of the cited source.
+
+\subsection{The numbered results of the paper}\label{sec:corr_table}
+
+The table lists the 39 theorems, propositions, lemmas and corollaries of
+sections 1.2 to 4 of the paper in the paper's order (remarks and the
+conjecture share the counter), where each appears in this document, the
+formal counterparts, and the two relations.
+
+{\small\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}p{23mm}p{22mm}p{47mm}p{13mm}p{15mm}p{22mm}@{}}
+\caption{The numbered results of the paper and their formal counterparts.}\label{tab:corr}\\
+\hline
+Paper result & Here & Formal counterparts & Statement & Argument & Note\\
+\hline
+\endfirsthead
+\multicolumn{6}{@{}l}{\small\emph{Table~\ref{tab:corr}, continued.}}\\
+\hline
+Paper result & Here & Formal counterparts & Statement & Argument & Note\\
+\hline
+\endhead
+\hline
+\endfoot
+\hline
+\endlastfoot
+Thm.~1.2 \texttt{\small thm:main} & Thm.~\ref{thm:main} & \formal{PaperMainFinalAssembly.paper\_main\_results\_from\_conditioned}, \formal{PaperMainResults.paper\_main\_results}, \formal{MainStatement.main\_statement}, \formal{Asymptotics.paper\_main\_sat\_from\_conditioned}, \formal{Unsat.Limit.paper\_main\_unsat\_supercritical\_limit} & same & paper's route & measurability added\\
+Thm.~1.3 \texttt{\small thm:conditioned} & Thm.~\ref{thm:cond} & \formal{PaperMainConditionedLimit.paper\_main\_conditioned\_limit}, \formal{PaperMainConditionedLimit.paper\_main\_conditioned\_fixed\_limit}, \formal{Fixed.Density.paper\_main\_conditioned\_from\_fixed}, \formal{Conditioned.FromLower.paper\_main\_conditioned\_from\_lower}, \formal{Conditioned.FromLower.paper\_main\_conditioned\_from\_lower\_exists} & same & paper's route & constants $(2\kappa+1)^{\pm1}$, not computed\\
+Cor.~1.4 \texttt{\small cor:alternative} & Thm.~\ref{thm:bal} & \formal{Balanced.Probability.paper\_main\_balanced\_from\_sat}, \formal{Balanced.Limit.paper\_main\_balanced\_supercritical\_limit}, \formal{Balanced.Supercritical.paper\_main\_balanced\_from\_unsat}, \formal{Gaussian.Spanning.paper\_main\_gaussian\_spanning\_ae}, \formal{Measurability.Balanced.pm\_balanced\_pd\_event\_measurable} & same & paper's route & spanning proved almost surely\\
+Lem.~2.1 \texttt{\small lem:psd-width} & Prop.~\ref{prop:psdwidth} & \formal{Gaussian.PsdWidth.paper\_main\_gaussian\_psd\_projection\_second\_moment}, \formal{Gaussian.PsdWidth.paper\_main\_gaussian\_psd\_width\_bounds}, \formal{Cone.Projection.paper\_main\_psd\_moreau} & same & paper's route & Poincar\'e inequality for the width bounds\\
+Lem.~2.2 \texttt{\small lem:widthcone} & Prop.~\ref{prop:conewidth} & \formal{Gaussian.ConditionWidthBound.paper\_main\_gaussian\_condition\_width\_lower}, \formal{Gaussian.ConditionWidthBound.paper\_main\_gaussian\_condition\_width\_large}, \formal{Cone.Condition.paper\_main\_cone\_shift\_scaled} & stronger & paper's route & explicit, for every $d$\\
+Lem.~2.3 \texttt{\small lem:gordon} & Thm.~\ref{thm:gordon}, Cor.~\ref{cor:bil}, Prop.~\ref{prop:gordon_margin} & \formal{Gordon.Width.paper\_main\_gordon\_finite\_width\_margin}, \formal{Gordon.SoftMargin.paper\_main\_gordon\_soft\_width\_margin}, \formal{Gordon.Processes.paper\_main\_gordon\_process\_comparison}, \formal{Gaussian.GordonTail.paper\_main\_gaussian\_lipschitz\_lower\_margin}, \formal{GaussianAnalysis.comparison.escape.auxT\_bilT\_minmax}, \formal{GaussianAnalysis.comparison.gordon.gordon} & weaker & replaced & expectation form on finite nets\\
+Lem.~2.4 \texttt{\small lem:escape} & Thm.~\ref{thm:escape} & \formal{Gaussian.EscapeTail.paper\_main\_gaussian\_escape\_sqrt\_tail}, \formal{Gordon.EscapeExpectation.paper\_main\_gordon\_escape\_expectation}, \formal{GaussianAnalysis.comparison.escape.gordon\_escape} & weaker & paper's route & threshold $\sqrt{N-1}$\\
+Lem.~2.5 \texttt{\small lem:gauss-rect} & Lem.~\ref{lem:opnet}; Thm.~\ref{thm:opnorm} (library, unused) & \formal{Gaussian.OperatorTail.paper\_main\_gaussian\_operator\_tail}, \formal{Gaussian.FeatureTail.paper\_main\_gaussian\_operator\_exponential\_tail}, \formal{GaussianAnalysis.comparison.escape.gauss\_opnorm\_tail} & weaker & replaced & net bound, constant $20\ln 2$\\
+Lem.~2.6 \texttt{\small lem:squarefree-edge} & Prop.~\ref{prop:upperedge}, Thm.~\ref{thm:loweredge} & \formal{SquareFree.EdgeUpperLimit.paper\_main\_squarefree\_upper\_bound}, \formal{SquareFree.EdgeUpperLimit.paper\_main\_squarefree\_upper\_event\_tends\_to\_zero}, \formal{SquareFree.LowerProbability.paper\_main\_squarefree\_lower\_probability}, \formal{SquareFree.Coercivity.paper\_main\_squarefree\_coercivity}, \formal{SquareFree.Coercivity.paper\_main\_squarefree\_coercivity\_generic} & weaker & replaced & bounds, lower edge for $4N \le d^2$\\
+Lem.~2.7 \texttt{\small lem:diagonal-feature-block} & Prop.~\ref{prop:diag} & \formal{DiagonalBlock.Limit.paper\_main\_diag\_block\_tends\_to\_zero}, \formal{DiagonalBlock.Limit.paper\_main\_diag\_trace\_event\_bound}, \formal{DiagonalBlock.Limit.paper\_main\_diag\_trace\_event\_markov}, \formal{DiagonalBlock.Moment.paper\_main\_diag\_trace\_moment} & stronger & replaced & fourth trace moment, constant 3\\
+Prop.~2.8 \texttt{\small prop:feature-edge} & Thm.~\ref{thm:loweredge}, Prop.~\ref{prop:upperedge}, Lem.~\ref{lem:bulkop} & \formal{Fixed.LowerProbability.paper\_main\_fixed\_lower\_probability}, \formal{Feature.UpperProbability.paper\_main\_feature\_upper\_edge}, \formal{Feature.UpperProbability.paper\_main\_feature\_upper\_event\_bound}, \formal{Feature.GramBlocks.paper\_main\_feature\_gram\_blocks}, \formal{Gaussian.PublicFeature.paper\_main\_public\_gaussian\_feature\_exceptional\_event}, \formal{Gaussian.Forward.paper\_main\_gaussian\_forward\_threshold} & weaker & paper's route & one sequence $N(d)$\\
+Cor.~2.9 \texttt{\small cor:feature-sat} & Lem.~\ref{lem:bridge_features} & \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_coercive}, \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_upper}, \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_operator}, \formal{Conditioned.SpectralReduction.paper\_main\_subcritical\_raw\_spectral\_reduction} & weaker & paper's route & densities below $1/4$\\
+Lem.~2.10 \texttt{\small lem:data} & Lems.~\ref{lem:radius}--\ref{lem:sparse} & \formal{Gaussian.DataRadius.paper\_main\_data\_radius\_good}, \formal{Gaussian.DataRadius.paper\_main\_data\_radius\_probability}, \formal{Data.SampleTail.paper\_main\_data\_coordinate\_tail}, \formal{Data.CoherenceLimit.paper\_main\_data\_coherence\_log\_good}, \formal{Data.CoherenceLimit.paper\_main\_data\_coherence\_log\_tail}, \formal{Head.DataLog.paper\_main\_head\_data\_log\_event}, \formal{Head.DataLog.paper\_main\_head\_data\_log\_probability} & stronger & paper's route & explicit tails; coordinates used at $d^{1/4}$\\
+Lem.~2.11 \texttt{\small lem:hw} & Lem.~\ref{lem:hw} & \formal{Gaussian.QuadraticTail.paper\_main\_gaussian\_quadratic\_tail}, \formal{Gaussian.Residual.paper\_main\_gaussian\_residual\_tail}, \formal{Gaussian.OrthogonalTail.paper\_main\_gaussian\_orthogonal\_square\_two\_sided\_tail}, \formal{GaussianAnalysis.comparison.chi\_square.gauss\_centered\_chi2\_abs\_tail} & same & replaced & Gaussian proof, $c = 1/8$\\
+Lem.~2.12 \texttt{\small lem:homogeneous} & Lem.~\ref{lem:homog}, Thm.~\ref{thm:alternative} & \formal{Geometry.Homogeneous.paper\_main\_homogeneous\_kernel}, \formal{Geometry.Homogeneous.paper\_main\_homogeneous\_witness}, \formal{Geometry.Separation.paper\_main\_homogeneous\_alternative}, \formal{Geometry.Separation.paper\_main\_homogeneous\_existence}, \formal{Geometry.Separation.paper\_main\_fit\_alternative}, \formal{Geometry.Exclusion.paper\_main\_fit\_balanced\_exclusive} & same & paper's route & exclusion without spanning\\
+Thm.~3.1 \texttt{\small thm:sat} & Thm.~\ref{thm:sat} & \formal{PaperMainConditionedLimit.paper\_main\_conditioned\_limit}, \formal{PaperMainConditionedLimit.paper\_main\_conditioned\_fixed\_limit}, \formal{Conditioned.FromLower.paper\_main\_conditioned\_from\_lower}, \formal{Conditioned.SpectralReduction.paper\_main\_subcritical\_spectral\_reduction}, \formal{Head.SubcriticalFit.paper\_main\_head\_subcritical\_fit\_exception}, \formal{Cone.HeadTailFit.paper\_main\_cone\_head\_tail\_conditioned\_fit} & same & paper's route & constants $(2\kappa+1)^{\pm1}$\\
+Lem.~3.2 \texttt{\small lem:convex-separation} & Prop.~\ref{prop:kernel}, Lem.~\ref{lem:kernel_fit} & \formal{Conditioned.SupportFit.paper\_main\_box\_support\_conditioned\_fit}, \formal{Conditioned.SupportFit.paper\_main\_cone\_kernel\_conditioned\_fit}, \formal{Cone.Kernel.paper\_main\_cone\_kernel\_exists\_support}, \formal{Cone.Kernel.paper\_main\_cone\_kernel\_exists}, \formal{Cone.KernelSlice.paper\_main\_cone\_kernel\_slice\_compact} & weaker & paper's route & sufficient direction; nearest point on the slice\\
+Prop.~3.3 \texttt{\small prop:heads} & Thm.~\ref{thm:heads}, Prop.~\ref{prop:width_transfer} & \formal{Head.RegularProbability.paper\_main\_head\_width\_coercive\_probability\_uniform}, \formal{Head.RegularProbability.paper\_main\_head\_width\_coercive\_probability\_fixed}, \formal{Head.WidthProbability.paper\_main\_head\_width\_regular\_probability\_fixed}, \formal{Head.WidthRegular.paper\_main\_head\_width\_regular\_event\_fixed}, \formal{Head.WidthRegular.paper\_main\_head\_width\_regular\_transfer}, \formal{Head.WidthActual.paper\_main\_head\_width\_actual\_selected} & weaker & paper's route & coercivity as hypothesis; cone $\cone_{2k_0^2}$\\
+Prop.~3.4 \texttt{\small prop:lowinf} & Thm.~\ref{thm:lowinf}, Prop.~\ref{prop:all_heads} & \formal{Head.SubcriticalProbability.paper\_main\_head\_subcritical\_probability}, \formal{Head.SubcriticalFixed.paper\_main\_head\_subcritical\_fixed\_event}, \formal{Head.SubcriticalFixed.paper\_main\_head\_list\_positive}, \formal{Head.SubcriticalFamily.paper\_main\_head\_subcritical\_family\_event}, \formal{Head.SubcriticalGood.paper\_main\_head\_subcritical\_selected\_good}, \formal{Head.SubcriticalEvent.paper\_main\_head\_subcritical\_bad} & weaker & paper's route & positivity only\\
+Lem.~3.5 \texttt{\small lem:regularity} & Lem.~\ref{lem:peel} & \formal{Head.TailDecompositionLog.paper\_main\_head\_tail\_regularity}, \formal{Head.TailDecomposition.head\_tail\_decomposition\_explicit}, \formal{Head.Peeling.peeling\_iteration} & same & paper's route & $C_\theta = 16/(\theta^2\ln 2)$\\
+Lem.~3.8 \texttt{\small lem:head-correction-bounds} & Prop.~\ref{prop:correction}, Lem.~\ref{lem:rates} & \formal{Geometry.HeadSpectral.paper\_main\_head\_correction\_bounds\_cone}, \formal{Geometry.HeadEntries.paper\_main\_head\_correction\_bounds}, \formal{Geometry.HeadCorrection.paper\_main\_head\_condition\_transfer}, \formal{Geometry.HeadCorrection.paper\_main\_head\_support\_transfer}, \formal{Head.CorrectionScale.paper\_main\_head\_correction\_eventual}, \formal{Head.WidthActual.paper\_main\_head\_width\_actual\_selected} & weaker & paper's route & rates in $t = d^{1/32}$\\
+Lem.~3.9 \texttt{\small lem:interpolation} & Thm.~\ref{thm:interp_soft} & \formal{Soft.Comparison.paper\_main\_soft\_public\_comparison}, \formal{Soft.PublicFeatures.paper\_main\_public\_feature\_soft\_comparison}, \formal{Multirow.IntegratedBound.paper\_multirow\_integrated\_bound\_results} & weaker & paper's route & soft minimax only\\
+Lem.~3.10 \texttt{\small lem:chaos-ibp} & Thm.~\ref{thm:ibp}, Thm.~\ref{thm:interp_soft} & \formal{Gaussian.VectorStein.gaussian\_vector\_second\_stein}, \formal{Gaussian.LawBridge.gaussian\_iterated\_coordinate\_second\_stein\_gauss}, \formal{GaussianAnalysis.gaussian.gauss\_ibp.gauss\_ibp2}, \formal{Quadratic.TimeStein.quadratic\_gaussian\_time\_stein}, \formal{Joint.SteinIdentities.joint\_gaussian\_stein\_cancellation}, \formal{Row.ConditionalStein.gaussian\_row\_full\_stein\_of\_regular}, \formal{Multirow.FullStein.paper\_multirow\_full\_stein\_results}, \formal{Chaos.SecondContractionBounds.chaos\_projective\_bound}, \formal{Multirow.IntegratedBoundSteps.multirow\_integrated\_remainder\_sum\_bound} & weaker & paper's route & soft minimax only; union of both counterpart sets\\
+Lem.~3.11 \texttt{\small lem:max-radius} & proof of Thm.~\ref{thm:interp_soft} & \formal{Radius.ExpectationBound.gaussian\_expected\_maximum\_radius}, \formal{Radius.ExpectedMaximum.gaussian\_maximum\_radius\_expected\_bound} & same & paper's route & identical bound\\
+Lem.~3.12 \texttt{\small lem:soft} & Def.~\ref{def:softmm}, Thm.~\ref{thm:interp_soft} & \formal{Soft.Extrema.soft\_minimax\_bounds}, \formal{Soft.MatrixProjectiveBound.soft\_matrix\_projective\_sum\_bound}, \formal{Tensor.ProjectiveSum.matrix\_nested\_projective\_sum\_low\_influence}, \formal{Soft.BlockThirdBound.lower\_block\_third\_bound} & same & paper's route & $C = 10$\\
+Lem.~3.13 \texttt{\small lem:gaussian-soft-head} & Prop.~\ref{prop:gordon_margin} & \formal{Soft.FeatureMargin.paper\_main\_public\_goe\_soft\_margin}, \formal{Gordon.SoftMargin.paper\_main\_gordon\_soft\_width\_margin}, \formal{Head.SectionApproxWidth.paper\_main\_head\_section\_net\_width}, \formal{Head.SectionApproxWidth.paper\_main\_head\_section\_approx\_width\_exists} & weaker & replaced & mean bound only\\
+Cor.~3.14 \texttt{\small cor:chaos-soft-head} & Cor.~\ref{cor:chaos_margin} & \formal{Head.SoftTail.paper\_main\_head\_soft\_expectation}, \formal{Soft.ConeMargin.paper\_main\_data\_soft\_cone\_margin}, \formal{Soft.ParameterChoice.paper\_main\_soft\_scaled\_margin}, \formal{Soft.ParameterChoice.paper\_main\_soft\_parameters} & same & paper's route & scores divided by $\sqd$\\
+Lem.~3.15 \texttt{\small lem:clipped-soft-heads} & Lem.~\ref{lem:clip}, Props.~\ref{prop:fixed_head}, \ref{prop:all_heads} & \formal{Data.SoftConcentration.paper\_main\_data\_soft\_clipped\_lower\_margin}, \formal{Data.SoftConcentration.paper\_main\_data\_soft\_clipping\_mean}, \formal{Head.SubcriticalTail.paper\_main\_head\_subcritical\_clipped\_tail}, \formal{Head.CompactTail.paper\_main\_head\_compact\_clipped\_tail}, \formal{Head.SoftTail.paper\_main\_head\_soft\_clipped\_lower\_tail}, \formal{Head.SubcriticalFamily.paper\_main\_head\_subcritical\_family\_event}, \formal{Clipping.Limits.paper\_main\_clipped\_head\_union\_tends\_to\_zero} & weaker & paper's route & coordinate clipping, rate $e^{-cd^{3/2}}$\\
+Thm.~4.1 \texttt{\small thm:unsat} & Thm.~\ref{thm:unsat} & \formal{Unsat.Limit.paper\_main\_unsat\_supercritical\_limit}, \formal{Unsat.Limit.paper\_main\_unsat\_fixed\_density\_limit}, \formal{Unsat.Limit.paper\_main\_unsat\_fixed\_density\_limit\_from\_events}, \formal{Fixed.Density.paper\_main\_unsat\_from\_fixed} & same & paper's route & measurability added\\
+Lem.~4.2 \texttt{\small lem:homogeneous-witness} & Lem.~\ref{lem:homog} & \formal{Pinching.Loss.paper\_main\_fit\_unit\_witness}, \formal{Geometry.Homogeneous.paper\_main\_homogeneous\_kernel}, \formal{Geometry.Homogeneous.paper\_main\_homogeneous\_witness} & stronger & paper's route & forward direction without spanning\\
+Prop.~4.3 \texttt{\small prop:translated-univ} & Thm.~\ref{thm:universality} & \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_mean\_comparison}, \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_row\_comparison}, \formal{Loss.Replacement.paper\_main\_loss\_array\_comparison}, \formal{Loss.RowIncrement.paper\_main\_loss\_row\_increment\_comparison}, \formal{Unsat.FiniteTail.paper\_main\_unsat\_ordered\_tail} & same & replaced & finite priors, soft minima\\
+Prop.~4.4 \texttt{\small prop:hybrid-gap} & Thm.~\ref{thm:hybrid} & \formal{Hybrid.Assembly.paper\_main\_hybrid\_gap\_event}, \formal{Hybrid.Assembly.paper\_main\_hybrid\_gap\_event\_joint}, \formal{Hybrid.Loss.paper\_main\_hybrid\_risk\_gap}, \formal{Hybrid.Residual.paper\_main\_hybrid\_residual\_gap} & stronger & paper's route & fewer hypotheses\\
+Prop.~4.5 \texttt{\small prop:true-net-gap} & Prop.~\ref{prop:exception}, Sec.~\ref{sec:unsat_assembly} & \formal{Unsat.Orientation.paper\_main\_unsat\_orientation\_constants}, \formal{Orientation.Exception.paper\_main\_orientation\_exception}, \formal{Orientation.Union.paper\_main\_orientation\_union\_fit}, \formal{Orientation.Family.paper\_main\_orientation\_family\_uniform}, \formal{Unsat.FiniteTail.paper\_main\_unsat\_ordered\_tail} & same & replaced & net of orientations only\\
+Lem.~4.6 \texttt{\small lem:transport} & Prop.~\ref{prop:witness} & \formal{Projection.Pinching.paper\_main\_pinching\_perturbation}, \formal{Pinching.Loss.paper\_main\_pinching\_witness\_risk}, \formal{Pinching.Loss.paper\_main\_pinching\_cutoff\_bulk}, \formal{Pinching.Annulus.paper\_main\_pinching\_annulus}, \formal{Orientation.Witness.paper\_main\_orientation\_fit\_witness} & same & replaced & pinching instead of rotation\\
+Prop.~4.8 \texttt{\small prop:finite-prior-free-entropy} & Thm.~\ref{thm:universality}, Props.~\ref{prop:replacement}--\ref{prop:smooth_comparison} & \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_mean\_comparison}, \formal{Loss.Replacement.paper\_main\_loss\_array\_comparison}, \formal{Loss.RowIncrement.paper\_main\_loss\_row\_increment\_comparison}, \formal{Loss.ReplicaComparison.paper\_main\_loss\_product\_comparison}, \formal{Loss.ReplicaComparison.paper\_main\_loss\_replicated\_comparison}, \formal{Loss.LogPolynomial.paper\_main\_loss\_log\_remainder}, \formal{Loss.BlockComparison.paper\_main\_loss\_conditional\_prefix\_comparison}, \formal{Projection.PublicOperator.paper\_main\_projection\_public\_comparison}, \formal{Projection.Comparison.paper\_main\_projection\_smooth\_comparison} & same & replaced & complete proof, own route\\
+Lem.~4.9 \texttt{\small lem:ground-state-transfer} & Prop.~\ref{prop:prior} & \formal{Orientation.Prior.paper\_main\_orientation\_prior}, \formal{Loss.QuadraticPrior.paper\_main\_quadratic\_prior\_positive}, \formal{Orientation.BlocksLoss.paper\_main\_orientation\_candidate\_bound}, \formal{Orientation.BlocksLoss.paper\_main\_orientation\_candidate\_bound\_rotate}, \formal{Loss.JointNet.paper\_main\_loss\_joint\_net} & same & replaced & finite prior, no limit\\
+Lem.~4.10 \texttt{\small lem:head-smallball} & Prop.~\ref{prop:smallball} & \formal{Head.SmallBallUniform.paper\_main\_head\_small\_ball\_uniform\_poly}, \formal{Head.SmallBallUniform.paper\_main\_head\_small\_ball\_uniform}, \formal{Head.SmallBallPZ.paper\_main\_head\_small\_ball\_probability}, \formal{Head.SmallBallFourth.paper\_main\_head\_small\_ball\_moments}, \formal{Head.SmallBallCount.paper\_main\_head\_row\_count\_lower\_exp}, \formal{Head.SmallBallNet.paper\_main\_head\_small\_ball\_param\_net}, \formal{GaussianAnalysis.probability.moments.paley\_zygmund} & same & replaced & $a_0^2 = 1/4864$; nets and binomial tails\\
+Lem.~4.11 \texttt{\small lem:projected-bulk-escape} & Prop.~\ref{prop:bulk}, Lem.~\ref{lem:bulkop} & \formal{Hybrid.Bulk.paper\_main\_hybrid\_bulk\_event}, \formal{Projected.BulkConditional.paper\_main\_projected\_psd\_conditional\_tail}, \formal{Projected.BulkEscape.paper\_main\_projected\_escape\_tail}, \formal{Projected.BulkUnion.paper\_main\_projected\_count\_entropy}, \formal{Projected.BulkLaw.paper\_main\_projected\_law}, \formal{Projected.BulkComplement.paper\_main\_projected\_complement\_mx}, \formal{Hybrid.Assembly.paper\_main\_hybrid\_operator\_event} & stronger & paper's route & no small-ball condition\\
+Lem.~4.12 \texttt{\small lem:conditional-true-mean-gap} & Cor.~\ref{cor:tail}, Cor.~\ref{cor:goe_mean} & \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_goe\_mean}, \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_mean\_comparison}, \formal{Loss.ExpectedGap.paper\_main\_loss\_expected\_gap}, \formal{Hybrid.FiniteTail.paper\_main\_hybrid\_finite\_data\_lower\_tail}, \formal{Unsat.FiniteTail.paper\_main\_unsat\_ordered\_tail} & weaker & replaced & no conditioning on the head\\
+\end{longtable}}
+
+Count by statement relation: same 18, weaker 15, stronger 6, absent 0. Count by argument relation: paper's route 26, replaced 13.
+
+\subsection{Results the paper cites without proof}\label{sec:corr_cited}
+
+The formal proof assumes nothing from the paper or the literature: every
+cited result is proved, replaced by a weaker statement that it proves, or
+avoided. One line per cited result; the details are in section (a) of the
+markdown document.
+
+{\small\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}p{46mm}p{34mm}p{70mm}@{}}
+\caption{Results the paper cites without proof.}\label{tab:cited}\\
+\hline
+Cited result & Used by the paper in & The formal proof\\
+\hline
+\endfirsthead
+\multicolumn{3}{@{}l}{\small\emph{Table~\ref{tab:cited}, continued.}}\\
+\hline
+Cited result & Used by the paper in & The formal proof\\
+\hline
+\endhead
+\hline
+\endfoot
+\hline
+\endlastfoot
+Kogan, Nandy and Huang, extreme eigenvalues of kernel matrices, Thm~1.2(2a) & Lemma 2.6 (l.543) & Own moment method with non-sharp constants: Prop.~\ref{prop:upperedge}, Thm.~\ref{thm:loweredge} (lower edge for $4n \le d^2$ only).\\
+Tropp, matrix Bernstein, Thm~6.6.1 & Lemma 2.7 (l.585) & Not used; a fourth trace moment and Markov's inequality, Prop.~\ref{prop:diag}.\\
+Vershynin, norms of rectangular Gaussian matrices, Thm~7.3.1 & Lemma 2.5 (l.495), used in Prop. 2.8, Lemma 2.10, eq:Gstar-bound, Lemma 4.11 & A net bound with worse constants, Lem.~\ref{lem:opnet}; the sharp form, Thm.~\ref{thm:opnorm}, is in the library but unused.\\
+Rudelson and Vershynin, Hanson--Wright inequality & Lemma 2.11 (l.660), in prop:heads & Own proof for Gaussian vectors by diagonalization and chi-square tails, Lem.~\ref{lem:hw}.\\
+Gordon (1985), min--max comparison of finite Gaussian arrays & Lemma 2.3 (l.448-454) & The expectation form for finite families, Thm.~\ref{thm:gordon} and Cor.~\ref{cor:bil}; the probability form is never proved (R2).\\
+Gordon (1988), escape through a mesh & Lemma 2.4 (l.478), in Lemma 4.11 & Proved from Gordon's comparison and concentration, Thm.~\ref{thm:escape}, with threshold $\sqrt{N-1}$.\\
+eq:chi-mean, $\sqrt{s-1} \le \E\norm{g_s} \le \sqrt s$ & Lemmas 2.3, 2.4, 4.11 & Proved (\formal{Gaussian.Norm.paper\_main\_gaussian\_norm\_expectation}, \formal{Gaussian.NormConcentration.paper\_main\_gaussian\_norm\_mean\_lower}); the Gamma-function formula is not.\\
+Boucheron, Lugosi and Massart, Gaussian concentration, Thm~5.6 & Lemmas 2.3, 3.15, eq:radius (l.469, l.1551) & Herbst's argument in the library, Thm.~\ref{thm:conc}.\\
+Boucheron, Lugosi and Massart, McDiarmid's inequality, Thm~6.2 & Prop. 4.5 (l.2331) & Own bounded-difference inequality on full rows, Prop.~\ref{prop:bdd}, with exponent $Nt^2/2$.\\
+Amelunxen, Lotz, McCoy and Tropp, Prop.~10.2 & Lemma 2.1 (l.365) & Written out for the PSD cone with the Gaussian Poincar\'e inequality, Prop.~\ref{prop:psdwidth}.\\
+Anderson, Guionnet and Zeitouni, Thm~2.1.22, and the semicircle law & Lemma 2.2 (l.390-401) & Not used; a net bound $\norm{Z}_\op \le 20\sqd$ and the second moment of the trace, Prop.~\ref{prop:conewidth}.\\
+Bandeira and Maillard, Lemma~3.6 & Lemma 2.2 (the paper reproves it) & Not used.\\
+Bandeira and Maillard, free-entropy universality, Thm~4.6 & Prop. 4.8 (only sketched, l.1955) & Not used; a complete proof by another route, Thm.~\ref{thm:universality} (R10).\\
+Lindeberg's replacement principle & Prop. 4.8 (l.1955) & The library's Thm.~\ref{thm:lindeberg} is unused; the replacement needed is Prop.~\ref{prop:replacement}.\\
+Second-chaos interpolation and Gaussian comparison with matching covariances & Lemma 3.9 (l.1254-1275), Prop. 4.8 (l.1955) & The library's Thms.~\ref{thm:interp} and \ref{thm:kahane} are unused by the tree; the theories use their own interpolation calculus, Thm.~\ref{thm:interp_soft} and Prop.~\ref{prop:smooth_comparison}.\\
+Aliprantis and Border, measurable maximum theorem, Thm~18.19 & Prop. 3.3 (l.964), sec. 3.5 (l.1553) & Not used; a measurable approximate maximizer over a finite net, Lem.~\ref{lem:selector}, with the conditional step Lem.~\ref{lem:residual}.\\
+Second-order Gaussian integration by parts (stated without reference) & Lemma 3.10 (l.1208) & Proved for $f$ of polynomial growth, Thm.~\ref{thm:ibp}.\\
+The chi-square moment generating function & Lemma 3.11 (l.1242) & Proved from the library's normal integral (\formal{GaussianAnalysis.comparison.chi\_square.integral\_normal\_expR\_sqr}), used in Thm.~\ref{thm:chi2} and in the proof of Thm.~\ref{thm:interp_soft}.\\
+Weyl's inequality & Lemma 3.8 (l.1042) & Replaced by addition in the Loewner order, Prop.~\ref{prop:correction}.\\
+Packing bounds for nets, $(1 + 2/\rho)^N$ and the like & sec. 3.5, Prop. 4.5, Lemma 4.9 & Grid nets with log-cardinality $(4 + 4/\varepsilon)\ln 2$ times the dimension, Lem.~\ref{lem:section_nets} and Prop.~\ref{prop:onets}.\\
+Szarek, nets of the Grassmannian & Prop. 4.5 (l.1755) & Own net of orthogonal frames in the projector distance, Prop.~\ref{prop:onets}.\\
+The binomial entropy bounds & Lemma 4.11 (l.2171), sec. 3.5 (l.1562) & Replaced by $\sum_{j \le k}\binom nj \le \exp(k(1 + \ln(n/k)))$, Prop.~\ref{prop:bulk}, and by the count of head families, Prop.~\ref{prop:all_heads}.\\
+The principal-angle identity & Lemma 4.6 & Not needed; pinching, Prop.~\ref{prop:witness}.\\
+Gaussian hypercontractivity for degree two & Lemma 4.10 (l.2088) & Not used; $\E Y^4 \le 19\sigma^4$ is computed, Prop.~\ref{prop:smallball}.\\
+Paley--Zygmund inequality & Lemma 4.10 (l.2088) & The library's Thm.~\ref{thm:pz}.\\
+Sauer's lemma and the VC inequality & Lemma 4.10 (l.2093-2098) & Not used; a net of parameters, a Markov truncation and binomial tails, Prop.~\ref{prop:smallball}.\\
+Gordan--Stiemke duality & Cor. 1.4, Lemma 2.12 (l.173) & Proved directly, Thm.~\ref{thm:alternative}.\\
+Rotation invariance of the standard Gaussian (implicit) & eq:decompose, Lemma 4.11 & Proved in the library, Prop.~\ref{prop:mulmx}; used for the bulk array (Prop.~\ref{prop:bulk}) and the orientations (Sec.~\ref{sec:prior}).\\
+Spectral theorem and spectral projectors (implicit) & eq:split-def, sgn(M\_u) in thm:sat, and throughout & The library's Thm.~\ref{thm:spectral}; $\sign(M_u)$ is avoided (Prop.~\ref{prop:support_all}).\\
+Operator norm from traces of powers and from quadratic forms & l.2158-2167 and the edge arguments & Props.~\ref{prop:opnorm_trace} and \ref{prop:abab}.\\
+Almost sure spanning of the sample for $n \ge d$ & Lemma 2.12, cor:alternative, thm:unsat (l.678, l.1649) & Proved where needed, Lem.~\ref{lem:spanning}; the unsatisfiable phase does not need it.\\
+\end{longtable}}
+
+\subsection{Changes of route}\label{sec:corr_routes}
+
+Section (b) of the markdown document describes fourteen places where the
+formal proof takes another route than the paper. Each is summarized here
+with the place of this document that gives the formal argument.
+
+\begin{description}
+\item[R1. Widths of cones (sec. 2.1, Lemmas 2.1 and 2.2).] The projection onto the PSD cone is built as a nearest point with Moreau's decomposition (Prop.~\ref{prop:moreau}), and Lemma 2.1 uses the Poincar\'e inequality (Prop.~\ref{prop:psdwidth}). Lemma 2.2 keeps the paper's candidate but bounds its value on and off the event $\norm{Z}_\op \le 20\sqd$, so no semicircle law and no uniform integrability are used (Prop.~\ref{prop:conewidth}).
+\item[R2. Gordon's inequality in expectation (secs. 2.2, 3.3, 3.5; l.434-476, l.1451-1471).] Gordon's inequality is applied in expectation to the finite nets of dual vectors and of section elements, then the log-sum-exp bound (Thm.~\ref{thm:gordon}, Cor.~\ref{cor:bil}, Prop.~\ref{prop:gordon_margin}); the net loss is also in expectation (Lem.~\ref{lem:section_nets}). Probability enters only through the concentration of the clipped data functional (Lem.~\ref{lem:clip}).
+\item[R3. Feature edge (sec. 2.3, l.538-616).] Both feature edges are proved by moment methods with explicit non-sharp constants, the lower edge only up to density $1/4$ (Sec.~\ref{sec:edge}: Prop.~\ref{prop:diag}, Prop.~\ref{prop:upperedge}, Thm.~\ref{thm:loweredge}). The head correction needs only the lower edge (Prop.~\ref{prop:correction}).
+\item[R4. Clipping (secs. 2.4, 3.5; l.1517-1566).] Every coordinate is clipped at $d^{1/4}$ instead of the radius at $2\sqd$. The clipped functional is $2\kappa d^{-1/4}$-Lipschitz, so one head fails with probability $e^{-cd^{3/2}}$, which still beats the union over heads (Lem.~\ref{lem:clip}, Props.~\ref{prop:fixed_head} and \ref{prop:all_heads}).
+\item[R5. Head sections (sec. 3.2, Prop. 3.3, Lemma 3.8; l.960-1096).] The Borel maximizer is replaced by the first maximizer over a finite net (Lem.~\ref{lem:selector}), the residuals are bounded at the coarse threshold $d^{-1/4}$ with a Markov step at $\tau = d^{-4}$ (Lem.~\ref{lem:residual}), and the Weyl step uses only the spectral box, so the corrected matrices lie in $\cone_{2k_0^2}$ (Prop.~\ref{prop:correction}, Lem.~\ref{lem:rates}, Prop.~\ref{prop:width_transfer}, Thm.~\ref{thm:heads}).
+\item[R6. Assembly of thm:sat (sec. 3.1; l.805-821, l.889-924).] The separation is done on the trace-one slice of the cone, by the paper's nearest-point argument, and the fit comes from a kernel element (Prop.~\ref{prop:kernel}, Lem.~\ref{lem:kernel_fit}). In the tiny-tail case the perturbation is $\delta M_u/\norm{M_u}_\Fro$, so no spectral sign is needed (Prop.~\ref{prop:support_all}); the constants are $(2\kappa+1)^{\pm1}$ (Thm.~\ref{thm:sat}).
+\item[R7. Low-influence tail (secs. 3.4 and 3.5; l.1254-1275).] The interpolation is proved for the soft minimax only (Thm.~\ref{thm:interp_soft}). The head is fixed, the tail probability is bounded under the law of the tail rows and integrated over the head by a section bound, and the bad event is the exact min-max, so the passages from nets to sets and from soft to hard extrema happen inside it (Props.~\ref{prop:fixed_head} and \ref{prop:all_heads}, Thm.~\ref{thm:lowinf}).
+\item[R8. Constant spectral cutoff (sec. 4.1, eq:epsd, eq:split-def; l.1665-1683).] A witness is split at a constant cutoff $\varepsilon_0$ instead of $d^{-1/4}$, so the head rank is bounded by a constant and the bulk satisfies only $\norm{B}_\op \le \varepsilon$ (Props.~\ref{prop:split} and \ref{prop:witness}). The universality error is made small by choosing $\varepsilon$ after $C(\beta,\eta)$, not by letting $d$ grow (Sec.~\ref{sec:unsat_assembly}).
+\item[R9. Nets, pinching and finite priors (secs. 4.1 and 4.4; l.1755-1851).] A net of orientations in the projector distance replaces the net of tuples $(r, U, H, b)$ (Prop.~\ref{prop:onets}), a witness is pinched instead of rotated (Prop.~\ref{prop:witness}), and for each orientation the sample is rotated and one finite prior of candidates enters a soft minimum (Prop.~\ref{prop:prior}). Nothing is conditioned on the head: the hybrid mean is over heads and bulks together (Cor.~\ref{cor:goe_mean}, Prop.~\ref{prop:exception}).
+\item[R10. Bulk universality (sec. 4.2; l.1917-2025).] Rows are replaced one at a time (Prop.~\ref{prop:replacement}); the soft-min increment of a row is expanded into replica averages of products of loss factors (Prop.~\ref{prop:onerow}); each product is compared with its Gaussian counterpart by a fixed-dimensional smooth comparison (Prop.~\ref{prop:smooth_comparison}). The error $2\eta + C(\beta,\eta)\varepsilon\norm{B}_\Fro$ is uniform in $N$, the offsets and the prior (Thm.~\ref{thm:universality}).
+\item[R11. Hybrid gap (sec. 4.3; l.2081-2108).] The head small ball is proved with a net of the parameters, a Markov truncation and binomial tails, and a computed fourth moment (Prop.~\ref{prop:smallball}). The projected bulk bound uses a complement basis and Bessel's inequality instead of the projection $P_J$, so no small-ball condition is needed (Prop.~\ref{prop:bulk}).
+\item[R12. Concentration in the unsatisfiable phase (sec. 4.4; l.2329-2349).] McDiarmid's inequality is replaced by a bounded-difference inequality for Gaussian rows applied to full rows, with oscillation $1/N$ per row (Prop.~\ref{prop:bdd}, Cor.~\ref{cor:tail}).
+\item[R13. Measurability (everywhere).] Every event is proved measurable: the three events of the statement by countable rational approximation (Prop.~\ref{prop:measurable}), the exceptional events by continuity of the functionals of the sample.
+\item[R14. Fixed densities (everywhere).] The reductions to fixed densities are statements on probabilities: deleting points cannot increase the fit probabilities (Lem.~\ref{lem:drop}, Prop.~\ref{prop:fixed}).
+\end{description}
 
 \end{document}
