@@ -224,10 +224,10 @@ What remains:
   `Matrix/FrobeniusNorm` and six more), real analysis in one variable and
   for functions of lists (`Analysis/CoordinateTopology`,
   `Analysis/TaylorRemainder` and ten more), and the machinery of the
-  paper's Gibbs laws, soft min-max and cumulants. The facts about the iterated expectation that carry no
-  continuity hypothesis (its linearity, monotonicity and the identities
-  between its levels) are proved from its recursive definition and have no
-  counterpart in the library.
+  paper's Gibbs laws, soft min-max and cumulants. The facts about the
+  iterated expectation that carry no continuity hypothesis (its linearity,
+  monotonicity and the identities between its levels) are proved from its
+  recursive definition and have no counterpart in the library.
 
 The statement keeps its meaning throughout: `make check` checks after each
 step that its code and the code of its definitions are unchanged.
