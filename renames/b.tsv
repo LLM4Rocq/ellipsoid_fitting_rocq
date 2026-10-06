@@ -8,7 +8,7 @@ Gaussian/ExceptionalMoment	Gaussian/Lipschitz/ExceptionalEvent
 Gaussian/ClippingTransfer	Gaussian/Lipschitz/ClippingTransfer
 Gaussian/Norm	Gaussian/Lipschitz/EuclideanNorm
 Gaussian/NormConcentration	Gaussian/Lipschitz/NormConcentration
-Gaussian/GordonTail	Gaussian/Lipschitz/MinmaxLowerTail
+Gaussian/GordonTail	Gaussian/Lipschitz/LowerMargin
 Gaussian/EscapeTail	Gaussian/Lipschitz/EscapeTail
 Gaussian/LinearLaw	Gaussian/Tail/LinearMeasurable
 Gaussian/LinearTail	Gaussian/Tail/Linear
@@ -28,7 +28,7 @@ Gaussian/DimensionBounds	Gaussian/Symmetric/DimensionBounds
 Gaussian/Forward	Gaussian/Symmetric/ForwardConstant
 Gaussian/LinearTailSymmetric	Gaussian/Symmetric/BilinearTail
 Gaussian/PsdWidth	Gaussian/Width/Psd
-Gaussian/PsdWidthLimit	Gaussian/Width/PsdLimit
+Gaussian/PsdWidthLimit	Gaussian/Symmetric/DimensionReal
 Gaussian/ConditionWidth	Gaussian/Width/Condition
 Gaussian/ConditionWidthBound	Gaussian/Width/ConditionBound
 Gaussian/WidthVariance	Gaussian/Width/SignedSupport
@@ -62,3 +62,4 @@ Polynomial/Algebra	Gaussian/Spanning/PolynomialAlgebra
 Pinching/Annulus	Projection/PinchingAnnulus
 Pinching/Loss	Projection/PinchingLoss
 Pinching/Operator	Projection/PinchingOperator
+Gordon/CompactMinmax	Gordon/UnitValueBound
