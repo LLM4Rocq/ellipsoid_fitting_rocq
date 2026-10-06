@@ -41,13 +41,12 @@ Local Notation T := (measurableTypeR R).
 
 Theorem paper_main_head_small_ball_paley_zygmund {dX : measure_display}
     {X : measurableType dX} (P : probability X R) (Z : X -> R) (m M theta : R) :
-  measurable_fun [set: X] (Z : X -> T) ->
-  P.-integrable [set: X] (fun x => (Z x)%:E) -> (\int[P]_x (Z x)%:E = m%:E)%E ->
+  measurable_fun [set: X] (Z : X -> T) -> (\int[P]_x (Z x)%:E = m%:E)%E ->
   P.-integrable [set: X] (fun x => (Z x ^ 2)%:E) -> (\int[P]_x (Z x ^ 2)%:E = M%:E)%E ->
   0 <= theta -> theta < m ->
   0 < M /\ ((((m - theta) ^ 2 / M)%Rcoq)%:E <= P [set x | Rle theta (Z x)])%E.
 Proof.
-move=> mZ _ HE1 HI2 HE2 Hth Hm.
+move=> mZ HE1 HI2 HE2 Hth Hm.
 have Hm' : (theta < m)%R by apply/RltP.
 have Hth' : (0 <= theta)%R by apply/RleP.
 have sqrE : (fun x => (Z x ^ 2)%:E) = EFin \o (fun x => (Z x ^+ 2)%R).
@@ -215,7 +214,7 @@ have mZ : measurable_fun [set: r.-tuple T] (Z : _ -> T).
       (paper_main_gaussian_quadratic_statistic H (tval x) - b)).
     by apply/funext => x; rewrite /Z /= Rmult_1_r.
   exact: (measurable_funM mY mY).
-have [I2 [E2 [I4 E4]]] := paper_main_head_small_ball_law_moments r H b HH.
+have [_ [E2 _]] := paper_main_head_small_ball_law_moments r H b HH.
 have [I4' E4'] := paper_main_head_small_ball_law r H b 2 HH.
 have [_ M4] := paper_main_head_small_ball_moments r H b HH.
 set M := gaussian_iterated_expectation r
@@ -230,7 +229,7 @@ have E4Z : (\int[gaussian_product_law r]_x (Z x ^ 2)%:E = M%:E)%E.
 have Hth : 0 <= s2 / 2 by lra.
 have Hlt : s2 / 2 < s2 by lra.
 have [HM HP] := paper_main_head_small_ball_paley_zygmund (gaussian_product_law r) Z s2 M
-  (s2 / 2) mZ I2 E2 I4Z E4Z Hth Hlt.
+  (s2 / 2) mZ E2 I4Z E4Z Hth Hlt.
 apply: le_trans HP.
 rewrite lee_fin; apply/RleP.
 have E : (s2 - s2 / 2) ^ 2 / M - 1 / 76 = (19 * s2 ^ 2 - M) / (76 * M).

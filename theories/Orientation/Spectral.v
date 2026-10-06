@@ -1,8 +1,9 @@
 (* The fixed-cutoff spectral head in the first-r-rows orientation convention.
 
-   For PSD S with ||S||_F = 1 and eps > 0, the checked M119 decomposition
-   S = O^T diag(a) O (O^T O = 1, a >= 0, #{eps < a_i} <= 1/eps^2) is
-   reordered so that the large coefficients come first.
+   For PSD S with ||S||_F = 1 and eps > 0, the spectral decomposition
+   S = O^T diag(a) O (O^T O = 1, a >= 0, #{eps < a_i} <= 1/eps^2) of
+   Spectral.Cutoff (paper_main_unit_spectral_head_cardinality) is reordered
+   so that the large coefficients come first.
    1. For a predicate p on 'I_d, the list (indices with p) ++ (indices
       without p) is a permutation of enum 'I_d. Reading it position by
       position gives a permutation sigma of 'I_d with (t < r) = p (sigma t),
@@ -14,7 +15,8 @@
       r <= d, r <= 1/eps^2, and the spectral mask projector of this
       diagonalization is the orientation projector P_r(O) of
       Orientation.Net (head directions are the first r rows of O).
-   4. The M121 decomposition in this orientation: S = H + B, H and B PSD,
+   4. The head-bulk decomposition of Spectral.Split in this orientation:
+      S = H + B, H and B PSD,
       ||B||_op <= eps, ||H||_F <= 1, P H P = H, P S = S P, P^T = P, P P = P
       with P = P_r(O). If d > 1/eps^2 then r < d. r = 0 is included. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.

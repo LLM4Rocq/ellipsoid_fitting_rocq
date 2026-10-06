@@ -1,15 +1,14 @@
 (* Bounded-row concentration under the Gaussian product law.
 
    For F continuous and bounded on N rows of p standard Gaussian
-   coordinates, with every whole-row change at most c:
-   1. the mean of F under gaussian_product_law (N p) is the iterated
-      expectation, and the exponential moment bound of
-      Loss.ConcentrationRow holds for the product-law integral;
-   2. the measurable lower tail: for c, t > 0 and N >= 1,
-      P (F <= E F - t) <= exp (- t^2 / (2 N c^2)),
-      from the indicator bound 1 <= exp (lambda (E F - F) - lambda t) on the
-      event and lambda = t / (N c^2); the upper tail is the same argument
-      for - F. *)
+   coordinates, with every whole-row change at most c, the measurable lower
+   tail: for c, t > 0 and N >= 1,
+     P (F <= E F - t) <= exp (- t^2 / (2 N c^2)),
+   where E F is the iterated expectation, which is the mean of F under
+   gaussian_product_law (N p). The event is measurable; its indicator is
+   bounded by exp (lambda (E F - F) - lambda t), whose mean is bounded by
+   the exponential moment bound of Loss.ConcentrationRow, with
+   lambda = t / (N c^2). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
@@ -26,10 +25,6 @@ From EllipsoidFitting Require Import GaussianDefinitions
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
-
-(* 1. Product-law forms. *)
-
-(* 2. The measurable lower tail. *)
 
 Theorem paper_main_concentration_lower_tail N p (F : list R -> R) (C c t : R) :
   (0 < N)%N -> (0 < c)%Rcoq -> (0 < t)%Rcoq ->
@@ -121,5 +116,3 @@ apply: Rle_trans (Rmult_le_compat_l _ _ _ (Rlt_le _ _ (exp_pos _)) Hrows) _.
 rewrite -exp_plus; apply: paper_main_concentration_exp_le.
 right; rewrite /lam; field; split; lra.
 Qed.
-
-(* The upper tail, from the lower tail of - F. *)

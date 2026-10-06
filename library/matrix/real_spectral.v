@@ -1,7 +1,7 @@
 From HB Require Import structures.
-From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix sesquilinear.
-From mathcomp Require Import boolp classical_sets reals topology normedtype.
-From mathcomp Require Import derive ring_tactic field_tactic.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+From mathcomp Require Import sesquilinear boolp classical_sets reals topology.
+From mathcomp Require Import normedtype derive ring_tactic field_tactic.
 From GaussianAnalysis.matrix Require Import euclidean.
 
 (**md**************************************************************************)
@@ -13,6 +13,12 @@ From GaussianAnalysis.matrix Require Import euclidean.
 (* of A attains its maximum on the compact unit sphere, a maximizer is an     *)
 (* eigenvector, and the Householder reflection that sends it to the first     *)
 (* basis vector splits off one dimension. No complex number is used.          *)
+(*                                                                            *)
+(* The Frobenius norm is compared with mx_norm, the norm of MathComp-Analysis *)
+(* on matrices (the largest absolute value of an entry):                      *)
+(* mx_norm A <= frobenius A <= sqrt (m n) mx_norm A (mx_norm_le_frobenius,    *)
+(* frobenius_le_mx_norm). So the topology of 'M[R]_(m, n) is the topology of  *)
+(* the Frobenius norm, and the unit sphere is compact (compact_unit_sphere).  *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*       householder w == the Householder reflection                          *)
@@ -55,7 +61,8 @@ End symmetricmx.
 Section trace_inequality.
 Variable R : realFieldType.
 
-Lemma mxtrace_ABAB_le n (A B : 'M[R]_n) : A \is symmetricmx -> B \is symmetricmx ->
+Lemma mxtrace_ABAB_le n (A B : 'M[R]_n) :
+  A \is symmetricmx -> B \is symmetricmx ->
   \tr (A *m B *m A *m B) <= \tr (A *m A *m B *m B).
 Proof.
 move=> /symmetricmxP AT /symmetricmxP BT.
@@ -74,16 +81,29 @@ Qed.
 
 End trace_inequality.
 
-Section continuity.
+Section topology.
 Variable R : realType.
+Implicit Types m n : nat.
 
-Lemma continuous_bigsum (T : topologicalType) I (r : seq I) (f : I -> T -> R) :
-  (forall i, continuous (f i)) -> continuous (fun x => \sum_(i <- r) f i x).
+Lemma entry_le_mx_norm m n (A : 'M[R]_(m, n)) i j : `|A i j| <= mx_norm A.
+Proof. by rewrite mx_normrE; apply/bigmax_geP; right; exists (i, j). Qed.
+
+Lemma mx_norm_le_frobenius m n (A : 'M[R]_(m, n)) : mx_norm A <= frobenius A.
 Proof.
-move=> fc; elim: r => [|i r IH].
-  by under eq_fun do rewrite big_nil; exact: cst_continuous.
-under eq_fun do rewrite big_cons.
-by move=> x; apply: (@continuousD _ R^o); [exact: fc | exact: IH].
+rewrite mx_normrE; apply/bigmax_leP; split; first exact: frobenius_ge0.
+by move=> ij _; exact: frobenius_entry.
+Qed.
+
+Lemma frobenius_le_mx_norm m n (A : 'M[R]_(m, n)) :
+  frobenius A <= Num.sqrt (m * n)%:R * mx_norm A.
+Proof.
+have M0 : 0 <= mx_norm A by rewrite mx_normrE; apply/bigmax_geP; left.
+rewrite -[mx_norm A]ger0_norm // -sqrtr_sqr -sqrtrM ?ler0n // ler_wsqrtr //.
+apply: le_trans (_ : \sum_(i < m) \sum_(j < n) mx_norm A ^+ 2 <= _).
+  apply: ler_sum => i _; apply: ler_sum => j _.
+  rewrite -expr2 -[A i j ^+ 2]real_normK ?num_real //.
+  by rewrite ler_sqr ?nnegrE ?normr_ge0 // entry_le_mx_norm.
+by rewrite !sumr_const !card_ord -mulrnA mulr_natl mulnC.
 Qed.
 
 Lemma continuous_form n (A : 'M[R]_n) :
@@ -93,18 +113,21 @@ have -> : (fun w : 'rV[R]_n => (w *m A *m w^T) 0 0) =
     (fun w => \sum_j \sum_i w 0 i * A i j * w 0 j).
   apply/funext => w; rewrite mxE; apply: eq_bigr => j _.
   by rewrite mxE [w^T j 0]mxE mulr_suml; apply: eq_bigr => i _.
-apply: continuous_bigsum => j; apply: continuous_bigsum => i => w.
-apply: (continuousM (s := fun v : 'rV[R]_n => v 0 i * A i j) (t := fun v => v 0 j)).
-  apply: (continuousM (s := fun v : 'rV[R]_n => v 0 i) (t := fun=> A i j)).
-    exact: coord_continuous.
-  exact: cst_continuous.
-exact: coord_continuous.
+apply: (@continuous_big R^o _ +%R 0 xpredT (@add_continuous R^o) _ _
+  (fun j (w : 'rV[R]_n) => \sum_i w 0 i * A i j * w 0 j)) => j _.
+apply: (@continuous_big R^o _ +%R 0 xpredT (@add_continuous R^o) _ _
+  (fun i (w : 'rV[R]_n) => w 0 i * A i j * w 0 j)) => i _ w.
+apply: (continuousM (s := fun v : 'rV[R]_n => v 0 i * A i j)
+  (t := fun v => v 0 j)); last exact: coord_continuous.
+apply: (continuousM (s := fun v : 'rV[R]_n => v 0 i) (t := fun=> A i j)).
+  exact: coord_continuous.
+exact: cst_continuous.
 Qed.
 
 Lemma continuous_mxdot n : continuous (fun w : 'rV[R]_n => mxdot w w).
 Proof.
-have -> : (fun w : 'rV[R]_n => mxdot w w) =
-    (fun w => (w *m 1%:M *m w^T) 0 0) by apply/funext => w; rewrite mulmx1 mxdot_rowE.
+have -> : (fun w : 'rV[R]_n => mxdot w w) = (fun w => (w *m 1%:M *m w^T) 0 0).
+  by apply/funext => w; rewrite mulmx1 mxdot_rowE.
 exact: continuous_form.
 Qed.
 
@@ -113,14 +136,14 @@ Proof.
 apply: bounded_closed_compact.
   exists 1; split; first exact: num_real.
   move=> M M1 w /= ww1; apply: le_trans (ltW M1).
-  rewrite [leLHS]/Num.Def.normr /= mx_normrE; apply/bigmax_leP; split => // ij _.
-  by rewrite -[1]sqrtr1 -ww1 -/(frobenius w) frobenius_entry.
+  rewrite [leLHS]/Num.Def.normr /= (le_trans (mx_norm_le_frobenius w)) //.
+  by rewrite /frobenius ww1 sqrtr1.
 apply: (@preimage_closed _ _ (fun w : 'rV[R]_n => mxdot w w) [set 1]).
   by move=> x _; exact: continuous_mxdot.
 exact: closed_eq.
 Qed.
 
-End continuity.
+End topology.
 
 Section householder.
 Variable R : realFieldType.
@@ -177,7 +200,9 @@ Variable R : realType.
 Implicit Types n : nat.
 
 Lemma householderN n (w : 'cV[R]_n) : householder (- w) = householder w.
-Proof. by rewrite /householder mxdotNl mxdotNr opprK linearN /= mulNmx mulmxN opprK. Qed.
+Proof.
+by rewrite /householder mxdotNl mxdotNr opprK linearN /= mulNmx mulmxN opprK.
+Qed.
 
 Lemma mxdot_mulmx_sym n (M : 'M[R]_n) (x y : 'cV[R]_n) :
   M \is symmetricmx -> mxdot (M *m x) y = mxdot x (M *m y).
@@ -195,12 +220,15 @@ have line t : 0 <= t * b *+ 2 + t ^+ 2 * c.
   have := Mpsd (v + t *: x).
   rewrite mulmxDr -!scalemxAr !mxdotDl !mxdotDr !mxdotZl !mxdotZr.
   rewrite v0 -[mxdot v (M *m x)]mxdot_mulmx_sym // -/x -/b -/c.
-  by have -> : 0 + t * b + (t * b + t * (t * c)) = t * b *+ 2 + t ^+ 2 * c by ring.
+  have -> : 0 + t * b + (t * b + t * (t * c)) = t * b *+ 2 + t ^+ 2 * c.
+    by ring.
+  by [].
 have c1 : c + 1 != 0 by rewrite lt0r_neq0 // ltr_wpDl.
 have := line (- (b / (c + 1))).
 have -> : - (b / (c + 1)) * b *+ 2 + (- (b / (c + 1))) ^+ 2 * c =
     - (b ^+ 2 * (c + 2) / (c + 1) ^+ 2) by field.
-rewrite oppr_ge0 pmulr_lle0 ?invr_gt0 ?exprn_gt0 ?ltr_wpDl // pmulr_lle0 ?ltr_wpDl //.
+rewrite oppr_ge0 pmulr_lle0 ?invr_gt0 ?exprn_gt0 ?ltr_wpDl //.
+rewrite pmulr_lle0 ?ltr_wpDl //.
 move=> b2; have /eqP : b ^+ 2 = 0 by apply/eqP; rewrite eq_le b2 sqr_ge0.
 by rewrite sqrf_eq0 mxdot_eq0 => /eqP.
 Qed.
@@ -210,8 +238,10 @@ Lemma rayleigh_max n (A : 'M[R]_n.+1) :
     forall x : 'cV[R]_n.+1, mxdot x (A *m x) <= mxdot v (A *m v) * mxdot x x.
 Proof.
 set S := [set w : 'rV[R]_n.+1 | mxdot w w = 1].
-have S0 : S !=set0 by exists (delta_mx 0 0); rewrite /S /= mxdot_delta mxE !eqxx.
-have f_cont : {within S, continuous (fun w : 'rV[R]_n.+1 => (w *m A *m w^T) 0 0)}.
+have S0 : S !=set0.
+  by exists (delta_mx 0 0); rewrite /S /= mxdot_delta mxE !eqxx.
+have f_cont :
+    {within S, continuous (fun w : 'rV[R]_n.+1 => (w *m A *m w^T) 0 0)}.
   exact/continuous_subspaceT/continuous_form.
 have [w wS wmax] := EVT_max_rV S0 (@compact_unit_sphere R n.+1) f_cont.
 have formE (t : 'rV[R]_n.+1) : (t *m A *m t^T) 0 0 = mxdot t^T (A *m t^T).
@@ -262,7 +292,7 @@ rewrite -{1}MB Mur Mdl scaler0; congr block_mx.
 by rewrite Mul -mul_mx_scalar mul1mx.
 Qed.
 
-Theorem symmetric_spectral n (A : 'M[R]_n) : A \is symmetricmx ->
+Lemma symmetric_spectral n (A : 'M[R]_n) : A \is symmetricmx ->
   exists2 P : 'M[R]_n, P \is orthogonalmx &
     exists d : 'rV[R]_n, A = P^T *m diag_mx d *m P.
 Proof.
@@ -272,7 +302,8 @@ elim: n A => [|k IH] A Asym.
 have [v v1 Av] := symmetric_eigenvector Asym; set l := mxdot v (A *m v) in Av.
 pose e : 'cV[R]_(1 + k) := col_mx 1%:M 0.
 have e1 : mxdot e e = 1.
-  by rewrite mxdot_colE /e tr_col_mx mul_row_col trmx1 mulmx1 trmx0 mul0mx addr0 mxE.
+  rewrite mxdot_colE /e tr_col_mx mul_row_col trmx1 mulmx1 trmx0 mul0mx.
+  by rewrite addr0 mxE.
 pose H : 'M[R]_(1 + k) := householder (v - e).
 have Hv : H *m v = e by apply: householder_swap; rewrite v1 e1.
 have He : H *m e = v.
@@ -312,7 +343,8 @@ Lemma spectral_eigenvector n (A P : 'M[R]_n) (d : 'rV[R]_n) i :
   A *m (row i P)^T = d 0 i *: (row i P)^T.
 Proof.
 move=> /orthogonalmxP PP ->.
-have Pu : P *m (row i P)^T = delta_mx i 0 by rewrite tr_row colE mulmxA PP mul1mx.
+have Pu : P *m (row i P)^T = delta_mx i 0.
+  by rewrite tr_row colE mulmxA PP mul1mx.
 have De : diag_mx d *m (delta_mx i 0 : 'cV[R]_n) = d 0 i *: delta_mx i 0.
   apply/matrixP => j k; rewrite mul_diag_mx !mxE.
   by have [->|] := eqVneq j i; rewrite ?mulr1 ?mulr0.
@@ -335,14 +367,17 @@ by rewrite mxtrace_mulC mulmxA PP mul1mx mxtrace_diag.
 Qed.
 
 Lemma spectral_mxdot n (A P : 'M[R]_n) (d : 'rV[R]_n) :
-  P \is orthogonalmx -> A = P^T *m diag_mx d *m P -> mxdot A A = \sum_i d 0 i ^+ 2.
+  P \is orthogonalmx -> A = P^T *m diag_mx d *m P ->
+  mxdot A A = \sum_i d 0 i ^+ 2.
 Proof.
-move=> Po ->; rewrite mxdot_orthogonalmxr // mxdot_orthogonalmxl ?trmx_orthogonal //.
+move=> Po ->; rewrite mxdot_orthogonalmxr //.
+rewrite mxdot_orthogonalmxl ?trmx_orthogonal //.
 by rewrite mxdot_diag; apply: eq_bigr => i _; rewrite expr2.
 Qed.
 
 Lemma spectral_form n (A P : 'M[R]_n) (d : 'rV[R]_n) (x : 'cV[R]_n) :
-  A = P^T *m diag_mx d *m P -> mxdot x (A *m x) = \sum_i d 0 i * (P *m x) i 0 ^+ 2.
+  A = P^T *m diag_mx d *m P ->
+  mxdot x (A *m x) = \sum_i d 0 i * (P *m x) i 0 ^+ 2.
 Proof.
 move=> ->; rewrite -!mulmxA mxdotC mxdot_mulmxl trmxK /mxdot.
 by apply: eq_bigr => i _; rewrite big_ord1 mul_diag_mx mxE expr2 mulrA.
@@ -350,7 +385,8 @@ Qed.
 
 Lemma spectral_form_le n (A P : 'M[R]_n) (d : 'rV[R]_n) (b : R) :
   P \is orthogonalmx -> A = P^T *m diag_mx d *m P ->
-  (forall x : 'cV[R]_n, mxdot x (A *m x) <= b * mxdot x x) <-> (forall i, d 0 i <= b).
+  (forall x : 'cV[R]_n, mxdot x (A *m x) <= b * mxdot x x) <->
+  (forall i, d 0 i <= b).
 Proof.
 move=> Po AE; split => [Hb i|Hd x].
   have := Hb (row i P)^T; rewrite (spectral_eigenvector _ Po AE) mxdotZr.
@@ -361,7 +397,8 @@ Qed.
 
 Lemma spectral_form_ge n (A P : 'M[R]_n) (d : 'rV[R]_n) (b : R) :
   P \is orthogonalmx -> A = P^T *m diag_mx d *m P ->
-  (forall x : 'cV[R]_n, b * mxdot x x <= mxdot x (A *m x)) <-> (forall i, b <= d 0 i).
+  (forall x : 'cV[R]_n, b * mxdot x x <= mxdot x (A *m x)) <->
+  (forall i, b <= d 0 i).
 Proof.
 move=> Po AE; split => [Hb i|Hd x].
   have := Hb (row i P)^T; rewrite (spectral_eigenvector _ Po AE) mxdotZr.
@@ -391,15 +428,9 @@ split=> [H i|H].
     by apply: le_trans (H x); rewrite -normrN ler_norm.
   by apply: (proj1 le) i => x; exact: le_trans (ler_norm _) (H x).
 move=> x; rewrite ler_norml; apply/andP; split.
-  by rewrite -mulNr; apply: (proj2 ge) => i; rewrite lerNl; have /ler_normlP[] := H i.
+  rewrite -mulNr; apply: (proj2 ge) => i; rewrite lerNl.
+  by have /ler_normlP[] := H i.
 by apply: (proj2 le) => i; have /ler_normlP[] := H i.
-Qed.
-
-Lemma diag_mx_mul n (a b : 'rV[R]_n) :
-  diag_mx a *m diag_mx b = diag_mx (\row_i (a 0 i * b 0 i)).
-Proof.
-apply/matrixP => i j; rewrite mul_diag_mx !mxE.
-by have [->|ij] := eqVneq i j; rewrite ?mulr1n ?mulr0n ?mulr0.
 Qed.
 
 Lemma spectral_exp n (A P : 'M[R]_n) (d : 'rV[R]_n) k :
@@ -410,7 +441,7 @@ move=> Po AE; elim: k => [|k IH].
   rewrite expr0 (_ : diag_mx _ = 1%:M) ?mulmx1 ?orthogonalmxT //.
   by apply/matrixP => i j; rewrite !mxE expr0.
 rewrite exprSr IH -mulmxE AE !mulmxA -(mulmxA _ P) (orthogonalmxP _ Po) mulmx1.
-rewrite -(mulmxA _ (diag_mx _)) diag_mx_mul.
+rewrite -(mulmxA _ (diag_mx _)) mulmx_diag.
 by congr (_ *m diag_mx _ *m _); apply/rowP => i; rewrite !mxE exprSr.
 Qed.
 
@@ -420,19 +451,26 @@ Lemma ex_sym_spectral n (A : 'M[R]_n) : exists Pd : 'M[R]_n * 'rV[R]_n,
   (Pd.1 \is orthogonalmx) &&
   ((A \is symmetricmx) ==> (A == Pd.1^T *m diag_mx Pd.2 *m Pd.1)).
 Proof.
-have [Asym|] := boolP (A \is symmetricmx); last by exists (1%:M, 0); rewrite orthogonalmx1.
-by have [P Po [d AE]] := symmetric_spectral Asym; exists (P, d); rewrite Po AE eqxx.
+have [Asym|] := boolP (A \is symmetricmx); last first.
+  by exists (1%:M, 0); rewrite orthogonalmx1.
+have [P Po [d AE]] := symmetric_spectral Asym.
+by exists (P, d); rewrite Po AE eqxx.
 Qed.
 
-Definition sym_spectralmx n (A : 'M[R]_n) : 'M[R]_n := (xchoose (ex_sym_spectral A)).1.
+Definition sym_spectralmx n (A : 'M[R]_n) : 'M[R]_n :=
+  (xchoose (ex_sym_spectral A)).1.
 Definition sym_spectral_diag n (A : 'M[R]_n) : 'rV[R]_n :=
   (xchoose (ex_sym_spectral A)).2.
 
-Lemma sym_spectralmx_orthogonal n (A : 'M[R]_n) : sym_spectralmx A \is orthogonalmx.
+Lemma sym_spectralmx_orthogonal n (A : 'M[R]_n) :
+  sym_spectralmx A \is orthogonalmx.
 Proof. by have /andP[] := xchooseP (ex_sym_spectral A). Qed.
 
 Lemma sym_spectralE n (A : 'M[R]_n) : A \is symmetricmx ->
   A = (sym_spectralmx A)^T *m diag_mx (sym_spectral_diag A) *m sym_spectralmx A.
-Proof. by move=> Asym; have /andP[_ /implyP/(_ Asym)/eqP] := xchooseP (ex_sym_spectral A). Qed.
+Proof.
+move=> Asym.
+by have /andP[_ /implyP/(_ Asym)/eqP] := xchooseP (ex_sym_spectral A).
+Qed.
 
 End spectral_consequences.
