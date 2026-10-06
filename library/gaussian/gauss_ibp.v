@@ -63,6 +63,20 @@ Qed.
 
 End integral_nondecreasing_set.
 
+(* A finite sum of continuous functions is continuous. *)
+Section continuous_sum.
+Context {K : numFieldType} {V : normedModType K} {T : topologicalType}.
+
+Lemma continuous_sum (I : Type) (s : seq I) (f : I -> T -> V) :
+  (forall i, continuous (f i)) -> continuous (fun x => \sum_(i <- s) f i x).
+Proof.
+move=> cf x; elim: s => [|i s IH].
+  by under eq_fun do rewrite big_nil; exact: cvg_cst.
+by under eq_fun do rewrite big_cons; exact: (continuousD (cf i x) IH).
+Qed.
+
+End continuous_sum.
+
 Section normal_ibp.
 Context {R : realType}.
 Local Notation N := (@normal_prob R 0 1).
