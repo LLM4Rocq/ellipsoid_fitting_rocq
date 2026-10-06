@@ -2,7 +2,6 @@ From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.
 From EllipsoidFitting Require Import Analysis.CoordinateContinuityDefinitions
   Gaussian.Coordinate.Tuples.
-From EllipsoidFitting Require Import Analysis.BoxCompactness.
 Import ListNotations.
 Open Scope R_scope.
 
@@ -11,10 +10,7 @@ Open Scope R_scope.
    holds the y with close_n d e y x: each coordinate of y is within e of
    that of x. finite_joint_continuous d F says exactly that
    w |-> F (coordinates_to_list d w) is continuous on this space
-   (finite_joint_continuous_filter). A jointly continuous F is uniformly
-   continuous on every box (finite_joint_uniform_box), hence on the lists of
-   length d with coordinates bounded by R (finite_joint_uniform_list_box).
-   Constants are jointly continuous, joint continuity is preserved by
+   (finite_joint_continuous_filter). Constants are jointly continuous, joint continuity is preserved by
    equality on the lists of length d, by absolute values and by fixing a
    prefix of the coordinates, and it gives continuous sections in the last
    coordinate (finite_joint_continuous_last_section).
@@ -86,36 +82,6 @@ split.
   exists (mkposreal delta (elimT RltP delta0)) => w Hw; exact: Hd w Hw.
 Qed.
 
-(* The proof applies compactness_value_gauge to the gauge "every point
-   within 2 e of t has a value within eps / 2 of the value at t". *)
-Theorem finite_joint_uniform_box d F (a b : Tn d R) :
-  finite_joint_continuous d F -> forall eps : posreal, exists delta : posreal,
-  forall z w, bounded_n d a b z -> bounded_n d a b w ->
-    close_n d delta w z ->
-    Rabs (F (coordinates_to_list d w) - F (coordinates_to_list d z)) < eps.
-Proof.
-  intros HF eps.
-  destruct (compactness_value_gauge d a b
-    (fun t e => forall w, close_n d (2 * e) w t ->
-      Rabs (F (coordinates_to_list d w) - F (coordinates_to_list d t)) < eps / 2))
-    as [delta [Hdelta Hcov]].
-  { intro t.
-    assert (He2 : 0 < eps / 2) by (pose proof (cond_pos eps); lra).
-    destruct (HF t (mkposreal _ He2)) as [r Hr].
-    exists (r / 2). split; [pose proof (cond_pos r); lra|].
-    intros w Hw. apply Hr. replace (pos r) with (2 * (r / 2)) by field. exact Hw. }
-  exists (mkposreal delta Hdelta). intros z w Hz Hw Hclose. simpl in Hclose.
-  destruct (Hcov z Hz) as [t [e [Ht [HGt [Hzt Hde]]]]].
-  assert (Hwt : close_n d (2 * e) w t).
-  { apply (coordinates_close_mono d (delta + e)); [lra|].
-    eapply coordinates_close_triangle; [exact Hclose|exact Hzt]. }
-  assert (Hzt' : close_n d (2 * e) z t).
-  { apply (coordinates_close_mono d e); [lra|exact Hzt]. }
-  pose proof (HGt w Hwt) as Hrw. pose proof (HGt z Hzt') as Hrz.
-  apply Rabs_def2 in Hrw. apply Rabs_def2 in Hrz.
-  apply Rabs_def1; lra.
-Qed.
-
 Lemma finite_joint_continuous_ext d (F G : list R -> R) :
   (forall xs, length xs = d -> F xs = G xs) ->
   finite_joint_continuous d F -> finite_joint_continuous d G.
@@ -162,37 +128,6 @@ Proof.
   - destruct xs as [|u xs], ys as [|v ys]; try discriminate.
     simpl in Hx, Hy, Hclose |- *; destruct Hclose as [H0 Htail]; split; [exact H0|].
     apply IH; try assumption; lia.
-Qed.
-Lemma coordinates_bounded_repeat d R xs :
-  length xs = d -> (forall x, In x xs -> Rabs x <= R) ->
-  bounded_n d (coordinates_of_list d (repeat (-R) d))
-    (coordinates_of_list d (repeat R d)) (coordinates_of_list d xs).
-Proof.
-  revert xs; induction d as [|d IH]; intros xs Hlen Hbox; [exact I|].
-  destruct xs as [|x xs]; [discriminate|]; simpl in Hlen |- *; split.
-  - pose proof (Hbox x (or_introl Logic.eq_refl)) as Hx.
-    pose proof (Rle_abs x) as Hhi; pose proof (Rle_abs (-x)) as Hlo; rewrite Rabs_Ropp in Hlo; lra.
-  - apply IH; [lia|]. intros y Hy; apply Hbox; right; exact Hy.
-Qed.
-
-Theorem finite_joint_uniform_list_box d (F : list R -> R) R :
-  finite_joint_continuous d F -> forall eps : posreal, exists delta : posreal,
-  forall xs ys, length xs = d -> length ys = d ->
-    (forall x, In x xs -> Rabs x <= R) ->
-    (forall y, In y ys -> Rabs y <= R) ->
-    close_n d delta (coordinates_of_list d ys) (coordinates_of_list d xs) ->
-    Rabs (F ys-F xs) < eps.
-Proof.
-  intros HF eps.
-  destruct (finite_joint_uniform_box d F
-    (coordinates_of_list d (repeat (-R) d)) (coordinates_of_list d (repeat R d)) HF eps)
-    as [delta Hd].
-  exists delta; intros xs ys Hx Hy Hbx Hby Hclose.
-  specialize (Hd (coordinates_of_list d xs) (coordinates_of_list d ys)
-    (coordinates_bounded_repeat d R xs Hx Hbx)
-    (coordinates_bounded_repeat d R ys Hy Hby) Hclose).
-  rewrite (coordinates_list_roundtrip d xs Hx) (coordinates_list_roundtrip d ys Hy) in Hd.
-  exact Hd.
 Qed.
 
 Lemma finite_joint_continuous_prefix d prefix (F : list R -> R) :

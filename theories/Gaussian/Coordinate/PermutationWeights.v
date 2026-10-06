@@ -9,8 +9,7 @@ Open Scope R_scope.
    (1 + Rabs x) ^ p over the coordinates x of xs, does not change when xs is
    permuted (gaussian_coordinate_product_weight_permutation). So the
    polynomial bound finite_polynomial_bound is preserved when the
-   coordinates are permuted (finite_polynomial_bound_permutation), in
-   particular by swap_adjacent and move_coordinate_last. *)
+   coordinates are permuted (finite_polynomial_bound_permutation). *)
 
 Lemma gaussian_coordinate_product_weight_permutation p xs ys :
   Permutation xs ys ->
@@ -33,18 +32,4 @@ Proof.
   pose proof (HT xs HL) as HP.
   specialize (HB (transform xs) ltac:(rewrite (Permutation_length HP); exact HL)).
   rewrite (gaussian_coordinate_product_weight_permutation p _ _ HP) in HB; exact HB.
-Qed.
-
-Lemma finite_polynomial_bound_swap_adjacent d C p F i :
-  finite_polynomial_bound d C p F ->
-  finite_polynomial_bound d C p (fun xs => F (swap_adjacent i xs)).
-Proof.
-  apply finite_polynomial_bound_permutation; intros xs HL; apply swap_adjacent_permutation.
-Qed.
-
-Lemma finite_polynomial_bound_move_last d C p F i :
-  finite_polynomial_bound d C p F ->
-  finite_polynomial_bound d C p (fun xs => F (move_coordinate_last i xs)).
-Proof.
-  apply finite_polynomial_bound_permutation; intros xs HL; apply move_coordinate_last_permutation.
 Qed.

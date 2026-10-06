@@ -428,28 +428,6 @@ split.
   by apply/nbhs_Reals; exists d; split=> // y /Hd /HA.
 Qed.
 
-Lemma cvg_Reals_pinfty (f : R -> R) (l : R) :
-  (f x @[x --> +oo%R] --> l)%classic <->
-  (forall eps, 0 < eps -> exists M, forall x, M < x -> Rabs (f x - l) < eps).
-Proof.
-split.
-- move=> H eps eps0.
-  have Hl : nbhs l (fun z => Rabs (z - l) < eps) by apply/nbhs_Reals; exists eps.
-  have [M [_ HM]] : exists M : R, M \is Num.real /\
-      forall x, (M < x)%R -> Rabs (f x - l) < eps := H _ Hl.
-  by exists M => x /RltP /HM.
-- move=> H A /nbhs_Reals [eps [eps0 HA]].
-  have [M HM] := H eps eps0.
-  suff : exists M : R, M \is Num.real /\ forall x, (M < x)%R -> A (f x) by [].
-  by exists M; split; [exact: num_real | move=> x /RltP /HM /HA].
-Qed.
-
-Lemma is_lim_exp_m : (exp x @[x --> -oo%R] --> 0)%classic.
-Proof.
-have -> : exp = expR by apply/funext => x; exact: RexpE.
-by apply/cvgNy_compNP; exact: cvgr_expR.
-Qed.
-
 Lemma continuous_Reals (f : R -> R) (x : R) :
   {for x, continuous f} <->
   (forall eps, 0 < eps -> exists delta, 0 < delta /\

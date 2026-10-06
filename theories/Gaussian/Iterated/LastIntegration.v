@@ -4,10 +4,10 @@
    (gaussian_iterated_last_expectation), and the expectation over d + n
    coordinates is the expectation over d coordinates of the suffix marginal
    over n coordinates (gaussian_iterated_suffix_expectation). Iterated
-   integrability over d + 1 (or d + n) coordinates is equivalent to the
-   integrability of every section in the last coordinate (or in the last n
-   coordinates) together with the iterated integrability of the marginal
-   (gaussian_iterated_last_integrable, gaussian_iterated_suffix_integrable).
+   integrability over d + n coordinates is equivalent to the integrability
+   of every section in the last n coordinates together with the iterated
+   integrability of the suffix marginal
+   (gaussian_iterated_suffix_integrable).
    Finally, if F and G are integrable and Rabs F <= G, then the expectation
    of G bounds the absolute value of that of F
    (gaussian_iterated_majorant_bound). *)
@@ -31,39 +31,6 @@ Proof.
       gaussian_iterated_expectation d (fun xs => gaussian_last_marginal F (x::xs)))).
     apply (f_equal gaussian_expectation); apply functional_extensionality; intro x.
     exact (IH (fun ys => F (x::ys))).
-Qed.
-
-Theorem gaussian_iterated_last_integrable d F :
-  gaussian_iterated_integrable (S d) F <->
-  (forall xs, length xs = d ->
-    gaussian_integral_exists (fun t => F (xs ++ [t]))) /\
-  gaussian_iterated_integrable d (gaussian_last_marginal F).
-Proof.
-  revert F; induction d as [|d IH]; intro F.
-  - simpl. split.
-    + intros [_ Ho]; split; [|exact I].
-      intros xs Hxs; destruct xs; [exact Ho|discriminate].
-    + intros [Hs _]; split; [intro x; exact I|exact (Hs [] eq_refl)].
-  - split.
-    + intros [Hs Ho]; split.
-      * intros xs Hxs; destruct xs as [|x xs]; [discriminate|].
-        apply (proj1 (proj1 (IH (fun ys => F (x::ys))) (Hs x))).
-        simpl in Hxs; lia.
-      * split.
-        -- intro x; exact (proj2 (proj1 (IH (fun ys => F (x::ys))) (Hs x))).
-        -- apply gaussian_integral_exists_ext with
-             (f := fun x => gaussian_iterated_expectation (S d) (fun ys => F (x::ys))).
-           ++ intro x; apply gaussian_iterated_last_expectation.
-           ++ exact Ho.
-    + intros [Hsections [Hs Ho]]; split.
-      * intro x; apply (proj2 (IH (fun ys => F (x::ys)))); split.
-        -- intros xs Hxs; apply (Hsections (x::xs)); simpl; now rewrite Hxs.
-        -- exact (Hs x).
-      * apply gaussian_integral_exists_ext with
-          (f := fun x => gaussian_iterated_expectation d
-             (fun xs => gaussian_last_marginal F (x::xs))).
-        -- intro x; symmetry; apply gaussian_iterated_last_expectation.
-        -- exact Ho.
 Qed.
 
 Theorem gaussian_iterated_suffix_expectation d n F :

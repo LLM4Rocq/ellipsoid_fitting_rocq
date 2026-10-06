@@ -8,8 +8,9 @@ Open Scope R_scope.
 (* Joint continuity of functions of a list of coordinates is preserved by
    rearranging the coordinates. finite_joint_continuous_list_map: composing
    with a map of lists that keeps lengths and coordinatewise closeness keeps
-   joint continuity. Its instances are swap_adjacent, move_coordinate_last,
-   and fixing a prefix or a suffix of the list. coordinates_close_forall2
+   joint continuity. Its instances are fixing a prefix or a suffix of the
+   list (finite_joint_continuous_prefix, finite_joint_continuous_suffix).
+   coordinates_close_forall2
    states closeness of two points as closeness of their coordinate lists. *)
 
 Lemma coordinates_close_forall2 d e (z w : Tn d R) :
@@ -55,24 +56,6 @@ Proof.
     apply coordinates_close_forall2; exact Hclose. }
   specialize (HD _ Htrans).
   rewrite !coordinates_list_roundtrip in HD by assumption; exact HD.
-Qed.
-
-Lemma finite_joint_continuous_swap_adjacent d i F :
-  finite_joint_continuous d F ->
-  finite_joint_continuous d (fun xs => F (swap_adjacent i xs)).
-Proof.
-  apply finite_joint_continuous_list_map.
-  - intros xs HL; rewrite swap_adjacent_length; exact HL.
-  - intros e xs ys Hx Hy H; apply swap_adjacent_forall2, H.
-Qed.
-
-Lemma finite_joint_continuous_move_last d i F :
-  finite_joint_continuous d F ->
-  finite_joint_continuous d (fun xs => F (move_coordinate_last i xs)).
-Proof.
-  apply finite_joint_continuous_list_map.
-  - intros xs HL; rewrite move_coordinate_last_length; exact HL.
-  - intros e xs ys Hx Hy H; apply move_coordinate_last_forall2, H.
 Qed.
 
 Lemma finite_joint_continuous_prefix d prefix F :

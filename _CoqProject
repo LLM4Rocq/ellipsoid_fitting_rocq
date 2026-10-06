@@ -32,10 +32,8 @@ library/comparison/gordon.v
 library/comparison/escape.v
 library/comparison/gauss_law.v
 
-theories/Analysis/BoxCompactness.v
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
-theories/Analysis/CoordinateBoxes.v
 theories/Analysis/CoordinateChainRule.v
 theories/Analysis/CoordinateContinuityDefinitions.v
 theories/Analysis/CoordinatePermutationContinuity.v
@@ -44,15 +42,10 @@ theories/Analysis/CoordinatePermutations.v
 theories/Analysis/CoordinateTopology.v
 theories/Analysis/FiniteSumAlgebra.v
 theories/Analysis/FrechetUniqueness.v
-theories/Analysis/LineIntegralCutoff.v
-theories/Analysis/ParameterIntegrals.v
 theories/Analysis/RealsBridge.v
-theories/Analysis/RectangleFubini.v
-theories/Analysis/SegmentIntegralBounds.v
 theories/Analysis/TaylorRemainder.v
 theories/Analysis/UnitIntervalComparison.v
 theories/Analysis/VectorPartialDerivatives.v
-theories/Analysis/WholeLineDomination.v
 theories/AnalysisIntegralDefinitions.v
 theories/Asymptotics.v
 theories/Balanced/Law.v
@@ -136,14 +129,11 @@ theories/Gaussian/Sample/ConditionalException.v
 theories/Gaussian/Coordinate/DerivativeDefinitions.v
 theories/Gaussian/Coordinate/ProductDerivative.v
 theories/Gaussian/Iterated/PolynomialGrowth.v
-theories/Gaussian/Iterated/CutoffMarginal.v
 theories/Gaussian/Coordinate/PolynomialContinuity.v
 theories/Gaussian/Iterated/PolynomialDomain.v
 theories/Gaussian/Iterated/Stein.v
-theories/Gaussian/Iterated/MoveLast.v
 theories/Gaussian/Iterated/SuffixAlgebra.v
 theories/Gaussian/Iterated/SuffixRegularity.v
-theories/Gaussian/Iterated/HeadSwap.v
 theories/Gaussian/Coordinate/Tuples.v
 theories/Gaussian/Coordinate/WeightDefinitions.v
 theories/Gaussian/Coordinate/Weights.v
@@ -154,9 +144,6 @@ theories/Gaussian/Covariance/LinearImages.v
 theories/Gaussian/Orthogonal/IdentityLoading.v
 theories/Gaussian/Covariance/PathDomains.v
 theories/Gaussian/Covariance/PathEndpoints.v
-theories/Gaussian/Line/Cutoff.v
-theories/Gaussian/Line/CutoffBounds.v
-theories/Gaussian/Line/CutoffDefinitions.v
 theories/Gaussian/Sample/Radius.v
 theories/Gaussian/Sample/RadiusLimit.v
 theories/Gaussian/Symmetric/DimensionBounds.v
@@ -176,7 +163,6 @@ theories/Gaussian/Iterated/Expectation.v
 theories/Gaussian/Iterated/Definitions.v
 theories/Gaussian/Symmetric/JointWidth.v
 theories/Gaussian/Line/Kernel.v
-theories/Gaussian/Line/KernelDecay.v
 theories/Gaussian/Iterated/LastIntegration.v
 theories/Gaussian/Law/LibraryBridge.v
 theories/Gaussian/Tail/LinearMeasurable.v
@@ -216,7 +202,6 @@ theories/Gaussian/Symmetric/DimensionReal.v
 theories/Gaussian/Symmetric/PublicFeature.v
 theories/Gaussian/Line/QuadraticMGF.v
 theories/Gaussian/Orthogonal/HansonWright.v
-theories/Gaussian/Line/CutoffDifference.v
 theories/Gaussian/Sample/ResidualTail.v
 theories/Gaussian/Sample/ResidualJoint.v
 theories/Gaussian/Sample/ResidualRows.v
@@ -229,8 +214,6 @@ theories/Gaussian/Smooth/Test.v
 theories/Gaussian/Smooth/Law.v
 theories/Gaussian/Smooth/Centered.v
 theories/Gaussian/Spanning/AlmostSure.v
-theories/Gaussian/Line/SteinIdentity.v
-theories/Gaussian/Line/SteinPolynomial.v
 theories/Gaussian/Iterated/SuffixMarginalDefinitions.v
 theories/Gaussian/Symmetric/Law.v
 theories/Gaussian/Symmetric/PublicLaw.v

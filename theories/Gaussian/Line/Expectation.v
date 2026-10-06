@@ -4,14 +4,11 @@
    gaussian_integral_exists f is the integrability alone. The module
    proves the uniqueness of the value, rules for scaling, sums and
    constants (gaussian_expectation_of_constant: the expectation of c is c),
-   and gaussian_expectation_nonnegative, gaussian_expectation_monotone and
-   gaussian_expectation_absolute_bound, |E f| <= E |f|. The hypothesis
-   gaussian_absolutely_integrable f of the last one is not used: it
-   follows from gaussian_integral_exists f.
+   and gaussian_expectation_nonnegative and gaussian_expectation_monotone.
 
    Each rule is the corresponding rule of MathComp-Analysis for the
    Lebesgue integral (integrableZl, integrableD, RintegralZl, RintegralD,
-   Rintegral_ge0, le_Rintegral, le_normr_Rintegral), applied to
+   Rintegral_ge0, le_Rintegral), applied to
    x |-> f x * gaussian_kernel x; the constants use the integrability of
    the kernel and the positivity of its mass (Gaussian.Line.Mass). *)
 
@@ -120,18 +117,4 @@ move=> Hf Hg Hfg; have HM := gaussian_mass_positive.
 apply: Rmult_le_compat_r; first exact: Rlt_le (Rinv_0_lt_compat _ HM).
 apply/RleP; apply: le_Rintegral => // x _; apply/RleP.
 apply: Rmult_le_compat_r; [exact: Rlt_le (gaussian_kernel_positive x) | exact: Hfg].
-Qed.
-
-Theorem gaussian_expectation_absolute_bound f :
-  gaussian_integral_exists f -> gaussian_absolutely_integrable f ->
-  Rabs (gaussian_expectation f) <= gaussian_expectation (fun x => Rabs (f x)).
-Proof.
-move=> Hf _; have HM := gaussian_mass_positive.
-rewrite /gaussian_expectation (Rabs_div _ _ (Rgt_not_eq _ _ HM)).
-rewrite (Rabs_pos_eq gaussian_mass (Rlt_le _ _ HM)).
-apply: Rmult_le_compat_r; first exact: Rlt_le (Rinv_0_lt_compat _ HM).
-rewrite /gaussian_integral /whole_line_integral.
-have := le_normr_Rintegral measurableT Hf; rewrite -RabsE => /RleP /Rle_trans; apply.
-right; apply: eq_Rintegral => x _ /=.
-by rewrite -RabsE Rabs_mult (Rabs_pos_eq _ (Rlt_le _ _ (gaussian_kernel_positive x))).
 Qed.

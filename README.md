@@ -99,7 +99,7 @@ generated`), whose code cannot change. The other modules print none.
 
 ## Layout
 
-- `theories/`: 605 modules under the logical root `EllipsoidFitting`. The
+- `theories/`: 588 modules under the logical root `EllipsoidFitting`. The
   statement (`MainStatement.v`), the theorem (`MainTheorem.v`), the five
   definition modules of the statement, the top of the proof
   (`PaperMainResults.v`, `PaperMainFinalAssembly.v`,
@@ -129,8 +129,7 @@ generated`), whose code cannot change. The other modules print none.
 - `scripts/unused.py`: lists the declarations of `theories/` that the main
   theorem does not use, from the `.glob` files of a build, and can delete
   them. Its docstring says how it decides. On the current tree it lists
-  111 declarations in 27 modules, left without users when the proof started
-  to use the library; 17 of these modules have no user at all.
+  nothing.
 - `scripts/stale_citations.py`: lists the names that the comments of
   `theories/` and `library/` cite but that no declaration defines, from
   the `.glob` files of a build and of the installed libraries. `make
@@ -192,15 +191,20 @@ done, and the second is done in part.
 2. The proof of the paper uses these results at Stdlib's `R` in its
    modules on the comparison inequalities, the spectral theorem, the
    operator norms, the nets, the Paley-Zygmund inequality and the Lindeberg
-   method, and, through `Gaussian/Law/LibraryBridge`, in its modules on the
+   method; in its modules on the Gaussian integral on the line, whose
+   kernel is the density of the normal law of MathComp-Analysis up to a
+   constant (`Gaussian/Line/Kernel`, `Gaussian/Line/Mass`,
+   `Gaussian/Line/Moments`, `Gaussian/Line/Expectation`,
+   `Gaussian/Line/PolynomialIntegrability`, `Gaussian/Line/QuadraticMGF`);
+   and, through `Gaussian/Law/LibraryBridge`, in its modules on the
    iterated Gaussian expectation: the coordinate Stein identities, the
    exchange and the rotation of coordinates, the integrability at every
    level of a continuous function of polynomial growth and the continuity
-   of its marginals (`Gaussian/Iterated/Stein`, `Gaussian/Iterated/HeadSwap`,
-   `Gaussian/Iterated/BlockRotation`, `Gaussian/Iterated/PolynomialGrowth`,
-   `Gaussian/Line/QuadraticMGF`). What it no longer needed is deleted:
-   `theories/` had 632 modules and 102,415 lines at the tag `phase1`, and
-   has 605 modules and 89,109 lines now. The library has 26 files and
+   of its marginals (`Gaussian/Iterated/Stein`,
+   `Gaussian/Iterated/BlockRotation`, `Gaussian/Iterated/PolynomialGrowth`).
+   What it no longer needed is deleted: `theories/` had 632 modules and
+   102,415 lines at the tag `phase1`, and has 588 modules and
+   86,430 lines now. The library has 26 files and
    11,097 lines.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
@@ -210,25 +214,21 @@ What remains:
 - No human has reviewed the statements of the library yet. The table of
   main results in `library/README.md` is the place to start; the most
   general results are candidates for MathComp-Analysis.
-- About 215 modules of `theories/`, those on the Gaussian measure, real
+- About 195 modules of `theories/`, those on the Gaussian measure, real
   analysis and matrix norms, still prove general facts in the special form
   that the paper needs, with lists of coordinates and Stdlib's `R`,
-  although the library now states them in general: the Gaussian integral
-  on the line and Stein's identity (`Gaussian/Line/Kernel`, `Gaussian/Line/Mass`,
-  `Gaussian/Line/Moments`, `Gaussian/Line/SteinIdentity` and eight more modules),
-  the interpolation between two covariances
-  (`Gaussian/Covariance/Definitions` and five more; the `Projection`
-  modules use it to compare quadratic Gaussian features with their
-  Gaussian replacement, which the library does not state in that form),
-  matrix norms (`Matrix/OperatorNorm`, `Matrix/FrobeniusNorm` and six
-  more), real analysis for functions of lists (`Analysis/RectangleFubini`,
-  `Analysis/ParameterIntegrals` and eight more), and the machinery of the
-  paper's Gibbs laws, soft min-max and cumulants. The first group follows
-  from the one-dimensional results of the library and can be re-proved from
-  them as the modules on the iterated expectation were. The facts about the
-  iterated expectation that carry no continuity hypothesis (its linearity,
-  monotonicity and the identities between its levels) are proved from its
-  recursive definition and have no counterpart in the library.
+  although the library now states them in general: the interpolation
+  between two covariances (`Gaussian/Covariance/Definitions` and five
+  more; the `Projection` modules use it to compare quadratic Gaussian
+  features with their Gaussian replacement, which the library does not
+  state in that form), matrix norms (`Matrix/OperatorNorm`,
+  `Matrix/FrobeniusNorm` and six more), real analysis for functions of
+  lists (`Analysis/CoordinateTopology`, `Analysis/CoordinateChainRule` and
+  twelve more), and the machinery of the paper's Gibbs laws, soft min-max
+  and cumulants. The facts about the iterated expectation that carry no
+  continuity hypothesis (its linearity, monotonicity and the identities
+  between its levels) are proved from its recursive definition and have no
+  counterpart in the library.
 
 The statement keeps its meaning throughout: `make check` checks after each
 step that its code and the code of its definitions are unchanged.
