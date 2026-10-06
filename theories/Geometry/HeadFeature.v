@@ -18,8 +18,7 @@
    The coefficient bounds and the data bound X_J X_J^T <= lam I are
    hypotheses: in the paper they come from the data event (eq:sparse-norms,
    eq:aJ-l1, eq:aJ-linf), which is not proved here. For d = 0 every feature
-   is 0 (paper_main_head_feature_dim0), and the other results hold without
-   a dimension hypothesis. *)
+   is 0, and the results hold without a dimension hypothesis. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

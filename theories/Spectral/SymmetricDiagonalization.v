@@ -10,9 +10,8 @@
    and |a_i| <= b when (u^T A w)^2 <= b^2 |u|^2 |w|^2 for all u, w
    (paper_main_cone_opnorm_le A b) and 0 <= b. They are the library's
    spectral_form, spectral_trace, spectral_mxdot and spectral_form_abs,
-   through the bridges paper_main_symmetricmx (symmetry),
-   paper_main_quadratic_form_mxdot (the quadratic form) and
-   paper_main_pairing_mxdot (the Frobenius pairing). *)
+   through the bridges paper_main_symmetricmx (symmetry) and
+   paper_main_quadratic_form_mxdot (the quadratic form). *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

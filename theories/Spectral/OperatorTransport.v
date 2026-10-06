@@ -17,8 +17,6 @@
    - Consequences:
      - the Loewner box gives the same bound
        (paper_main_matrix_operator_loewner);
-     - a PSD B with |B|_F = 1 has internal operator norm at most 1
-       (paper_main_matrix_operator_psd_frobenius);
      - a unit-Frobenius B in paper_main_head_cone_sphere kappa, 1 <= kappa,
        has internal operator norm at most kappa / sqrt (INR N), through the
        Loewner box of Geometry.HeadSpectral

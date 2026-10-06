@@ -1,5 +1,12 @@
-(* Gordon lower tails for the actual set-index min-max under the Gaussian
-   matrix law. The exact Gaussian norm mean is preserved. *)
+(* The lower tail of a Euclidean-Lipschitz test below a lower bound of its
+   mean, under the Gaussian product law. For F on lists of length d with
+   |F xs - F ys| <= L paper_main_gordon_distance d xs ys, L > 0, a lower
+   bound b <= E_d F of its iterated expectation and u > 0,
+     P [F x <= b - u] <= exp (- u^2 / (2 L^2))
+   (paper_main_gaussian_lipschitz_lower_margin), from the lower tail
+   paper_main_gaussian_lipschitz_lower_tail of
+   Gaussian.LipschitzConcentration. The sublevel set {F x <= c} of a jointly
+   continuous F is measurable (paper_main_gaussian_continuous_le_measurable). *)
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval.

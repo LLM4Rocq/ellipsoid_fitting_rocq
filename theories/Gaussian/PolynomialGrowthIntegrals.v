@@ -10,8 +10,7 @@ From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions.
 From EllipsoidFitting Require Import GaussianDefinitions Gaussian.Kernel
-  Gaussian.Mass Gaussian.KernelDecay Gaussian.SteinIdentity
-  Gaussian.SteinPolynomial Gaussian.Moments Gaussian.Expectation
+  Gaussian.Mass Gaussian.Moments Gaussian.Expectation
   Gaussian.PolynomialIntegrability.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.

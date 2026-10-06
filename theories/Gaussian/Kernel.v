@@ -1,29 +1,41 @@
-(* The Gaussian kernel gaussian_kernel x = exp (- (x * x) / 2), and Stein's
-   identity, Gaussian integration by parts on the line.
+(* The Gaussian kernel gaussian_kernel x = exp (- (x * x) / 2) of
+   GaussianDefinitions, and its relation to the standard normal law
+   normal_prob 0 1 of MathComp-Analysis.
+
+   The kernel is normal_fun 0 1, and the density of the law is
+   normal_peak 1 * gaussian_kernel x (gaussian_kernelE,
+   normal_pdf_gaussian_kernel). So a function is integrable against the
+   kernel exactly when it is integrable under the law
+   (gaussian_integral_exists_normal), and its integral against the kernel
+   is (normal_peak 1)^-1 times its integral under the law
+   (gaussian_integral_normal, whole_line_integral_normal). The other modules
+   of the group read the mass, the moments and the integrability of
+   functions of polynomial growth off the library
+   (GaussianAnalysis.normal_integral and gauss_moments) through these
+   lemmas.
 
    The kernel is positive, has derivative - x * gaussian_kernel x, and tends
-   to 0 at -oo and +oo. Let f be bounded, with a continuous derivative df
-   such that df t * gaussian_kernel t is integrable on the line. Then the
-   derivative of f * gaussian_kernel, gaussian_stein_integrand f df, has
-   integral 0 over the line (gaussian_stein_improper). So
-   t * f t * gaussian_kernel t has the same integral as
-   df t * gaussian_kernel t (gaussian_stein_split). The case f = 1 gives
-   gaussian_first_moment_zero. gaussian_stein_improper_decay assumes
-   instead that f * gaussian_kernel tends to 0 at -oo and +oo and that the
-   Stein integrand is integrable.
+   to 0 at -oo and +oo. Rabs x * gaussian_kernel x is integrable
+   (gaussian_kernel_abs_moment_integrable) and x * gaussian_kernel x has
+   integral 0 (gaussian_first_moment_zero, from normal_mean).
+   gaussian_stein_improper_decay is the fundamental theorem of calculus on
+   the line for f * gaussian_kernel: if that product tends to 0 at both
+   ends and its derivative, gaussian_stein_integrand f df, is integrable,
+   then the derivative has integral 0.
 
    The integrals over the line are Lebesgue integrals, which require
-   absolute integrability, and the integrability of df t * gaussian_kernel t
-   does not follow from the other hypotheses. For example
-   f x = sin (exp (x * x)) is bounded with a continuous derivative df, but
-   df x * gaussian_kernel x is not absolutely integrable. *)
+   absolute integrability, and the integrability of the Stein integrand
+   does not follow from the other hypotheses: f x = sin (exp (x * x)) is
+   bounded with a continuous derivative df, but df x * gaussian_kernel x
+   is not absolutely integrable. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import Analysis.RectangleFubini
   Analysis.ParameterIntegrals.
-From mathcomp Require Import measurable_realfun.
+From mathcomp Require Import measurable_realfun probability normal_distribution.
+From GaussianAnalysis Require Import normal_integral gauss_moments.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
 
@@ -41,6 +53,108 @@ Qed.
 
 Lemma gaussian_kernel_continuous x : {for x, continuous gaussian_kernel}.
 Proof. exact (is_derive_continuous _ _ _ (gaussian_kernel_derivative x)). Qed.
+
+(* The kernel and the standard normal law normal_prob 0 1 of
+   MathComp-Analysis, at Stdlib's R. *)
+Section normal_law.
+Local Open Scope ring_scope.
+Local Notation N := (@normal_prob R 0 1).
+Local Notation mu := (@lebesgue_measure R).
+
+Lemma gaussian_kernel_gt0 x : 0 < gaussian_kernel x.
+Proof. by apply/RltP; exact: gaussian_kernel_positive. Qed.
+
+Lemma gaussian_kernelE x : gaussian_kernel x = normal_fun 0 1 x.
+Proof.
+rewrite /gaussian_kernel /normal_fun RexpE; congr expR.
+rewrite subr0 expr1n expr2; reflexivity.
+Qed.
+
+Lemma normal_pdf_gaussian_kernel x :
+  normal_pdf 0 1 x = normal_peak 1 * gaussian_kernel x.
+Proof. by rewrite normal_pdfE ?oner_neq0 //= gaussian_kernelE. Qed.
+
+Lemma normal_peak1_gt0 : 0 < normal_peak (1 : R).
+Proof. exact: normal_peak_gt0 (oner_neq0 _). Qed.
+
+Lemma gaussian_kernel_normal_pdf x :
+  gaussian_kernel x = (normal_peak 1)^-1 * normal_pdf 0 1 x.
+Proof.
+by rewrite normal_pdf_gaussian_kernel mulrA mulVf ?mul1r // lt0r_neq0 // normal_peak1_gt0.
+Qed.
+
+Lemma gaussian_kernel_measurable :
+  measurable_fun [set: measurableTypeR R]
+    (gaussian_kernel : measurableTypeR R -> measurableTypeR R).
+Proof.
+apply: (eq_measurable_fun (normal_fun 0 1)); last exact: measurable_normal_fun.
+by move=> x _; rewrite gaussian_kernelE.
+Qed.
+
+Lemma gaussian_kernel_inv_measurable :
+  measurable_fun [set: measurableTypeR R]
+    ((fun x => (gaussian_kernel x)^-1) : measurableTypeR R -> measurableTypeR R).
+Proof.
+apply: (eq_measurable_fun (fun x : measurableTypeR R => expR (x * x / 2))).
+  move=> x _; rewrite /gaussian_kernel RexpE -expRN; congr expR.
+  by rewrite RdivE RoppE RmultE mulNr opprK.
+apply: measurableT_comp => //; apply: measurable_funM => //.
+exact: measurable_funM.
+Qed.
+
+(* A function integrable against the kernel is measurable. *)
+Lemma gaussian_integral_exists_measurable (f : R -> R) :
+  gaussian_integral_exists f ->
+  measurable_fun [set: measurableTypeR R] (f : measurableTypeR R -> measurableTypeR R).
+Proof.
+move=> /integrableP[/measurable_EFinP mfk _].
+have -> : f = (fun x => (f x * gaussian_kernel x) * (gaussian_kernel x)^-1).
+  by apply/funext => x; rewrite mulfK // lt0r_neq0 // gaussian_kernel_gt0.
+exact: measurable_funM mfk gaussian_kernel_inv_measurable.
+Qed.
+
+(* f is integrable against the kernel iff it is integrable under the law. *)
+Lemma gaussian_integral_exists_normal (f : R -> R) :
+  gaussian_integral_exists f <->
+  N.-integrable [set: measurableTypeR R] (EFin \o f).
+Proof.
+have p0 : normal_peak 1 != 0 :> R by rewrite lt0r_neq0 // normal_peak1_gt0.
+have E : (fun x => (f x)%:E * (normal_pdf 0 1 x)%:E)%E =
+    (fun x => (normal_peak 1)%:E * (f x * gaussian_kernel x)%:E)%E.
+  by apply/funext => x; rewrite -!EFinM normal_pdf_gaussian_kernel mulrCA.
+split=> Hf.
+  have mf : measurable_fun [set: measurableTypeR R] (EFin \o f).
+    by apply/measurable_EFinP; exact: gaussian_integral_exists_measurable.
+  apply/(integrable_normal_prob _ _ mf); rewrite /= E.
+  exact: (integrableZl measurableT (normal_peak 1) Hf).
+have := (integrable_normal_prob _ _ (measurable_int _ Hf)).1 Hf.
+rewrite /= E => /(integrableZl measurableT (normal_peak 1)^-1) H.
+apply: (eq_integrable measurableT _ _ _ H) => x _ /=.
+by rewrite muleA -!EFinM mulVf // mul1r.
+Qed.
+
+Lemma gaussian_integral_normal (f : R -> R) : gaussian_integral_exists f ->
+  (\int[mu]_x (f x * gaussian_kernel x)%:E =
+   ((normal_peak 1)^-1)%:E * \int[N]_x (f x)%:E)%E.
+Proof.
+move=> Hf; have Nf := (gaussian_integral_exists_normal f).1 Hf.
+have p0 : normal_peak 1 != 0 :> R by rewrite lt0r_neq0 // normal_peak1_gt0.
+rewrite (integral_normal_prob Nf).
+under [in RHS]eq_integral do
+  rewrite /= -EFinM normal_pdf_gaussian_kernel mulrCA EFinM.
+by rewrite integralZl // muleA -EFinM mulVf // mul1e.
+Qed.
+
+Lemma whole_line_integral_normal (f : R -> R) : gaussian_integral_exists f ->
+  whole_line_integral (fun x => f x * gaussian_kernel x) =
+  (normal_peak 1)^-1 * fine (\int[N]_x (f x)%:E)%E.
+Proof.
+move=> Hf; rewrite /whole_line_integral /Rintegral gaussian_integral_normal //.
+rewrite fineM //; apply: integrable_fin_num => //.
+exact: ((gaussian_integral_exists_normal f).1 Hf).
+Qed.
+
+End normal_law.
 
 Lemma gaussian_kernel_limit_positive :
   (gaussian_kernel x @[x --> +oo%R] --> 0)%classic.
@@ -61,41 +175,11 @@ Qed.
 Lemma gaussian_kernel_limit_negative :
   (gaussian_kernel x @[x --> -oo%R] --> 0)%classic.
 Proof.
-  unfold gaussian_kernel.
-  have Hq : ((fun x => - (x * x) / 2) x @[x --> -oo%R] --> -oo%R)%classic.
-  { apply/cvgrNyPle => M.
-    exists (Rmin (-1) (2*M)); split; first exact: num_real.
-    move=> x /RltP Hx; apply/RleP.
-    pose proof (Rmin_l (-1) (2*M)).
-    pose proof (Rmin_r (-1) (2*M)).
-    assert (x < -1) by lra.
-    assert (-x <= x*x) by nra.
-    lra. }
-  exact: (cvg_comp _ _ Hq is_lim_exp_m).
-Qed.
-
-(* z is any filter on R: z := -oo%R and z := +oo%R give the limits at the
-   two ends of the line. *)
-Lemma gaussian_bounded_product_limit (f : R -> R) B (z : set_system R)
-    {Fz : Filter z} :
-  (forall x, Rabs (f x) <= B) ->
-  (gaussian_kernel x @[x --> z] --> 0)%classic ->
-  ((f x * gaussian_kernel x) @[x --> z] --> 0)%classic.
-Proof.
-  move=> Hb Hl.
-  have Hlo : ((- B * gaussian_kernel x) @[x --> z] --> 0)%classic.
-  { have H := @cvgMl_tmp _ _ _ Fz gaussian_kernel (- B) 0 Hl.
-    rewrite mulr0 in H; exact H. }
-  have Hhi : ((B * gaussian_kernel x) @[x --> z] --> 0)%classic.
-  { have H := @cvgMl_tmp _ _ _ Fz gaussian_kernel B 0 Hl.
-    rewrite mulr0 in H; exact H. }
-  apply: (squeeze_cvgr _ Hlo Hhi).
-  apply: nearW => x.
-  specialize (Hb x).
-  pose proof (Rle_abs (f x)).
-  pose proof (Rle_abs (- f x)) as Hopp. rewrite Rabs_Ropp in Hopp.
-  pose proof (gaussian_kernel_positive x).
-  apply/andP; split; apply/RleP; nra.
+apply/cvgNy_compNP.
+have -> : gaussian_kernel \o (@GRing.opp _) = gaussian_kernel.
+  apply/funext => x; rewrite /comp /gaussian_kernel; congr exp.
+  by rewrite !(RoppE, RmultE, RdivE) mulrNN.
+exact: gaussian_kernel_limit_positive.
 Qed.
 
 Lemma gaussian_product_derivative (f df : R -> R) x :
@@ -162,80 +246,14 @@ Proof.
   exact: H2.
 Qed.
 
-(* The first absolute moment of the kernel is finite: the integral of
-   Rabs x * gaussian_kernel x over [0, +oo[ is 1, by MathComp's
-   ge0_continuous_FTC2y, and the function is even. *)
+(* The first absolute moment of the kernel is finite: Rabs is integrable
+   under the law (integrable_normal_exprn of the library). *)
 Lemma gaussian_kernel_abs_moment_integrable :
   whole_line_integrable (fun x => Rabs x * gaussian_kernel x).
 Proof.
-  set h := fun x => Rabs x * gaussian_kernel x.
-  have h0 : forall x, (0 <= h x)%R.
-  { move=> x; apply/RleP; apply: Rmult_le_pos; first exact: Rabs_pos.
-    exact: (Rlt_le _ _ (gaussian_kernel_positive x)). }
-  have hc : continuous h.
-  { move=> x; apply: continuous_mult; first exact: continuous_Rabs.
-    exact: gaussian_kernel_continuous. }
-  have he : h =1 h \o (@GRing.opp R).
-  { move=> x; rewrite /h /comp /= -RoppE Rabs_Ropp.
-    have -> : gaussian_kernel (- x) = gaussian_kernel x.
-    { unfold gaussian_kernel; f_equal; field. }
-    done. }
-  have Hsym := ge0_symfun_integralT h0 hc he.
-  have HF : forall x, @is_derive R R^o R^o x 1 (fun y => - gaussian_kernel y)
-      (- (- x * gaussian_kernel x)).
-  { move=> x; apply: is_derive_opp; exact: gaussian_kernel_derivative. }
-  have Hhalf : (\int[lebesgue_measure]_(x in `[0%R, +oo[) (h x)%:E = 1%:E)%E.
-  { have -> : (1%:E = 0%:E - (- gaussian_kernel 0)%:E)%E.
-    { rewrite /gaussian_kernel.
-      have -> : - (0 * 0) / 2 = 0 by field.
-      rewrite exp_0 -EFinB; congr (_%:E); change (1 = 0 - - 1); lra. }
-    apply: (@ge0_continuous_FTC2y R h (fun y => - gaussian_kernel y) 0%R 0%R).
-    - by move=> x _; exact: h0.
-    - exact: continuous_subspaceT.
-    - have H : ((fun x => - gaussian_kernel x) @ +oo%R -->
-          (- (0 : R))%R)%classic.
-      { exact: (@cvgN R R^o R (+oo%R) _ gaussian_kernel 0
-          gaussian_kernel_limit_positive). }
-      rewrite oppr0 in H; exact H.
-    - move=> x _; have [Hd _] := HF x; exact Hd.
-    - apply: cvg_at_right_filter.
-      exact: (is_derive_continuous _ _ _ (HF 0)).
-    - move=> x; rewrite in_itv /= => /andP [/RltP x0 _].
-      rewrite derive1E.
-      have [_ Hv] := HF x.
-      have -> : h x = - (- x * gaussian_kernel x).
-      { rewrite /h (Rabs_pos_eq x (Rlt_le _ _ x0)); ring. }
-      exact Hv. }
-  have Hset : [set x : R | (0 <= x)%R] = `[0%R, +oo[ by rewrite set_itvcy.
-  rewrite Hset Hhalf in Hsym.
-  apply/integrableP; split.
-  - apply/measurable_EFinP; exact: continuous_measurable_fun.
-  - have -> : (\int[lebesgue_measure]_(x in setT) `|(EFin \o h) x|)%E =
-        (\int[lebesgue_measure]_x (h x)%:E)%E.
-    { apply: eq_integral => x _; rewrite /comp gee0_abs //.
-      rewrite lee_fin; exact: h0. }
-    rewrite Hsym; exact: ltry.
-Qed.
-
-(* For f continuous and bounded, x * f x * gaussian_kernel x is integrable. *)
-Lemma gaussian_kernel_bounded_moment_integrable (f : R -> R) B :
-  continuous f -> (forall x, Rabs (f x) <= B) ->
-  whole_line_integrable (fun x => x * f x * gaussian_kernel x).
-Proof.
-  move=> Hc Hb.
-  apply: (fubini_dominated_integrable setT _
-    (fun x => Rabs x * gaussian_kernel x) B measurableT).
-  - apply: fubini_continuous_measurable => x.
-    apply: continuous_mult; last exact: gaussian_kernel_continuous.
-    apply: continuous_mult; [exact: continuous_id | exact: Hc].
-  - exact: gaussian_kernel_abs_moment_integrable.
-  - move=> y _; cbv beta.
-    rewrite !Rabs_mult
-      (Rabs_pos_eq _ (Rlt_le _ _ (gaussian_kernel_positive y))).
-    pose proof (Hb y); pose proof (Rabs_pos y).
-    pose proof (gaussian_kernel_positive y); pose proof (Rabs_pos (f y)).
-    have Hp : 0 <= Rabs y * gaussian_kernel y by nra.
-    nra.
+apply/(gaussian_integral_exists_normal Rabs).
+apply: (eq_integrable measurableT _ _ _ (integrable_normal_exprn 1)) => x _ /=.
+by rewrite expr1 RabsE.
 Qed.
 
 (* The last hypothesis, the integrability of the Stein integrand on the
@@ -259,64 +277,18 @@ Proof.
   ring.
 Qed.
 
-(* Since f is bounded, t * f t * gaussian_kernel t is integrable
-   (gaussian_kernel_bounded_moment_integrable), so the last hypothesis gives
-   the integrability of the Stein integrand. *)
-Lemma gaussian_stein_improper (f df : R -> R) B :
-  (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
-  (forall t, {for t, continuous df}) ->
-  (forall t, Rabs (f t) <= B) ->
-  whole_line_integrable (fun t => df t * gaussian_kernel t) ->
-  whole_line_has_integral (gaussian_stein_integrand f df) 0.
-Proof.
-  intros Hd Hc Hb Hi.
-  have Hf : continuous f := fun t => is_derive_continuous _ _ _ (Hd t).
-  have Hx := gaussian_kernel_bounded_moment_integrable f B Hf Hb.
-  apply gaussian_stein_improper_decay; [exact Hd | exact Hc | | | ].
-  - exact (gaussian_bounded_product_limit f B (-oo%R) Hb
-      gaussian_kernel_limit_negative).
-  - exact (gaussian_bounded_product_limit f B (+oo%R) Hb
-      gaussian_kernel_limit_positive).
-  - apply: (eq_integrable measurableT _ _ _ (integrableB measurableT Hi Hx)).
-    move=> y _ /=.
-    by rewrite -EFinB /gaussian_stein_integrand -RminusE.
-Qed.
-
-Lemma gaussian_stein_split (f df : R -> R) B l :
-  (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
-  (forall t, {for t, continuous df}) ->
-  (forall t, Rabs (f t) <= B) ->
-  whole_line_has_integral (fun t => df t * gaussian_kernel t) l ->
-  whole_line_has_integral (fun t => t * f t * gaussian_kernel t) l.
-Proof.
-  intros Hd Hc Hb [Hi Hl].
-  have Hf : continuous f := fun t => is_derive_continuous _ _ _ (Hd t).
-  have Hx := gaussian_kernel_bounded_moment_integrable f B Hf Hb.
-  have [Hs Hs0] := gaussian_stein_improper f df B Hd Hc Hb Hi.
-  split; first exact Hx.
-  have E : (fun t => t * f t * gaussian_kernel t) =
-      (fun t => df t * gaussian_kernel t - gaussian_stein_integrand f df t).
-  { apply/funext => t; unfold gaussian_stein_integrand; ring. }
-  rewrite E /whole_line_integral (RintegralB measurableT Hi Hs).
-  unfold whole_line_integral in Hl, Hs0.
-  rewrite Hl Hs0 -RminusE; ring.
-Qed.
-
+(* The first moment of the kernel is 0: the mean of the law is 0
+   (normal_mean of the library). *)
 Lemma gaussian_first_moment_zero :
   whole_line_has_integral (fun x => x * gaussian_kernel x) 0.
 Proof.
-  have H0 : whole_line_has_integral (fun t => 0 * gaussian_kernel t) 0.
-  { have E : (fun t => 0 * gaussian_kernel t) = (fun _ => 0).
-    { apply/funext => t; ring. }
-    rewrite E; split.
-    - exact: integrable0.
-    - rewrite /whole_line_integral (Rintegral_cst _ measurableT).
-      by rewrite mul0r. }
-  have H := gaussian_stein_split (fun _ => 1) (fun _ => 0) 1 0
-    (fun t => is_derive_const 1 t) (fun t => continuous_const _ 0 t)
-    (fun t => Req_le _ _ Rabs_R1) H0.
-  have E : (fun t => t * 1 * gaussian_kernel t) =
-      (fun t => t * gaussian_kernel t).
-  { apply/funext => t; ring. }
-  rewrite E in H; exact H.
+have Nf : (@normal_prob R 0 1).-integrable [set: measurableTypeR R]
+    (EFin \o (fun x : R => x)).
+  apply: (integrable_normal_poly (C := 1) (k := 1)) => [|x].
+    exact: measurable_id.
+  by rewrite /= expr1 mul1r lerDr.
+have Hf : gaussian_integral_exists (fun x : R => x).
+  exact/gaussian_integral_exists_normal.
+split; first exact: Hf.
+by rewrite (whole_line_integral_normal _ Hf) normal_mean /= mulr0.
 Qed.
