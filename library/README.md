@@ -65,6 +65,9 @@ will review.
 | `gaussian/gauss.v` | `integrable_gauss_poly` | Every measurable function bounded by `C (1 + \|x\|^k)` is integrable against `gauss n`. | |
 | `gaussian/gauss_ibp.v` | `normal_ibp` | Stein's identity: `E[X f(X)] = E[f'(X)]` for `X` of law `normal_prob 0 1` and `f` differentiable with a continuous derivative, `f` and `f'` of polynomial growth. | |
 | `gaussian/gauss_ibp.v` | `gauss_ibp` | Gaussian integration by parts: `E[x_i F(x)] = E[d_i F(x)]` for `x` of law `gauss n`, `F` continuous with a continuous partial derivative `d_i F` (along `delta_mx 0 i`), both of polynomial growth. | `GaussianLawBridge`, for `GaussianCoordinateStein` |
+| `gaussian/gauss_ibp.v` | `gauss_ibp_line` | The same identity when `F` and `d_i F` are only measurable and `d_i F` is continuous along the lines parallel to the i-th axis. | |
+| `gaussian/gauss_ibp.v` | `measurable_derive_rV` | If a continuous function on `'rV[R]_n` has at every point `x` a derivative `dF x` along a fixed vector `v`, then `dF` is measurable. | |
+| `gaussian/gauss_ibp.v` | `gauss_ibp2` | Gaussian integration by parts of order two: `E[(x_i^2 - 1) F(x)] = E[d_i d_i F(x)]` for `x` of law `gauss n`, `F` and `d_i d_i F` continuous, `F`, `d_i F` and `d_i d_i F` of polynomial growth; `d_i F` need not be continuous. | `GaussianLawBridge`, for `GaussianCoordinateStein` |
 | `gaussian/gauss_ibp.v` | `integrable_nondecreasing_set_cvg_integral` | If `F i` increases to `U` and `g` is integrable on `U`, the integrals of `g` over `F i` converge to its integral over `U`. | |
 | `gaussian/gauss_moments.v` | `normal_momentS`, `normal_moment_odd`, `normal_moment_even` | Moments of the standard normal law: `E[X^(k+2)] = (k + 1) E[X^k]`, so the odd moments vanish and `E[X^(2k)] = 1 * 3 * ... * (2k - 1)`. | |
 | `gaussian/gauss_moments.v` | `gauss_mean`, `gauss_cov`, `gauss_mulmx_cov` | A vector `x` of law `gauss n` has mean 0 and covariance the identity, and `x *m A` has covariance `A^T *m A`. | |

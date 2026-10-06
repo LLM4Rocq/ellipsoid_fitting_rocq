@@ -13,18 +13,17 @@
    and make F and the derivative integrated on the left continuous. So
    every function integrated is continuous and polynomially bounded, hence
    integrable at each level of E (GaussianCoordinateMarginals).
-   The second identity is proved by induction on d - i: swapping two
-   adjacent coordinates does not change E (GaussianCoordinateSwap), which
-   brings coordinate i to the last place, where GaussianCoordinateLastStein
-   applies. The mixed identity applies the first one twice. *)
+   The first two identities are Gaussian integration by parts of order one
+   and two for the standard Gaussian measure on row vectors
+   (gaussian_iterated_coordinate_stein_gauss and
+   gaussian_iterated_coordinate_second_stein_gauss of GaussianLawBridge).
+   The mixed identity applies the first one twice. *)
 
-From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefinitions GaussianProduct
-  GaussianCoordinateDefinitions GaussianCoordinateTopology
-  GaussianCoordinateWeightDefinitions GaussianCoordinateWeights GaussianCoordinateMarginals
-  GaussianCoordinatePermutationDefinitions GaussianCoordinatePermutations GaussianPermutationContinuity
-  GaussianPermutationWeights GaussianCoordinatePolynomialContinuity GaussianCoordinateSwap
-  GaussianCoordinateDerivativeDefinitions GaussianCoordinateDerivatives GaussianCoordinateLastStein
+From Stdlib Require Import Reals List Lia.
+From EllipsoidFitting Require Import GaussianProductDefinitions GaussianProduct
+  GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions
+  GaussianCoordinateWeights GaussianCoordinatePolynomialContinuity
+  GaussianCoordinateDerivativeDefinitions GaussianCoordinateDerivatives
   GaussianLawBridge.
 Import ListNotations.
 Open Scope R_scope.
@@ -50,37 +49,7 @@ Theorem gaussian_iterated_coordinate_second_stein d i F DF DDF C p D q E r :
   gaussian_iterated_expectation (S d) DDF =
   gaussian_iterated_expectation (S d) (fun xs => (nth i xs 0*nth i xs 0-1)*F xs).
 Proof.
-  intro Hi.
-  assert (Hrel : (i+(d-i)=d)%nat) by lia.
-  remember (d-i)%nat as k eqn:Hk; clear Hk Hi.
-  revert i F DF DDF C D E Hrel.
-  induction k as [|k IH]; intros i F DF DDF C D E Hrel HCF HCDDF HF HDF HDDF HD HDD.
-  - assert (Hi : i=d) by lia; subst i.
-    apply (gaussian_iterated_last_second_stein d F DF DDF C p D q E r); try assumption.
-    + exact (finite_coordinate_derivative_last d F DF HD).
-    + exact (finite_coordinate_derivative_last d DF DDF HDD).
-  - assert (Hi : (S i < S d)%nat) by lia.
-    transitivity (gaussian_iterated_expectation (S d) (fun xs => DDF (swap_adjacent i xs))).
-    + exact (gaussian_iterated_swap_adjacent (S d) i DDF E r Hi HCDDF HDDF).
-    + transitivity (gaussian_iterated_expectation (S d)
-        (fun xs => (nth (S i) xs 0*nth (S i) xs 0-1)*F (swap_adjacent i xs))).
-      * apply (IH (S i) (fun xs => F (swap_adjacent i xs))
-          (fun xs => DF (swap_adjacent i xs)) (fun xs => DDF (swap_adjacent i xs)) C D E); try lia.
-        -- apply finite_joint_continuous_swap_adjacent; exact HCF.
-        -- apply finite_joint_continuous_swap_adjacent; exact HCDDF.
-        -- apply finite_polynomial_bound_swap_adjacent; exact HF.
-        -- apply finite_polynomial_bound_swap_adjacent; exact HDF.
-        -- apply finite_polynomial_bound_swap_adjacent; exact HDDF.
-        -- apply finite_coordinate_derivative_swap_right; assumption.
-        -- apply finite_coordinate_derivative_swap_right; assumption.
-      * symmetry.
-        pose proof (gaussian_iterated_swap_adjacent (S d) i
-          (fun xs => (nth i xs 0*nth i xs 0-1)*F xs) C (S (S p)) Hi
-          (finite_joint_continuous_times_centered_square (S d) F i HCF ltac:(lia))
-          (finite_polynomial_bound_times_centered_square (S d) C p F i HF ltac:(lia))) as H.
-        etransitivity; [exact H|].
-        apply gaussian_iterated_expectation_ext; intros xs Hxs.
-        rewrite swap_adjacent_nth_left by lia; reflexivity.
+  intro Hi; apply gaussian_iterated_coordinate_second_stein_gauss; lia.
 Qed.
 
 Theorem gaussian_iterated_coordinate_mixed_stein d i j F DFj DFiDFj C p D q E r :

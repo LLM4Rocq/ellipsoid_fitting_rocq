@@ -14,7 +14,12 @@ From GaussianAnalysis Require Import measurable_matrix normal_integral gauss.
 (* Stein's identity for the standard normal law, E[X f(X)] = E[f'(X)]         *)
 (* (normal_ibp), and its version in several dimensions for gauss n,           *)
 (* E[x_i F(x)] = E[d_i F(x)] (gauss_ibp), for functions of class C^1 of       *)
-(* polynomial growth.                                                         *)
+(* polynomial growth. gauss_ibp_line asks less: F and d_i F measurable, and   *)
+(* d_i F continuous along the lines parallel to the i-th axis. A partial      *)
+(* derivative of a continuous function is measurable (measurable_derive_rV),  *)
+(* so the identity of order two, E[(x_i^2 - 1) F(x)] = E[d_i d_i F(x)]        *)
+(* (gauss_ibp2), holds for F and d_i d_i F continuous, without the            *)
+(* continuity of d_i F.                                                       *)
 (*                                                                            *)
 (******************************************************************************)
 
@@ -285,6 +290,44 @@ have -> : `|x| = \big[maxr/0]_ij `|x ij.1 ij.2| by rewrite -mx_normrE.
 exact: (le_bigmax _ _ (i, j)).
 Qed.
 
+(* The constant of a polynomial bound is nonnegative. *)
+Lemma poly_bound_ge0 m (G : 'rV[R]_m -> R) (C : R) (k : nat) :
+  (forall x, `|G x| <= C * (1 + `|x| ^+ k)) -> 0 <= C.
+Proof.
+move=> GC; have := GC 0; rewrite normr0 expr0n => h; have := normr_ge0 (G 0).
+by case: (k == 0%N) h => /= h; nra.
+Qed.
+
+(* Multiplying by a coordinate raises the degree of a polynomial bound by
+   one. *)
+Lemma entry_mul_bound m (i : 'I_m) (G : 'rV[R]_m -> R) (C : R) (k : nat) :
+  (forall x, `|G x| <= C * (1 + `|x| ^+ k)) ->
+  forall x : 'rV[R]_m, `|x 0 i * G x| <= (2 * C) * (1 + `|x| ^+ k.+1).
+Proof.
+move=> GC x; have C0 := poly_bound_ge0 GC.
+rewrite normrM exprS; have hb := GC x; have a0 := normr_ge0 x.
+have ae := mx_norm_entry_le x 0 i; have e0 := normr_ge0 (x 0 i).
+have p0 := exprn_ge0 k a0; have b0 := normr_ge0 (G x).
+have h1 : `|x 0 i| * `|G x| <= C * (`|x| + `|x| * `|x| ^+ k).
+  by have := ler_wpM2r b0 ae; have := ler_wpM2l a0 hb; nra.
+have h2 : `|x| <= 1 + `|x| * `|x| ^+ k.
+  case: (leP `|x| 1) => x1; first by nra.
+  have : 1 <= `|x| ^+ k by rewrite exprn_ege1// ltW.
+  nra.
+nra.
+Qed.
+
+Lemma exprn1S_le (a : R) k : 0 <= a -> 1 + a ^+ k <= 2 * (1 + a ^+ k.+1).
+Proof.
+move=> a0; have e0 := exprn_ge0 k.+1 a0.
+have [h|h] : 1 + a ^+ k <= 2 \/ 1 + a ^+ k <= 1 + a ^+ k.+1.
+- case: (lerP a 1) => a1; [left|right].
+    by rewrite -[2]/(1 + 1) lerD2l exprn_ile1.
+  by rewrite lerD2l ler_eXn2l.
+- by apply: (le_trans h); rewrite -[X in X <= _]mulr1 ler_pM2l // lerDl.
+- by apply: (le_trans h); rewrite ler_peMl ?addr_ge0 // ler1n.
+Qed.
+
 Lemma rV_cons_norm_exprn_le m (t : R) (v : 'rV[R]_m) k :
   `|rV_cons (t, v)| ^+ k <= `|t| ^+ k + `|v| ^+ k.
 Proof.
@@ -314,31 +357,16 @@ Qed.
 
 Lemma gauss_ibp0 m (F dF : 'rV[R]_m.+1 -> R) (C : R) (k : nat) :
   (forall x, is_derive x (delta_mx 0 0) F (dF x)) ->
-  continuous F -> continuous dF ->
+  measurable_fun [set: 'rV[R]_m.+1] F -> measurable_fun [set: 'rV[R]_m.+1] dF ->
+  (forall x, continuous (fun t : R => dF (t *: delta_mx 0 0 + x))) ->
   (forall x, `|F x| <= C * (1 + `|x| ^+ k)) ->
   (forall x, `|dF x| <= C * (1 + `|x| ^+ k)) ->
   (\int[gauss m.+1]_x (x 0 0 * F x)%:E = \int[gauss m.+1]_x (dF x)%:E)%E.
 Proof.
-move=> dF_ cF cdF FC dFC.
-have C0 : 0 <= C.
-  have := FC 0; rewrite normr0 expr0n => h; have := normr_ge0 (F 0).
-  by case: (k == 0%N) h => /= h; nra.
-have mF := continuous_measurable_mx cF.
-have mdF := continuous_measurable_mx cdF.
+move=> dF_ mF mdF ldF FC dFC; have C0 := poly_bound_ge0 FC.
 have mx0F : measurable_fun [set: 'rV[R]_m.+1] (fun x => x 0 0 * F x).
   by apply: measurable_funM => //; exact: measurable_mxentry.
-have bx0F (x : 'rV[R]_m.+1) : `|x 0 0 * F x| <= (2 * C) * (1 + `|x| ^+ k.+1).
-  rewrite normrM exprS; have hb := FC x; have a0 := normr_ge0 x.
-  have ae := mx_norm_entry_le x 0 0; have e0 := normr_ge0 (x 0 0).
-  have p0 := exprn_ge0 k a0; have b0 := normr_ge0 (F x).
-  have h1 : `|x 0 0| * `|F x| <= C * (`|x| + `|x| * `|x| ^+ k).
-    by have := ler_wpM2r b0 ae; have := ler_wpM2l a0 hb; nra.
-  have h2 : `|x| <= 1 + `|x| * `|x| ^+ k.
-    case: (leP `|x| 1) => x1; first by nra.
-    have : 1 <= `|x| ^+ k by rewrite exprn_ege1// ltW.
-    nra.
-  nra.
-have I1 := integrable_gauss_poly mx0F bx0F.
+have I1 := integrable_gauss_poly mx0F (entry_mul_bound 0 FC).
 have I2 := integrable_gauss_poly mdF dFC.
 rewrite (integral_gauss_cons21 I1) (integral_gauss_cons21 I2).
 apply: eq_integral => v _.
@@ -347,12 +375,9 @@ transitivity (\int[N]_t (t * F (rV_cons (t, v)))%:E)%E.
   by apply: eq_integral => t _; rewrite /= r0.
 have rD (t h : R) : rV_cons (h *: 1 + t, v) = h *: delta_mx 0 0 + rV_cons (t, v).
   exact: rV_consD.
-have crv : continuous (fun t : R => rV_cons (t, v)).
-  have -> : (fun t : R => rV_cons (t, v)) =
-      (fun t => t *: delta_mx 0 0 + rV_cons (0, v)).
-    by apply/funext => t; rewrite -rD addr0 /GRing.scale /= mulr1.
-  move=> t; apply: cvgD; last exact: cvg_cst.
-  by apply: cvgZ; [exact: cvg_id|exact: cvg_cst].
+have rvE : (fun t : R => rV_cons (t, v)) =
+    (fun t => t *: delta_mx 0 0 + rV_cons (0, v)).
+  by apply/funext => t; rewrite -rD addr0 /GRing.scale /= mulr1.
 have bnd (G : 'rV[R]_m.+1 -> R) : (forall x, `|G x| <= C * (1 + `|x| ^+ k)) ->
     forall t : R, `|G (rV_cons (t, v))| <= C * (1 + `|v| ^+ k) * (1 + `|t| ^+ k).
   move=> GC t; apply: (le_trans (GC _)).
@@ -364,7 +389,10 @@ apply: (@normal_ibp R (fun t => F (rV_cons (t, v))) (fun t => dF (rV_cons (t, v)
   (C * (1 + `|v| ^+ k)) k).
 - move=> t; apply: (is_derive_transfer _ (dF_ (rV_cons (t, v)))).
   by move=> h; rewrite /= rD.
-- by move=> t; exact: (continuous_comp (crv t) (cdF _)).
+- have -> : (fun t => dF (rV_cons (t, v))) =
+      (fun t => dF (t *: delta_mx 0 0 + rV_cons (0, v))).
+    by apply/funext => t; rewrite (congr1 (fun f => f t) rvE).
+  exact: ldF.
 - exact: bnd.
 - exact: bnd.
 Qed.
@@ -377,42 +405,30 @@ apply: bigmax_le => [|ij _]; first exact: normr_ge0.
 by rewrite mxE; exact: mx_norm_entry_le.
 Qed.
 
-Lemma gauss_ibp n (i : 'I_n) (F dF : 'rV[R]_n -> R) (C : R) (k : nat) :
+(* Integration by parts along the coordinate i, for F and its partial
+   derivative dF measurable, dF continuous along the lines parallel to the
+   i-th axis, both of polynomial growth. *)
+Lemma gauss_ibp_line n (i : 'I_n) (F dF : 'rV[R]_n -> R) (C : R) (k : nat) :
   (forall x, is_derive x (delta_mx 0 i) F (dF x)) ->
-  continuous F -> continuous dF ->
+  measurable_fun [set: 'rV[R]_n] F -> measurable_fun [set: 'rV[R]_n] dF ->
+  (forall x, continuous (fun t : R => dF (t *: delta_mx 0 i + x))) ->
   (forall x, `|F x| <= C * (1 + `|x| ^+ k)) ->
   (forall x, `|dF x| <= C * (1 + `|x| ^+ k)) ->
   (\int[gauss n]_x (x 0 i * F x)%:E = \int[gauss n]_x (dF x)%:E)%E.
 Proof.
-case: n i F dF => [[] //|m] i F dF dF_ cF cdF FC dFC.
-have C0 : 0 <= C.
-  have := FC 0; rewrite normr0 expr0n => h; have := normr_ge0 (F 0).
-  by case: (k == 0%N) h => /= h; nra.
+case: n i F dF => [[] //|m] i F dF dF_ mF mdF ldF FC dFC.
+have C0 := poly_bound_ge0 FC.
 (* Move the coordinate i first with the transposition s of 0 and i. *)
 pose s := tperm (0 : 'I_m.+1) i.
 have Pe (x : 'rV[R]_m.+1) j : col_perm s x 0 j = x 0 (s j) by rewrite mxE.
-have cP : continuous (col_perm s : 'rV[R]_m.+1 -> 'rV[R]_m.+1).
-  apply: continuous_mxP => i' j; rewrite (ord1 i').
-  by under eq_fun do rewrite Pe; exact: coord_continuous.
 have PD (h : R) (x : 'rV[R]_m.+1) :
     col_perm s (h *: delta_mx 0 0 + x) = h *: delta_mx 0 i + col_perm s x.
   apply/rowP => j; rewrite !mxE /s eqxx /=; congr (h * _%:R + _).
   by rewrite -[X in _ == X](tpermR (0 : 'I_m.+1) i) (inj_eq (@perm_inj _ _)).
-have mF := continuous_measurable_mx cF; have mdF := continuous_measurable_mx cdF.
+have mP : measurable_fun [set: 'rV[R]_m.+1] (col_perm s) := measurable_col_perm s.
 have mxiF : measurable_fun [set: 'rV[R]_m.+1] (fun x => x 0 i * F x).
   by apply: measurable_funM => //; exact: measurable_mxentry.
-have bxiF (x : 'rV[R]_m.+1) : `|x 0 i * F x| <= (2 * C) * (1 + `|x| ^+ k.+1).
-  rewrite normrM exprS; have hb := FC x; have a0 := normr_ge0 x.
-  have ae := mx_norm_entry_le x 0 i; have e0 := normr_ge0 (x 0 i).
-  have p0 := exprn_ge0 k a0; have b0 := normr_ge0 (F x).
-  have h1 : `|x 0 i| * `|F x| <= C * (`|x| + `|x| * `|x| ^+ k).
-    by have := ler_wpM2r b0 ae; have := ler_wpM2l a0 hb; nra.
-  have h2 : `|x| <= 1 + `|x| * `|x| ^+ k.
-    case: (leP `|x| 1) => x1; first by nra.
-    have : 1 <= `|x| ^+ k by rewrite exprn_ege1// ltW.
-    nra.
-  nra.
-have I1 := integrable_gauss_poly mxiF bxiF.
+have I1 := integrable_gauss_poly mxiF (entry_mul_bound i FC).
 have I2 := integrable_gauss_poly mdF dFC.
 rewrite -(integral_gauss_col_perm s I1) -(integral_gauss_col_perm s I2).
 transitivity (\int[gauss m.+1]_x (x 0 0 * (F \o col_perm s) x)%:E)%E.
@@ -425,10 +441,122 @@ have bP (G : 'rV[R]_m.+1 -> R) : (forall x, `|G x| <= C * (1 + `|x| ^+ k)) ->
 apply: (@gauss_ibp0 m (F \o col_perm s) (dF \o col_perm s) C k).
 - move=> x; apply: (is_derive_transfer _ (dF_ (col_perm s x))) => h.
   by rewrite /= PD.
-- by move=> x; apply: continuous_comp; [exact: cP|exact: cF].
-- by move=> x; apply: continuous_comp; [exact: cP|exact: cdF].
+- exact: measurableT_comp mF mP.
+- exact: measurableT_comp mdF mP.
+- move=> x; have -> : (fun t => (dF \o col_perm s) (t *: delta_mx 0 0 + x)) =
+      (fun t => dF (t *: delta_mx 0 i + col_perm s x)).
+    by apply/funext => t; rewrite /= PD.
+  exact: ldF.
 - exact: bP.
 - exact: bP.
+Qed.
+
+Lemma gauss_ibp n (i : 'I_n) (F dF : 'rV[R]_n -> R) (C : R) (k : nat) :
+  (forall x, is_derive x (delta_mx 0 i) F (dF x)) ->
+  continuous F -> continuous dF ->
+  (forall x, `|F x| <= C * (1 + `|x| ^+ k)) ->
+  (forall x, `|dF x| <= C * (1 + `|x| ^+ k)) ->
+  (\int[gauss n]_x (x 0 i * F x)%:E = \int[gauss n]_x (dF x)%:E)%E.
+Proof.
+move=> dF_ cF cdF; apply: gauss_ibp_line => //.
+- exact: continuous_measurable_mx.
+- exact: continuous_measurable_mx.
+move=> x t; apply: continuous_comp; last exact: cdF.
+apply: cvgD; last exact: cvg_cst.
+by apply: cvgZ; [exact: cvg_id|exact: cvg_cst].
+Qed.
+
+(* A partial derivative of a continuous function is measurable: it is the
+   limit of the difference quotients along the sequence 1 / (m + 1). *)
+Lemma measurable_derive_rV n (F dF : 'rV[R]_n -> R) (v : 'rV[R]_n) :
+  continuous F -> (forall x, is_derive x v F (dF x)) ->
+  measurable_fun [set: 'rV[R]_n] dF.
+Proof.
+move=> cF dF_; have mF := continuous_measurable_mx cF.
+apply: (@measurable_fun_cvg _ _ _ _
+  (fun m x => (harmonic m)^-1 *: (F (harmonic m *: v + x) - F x))).
+  move=> m.
+  have mT : measurable_fun [set: 'rV[R]_n] (fun x => harmonic m *: v + x).
+    apply/measurable_fun_mxP => i j; under eq_fun do rewrite mxE.
+    by apply: measurable_funD => //; exact: measurable_mxentry.
+  apply: measurable_funM => //; apply: measurable_funB => //.
+  exact: measurableT_comp mF mT.
+move=> x _; have [dv dval] := dF_ x.
+have qc : (fun h : R => h^-1 *: ((F \o shift x) (h *: v) - F x)) @ 0^' --> dF x.
+  by rewrite -dval; exact: dv.
+apply: ((cvgr_dnbhsP _ 0 (dF x)).1 qc harmonic); split; last exact: cvg_harmonic.
+by move=> k; rewrite /= invr_eq0 pnatr_eq0.
+Qed.
+
+(* Second-order integration by parts along the coordinate i:
+   E[(x_i^2 - 1) F(x)] = E[d_i d_i F(x)], for F continuous with partial
+   derivatives dF and d2F along the i-th axis, d2F continuous, all three of
+   polynomial growth. dF need not be continuous. *)
+Theorem gauss_ibp2 n (i : 'I_n) (F dF d2F : 'rV[R]_n -> R) (C : R) (k : nat) :
+  (forall x, is_derive x (delta_mx 0 i) F (dF x)) ->
+  (forall x, is_derive x (delta_mx 0 i) dF (d2F x)) ->
+  continuous F -> continuous d2F ->
+  (forall x, `|F x| <= C * (1 + `|x| ^+ k)) ->
+  (forall x, `|dF x| <= C * (1 + `|x| ^+ k)) ->
+  (forall x, `|d2F x| <= C * (1 + `|x| ^+ k)) ->
+  (\int[gauss n]_x ((x 0 i ^+ 2 - 1) * F x)%:E = \int[gauss n]_x (d2F x)%:E)%E.
+Proof.
+move=> dF_ d2F_ cF cd2F FC dFC d2FC; have C0 := poly_bound_ge0 FC.
+set e : 'rV[R]_n := delta_mx 0 i.
+have mF := continuous_measurable_mx cF.
+have md2F := continuous_measurable_mx cd2F.
+have mdF := measurable_derive_rV cF dF_.
+have mxi : measurable_fun [set: 'rV[R]_n] (fun x => x 0 i) := measurable_mxentry 0 i.
+have line (x : 'rV[R]_n) : continuous (fun t : R => t *: e + x).
+  move=> t; apply: cvgD; last exact: cvg_cst.
+  by apply: cvgZ; [exact: cvg_id|exact: cvg_cst].
+(* dF is continuous along the lines parallel to e: its derivative there is
+   d2F. *)
+have ldF (x : 'rV[R]_n) : continuous (fun t : R => dF (t *: e + x)).
+  move=> t; apply: differentiable_continuous; apply/derivable1_diffP.
+  have : is_derive t 1 (fun t : R => dF (t *: e + x)) (d2F (t *: e + x)).
+    apply: (is_derive_transfer (G := dF) (b := t *: e + x) (w := e)).
+    by move=> h; rewrite scalerDl addrA [h%:A]mulr1.
+  by case.
+(* E[x_i dF(x)] = E[d2F(x)]. *)
+have E1 := gauss_ibp_line d2F_ mdF md2F
+  (fun x t => continuous_comp (line x t) (cd2F _)) dFC d2FC.
+(* E[x_i (x_i F(x))] = E[F(x) + x_i dF(x)]. *)
+have hi (x : 'rV[R]_n) : is_derive x e (fun y : 'rV[R]_n => y 0 i) 1.
+  apply: (is_derive_transfer (G := id) (b := x 0 i) (w := 1)) => h.
+  by rewrite /e !mxE !eqxx /= mulr1 [h%:A]mulr1.
+have G_ (x : 'rV[R]_n) : is_derive x e (fun y => y 0 i * F y) (F x + x 0 i * dF x).
+  have := is_deriveM (hi x) (dF_ x).
+  by rewrite [(F x)%:A]mulr1 addrC.
+have xdFC := entry_mul_bound i dFC.
+have G'C (x : 'rV[R]_n) : `|F x + x 0 i * dF x| <= (4 * C) * (1 + `|x| ^+ k.+1).
+  apply: (le_trans (ler_normD _ _)); have := FC x; have := xdFC x.
+  have := exprn1S_le k (normr_ge0 x); have := exprn_ge0 k.+1 (normr_ge0 x).
+  nra.
+have GC (x : 'rV[R]_n) : `|x 0 i * F x| <= (4 * C) * (1 + `|x| ^+ k.+1).
+  apply: (le_trans (entry_mul_bound i FC x)).
+  have := exprn_ge0 k.+1 (normr_ge0 x); nra.
+have mG : measurable_fun [set: 'rV[R]_n] (fun y => y 0 i * F y).
+  exact: measurable_funM mxi mF.
+have mxdF : measurable_fun [set: 'rV[R]_n] (fun y => y 0 i * dF y).
+  exact: measurable_funM mxi mdF.
+have lG' (x : 'rV[R]_n) :
+    continuous (fun t : R => F (t *: e + x) + (t *: e + x) 0 i * dF (t *: e + x)).
+  move=> t; apply: cvgD; first exact: (continuous_comp (line x t) (cF _)).
+  apply: cvgM; last exact: ldF.
+  exact: (continuous_comp (line x t) (@coord_continuous R 1 n 0 i _)).
+have E2 := gauss_ibp_line G_ mG (measurable_funD mF mxdF) lG' GC G'C.
+(* (x_i^2 - 1) F = x_i (x_i F) - F, and the terms in E[F] cancel. *)
+have IF := integrable_gauss_poly mF FC.
+have IxdF := integrable_gauss_poly mxdF xdFC.
+have IxG := integrable_gauss_poly (measurable_funM mxi mG) (entry_mul_bound i GC).
+transitivity (\int[gauss n]_x ((x 0 i * (x 0 i * F x))%:E - (F x)%:E))%E.
+  by apply: eq_integral => x _; rewrite -EFinB mulrBl expr2 mulrA mul1r.
+rewrite integralB_EFin // E2.
+have -> : (\int[gauss n]_x (F x + x 0 i * dF x)%:E =
+    \int[gauss n]_x (F x)%:E + \int[gauss n]_x (x 0 i * dF x)%:E)%E.
+  by rewrite -(integralD_EFin _ IF IxdF).
+by rewrite E1 addeAC subee ?add0e //; exact: integrable_fin_num IF.
 Qed.
 
 End gauss_ibp.

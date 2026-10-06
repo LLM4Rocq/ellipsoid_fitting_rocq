@@ -17,10 +17,12 @@
      (finite_polynomial_bound) and the partial derivatives
      (finite_coordinate_derivative) of F over to x |-> F (list_of_row x), in
      the form that the library uses.
-   - Two results of the paper follow in this way from the library: the
-     coordinate Stein identity (gaussian_iterated_coordinate_stein_gauss,
-     from gauss_ibp), and the invariance of gaussian_iterated_expectation
-     under the exchange of two adjacent coordinates
+   - Three results of the paper follow in this way from the library: the
+     coordinate Stein identities of order one and two
+     (gaussian_iterated_coordinate_stein_gauss and
+     gaussian_iterated_coordinate_second_stein_gauss, from gauss_ibp and
+     gauss_ibp2), and the invariance of gaussian_iterated_expectation under
+     the exchange of two adjacent coordinates
      (gaussian_iterated_swap_adjacent_gauss, from the invariance of gauss d
      under permutations of the coordinates, integral_gauss_col_perm). *)
 From Stdlib Require Import Reals List.
@@ -331,6 +333,58 @@ by rewrite (_ : i = i') // list_of_row_nth.
 Qed.
 
 End stein.
+
+Section second_stein.
+
+(* Second-order Gaussian integration by parts for the iterated expectation,
+   from gauss_ibp2 of the library. *)
+Theorem gaussian_iterated_coordinate_second_stein_gauss d (i : nat)
+    (F DF DDF : list R -> R) C p D q E r :
+  (i < d)%coq_nat ->
+  finite_joint_continuous d F -> finite_joint_continuous d DDF ->
+  finite_polynomial_bound d C p F -> finite_polynomial_bound d D q DF ->
+  finite_polynomial_bound d E r DDF ->
+  finite_coordinate_derivative d i F DF ->
+  finite_coordinate_derivative d i DF DDF ->
+  gaussian_iterated_expectation d DDF =
+  gaussian_iterated_expectation d
+    (fun xs => (List.nth i xs 0 * List.nth i xs 0 - 1) * F xs).
+Proof.
+move=> idc HCF HCDD HF HD HDD HdF HdDF; have id : (i < d)%N by apply/ltP.
+pose i' := Ordinal id.
+have HCx := finite_joint_continuous_times_centered_square d F i HCF idc.
+have HBx := finite_polynomial_bound_times_centered_square d C p F i HF idc.
+rewrite (gaussian_iterated_expectation_gauss_poly _ _ _ _ HCDD HDD).2.
+rewrite (gaussian_iterated_expectation_gauss_poly _ _ _ _ HCx HBx).2.
+(* A common polynomial bound for F, DF and DDF. *)
+have HF' := finite_polynomial_bound_degree_monotone d C p (p + q + r) F HF
+  ltac:(by apply/leP; rewrite -addnA leq_addr).
+have HD' := finite_polynomial_bound_degree_monotone d D q (p + q + r) DF HD
+  ltac:(by apply/leP; apply: (leq_trans (leq_addl p q)); exact: leq_addr).
+have HDD' := finite_polynomial_bound_degree_monotone d E r (p + q + r) DDF HDD
+  ltac:(by apply/leP; exact: leq_addl).
+have C0 : (0 <= C :> RR) by apply/RleP; case: HF.
+have D0 : (0 <= D :> RR) by apply/RleP; case: HD.
+have E0 : (0 <= E :> RR) by apply/RleP; case: HDD.
+set k := ((p + q + r) * d)%N.
+have bnd (G : list R -> R) (c : R) : finite_polynomial_bound d c (p + q + r) G ->
+    (0 <= c :> RR) -> (c <= C + D + E :> RR) ->
+    forall x : 'rV[RR]_d,
+      `|G (list_of_row x) : RR| <= (C + D + E) * 2 ^+ k * (1 + `|x| ^+ k).
+  move=> HG c0 cle x.
+  apply: (Order.POrderTheory.le_trans (list_of_row_bound _ _ _ _ HG x)).
+  by rewrite -!mulrA ler_wpM2r // ?mulr_ge0 ?addr_ge0 ?exprn_ge0.
+have bF := bnd F C HF' C0 ltac:(by rewrite -addrA lerDl addr_ge0).
+have bD := bnd DF D HD' D0 ltac:(by rewrite addrAC lerDr addr_ge0).
+have bDD := bnd DDF E HDD' E0 ltac:(by rewrite lerDr addr_ge0).
+rewrite /Rintegral -(gauss_ibp2 (list_of_row_derive _ _ _ i' HdF)
+  (list_of_row_derive _ _ _ i' HdDF) (list_of_row_continuous _ _ HCF)
+  (list_of_row_continuous _ _ HCDD) bF bD bDD).
+congr fine; apply: eq_integral => x _.
+by rewrite (_ : i = i') // list_of_row_nth expr2.
+Qed.
+
+End second_stein.
 
 Section swap.
 
