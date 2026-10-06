@@ -10,7 +10,8 @@ From mathcomp Require Import probability normal_distribution.
 From GaussianAnalysis.gaussian Require Import measurable_matrix normal_integral gauss gauss_ibp.
 From GaussianAnalysis.gaussian Require Import gauss_interpolation.
 From GaussianAnalysis.matrix Require Import euclidean.
-From GaussianAnalysis.comparison Require Import normal_mgf gauss_rotation partial_diff.
+From GaussianAnalysis.gaussian Require Import partial_derivative.
+From GaussianAnalysis.comparison Require Import normal_mgf gauss_rotation.
 From GaussianAnalysis.comparison Require Import gauss_smoothing.
 
 (**md**************************************************************************)
@@ -204,7 +205,7 @@ Hypothesis gradL : forall x, mxdot (\row_j DF j x) (\row_j DF j x) <= L ^+ 2.
 Local Notation P := (gauss n \x gauss n)%E.
 
 Local Lemma herbst_Fdiff x : differentiable (F : 'rV[R]_n -> R^o) x.
-Proof. exact: partial_differentiable dF cDF x. Qed.
+Proof. exact: differentiable_partials dF cDF x. Qed.
 
 Local Lemma herbst_cF : continuous F.
 Proof. by move=> x; exact: differentiable_continuous (herbst_Fdiff x). Qed.
@@ -749,7 +750,7 @@ have := gauss_concentration_smooth_ge0 dF' cDF' FK' gL' t0'.
 rewrite sqrrN; apply: le_trans; rewrite le_eqVlt; apply/orP; left; apply/eqP.
 have iF : (gauss n).-integrable [set: 'rV[R]_n] (EFin \o F).
   apply: (integrable_prob_bounded _ _ FK); apply: continuous_measurable_mx => x.
-  exact: differentiable_continuous (partial_differentiable dF cDF x).
+  exact: differentiable_continuous (differentiable_partials dF cDF x).
 rewrite (_ : \int[gauss n]_y - F y = - \int[gauss n]_y F y).
   rewrite -mulN1r -RintegralZl//.
   by apply: eq_Rintegral => x _; rewrite mulN1r.

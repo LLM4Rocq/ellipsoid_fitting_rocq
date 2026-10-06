@@ -23,12 +23,12 @@ library/comparison/chi_square.v
 library/comparison/normal_linear.v
 library/comparison/gauss_linear.v
 library/comparison/gauss_rotation.v
-library/comparison/partial_diff.v
 library/comparison/gauss_shift.v
 library/comparison/gauss_smoothing.v
 library/comparison/gauss_concentration.v
 library/comparison/slepian.v
 library/comparison/gordon.v
+library/comparison/escape.v
 
 theories/AffineGaussianGibbs.v
 theories/AffineGaussianRegular.v
