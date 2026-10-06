@@ -3,7 +3,7 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import arithmetic_tactic.
 From mathcomp Require Import boolp classical_sets functions reals.
 From mathcomp Require Import interval topology normedtype landau derive.
-From GaussianAnalysis Require Import gauss_ibp.
+From GaussianAnalysis Require Import measurable_matrix gauss_ibp.
 
 (**md**************************************************************************)
 (* # Continuous partial derivatives                                           *)
@@ -146,7 +146,7 @@ apply: continuous_sum => j v.
 exact: (cvgM (@coord_continuous R 1 n 0 j v) (cvg_cst _)).
 Qed.
 
-Theorem partials_diff_differentiable (x : 'rV[R]_n) :
+Lemma partials_diff_differentiable (x : 'rV[R]_n) :
   differentiable F x /\
   'd F x = (fun v : 'rV[R]_n => \sum_(j < n) v 0 j * DF j x) :> ('rV[R]_n -> R).
 Proof.
@@ -163,10 +163,10 @@ split; last exact: dL.
 by apply/diff_locallyP; rewrite dL; split.
 Qed.
 
-Corollary differentiable_partials (x : 'rV[R]_n) : differentiable F x.
+Lemma differentiable_partials (x : 'rV[R]_n) : differentiable F x.
 Proof. by case: (partials_diff_differentiable x). Qed.
 
-Corollary diff_partials (x : 'rV[R]_n) :
+Lemma diff_partials (x : 'rV[R]_n) :
   'd F x = (fun v : 'rV[R]_n => \sum_(j < n) v 0 j * DF j x) :> ('rV[R]_n -> R).
 Proof. by case: (partials_diff_differentiable x). Qed.
 

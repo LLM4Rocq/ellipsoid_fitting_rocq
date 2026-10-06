@@ -6,7 +6,7 @@
      its coordinates (gauss_gaussian_product_law). Both measures give a box
      the product of the standard normal measures of its sides (gauss_box
      and gpp_boxes), and a probability on row vectors is determined by its
-     values on boxes (gaussE).
+     values on boxes (gauss_unique).
    - gaussian_iterated_expectation d F, the iterated expectation of a
      function of lists, is the integral of x |-> F (list_of_row x) against
      gauss d when F is continuous and integrable at every level of the
@@ -89,7 +89,8 @@ Theorem gauss_gaussian_product_law d (X : set 'rV[RR]_d) : measurable X ->
   gauss d X = gaussian_product_law d (row_of_tuple d @^-1` X).
 Proof.
 move=> mX; symmetry.
-apply: (@gaussE RR d (distribution (gaussian_product_law d) (row_of_tuple d)) _ X mX).
+apply: (@gauss_unique RR d
+  (distribution (gaussian_product_law d) (row_of_tuple d)) _ X mX).
 move=> A mA.
 change (gaussian_product_law d
   (row_of_tuple d @^-1` [set x : 'rV[RR]_d | forall i, A i (x 0 i)]) =
@@ -388,7 +389,8 @@ have bF := bnd F C HF' C0 ltac:(by rewrite -addrA lerDl addr_ge0).
 have bD := bnd DF D HD' D0 ltac:(by rewrite addrAC lerDr addr_ge0).
 have bDD := bnd DDF E HDD' E0 ltac:(by rewrite lerDr addr_ge0).
 rewrite /Rintegral -(gauss_ibp2 (list_of_row_derive _ _ _ i' HdF)
-  (list_of_row_derive _ _ _ i' HdDF) (list_of_row_continuous _ _ HCF)
+  (list_of_row_derive _ _ _ i' HdDF)
+  (continuous_measurable_mx (list_of_row_continuous _ _ HCF))
   (list_of_row_continuous _ _ HCDD) bF bD bDD).
 congr fine; apply: eq_integral => x _.
 by rewrite (_ : i = i') // list_of_row_nth expr2.

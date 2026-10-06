@@ -3,8 +3,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import arithmetic_tactic.
 From mathcomp Require Import boolp classical_sets functions reals ereal.
 From mathcomp Require Import interval topology normedtype.
-From mathcomp Require Import derive realfun measure lebesgue_measure measurable_realfun.
-From mathcomp Require Import lebesgue_integral probability.
+From mathcomp Require Import derive realfun measure lebesgue_measure.
+From mathcomp Require Import measurable_realfun lebesgue_integral probability.
 From GaussianAnalysis Require Import measurable_matrix normal_integral gauss.
 From GaussianAnalysis Require Import gauss_ibp.
 
@@ -78,7 +78,8 @@ Qed.
 
 Lemma normal_moment_odd k : (\int[N]_x (x ^+ k.*2.+1)%:E = 0)%E.
 Proof.
-elim: k => [|k IH]; first by under eq_integral do rewrite expr1; exact: normal_mean.
+elim: k => [|k IH].
+  by under eq_integral do rewrite expr1; exact: normal_mean.
 have -> : k.+1.*2.+1 = (k.*2.+1).+2 by rewrite doubleS.
 by rewrite normal_momentS IH mule0.
 Qed.
@@ -124,7 +125,8 @@ have c1 : continuous (fun _ : 'rV[R]_n => (i == j)%:R : R).
 have b1 (y : 'rV[R]_n) : `|y 0 j| <= 1 * (1 + `|y| ^+ 1).
   by rewrite mul1r expr1 (le_trans (mx_norm_entry_le y 0 j)) // lerDr.
 have b2 (y : 'rV[R]_n) : `|(i == j)%:R : R| <= 1 * (1 + `|y| ^+ 1).
-  by rewrite mul1r expr1; case: (i == j); rewrite ?normr1 ?normr0 ?lerDl ?addr_ge0.
+  by rewrite mul1r expr1; case: (i == j);
+    rewrite ?normr1 ?normr0 ?lerDl ?addr_ge0.
 rewrite (gauss_ibp dc cc c1 b1 b2).
 by rewrite integral_cst //= probability_setT mule1.
 Qed.
@@ -141,13 +143,15 @@ have ixx (ii : 'I_n * 'I_n) : (gauss n).-integrable [set: 'rV[R]_n]
     by rewrite ler_pM // mx_norm_entry_le.
   by apply: (le_trans h); rewrite lerDr.
 have E (x : 'rV[R]_n) : ((x *m A) 0 j * (x *m A) 0 l)%:E =
-    (\sum_(ii : 'I_n * 'I_n) (A ii.1 j * A ii.2 l)%:E * (x 0 ii.1 * x 0 ii.2)%:E)%E.
+    (\sum_(ii : 'I_n * 'I_n)
+      (A ii.1 j * A ii.2 l)%:E * (x 0 ii.1 * x 0 ii.2)%:E)%E.
   rewrite sumEFin; congr (_%:E).
   rewrite -(pair_bigA _ (fun i i' => A i j * A i' l * (x 0 i * x 0 i'))) /=.
   rewrite !mxE mulr_suml; apply: eq_bigr => i _.
   by rewrite mulr_sumr; apply: eq_bigr => i' _; rewrite mulrACA mulrC.
 under eq_integral do rewrite E.
-rewrite integral_sum //; first by move=> ii; exact: (integrableZl measurableT _ (ixx ii)).
+rewrite integral_sum //.
+  by move=> ii; exact: (integrableZl measurableT _ (ixx ii)).
 under eq_bigr do rewrite integralZl // gauss_cov.
 rewrite sumEFin; congr (_%:E).
 rewrite -(pair_bigA _ (fun i i' => A i j * A i' l * (i == i')%:R)) /= mxE.

@@ -1,9 +1,10 @@
 From HB Require Import structures.
-From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix rat.
-From mathcomp Require Import boolp classical_sets functions cardinality reals ereal.
-From mathcomp Require Import interval interval_inference topology normedtype.
-From mathcomp Require Import measure lebesgue_stieltjes_measure measurable_realfun.
-From mathcomp Require Import measurable_fun_approximation.
+From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum.
+From mathcomp Require Import matrix rat arithmetic_tactic.
+From mathcomp Require Import boolp classical_sets functions cardinality reals.
+From mathcomp Require Import ereal interval interval_inference topology.
+From mathcomp Require Import normedtype measure lebesgue_stieltjes_measure.
+From mathcomp Require Import measurable_realfun measurable_fun_approximation.
 
 (**md**************************************************************************)
 (* # Measurable structure on matrices                                         *)
@@ -16,6 +17,12 @@ From mathcomp Require Import measurable_fun_approximation.
 (* measures that agree on the boxes agree (measure_mxbox_unique). For real    *)
 (* matrices it contains the open sets, so continuous functions are            *)
 (* measurable (continuous_measurable_mx).                                     *)
+(*                                                                            *)
+(* The last sections concern the norm `|A| of a real matrix, which in        *)
+(* MathComp is the largest absolute value of an entry: bounds for entries,    *)
+(* permuted columns, blocks and products (mx_norm_entry_le, ...), and the     *)
+(* continuity of maps into matrices (continuous_mxP) and of matrix products   *)
+(* (continuous_mulmxr, continuous_mulmxl).                                    *)
 (*                                                                            *)
 (* ```                                                                        *)
 (* measure_matrix_display d == display of the sigma-algebra of the matrices   *)
@@ -35,7 +42,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
-Import numFieldTopology.Exports.
+Import numFieldTopology.Exports numFieldNormedType.Exports.
 
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -60,13 +67,13 @@ Let matrix_bigcup (F : nat -> set 'M[T]_(m, n)) :
 Proof. exact: sigma_algebra_bigcup. Qed.
 
 (* HB declares canonical projections that the structure of T already
-   provides, as for tuples; the warning says so. *)
+   provides, as for tuples; the warning says so. The setting lasts until
+   the end of this file and is not exported. *)
 Set Warnings "-redundant-canonical-projection".
 HB.instance Definition _ := @isMeasurable.Build (measure_matrix_display d)
   'M[T]_(m, n) (g_sigma_preimage entry) matrix_set0 matrix_setC matrix_bigcup.
 
 End measurable_matrix.
-Set Warnings "redundant-canonical-projection".
 
 Section measurable_entries.
 Context {d d'} {T : measurableType d} {U : measurableType d'} {m n : nat}.
@@ -202,7 +209,8 @@ Proof. by apply/seteqP; split. Qed.
 
 Lemma mxboxI A B : mxbox A `&` mxbox B = mxbox (fun i j => A i j `&` B i j).
 Proof.
-apply/seteqP; split=> M; first by move=> [MA MB] i j; split; [exact: MA|exact: MB].
+apply/seteqP; split=> M.
+  by move=> [MA MB] i j; split; [exact: MA|exact: MB].
 by move=> MAB; split=> i j; have [] := MAB i j.
 Qed.
 
@@ -244,7 +252,8 @@ Qed.
 Lemma measure_mxbox_unique (R : realType)
     (mu1 mu2 : {measure set 'M[T]_(m, n) -> \bar R}) :
   (mu1 [set: 'M[T]_(m, n)] < +oo)%E ->
-  (forall A, (forall i j, measurable (A i j)) -> mu1 (mxbox A) = mu2 (mxbox A)) ->
+  (forall A, (forall i j, measurable (A i j)) ->
+    mu1 (mxbox A) = mu2 (mxbox A)) ->
   forall X, measurable X -> mu1 X = mu2 X.
 Proof.
 move=> mu1T mu12.
@@ -276,12 +285,14 @@ Lemma measure_rowbox_unique (R : realType)
     (mu1 mu2 : {measure set 'rV[T]_n -> \bar R}) :
   (mu1 [set: 'rV[T]_n] < +oo)%E ->
   (forall A : 'I_n -> set T, (forall j, measurable (A j)) ->
-    mu1 [set x | forall j, A j (x 0 j)] = mu2 [set x | forall j, A j (x 0 j)]) ->
+    mu1 [set x | forall j, A j (x 0 j)] =
+    mu2 [set x | forall j, A j (x 0 j)]) ->
   forall X, measurable X -> mu1 X = mu2 X.
 Proof.
 move=> mu1T mu12; apply: measure_mxbox_unique => // A mA.
 have -> : mxbox A = [set x : 'rV[T]_n | forall j, A 0 j (x 0 j)].
-  by rewrite rowboxE; apply/seteqP; split=> x xA i j; rewrite (ord1 i); exact: xA.
+  by rewrite rowboxE; apply/seteqP; split=> x xA i j; rewrite (ord1 i);
+    exact: xA.
 by apply: mu12 => j; exact: mA.
 Qed.
 
@@ -327,10 +338,67 @@ Qed.
 
 End measurable_real_matrix.
 
-Section continuous_mx.
-Context {T : topologicalType} {R : realType} {m n : nat}.
+(* The norm of a real matrix is the largest absolute value of an entry. *)
+Section mx_norm.
+Context {R : realType}.
 
-Lemma continuous_mxP (f : T -> 'M[R]_(m, n)) :
+Lemma mx_norm_entry_le m n (x : 'M[R]_(m, n)) i j : `|x i j| <= `|x|.
+Proof.
+have -> : `|x| = \big[maxr/0]_ij `|x ij.1 ij.2| by rewrite -mx_normrE.
+exact: (le_bigmax _ _ (i, j)).
+Qed.
+
+Lemma mx_norm_col_perm_le m n (s : 'S_n) (x : 'M[R]_(m, n)) :
+  `|col_perm s x| <= `|x|.
+Proof.
+have -> : `|col_perm s x| = \big[maxr/0]_ij `|col_perm s x ij.1 ij.2|.
+  by rewrite -mx_normrE.
+apply: bigmax_le => [|ij _]; first exact: normr_ge0.
+by rewrite mxE; exact: mx_norm_entry_le.
+Qed.
+
+Lemma mx_norm_col_mx_le m1 m2 n (P : 'M[R]_(m1, n)) (Q : 'M[R]_(m2, n)) :
+  `|col_mx P Q| <= `|P| + `|Q|.
+Proof.
+have -> : `|col_mx P Q| = \big[maxr/0]_ij `|col_mx P Q ij.1 ij.2|.
+  by rewrite -mx_normrE.
+apply: bigmax_le => [|[i j] _]; first by rewrite addr_ge0.
+rewrite /= -[i]splitK; case: (fintype.split i) => i' /=.
+  by rewrite col_mxEu (le_trans (mx_norm_entry_le _ _ _)) // lerDl.
+by rewrite col_mxEd (le_trans (mx_norm_entry_le _ _ _)) // lerDr.
+Qed.
+
+Lemma mx_norm_mulmx_le m n p (A : 'M[R]_(m, n)) (B : 'M[R]_(n, p)) :
+  `|A *m B| <= n%:R * `|A| * `|B|.
+Proof.
+have -> : `|A *m B| = \big[maxr/0]_ij `|(A *m B) ij.1 ij.2|.
+  by rewrite -mx_normrE.
+apply: bigmax_le => [|[i j] _]; first by rewrite !mulr_ge0.
+rewrite mxE /= (le_trans (ler_norm_sum _ _ _))// -mulrA.
+have -> : n%:R * (`|A| * `|B|) = \sum_(l < n) (`|A| * `|B|).
+  by rewrite sumr_const card_ord mulr_natl.
+by apply: ler_sum => l _; rewrite normrM ler_pM // mx_norm_entry_le.
+Qed.
+
+Lemma mx_norm_exprn_le m n (x : 'M[R]_(m, n)) k :
+  `|x| ^+ k <= 1 + \sum_(ij : 'I_m * 'I_n) `|x ij.1 ij.2| ^+ k.
+Proof.
+set S := \sum_(ij : 'I_m * 'I_n) `|x ij.1 ij.2| ^+ k.
+have S0 : 0 <= S by apply: sumr_ge0 => ij _; exact: exprn_ge0.
+have -> : `|x| = \big[maxr/0]_ij `|x ij.1 ij.2| by rewrite -mx_normrE.
+suff [] : 0 <= \big[maxr/0]_ij `|x ij.1 ij.2| /\
+  (\big[maxr/0]_ij `|x ij.1 ij.2|) ^+ k <= 1 + S by [].
+apply: (big_ind (fun y => 0 <= y /\ y ^+ k <= 1 + S)).
+- by split => //; rewrite expr0n; case: (k == 0%N) => /=; lra.
+- move=> a b [a0 ak] [b0 bk]; split; first by rewrite le_max a0.
+  by case: (leP a b).
+- move=> ij _; split => //.
+  have : `|x ij.1 ij.2| ^+ k <= S.
+    by rewrite /S (bigD1 ij)//= lerDl sumr_ge0// => ? _; exact: exprn_ge0.
+  lra.
+Qed.
+
+Lemma continuous_mxP {T : topologicalType} m n (f : T -> 'M[R]_(m, n)) :
   (forall i j, continuous (fun x => f x i j)) -> continuous f.
 Proof.
 move=> cf x; apply/cvgrPdist_lt => e e0.
@@ -344,7 +412,35 @@ have -> : `|f x - f y| = \big[maxr/0]_ij `|(f x - f y) ij.1 ij.2|.
 by apply: bigmax_lt => // ij _; rewrite !mxE; exact: H.
 Qed.
 
-End continuous_mx.
+Lemma continuous_mulmxr m n p (B : 'M[R]_(n, p)) :
+  continuous (fun A : 'M[R]_(m, n) => A *m B).
+Proof.
+move=> A; apply/(cvgrPdist_lt (F := nbhs A)) => e e0.
+have k0 : 0 < n%:R * `|B| + 1 :> R by rewrite ltr_pwDr // mulr_ge0.
+have := @cvgr_dist_lt _ _ _ (nbhs A) (nbhs_filter A) id A cvg_id _
+  (divr_gt0 e0 k0).
+apply: filterS => A' hA'.
+rewrite -mulmxBl (le_lt_trans (mx_norm_mulmx_le _ _))//.
+move: hA'; rewrite ltr_pdivlMr // => h.
+have hn : 0 <= n%:R * `|B| :> R by rewrite mulr_ge0.
+by have ha := normr_ge0 (A - A'); nra.
+Qed.
+
+Lemma continuous_mulmxl m n p (A : 'M[R]_(m, n)) :
+  continuous (fun B : 'M[R]_(n, p) => A *m B).
+Proof.
+move=> B; apply/(cvgrPdist_lt (F := nbhs B)) => e e0.
+have k0 : 0 < n%:R * `|A| + 1 :> R by rewrite ltr_pwDr // mulr_ge0.
+have := @cvgr_dist_lt _ _ _ (nbhs B) (nbhs_filter B) id B cvg_id _
+  (divr_gt0 e0 k0).
+apply: filterS => B' hB'.
+rewrite -mulmxBr (le_lt_trans (mx_norm_mulmx_le _ _))//.
+move: hB'; rewrite ltr_pdivlMr // => h.
+have hn : 0 <= n%:R * `|A| :> R by rewrite mulr_ge0.
+by have hb := normr_ge0 (B - B'); nra.
+Qed.
+
+End mx_norm.
 
 Section continuous_measurable_mx.
 Context {R : realType} {m n : nat}.
