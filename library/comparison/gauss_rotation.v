@@ -465,4 +465,47 @@ under eq_integral do rewrite /fubini_F /=.
 by rewrite integral_cst// [X in (_ * X)%E]probability_setT mule1.
 Qed.
 
+Lemma measurable_gauss2_rot n (c s : R) :
+  measurable_fun [set: 'rV[R]_n * 'rV[R]_n]
+    (fun p : 'rV[R]_n * 'rV[R]_n => (c *: p.1 - s *: p.2, s *: p.1 + c *: p.2)%R).
+Proof.
+apply: measurable_fun_pair.
+  apply: measurable_addmx.
+    by apply: measurable_scalemx => //; exact: measurable_fst.
+  by apply: measurable_oppmx; apply: measurable_scalemx => //; exact: measurable_snd.
+apply: measurable_addmx.
+  by apply: measurable_scalemx => //; exact: measurable_fst.
+by apply: measurable_scalemx => //; exact: measurable_snd.
+Qed.
+
+Corollary integrable_gauss2_rotation n (c s : R) (f : 'rV[R]_n * 'rV[R]_n -> \bar R) :
+    (c ^+ 2 + s ^+ 2 = 1)%R ->
+    (gauss n \x gauss n).-integrable setT f ->
+  (gauss n \x gauss n).-integrable setT
+    (fun p => f (c *: p.1 - s *: p.2, s *: p.1 + c *: p.2)%R).
+Proof.
+move=> cs fi; have mf := measurable_int _ fi.
+have maf : measurable_fun [set: 'rV[R]_n * 'rV[R]_n] (fun p => `|f p|).
+  exact: measurableT_comp.
+apply/integrableP; split; first exact: measurableT_comp mf (measurable_gauss2_rot c s).
+have := @ge0_integral_gauss2_rotation n c s (fun p => `|f p|) cs maf (fun p => abse_ge0 _).
+move=> /= ->; by case/integrableP: fi.
+Qed.
+
+Corollary integral_gauss2_rotation n (c s : R) (f : 'rV[R]_n * 'rV[R]_n -> \bar R) :
+    (c ^+ 2 + s ^+ 2 = 1)%R ->
+    (gauss n \x gauss n).-integrable setT f ->
+  \int[gauss n \x gauss n]_p f (c *: p.1 - s *: p.2, s *: p.1 + c *: p.2)%R =
+  \int[gauss n \x gauss n]_p f p.
+Proof.
+move=> cs fi; have mf := measurable_int _ fi.
+rewrite integralE [RHS]integralE; congr (_ - _).
+  rewrite -(@ge0_integral_gauss2_rotation n c s (f^\+) cs
+    (measurable_funepos mf) (funepos_ge0 f)).
+  by apply: eq_integral => p _; rewrite !funeposE.
+rewrite -(@ge0_integral_gauss2_rotation n c s (f^\-) cs
+  (measurable_funeneg mf) (funeneg_ge0 f)).
+by apply: eq_integral => p _; rewrite !funenegE.
+Qed.
+
 End gauss2_cons.
