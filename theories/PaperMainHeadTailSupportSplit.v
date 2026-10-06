@@ -27,6 +27,7 @@ From EllipsoidFitting Require Import Definitions Peeling FiniteSets HeadTail Sof
   PaperMainGeometryHomogeneous PaperMainGeometryHeadFrobenius PaperMainGeometryHeadFeature
   PaperMainGeometryHeadCorrection PaperMainMatrixDuality PaperMainHeadTailDecompositionLog
   PaperMainHeadTailSupport.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Import ListNotations.
 Open Scope R_scope.
@@ -45,7 +46,7 @@ Lemma paper_main_support_score_pairing y S :
   paper_main_support_score y S = paper_main_pairing (paper_main_support_combination y) S.
 Proof.
 rewrite /paper_main_support_score /paper_main_support_combination pmh_pairing_suml.
-by rewrite paper_main_finite_sum_public.
+by rewrite finite_sum_seqE.
 Qed.
 
 Lemma pmhss_combinationD c1 c2 :

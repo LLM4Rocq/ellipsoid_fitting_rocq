@@ -36,6 +36,7 @@ From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GaussianCovaria
   PaperMainMatrixTransport PaperMainMatrixDuality PaperMainDataFeatureMoments
   PaperMainDataClippedScore PaperMainDataClipped PaperMainDataClippedSoft
   PaperMainDataClippedGrowth.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Import ListNotations.
@@ -195,8 +196,8 @@ Lemma pmdcm_quad_finite n (f : nat -> R) (B : 'M[R]_(S n)) :
     (List.seq 0 (S n))) (List.seq 0 (S n)).
 Proof.
 rewrite -paper_main_quadratic_formE /paper_main_quadratic_form.
-rewrite paper_main_finite_sum_public; apply: eq_bigr => i _.
-rewrite paper_main_finite_sum_public; apply: eq_bigr => j _.
+rewrite finite_sum_seqE; apply: eq_bigr => i _.
+rewrite finite_sum_seqE; apply: eq_bigr => j _.
 by rewrite !mxE !inord_val.
 Qed.
 

@@ -44,7 +44,7 @@ Qed.
 Lemma paper_main_gordon_distance_list_of_row d (x y : 'rV[RR]_d) :
   paper_main_gordon_distance d (list_of_row x) (list_of_row y) = frobenius (x - y).
 Proof.
-rewrite /paper_main_gordon_distance paper_main_gaussian_finite_sum_seq sqrtF.
+rewrite /paper_main_gordon_distance finite_sum_seqE sqrtF.
 rewrite /frobenius /mxdot big_ord1; congr Num.sqrt; apply: eq_bigr => j _.
 by rewrite !list_of_row_nth !mxE powF expr2.
 Qed.

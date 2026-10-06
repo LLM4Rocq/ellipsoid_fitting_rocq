@@ -27,6 +27,7 @@ From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral probability.
 From GaussianAnalysis Require Import measurable_matrix gauss euclidean gordon escape.
 From EllipsoidFitting Require Import GaussianLawBridge.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 
 Local Open Scope classical_set_scope.
@@ -45,7 +46,7 @@ revert f; induction n as [|n IH]; intro f.
   by rewrite IH.
 Qed.
 
-Local Notation fsum_seq := paper_main_gordon_escape_finite_sum_seq.
+Local Notation fsum_seq := finite_sum_seqE.
 
 (* The column vector of the first M values of v. *)
 Definition paper_main_gordon_col M (v : nat -> R) : 'cV[RR]_M := (\col_j v j)%R.

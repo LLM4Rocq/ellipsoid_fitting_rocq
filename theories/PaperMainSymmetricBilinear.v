@@ -31,6 +31,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Matr
   PaperMainGaussianFeatureCoordinates PaperMainGaussianPublicFeature
   PaperMainGeometryHeadFrobenius PaperMainGeometryHeadCoefficients
   PaperMainConeConditionOperator.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
@@ -196,7 +197,7 @@ Lemma paper_main_symmetric_column_norm (f : nat -> R) :
   ((paper_main_symmetric_column f)^T *m paper_main_symmetric_column f) 0 0 =
   paper_main_gordon_dot (S n) f f.
 Proof.
-rewrite pmh_vec_dot /paper_main_gordon_dot paper_main_finite_sum_public.
+rewrite pmh_vec_dot /paper_main_gordon_dot finite_sum_seqE.
 by apply: eq_bigr => i _; rewrite !mxE RmultE.
 Qed.
 

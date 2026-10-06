@@ -45,6 +45,7 @@ From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GaussianCovaria
   PaperMainSymmetricDiagonalization PaperMainConeConditionOperator PaperMainHeadLaw
   PaperMainGordonNets PaperMainGordonCover PaperMainGordonNetExistence PaperMainMatrixDuality
   PaperMainHeadSmallBallPZ PaperMainHeadSectionMeasurable.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -575,7 +576,7 @@ rewrite /paper_main_projected_residual mxE.
 have -> : (paper_main_projected_selector J *m paper_main_projected_bulk_vector n D x v) k ord0 =
     paper_main_projected_bulk_vector n D x v (enum_val k) ord0.
   exact: paper_main_projected_selector_apply.
-rewrite /paper_main_projected_bulk_vector mxE paper_main_finite_sum_public.
+rewrite /paper_main_projected_bulk_vector mxE finite_sum_seqE.
 congr (_ + _)%R.
 rewrite mxE; apply: eq_bigr => i _.
 by rewrite paper_main_projected_selector_apply_mx.

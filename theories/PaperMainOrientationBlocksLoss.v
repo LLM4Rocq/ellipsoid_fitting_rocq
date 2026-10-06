@@ -31,6 +31,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Pape
   PaperMainLossArray PaperMainLossSoftNormalized PaperMainLossNormalizedArray PaperMainLossEmpirical
   PaperMainFeatureLossControl PaperMainHeadSmallBallNet PaperMainBlockGeometry
   GaussianProbabilityProductContinuity PaperMainHybridFiniteArray PaperMainOrientationRotation.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
@@ -78,7 +79,7 @@ Theorem paper_main_orientation_data_array N r mi (Hs : nat -> 'M[R]_r) (bs : nat
   (INR N * paper_main_quadratic_risk N (r + S mi) x (block_mx (Hs j) 0 0 (Bs j)) (bs j))%Rcoq.
 Proof.
 rewrite paper_main_hybrid_finite_array_sum /paper_main_quadratic_risk /paper_main_loss_empirical
-  paper_main_finite_sum_public.
+  finite_sum_seqE.
 have Hrow : forall i : 'I_N, paper_main_hybrid_finite_data_loss r mi Hs bs Bs i j
     (List.firstn (r + S mi)%coq_nat (List.skipn (i * (r + S mi)%coq_nat)%N (tval x))) =
     paper_main_loss (paper_main_quadratic_form (block_mx (Hs j) 0 0 (Bs j)) (paper_main_point x i) -

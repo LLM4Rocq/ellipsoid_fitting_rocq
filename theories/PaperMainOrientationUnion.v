@@ -35,6 +35,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums
   PaperMainDefinitions PaperMainGeometryPsd PaperMainGeometryHomogeneous
   PaperMainGaussianUnion PaperMainFeatureGramBlocks PaperMainFeatureLossControl PaperMainMatrixDuality
   PaperMainOrientationNet PaperMainOrientationWitness PaperMainOrientationFamily.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -107,7 +108,7 @@ split; first exact: paper_main_gaussian_union_measurable.
 apply: le_trans; first exact: (paper_main_orientation_union_bound_var D _ _
   (fun r => (INR (s r) * p)%Rcoq) Hin Hinb).
 rewrite lee_fin; apply/RleP.
-rewrite paper_main_finite_sum_public INRE natr_sum.
+rewrite finite_sum_seqE INRE natr_sum.
 right; rewrite RmultE mulr_suml; apply: eq_bigr => i _.
 by rewrite INRE RmultE.
 Qed.

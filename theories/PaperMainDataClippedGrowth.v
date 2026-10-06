@@ -32,6 +32,7 @@ From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GaussianCovaria
   PaperMainSymmetricBilinear PaperMainMatrixTransport PaperMainMatrixDuality
   PaperMainDataFeatureMoments PaperMainDataHeadOperator PaperMainDataClippedScore
   PaperMainDataClipped PaperMainDataClippedSoft.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Import ListNotations.
 Open Scope R_scope.
@@ -66,7 +67,7 @@ Proof.
 move=> Hk HA.
 have E : paper_main_trace B =
     finite_sum (fun j => B (inord j) (inord j)) (List.seq 0 (S n)).
-  rewrite paper_main_finite_sum_public /paper_main_trace.
+  rewrite finite_sum_seqE /paper_main_trace.
   by apply: eq_bigr => i _; rewrite inord_val.
 rewrite E.
 have := finite_sum_bound (fun j => B (inord j) (inord j)) (List.seq 0 (S n)) k.

@@ -5,6 +5,7 @@ From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCova
   GaussianProductDefinitions GaussianProduct PaperMainDefinitions PaperMainGeometryPsd PaperMainMatrixDuality
   PaperMainDataFeatureMomentsCoordinates PaperMainDataFeatureMoments
   PaperMainProjectionStein PaperMainProjectionRegular.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
@@ -18,8 +19,8 @@ Lemma paper_main_projection_quad_matrix n A xs :
     pmdf_quad n (paper_main_projection_matrix (S n) A) xs.
 Proof.
 unfold paper_main_projection_quadratic,pmdf_quad.
-rewrite paper_main_finite_sum_public; apply: eq_bigr => i _.
-rewrite paper_main_finite_sum_public; apply: eq_bigr => j _.
+rewrite finite_sum_seqE; apply: eq_bigr => i _.
+rewrite finite_sum_seqE; apply: eq_bigr => j _.
 rewrite /paper_main_projection_matrix mxE.
 reflexivity.
 Qed.
@@ -39,9 +40,9 @@ split.
   + apply gaussian_iterated_expectation_ext; intros xs Hxs; rewrite !paper_main_projection_quad_matrix; reflexivity.
   + rewrite (proj2(pmdf_quad_covariance n (paper_main_projection_matrix (S n) A)
       (paper_main_projection_matrix (S n) B))).
-    unfold paper_main_pairing; rewrite -big_split paper_main_finite_sum_public.
+    unfold paper_main_pairing; rewrite -big_split finite_sum_seqE.
     apply: eq_bigr => i _.
-    rewrite -big_split paper_main_finite_sum_public; apply: eq_bigr => j _.
+    rewrite -big_split finite_sum_seqE; apply: eq_bigr => j _.
     rewrite /paper_main_projection_matrix !mxE.
     change (A i j*B i j+A i j*B j i=A i j*(B i j+B j i)); ring.
 Qed.

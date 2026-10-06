@@ -32,6 +32,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums
   PaperMainGeometryHeadFrobenius PaperMainGeometryHeadWidth PaperMainMatrixDuality
   PaperMainGordonProcessCovariance PaperMainGordonNets PaperMainGordonNetExistence
   PaperMainMeasurabilityBox PaperMainFiniteSupportSelector PaperMainHeadSectionMeasurable.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -125,7 +126,7 @@ Lemma paper_main_head_section_coord_le q (u : nat -> R) (eps : R) (i : nat) :
 Proof.
 move=> Hi He Hd.
 have Hsq : u i ^+ 2 <= paper_main_gordon_dot q u u.
-  rewrite /paper_main_gordon_dot paper_main_finite_sum_public.
+  rewrite /paper_main_gordon_dot finite_sum_seqE.
   under eq_bigr do rewrite RmultE.
   rewrite (bigD1 (Ordinal Hi)) //= -expr2 lerDl.
   by apply: sumr_ge0 => j _; rewrite -expr2 sqr_ge0.

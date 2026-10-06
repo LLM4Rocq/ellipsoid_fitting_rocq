@@ -8,6 +8,7 @@ From EllipsoidFitting Require Import AnalysisBridge GaussianProbabilityProductCo
   PaperMainDefinitions PaperMainGeometryPsd PaperMainGeometryHomogeneous PaperMainGeometrySeparation
   PaperMainGeometryHeadFrobenius PaperMainGeometryHeadCorrection PaperMainGeometryHeadCoefficients
   PaperMainGeometryHeadFeature PaperMainFeatureGramBlocks.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Delimit Scope R_scope with Rcoq.
 Local Open Scope ring_scope.
@@ -73,7 +74,7 @@ Theorem paper_main_raw_feature_forward_difference N d (x : paper_main_sample N d
     <=K*paper_main_frobenius (B-C)%R^2)%Rcoq.
 Proof.
 move=> HK HG; apply/RleP.
-rewrite paper_main_finite_sum_public RmultE RpowE.
+rewrite finite_sum_seqE RmultE RpowE.
 have H := paper_main_raw_feature_forward N d x (B-C) K HK HG.
 apply: le_trans _ H; apply: ler_sum=>i _.
 rewrite -RpowE pms_formB pms_traceB.

@@ -31,6 +31,7 @@ From EllipsoidFitting Require Import SoftDefinitions PaperMainMatrixDuality
   PaperMainGeometryHeadFrobenius PaperMainGeometryHeadCorrection
   PaperMainGeometryHeadFeature PaperMainGeometryHeadSpectral PaperMainGeometryHeadWidth
   PaperMainGeometryHeadWidthCompact PaperMainConeKernelSlice PaperMainConeKernel.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -104,7 +105,7 @@ move=> Hy.
 pose z := fun i : nat => if insub i is Some j then y j else 0.
 have HE : forall i : 'I_N, z i = y i by move=> i; rewrite /z valK.
 have Hsq : squared_norm z (List.seq 0 N) = 1.
-{ rewrite /squared_norm paper_main_finite_sum_public -Hy.
+{ rewrite /squared_norm finite_sum_seqE -Hy.
   by apply: eq_bigr => i _; rewrite HE RpowE. }
 exists z; split; last exact HE.
 by rewrite /euclidean_norm Hsq; exact: sqrt_1.

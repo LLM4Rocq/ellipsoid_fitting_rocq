@@ -28,6 +28,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Pape
   PaperMainDefinitions PaperMainGeometryPsd PaperMainGeometryHomogeneous
   PaperMainGeometryHeadFrobenius PaperMainProjectionFrobenius PaperMainMatrixDuality
   GaussianProbabilityProductContinuity PaperMainOrientationRotation.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
@@ -122,8 +123,8 @@ Lemma paper_main_orientation_frame_sqsum {d : nat} (r : nat) (A : 'M[R]_d) :
 Proof.
 move=> Hrd.
 rewrite pmh_frobenius_sqr /paper_main_pairing /paper_main_orientation_frame mul_diag_mx.
-rewrite paper_main_finite_sum_public.
-under [RHS]eq_bigr do rewrite paper_main_finite_sum_public.
+rewrite finite_sum_seqE.
+under [RHS]eq_bigr do rewrite finite_sum_seqE.
 rewrite (big_ord_widen d (fun i => \sum_(q < d) (paper_main_orientation_entry A i q *
   paper_main_orientation_entry A i q)%Rcoq) Hrd).
 rewrite big_mkcond /=.

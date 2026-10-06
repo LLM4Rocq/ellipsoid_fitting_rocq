@@ -50,6 +50,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums
   PaperMainGaussianTails
   PaperMainGaussianUnion PaperMainSampling PaperMainHeadLaw PaperMainHeadLawBounds
   PaperMainSymmetricBilinear PaperMainDataFeatureMomentsCoordinates.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
@@ -270,7 +271,7 @@ Lemma pmds_point_dot2 k r d (h : paper_main_sample k d) (z : paper_main_sample r
   finite_sum (fun a => List.nth (i * d + a)%N (tval h) 0 * List.nth (j * d + a)%N (tval z) 0)
     (List.seq 0 d).
 Proof.
-rewrite paper_main_finite_sum_public pmh_vec_dot.
+rewrite finite_sum_seqE pmh_vec_dot.
 by apply: eq_bigr => a _; rewrite !pmds_point_entry.
 Qed.
 
@@ -337,7 +338,7 @@ have M2 : measurable_fun setT f2.
 have E : pmds_pair_product k r d A B i =
     [set p | (f1 p <= A ^ 2)%R] `&` [set p | (B <= `|f2 p|)%R].
   apply/seteqP; split => p /=; rewrite /pmds_pair_product /= !pmds_point_dot2
-    !paper_main_finite_sum_public.
+    !finite_sum_seqE.
   - by move=> [H1 H2]; split; [apply/RleP | apply/RleP; rewrite -RabsE].
   - by move=> [/RleP H1 /RleP H2]; split => //; rewrite RabsE.
 rewrite E -preimage_itvNyc -(preimage_itvcy (fun p => `|f2 p|%R)).

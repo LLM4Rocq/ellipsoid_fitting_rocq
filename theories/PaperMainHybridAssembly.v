@@ -30,6 +30,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums
   PaperMainHeadSmallBallUniform PaperMainProjectedBulkEscape PaperMainProjectedBulkComplement
   PaperMainProjectedBulkConditional PaperMainHybridDensity PaperMainHybridBulk
   PaperMainHybridResidual PaperMainHybridLoss.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -76,7 +77,7 @@ rewrite Hpair -/L in Hb.
 have Hnorm : paper_main_projected_norm (paper_main_hybrid_bulk_value N mi x B) =
     euclidean_norm u (List.seq 0 N).
   rewrite /paper_main_projected_norm /euclidean_norm; congr sqrt.
-  rewrite /squared_norm paper_main_finite_sum_public /paper_main_projected_sqnorm mxE.
+  rewrite /squared_norm finite_sum_seqE /paper_main_projected_sqnorm mxE.
   apply: eq_bigr => i _; rewrite !mxE /u /=.
   by rewrite -RmultE Rmult_1_r.
 rewrite Hnorm.

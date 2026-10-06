@@ -52,6 +52,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums
   PaperMainHeadTailSupportSplit
   PaperMainHeadSectionMeasurable PaperMainHeadSectionMinimax PaperMainHeadSectionApprox
   PaperMainHeadCompactEvent.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -189,7 +190,7 @@ Lemma paper_main_head_restriction_norm k q (J : seq nat) (t : nat -> R) :
     (List.seq 0 q).
 Proof.
 move=> HJu HJs HJa Ht.
-rewrite /euclidean_norm /squared_norm !paper_main_finite_sum_public; congr sqrt.
+rewrite /euclidean_norm /squared_norm !finite_sum_seqE; congr sqrt.
 apply: (paper_main_head_restriction_sum k q J (fun i => pow (t i) 2%N) HJu HJs HJa).
 by move=> i _ /paper_main_head_In_mem Hi; rewrite (Ht i Hi) RpowE expr0n.
 Qed.

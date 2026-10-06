@@ -27,6 +27,7 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun.
 From mathcomp Require Import lebesgue_integral probability.
 From GaussianAnalysis Require Import measurable_matrix gauss gauss_law.
 From EllipsoidFitting Require Import GaussianLawBridge.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 
 Local Open Scope classical_set_scope.
@@ -55,7 +56,7 @@ apply: (nth_ext _ _ 0 0).
 move=> a; rewrite /gaussian_covariance_image length_map length_seq => /ssrnat.ltP aK.
 rewrite (nth_map_seq _ _ _ (elimT ssrnat.ltP aK)).
 have -> : a = Ordinal aK by [].
-rewrite list_of_row_nth /gaussian_covariance_row paper_main_covariance_finite_sum !mxE.
+rewrite list_of_row_nth /gaussian_covariance_row finite_sum_seqE !mxE.
 by apply: eq_bigr => i _; rewrite list_of_row_nth mxE mulrC.
 Qed.
 
@@ -63,7 +64,7 @@ Lemma paper_main_covariance_gram K p P (a b : 'I_K) :
   ((paper_main_covariance_mx p K P)^T *m paper_main_covariance_mx p K P)%R a b =
   gaussian_covariance_entry p P a b.
 Proof.
-rewrite /gaussian_covariance_entry paper_main_covariance_finite_sum !mxE.
+rewrite /gaussian_covariance_entry finite_sum_seqE !mxE.
 by apply: eq_bigr => i _; rewrite !mxE.
 Qed.
 

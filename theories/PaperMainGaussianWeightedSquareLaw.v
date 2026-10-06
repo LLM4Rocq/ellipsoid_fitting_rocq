@@ -47,10 +47,10 @@ Proof.
 move=> Ha HL Hu Hden.
 pose ar : 'rV[RR]_d := (\row_i a i)%R.
 have Qr x : paper_main_weighted_square d a (list_of_row x) = centered_chi2 ar x.
-  rewrite /paper_main_weighted_square paper_main_gaussian_finite_sum_seq /centered_chi2.
+  rewrite /paper_main_weighted_square finite_sum_seqE /centered_chi2.
   by apply: eq_bigr => i _; rewrite mxE list_of_row_nth RpowE.
 have vr : finite_sum (fun i => a i ^ 2) (List.seq 0 d) = mxdot ar ar.
-  rewrite paper_main_gaussian_finite_sum_seq /mxdot big_ord1.
+  rewrite finite_sum_seqE /mxdot big_ord1.
   by apply: eq_bigr => i _; rewrite !mxE RpowE expr2.
 have mE : measurable [set x : 'rV[RR]_d | (u <= `|centered_chi2 ar x|)%R].
   have := measurableT_comp (@normr_measurable RR _) (measurable_centered_chi2 ar)

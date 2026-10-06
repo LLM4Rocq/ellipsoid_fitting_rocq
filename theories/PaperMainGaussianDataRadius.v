@@ -13,6 +13,7 @@ From EllipsoidFitting Require Import GaussianCoordinateDefinitions GaussianProdu
   PaperMainGordonLipschitz PaperMainGaussianNorm PaperMainGaussianNormConcentration
   PaperMainGaussianSmoothTail PaperMainGaussianLipschitzClip
   PaperMainGaussianLipschitzConcentration.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
@@ -216,7 +217,7 @@ unfold paper_main_data_point_norm.
 assert (HS : 0 <= finite_sum (fun j => (List.nth (Nat.add (Nat.mul i d) j) (tval x) 0)^2)
   (List.seq 0 d)).
 { apply finite_sum_nonneg; intros j _; nra. }
-rewrite (pow2_sqrt _ HS) paper_main_data_finite_sum mxE.
+rewrite (pow2_sqrt _ HS) finite_sum_seqE mxE.
 apply: eq_bigr => j _; rewrite /paper_main_point !mxE.
 change ((List.nth (Nat.add (Nat.mul i d) j) (tval x) 0)^2 =
   List.nth (i*d+j)%N (tval x) 0 * List.nth (i*d+j)%N (tval x) 0).

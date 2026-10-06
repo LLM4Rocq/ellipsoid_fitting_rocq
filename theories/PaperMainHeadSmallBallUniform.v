@@ -46,6 +46,7 @@ From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GaussianCovaria
   PaperMainHeadSectionMeasurable PaperMainGaussianUnion PaperMainMatrixDuality
   PaperMainGaussianFeatureCoordinates PaperMainGaussianDimensionBounds PaperMainGordonEntropy
   PaperMainHeadSmallBallPZ PaperMainHeadSmallBallCount PaperMainHeadSmallBallNet.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
@@ -260,7 +261,7 @@ Proof.
 set Q := fun g => Rle (1 / 4) (paper_main_head_small_ball_value H b g ^ 2).
 set ind := fun i : nat => if pselect (Q (paper_main_point x i)) then 1 else 0.
 have Hc : paper_main_head_row_count m d Q x = (\sum_(i < m) ind i)%R.
-  exact: paper_main_finite_sum_public.
+  exact: finite_sum_seqE.
 have HF : forall i : 'I_m, 0 <= ind i <= 1.
   by move=> i; rewrite /ind; case: (pselect _) => _ /=; lra.
 have Hd := paper_main_head_small_ball_sum_delete m J (fun i => ind i) HF.

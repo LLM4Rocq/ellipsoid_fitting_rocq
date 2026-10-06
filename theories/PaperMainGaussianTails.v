@@ -30,7 +30,7 @@ Let ar : 'rV[RR]_d := (\row_i a i)%R.
 Let linear_row t : paper_main_gaussian_linear_random d a t = mxdot (row_of_tuple d t) ar.
 Proof.
 rewrite /paper_main_gaussian_linear_random /paper_main_gordon_dot.
-rewrite paper_main_gaussian_finite_sum_seq /mxdot big_ord1.
+rewrite finite_sum_seqE /mxdot big_ord1.
 by apply: eq_bigr => i _; rewrite !mxE gpp_nthE -tnth_nth mulrC.
 Qed.
 
@@ -66,7 +66,7 @@ Theorem paper_main_gaussian_unit_linear_absolute_tail u :
 Proof.
 move=> Ha Hu.
 have a1 : mxdot ar ar = 1.
-  rewrite -Ha /paper_main_gordon_dot paper_main_gaussian_finite_sum_seq /mxdot big_ord1.
+  rewrite -Ha /paper_main_gordon_dot finite_sum_seqE /mxdot big_ord1.
   by apply: eq_bigr => i _; rewrite !mxE.
 have a0 : ar != 0%R by rewrite -mxdot_eq0 a1 oner_eq0.
 rewrite event -(gauss_gaussian_product_law _ _ (measurable_row_event u)).

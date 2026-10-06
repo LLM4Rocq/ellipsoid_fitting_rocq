@@ -39,6 +39,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums
   PaperMainGordonOperatorNet PaperMainGaussianLinearLaw PaperMainGaussianTails
   PaperMainGaussianUnion PaperMainGaussianFeatureTail PaperMainDataFeatureMomentsCoordinates
   PaperMainDataSampleTail.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
@@ -264,11 +265,11 @@ pose u := fun a : nat => if insub a is Some a' then (wv a' ord0 : R) else 0.
 pose v := fun k : nat => if insub k is Some k' then
   ((wv^T *m paper_main_point x (s k')) ord0 ord0)%R else 0.
 have Hu : finite_sum (fun a => u a ^ 2) (List.seq 0 d) = ((wv^T *m wv) ord0 ord0)%R.
-  rewrite paper_main_finite_sum_public pmh_vec_dot; apply: eq_bigr => a _.
+  rewrite finite_sum_seqE pmh_vec_dot; apply: eq_bigr => a _.
   by rewrite /u valK RpowE expr2.
 have Hv : finite_sum (fun k => v k ^ 2) (List.seq 0 m) =
     (\sum_(k < m) ((wv^T *m paper_main_point x (s k)) ord0 ord0) ^+ 2)%R.
-  rewrite paper_main_finite_sum_public; apply: eq_bigr => k _.
+  rewrite finite_sum_seqE; apply: eq_bigr => k _.
   by rewrite /v valK RpowE.
 have Hmv : paper_main_gordon_matrix_value d m u v (pmdo_list N d m s (tval x)) =
     finite_sum (fun k => v k ^ 2) (List.seq 0 m).
@@ -283,7 +284,7 @@ have Hmv : paper_main_gordon_matrix_value d m u v (pmdo_list N d m s (tval x)) =
   have -> : finite_sum (fun a => u a * List.nth (pmdo_sel s k * d + a)%N (tval x : list R) 0)
       (List.seq 0 d) = v k.
     rewrite /v -[k]/(nat_of_ord (Ordinal Hk')) valK pmdo_sel_ord.
-    rewrite paper_main_finite_sum_public pmh_vec_dot; apply: eq_bigr => a _.
+    rewrite finite_sum_seqE pmh_vec_dot; apply: eq_bigr => a _.
     by rewrite /u valK /paper_main_point !mxE.
   ring.
 set SV := finite_sum (fun k => v k ^ 2) (List.seq 0 m) in Hv Hmv.

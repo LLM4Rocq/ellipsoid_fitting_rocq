@@ -8,6 +8,7 @@ From EllipsoidFitting Require Import SoftDefinitions PaperMainMatrixDuality Pape
   PaperMainGeometryHeadCorrection PaperMainGeometryHeadCoefficients
   PaperMainGeometryHeadFeature PaperMainGeometryHeadWidth
   PaperMainHeadTailSupportSplit PaperMainHeadTailSupportAll PaperMainSupportConditionedFit.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -50,7 +51,7 @@ Proof.
 move=> HG c; apply/RleP; rewrite RmultE RpowE paper_main_nat_combination_gram.
 have H := HG (\col_i c i).
 have E : (((\col_i c i) : 'cV[R]_N)^T *m (\col_i c i)) 0 0 = squared_norm c (List.seq 0 N).
-{ rewrite pmh_vec_dot /squared_norm paper_main_finite_sum_public.
+{ rewrite pmh_vec_dot /squared_norm finite_sum_seqE.
   by apply: eq_bigr => i _; rewrite !mxE RpowE expr2. }
 by rewrite E in H.
 Qed.

@@ -22,6 +22,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Gaus
   PaperMainDefinitions PaperMainMatrixDuality PaperMainGordonSetWidth PaperMainProjectedBulkEscape
   PaperMainGordonProcessCovariance PaperMainGaussianFeatureCoordinates
   PaperMainSymmetricDiagonalization PaperMainGordonEscape PaperMainProjectedBulkLaw.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -204,7 +205,7 @@ move=> HV a a' Ha Ha'.
 have Ha2 : (a < s)%N by apply/ssrnat.ltP.
 have Ha2' : (a' < s)%N by apply/ssrnat.ltP.
 transitivity ((V *m V^T) (Ordinal Ha2) (Ordinal Ha2')).
-  rewrite /gaussian_covariance_entry paper_main_finite_sum_public mxE.
+  rewrite /gaussian_covariance_entry finite_sum_seqE mxE.
   apply: eq_bigr => k _.
   rewrite (paper_main_projected_mx_loading_val V (Ordinal Ha2) k).
   rewrite (paper_main_projected_mx_loading_val V (Ordinal Ha2') k).
@@ -247,14 +248,14 @@ transitivity (finite_sum (fun j => v j * finite_sum (fun i =>
   congr (_ * _).
   rewrite /gaussian_covariance_image (nth_map_seq _ (s * D) (a * D + j) HaD).
   exact: paper_main_projected_row.
-rewrite paper_main_finite_sum_public mxE.
+rewrite finite_sum_seqE mxE.
 transitivity (\sum_(j < D) \sum_(i < n) (v j * (U a i * List.nth (i * D + j) (tval x) 0))).
   apply: eq_bigr => j _.
-  rewrite paper_main_finite_sum_public big_distrr /=.
+  rewrite finite_sum_seqE big_distrr /=.
   by apply: eq_bigr => i _.
 rewrite exchange_big /=; apply: eq_bigr => i _.
 have HU : U a i = W a i by rewrite /U (paper_main_projected_mx_loading_val W a i).
-rewrite mxE paper_main_finite_sum_public big_distrr /=.
+rewrite mxE finite_sum_seqE big_distrr /=.
 apply: eq_bigr => j _.
 by rewrite HU mulrCA.
 Qed.
@@ -266,7 +267,7 @@ Lemma paper_main_projected_escape_norm_mx {s n D : nat} (W : 'M[R]_(s, n))
   sqrt (paper_main_projected_sqnorm (W *m paper_main_projected_bulk_vector n D x v)).
 Proof.
 rewrite /paper_main_gordon_escape_norm /euclidean_norm /squared_norm; congr sqrt.
-rewrite /paper_main_projected_sqnorm mxE paper_main_finite_sum_public.
+rewrite /paper_main_projected_sqnorm mxE finite_sum_seqE.
 apply: eq_bigr => a _.
 rewrite paper_main_projected_escape_image_mx [_^T _ _]mxE.
 by rewrite RpowE expr2.

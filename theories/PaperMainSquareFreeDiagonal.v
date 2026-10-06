@@ -33,6 +33,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Gaus
   PaperMainGaussianUnion PaperMainGaussianGordonTail PaperMainDataSampleTail
   PaperMainGaussianWeightedSquare PaperMainGaussianWeightedSquareLaw
   PaperMainFeatureGramBlocks.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
@@ -49,7 +50,7 @@ Lemma paper_main_squarefree_diag_list N d (x : paper_main_sample N d) (i : 'I_N)
   paper_main_row_sq d i (tval x) ^ 2 - paper_main_row_quart d i (tval x).
 Proof.
 rewrite paper_main_squarefree_gram_diag pmh_vec_dot.
-rewrite /paper_main_row_sq /paper_main_row_quart !paper_main_finite_sum_public.
+rewrite /paper_main_row_sq /paper_main_row_quart !finite_sum_seqE.
 rewrite RminusE !RpowE.
 by congr (_ ^+ 2 - _)%R; apply: eq_bigr => a _; rewrite /paper_main_point !mxE ?RpowE.
 Qed.

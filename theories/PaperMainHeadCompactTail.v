@@ -27,6 +27,7 @@ From EllipsoidFitting Require Import AnalysisBridge GaussianProbabilityProductDe
   PaperMainHeadSectionWidthLaw PaperMainHeadSoftTail PaperMainSoftPublicFeatures
   PaperMainDataClipped PaperMainDataClippedSoft PaperMainDataClippedMoments
   PaperMainDataSoftConeTail PaperMainDataSoftConcentration.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory ListNotations.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -35,7 +36,7 @@ Lemma paper_main_head_combination_score d q (y : nat -> R) (V : nat -> 'M[R]_d) 
   paper_main_pairing (paper_main_head_section_combination q y V) P =
     finite_sum (fun i => (y i*paper_main_pairing (V i) P)%Rcoq) (List.seq 0 q).
 Proof.
-rewrite /paper_main_head_section_combination pmh_pairing_suml paper_main_finite_sum_public.
+rewrite /paper_main_head_section_combination pmh_pairing_suml finite_sum_seqE.
 by apply: eq_bigr => i _; rewrite RmultE.
 Qed.
 

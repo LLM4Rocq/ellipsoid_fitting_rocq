@@ -26,6 +26,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Gaus
   PaperMainDefinitions PaperMainGeometryPsd PaperMainConeConditionOperator
   PaperMainMatrixDuality PaperMainGaussianWeightedSquare PaperMainGaussianOrthogonal
   PaperMainSymmetricDiagonalization.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
@@ -52,7 +53,7 @@ Lemma paper_main_symmetric_row {d : nat} (O : 'M[R]_d) (xs : list R) (i : 'I_d) 
   gaussian_covariance_row d (paper_main_symmetric_loading O) i xs =
   (O *m paper_main_symmetric_column xs) i 0.
 Proof.
-rewrite /gaussian_covariance_row paper_main_finite_sum_public mxE.
+rewrite /gaussian_covariance_row finite_sum_seqE mxE.
 by apply: eq_bigr => k _; rewrite paper_main_symmetric_loading_val mxE.
 Qed.
 
@@ -70,7 +71,7 @@ Theorem paper_main_symmetric_column_list {d : nat} (O : 'M[R]_d) (a : 'rV[R]_d)
     (gaussian_covariance_image d d (paper_main_symmetric_loading O) xs) =
   \sum_(i < d) a 0 i * ((O *m paper_main_symmetric_column xs) i 0 ^+ 2 - 1).
 Proof.
-rewrite /paper_main_weighted_square paper_main_finite_sum_public.
+rewrite /paper_main_weighted_square finite_sum_seqE.
 apply: eq_bigr => i _.
 by rewrite paper_main_symmetric_coefficients_val paper_main_symmetric_image_nth RpowE.
 Qed.
@@ -80,7 +81,7 @@ Qed.
 Lemma paper_main_symmetric_loading_entry {d : nat} (O : 'M[R]_d) (i j : 'I_d) :
   gaussian_covariance_entry d (paper_main_symmetric_loading O) i j = (O *m O^T) i j.
 Proof.
-rewrite /gaussian_covariance_entry paper_main_finite_sum_public mxE.
+rewrite /gaussian_covariance_entry finite_sum_seqE mxE.
 by apply: eq_bigr => k _; rewrite !paper_main_symmetric_loading_val mxE.
 Qed.
 
@@ -146,7 +147,7 @@ split; first exact: paper_main_symmetric_loading_orthonormal.
 split.
   by move=> xs; rewrite paper_main_symmetric_column_list Hid.
 split.
-  rewrite paper_main_finite_sum_public -Hfr; apply: eq_bigr => i _.
+  rewrite finite_sum_seqE -Hfr; apply: eq_bigr => i _.
   by rewrite paper_main_symmetric_coefficients_val RpowE.
 move=> b Hb HBb i Hi.
 have Hi' : (i < d)%N by apply/ssrnat.ltP.

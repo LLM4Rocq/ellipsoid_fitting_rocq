@@ -7,6 +7,7 @@ From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCova
   PaperMainGaussianFeatureCoordinates PaperMainGordonProcessCovariance
   PaperMainDataFeatureMoments PaperMainProjectionStein PaperMainProjectionVariance
   PaperMainProjectionAlgebra PaperMainProjectionProduct PaperMainProjectionIndependent.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
@@ -34,8 +35,8 @@ Lemma paper_main_projection_public_pairing n T U :
     (paper_main_projection_public_coeff n U)=paper_main_pairing T U.
 Proof.
 unfold paper_main_projection_pairing,paper_main_pairing.
-rewrite paper_main_finite_sum_public; apply: eq_bigr => i _.
-rewrite paper_main_finite_sum_public; apply: eq_bigr => j _.
+rewrite finite_sum_seqE; apply: eq_bigr => i _.
+rewrite finite_sum_seqE; apply: eq_bigr => j _.
 rewrite /paper_main_projection_public_coeff !paper_main_matrix_from_public_entry; reflexivity.
 Qed.
 

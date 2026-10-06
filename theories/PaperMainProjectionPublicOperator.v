@@ -8,6 +8,7 @@ From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCova
   PaperMainGaussianFeatureCoordinates PaperMainDataFeatureMoments
   GaussianProductDefinitions GaussianProduct PaperMainProjectionStein PaperMainProjectionImage PaperMainProjectionVariance
   PaperMainProjectionProduct PaperMainProjectionIndependent PaperMainProjectionPublic.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
@@ -35,16 +36,16 @@ assert (HXY : X<=eps^2*Y).
     apply (Rmult_le_reg_l X); [exact Hpos|]; nra. }
 assert (EW : forall i : 'I_(S n),
   finite_sum (fun j => paper_main_projection_public_coeff n T i j*z j) (List.seq 0 (S n))=w i ord0).
-{ intro i; unfold w; rewrite mxE paper_main_finite_sum_public.
+{ intro i; unfold w; rewrite mxE finite_sum_seqE.
   apply: eq_bigr => j _.
   rewrite /paper_main_projection_public_coeff paper_main_matrix_from_public_entry /v mxE; reflexivity. }
 assert (EX : finite_sum (fun i => (finite_sum (fun j => paper_main_projection_public_coeff n T i j*z j)
   (List.seq 0 (S n)))^2) (List.seq 0 (S n))=X).
-{ unfold X; rewrite pmh_vec_dot paper_main_finite_sum_public.
+{ unfold X; rewrite pmh_vec_dot finite_sum_seqE.
   apply: eq_bigr => i _; rewrite EW.
   change ((w i ord0)^2=w i ord0*w i ord0); ring. }
 assert (EY : finite_sum (fun j => z j^2) (List.seq 0 (S n))=Y).
-{ unfold Y; rewrite pmh_vec_dot paper_main_finite_sum_public; apply: eq_bigr => j _.
+{ unfold Y; rewrite pmh_vec_dot finite_sum_seqE; apply: eq_bigr => j _.
   rewrite /v !mxE; change (z j^2=z j*z j); ring. }
 rewrite EX EY; exact HXY.
 Qed.

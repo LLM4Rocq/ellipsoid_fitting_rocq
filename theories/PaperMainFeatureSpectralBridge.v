@@ -11,6 +11,7 @@ From EllipsoidFitting Require Import AnalysisBridge GaussianProbabilityProductCo
   PaperMainGeometryHeadFeature PaperMainHeadTailSupportSplit PaperMainConeHeadTailFit
   PaperMainGordonProcessCovariance PaperMainGordonBilinear
   PaperMainHeadSectionApprox PaperMainFeatureGramBlocks.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 
@@ -19,7 +20,7 @@ Lemma paper_main_nat_gram_vector_norm N (y : nat -> R) :
     (euclidean_norm y (List.seq 0 N)) ^+ 2.
 Proof.
 rewrite -RpowE paper_main_gordon_euclidean_squared -paper_main_gordon_squared_norm_dot.
-rewrite pmh_vec_dot /squared_norm paper_main_finite_sum_public.
+rewrite pmh_vec_dot /squared_norm finite_sum_seqE.
 by apply: eq_bigr => i _; rewrite !mxE RpowE expr2.
 Qed.
 

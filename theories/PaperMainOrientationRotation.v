@@ -28,6 +28,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Gaus
   PaperMainProjectedBulkLaw PaperMainGaussianUnion PaperMainHeadSmallBallNet
   PaperMainGeometryHomogeneous PaperMainConeConditionOperator
   PaperMainHybridFiniteArray PaperMainHybridFiniteMean PaperMainHybridFiniteTail.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -99,7 +100,7 @@ have Hin : forall i, finite_sum (fun q => (paper_main_orientation_loading O a (i
     have Hqd : (q < d)%N by apply/ssrnat.ltP; have := proj2 (proj1 (List.in_seq _ _ _) Hq); lia.
     by rewrite !paper_main_orientation_loading_block.
   case: (a %/ d == i); case: (a' %/ d == i) => /=.
-  - rewrite paper_main_finite_sum_public /c !mxE.
+  - rewrite finite_sum_seqE /c !mxE.
     apply: eq_bigr => q _; rewrite mxE.
     by rewrite -(paper_main_orientation_entry_ord O (Ordinal Hqa))
       -(paper_main_orientation_entry_ord O (Ordinal Hqa')) RmultE.
@@ -109,7 +110,7 @@ have Hin : forall i, finite_sum (fun q => (paper_main_orientation_loading O a (i
 rewrite (finite_sum_ext _ _ _ (fun i _ => Hin i)).
 have Hout : finite_sum (fun i => if (a %/ d == i) && (a' %/ d == i) then c else 0)
     (List.seq 0 N) = (if (a %/ d == a' %/ d)%N then c else 0).
-  rewrite paper_main_finite_sum_public (bigD1 (Ordinal Hia)) //= big1 ?addr0.
+  rewrite finite_sum_seqE (bigD1 (Ordinal Hia)) //= big1 ?addr0.
     move=> i Hi.
     have -> : (a %/ d == i)%N = false.
       apply/negbTE; apply: contra Hi => /eqP E; apply/eqP; apply: val_inj => /=; exact: esym E.
@@ -190,7 +191,7 @@ have Hin : forall i', finite_sum (fun q =>
        List.nth (i' * d + q)%N (tval x) 0)%Rcoq) (List.seq 0 d) =
     if (i == i')%N then \sum_(b < d) O a b * List.nth (i * d + b)%N (tval x) 0 else 0.
   move=> i'.
-  rewrite paper_main_finite_sum_public.
+  rewrite finite_sum_seqE.
   case: (eqVneq i i') => [<-|Hne].
     apply: eq_bigr => q _.
     by rewrite Hload paper_main_orientation_loading_block // Ea Eb eqxx
@@ -198,7 +199,7 @@ have Hin : forall i', finite_sum (fun q =>
   rewrite big1 // => q _.
   rewrite Hload paper_main_orientation_loading_block // Ea.
   by rewrite (negbTE Hne) RmultE mul0r.
-rewrite (finite_sum_ext _ _ _ (fun i' _ => Hin i')) paper_main_finite_sum_public.
+rewrite (finite_sum_ext _ _ _ (fun i' _ => Hin i')) finite_sum_seqE.
 have Hi' : (i < N)%N := Hi.
 rewrite (bigD1 (Ordinal Hi')) //=.
 rewrite [X in X + _]/= eqxx [X in _ + X]big1 ?addr0 //.

@@ -247,6 +247,7 @@ From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral probability.
 From GaussianAnalysis Require Import measurable_matrix gauss euclidean slepian gordon escape.
 From EllipsoidFitting Require Import SoftExtrema GaussianLawBridge.
+From EllipsoidFitting Require Import RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 
 Section gordon_library.
@@ -320,7 +321,7 @@ pose zs (u : 'I_r.+1) : 'cV[RR]_N := (\col_i z u i)%R.
 pose vs (t : 'I_s.+1) : 'cV[RR]_M := (\col_j v t j)%R.
 have dotE n (w : nat -> R) :
     paper_main_gordon_dot n w w = mxdot (\col_(i < n) (w i : RR))%R (\col_i w i)%R.
-  rewrite /paper_main_gordon_dot paper_main_gordon_finite_sum_seq /mxdot.
+  rewrite /paper_main_gordon_dot finite_sum_seqE /mxdot.
   by apply: eq_bigr => i _; rewrite big_ord1 !mxE.
 have zs1 u : frobenius (zs u) = 1%R.
   have uz : lt u r.+1 by apply/ssrnat.ltP.
@@ -334,7 +335,7 @@ have EA (w : 'rV[RR]_(N + M)) : finite_minimax
     (List.seq 0 r.+1) (List.seq 0 s.+1) = minmax (vec_mx (w *m auxT_mx zs vs)).
   rewrite paper_main_gordon_minimax_minmax; congr minmax; apply/matrixP => u t.
   rewrite mxE auxT_mxE /paper_main_gordon_auxiliary /paper_main_gordon_dot.
-  rewrite !paper_main_gordon_finite_sum_seq /mxdot.
+  rewrite !finite_sum_seqE /mxdot.
   congr (_ + _)%R; apply: eq_bigr => i _; rewrite big_ord1 !mxE.
     by rewrite (list_of_row_nth w (lshift M i)) mulrC.
   by rewrite (list_of_row_nth w (rshift N i)) mulrC.
@@ -344,8 +345,8 @@ have EM (a : 'rV[RR]_(N * M)) : finite_minimax
        (List.seq 0 M)) (List.seq 0 N))
     (List.seq 0 r.+1) (List.seq 0 s.+1) = minmax (vec_mx (a *m bilT_mx zs vs)).
   rewrite paper_main_gordon_minimax_minmax; congr minmax; apply/matrixP => u t.
-  rewrite mxE bilT_mxE paper_main_gordon_finite_sum_seq /mxdot.
-  apply: eq_bigr => i _; rewrite big_ord1 !mxE paper_main_gordon_finite_sum_seq.
+  rewrite mxE bilT_mxE finite_sum_seqE /mxdot.
+  apply: eq_bigr => i _; rewrite big_ord1 !mxE finite_sum_seqE.
   rewrite mulr_sumr; apply: eq_bigr => j _; rewrite !mxE.
   have -> : List.nth (i * M + j)%coq_nat (list_of_row a) 0 = (a 0 (mxvec_index i j))%R.
     by rewrite -(list_of_row_nth a (mxvec_index i j)) mxvec_index_val.
