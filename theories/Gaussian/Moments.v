@@ -1,22 +1,22 @@
 (* The moments of the Gaussian kernel, the integrals of
-   x ^ n * gaussian_kernel x over the line.
-   - gaussian_moment_recurrence: if the moment of order n is L, then the
-     moment of order n + 2 is (n + 1) * L. This is Stein's identity
-     gaussian_stein_polynomial_split for f t = t ^ (n + 1).
-   - gaussian_raw_moments: if the kernel has integral J, then the moment of
-     order n is moment_factor n * J, where moment_factor n is 0 for n odd
-     and 1 * 3 * ... * (n - 1) for n even. The hypothesis holds for
-     J = gaussian_mass and for no other J (gaussian_kernel_mass_integral of
-     Gaussian.Mass).
-   The integrals over the line are Lebesgue integrals, so each conclusion
-   includes the absolute integrability of the integrand. *)
+   x ^ n * gaussian_kernel x over the line. gaussian_raw_moments: if the
+   kernel has integral J, then the moment of order n is moment_factor n * J,
+   where moment_factor n is 0 for n odd and 1 * 3 * ... * (n - 1) for n
+   even. The hypothesis holds for J = gaussian_mass and for no other J
+   (gaussian_kernel_mass_integral of Gaussian.Mass).
 
-From Stdlib Require Import Reals Lra Psatz.
+   The moments of the standard normal law are normal_moment_even and
+   normal_moment_odd of the library (GaussianAnalysis.gauss_moments), and
+   whole_line_integral_normal of Gaussian.Kernel carries them over to the
+   kernel. The integrals over the line are Lebesgue integrals, so each
+   conclusion includes the absolute integrability of the integrand. *)
+
+From Stdlib Require Import Reals Lra.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions.
-From EllipsoidFitting Require Import GaussianDefinitions Gaussian.Kernel
-  Gaussian.KernelDecay Gaussian.SteinIdentity Gaussian.SteinPolynomial.
-From EllipsoidFitting Require Import Analysis.ParameterIntegrals.
+From EllipsoidFitting Require Import GaussianDefinitions Gaussian.Kernel Gaussian.Mass.
+From mathcomp Require Import measurable_realfun probability normal_distribution.
+From GaussianAnalysis Require Import normal_integral gauss_moments.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
 
@@ -28,59 +28,39 @@ Lemma gaussian_power_continuous n (x : R) :
   {for x, continuous (fun t : R => t ^ n)}.
 Proof. exact (continuous_Rpow n x). Qed.
 
-Theorem gaussian_moment_recurrence n L :
-  whole_line_has_integral (fun x => x ^ n * gaussian_kernel x) L ->
-  whole_line_has_integral (fun x => x ^ S (S n) * gaussian_kernel x)
-    (INR (S n) * L).
+Lemma moment_factorSS m : moment_factor m.+2 = INR m.+1 * moment_factor m.
+Proof. by []. Qed.
+
+Lemma moment_factor_double k :
+  moment_factor k.*2 = (\prod_(i < k) i.*2.+1%:R)%R.
 Proof.
-  intro HL.
-  change (whole_line_has_integral (fun x => x * x ^ S n * gaussian_kernel x)
-    (INR (S n) * L)).
-  apply (gaussian_stein_polynomial_split (fun x => x ^ S n)
-    (fun x => INR (S n) * x ^ n) 1 (S n) (INR (S n) * L)).
-  - exact (gaussian_power_derivative n).
-  - intro x.
-    apply (continuous_mult R).
-    + apply (continuous_const R).
-    + apply gaussian_power_continuous.
-  - intro x; rewrite <- RPow_abs; lra.
-  - have E : (fun t => INR (S n) * t ^ n * gaussian_kernel t) =
-        (fun t => INR (S n) * (t ^ n * gaussian_kernel t)).
-    { apply/funext => t; ring. }
-    rewrite E.
-    destruct HL as [Hi Hl]; split.
-    + exact (fubini_integrable_scale setT (fun x => x ^ n * gaussian_kernel x)
-        (INR (S n)) measurableT Hi).
-    + rewrite (fubini_integral_scale_l (fun x => x ^ n * gaussian_kernel x)
-        (INR (S n)) Hi) Hl; reflexivity.
+elim: k => [|k IH]; first by rewrite big_ord0.
+by rewrite doubleS moment_factorSS INRE IH big_ord_recr /= mulrC.
 Qed.
+
+Lemma moment_factor_odd k : moment_factor k.*2.+1 = 0.
+Proof. by elim: k => [|k IH] //; rewrite doubleS moment_factorSS IH Rmult_0_r. Qed.
 
 Theorem gaussian_raw_moments J :
   whole_line_has_integral gaussian_kernel J ->
   forall n, whole_line_has_integral (fun x => x ^ n * gaussian_kernel x)
     (moment_factor n * J).
 Proof.
-  intro HJ.
-  assert (Hp : forall n,
-    whole_line_has_integral (fun x => x ^ n * gaussian_kernel x)
-      (moment_factor n * J) /\
-    whole_line_has_integral (fun x => x ^ S n * gaussian_kernel x)
-      (moment_factor (S n) * J)).
-  { intro n; induction n as [|n [Hn HSn]].
-    - split.
-      + simpl; rewrite Rmult_1_l.
-        have E : (fun x : R => 1 * gaussian_kernel x) = gaussian_kernel.
-        { apply/funext => x; ring. }
-        rewrite E; exact HJ.
-      + simpl; rewrite Rmult_0_l.
-        have E : (fun x : R => x * 1 * gaussian_kernel x) =
-            (fun x => x * gaussian_kernel x).
-        { apply/funext => x; ring. }
-        rewrite E; exact gaussian_first_moment_zero.
-    - split; [exact HSn |].
-      change (whole_line_has_integral (fun x => x ^ S (S n) * gaussian_kernel x)
-        ((INR (S n) * moment_factor n) * J)).
-      rewrite Rmult_assoc.
-      exact (gaussian_moment_recurrence n (moment_factor n * J) Hn). }
-  intro n; exact (proj1 (Hp n)).
+move=> [_ <-] n; rewrite -/gaussian_mass gaussian_mass_normal_peak.
+have Nf : (@normal_prob R 0 1).-integrable [set: measurableTypeR R]
+    (EFin \o (fun x : R => x ^ n)).
+  apply: (integrable_normal_poly (C := 1) (k := n)) => [|x].
+    under eq_fun do rewrite RpowE.
+    by apply: measurable_funX; exact: measurable_id.
+  by rewrite /= RpowE normrX mul1r lerDr ler01.
+have Hf : gaussian_integral_exists (fun x : R => x ^ n).
+  exact/gaussian_integral_exists_normal.
+split; first exact: Hf.
+rewrite (whole_line_integral_normal _ Hf).
+under eq_integral do rewrite /= RpowE.
+have := odd_double_half n; case: (odd n) => /= E.
+  rewrite add1n in E; rewrite -E moment_factor_odd normal_moment_odd /=.
+  by rewrite mulr0 Rmult_0_l.
+rewrite add0n in E; rewrite -E moment_factor_double normal_moment_even /=.
+by rewrite RmultE mulrC.
 Qed.
