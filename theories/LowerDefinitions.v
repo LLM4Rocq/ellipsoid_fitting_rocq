@@ -6,29 +6,26 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions MatrixDefinitions SoftMatrixDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/LowerDefinitions.v from Coquelicot to MathComp-Analysis.
+(* The soft minimax of scores F z s : E -> R on a normed module E, and its
+   first two derivatives.
+   - lower_inner_value: the soft maximum over S, at inverse temperature
+     gamma, of the scores F z s A.
+   - lower_inner_first and lower_inner_covariance: the mean of the scores
+     in a direction U, and the covariance of the scores in two directions U
+     and V, under the inner Gibbs law over S.
+   - lower_first and lower_second: their combinations under the outer Gibbs
+     law over Y, at inverse temperature - beta.
+   When every F z s is linear and bounded, 0 < beta, 0 < gamma and Y and S
+   are nonempty, lower_first and lower_second are the first and second
+   derivatives of the soft minimax at A (LowerFrechet).
 
-   Coquelicot's NormedModule R_AbsRing becomes normedModType R, as in the
-   port of MatrixDefinitions. block_NormedModule n m is built from
-   tuple_NormedModule and matrix_NormedModule of that port, whose products
-   are euclidean_product of MatrixEuclideanProduct and keep Coquelicot's
-   product norm. A block array therefore still carries the Euclidean norm of
-   all its entries, the square root of the sum of the squared Frobenius norms
-   of its blocks, as in the original. Its ball is the norm ball, as
-   MatrixDefinitions explains, and its topology is the one of the original.
-
-   The generic definitions lower_inner_value to lower_second take the space
-   E as an implicit normedModType R, where the original took an implicit
-   NormedModule R_AbsRing. E is used only as the type of the points A, U, V,
-   so their values are those of the original.
-
-   One change of notation. With ssreflect loaded, the bare name seq means
-   MathComp's type of sequences, so lower_block_scores and lower_block_phi
-   write List.seq, the function of Stdlib's List that the original used. The
-   index list is List.seq 0 (S m) = [0; ...; m], as before. MathComp is
-   imported only for normedModType; R_scope is opened after it, so the
-   arithmetic, including the products, the difference and the minus sign of
-   - beta, is Stdlib's, as before. *)
+   The block versions take for E the space block_array n m of the tuples of
+   m + 1 matrices of matrix n, with the Euclidean norm of all entries (the
+   square root of the sum of the squared Frobenius norms of the blocks).
+   Their scores lower_block_scores n m y B z s A are the sums over the
+   blocks i of y z i * trace_pair n (B s) A_i, over the index list
+   List.seq 0 (S m) = [0; ...; m]. lower_block_phi is the soft minimax of
+   these scores. *)
 
 Definition block_NormedModule (n m : nat) : normedModType R :=
   tuple_NormedModule (matrix_NormedModule n) m.

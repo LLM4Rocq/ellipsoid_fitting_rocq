@@ -13,45 +13,21 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/SoftMatrixCalculus.v from Coquelicot to
-   MathComp-Analysis.
+(* Perturbation of one block of the soft matrix scores.
+   soft_matrix_scores_perturbation: for i in a duplicate-free index list
+   I, adding M to the block A i (soft_matrix_block_add) turns the scores
+   soft_matrix_scores n y B I into the affine scores
+   matrix_affine_scores of M, whose offsets are the old scores and whose
+   coefficients are soft_matrix_coefficients n y B i. On the way: the
+   exchange of two coordinate sums, the symmetry of trace_pair, and the sum
+   over I of a function that vanishes off the index i
+   (soft_matrix_single_sum).
 
-   Every lemma and theorem of the original keeps its name and its arguments,
-   in the same order. No lemma is added. All statements but one keep the
-   text of the original. They mention only the definitions of the ported
-   modules, Stdlib's arithmetic, the lists, In and NoDup, whose meaning the
-   ports keep.
-
-   The statement that changes is soft_matrix_coordinate_derivatives, in the
-   ways of the port of MatrixThird, which it applies.
-
-   1. Frechet derivatives. Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis: f is differentiable at A and its
-      differential 'd f A is l. Both say that l is linear and continuous and
-      that f (A + H) = f A + l H + o(H) as H tends to 0. On matrix n the
-      norm is the Frobenius norm of MatrixDefinitions, as in Coquelicot.
-
-   2. Real-valued maps. A map into R given to is_diff is written with
-      codomain R^o, the normed module view of R, as in
-      ((fun M => ...) : matrix n -> R^o). R^o is R by definition, so the
-      maps are the same.
-
-   So the conclusion says the same thing as in the original.
-
-   One change of notation. With ssreflect loaded, if d then a else b on a
-   decision d : {j = i} + {j <> i} elaborates to if is_left d then a else b,
-   a test on the boolean is_left d, which is not the term of the original.
-   The statement of soft_matrix_single_sum, and the two proofs that state a
-   sum of the same shape, therefore write the match that the original's
-   if Nat.eq_dec j i then x else 0 stands for, as
-   match Nat.eq_dec j i with left _ => x | right _ => 0 end. The term is the
-   original's, and so is the meaning.
-
-   In the proofs, Coquelicot's plus_zero_r becomes MathComp's addr0, since
-   matrix_add and matrix_zero are MathComp's + and 0 on matrix n in the
-   port of MatrixDefinitions, and filterdiff_ext becomes rewriting the
-   function with funext. Stdlib's "rewrite A, B" and "rewrite ... by tac"
-   are written in the forms that ssreflect accepts. *)
+   With ssreflect loaded, if d then a else b on a decision
+   d : {j = i} + {j <> i} elaborates to a test on the boolean is_left d.
+   The statement of soft_matrix_single_sum and the proof of
+   soft_matrix_scores_perturbation therefore write the match
+   match Nat.eq_dec j i with left _ => x | right _ => 0 end. *)
 
 Lemma soft_matrix_coordinate_sum_add n f g :
   coordinate_sum n (fun i => f i + g i) = coordinate_sum n f + coordinate_sum n g.

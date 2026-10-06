@@ -1,15 +1,14 @@
-(* Port of theories/GaussianProductDefinitions.v from Coquelicot to
-   MathComp-Analysis. Every definition keeps its name, its arguments and its
-   text, with one change: in gaussian_iterated_has_expectation, Coquelicot's
-     is_RInt_gen (fun x => ... * gaussian_density x)
-       (Rbar_locally m_infty) (Rbar_locally p_infty) v
-   becomes
-     whole_line_has_integral (fun x => ... * gaussian_density x) v
-   of AnalysisIntegralDefinitions, that is, Lebesgue integrability of the
-   integrand over the real line together with the value v of its integral.
-   This is difference 4 of analysis/README.md: the improper Riemann integral
-   of the original is replaced by the Lebesgue integral, and the two agree on
-   absolutely integrable integrands. The Coquelicot import is dropped. *)
+(* Iterated Gaussian expectations of functions of a list of d coordinates.
+   gaussian_iterated_expectation d F integrates the coordinates one at a
+   time against the standard Gaussian law (gaussian_expectation).
+   gaussian_iterated_integrable d F says that the integral exists at each
+   level (gaussian_integral_exists), and gaussian_iterated_has_expectation
+   d F v that the integrand times gaussian_density has, at each level, an
+   integral over the line, with final value v (whole_line_has_integral).
+   These integrals are Lebesgue integrals, so they require absolute
+   integrability. The module also defines the product of functions of one
+   coordinate each, the product of their expectations, and the sum of the
+   squares of a list. *)
 From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 Import ListNotations.

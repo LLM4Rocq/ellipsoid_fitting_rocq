@@ -13,55 +13,24 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of the inner module GoeSynthesis of theories/InterpolationProofs.v
-   (also copied in GoeProofs.v and JointProofs.v) from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   Every lemma and theorem of the original keeps its name and its
-   arguments, in the same order. No item is added. The statements change
-   form in four ways, as in the ports of MatrixCoordinates, CoefficientMaps
-   and the restated challenge ellipsoid_goe.
-
-   1. Order on indices. With ssreflect loaded, (k <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements of goe_basis_unit_norm, goe_basis_orthonormal and
-      goe_matrix_coordinate_direction write (k <= n)%coq_nat, which is
-      Stdlib's le. This is the same term that GoePairs writes as
-      (k <= n)%nat, because GoePairs loads no MathComp module. The proofs
-      write List.nth for Stdlib's nth, since nth alone is MathComp's seq.nth
-      here.
-
-   2. Norms. Coquelicot's norm becomes MathComp's norm (`|_|)%R, in
-      goe_basis_unit_norm and goe_matrix_norm_bound. The norm on matrix n is
-      the Frobenius norm and the norm on vector k the Euclidean norm, as in
-      Coquelicot, because the port of MatrixDefinitions nests
-      euclidean_product (analysis/README.md, difference 1). So both
-      statements mean the same, constants included.
-
-   3. Linear maps. Coquelicot's is_linear l in goe_matrix_linear becomes the
-      conjunction
-        linear l /\ exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R
-      of MathComp's algebraic linearity and Coquelicot's norm bound, the
-      form of MatrixCoordinates and of group 2 of the restated challenge
-      ellipsoid_goe (analysis/README.md, difference 2). It is equivalent to
-      Coquelicot's record.
-
-   4. Frechet derivatives. Coquelicot's filterdiff f (locally z) l in
-      goe_matrix_frechet becomes is_diff z f l of MathComp-Analysis, as in
-      MatrixCoordinates.
-
-   The other statements keep the text of the original: goe_scale_positive,
-   goe_scale_square, goe_basis_symmetric, goe_module_sum_entry,
-   goe_matrix_symmetric, goe_matrix_trace and goe_basis_divergence.
-
-   The proofs follow the original. Coquelicot's is_linear_comp becomes
-   matrix_linear_comp of MatrixCoordinates, filterdiff_linear becomes
-   matrix_linear_is_diff, and norm_ge_0 becomes normr_ge0. Coquelicot's
-   is_linear_scal_l and is_linear_scal_r, the linearity of r |-> r *: B and
-   of M |-> c *: M, are proved inline in goe_matrix_linear. Coquelicot's
-   linear_scal, applied to the map B |-> trace_pair n B U, is replaced in
-   goe_matrix_trace by the symmetry symmetric_trace_pair_comm of
-   SymmetricBasis and trace_pair_scale of MatrixTrace. *)
+(* The GOE matrix of a vector z, goe_matrix n z, is goe_scale n times the
+   sum of z_k * goe_basis n k, where goe_scale n = sqrt (2 / (n + 1)) and
+   goe_basis n k runs over the basis of symmetric matrices indexed by the
+   pairs a <= b.
+   - goe_basis_symmetric, goe_basis_unit_norm, goe_basis_orthonormal: the
+     basis matrices are symmetric and orthonormal for trace_pair.
+   - goe_matrix_symmetric, goe_matrix_linear, goe_matrix_norm_bound:
+     goe_matrix n z is symmetric, linear in z, and of Frobenius norm at
+     most goe_scale n * (goe_vector_index n + 1) * |z|.
+   - goe_matrix_coordinate_direction: the k-th coordinate vector goes to
+     goe_scale n * goe_basis n k.
+   - goe_matrix_trace: trace_pair (goe_matrix n z) U is goe_scale n times
+     the sum of z_k * trace_pair (goe_basis n k) U.
+   - goe_basis_divergence: the sum over the basis of trace_pair E (L E) is
+     symmetric_divergence n L.
+   Linearity in goe_matrix_linear is MathComp's linear together with a norm
+   bound. The index bounds are written (k <= _)%coq_nat, Stdlib's le,
+   because %nat would give ssrnat's boolean leq. *)
 
 Lemma goe_scale_positive n : 0 < goe_scale n.
 Proof.

@@ -1,23 +1,12 @@
-(* Results module of the draft challenge multirow_time_calculus, over the
-   MathComp-Analysis port in analysis/. Nothing here is reviewed, solved or
-   accepted: the challenge is a draft of the port, and this module is a
-   pre-submission proof attempt written on 30 September 2026 by a session
-   that did not write the statement.
-
-   The imports before the proof modules are those of
-   analysis/challenges/multirow_time_calculus/Challenge.v, in the same order,
-   and the statement below is the text of that file, copied unchanged
-   (SHA-256 of Challenge.v: e288da017052486ba1c5bb5ee5498324eaace39b5c141a2bce5eb4c830a5150a).
-
-   The proof splits on the index families. When Y or S is empty, the value
-   Phi along the path is constant and every derivative term is 0
-   (MultirowTimeEmptyFamilies). When both are nonempty, the four clauses are
-   the checkpoint theorems gaussian_array_time_derivative,
-   gaussian_array_value_time_derivative, gaussian_array_velocity_row_sum and
-   gaussian_array_value_row_derivative of RowTimeCalculus, whose hypotheses
-   Y <> [] and S <> [] are then available. The first clause is the same
-   theorem in all three cases; block_NormedModule n m is
-   tuple_NormedModule (matrix_NormedModule n) m by definition. *)
+(* Time derivatives along the interpolation path of block arrays, for
+   fixed coordinates xs and 0 < t < 1. paper_multirow_time_calculus_results:
+   the block array gaussian_row_array n m t xs has derivative
+   gaussian_array_velocity n m t xs in t; the array value
+   gaussian_array_value has derivative lower_block_first of the array in
+   the direction of the velocity, which is the sum over the rows of
+   gaussian_row_velocity. When Y or S is empty, the value is constant in t
+   and every derivative term is 0 (MultirowTimeEmptyFamilies); otherwise
+   the clauses are theorems of RowTimeCalculus. *)
 From Stdlib Require Import Reals List.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import Rstruct.

@@ -1,70 +1,21 @@
-(* Port of the inner module GaussianExpectationContinuity of
-   theories/InterpolationProofs.v, extracted to
-   build/agent2/unbundled/GaussianExpectationContinuity.v, from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma and theorem keeps its name, its arguments in the same order
-   and its hypotheses. The Gaussian notions come from the ported
-   GaussianDefinitions, GaussianProductDefinitions and
-   GaussianCoordinateWeightDefinitions: gaussian_iterated_integrable,
-   gaussian_iterated_absolutely_integrable and
-   gaussian_iterated_has_expectation ask at each level for the Lebesgue
-   integrability over the line of the integrand against the kernel, Borel
-   measurability included, in place of the convergence of an improper
-   Riemann integral (difference 4 of analysis/README.md). The arithmetic in
-   every statement is Stdlib's, as in the original.
-
-   The original imported the bundle GaussianCoordinateProofs and named its
-   inner modules GaussianProduct, GaussianCoordinateWeights,
-   GaussianCoordinateMarginals and GaussianCoordinatePolynomialContinuity.
-   This port imports the ported standalone modules of the same names.
-
-   Statements that change form, all without a change of meaning.
-
-   1. Coquelicot's pointwise continuity continuous f a, for f : R -> R,
-      becomes MathComp's {for a, continuous f} (difference 5 of
-      analysis/README.md). This concerns the conclusion of
-      gaussian_iterated_expectation_continuous, the first conjunct of the
-      conclusions of gaussian_iterated_expectation_continuous_with_domains
-      and gaussian_iterated_expectation_continuous_modulus, and the
-      hypothesis on the modulus c in gaussian_iterated_weighted_modulus,
-      gaussian_iterated_expectation_continuous_modulus,
-      gaussian_iterated_weighted_modulus_within and
-      gaussian_iterated_expectation_continuous_modulus_within. Both say
-      that f y tends to f a when y tends to a, for the usual topology of R.
-
-   2. Coquelicot's limit within a domain,
-        filterlim f (within D (locally a)) (locally l),
-      becomes MathComp's
-        (f @ within D (nbhs a) --> l)%classic,
-      in the first conjunct of the conclusions of
-      gaussian_iterated_expectation_continuous_within and
-      gaussian_iterated_expectation_continuous_modulus_within. MathComp's
-      within D F is the set of P with F (fun x => D x -> P x), which is the
-      text of Coquelicot's within, and nbhs a on R is the filter of the
-      balls around a, as Coquelicot's locally a. So both say: for every
-      eps > 0 there is delta > 0 with Rabs (f b - l) < eps for every b of D
-      with Rabs (b - a) < delta.
-
-   3. The degrees p + q and q + p are written (p + q)%coq_nat and
-      (q + p)%coq_nat. With ssreflect loaded, the bare p + q at type nat
-      denotes ssrnat's addn, which is only convertible to Stdlib's Nat.add
-      of the original; %coq_nat gives Nat.add itself, the term of the
-      original. The powers M^d of the original are written M ^ d, with
-      spaces: under MathComp, ^d is a token (the dual order notation), so
-      p^d does not parse as a power. The term is Stdlib's pow, as before.
-
-   A scratch check found the types of gaussian_iterated_difference,
-   gaussian_iterated_difference_bound,
-   finite_polynomial_bound_from_difference,
-   gaussian_iterated_local_admissible and
-   gaussian_iterated_local_admissible_within syntactically equal
-   (constr_eq) to the original statements, written word for word in a
-   context that loads no MathComp notation.
-
-   The proofs follow the original ones. The epsilon-delta forms of
-   continuity come from continuous_Reals and nbhs_Reals of AnalysisBridge,
-   in place of Coquelicot's continuity_pt_filterlim and filterlim_locally. *)
+(* Continuity of an iterated Gaussian expectation in a real parameter b that
+   ranges over a set D. Each level of the expectation is a Lebesgue integral
+   over the line.
+   - gaussian_iterated_difference_bound: if F and G are integrable and
+     F - G has the polynomial bound C, p, then the expectations of F and G
+     differ by at most C * (gaussian_coordinate_weight_moment p) ^ d.
+   - gaussian_iterated_local_admissible_within: if F a has a polynomial
+     bound and, for b in D near a, F b is jointly continuous and
+     |F b - F a| <= (1 + |x_1|)^p ... (1 + |x_d|)^p, then F b has an
+     expectation for b in D near a, with a uniform bound.
+   - gaussian_iterated_expectation_continuous_within: if moreover, for
+     every eps > 0, F b - F a has the polynomial bound eps, p for b in D
+     near a, then the expectation of F b tends to that of F a as b tends
+     to a within D. gaussian_iterated_expectation_continuous_modulus_within
+     takes the bound c b, for a function c continuous at a with c a = 0.
+   The limit within D, (f @ within D (nbhs a) --> l)%classic, says: for every
+   eps > 0 there is delta > 0 such that |f b - l| < eps for every b of D with
+   |b - a| < delta. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import AnalysisBridge2.

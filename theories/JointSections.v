@@ -13,33 +13,16 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module JointSections of theories/InterpolationProofs.v
-   (also copied in theories/JointProofs.v), extracted to
-   build/agent2/unbundled/JointSections.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original imported the bundles QuadraticGaussianProofs and GoeProofs
-   and named their inner modules QuadraticGaussianTime and GoeGibbs through
-   them. The port imports these two standalone ported modules directly.
-
-   The three statements keep their names, their arguments in the same order,
-   their hypotheses and their text. No item is added.
-   joint_matrix_quadratic_section is an identity between matrices and means
-   the same as before. joint_quadratic_section_stein and
-   joint_goe_section_stein change meaning only through the ported
-   definitions they mention: gaussian_vector_domain and
-   gaussian_vector_expectation follow the ported GaussianVectorDefinitions
-   (difference 4 of analysis/README.md), that is Borel measurability and
-   Lebesgue integrability against the Gaussian kernel at each level of the
-   iterated expectation, and Lebesgue integrals. The sections are continuous
-   and bounded by a polynomial, as the ported QuadraticGaussianTime and
-   GoeGibbs use, so both readings of the domain hold and the values agree.
-   Their text is that of the two clauses of the group "Fixed-section
-   quadratic and GOE identities with full domains" of the restated challenge
-   analysis/challenges/ellipsoid_joint/Challenge.v.
-
-   The proofs are the original ones. Stdlib's "rewrite A, B" and
-   "rewrite ... by tac" are written in the form that ssreflect accepts. *)
+(* Gaussian integration by parts in each of the two independent inputs of
+   joint_matrix n C t x z = C + sqrt (t / (n + 1)) (x x^T - I)
+   + sqrt (1 - t) goe_matrix n z (JointDefinitions). For fixed z, the
+   joint matrix is quadratic_matrix in x (joint_matrix_quadratic_section),
+   and joint_quadratic_section_stein expresses the expectation in x of
+   joint_quadratic_trace through those of joint_divergence and
+   joint_remainder. For fixed x, joint_goe_section_stein: the expectation
+   in z of joint_goe_trace is 2 sqrt (1 - t) / (n + 1) times that of
+   joint_divergence. Both theorems also show that the functions they
+   integrate satisfy gaussian_vector_domain. *)
 
 Lemma joint_matrix_quadratic_section n C t x z :
   joint_matrix n C t x z =

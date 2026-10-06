@@ -4,6 +4,16 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeigh
 Import ListNotations.
 Open Scope R_scope.
 
+(* Bounds on the averages and covariances of a finite Gibbs law on a
+   nonempty index list, which is a probability on the list
+   (gibbs_finite_probability). Below, <u> is gibbs_average c f I u and
+   cov(u, v) is gibbs_covariance c f I u v.
+   - gibbs_mean_uniform_bound: |u| <= K on the list gives |<u>| <= K.
+   - gibbs_covariance_absolute_bound:
+     |cov(u, v)| <= <|u| |v|> + <|u|> <|v|>.
+   - gibbs_covariance_cubic_bound: if r >= 0, |u| <= A r^2 and |v| <= B r,
+     then |cov(u, v)| <= 2 A B <r^3>. *)
+
 Lemma gibbs_finite_probability c f I :
   I <> [] -> finite_probability (gibbs_weight c f I) I.
 Proof.

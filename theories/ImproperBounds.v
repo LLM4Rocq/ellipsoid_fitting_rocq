@@ -1,21 +1,13 @@
-(* Port of theories/ImproperBounds.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order, and no statement gains or loses a hypothesis. The statements use
-   the vocabulary of AnalysisIntegralDefinitions: Coquelicot's
-   continuous g x becomes {for x, continuous g}, ex_RInt g a b becomes
-   segment_integrable g a b, RInt g a b becomes oriented_integral g a b, and
-   is_RInt_gen g (Rbar_locally m_infty) (Rbar_locally p_infty) J becomes
-   whole_line_has_integral g J, the Lebesgue integral over the line.
-
-   With the Lebesgue integral the three bounds hold without the continuity
-   hypothesis: the integral of a nonnegative integrable function over a
-   segment is at most its integral over the line, and the latter is
-   nonnegative. The hypothesis is kept, unused, so that the calls of the
-   importers keep their shape. The original proofs went through the
-   definition of the improper Riemann integral as a limit over growing
-   segments; the port uses fubini_segment_le_whole_line of
-   GaussianFubiniLebesgue instead. *)
+(* Segment integrals of a nonnegative function are bounded by its integral
+   over the line. If g is nonnegative with Lebesgue integral J over the
+   line (whole_line_has_integral g J), its oriented integral over a segment
+   [a, b] with a <= b is less than J + eps for every eps > 0
+   (improper_nonnegative_interval_bound_eps) and at most J
+   (improper_nonnegative_interval_bound). A continuous function is
+   integrable on every segment (continuous_finite_integrable).
+   The two bounds do not use their continuity hypothesis: the proof
+   compares the integral over [a, b] with the integral over the line
+   (fubini_segment_le_whole_line). *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

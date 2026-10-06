@@ -8,43 +8,24 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixAssembly.v from Coquelicot to MathComp-Analysis.
+(* Differentials of maps built coordinate by coordinate. is_diff A f df
+   says that f is differentiable at A with differential df.
+   - pair_frechet: the pair of two differentiable maps is differentiable,
+     with the pair of their differentials as differential, in
+     euclidean_product U V.
+   - tuple_build_frechet: the same for a tuple tuple_build V n of S n maps,
+     by induction on n.
+   - matrix_build_frechet: a matrix of differentiable real-valued entries
+     is differentiable, with the matrix of their differentials.
+   euclidean_product U V carries the Euclidean product norm
+   sqrt (`|x.1| ^ 2 + `|x.2| ^ 2), while MathComp's U * V carries the max
+   norm. The two norms are equivalent, so the proof of pair_frechet goes
+   through MathComp's is_diff_pair on U * V and the identity map to
+   euclidean_product U V. In matrix_build_frechet, the entries are seen as
+   maps into R^o, the normed module view of R. *)
 
-   The three results keep their names, their implicit and explicit arguments,
-   and their order. Their statements change form in three ways, as in the
-   port of MatrixCoordinates.
-
-   1. Coquelicot's NormedModule R_AbsRing becomes normedModType R, and
-      Coquelicot's filterdiff f (locally A) df becomes is_diff A f df of
-      MathComp-Analysis: f is differentiable at A and its differential is df.
-      Both say that f (A + H) = f A + df H + o(H), with df linear and
-      continuous.
-
-   2. With ssreflect loaded, (i <= n)%nat means ssrnat's boolean leq. The
-      original means Stdlib's Peano order le, so the statements write
-      (i <= n)%coq_nat, which is ssrnat's notation for Stdlib's le.
-
-   3. The pair in pair_frechet lives in euclidean_product U V of
-      MatrixEuclideanProduct, which carries Coquelicot's product norm
-      sqrt (norm (fst x) ^ 2 + norm (snd x) ^ 2), and not in MathComp's
-      U * V, which carries the max norm. This is the product that
-      tuple_NormedModule nests, so tuple_build_frechet follows from
-      pair_frechet by induction as in the original. The two norms are
-      equivalent, so the derivative of a pair is the same for both; the proof
-      goes through MathComp's is_diff_pair on U * V and the identity map from
-      U * V to euclidean_product U V.
-
-   In matrix_build_frechet the entries F i j and D i j are real valued. They
-   are seen as maps into R^o, the normed module view of R, where is_diff needs
-   a normed codomain. R^o is R by definition, so maps of type E -> R are
-   accepted there.
-
-   The port adds one lemma, pair_euclidean_identity_linear, marked below. *)
-
-(* Added by the port. The identity map from MathComp's product U * V, with the
-   max norm, to euclidean_product U V, with the Euclidean product norm, is
-   linear and bounded with constant 2, in the form that the port of
-   MatrixCoordinates gives to Coquelicot's is_linear. *)
+(* The identity map from MathComp's product U * V, with the max norm, to
+   euclidean_product U V is linear and bounded with constant 2. *)
 Lemma pair_euclidean_identity_linear (U V : normedModType R) :
   linear ((fun p => p) : (U * V)%type -> euclidean_product U V) /\
   exists M : R, 0 < M /\

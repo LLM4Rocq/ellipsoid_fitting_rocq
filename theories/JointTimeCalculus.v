@@ -6,65 +6,25 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates MatrixT
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module JointTimeCalculus of theories/InterpolationProofs.v,
-   extracted to build/agent2/unbundled/JointTimeCalculus.v, from Coquelicot
-   to MathComp-Analysis, as a standalone module.
+(* The time derivative of the joint interpolation path joint_matrix.
+   - joint_matrix_normalized_path: for t >= 0, joint_matrix n C t x z is
+     C + sqrt t * joint_quadratic_input n x + sqrt (1-t) * goe_matrix n z.
+   - joint_matrix_time_derivative: for 0 < t < 1, the path has derivative
+     joint_time_velocity n t x z in t, that is
+     joint_quadratic_input n x / (2 * sqrt t) -
+     goe_matrix n z / (2 * sqrt (1-t)); joint_matrix_time_is_diff states it
+     as a differential (is_diff).
+   - joint_time_sqrt_derivative and joint_time_complement_sqrt_derivative:
+     the derivatives of sqrt t and of sqrt (1-t).
+   The first three lemmas are general facts on functions of a real variable
+   with values in a normed module W: is_derive in the direction 1 and
+   is_diff with differential h |-> h *: l say the same thing
+   (joint_time_is_diff_of_derive, joint_time_derive_of_is_diff), and
+   u |-> k u *: v has derivative dk *: v when k has derivative dk
+   (joint_time_derive_scale). *)
 
-   Every lemma and theorem of the original keeps its name and its arguments,
-   in the same order. joint_matrix_normalized_path and
-   joint_time_velocity_trace keep their text. The other four statements
-   change form in one way, without a change of meaning.
-
-   1. Derivatives of a function of a real variable. Coquelicot's
-      is_derive g t l, for g : R -> V, becomes MathComp's
-      @is_derive R R^o V t 1 g l: g is derivable at t in the direction 1 and
-      its derivative there is l. Both say that (g (t + h) - g t) / h tends to
-      l as h tends to 0 with h <> 0. For V = R the codomain is R^o, the
-      normed module view of R, as in AnalysisBridge
-      (AnalysisBridge.is_derive_Reals relates it to Stdlib's
-      derivable_pt_lim). This concerns joint_time_sqrt_derivative,
-      joint_time_complement_sqrt_derivative and joint_soft_time_derivative
-      (V = R^o) and joint_matrix_time_derivative (V = matrix_NormedModule n,
-      the nested tuples of MatrixDefinitions with the Frobenius norm). The
-      direction 1 is Stdlib's literal, as in AnalysisBridge and in the
-      restated challenge ellipsoid_interpolation_time, whose first clause is
-      joint_soft_time_derivative word for word.
-
-   The port adds four lemmas, marked below. joint_time_is_diff_of_derive and
-   joint_time_derive_of_is_diff relate the derivative of a function of a
-   real variable to its Frechet derivative h |-> h *: l on R^o, which
-   Coquelicot identified by definition (its is_derive was filterdiff with
-   the differential fun h => scal h l). joint_time_derive_scale is the
-   derivative of u |-> k u *: v, in place of Coquelicot's is_derive_scal_l
-   at a normed module. joint_matrix_time_is_diff states the conclusion of
-   joint_matrix_time_derivative as a Frechet derivative, the form that
-   is_diff_comp and tuple_build_frechet take; the ports of JointTimeSecond
-   and RowTimeCalculus, which composed joint_matrix_time_derivative with
-   filterdiff_comp' and tuple_build_frechet, can use it.
-
-   What changes in the proofs. Coquelicot's is_derive_ext_loc on matrices
-   becomes MathComp's near_eq_is_derive, with the neighbourhood given by
-   AnalysisBridge.nbhs_Reals. Coquelicot's is_derive_plus,
-   is_derive_const and is_derive_scal_l on matrix_NormedModule n become
-   MathComp's is_deriveD, is_derive_cst and joint_time_derive_scale.
-   is_derive_sqrt, is_derive_minus, is_derive_const and is_derive_id become
-   the lemmas of AnalysisBridge with the same names (is_derive_id_R for the
-   last). In joint_soft_time_derivative, Coquelicot's filterdiff_comp'
-   becomes is_diff_comp, and filterdiff_ext_lin becomes the computation of
-   the derivative through deriveE and diff_val. The Frechet derivative of the
-   soft value is matrix_nested_soft_minimax_frechet of the ported MatrixGibbs,
-   as before. Stdlib's "rewrite A, B" is written "rewrite A B", since
-   ssreflect's rewrite is loaded, and trace_pair_scale is rewritten with
-   explicit arguments, because a bare rewrite would also unfold goe_matrix,
-   which is itself a matrix_scale.
-
-   Assumptions. joint_soft_time_derivative mentions soft_minimax, whose
-   definition uses Stdlib's logarithm Rpower.ln, so it rests on
-   Classical_Prop.classic besides the seven axioms of analysis/README.md.
-   The other statements rest on the seven axioms only. *)
-
-(* Added by the port. A derivative in the direction 1 of a function of a
-   real variable is its Frechet derivative h |-> h *: l on R^o. *)
+(* A derivative in the direction 1 of a function of a real variable gives
+   its differential h |-> h *: l on R^o. *)
 Lemma joint_time_is_diff_of_derive {W : normedModType R} (f : R -> W) (t : R) (l : W) :
   @is_derive R R^o W t 1 f l ->
   is_diff (t : R^o) (f : R^o -> W) (fun h : R^o => (h *: l)%R).
@@ -77,7 +37,7 @@ rewrite diff1E // derive1E Hv; apply: funext => h /=.
 reflexivity.
 Qed.
 
-(* Added by the port. The converse of joint_time_is_diff_of_derive. *)
+(* The converse of joint_time_is_diff_of_derive. *)
 Lemma joint_time_derive_of_is_diff {W : normedModType R} (f : R -> W) (t : R) (l : W) :
   is_diff (t : R^o) (f : R^o -> W) (fun h : R^o => (h *: l)%R) ->
   @is_derive R R^o W t 1 f l.
@@ -88,9 +48,8 @@ apply: DeriveDef.
 by rewrite deriveE ?diff_val //= scale1r.
 Qed.
 
-(* Added by the port. The derivative of u |-> k u *: v, for a real function
-   k with derivative dk at t, is dk *: v. This replaces Coquelicot's
-   is_derive_scal_l at a normed module. *)
+(* The derivative of u |-> k u *: v, for a real function k with derivative
+   dk at t, is dk *: v. *)
 Lemma joint_time_derive_scale {W : normedModType R} (k : R -> R) (t dk : R) (v : W) :
   @is_derive R R^o R^o t 1 k dk ->
   @is_derive R R^o W t 1 (fun u : R => (k u *: v)%R) (dk *: v)%R.
@@ -155,8 +114,8 @@ Proof.
   apply Rabs_def2 in Hu; lra.
 Qed.
 
-(* Added by the port. The conclusion of joint_matrix_time_derivative as a
-   Frechet derivative on R^o, the form of Coquelicot's is_derive. *)
+(* The conclusion of joint_matrix_time_derivative as a differential on R^o,
+   the form that is_diff_comp takes. *)
 Lemma joint_matrix_time_is_diff n C t x z : 0 < t < 1 ->
   is_diff (t : R^o) ((fun u : R^o => joint_matrix n C u x z) : R^o -> matrix_NormedModule n)
     (fun h : R^o => (h *: joint_time_velocity n t x z)%R).

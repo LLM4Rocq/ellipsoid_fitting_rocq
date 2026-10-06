@@ -1,46 +1,21 @@
-(* Port of theories/ImproperCutoff.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order, and no statement gains or loses a hypothesis. The statements use
-   the vocabulary of AnalysisIntegralDefinitions: Coquelicot's
-   continuous f x becomes {for x, continuous f}, RInt f a b becomes
-   oriented_integral f a b, and
-   is_RInt_gen f (Rbar_locally m_infty) (Rbar_locally p_infty) If becomes
-   whole_line_has_integral f If, the Lebesgue integral over the line
-   (difference 4 of analysis/README.md). In improper_symmetric_cutoff_limit,
-   Coquelicot's is_lim (fun A => RInt f (-A) A) p_infty J becomes
-   (oriented_integral f (- A) A @[A --> +oo%R] --> J)%classic, the limit of
-   MathComp at +oo.
-
-   continuous_finite_integral_abs_bound and
-   continuous_enclosing_interval_error_bound are about integrals on
-   segments. Continuity gives the integrability of f and g on the segments,
-   as in the original, and the proofs follow the original through
-   fubini_Rintegral_bound of GaussianFubiniLebesgue and the Chasles relation
-   rectangle_oriented_chasles of RectangleFubini.
-
-   For continuous_improper_interval_error_bound_eps and
-   continuous_improper_interval_error_bound the continuity hypotheses are
-   kept, unused, so that the calls of the importers keep their shape. With
-   the Lebesgue integral, whole_line_has_integral already gives the
-   integrability of f and g, and the bound follows directly: If minus the
-   integral of f over [a, b] is the integral of f over the complement of
-   [a, b], whose absolute value is at most the integral of g there, which is
-   Ig minus the integral of g over [a, b]. That is the new lemma
-   improper_cutoff_interval_error_bound, which needs no continuity. The
-   original proofs went instead through the definition of the improper
-   Riemann integral as a limit over growing segments, with an eps of room.
-
-   improper_symmetric_cutoff_limit is proved from that bound applied to f
-   and Rabs \o f, and from fubini_cutoff_cvg of GaussianFubiniLebesgue (the
-   integral over [-n, n] of an integrable function tends to its integral
-   over the line), together with the monotonicity of the integral of the
-   nonnegative function Rabs \o f over growing segments. Like the original,
-   it has no continuity hypothesis.
-
-   New lemmas, used in the proofs above: improper_cutoff_segment,
-   improper_cutoff_continuous_integrable, improper_cutoff_whole_line_split,
-   improper_cutoff_interval_error_bound and improper_cutoff_subset_le. *)
+(* Cutoffs of integrals over the line to segments. The integrals over the
+   line are Lebesgue integrals (whole_line_has_integral), which require
+   absolute integrability.
+   - continuous_finite_integral_abs_bound: for continuous f and g with
+     |f| <= g and a <= b, |oriented_integral f a b| <= oriented_integral g a b.
+   - improper_cutoff_interval_error_bound: if f and g have integrals If and
+     Ig over the line and |f| <= g, then for a <= b,
+     |If - oriented_integral f a b| <= Ig - oriented_integral g a b. The
+     left side is the absolute value of the integral of f off [a, b]
+     (improper_cutoff_whole_line_split), at most the integral of g there.
+     continuous_improper_interval_error_bound states the same bound with
+     continuity hypotheses, which its proof does not use.
+   - improper_symmetric_cutoff_limit: oriented_integral f (- A) A tends to
+     the integral of f over the line as A tends to +oo. The proof applies
+     the error bound to f and |f|, with fubini_cutoff_cvg of
+     GaussianFubiniLebesgue (the integral of |f| over [-n, n] tends to its
+     integral over the line) and the monotonicity of the integral of |f|
+     over growing segments (improper_cutoff_subset_le). *)
 
 From Stdlib Require Import Reals Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

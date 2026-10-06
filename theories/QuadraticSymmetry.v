@@ -12,31 +12,14 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/QuadraticSymmetry.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem of the original keeps its name and its arguments, in the
-   same order. No lemma is added. The statements change form in two ways,
-   the same ways as in the ports of MatrixCoordinates, MatrixGradient and
-   MatrixHessian, which this module imports.
-
-   1. Frechet derivatives. Coquelicot's NormedModule R_AbsRing becomes
-      normedModType R, and Coquelicot's filterdiff F (locally x) dF becomes
-      is_diff x F dF of MathComp-Analysis: F is differentiable at x and its
-      differential 'd F x is dF. Both say that dF is linear and continuous
-      and that F (x + h) = F x + dF h + o(h) as h tends to 0. On matrix n
-      the norm is the Frobenius norm of MatrixDefinitions, as in Coquelicot;
-      differentiability does not depend on the choice among equivalent
-      norms in any case.
-
-   2. symmetric_matrix of TensorDefinitions quantifies over indices with
-      Stdlib's Peano order, written (i <= n)%coq_nat in the port. The
-      statements here mention only symmetric_matrix, so their text is that
-      of the original.
-
-   The arithmetic is Stdlib's, as in the original. In the proofs,
-   filterdiff_comp' becomes is_diff_comp, filterdiff_linear with
-   matrix_entry_linear becomes matrix_entry_frechet of MatrixCoordinates,
-   and filterdiff_ext becomes rewriting the function with funext. *)
+(* Symmetry of the gradient of the soft minimax of matrices and of its
+   derivatives. The derivative of a map with symmetric matrix values is
+   symmetric, by uniqueness of the derivative of each entry
+   (quadratic_symmetric_frechet). So, when every coefficient coeff y s is
+   symmetric, the gradient matrix_nested_gradient and its first and second
+   derivatives are symmetric (quadratic_nested_gradient_symmetric,
+   quadratic_nested_gradient_derivative_symmetric,
+   quadratic_nested_gradient_second_symmetric). *)
 
 Theorem quadratic_symmetric_frechet {E : normedModType R} n
     (F dF : E -> matrix n) (x : E) :

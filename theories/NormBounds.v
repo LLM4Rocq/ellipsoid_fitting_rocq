@@ -1,6 +1,11 @@
 From Stdlib Require Import Reals Lra Psatz.
 Open Scope R_scope.
 
+(* Two real inequalities that turn bounds on squared norms (energies) into
+   bounds on norms, used by HeadTail. norm_cap_from_energy: if
+   x^2 <= (theta^2 / D) E, then |x / sqrt E| <= theta / sqrt D.
+   norm_tiny_from_energy: if 0 <= E <= 1 / D^4, then sqrt E <= 1 / D^2. *)
+
 Lemma norm_cap_from_energy (theta D E x : R) :
   0 < theta -> 0 < D -> 0 < E ->
   x ^ 2 <= (theta ^ 2 / D) * E ->

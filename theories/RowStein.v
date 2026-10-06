@@ -11,56 +11,28 @@ From EllipsoidFitting Require GaussianProduct JointCoordinates JointStein Gaussi
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/RowStein.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem keeps its name, its arguments in the same order, and its
-   text. No item is added. The proofs are the original ones, word for word,
-   except for the qualified names described below.
-
-   Imports. The original imported Coquelicot, which it did not use itself,
-   and the bundles GaussianCoordinateProofs, InterpolationFoundations,
-   InterpolationProofs and ComparisonProofs. It opened none of their inner
-   modules, and named six lemmas through them:
-     GaussianCoordinateProofs.GaussianProduct.gaussian_iterated_expectation_ext,
-     InterpolationProofs.JointProofs.JointCoordinates.joint_vector_to_of_list,
-     InterpolationProofs.JointProofs.JointStein.joint_gaussian_stein_cancellation,
-     InterpolationProofs.JointProofs.GaussianBlockExchange.gaussian_list_domain_ext,
-     ComparisonProofs.TensorGibbs.matrix_scale_symmetric and
-     ComparisonProofs.SoftMatrixCalculus.soft_matrix_trace_pair_swap.
-   The port drops Coquelicot and the bundles. It requires the six standalone
-   ported modules GaussianProduct, JointCoordinates, JointStein,
-   GaussianBlockExchange, TensorGibbs and SoftMatrixCalculus without
-   importing them, as the original did not open the inner modules either,
-   and names the six lemmas as GaussianProduct.gaussian_iterated_expectation_ext,
-   JointCoordinates.joint_vector_to_of_list, and so on. The other imports
-   are those of the original, in the same order.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So (i<=m)%nat is Stdlib's Peano le, which is the
-   (i <= m)%coq_nat of the ported BlockRowEvaluation; + , * and - on nat are
-   Nat.add, Nat.mul and Nat.sub; seq is Stdlib's List.seq; and the
-   arithmetic on R, sqrt, INR and the tactic syntax are Stdlib's, as in the
-   original.
-
-   The meaning of the statements follows the ported definitions they use.
-   gaussian_row_velocity and gaussian_row_remainder (RowObservableDefinitions),
-   the joint observables joint_quadratic_trace, joint_goe_trace and
-   joint_remainder, and joint_vector_to_list (JointDefinitions),
-   soft_matrix_row_offset and soft_matrix_coefficients, gaussian_row_matrix,
-   row_assemble, matrix_zero, symmetric_matrix, finite_joint_continuous
-   (GaussianCoordinateDefinitions) and finite_polynomial_bound
-   (GaussianCoordinateWeightDefinitions) keep their texts and values in their
-   ports. The joint vectors (x, z) are elements of euclidean_product of the
-   ported JointDefinitions, the same pairs as before. gaussian_list_domain
-   (JointDefinitions) and gaussian_iterated_expectation
-   (GaussianProductDefinitions) now use at each level Lebesgue integrability
-   over the line and the Lebesgue integral against the Gaussian kernel, in
-   place of Coquelicot's improper Riemann integral (difference 4 of
-   analysis/README.md). The statements keep their text in that vocabulary,
-   and none of them gains a hypothesis: the ported
-   joint_gaussian_stein_cancellation and gaussian_row_conditional_identity,
-   from which they are proved, state the same conclusions under the same
-   hypotheses as their originals. No statement is weakened. *)
+(* Gaussian integration by parts for one row of the multirow interpolation.
+   The list xs holds the coordinates of m + 1 rows; row i gives a joint
+   vector (x, z) (gaussian_row_pair), and gaussian_row_array is the block
+   array of the interpolated rows. gaussian_row_velocity is the
+   contribution of row i to the time derivative of the block soft minimax
+   along this array, and gaussian_row_remainder the contraction with x of
+   its third derivative in the directions of row i.
+   - gaussian_row_current_velocity_slice and
+     gaussian_row_current_remainder_slice: these are the joint observables
+     of JointDefinitions for the nested soft minimax of row i alone, with
+     offsets from the other rows (soft_matrix_row_offset) and coefficients
+     soft_matrix_coefficients n y B i.
+   - gaussian_row_sections: the same when row i is placed among fixed other
+     rows (row_assemble); the offsets do not depend on row i.
+   - gaussian_row_conditional_stein: for fixed other rows, symmetric B s and
+     0 < t < 1, the expectation over row i of the velocity is
+     sqrt t / (2 * (n + 1) * sqrt (n + 1)) times that of the remainder
+     (joint_gaussian_stein_cancellation).
+   - gaussian_row_full_stein_of_regular: the same identity for the
+     expectation over all the coordinates, when the velocity and the
+     remainder are continuous and polynomially bounded
+     (gaussian_row_conditional_identity). *)
 
 Theorem gaussian_row_current_velocity_slice n m beta gamma y B Y S t i xs :
   (i<=m)%nat ->

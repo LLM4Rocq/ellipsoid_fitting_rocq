@@ -26,41 +26,23 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/GaussianMatrixComponents.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. No item is added. The statements change form in three ways, the
-   ways of the ports of MatrixCoordinates, QuadraticCalculus and
-   QuadraticGrowthProofs, which this module imports.
-
-   1. Pointwise continuity. Coquelicot's continuous f x, continuity of f at
-      the one point x, becomes MathComp's {for x, continuous f} (README
-      difference 5). The topologies on vector n and matrix n are those of
-      their norms, which are equivalent to the product topologies of
-      Coquelicot, so continuity means the same.
-
-   2. Norms. Coquelicot's norm becomes MathComp's (`|_|)%R. On vector n and
-      matrix n the ports of OperatorDefinitions and MatrixDefinitions keep
-      Coquelicot's product norm, so these are the Euclidean norm of the
-      entries, as in the original, and not MathComp's max norm (README
-      difference 1). matrix_component_chaos_first_norm and the two bounds
-      K * (1 + (`|x|)%R) ^ k therefore mean the same, constants included.
-      The arithmetic, the order, Rabs and INR are Stdlib's, as before.
-
-   3. Order on indices. With ssreflect loaded, (a <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (a <= n)%coq_nat, which is Stdlib's le, as the
-      imported lemmas do. The meaning is unchanged.
-
-   In the proofs, Coquelicot's scal_one becomes scale1r, continuous_ext
-   becomes rewriting the function with funext of boolp, filterdiff_continuous
-   becomes differentiable_continuous applied to the first field of is_diff,
-   continuous_comp becomes MathComp's continuous_comp with its types given,
-   and norm_ge_0 becomes normr_ge0 through RleP. The two theorems depend on
-   Stdlib's Classical_Prop.classic through lemmas they cite from
-   MatrixHessian, MatrixThirdContinuity, CoefficientMaps and
-   QuadraticGrowthProofs; the proofs written here do not use it. *)
+(* Regularity of matrix entries of derivatives of the nested gradient along
+   the quadratic family quadratic_matrix n lambda C x, which is
+   C + lambda * (x x^T - I). Here e_a is chaos_basis n a,
+   chaos_first n x a = e_a x^T + x e_a^T and
+   chaos_second n a b = e_a e_b^T + e_b e_a^T.
+   - matrix_component_chaos_first_quadratic, _continuous and _norm:
+     chaos_first n x a is quadratic_first n 1 x e_a, it is continuous in x,
+     and its norm is at most 2 * (n + 1) ^ 2 * `|x| * `|e_a|.
+   - quadratic_divergence_component_regular: entry (a, b) of the derivative
+     of the nested gradient at quadratic_matrix n lambda C x, in the
+     direction chaos_second n a b, is continuous and bounded in x.
+   - quadratic_chaos_component_regular: entry (a, b) of the second
+     derivative of the nested gradient at quadratic_matrix n lambda C x, in
+     the directions chaos_first n x a and chaos_first n x b, is continuous
+     in x and at most K * (1 + `|x|) ^ 2 in absolute value.
+   The norms are the Euclidean norm on vector n and the Frobenius norm on
+   matrix n. *)
 
 Lemma matrix_component_chaos_first_quadratic n (x : vector n) a :
   chaos_first n x a = quadratic_first n 1 x (chaos_basis n a).

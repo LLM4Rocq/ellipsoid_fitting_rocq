@@ -1,23 +1,15 @@
-(* The coefficient reading of the interpolation path, for the draft challenge
-   gaussian_covariance_interpolation of the MathComp-Analysis port. Solver
-   module written on 30 September 2026 by a session that did not write the
-   statement. Nothing here is reviewed or accepted. GaussianCovarianceDefinitions
-   is imported unchanged.
-
-   For zs of any length, entry a of gaussian_covariance_path K p q P Q t zs is
-   sum_{k<p+q} coef t a k * zs_k with coef t a k = sqrt t * P a k for k < p and
-   sqrt (1-t) * Q a (k-p) for k >= p (gaussian_covariance_path_linear, an
-   equality of functions). At t = 1 and t = 0 the path is the image of the
-   first p and of the last q coordinates. The coefficients are bounded by the
-   entries of P and Q for t in [0,1], differentiable twice in t on (0,1)
-   with explicit derivatives, bounded derivatives on a closed subinterval,
-   and satisfy sum_k dcoef t a k * coef t b k = (1/2) ((P P^T)_ab - (Q Q^T)_ab)
-   for 0 < t < 1, the identity that turns the Stein terms into the covariance
-   difference.
-
-   This module loads MathComp through AnalysisBridge2, so List.nth, List.map,
-   List.seq, List.firstn, List.skipn and %coq_nat are written explicitly; the
-   arithmetic on R is Stdlib's, with R_scope opened last. *)
+(* The Gaussian interpolation path gaussian_covariance_path as a linear image
+   with coefficients that depend on t. For zs of any length, entry a of
+   gaussian_covariance_path K p q P Q t zs is sum_{k<p+q} coef t a k * zs_k,
+   with coef t a k = sqrt t * P a k for k < p and sqrt (1-t) * Q a (k-p) for
+   k >= p (gaussian_covariance_path_linear, an equality of functions). At
+   t = 1 and t = 0 the path is the image of the first p and of the last q
+   coordinates. The coefficients are bounded by the entries of P and Q for t
+   in [0,1], twice differentiable in t on (0,1) with explicit derivatives,
+   and these derivatives are bounded on [lo, hi] when 0 < lo and hi < 1.
+   gaussian_covariance_stein_coefficients: for 0 < t < 1,
+     sum_k dcoef t a k * coef t b k = (1/2) ((P P^T)_ab - (Q Q^T)_ab),
+   the identity that turns the Stein terms into the covariance difference. *)
 From Stdlib Require Import Reals List Lia Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import AnalysisBridge2.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceDefinitions

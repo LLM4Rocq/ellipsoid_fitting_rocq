@@ -2,26 +2,23 @@ From Stdlib Require Import Reals List.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port note. The Coquelicot version of this module imported Coquelicot and
-   its Compactness library for two names only: the d-fold product type Tn and
-   the coordinatewise closeness relation close_n. Coquelicot is no longer
-   loaded, so both are copied here with exactly the definitions of
-   Coquelicot.Compactness (Coquelicot 3.4.4), as printed by Print in the
-   rocq-tools switch. The copies are convertible with the originals, so
-   finite_joint_continuous below is the original text, word for word, and
-   says the same thing. This module needs no MathComp library and depends
-   on no axiom. *)
+(* Joint continuity of a function of d real coordinates given as a list.
+   The coordinates live in the product Tn d R, converted to and from lists
+   by coordinates_to_list and coordinates_of_list.
+   finite_joint_continuous d F says that F : list R -> R, on the lists of
+   length d, is continuous at every point for the coordinatewise distance:
+   F w is close to F z when every coordinate of w is close to the same
+   coordinate of z (close_n). *)
 
-(* Copy of Coquelicot.Compactness.Tn: Tn n T is T * (T * ... (T * unit)),
-   with n factors T. *)
+(* Tn n T is T * (T * ... (T * unit)), with n factors T. *)
 Fixpoint Tn (n : nat) (T : Type) : Type :=
   match n with
   | O => unit
   | S n0 => (T * Tn n0 T)%type
   end.
 
-(* Copy of Coquelicot.Compactness.close_n: every coordinate of x is at
-   distance less than d from the same coordinate of t. *)
+(* close_n n d x t: every coordinate of x is at distance less than d from
+   the same coordinate of t. *)
 Fixpoint close_n (n : nat) (d : R) : Tn n R -> Tn n R -> Prop :=
   match n as n0 return (Tn n0 R -> Tn n0 R -> Prop) with
   | O => fun _ _ : Tn O R => True

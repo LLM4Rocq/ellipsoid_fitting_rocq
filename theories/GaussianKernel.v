@@ -1,59 +1,22 @@
-(* Port of theories/GaussianKernel.v from Coquelicot to MathComp-Analysis.
+(* The Gaussian kernel gaussian_kernel x = exp (- (x * x) / 2), and Stein's
+   identity, Gaussian integration by parts on the line.
 
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements use the vocabulary of AnalysisIntegralDefinitions
-   and of the bridge: Coquelicot's is_derive f x l becomes
-   @is_derive R R^o R^o x 1 f l, continuous f x becomes
-   {for x, continuous f}, is_lim f p_infty l and is_lim f m_infty l become
-   (f x @[x --> +oo%R] --> l)%classic and (f x @[x --> -oo%R] --> l)%classic,
-   is_RInt f a b l becomes oriented_has_integral f a b l, and
-   is_RInt_gen f (Rbar_locally m_infty) (Rbar_locally p_infty) l becomes
-   whole_line_has_integral f l, the Lebesgue integral over the line.
+   The kernel is positive, has derivative - x * gaussian_kernel x, and tends
+   to 0 at -oo and +oo. Let f be bounded, with a continuous derivative df
+   such that df t * gaussian_kernel t is integrable on the line. Then the
+   derivative of f * gaussian_kernel, gaussian_stein_integrand f df, has
+   integral 0 over the line (gaussian_stein_improper). So
+   t * f t * gaussian_kernel t has the same integral as
+   df t * gaussian_kernel t (gaussian_stein_split). The case f = 1 gives
+   gaussian_first_moment_zero. gaussian_stein_improper_decay assumes
+   instead that f * gaussian_kernel tends to 0 at -oo and +oo and that the
+   Stein integrand is integrable.
 
-   Statements that change form.
-
-   1. gaussian_bounded_product_limit. The point z : Rbar of the original, a
-      finite point or an infinity, becomes any filter z on R. The lemma is
-      thus a generalization: z := x^' gives the finite case, and z := +oo%R
-      and z := -oo%R the two infinite ones. The filter instance is an
-      implicit argument, so the call shape is unchanged:
-      gaussian_bounded_product_limit f B (-oo%R) Hb
-        gaussian_kernel_limit_negative.
-
-   2. gaussian_stein_improper_decay has one more hypothesis, the last one:
-      whole_line_integrable (gaussian_stein_integrand f df). Without it the
-      statement is false for the Lebesgue integral: f x = sin (exp (x * x))
-      is bounded with continuous derivative df, f x * gaussian_kernel x
-      tends to 0 at both ends, but gaussian_stein_integrand f df is not
-      absolutely integrable (see the header of GaussianDefinitions). The
-      improper Riemann integral of the original exists in that case; the
-      Lebesgue integral does not.
-
-   3. gaussian_stein_improper has one more hypothesis, the last one:
-      whole_line_integrable (fun t => df t * gaussian_kernel t). The same
-      example shows that it is needed. Since f is bounded by B, the term
-      t * f t * gaussian_kernel t is always integrable
-      (gaussian_kernel_bounded_moment_integrable), so this hypothesis is
-      equivalent to the integrability of gaussian_stein_integrand f df.
-
-   gaussian_stein_split and gaussian_first_moment_zero need no new
-   hypothesis: the integrability of df t * gaussian_kernel t is part of the
-   hypothesis of gaussian_stein_split, and that of the other term follows
-   from the bound on f.
-
-   New lemmas, used in the proofs and available to importers.
-   - gaussian_kernel_line_FTC: the fundamental theorem of calculus on the
-     line. If F' = g everywhere, g is continuous and integrable on the line,
-     and F tends to L at +oo and to M at -oo, then the integral of g over
-     the line is L - M. The proof takes the limit of the integrals over
-     [-n, n] with fubini_cutoff_cvg of GaussianFubiniLebesgue.
-   - gaussian_kernel_abs_moment_integrable: x |-> Rabs x * gaussian_kernel x
-     is integrable on the line. Its integral over [0, +oo[ is 1, by
-     MathComp's ge0_continuous_FTC2y, and it is even.
-   - gaussian_kernel_bounded_moment_integrable: for f continuous and
-     bounded by B, x |-> x * f x * gaussian_kernel x is integrable.
-
-   The arithmetic in every statement is Stdlib's, as in the original. *)
+   The integrals over the line are Lebesgue integrals, which require
+   absolute integrability, and the integrability of df t * gaussian_kernel t
+   does not follow from the other hypotheses. For example
+   f x = sin (exp (x * x)) is bounded with a continuous derivative df, but
+   df x * gaussian_kernel x is not absolutely integrable. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.
@@ -110,7 +73,8 @@ Proof.
   exact: (cvg_comp _ _ Hq is_lim_exp_m).
 Qed.
 
-(* The point z : Rbar of the original becomes any filter z on R. *)
+(* z is any filter on R: z := -oo%R and z := +oo%R give the limits at the
+   two ends of the line. *)
 Lemma gaussian_bounded_product_limit (f : R -> R) B (z : set_system R)
     {Fz : Filter z} :
   (forall x, Rabs (f x) <= B) ->
@@ -167,7 +131,8 @@ Proof.
 Qed.
 
 (* The fundamental theorem of calculus on the whole line, for a continuous
-   integrable derivative. *)
+   integrable derivative. The proof takes the limit of the integrals over
+   [-n, n] (fubini_cutoff_cvg of GaussianFubiniLebesgue). *)
 Lemma gaussian_kernel_line_FTC (g F : R -> R) (L M : R) :
   (forall x, @is_derive R R^o R^o x 1 F (g x)) ->
   continuous g ->
@@ -196,7 +161,9 @@ Proof.
   exact: H2.
 Qed.
 
-(* The first absolute moment of the kernel is finite. *)
+(* The first absolute moment of the kernel is finite: the integral of
+   Rabs x * gaussian_kernel x over [0, +oo[ is 1, by MathComp's
+   ge0_continuous_FTC2y, and the function is even. *)
 Lemma gaussian_kernel_abs_moment_integrable :
   whole_line_integrable (fun x => Rabs x * gaussian_kernel x).
 Proof.
@@ -270,9 +237,8 @@ Proof.
     nra.
 Qed.
 
-(* Added hypothesis, the last one: the Stein integrand is integrable on the
-   line. The original concluded an improper Riemann integral, which exists
-   without it; the Lebesgue integral does not (header, item 2). *)
+(* The last hypothesis, the integrability of the Stein integrand on the
+   line, does not follow from the others (see the example in the header). *)
 Lemma gaussian_stein_improper_decay (f df : R -> R) :
   (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
   (forall t, {for t, continuous df}) ->
@@ -292,9 +258,9 @@ Proof.
   ring.
 Qed.
 
-(* Added hypothesis, the last one: df t * gaussian_kernel t is integrable on
-   the line. With f bounded, this is equivalent to the integrability of the
-   Stein integrand (header, item 3). *)
+(* Since f is bounded, t * f t * gaussian_kernel t is integrable
+   (gaussian_kernel_bounded_moment_integrable), so the last hypothesis gives
+   the integrability of the Stein integrand. *)
 Lemma gaussian_stein_improper (f df : R -> R) B :
   (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
   (forall t, {for t, continuous df}) ->

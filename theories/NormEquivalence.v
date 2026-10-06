@@ -9,30 +9,15 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates Operato
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/NormEquivalence.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in the ways of the ports of
-   MatrixCoordinates, OperatorBounds and OperatorProperties.
-
-   1. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. The norms are
-      those of MatrixDefinitions: the Euclidean norm on vectors and on
-      tuples, the Frobenius norm on matrices, and the absolute value on R, as
-      in Coquelicot. The port of MatrixDefinitions keeps Coquelicot's product
-      norm sqrt (norm (fst x) ^ 2 + norm (snd x) ^ 2) through
-      euclidean_product, so the constants of the bounds below are unchanged:
-      the Frobenius norm of a matrix lies between its operator norm and
-      sqrt (INR (S n)) times its operator norm. Comparisons, products, powers
-      and square roots around these norms are Stdlib's, as before.
-
-   2. NormedModule R_AbsRing becomes normedModType R, and R_NormedModule
-      becomes R^o.
-
-   3. The order on indices (i <= n)%nat of the original is Stdlib's Peano
-      order. With ssreflect loaded, (i <= n)%nat means ssrnat's boolean leq,
-      so the statements write (i <= n)%coq_nat, which is Stdlib's le.
-
-   The meaning of every statement is unchanged. *)
+(* Coordinate sums and Euclidean norms of tuples and matrices. Elementary
+   rules for coordinate_sum, and coordinate_cauchy_schwarz_squared:
+   (sum f g)^2 <= (sum f^2) (sum g^2). tuple_norm_squared: the squared
+   norm of a tuple is the sum of the squared norms of its entries; so the
+   squared Frobenius norm of a matrix is the sum of its squared entries
+   (matrix_frobenius_norm_squared), and the sum of the squared norms of
+   its columns A e_j (matrix_frobenius_column_identity). The basis vectors
+   e_j have norm 1 (operator_basis_vector_norm). Indices are compared with
+   Stdlib's order le, written (i <= n)%coq_nat. *)
 
 Lemma normeq_coordinate_sum_nonnegative n f :
   (forall i, (i <= n)%coq_nat -> 0 <= f i) -> 0 <= coordinate_sum n f.

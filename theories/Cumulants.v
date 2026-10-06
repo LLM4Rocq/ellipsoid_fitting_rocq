@@ -3,6 +3,13 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeigh
 Import ListNotations.
 Open Scope R_scope.
 
+(* The covariance and the third cumulant of a finite Gibbs law, as algebraic
+   expressions in its averages. gibbs_covariance is symmetric, homogeneous in
+   each argument and zero when one argument is zero. gibbs_cumulant3 is
+   symmetric in its three arguments. On a nonempty index list,
+   gibbs_cumulant3_expanded writes it with averages of products, and
+   gibbs_cumulant3_covariance with covariances and averages. *)
+
 Lemma gibbs_average_zero (c : R) (f : nat -> R) (I : list nat) :
   gibbs_average c f I (fun _ => 0) = 0.
 Proof.

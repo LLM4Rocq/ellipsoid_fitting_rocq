@@ -1,50 +1,19 @@
-(* Port of theories/GaussianScaling.v from Coquelicot to MathComp-Analysis.
+(* The Gaussian kernel under a dilation. For a > 0, the function
+   x |-> gaussian_kernel (a * x) is integrable on the line with integral
+   gaussian_mass / a (gaussian_scaled_kernel_integral); the integral is the
+   Lebesgue integral (whole_line_has_integral). The proof computes the
+   integral over [0, +oo[ from the primitive
+   t |-> / a * gaussian_primitive (a * t)
+   (gaussian_scaled_primitive_derivative) with MathComp's
+   ge0_continuous_FTC2y, and doubles it with ge0_symfun_integralT, since the
+   integrand is even.
 
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements use the vocabulary of AnalysisIntegralDefinitions
-   and of the bridge, as in the ports of GaussianKernel and GaussianMass:
-   Coquelicot's is_derive f x l becomes @is_derive R R^o R^o x 1 f l,
-   continuous f x becomes {for x, continuous f}, is_lim f p_infty l and
-   is_lim f m_infty l become (f x @[x --> +oo%R] --> l)%classic and
-   (f x @[x --> -oo%R] --> l)%classic, and
-   is_RInt_gen f (Rbar_locally m_infty) (Rbar_locally p_infty) l becomes
-   whole_line_has_integral f l, the Lebesgue integral over the line. The
-   arithmetic in every statement is Stdlib's, as in the original.
-
-   Statements that change form.
-
-   1. positive_dilation_limit_positive and positive_dilation_limit_negative
-      say that a * x tends to +oo at +oo and to -oo at -oo. Coquelicot's
-      neighbourhoods of p_infty and m_infty are the sets that contain a half
-      line ]M, +oo[ or ]-oo, M[, and so are MathComp's +oo%R and -oo%R on R.
-      They say the same as the originals.
-
-   2. positive_dilation_comp_limit_positive and
-      positive_dilation_comp_limit_negative. The limit L : Rbar of the
-      original, a finite number or an infinity, becomes any set system L on
-      R, read as a filter by the notation -->. The lemmas are thus
-      generalizations: L := nbhs l gives the finite case, and L := +oo%R and
-      L := -oo%R the two infinite ones. The call shape is unchanged, and
-      Rocq infers L from the limit hypothesis.
-
-   3. gaussian_scaled_kernel_integral concludes whole_line_has_integral,
-      that is, Lebesgue integrability over the line with integral
-      gaussian_mass / a, in place of the improper Riemann integral
-      (difference 4 of analysis/README.md). The integrand is continuous and
-      positive, so the two readings say the same thing. The proof no longer
-      uses is_RInt_gen_Derive: as in the port of GaussianMass, it computes
-      the integral over [0, +oo[ with MathComp's ge0_continuous_FTC2y and
-      uses the symmetry lemma ge0_symfun_integralT, since the integrand is
-      even.
-
-   gaussian_scaled_primitive_derivative, gaussian_scaled_kernel_continuous
-   and gaussian_primitive_limit_mass say the same thing as before, in the
-   new vocabulary. The proof of gaussian_primitive_limit_mass applies
-   gaussian_kernel_line_FTC of the port of GaussianKernel.
-
-   The original imported Classical_Prop but did not use it. This port does
-   not import it, so the assumptions of the module are the seven axioms of
-   analysis/README.md. *)
+   On the way: a * x tends to +oo with x (positive_dilation_limit_positive),
+   so f (a * x) has the limit of f at +oo
+   (positive_dilation_comp_limit_positive); and gaussian_mass = L - - L
+   when gaussian_primitive tends to L at +oo
+   (gaussian_primitive_limit_mass, from gaussian_kernel_line_FTC of
+   GaussianKernel). The arithmetic in every statement is Stdlib's. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.
@@ -68,8 +37,9 @@ Proof.
   move=> x /RltP Hx; apply/RleP; exact: key.
 Qed.
 
-(* The limit L : Rbar of the original becomes any set system L on R
-   (header, item 2). *)
+(* L is any set system on R, read as a filter by the notation -->: nbhs l
+   for a finite limit l, or +oo%R and -oo%R. Rocq infers L from the limit
+   hypothesis. *)
 Lemma positive_dilation_comp_limit_positive (f : R -> R) a
     (L : set_system R) :
   0 < a -> (f x @[x --> +oo%R] --> L)%classic ->
@@ -115,7 +85,6 @@ Proof.
     gaussian_kernel_integrable HP (gaussian_primitive_negative_limit L HP)).
 Qed.
 
-(* The conclusion is the Lebesgue integral over the line (header, item 3). *)
 Theorem gaussian_scaled_kernel_integral a :
   0 < a ->
   whole_line_has_integral (fun x => gaussian_kernel (a * x))

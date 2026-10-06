@@ -12,46 +12,22 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/CoefficientMaps.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma and theorem of the original keeps its name and its arguments,
-   in the same order. No item is added. The statements change form in the
-   ways of the port of MatrixCoordinates.
-
-   1. Linear maps. Coquelicot's is_linear l is a record with three fields:
-      l (plus x y) = plus (l x) (l y), l (scal k x) = scal k (l x), and
-      exists M, 0 < M /\ forall x, norm (l x) <= M * norm x.
-      As in MatrixCoordinates, MatrixTrace and OperatorBounds, the port
-      states it as the conjunction
-        linear l /\
-        exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R
-      of MathComp's algebraic linearity, which is equivalent to the first two
-      fields, and of Coquelicot's norm bound. The bound uses Stdlib's order
-      and product around MathComp's norms. The norms are those of
-      MatrixDefinitions, HessianDefinitions and ContinuityDefinitions: the
-      Euclidean norm of all entries on tuples, matrices, Hessian arrays and
-      third-order arrays, and the absolute value on R, as in Coquelicot. So
-      the statements mean the same, constants included.
-
-   2. Coquelicot's NormedModule R_AbsRing becomes normedModType R and its
-      R_NormedModule becomes R^o. A map into R is written with codomain R^o
-      where linear needs a module structure on the codomain, as in
-      (hessian_evaluation n H U : matrix n -> R^o). R^o is R by definition,
-      so the map is the same. Coquelicot's plus and scal on a module become
-      MathComp's + and *:, written (_ + _)%R and (_ *: _)%R.
-
-   3. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (i <= n)%coq_nat, which is Stdlib's le.
-
-   The proofs of linear_module_coordinate_sum and
-   matrix_linear_basis_reconstruction use only the algebraic part of the
-   hypothesis; the bound is kept in the hypothesis to match the original.
-   In the proof of actual_third_action, the linearity of the Frechet
-   derivative, which the original takes from proj1 of Coquelicot's
-   filterdiff, comes from matrix_third_is_diff_linear of MatrixThird. That is
-   why this port imports MatrixThird, which the original reaches only
-   through MatrixHessian. *)
+(* Linear maps on tuples, matrices and arrays, given by their coefficients.
+   A bounded linear map l is written as the conjunction
+     linear l /\ exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R
+   where the norms are the Euclidean norms of all entries.
+   - module_coordinate_sum_linear and matrix_build_linear: finite sums of
+     bounded linear maps, and matrices of them, are bounded linear maps.
+     So are the entries of Hessian and third-order arrays, and the action
+     hessian_action n H V, both in H and in V.
+   - matrix_basis_expansion writes a matrix in the basis matrix_basis, and
+     matrix_linear_basis_reconstruction recovers a linear map on matrices
+     from its values on that basis (only the algebraic part of the
+     hypothesis is used).
+   - actual_third_action: the action of the array
+     matrix_nested_third_coefficients is the derivative of the nested
+     Hessian, matrix_nested_hessian_derivative; actual_third_evaluation:
+     its evaluation at U, V, W is matrix_nested_third_derivative. *)
 
 Lemma module_coordinate_sum_ext (V : normedModType R) n (f g : nat -> V) :
   (forall i, (i <= n)%coq_nat -> f i = g i) ->

@@ -6,26 +6,12 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import MatrixDefinitions GradientDefinitions HessianDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/ContinuityDefinitions.v from Coquelicot to
-   MathComp-Analysis.
-
-   Coquelicot's NormedModule R_AbsRing becomes normedModType R, as in the
-   ports of MatrixDefinitions and HessianDefinitions. third_NormedModule n is
-   built from tuple_NormedModule of MatrixDefinitions and hessian_NormedModule
-   of HessianDefinitions, whose products are euclidean_product of
-   MatrixEuclideanProduct and keep Coquelicot's product norm
-   sqrt (norm (fst x) ^ 2 + norm (snd x) ^ 2). A third-order coefficient
-   array therefore still carries the Euclidean norm of all its entries, that
-   is the Frobenius norm of the six-index array, as in the original. Its ball
-   is the norm ball, as MatrixDefinitions explains, and its topology is the
-   one of the original.
-
-   The other definitions keep the text of the original. They use only
-   tuple_build and tuple_entry of MatrixDefinitions, matrix_basis of
-   GradientDefinitions and matrix_nested_hessian_derivative of
-   HessianDefinitions, whose ports keep the same names, arguments and values.
-   MathComp is imported only for normedModType; R_scope is opened after it,
-   so nothing here uses MathComp's arithmetic. *)
+(* Third-order coefficient arrays. third_array n is an (S n) x (S n) tuple
+   of the Hessian arrays of HessianDefinitions, with the Euclidean norm of
+   all its entries; third_build and third_entry write and read its entries.
+   matrix_nested_third_coefficients ... A is the array of the third
+   derivatives matrix_nested_third_derivative (MatrixThirdDefinitions) at A
+   in the coordinate directions matrix_basis n j i. *)
 
 Definition third_NormedModule (n : nat) : normedModType R :=
   tuple_NormedModule (tuple_NormedModule (hessian_NormedModule n) n) n.

@@ -1,60 +1,19 @@
-(* Port of the inner module WeightedComparison of
-   theories/ComparisonProofs.v, extracted to
-   build/agent2/unbundled/WeightedComparison.v, from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma and theorem keeps its name, its arguments in the same order
-   and its hypotheses. The two theorems sqrt_weighted_endpoint_bound and
-   weighted_sqrt_endpoint_comparison are the first clause of the challenge
-   ellipsoid_comparison (challenges/ellipsoid_comparison/Challenge.v), which
-   has no restated version in analysis/challenges yet. The arithmetic in
-   every statement is Stdlib's, as in the original.
-
-   Statements that change form, all without a change of meaning.
-
-   1. Coquelicot's limit within a domain,
-        filterlim g (within (fun t => 0<=t<=1) (locally a)) (locally (g a)),
-      becomes MathComp's
-        (g @ within (fun t => 0<=t<=1) (nbhs a) --> g a)%classic,
-      the form used by analysis/GaussianExpectationContinuity.v. MathComp's
-      within D F is the set of P with F (fun x => D x -> P x), which is the
-      text of Coquelicot's within, and nbhs a on R is the filter of the balls
-      around a, as Coquelicot's locally a is. So both say: for every eps > 0
-      there is delta > 0 with Rabs (g t - g a) < eps for every t of [0, 1]
-      with Rabs (t - a) < delta. The domain and the points 0 and 1 are
-      Stdlib's, as a Print with all notations off shows. This concerns the
-      two limit hypotheses of every lemma except
-      weighted_sqrt_primitive_derivative.
-
-   2. Coquelicot's is_derive g t l, for g : R -> R, becomes
-      @is_derive R R^o R^o t 1 g l. Both say that (g (t + h) - g t) / h
-      tends to l when h tends to 0 (is_derive_Reals of AnalysisBridge).
-
-   3. Coquelicot's pointwise continuity continuous h a becomes MathComp's
-      {for a, continuous h} (difference 5 of analysis/README.md), in the
-      hypotheses of unit_interval_primitive_comparison.
-
-   The port adds one lemma, weighted_comparison_within_Reals, which states
-   the epsilon-delta reading of item 1 in both directions. The proofs use
-   it where the original used Coquelicot's filterlim_locally, filterlim_comp,
-   filterlim_opp and filterlim_plus. The rest of the proofs follow the
-   original ones, with MVT_gen, continuity_pt_filterlim,
-   is_derive_continuous, is_derive_mult, is_derive_scal, is_derive_Rsqrt,
-   is_derive_minus, is_derive_opp and the continuity combinators of
-   AnalysisBridge in place of Coquelicot's lemmas. In the proof of
-   sqrt_weighted_endpoint_bound, the continuity of fun t => 2*K/3*t*sqrt t
-   is proved at the points a >= 0 only, because the bridge states the
-   continuity of sqrt on [0, +oo[; the proof uses it at 0 and 1 only. With ssreflect loaded, =2 is a token (extensional equality of
-   two-argument functions), so an equation such as h 0 = 2*K/3 is written
-   with spaces around =. *)
+(* Comparison of increments on [0, 1] through derivatives on (0, 1), for
+   functions with a derivative at every t of (0, 1), continuous at 0 and
+   at 1 within [0, 1]. A nonpositive derivative gives g 1 <= g 0
+   (unit_interval_derivative_nonpositive); dg <= dh gives
+   g 1 - g 0 <= h 1 - h 0 (unit_interval_primitive_comparison); and
+   |dg t| <= K sqrt t gives |g 1 - g 0| <= 2 K / 3
+   (sqrt_weighted_endpoint_bound). weighted_comparison_within_Reals states
+   a limit within a domain in epsilon-delta form. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
 
-(* Added by the port: the epsilon-delta reading of a limit within a domain,
-   at a real point, for a real function. *)
+(* The epsilon-delta reading of a limit within a domain, at a real point,
+   for a real function. *)
 Lemma weighted_comparison_within_Reals (f : R -> R) (D : R -> Prop) (a l : R) :
   (f @ within D (nbhs a) --> l)%classic <->
   (forall eps, 0 < eps -> exists delta, 0 < delta /\

@@ -6,6 +6,7 @@ From mathcomp Require Import interval topology normedtype.
 From mathcomp Require Import derive trigo measure.
 From mathcomp Require Import lebesgue_measure measurable_realfun lebesgue_integral.
 From GaussianAnalysis Require Import measurable_matrix gauss gauss_ibp.
+From GaussianAnalysis Require Import partial_derivative.
 
 (**md**************************************************************************)
 (* # Gaussian interpolation and Kahane's comparison inequality                *)
@@ -152,19 +153,6 @@ by rewrite -deriveE //; case: ad => _ ->.
 Qed.
 
 End is_derive_scalel.
-
-Section continuous_sum.
-Context {K : numFieldType} {V : normedModType K} {T : topologicalType}.
-
-Lemma continuous_sum (I : Type) (s : seq I) (f : I -> T -> V) :
-  (forall i, continuous (f i)) -> continuous (fun x => \sum_(i <- s) f i x).
-Proof.
-move=> cf x; elim: s => [|i s IH].
-  by under eq_fun do rewrite big_nil; exact: cvg_cst.
-by under eq_fun do rewrite big_cons; exact: (continuousD (cf i x) IH).
-Qed.
-
-End continuous_sum.
 
 Section Rintegral_sum.
 Context d (T : measurableType d) (R : realType) (mu : {measure set T -> \bar R}).
@@ -536,3 +524,56 @@ by rewrite -phi0 -phi1 lee_fin.
 Qed.
 
 End gauss_interpolation.
+
+(* Kahane's comparison inequality for F given by its partial derivatives of
+   order 1 and 2, continuous at order 2: F is then of class C^2. *)
+Section gauss_comparison_partial.
+Context {R : realType} {k : nat}.
+Variables (F : 'rV[R]_k -> R) (DF : 'I_k -> 'rV[R]_k -> R)
+  (D2F : 'I_k -> 'I_k -> 'rV[R]_k -> R).
+Hypothesis F_partial : forall j z, is_derive z (delta_mx 0 j) F (DF j z).
+Hypothesis DF_partial : forall j l z, is_derive z (delta_mx 0 l) (DF j) (D2F j l z).
+Hypothesis D2F_cont : forall j l, continuous (D2F j l).
+Variables (C : R) (p : nat).
+Hypothesis F_poly : forall z, `|F z| <= C * (1 + `|z| ^+ p).
+Hypothesis DF_poly : forall j z, `|DF j z| <= C * (1 + `|z| ^+ p).
+Hypothesis D2F_poly : forall j l z, `|D2F j l z| <= C * (1 + `|z| ^+ p).
+
+Let DF_diff j z : differentiable (DF j) z.
+Proof.
+exact: (differentiable_partials (fun l z => @DF_partial j l z)
+  (fun l => @D2F_cont j l)).
+Qed.
+
+Let DF_cont j : continuous (DF j).
+Proof. by move=> z; apply: differentiable_continuous; exact: DF_diff. Qed.
+
+Let F_diff z : differentiable F z.
+Proof. exact: (differentiable_partials (fun j z => @F_partial j z) DF_cont). Qed.
+
+Let DFE j : 'D_(delta_mx 0 j) F = DF j.
+Proof. by apply/funext => z; case: (@F_partial j z). Qed.
+
+Let D2FE j l : 'D_(delta_mx 0 l) ('D_(delta_mx 0 j) F) = D2F j l.
+Proof. by rewrite DFE; apply/funext => z; case: (@DF_partial j l z). Qed.
+
+Let DFEz j z : 'D_(delta_mx 0 j) F z = DF j z.
+Proof. by case: (@F_partial j z). Qed.
+
+Let D2FEz j l z : 'D_(delta_mx 0 l) ('D_(delta_mx 0 j) F) z = D2F j l z.
+Proof. by rewrite (DFE j); case: (@DF_partial j l z). Qed.
+
+Theorem gauss_comparison_partial n m (A : 'M[R]_(n, k)) (B : 'M[R]_(m, k)) :
+  (forall z, \sum_(j < k) \sum_(l < k) (A^T *m A - B^T *m B) j l * D2F j l z <= 0) ->
+  (\int[gauss n]_x (F (x *m A))%:E <= \int[gauss m]_y (F (y *m B))%:E)%E.
+Proof.
+move=> SF; apply: (gauss_comparison F_diff _ _ F_poly).
+- by move=> j z; rewrite (DFE j); exact: DF_diff.
+- by move=> j l; rewrite (D2FE j l).
+- by move=> j z; rewrite DFEz.
+- by move=> j l z; rewrite D2FEz.
+- move=> z; under eq_bigr => j _ do under eq_bigr => l _ do rewrite D2FEz.
+  exact: SF.
+Qed.
+
+End gauss_comparison_partial.

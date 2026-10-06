@@ -13,32 +13,21 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Helper for the challenge multirow_integrated_bound: the parts of the
-   target that do not depend on the unfinished challenge
-   multirow_expectation_derivative, and the assembly of the target from that
-   challenge's four clauses, taken as hypotheses. Written by the solving
-   session on 30 September 2026. Nothing is assumed: every lemma is proved
-   from accepted or checkpoint results of the port, and the clauses of the
-   unfinished challenge appear only as hypotheses of the assembly theorems.
-
-   1. multirow_integrated_radius_facts: the domain of the maximum squared
-      radius of N rows of d coordinates, its expectation is nonnegative and
-      at most d + 2 sqrt (d ln N) + 2 ln N (gaussian_expected_maximum_radius
-      of the accepted maximum_radius, and a nonnegativity argument).
-   2. multirow_integrated_remainder_sum_bound: under the low-influence
-      hypotheses, the sum over the rows of the expectations of the row
-      remainders is at most 4 M3 radius in absolute value, with
-      M3 = 10 k^3 (beta+gamma)^2 theta / sqrt d: the row remainders are
-      regular (RowObservableRegularity), so the expectation of the sum is the
-      sum of the expectations (GaussianFiniteSums); the sum is bounded
-      pointwise by 4 M3 times the interleaved maximum radius
-      (RowRemainderSum); the expectation of the interleaved maximum radius
-      is that of the consecutive one (interleaved_maximum_radius).
-   3. The assembly: with the derivative identity, the continuity within
-      [0, 1] and the endpoint identities as hypotheses, the derivative bound
-      of clause 2 and the integrated bounds of clause 3 follow from the
-      scalar lemma sqrt_weighted_endpoint_bound (WeightedComparison) and the
-      arithmetic of MultirowIntegratedArithmetic. *)
+(* Steps of the interpolation bound of MultirowIntegratedBoundResults.
+   1. multirow_integrated_radius_facts: the expected maximum squared
+      radius of N rows of d coordinates lies in
+      [0, d + 2 sqrt (d ln N) + 2 ln N].
+   2. multirow_integrated_remainder_sum_bound: the sum over the rows of
+      the expectations of the row remainders is at most 4 M3 radius in
+      absolute value. The expectation of the sum is the sum of the
+      expectations (GaussianFiniteSums); the sum is bounded pointwise by
+      4 M3 times the interleaved maximum radius (RowRemainderSum), whose
+      expectation is that of the maximum radius of consecutive rows
+      (InterleavedMaximumRadiusResults).
+   3. The section assembly bounds the derivative of the expectation f and
+      |f 1 - f 0|, given the derivative of f on (0, 1) and its continuity
+      at 0 and 1 within [0, 1], with sqrt_weighted_endpoint_bound of
+      WeightedComparison. *)
 
 Local Notation Dfull n m :=
   (Datatypes.S m * (Datatypes.S n + Datatypes.S (goe_vector_index n)))%coq_nat.
@@ -117,8 +106,9 @@ Proof.
     apply Rgt_not_eq, sqrt_lt_R0, lt_0_INR, Nat.lt_0_succ.
 Qed.
 
-(* 3. The assembly from the four clauses of the expectation-derivative
-   challenge, taken as hypotheses. *)
+(* 3. Clauses 2 and 3 of paper_multirow_integrated_bound_results, with the
+   derivative, the continuity and the end point values of f as
+   hypotheses. *)
 Section assembly.
 Variables (n m : nat) (beta gamma theta k : R) (y : nat -> nat -> R) (B : nat -> matrix n) (Y S : list nat).
 Hypotheses (Hb : 0 < beta) (Hg : 0 < gamma) (Hth : 0 < theta) (Hk : 0 <= k) (HY : Y <> []) (HS : S <> []).
@@ -168,8 +158,7 @@ Proof.
     Hb Hg Hth Hk HY HS Hunit Hlow Hsym HB).
 Qed.
 
-(* Clause 2 of the target, given the derivative identity of the
-   expectation-derivative challenge. *)
+(* Clause 2, given that f has derivative dg on (0, 1). *)
 Theorem multirow_integrated_clause2_of_derivative :
   (forall a, 0 < a < 1 -> @is_derive R R^o R^o a 1 f (dg a)) ->
   forall t, 0 < t < 1 -> exists l : R,
@@ -179,8 +168,8 @@ Proof.
   apply multirow_integrated_dg_bound; lra.
 Qed.
 
-(* Clause 3 of the target, given the endpoint clause and the continuity
-   clause of the expectation-derivative challenge. *)
+(* Clause 3, given the derivative of f, its continuity at 0 and 1 within
+   [0, 1], and its end point values g and w. *)
 Theorem multirow_integrated_clause3_of_endpoints (g w : R) :
   (forall a, 0 < a < 1 -> @is_derive R R^o R^o a 1 f (dg a)) ->
   (f @ within (fun t : R => 0 <= t <= 1) (nbhs (0 : R)) --> f 0)%classic ->

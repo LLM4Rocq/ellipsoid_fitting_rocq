@@ -1,57 +1,19 @@
-(* Port of theories/GaussianFubini.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem and lemma of the original keeps its name and its arguments,
-   in the same order, and no statement gains or loses a hypothesis. The
-   statements use the vocabulary of AnalysisIntegralDefinitions and of the
-   bridge:
-   - Coquelicot's pointwise continuous f x becomes MathComp's
-     {for x, continuous f} (difference 5 of analysis/README.md). The bound
-     variable in front of such a hypothesis is written x : R (or y : R), as
-     in the ports of GaussianSections and GaussianRectangle and in the
-     restated challenge ellipsoid_gaussian_fubini, so that Rocq does not
-     infer a MathComp carrier for it;
-   - continuity_2d_pt keeps its name. It is the definition of
-     AnalysisIntegralDefinitions, joint continuity at (x, y) for the product
-     topology of R * R, which says the same thing as Coquelicot's;
-   - is_lim h p_infty l becomes (h A @[A --> +oo%R] --> l)%classic, the limit
-     of MathComp at +oo, as in the ports of GaussianCutoff and
-     GaussianRectangle. This is the only change of form, in the conclusion of
-     gaussian_rectangle_limit.
-   The arithmetic in every statement is Stdlib's, as in the original.
-
-   Meaning. gaussian_integral_exists, gaussian_absolutely_integrable,
-   gaussian_expectation, gaussian_cutoff_expectation and
-   gaussian_cutoff_error_majorant follow the ported GaussianDefinitions and
-   GaussianCutoffDefinitions: the integral over the line is the Lebesgue
-   integral (difference 4 of analysis/README.md) and the cutoff integral is
-   oriented_integral over [-A, A] (difference 3). Every statement here is
-   about a jointly continuous F dominated by g x * h y, with g and h
-   continuous, nonnegative and integrable against the kernel. Every function
-   integrated over the line is then continuous and dominated by an
-   integrable function, and every function integrated on a segment is
-   continuous, so the Lebesgue and the Riemann readings agree on them. The
-   statements of gaussian_rectangle_approximation and
-   gaussian_fubini_integrable are the fourth and fifth clauses of the
-   restated challenge ellipsoid_gaussian_fubini, with the same text.
-
-   What changes in the proofs. The proofs follow the original.
-   - The limit of the sum of the two error majorants in
-     gaussian_rectangle_limit comes from the new lemma
-     gaussian_fubini_limit_combination, proved in epsilon form with
-     cvg_Reals_pinfty of the bridge, in place of Coquelicot's is_lim_plus'
-     and is_lim_scal_l.
-   - In gaussian_fubini_separable, Coquelicot's is_lim_ext becomes a rewrite
-     of the function under the limit with boolp's funext, and is_lim_unique
-     becomes the new lemma gaussian_fubini_limit_unique, the uniqueness of
-     a limit at +oo, proved from MathComp's cvg_unique in the Hausdorff
-     space R.
-   - gaussian_fubini_absolute_continuity uses continuity_1d_2d_pt_comp of
-     RectangleFubini with Stdlib's Rcontinuity_abs, in place of Coquelicot's
-     continuous_abs and continuity_pt_filterlim.
-   - gaussian_fubini_signed_integrable builds its conjunction clause by
-     clause, where the original used repeat split. With the ported
-     definitions split would also open gaussian_integral_exists, which is
-     now MathComp's integrability, itself a conjunction. *)
+(* Fubini's theorem for Gaussian expectations in two variables. Let F be
+   jointly continuous (continuity_2d_pt) and dominated by g x * h y, where
+   g and h are continuous, nonnegative and integrable against the Gaussian
+   kernel.
+   - gaussian_rectangle_approximation bounds the distance between the
+     iterated expectation of F and its cutoff to [-A, A] x [-B, B] by the
+     cutoff errors gaussian_cutoff_error_majorant of g and h.
+   - gaussian_rectangle_limit: the iterated cutoff expectation on
+     [-A, A] x [-A, A] tends to the iterated expectation as A tends to +oo.
+   - gaussian_fubini_separable: the iterated expectations in the two orders
+     are equal. Both are limits of the same cutoff expectations, which
+     agree in the two orders by gaussian_finite_rectangle_fubini.
+   The integrals over the line are Lebesgue integrals, and the cutoff
+   integrals are oriented_integral over [-A, A]. The bound variable of a
+   continuity hypothesis is written x : R (or y : R), so that Rocq does not
+   infer a MathComp carrier for it. *)
 
 From Stdlib Require Import Reals Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.
@@ -63,7 +25,7 @@ Local Open Scope classical_set_scope.
 Open Scope R_scope.
 
 (* A combination e1 + c * e2 of two functions that tend to 0 at +oo tends
-   to 0 at +oo. New lemma, used in gaussian_rectangle_limit. *)
+   to 0 at +oo. *)
 Lemma gaussian_fubini_limit_combination (e1 e2 : R -> R) (c : R) :
   (e1 A @[A --> +oo%R] --> 0)%classic -> (e2 A @[A --> +oo%R] --> 0)%classic ->
   (e1 A + c * e2 A @[A --> +oo%R] --> 0)%classic.
@@ -88,9 +50,7 @@ Proof.
   nra.
 Qed.
 
-(* A function of a real variable has at most one limit at +oo. New lemma,
-   used in gaussian_fubini_separable in place of Coquelicot's
-   is_lim_unique. *)
+(* A function of a real variable has at most one limit at +oo. *)
 Lemma gaussian_fubini_limit_unique (D : R -> R) (l1 l2 : R) :
   (D A @[A --> +oo%R] --> l1)%classic -> (D A @[A --> +oo%R] --> l2)%classic ->
   l1 = l2.

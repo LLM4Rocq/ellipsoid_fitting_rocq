@@ -12,40 +12,25 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/QuadraticGradient.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem of the original keeps its name and its arguments, in the
-   same order. No lemma is added. The statements change form in two ways,
-   the ways of the ports of QuadraticCalculus and MatrixHessian, which this
-   module imports, and of the restated challenge ellipsoid_quadratic in
-   analysis/challenges.
-
-   1. Frechet derivatives. Coquelicot's filterdiff f (locally x) l becomes
-      is_diff x f l of MathComp-Analysis in quadratic_gradient_frechet and
-      quadratic_gradient_first_frechet: f is differentiable at x and its
-      differential 'd f x is l. Both say that l is linear and continuous and
-      that f (x + h) = f x + l h + o(h) as h tends to 0. The spaces are
-      vector n and matrix n of the ports of OperatorDefinitions and
-      MatrixDefinitions, which keep Coquelicot's Euclidean and Frobenius
-      norms, so the neighbourhoods are those of the original.
-
-   2. Scalar multiplication. Coquelicot's scal a H on hessian_array n becomes
-      MathComp's (a *: H)%R in quadratic_hessian_biscalar. The module
-      structure of hessian_array n is the one of HessianDefinitions, built
-      from the nested tuples of MatrixDefinitions, whose scalar
-      multiplication is entrywise, as in Coquelicot. So the statement says
-      the same thing.
-
-   quadratic_gradient_second_basis mentions no normed notion, and its text
-   is the original's.
-
-   In the proofs, filterdiff_comp' becomes is_diff_comp, filterdiff_ext_lin
-   becomes is_diff_eq with an equation of functions, and Coquelicot's
-   linear_scal on a map whose is_linear is known becomes MathComp's
-   linearZ_LR on the map packed as a {linear _ -> _}. The linearity of the
-   derivative of matrix_nested_hessian, which the original takes from proj1
-   of Coquelicot's filterdiff, comes from matrix_third_is_diff_linear of
-   MatrixThird. *)
+(* Derivatives in x of the nested gradient at
+   quadratic_matrix n lambda C x = C + lambda (x x^T - I), for
+   beta, gamma > 0 and nonempty Y and S.
+   - quadratic_gradient_frechet: quadratic_gradient is differentiable at x,
+     with differential quadratic_gradient_first x.
+   - quadratic_gradient_first_frechet: z |-> quadratic_gradient_first z u is
+     differentiable at x, with differential quadratic_gradient_second x u.
+   - quadratic_gradient_second_basis: along chaos_basis n a and
+     chaos_basis n b, the second derivative is lambda times the derivative
+     of matrix_nested_gradient in the direction chaos_second n a b, plus
+     lambda ^ 2 times its second derivative in the directions
+     chaos_first n x a and chaos_first n x b, both at the point
+     quadratic_matrix n lambda C x.
+   - quadratic_hessian_biscalar: scalars on the Hessian array and on the
+     direction come out of hessian_action as their product.
+   Differentiability is MathComp's is_diff, for the Euclidean norm of
+   vector n and the Frobenius norm of matrix n. The scalar multiplication
+   (a *: H)%R of hessian_array n is entrywise. The proofs use MathComp's
+   linearZ_LR on maps packed as {linear _ -> _}. *)
 
 Theorem quadratic_gradient_frechet n beta gamma offset coeff Y S lambda C (x : vector n) :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->
@@ -85,7 +70,8 @@ Theorem quadratic_hessian_biscalar n (H : hessian_array n) (M : matrix n) a b :
   matrix_scale n (a * b) (hessian_action n H M).
 Proof.
   unfold matrix_scale.
-  (* Coquelicot's linear_scal for the two linear maps of CoefficientMaps. *)
+  (* hessian_action is linear in the direction and in the array
+     (CoefficientMaps). *)
   pose L1 : {linear matrix_NormedModule n -> matrix_NormedModule n} :=
     HB.pack (hessian_action n (a *: H)%R)
       (GRing.isLinear.Build R _ _ *:%R (hessian_action n (a *: H)%R)
@@ -121,8 +107,8 @@ Proof.
       (quadratic_matrix n lambda C x) (matrix_scale n lambda (chaos_first n x b)) =
     (lambda *: matrix_nested_hessian_derivative n beta gamma offset coeff Y S
       (quadratic_matrix n lambda C x) (chaos_first n x b))%R).
-  { (* Coquelicot's linear_scal for the derivative of matrix_nested_hessian,
-       whose linearity comes from its is_diff statement. *)
+  { (* The derivative of matrix_nested_hessian is linear, since it is the
+       differential of an is_diff statement (matrix_third_is_diff_linear). *)
     pose L : {linear matrix_NormedModule n -> hessian_NormedModule n} :=
       HB.pack (matrix_nested_hessian_derivative n beta gamma offset coeff Y S
         (quadratic_matrix n lambda C x))

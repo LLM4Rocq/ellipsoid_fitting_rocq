@@ -14,48 +14,23 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module GoeGibbs of theories/InterpolationProofs.v (also
-   copied in GoeProofs.v and JointProofs.v), extracted to
-   build/agent2/unbundled/GoeGibbs.v, from Coquelicot to MathComp-Analysis,
-   as a standalone module.
+(* Gaussian integration by parts for the gradient of the nested Gibbs
+   function at a GOE matrix. Let G = matrix_nested_gradient n beta gamma
+   offset coeff Y S, dG = matrix_nested_gradient_derivative with the same
+   arguments, and W z = goe_matrix n z for a standard Gaussian vector z. If
+   0 < beta, 0 < gamma and Y, S are nonempty, then
+   z |-> trace_pair (W z) (G (C + r W z)) and
+   z |-> symmetric_divergence (dG (C + r W z)) are in the Gaussian domain,
+   and the expectation of the first is 2 r / (n + 1) times that of the
+   second (goe_gibbs_matrix_stein).
 
-   The original imported the bundle GaussianVectorProofs and named its inner
-   modules GaussianVectorDomain, GaussianVectorAlgebra and
-   GaussianVectorFinite through it. The port imports these standalone ported
-   modules directly.
-
-   The four statements keep their names, their arguments in the same order
-   and their hypotheses. No item is added. One statement changes form, and
-   none changes its meaning.
-
-   1. Order on indices. With ssreflect loaded, (k <= n)%nat would mean
-      ssrnat's boolean leq. The original means Stdlib's Peano order le, so
-      the hypothesis of goe_gibbs_coordinate_derivative is written
-      (k <= goe_vector_index n)%coq_nat, which is Stdlib's le, as in the
-      ported goe_matrix_coordinate_direction of GoeSynthesis.
-
-   The other statements keep the text of the original. Their meaning changes
-   only through the ported definitions they mention: gaussian_vector_domain
-   and gaussian_vector_expectation follow the ported
-   GaussianVectorDefinitions (difference 4 of analysis/README.md), that is
-   Lebesgue integrability against the Gaussian kernel at each level of the
-   iterated expectation, and Lebesgue integrals. The functions of the
-   statements are continuous and bounded by a polynomial in the Euclidean
-   norm of the vector (by the ported AffineGaussianRegular), so they are
-   absolutely integrable against the kernel, and the Lebesgue and improper
-   Riemann values agree. The statement of goe_gibbs_matrix_stein is the text
-   of the clause "GOE matrix integration by parts and separate domains" of
-   the restated challenge ellipsoid_goe.
-
-   What changes in the proofs. In goe_gibbs_coordinate_derivative, the
-   original uses Coquelicot's linear_scal twice: for the derivative of
-   matrix_nested_gradient, whose linearity it takes from proj1 of
-   Coquelicot's filterdiff, and for trace_pair. The port takes the first
-   from the ported matrix_nested_gradient_frechet: the derivative is the
-   differential 'd f A of MathComp (the field diff_val of is_diff), which is
-   a linear map, so linearZ applies. The second is trace_pair_scale of
-   MatrixTrace. Stdlib's "rewrite A, B" and "rewrite ... by tac" are written
-   in the form that ssreflect accepts. *)
+   The proof expands W z in the basis goe_basis and applies the Stein
+   identity in each coordinate (affine_gaussian_trace_stein).
+   goe_gibbs_weighted_sum and goe_gibbs_direction_sum exchange the
+   expectation with the sums over the coordinates, and
+   goe_gibbs_coordinate_derivative uses the linearity of dG. The index
+   bounds are written (k <= _)%coq_nat, Stdlib's le, because %nat would
+   give ssrnat's boolean leq. *)
 
 Lemma goe_gibbs_coordinate_derivative n beta gamma offset coeff Y S C r k z :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> (k <= goe_vector_index n)%coq_nat ->
@@ -72,8 +47,8 @@ Proof.
   set A := matrix_add n C (matrix_scale n r (goe_matrix n z)).
   have HD := matrix_nested_gradient_frechet n beta gamma offset coeff Y S Hb Hg HY HS A.
   have [_ Hv] := HD.
-  (* Coquelicot's linear_scal for the derivative of matrix_nested_gradient,
-     which is the linear differential 'd f A of MathComp. *)
+  (* The derivative of matrix_nested_gradient is MathComp's differential
+     'd f A, a linear map, so it commutes with scaling. *)
   have HZ : forall (c : R) (M : matrix n),
     matrix_nested_gradient_derivative n beta gamma offset coeff Y S A (matrix_scale n c M) =
     matrix_scale n c (matrix_nested_gradient_derivative n beta gamma offset coeff Y S A M).

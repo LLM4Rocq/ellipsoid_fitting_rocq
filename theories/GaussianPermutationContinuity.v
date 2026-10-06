@@ -4,21 +4,12 @@ From EllipsoidFitting Require Import GaussianCoordinateDefinitions GaussianCoord
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/GaussianPermutationContinuity.v from Coquelicot to
-   MathComp-Analysis.
-
-   The original imported Coquelicot and its Compactness library for two
-   names only, Tn and close_n. Both now come from the port of
-   GaussianCoordinateDefinitions, where they are copies of the definitions
-   of Coquelicot.Compactness (Coquelicot 3.4.4) and are convertible with
-   them. posreal, cond_pos, Rabs and Forall2 are Stdlib's, as before. So
-   every statement below is the original text, word for word, and says the
-   same thing, and the proofs are the original ones. No statement changed
-   form.
-
-   This module loads no MathComp library itself, so the notations and the
-   tactic syntax are Stdlib's, as in the original. A module that imports
-   this one after MathComp sees the same constants. *)
+(* Joint continuity of functions of a list of coordinates is preserved by
+   rearranging the coordinates. finite_joint_continuous_list_map: composing
+   with a map of lists that keeps lengths and coordinatewise closeness keeps
+   joint continuity. Its instances are swap_adjacent, move_coordinate_last,
+   and fixing a prefix or a suffix of the list. coordinates_close_forall2
+   states closeness of two points as closeness of their coordinate lists. *)
 
 Lemma coordinates_close_forall2 d e (z w : Tn d R) :
   close_n d e z w <-> List.Forall2 (fun x y => Rabs (x-y)<e)

@@ -12,62 +12,33 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module JointStein of theories/InterpolationProofs.v
-   (and of its identical copy in theories/JointProofs.v), extracted to
-   build/agent2/unbundled/JointStein.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original imported the bundle GaussianVectorProofs and opened its
-   inner module GaussianVectorAlgebra through it. The port imports the
-   standalone ported module GaussianVectorAlgebra directly, and not the
-   bundle. The other modules it imports are the ported GaussianPairExchange,
-   JointGrowth, JointSections and JointCancellationAlgebra, whose names the
-   original imported directly. FiniteGibbsContinuity is imported for the
-   continuity combinators on real-valued functions that replace Coquelicot's
-   continuous_minus and continuous_mult in the proof of
-   joint_velocity_domain.
-
-   Every lemma and theorem keeps its name, its arguments in the same order,
-   its hypotheses and its text. No item is added. None of the six statements
-   mentions a Coquelicot notion: they speak of gaussian_vector_domain,
-   gaussian_vector_expectation, gaussian_pair_domain,
-   gaussian_pair_expectation and the four joint observables of
-   JointDefinitions, with Stdlib's arithmetic, sqrt, INR, In, List.Forall and
-   list notation. Under this header, ListNotations and R_scope are opened
-   last, so [ ... ; ... ], [], +, -, *, / and < are Stdlib's, as in the
-   original. Datatypes.S n stays qualified, because the list variable S
-   shadows the successor. The statements of joint_observables_exchange,
-   joint_quadratic_pair_stein, joint_goe_pair_stein and
-   joint_gaussian_stein_cancellation are, word for word, the corresponding
-   clauses of groups 3 and 6 of the restated challenge ellipsoid_joint
-   (analysis/challenges/ellipsoid_joint/Challenge.v), so that a results
-   module can prove those clauses with exact, as theories/JointResults.v
-   does.
-
-   Their meaning follows the ported definitions (difference 4 of
-   analysis/README.md): gaussian_vector_domain and gaussian_pair_domain ask,
-   at every level of the iterated expectation, for Borel measurability and
-   Lebesgue integrability over the line against the Gaussian kernel, and the
-   expectations are Lebesgue integrals, where the original asked for Riemann
-   integrability on segments and convergence of improper Riemann integrals.
-   Every function whose domain or expectation is asserted here is continuous
-   and bounded by a polynomial, by the ported JointGrowth, and the ported
-   GaussianPairExchange establishes the Lebesgue reading for such functions.
-
-   The proofs are the original ones, with these changes. Coquelicot's
-   continuous_minus, continuous_mult and continuous_const become
-   continuous_Rminus_fct and continuous_Rmult_fct of the ported
-   FiniteGibbsContinuity and MathComp's cst_continuous, at the joint vector
-   space euclidean_product (vector_NormedModule n)
-   (vector_NormedModule (goe_vector_index n)). Coquelicot's norm_ge_0
-   becomes MathComp's normr_ge0 through RleP. The step that bounded
-   (1 + norm q) ^ 1 by (1 + norm q) ^ 2 with simpl and nra names the norm
-   first and uses pow_1 and ring in place of simpl, so that MathComp's norm
-   is never unfolded. Stdlib's "rewrite A, B" becomes an ssreflect rewrite.
-   In joint_gaussian_stein_cancellation, the two domain hypotheses of
-   gaussian_pair_linear_expectation are proved first and passed to the
-   rewrite, because ssreflect's rewrite puts its side goals before the
-   rewritten goal. *)
+(* Gaussian integration by parts along the joint interpolation path
+   joint_matrix n C t x z = C + sqrt t * joint_quadratic_input n x +
+   sqrt (1-t) * goe_matrix n z, where x and z are independent standard
+   Gaussian vectors. The four joint observables of JointDefinitions are the
+   pairings of the nested gradient with joint_quadratic_input n x and with
+   goe_matrix n z (joint_quadratic_trace, joint_goe_trace), the symmetric
+   divergence of the derivative of the gradient (joint_divergence), and the
+   contraction of the third derivative with x (joint_remainder).
+   - joint_observables_exchange: each observable satisfies
+     gaussian_pair_domain and the domain conditions in each variable, and
+     its joint expectation is the iterated expectation in either order.
+   - joint_quadratic_pair_stein: by Stein's identity in x, the expectation
+     of joint_quadratic_trace is a combination of those of joint_divergence
+     and joint_remainder, when the coefficients coeff y s are symmetric.
+   - joint_goe_pair_stein: by Stein's identity in z, the expectation of
+     joint_goe_trace is (2 * sqrt (1-t) / (n + 1)) times that of
+     joint_divergence.
+   - joint_velocity_domain and joint_gaussian_stein_cancellation: the
+     velocity joint_quadratic_trace / (2 * sqrt t) -
+     joint_goe_trace / (2 * sqrt (1-t)), the pairing of the gradient with
+     the time derivative of the path, satisfies gaussian_pair_domain, and
+     for 0 < t < 1 the divergence terms cancel in its expectation, which is
+     sqrt t / (2 * (n + 1) * sqrt (n + 1)) times that of joint_remainder.
+   The observables are continuous and polynomially bounded (JointGrowth),
+   which gives the integrability (GaussianPairExchange). Each level of the
+   iterated expectation is a Lebesgue integral against the Gaussian
+   kernel. *)
 
 (* The joint vector space, named for the proofs only. *)
 Local Notation joint_space n :=

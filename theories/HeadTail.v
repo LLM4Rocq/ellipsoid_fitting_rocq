@@ -3,6 +3,15 @@ From EllipsoidFitting Require Import Definitions Peeling Rounds FiniteSets NormB
 Import ListNotations.
 Open Scope R_scope.
 
+(* A head-tail decomposition of a unit vector y of R^n
+   (head_tail_decomposition_explicit). For theta > 0 and d >= 1 there is a
+   set J of at most head_tail_constant theta * d * ln d coordinates, where
+   head_tail_constant theta = 16 / (theta^2 ln 2), such that the tail, the
+   coordinates outside J, either has norm at most 1 / d^2, or has positive
+   norm and every tail coordinate of y divided by that norm is at most
+   theta / sqrt d in absolute value. The proof removes large coordinates in
+   at most (4 / ln 2) ln d rounds of peeling_iteration. *)
+
 Lemma tail_indices_empty (n : nat) : tail_indices n [] = seq 0 n.
 Proof.
   unfold tail_indices, outside.

@@ -1,63 +1,24 @@
-(* Fubini's theorem for a jointly continuous function on a rectangle, with
-   the lemmas on parameter integrals that lead to it. This is the port of
-   theories/RectangleFubini.v from Coquelicot to MathComp-Analysis.
+(* Fubini's theorem for a jointly continuous function on a rectangle:
+   continuous_rectangle_fubini exchanges the two oriented integrals of f
+   over [a, b] x [c, d]. oriented_integral g a b is the Lebesgue integral
+   over the segment between a and b, with a minus sign when b < a, and
+   segment_integrable g a b is Lebesgue integrability on that segment,
+   which includes Borel measurability (AnalysisIntegralDefinitions).
 
-   Translation of the vocabulary.
-   - Coquelicot's continuity_2d_pt f x y becomes the definition of the same
-     name in AnalysisIntegralDefinitions: continuity at (x, y) of
-     p |-> f p.1 p.2 for the product topology of R * R. It says the same
-     thing.
-   - Coquelicot's pointwise continuity [continuous g x] becomes MathComp's
-     {for x, continuous g} (difference 5 of analysis/README.md). It says the
-     same thing.
-   - Coquelicot's RInt g a b becomes oriented_integral g a b, and ex_RInt g a b
-     becomes segment_integrable g a b (AnalysisIntegralDefinitions,
-     difference 3 of analysis/README.md). The first is the oriented Lebesgue
-     integral over the segment, the second is Lebesgue integrability on the
-     segment, which includes Borel measurability. On a function continuous
-     everywhere they agree with Coquelicot's Riemann notions. Such a function
-     satisfies both integrability predicates. Its integrals agree too:
-     Coquelicot's RInt_Reals equates RInt with Stdlib's RiemannInt, and a
-     check compiled during the review of this port proved RiemannInt equal
-     to oriented_integral on such a function, for either order of the end
-     points. That check is not part of this module, because Stdlib's lemmas
-     on RiemannInt add the axiom Classical_Prop.classic.
-     Every function that the original lemmas integrate is continuous
-     everywhere, with one exception: the slices f u in the hypothesis of
-     rectangle_parameter_integral_derivative. There the meaning changes, as
-     the comment above that lemma explains.
-   - Coquelicot's is_derive g x l, for g : R -> R, becomes MathComp's
-     @is_derive R R^o R^o x 1 g l: the derivative of g at x in the direction
-     1 exists and equals l. Both are equivalent to Stdlib's
-     derivable_pt_lim g x l: for Coquelicot this is its lemma
-     is_derive_Reals, and for MathComp it is AnalysisBridge.is_derive_Reals,
-     stated with the same convention as here. So the two say the same thing.
-     A caller may need to write the types R R^o R^o, because R itself is not
-     a normedModType.
+   The proof differentiates under the integral sign the function of z
+   that integrates over [c, d] the primitive of f from a to z, and
+   concludes with the second fundamental theorem of calculus. Continuity
+   and differentiation of parameter integrals come from MathComp's
+   continuity_under_integral and differentiation_under_integral, with a
+   constant bound, since a jointly continuous function is bounded on a
+   compact rectangle (rectangle_bound). The fundamental theorems come from
+   MathComp's continuous_FTC1 and continuous_FTC2, extended to the
+   oriented integral (rectangle_oriented_primitive_derivative,
+   rectangle_oriented_FTC).
 
-   Every lemma of the original keeps its name, its argument order and its
-   hypotheses, translated as above. The proofs differ. Continuity and
-   differentiation of a parameter integral come from MathComp's
-   continuity_under_integral and differentiation_under_integral, dominated
-   by a constant, which exists because a jointly continuous function is
-   bounded on a compact rectangle. The primitive and the final identity come
-   from MathComp's fundamental theorems of calculus, continuous_FTC1 and
-   continuous_FTC2, extended here to the oriented integral.
-
-   The module adds helper lemmas for its own proofs and for the ports of the
-   modules that import it.
-   - continuity_2d_pt_mult, continuity_2d_pt_plus, continuity_2d_pt_minus,
-     continuity_2d_pt_opp, continuity_2d_pt_const, continuity_2d_pt_id1,
-     continuity_2d_pt_id2, continuity_2d_pt_ext, continuity_1d_2d_pt_comp
-     and continuity_2d_pt_filterlim keep the names, the argument order and
-     the statements of Coquelicot's lemmas on continuity_2d_pt. In the last
-     one, Coquelicot's filterlim becomes MathComp's limit of a function.
-   - The lemmas prefixed with rectangle_ give the boundedness of a jointly
-     continuous function on a rectangle, the integrability of continuous
-     functions on segments, and the rules of oriented_integral: point, swap,
-     Chasles (for end points in any order), extension, scaling, sum,
-     difference, opposite, constants, and the two fundamental theorems of
-     calculus. *)
+   The module also proves rules of continuity_2d_pt and of
+   oriented_integral: point, swap, Chasles's relation for end points in
+   any order, extension, scaling and difference. *)
 
 From Stdlib Require Import Reals Lra.
 From HB Require Import structures.
@@ -101,8 +62,7 @@ move=> h; rewrite /continuity_2d_pt.
 exact: (continuous_comp (@swap_continuous R R (y, x)) h).
 Qed.
 
-(* Coquelicot's rules for continuity_2d_pt, with their names, argument order
-   and statements. *)
+(* Rules for continuity_2d_pt. *)
 
 Lemma continuity_2d_pt_mult (f g : R -> R -> R) x y :
   continuity_2d_pt f x y -> continuity_2d_pt g x y ->
@@ -115,7 +75,7 @@ Proof. exact: cvg_fst. Qed.
 Lemma continuity_2d_pt_id2 x y : continuity_2d_pt (fun _ v => v) x y.
 Proof. exact: cvg_snd. Qed.
 
-(* The hypothesis on f is Stdlib's continuity_pt, as in Coquelicot. *)
+(* The hypothesis on f is Stdlib's continuity_pt. *)
 Lemma continuity_1d_2d_pt_comp (f : R -> R) (g : R -> R -> R) x y :
   continuity_pt f (g x y) -> continuity_2d_pt g x y ->
   continuity_2d_pt (fun u v => f (g u v)) x y.
@@ -215,19 +175,12 @@ have hFx : {for x, continuous F}.
 exact: (continuousM (@cst_continuous _ _ s x) hFx).
 Qed.
 
-(* This lemma changes meaning. Its slices f u need not be continuous, since
-   only df is assumed jointly continuous. Its hypothesis
+(* Differentiation under the integral sign. Only df is assumed jointly
+   continuous, so the slices f u need not be continuous. The hypothesis
    segment_integrable (f u) c d is Lebesgue integrability on the segment,
-   with Borel measurability, and it neither implies nor follows from
-   Coquelicot's ex_RInt (f u) c d (difference 3 of analysis/README.md). The
-   indicator of a subset of the Cantor set that is not a Borel set is
-   Riemann integrable but not Borel measurable. The function
-   v |-> / sqrt (Rabs v) on [-1, 1] is Lebesgue integrable but unbounded, so
-   not Riemann integrable. The two hypotheses agree when the slices are
-   continuous. The only use of the lemma here,
-   rectangle_iterated_primitive_derivative, applies it to slices that are
-   continuous everywhere, and no module of theories/ other than
-   GaussianCoordinateProofs, which keeps its own copy, uses it. *)
+   which includes Borel measurability. The lemma is applied, in
+   rectangle_iterated_primitive_derivative, to slices that are continuous
+   everywhere. *)
 Lemma rectangle_parameter_integral_derivative
   (f df : R -> R -> R) (c d x : R) :
   (forall u v : R, @is_derive R R^o R^o u 1 (fun z : R => f z v) (df u v)) ->
@@ -420,10 +373,8 @@ rewrite rectangle_oriented_integral_segment (Rintegral_cst _ mD) mul0r.
 by rewrite RmultE mulr0.
 Qed.
 
-(* More rules of the oriented integral, for the modules that import this
-   one. Coquelicot's RInt_ext asks for f x = g x on the open segment; here
-   the equality is asked on the closed segment. The other rules keep
-   Coquelicot's hypotheses, with ex_RInt translated to segment_integrable. *)
+(* More rules of the oriented integral. rectangle_oriented_ext asks for
+   f x = g x on the closed segment between the end points. *)
 
 Lemma rectangle_segment_measurable a b :
   measurable (`[Rmin a b, Rmax a b]%classic : set (measurableTypeR R)).
@@ -464,8 +415,7 @@ rewrite ge0_integral_setU //.
 - exact: lte_add_pinfty.
 Qed.
 
-(* Chasles's relation for end points in any order, with Coquelicot's
-   hypotheses. *)
+(* Chasles's relation for end points in any order. *)
 Lemma rectangle_oriented_chasles (f : R -> R) a b c :
   segment_integrable f a b -> segment_integrable f b c ->
   oriented_integral f a b + oriented_integral f b c = oriented_integral f a c.

@@ -13,80 +13,16 @@ From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions GoeDe
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/RowDecoderRegularity.v from Coquelicot to
-   MathComp-Analysis.
-
-   Imports. The original imported the bundles GaussianCoordinateProofs,
-   InterpolationFoundations and InterpolationProofs and named eight of their
-   inner modules through them. The port imports the eight standalone ported
-   modules directly: GaussianCoordinateBasics, GaussianCoordinateTopology,
-   GaussianCoordinateWeights and GaussianPermutationContinuity (from
-   GaussianCoordinateProofs), GaussianBlockPermutation, JointCoordinates and
-   JointContinuity (from InterpolationProofs.JointProofs), and
-   GaussianVectorGrowth (from InterpolationFoundations.GaussianVectorProofs).
-   The other imports are those of the original.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. No item is added. The statements change form in the following ways.
-
-   1. Naturals. With ssreflect loaded, (i <= m)%nat means ssrnat's boolean
-      leq, and + and * on nat mean ssrnat's addn and muln. The original means
-      Stdlib's Peano order le and Nat.add, Nat.mul, so the statements write
-      (i <= m)%coq_nat and (S m * (S n + S (goe_vector_index n)))%coq_nat,
-      which denote these Stdlib functions. The dimension of the coordinate
-      space is therefore the same term as in the original and in the ported
-      RowArrayDefinitions and JointCoordinates.
-
-   2. Pointwise continuity. Coquelicot's continuous f a becomes MathComp's
-      {for a, continuous f} (difference 5 of analysis/README.md). The domain
-      is coordinates_uniform_space of the ported GaussianCoordinateTopology, a
-      type copy of Tn d R whose balls are close_n, as in the original, so its
-      neighbourhoods are the same. The codomains are the joint vectors
-      euclidean_product (vector_NormedModule n)
-      (vector_NormedModule (goe_vector_index n)) of the ported JointDefinitions,
-      matrix n, and the block arrays tuple_NormedModule (matrix_NormedModule n)
-      m, with MathComp's norm topologies. These norms are Coquelicot's
-      Euclidean and Frobenius norms (MatrixDefinitions), so the topologies are
-      those of the original, where the product topology was used; for the
-      joint vectors this is euclidean_product_nbhsE of MatrixEuclideanProduct.
-      This concerns gaussian_row_pair_continuous,
-      gaussian_row_matrix_continuous and gaussian_row_array_continuous, which
-      say the same thing as before.
-
-   3. Norms. Coquelicot's norm of a joint vector becomes MathComp's
-      (`|...|)%R. The norm of euclidean_product is Coquelicot's product norm
-      sqrt (norm (fst xz) ^ 2 + norm (snd xz) ^ 2), so the value is the same.
-      This concerns gaussian_row_pair_norm_weight and
-      gaussian_row_pair_squared_weight, which say the same thing as before.
-
-   One statement changes meaning.
-
-   4. gaussian_row_pair_ball. In Coquelicot the ball of joint vectors of
-      radius e was closeness of all the coordinates within e, and the original
-      concluded a ball of radius e. In the port the ball of euclidean_product,
-      and of the vectors that nest it, is the ball of the Euclidean norm, and
-      a ball of radius e no longer follows. As for joint_of_coordinates_ball
-      of the ported JointCoordinates, from which it is proved, the conclusion
-      is a ball of radius INR (S n + S (goe_vector_index n)) * e. The radius
-      is written Rmult, Stdlib's product, because the radius argument of
-      MathComp's ball is read in ring_scope. Its only user, here and in
-      theories/, is gaussian_row_pair_continuous, whose proof now divides the
-      radius of continuity by INR (S n + S (goe_vector_index n)).
-
-   The proofs follow the original ones. Coquelicot's epsilon-delta unfolding
-   of continuity becomes nbhs_ballP on both sides. Coquelicot's norm_ge_0
-   becomes MathComp's normr_ge0 through RleP, and its continuous_comp becomes
-   MathComp's continuous_comp, with the spaces given explicitly. Stdlib's
-   "rewrite <- H at 1" and "rewrite A, B by tac", which do not parse once
-   ssreflect is loaded, become ssreflect rewrites with explicit side
-   conditions.
-
-   Assumptions. Print Assumptions on the items of this module lists only
-   axioms of analysis/README.md: the seven for every item except
-   row_chunk_product_weight, which rests on two of them
-   (ClassicalDedekindReals.sig_forall_dec and
-   FunctionalExtensionality.functional_extensionality_dep, through Stdlib's
-   reals). *)
+(* Regularity of the decoding of a list of coordinates into an array of
+   matrices (RowArrayDefinitions). Row i of the list is read as a joint
+   vector (x, z) (gaussian_row_pair) and turned into the matrix
+   joint_matrix n (matrix_zero n) t x z. The decoding is continuous for the
+   coordinate topology (gaussian_row_pair_continuous,
+   gaussian_row_array_continuous), and 1 + `|gaussian_row_pair n i xs| is
+   at most gaussian_coordinate_product_weight 1 xs
+   (gaussian_row_pair_norm_weight). As the ball of joint vectors is that of
+   the Euclidean norm, coordinates within e give joint vectors within
+   INR (S n + S (goe_vector_index n)) * e (gaussian_row_pair_ball). *)
 
 Lemma row_chunk_product_weight p K i (xs : list R) :
   gaussian_coordinate_product_weight p (row_chunk K i xs) <=
@@ -108,9 +44,10 @@ Proof.
   nra.
 Qed.
 
-(* Changed meaning (item 4 of the header): the radius of the ball is
-   INR (S n + S (goe_vector_index n)) * e instead of e, because the ball on
-   joint vectors is now the ball of the Euclidean norm. *)
+(* The radius is INR (S n + S (goe_vector_index n)) * e, because the ball on
+   joint vectors is the ball of the Euclidean norm. It is written Rmult,
+   Stdlib's product, because the radius argument of MathComp's ball is read
+   in ring_scope. *)
 Lemma gaussian_row_pair_ball n m i (e : posreal) xs ys :
   (i <= m)%coq_nat ->
   length xs = (S m * (S n + S (goe_vector_index n)))%coq_nat ->

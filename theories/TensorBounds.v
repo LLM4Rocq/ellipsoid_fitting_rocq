@@ -11,30 +11,23 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/TensorBounds.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in three ways.
-
-   1. Extended reals. As in the port of TensorDefinitions, Coquelicot's Rbar
-      becomes MathComp's \bar R: Finite r becomes r%:E and Rbar_le x y
-      becomes (x <= y)%E. The order on \bar R extends the order on R, with
-      -oo below and +oo above everything, as Rbar_le does, so the statements
-      mean the same. The proofs use projective_operator_norm_lower_bound and
-      projective_operator_norm_greatest of TensorDefinitionsAux in place of
-      Coquelicot's Glb_Rbar_correct.
-
-   2. Scopes inside (...)%E. In ereal_scope, + and the numerals denote the
-      operations of \bar R, so a real sum written there does not typecheck.
-      The sums of reals inside the statements are therefore written Rplus a b,
-      which is the term that a + b denotes in R_scope. The statements are
-      thus, up to Rbar becoming \bar R, the terms of the original. 0%:E is
-      EFin applied to MathComp's 0 of R, which is convertible to Stdlib's 0.
-
-   3. Concatenation. With ssreflect loaded, a ++ b means MathComp's cat,
-      while the original means Stdlib's app. The statements write
-      (a ++ b)%list, which is app, as in the original. cat and app compute
-      the same list, and the two terms are convertible. *)
+(* Basic bounds on the projective operator norm of TensorDefinitions. For
+   a form T of three matrices, it is the infimum in \bar R of the costs of
+   the representations of T, on symmetric matrices, as sums of trace atoms.
+   - atom_cost_nonnegative and tensor_cost_nonnegative: costs are
+     nonnegative.
+   - projective_operator_norm_nonnegative and
+     projective_operator_norm_representation_bound: the norm is at least 0
+     and at most the cost of every representation. So the norm of a
+     represented form is a real r with 0 <= r <= tensor_cost atoms
+     (projective_operator_norm_finite).
+   - tensor_value_append, tensor_cost_append and tensor_represents_add: the
+     values and the costs of concatenated lists of atoms add up, and the
+     concatenation of two representations represents the sum of the forms.
+   The proofs use projective_operator_norm_lower_bound and
+   projective_operator_norm_greatest of TensorDefinitionsAux. With
+   ssreflect loaded, a ++ b would mean MathComp's cat, so the statements
+   write (a ++ b)%list for Stdlib's app. *)
 
 Lemma atom_cost_nonnegative n (a : trace_atom n) : 0 <= atom_cost a.
 Proof.

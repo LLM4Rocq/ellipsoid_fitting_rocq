@@ -14,30 +14,24 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Helper for the challenge multirow_full_stein: polynomial regularity of the
-   row velocity and of the row remainder for arbitrary finite score data y
-   and B, without the unit-vector hypothesis on y and the operator-norm
-   bound k that RowObservableBounds and RowObservableRegularity assume.
+(* Regularity of the row observables gaussian_row_velocity and
+   gaussian_row_remainder for arbitrary finite score data y and B: both are
+   jointly continuous and bounded by polynomials of degree 2 in the
+   coordinates (multirow_row_observables_regular). RowObservableBounds
+   proves these bounds when each y z is a unit vector and the operator
+   norms of the B s are at most k; this module drops both hypotheses.
 
-   The checkpoint derives its bounds from a uniform bound on the scores,
-   |H_{z,s}(U)| <= sqrt d * k * |U| for z in Y and s in S, and feeds it to
-   the generic lemmas lower_first_uniform_bound (LowerBounds) and
-   lower_third_uniform_bound (FullThirdBounds). For arbitrary y and B a
-   uniform bound still exists: |H_{z,s}(U)| <= sqrt d * (sum_i |y z i|) *
-   |B_s|_op * |U|, and the finite families Y and S give the constant
-   K = sqrt d * (sum_{z in Y} sum_i |y z i|) * (sum_{s in S} |B_s|_op),
-   which dominates every factor because the summands are nonnegative. With
-   that K the rest of the chain of RowObservableBounds goes through
-   unchanged: injected bounds, growth in the row pair, and the degree-2
-   polynomial bound in the coordinates. The continuity of the observables
-   (RowObservableContinuity) never needed the norm hypotheses.
-
-   Written by the solving session on 30 September 2026. The proofs of the
-   two lemmas multirow_row_observables_uniform_pair_growth and
-   multirow_row_observables_polynomial_bounds follow those of
-   row_observables_uniform_pair_growth and
-   gaussian_row_observables_polynomial_bounds of RowObservableBounds, with
-   the general injected bounds in place of the unit-vector ones. *)
+   The score lower_block_scores y B z s U is at most
+   sqrt (n + 1) * (sum_i |y z i|) * |B s|_op * |U| in absolute value
+   (multirow_block_score_bound_general), so the finite families Y and S
+   give the uniform constant
+   K = sqrt (n + 1) * (sum_{z in Y} sum_i |y z i|) * (sum_{s in S} |B s|_op)
+   (multirow_block_score_bound_uniform). With K, the generic lemmas
+   lower_first_uniform_bound (LowerBounds) and lower_third_uniform_bound
+   (FullThirdBounds) bound the first and third derivatives, and the
+   argument of RowObservableBounds gives the growth in the row pair and the
+   polynomial bounds. The continuity comes from RowObservableContinuity,
+   which needs no norm hypothesis. *)
 
 Local Ltac mfs_norm_nonneg := apply/RleP; apply normr_ge0.
 
@@ -276,7 +270,7 @@ Proof.
 Qed.
 
 (* Regularity of both observables: continuity from RowObservableContinuity,
-   which never needed the norm hypotheses, and the bounds above. *)
+   which needs no norm hypothesis, and the bounds above. *)
 Theorem multirow_row_observables_regular n m beta gamma y B Y S t i :
   0<beta -> 0<gamma -> Y<>[] -> S<>[] -> (i<=m)%coq_nat ->
   finite_joint_continuous (Datatypes.S m * (Datatypes.S n+Datatypes.S (goe_vector_index n)))%coq_nat

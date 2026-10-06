@@ -7,28 +7,15 @@ From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/GoeDefinitions.v from Coquelicot to MathComp-Analysis.
-
-   The only Coquelicot notion written here is scal, the scaling of the
-   normed module matrix_NormedModule n in goe_matrix. It becomes MathComp's
-   scaling, written (_ *: _)%R, as in the ports of MatrixDefinitions and
-   CoefficientDefinitions. On the nested tuples of MatrixDefinitions it is
-   componentwise, as Coquelicot's scal was, so goe_matrix has the same value
-   as in the original. Everything else keeps the text of the original:
-   matrix_scale, module_coordinate_sum, symmetric_basis, vector and
-   vector_entry keep their names and arguments in their ports, and the
-   vectors and matrices still carry the Euclidean and Frobenius norms.
-
-   The MathComp imports are limited to ssralg, ssrnum, Rstruct and
-   normedtype, which are what (_ *: _)%R on matrix n needs. None of them
-   imports MathComp's seq, ssrbool or ssrnat into this file, so map, seq,
-   flat_map, ++, length, pred and nth below are Stdlib's list functions and
-   Nat.pred, with Stdlib's argument order nth k l default, as in the
-   original. An importer that loads all_ssreflect_compat sees MathComp's
-   map, nth, ++ (cat), pred and seq under these names instead, and has to
-   write List.map, List.nth, (_ ++ _)%list, Nat.pred and List.seq to mean
-   the functions used here. R_scope is opened after the imports, so sqrt,
-   /, 2 and INR in goe_scale are Stdlib's. *)
+(* The Gaussian orthogonal ensemble as a function of a vector. goe_pairs n
+   lists the index pairs of an (S n) x (S n) symmetric matrix, diagonal
+   pairs first, and goe_basis n k is the element of the orthonormal basis
+   symmetric_basis of SymmetricDefinitions given by the k-th pair.
+   goe_matrix n z is sqrt (2 / INR (S n)) times the sum of the
+   z_k * goe_basis n k, for z : vector (goe_vector_index n). For a standard
+   Gaussian z, its diagonal entries have variance 2 / INR (S n) and its
+   off-diagonal entries 1 / INR (S n). The list functions are Stdlib's;
+   modules that load MathComp's seq must qualify them, as in List.map. *)
 
 Definition goe_pairs (n : nat) : list (nat * nat) :=
   map (fun a => (a, a)) (seq 0 (S n)) ++

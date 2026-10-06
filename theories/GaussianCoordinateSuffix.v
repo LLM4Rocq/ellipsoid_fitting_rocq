@@ -1,41 +1,13 @@
-(* Port of theories/GaussianCoordinateSuffix.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every theorem keeps its name, its arguments in the same order and its
-   text. The only change to the file is that the Coquelicot import line
-   (Coquelicot and Compactness) is dropped: no statement or proof here names
-   a Coquelicot notion.
-
-   The statements use finite_joint_continuous (ported
-   GaussianCoordinateDefinitions), finite_polynomial_bound and
-   gaussian_coordinate_weight_moment (ported
-   GaussianCoordinateWeightDefinitions) and gaussian_suffix_marginal
-   (ported GaussianLastDefinitions). Their texts are the original ones.
-   finite_joint_continuous and finite_polynomial_bound involve no integral,
-   so they mean what they meant. gaussian_suffix_marginal n F xs is an
-   iterated Gaussian expectation over the last n coordinates, and
-   gaussian_coordinate_weight_moment p the Gaussian expectation of the
-   weight 1 + Rabs x ^ p; the Gaussian expectation underneath is now the
-   Lebesgue integral over the line (difference 4 of analysis/README.md).
-   Under the hypotheses of these theorems every integrand is continuous in
-   the integrated variable and bounded by a constant times a polynomial
-   weight, so it is absolutely integrable against the kernel, where the
-   Lebesgue and the improper Riemann integrals agree. The conclusions are
-   therefore the same statements as before, about the same numbers. This
-   agreement is a mathematical argument and is not proved in Rocq.
-
-   The proofs are the original ones, word for word. They use
-   gaussian_last_marginal_continuous and
-   gaussian_last_marginal_polynomial_bound (ported
-   GaussianCoordinateMarginals), finite_joint_continuous_ext (ported
-   GaussianCoordinateTopology), finite_polynomial_bound_ext,
-   gaussian_suffix_marginal_zero and gaussian_suffix_marginal_succ (ported
-   GaussianCoordinateSuffixAlgebra), whose statements are the original
-   texts.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So ++, length, the %nat scope, + on nat and the
-   operations on R are Stdlib's, as in the original. *)
+(* Regularity of gaussian_suffix_marginal n F, the iterated Gaussian
+   expectation of F over its last n coordinates, as a function of the first
+   d. Let F be a jointly continuous function of d + n coordinates, bounded
+   by C times the polynomial weight gaussian_coordinate_product_weight p.
+   Then gaussian_suffix_marginal n F is jointly continuous, and bounded by
+   C * gaussian_coordinate_weight_moment p ^ n times the same weight on d
+   coordinates (gaussian_suffix_marginal_regular,
+   gaussian_suffix_marginal_continuous). The proof is by induction on n:
+   it integrates out the last coordinates one at a time
+   (GaussianCoordinateMarginals). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefinitions GaussianProduct

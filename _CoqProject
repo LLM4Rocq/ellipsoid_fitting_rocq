@@ -10,6 +10,7 @@ library/gaussian/normal_integral.v
 library/gaussian/gauss.v
 library/gaussian/gauss_ibp.v
 library/gaussian/gauss_moments.v
+library/gaussian/partial_derivative.v
 library/gaussian/gauss_interpolation.v
 library/matrix/euclidean.v
 library/matrix/real_spectral.v
@@ -606,6 +607,7 @@ theories/QuadraticGradient.v
 theories/QuadraticGrowthProofs.v
 theories/QuadraticSymmetry.v
 theories/RadiusAlgebra.v
+theories/RealsBridge.v
 theories/RectangleFubini.v
 theories/Rounds.v
 theories/RowArrayCoordinates.v

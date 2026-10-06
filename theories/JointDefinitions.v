@@ -5,52 +5,34 @@ From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions Vecto
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/JointDefinitions.v from Coquelicot to MathComp-Analysis.
+(* Gaussian expectations of functions of a pair of vectors, and the joint
+   interpolation between a quadratic matrix and a GOE matrix.
+   - gaussian_list_domain d F: F is integrable and absolutely integrable
+     at every level of the iterated Gaussian expectation over d
+     coordinates, and F and |F| have expectations, equal to
+     gaussian_iterated_expectation of F and of |F|. Each level asks for
+     Lebesgue integrability over the line against the kernel.
+   - A pair (x, z) of vectors has S m + S n coordinates;
+     joint_vector_to_list and joint_vector_of_list convert between such
+     pairs and lists, and gaussian_pair_expectation and
+     gaussian_pair_domain are the iterated expectation and
+     gaussian_list_domain of F x z read on lists.
+   - joint_matrix n C t x z is C + sqrt (t / (n + 1)) (x x^T - I)
+     + sqrt (1 - t) goe_matrix n z, and joint_quadratic_input n x is
+     (x x^T - I) / sqrt (n + 1). At joint_matrix, the four joint
+     observables are the nested gradient paired with joint_quadratic_input
+     (joint_quadratic_trace) and with goe_matrix n z (joint_goe_trace), the
+     symmetric divergence of the derivative of the gradient
+     (joint_divergence), and the chaos contraction of the third derivative
+     with x (joint_remainder).
 
-   Every definition keeps its name, its arguments and its text, with one
-   change: the type of the joint vector. Coquelicot's
-     prod_NormedModule R_AbsRing (vector_NormedModule m) (vector_NormedModule n)
-   becomes
-     euclidean_product (vector_NormedModule m) (vector_NormedModule n)
-   of MatrixEuclideanProduct, which MatrixDefinitions re-exports. This is the
-   product that the ports of MatrixDefinitions and OperatorDefinitions nest
-   to build vectors and matrices. It is a copy of the type
-   vector m * vector n, with the componentwise operations and Coquelicot's
-   product norm sqrt (norm (fst xz) ^ 2 + norm (snd xz) ^ 2), so the norm of
-   a joint vector is still the Euclidean norm of its S m + S n coordinates.
-   MathComp's own product vector m * vector n would carry the max norm
-   (difference 1 of analysis/README.md), which would change the polynomial
-   bounds (1 + norm xz) ^ p that the challenges state on joint vectors. The
-   topology of euclidean_product is the product topology
-   (euclidean_product_nbhsE), so continuity on joint vectors means the same
-   as before. The elements are still pairs: fst, snd, the pair constructor
-   and destruct xz as [x z] behave as in the original. A statement about
-   joint vectors should give its bound variables this type, as in
-   fun yz : euclidean_product (vector_NormedModule m) (vector_NormedModule n)
-   => F (fst yz) (snd yz). A pair variable left untyped gets MathComp's
-   structures on vector m * vector n instead, with the same topology but the
-   max norm.
-
-   The Coquelicot import is dropped and no MathComp module is imported here,
-   so the lists (firstn, skipn, ++), the scope and the arithmetic, including
-   sqrt, /, INR, 1 - t and Rabs, are Stdlib's, as before.
-
-   The other definitions are unchanged in text, and their meaning is
-   inherited from the ported definitions they use. gaussian_list_domain d F
-   has the text of gaussian_vector_domain of GaussianVectorDefinitions, and
-   changes in the same way by difference 4 of analysis/README.md: each level
-   of gaussian_iterated_integrable asks, through gaussian_integral_exists,
-   that the integrand times the Gaussian kernel be measurable and Lebesgue
-   integrable over the line, and gaussian_iterated_has_expectation uses
-   whole_line_has_integral, Lebesgue integrability over the line with the
-   given value, in place of Coquelicot's improper Riemann integral. The two
-   readings agree on integrands that are continuous with an integrable
-   majorant, which is how the challenges use gaussian_list_domain and
-   gaussian_pair_domain. joint_matrix, joint_quadratic_input and the four
-   joint observables are built from matrix_add, matrix_scale,
-   quadratic_matrix, goe_matrix, trace_pair, the nested Gibbs derivatives,
-   symmetric_divergence and chaos_contraction, whose ports keep their names,
-   arguments and values. *)
+   A joint vector has the type euclidean_product (vector_NormedModule m)
+   (vector_NormedModule n) of MatrixEuclideanProduct: a pair with the
+   Euclidean norm of its S m + S n coordinates and the product topology.
+   A bound variable for a joint vector should be given this type; an
+   untyped pair gets MathComp's max norm on vector m * vector n. No
+   MathComp module is imported here, so the lists, the scope and the
+   arithmetic are Stdlib's. *)
 
 Definition gaussian_list_domain d (F : list R -> R) : Prop :=
   gaussian_iterated_integrable d F /\ gaussian_iterated_absolutely_integrable d F /\

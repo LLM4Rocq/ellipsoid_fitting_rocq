@@ -1,53 +1,15 @@
-(* Port of the inner module GaussianBlockPermutation from Coquelicot to
-   MathComp-Analysis.
-
-   In theories/ this module exists only inside the bundles
-   InterpolationProofs and JointProofs, whose two copies are identical. The
-   copy extracted to build/agent2/unbundled/GaussianBlockPermutation.v is
-   ported here as a standalone module.
-
-   Every lemma and theorem keeps its name, its arguments in the same order,
-   and its text. The proofs are the original ones, word for word. The
-   changes are in the import lines only.
-   - "From Coquelicot Require Import Coquelicot." and "Import Coquelicot."
-     are dropped: no statement or proof here names a Coquelicot notion.
-   - The bundle imported GaussianCoordinateProofs and named its inner
-     modules GaussianProduct, GaussianCoordinatePermutations,
-     GaussianPermutationContinuity, GaussianPermutationWeights and
-     GaussianCoordinateMove through it. Here the standalone ported modules
-     of the same names are imported directly.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So (e <= n)%nat and (e < length xs)%nat are Peano's le
-   and lt, and firstn, skipn, length, Forall2, Permutation and the
-   operations on R are Stdlib's, as in the original. A module that imports
-   this one after loading ssreflect must write (e <= n)%coq_nat to state the
-   same bound.
-
-   The meaning of the statements follows the ported definitions they use.
-   The list lemmas (block_rotation_permutation, block_rotation_length,
-   block_firstn_forall2, block_skipn_forall2, block_rotation_forall2,
-   block_rotation_step) involve no analysis and say exactly what they said.
-   finite_joint_continuous (GaussianCoordinateDefinitions) and
-   finite_polynomial_bound (GaussianCoordinateWeightDefinitions) have their
-   original texts, so finite_joint_continuous_block_rotation,
-   finite_polynomial_bound_block_rotation,
-   gaussian_block_rotation_continuous and
-   gaussian_block_rotation_polynomial_bound also say what they said.
-   gaussian_iterated_expectation (GaussianProductDefinitions) now takes at
-   each level a Lebesgue integral over the line against the Gaussian kernel,
-   in place of an improper Riemann integral (difference 4 of
-   analysis/README.md). Under the hypotheses of
-   gaussian_iterated_block_rotation_bounded and
-   gaussian_iterated_block_rotation, F and its rotated version are
-   continuous and bounded by a constant times a polynomial weight, so every
-   function integrated is absolutely integrable against the kernel, where
-   the Lebesgue and the improper Riemann values agree. The two theorems are
-   therefore the same statements as before, about the same numbers. This
-   agreement is a mathematical argument and is not proved in Rocq. The
-   equalities themselves are proved here from the ported
-   gaussian_iterated_move_last, whose statement is the original text. No
-   statement is weakened. *)
+(* Rotating a block of coordinates does not change an iterated Gaussian
+   expectation. The rotation by e of a list xs is
+   skipn e xs ++ firstn e xs: the first e coordinates move to the end. If
+   F is jointly continuous and polynomially bounded, its iterated Gaussian
+   expectation equals that of F composed with the rotation
+   (gaussian_iterated_block_rotation_bounded, for n coordinates and
+   e <= n, and gaussian_iterated_block_rotation, for e + d coordinates).
+   The rotated function keeps both properties
+   (gaussian_block_rotation_continuous,
+   gaussian_block_rotation_polynomial_bound). The proof rotates one
+   coordinate at a time (block_rotation_step), moving the first coordinate
+   to the last place with gaussian_iterated_move_last. *)
 
 From Stdlib Require Import Reals List Permutation Lia Lra Psatz.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefinitions

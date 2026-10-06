@@ -1,25 +1,12 @@
-(* The chain rule for a function of finitely many coordinates with continuous
-   partial derivatives, along a differentiable path. Solver module of the
-   draft challenge gaussian_covariance_interpolation of the MathComp-Analysis
-   port, written on 30 September 2026 by a session that did not write the
-   statement. Nothing here is reviewed or accepted.
-
-   finite_coordinate_derivative K a f (Df a) (GaussianCoordinateDerivativeDefinitions)
-   says that every coordinate section of f in coordinate a has the ordinary
-   derivative Df a, and finite_joint_continuous K (Df a)
-   (GaussianCoordinateDefinitions) that Df a is continuous on lists of length
-   K. finite_chain_rule proves that for a path u with differentiable
-   coordinates, s |-> f (u s) has derivative sum_a Df a (u t) * du a at t: the
-   difference f (u s) - f (u t) is telescoped through the hybrid lists that
-   take their first j coordinates from u s and the others from u t, each
-   step is a one-variable increment handled by the mean value theorem
-   (MVT_cor4 of AnalysisBridge), and the continuity of the partial
-   derivatives gives the limit. finite_coordinate_derivative_comp is the
-   same rule for a coordinate section of a composite g (Lam zs).
-
-   This module loads MathComp through AnalysisBridge2, so List.nth, List.map,
-   List.seq, (i < d)%coq_nat and Nat.ltb are written explicitly; the
-   arithmetic on R is Stdlib's, with R_scope opened last. *)
+(* The chain rule for a function f of K coordinates with continuous partial
+   derivatives Df a (finite_coordinate_derivative, finite_joint_continuous)
+   along a path u with differentiable coordinates: s |-> f (u s) has
+   derivative sum_a Df a (u t) * du a at t (finite_chain_rule). The
+   difference f (u s) - f (u t) is telescoped through hybrid lists that
+   take their first j coordinates from u s and the others from u t, and
+   each step is handled by the mean value theorem.
+   finite_coordinate_derivative_comp is the same rule for a coordinate
+   section of a composite g (Lam zs). *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import AnalysisBridge2.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCoordinateDefinitions

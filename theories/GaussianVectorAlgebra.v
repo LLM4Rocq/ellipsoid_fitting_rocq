@@ -10,53 +10,14 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module GaussianVectorAlgebra of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/GaussianVectorProofs.v), extracted to
-   build/agent2/unbundled/GaussianVectorAlgebra.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original imported the bundle GaussianCoordinateProofs and named its
-   inner module GaussianProduct through it. The port imports the standalone
-   ported module GaussianProduct directly.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. The statements change form in three ways, none of which changes
-   their meaning.
-
-   1. Indices. With ssreflect loaded, (i <= m)%nat would be ssrnat's boolean
-      leq. The statements write (i <= m)%coq_nat, which is Stdlib's Peano
-      order le, as in the original. This concerns
-      gaussian_vector_coordinate_sum, gaussian_vector_coordinate_sum_continuous,
-      gaussian_vector_coordinate_sum_polynomial and
-      gaussian_vector_polynomial_sum_domain.
-
-   2. Pointwise continuity. Coquelicot's continuous f x, continuity of f at
-      the one point x, becomes MathComp's {for x, continuous f} (difference 5
-      of analysis/README.md), in gaussian_vector_coordinate_sum_continuous and
-      gaussian_vector_polynomial_sum_domain. This is the form of the
-      hypothesis of the ported gaussian_vector_polynomial_domain. The
-      topology of vector n is the product topology, as in Coquelicot.
-
-   3. Norms. Coquelicot's norm x becomes MathComp's (`|x|)%R, in
-      gaussian_vector_coordinate_sum_polynomial and
-      gaussian_vector_polynomial_sum_domain. The vectors nest
-      euclidean_product of MatrixEuclideanProduct, so this is still the
-      Euclidean norm and the polynomial bounds C * (1 + norm x) ^ p keep
-      their constants.
-
-   The meaning of gaussian_vector_integrable, gaussian_vector_expectation and
-   gaussian_vector_domain follows the ported GaussianVectorDefinitions
-   (difference 4 of analysis/README.md): at each level of the iterated
-   expectation, Lebesgue integrability over the line against the Gaussian
-   kernel, and Lebesgue integrals, in place of improper Riemann integrals.
-   The algebraic lemmas below hold for this reading, by the ported
-   GaussianProduct, and gaussian_vector_polynomial_sum_domain establishes it
-   through the ported gaussian_vector_polynomial_domain.
-
-   What changes in the proofs. Coquelicot's continuous_plus becomes
-   MathComp's continuousD at the codomain R^o. The triangle inequality
-   Rabs_triang and the other Stdlib steps are unchanged. *)
+(* Linearity of gaussian_vector_expectation, the expectation of a function
+   of a standard Gaussian vector of vector n (GaussianVectorDefinitions).
+   The expectation is c on the constant c (gaussian_vector_constant) and
+   commutes with scaling and finite sums (gaussian_vector_scale,
+   gaussian_vector_add, gaussian_vector_coordinate_sum). A finite sum of
+   continuous functions bounded by C * (1 + `|x|) ^ p, for the Euclidean
+   norm, satisfies gaussian_vector_domain, and its expectation is the sum
+   of the expectations (gaussian_vector_polynomial_sum_domain). *)
 
 Lemma gaussian_vector_expectation_ext n (f g : vector n -> R) :
   (forall x, f x = g x) -> gaussian_vector_expectation n f = gaussian_vector_expectation n g.

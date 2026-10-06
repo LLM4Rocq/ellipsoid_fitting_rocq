@@ -12,28 +12,16 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/TensorNested.v from Coquelicot to MathComp-Analysis.
-
-   The three theorems keep their names, their arguments in the same order and
-   their hypotheses. The first theorem keeps the text of the original: it
-   mentions only definitions of the ported modules, Stdlib's arithmetic, pow,
-   order, lists and In, whose meaning the ports keep.
-
-   The second and third theorems use Coquelicot's extended reals. As in the
-   ports of TensorDefinitions, TensorBounds and TensorGibbs, and in the
-   restatement of the challenge ellipsoid_tensor_nested in analysis/challenges,
-   Rbar becomes MathComp's \bar R, Finite becomes EFin, and Rbar_le x y
-   becomes lee x y, the order of \bar R that the notation (x <= y)%E unfolds
-   to. The prefix forms EFin and lee are used, not the notations x%:E and
-   (x <= y)%E, so that the bound 10 * k ^ 3 * (beta + gamma) ^ 2 * ... keeps
-   Stdlib's arithmetic: inside x%:E the numeral 10 would be read as MathComp's
-   natmul 1 10, a different term from Stdlib's IZR 10. The order of \bar R has
-   the cases of Rbar_le, and EFin embeds R as Finite did, so the statements
-   mean the same as the originals.
-
-   The proofs follow the original. Rbar_le_trans becomes Order's le_trans,
-   and the comparison of two finite values, which Rbar_le gave by computation,
-   goes through lee_fin and RleP. *)
+(* The third derivative of the nested soft minimax as a trilinear form of
+   bounded projective norm. The coefficient matrices coeff y s are
+   symmetric, with operator norm at most k * r y.
+   - matrix_nested_third_trace_representation: the atoms
+     nested_third_atoms represent the third derivative
+     matrix_nested_third_derivative ... A on symmetric matrices, with cost
+     at most 10 k^3 (beta + gamma)^2 times the Gibbs average of r y ^ 3.
+   - matrix_nested_third_projective_finite_bound: so the projective
+     operator norm of the third derivative, an extended real, is EFin z
+     for a real z >= 0 with the same bound. *)
 
 (* The concrete list contains inner centered triples, all three distinct
    covariance placements, and outer centered triples.  Dimension n denotes
@@ -58,8 +46,6 @@ Proof.
   - apply nested_third_atoms_cost_bound; assumption.
 Qed.
 
-(* Finite z of the original becomes EFin z; see the comment at the top of the
-   file. *)
 Theorem matrix_nested_third_projective_finite_bound n beta gamma offset coeff Y S
     (A : matrix n) k r :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 <= k ->

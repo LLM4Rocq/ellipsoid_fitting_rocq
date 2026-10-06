@@ -13,64 +13,22 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module GaussianPairExchange of
-   theories/InterpolationProofs.v (and of its identical copy in
-   theories/JointProofs.v), extracted to
-   build/agent2/unbundled/GaussianPairExchange.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
+(* Fubini's theorem for the Gaussian expectation of a function F x z of two
+   independent standard Gaussian vectors x and z, of dimensions S m and
+   S n. Integrating out z, or x, gives the suffix or the prefix marginal of
+   the pullback of F to lists of S m + S n coordinates
+   (gaussian_pair_suffix_marginal, gaussian_pair_prefix_marginal). If that
+   pullback is jointly continuous and polynomially bounded, then F, its
+   sections and its two partial expectations are in the Gaussian domain,
+   and the joint expectation equals both iterated expectations
+   (gaussian_pair_finite_exchange). gaussian_pair_polynomial_exchange
+   concludes the same when F is continuous on the joint vectors q = (x, z)
+   of euclidean_product and Rabs (F x z) <= C * (1 + |q|) ^ p, where |q| is
+   the Euclidean norm of the S m + S n coordinates. The joint expectation
+   is linear (gaussian_pair_linear_expectation).
 
-   The original imported the bundles GaussianCoordinateProofs and
-   GaussianVectorProofs and named their inner modules GaussianProduct,
-   VectorCoordinates and GaussianVectorDomain through them. The port imports
-   these three standalone ported modules directly, and not the bundles.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. No item is added. The statements change form in the following
-   ways, as in the ports of JointCoordinates and GaussianBlockExchange and in
-   group 3 of the restated challenge ellipsoid_joint
-   (analysis/challenges/ellipsoid_joint/Challenge.v). None of them changes
-   the meaning.
-
-   1. Joint vectors. In gaussian_pair_polynomial_exchange, Coquelicot's
-        prod_NormedModule R_AbsRing (vector_NormedModule m) (vector_NormedModule n)
-      becomes
-        euclidean_product (vector_NormedModule m) (vector_NormedModule n),
-      the type of joint vectors of the ported JointDefinitions. Its elements
-      are the same pairs, and its norm is Coquelicot's product norm
-      sqrt (norm (fst q) ^ 2 + norm (snd q) ^ 2), so the Euclidean norm of
-      the S m + S n coordinates. The bound variable of the function whose
-      continuity is stated gets this type too, so that continuity refers to
-      its topology, the product topology (euclidean_product_nbhsE), as in
-      Coquelicot.
-
-   2. Pointwise continuity and norms. In the same theorem, Coquelicot's
-      continuous f q becomes MathComp's {for q, continuous f} (difference 5
-      of analysis/README.md), and Coquelicot's norm q becomes MathComp's
-      `|q|%R, with the same value by item 1.
-
-   3. Naturals and lists. With ssreflect loaded, + on nat would mean
-      ssrnat's addn and ++ MathComp's seq.cat. The statements write
-      (S m + S n)%coq_nat and (xs ++ ys)%list, which are Stdlib's Nat.add
-      and List.app of the original and of the ported JointDefinitions, in
-      gaussian_pair_finite_exchange and gaussian_pair_prefix_marginal.
-
-   With these forms, gaussian_pair_polynomial_exchange is clause 3a of the
-   restated challenge ellipsoid_joint, word for word, so that its results
-   module can prove that clause with exact, as theories/JointResults.v does.
-
-   The meaning of gaussian_pair_domain, gaussian_pair_expectation,
-   gaussian_vector_domain, gaussian_vector_expectation and
-   gaussian_suffix_marginal follows the ported definitions (difference 4 of
-   analysis/README.md): at each level of the iterated expectation, Borel
-   measurability and Lebesgue integrability over the line against the
-   Gaussian kernel, and Lebesgue integrals. The hypotheses of
-   gaussian_pair_finite_exchange and gaussian_pair_polynomial_exchange make
-   every integrand continuous and bounded by a polynomial, and the ported
-   GaussianBlockExchange establishes the Lebesgue reading under them.
-
-   The proofs follow the original. Stdlib's "rewrite A, B" and
-   "rewrite A by tac", which do not parse once ssreflect is loaded, are
-   replaced by rewrites with explicit arguments. *)
+   With ssreflect loaded, + on nat would be ssrnat's addn and ++ MathComp's
+   cat, so the statements write (S m + S n)%coq_nat and (xs ++ ys)%list. *)
 
 Lemma gaussian_pair_suffix_marginal m n F xs : length xs = S m ->
   gaussian_suffix_marginal (S n) (gaussian_pair_pullback m n F) xs =

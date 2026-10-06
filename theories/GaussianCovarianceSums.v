@@ -1,16 +1,12 @@
-(* Finite sums and lists for the draft challenge gaussian_covariance_interpolation
-   of the MathComp-Analysis port (analysis/challenges/gaussian_covariance_interpolation).
+(* Finite sums and lists: the algebra of finite_sum (extensionality on
+   members, sums of sums, scalars, opposites, constants, concatenation,
+   shifted index ranges, exchange of two sums, absolute values, bounds and
+   signs); the reading of List.nth on map g (seq 0 K), on firstn and on
+   skipn; and a uniform bound for finitely many matrix entries
+   (finite_matrix_bound).
 
-   Solver module, written on 30 September 2026 by a session that did not write
-   the statement. Nothing here is reviewed or accepted. It imports Stdlib and
-   SoftDefinitions only, so + , * , nth, map, seq and length are Stdlib's, as
-   in the statement, and (i < d)%nat is Peano's lt.
-
-   Contents: the algebra of finite_sum (extensionality on members, sums of sums,
-   scalars, opposites, constants, concatenation, shifted index ranges,
-   exchange of two sums, absolute values, bounds and signs); the reading of
-   List.nth on map g (seq 0 K), on firstn and on skipn; and a uniform bound
-   for finitely many matrix entries. *)
+   The module imports Stdlib and SoftDefinitions only, so +, *, nth, map,
+   seq and length are Stdlib's, and (i < d)%nat is Peano's lt. *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import SoftDefinitions.
 Import ListNotations.

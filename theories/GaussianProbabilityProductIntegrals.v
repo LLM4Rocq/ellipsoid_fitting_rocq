@@ -1,5 +1,11 @@
-(* Independent solver's bridge from the recursive product measure to the
-   all-section iterated expectation. The statement and definitions are fixed. *)
+(* The integral against gaussian_product_law d, the law of d independent
+   standard normal coordinates, is the iterated Gaussian expectation
+   gaussian_iterated_expectation d, a tuple x being read as its list of
+   coordinates tval x. gpp_nonnegative proves it for a measurable
+   nonnegative F integrable at every level of the iterated expectation
+   (Tonelli); gpp_all_sections, for a measurable F integrable and
+   absolutely integrable at every level, also shows that F is integrable
+   against the product law (Fubini). *)
 From Stdlib Require Import Reals List.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct.

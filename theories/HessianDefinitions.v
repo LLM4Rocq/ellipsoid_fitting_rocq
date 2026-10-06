@@ -7,24 +7,18 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixGibbsDefinitions
   MatrixSecondDefinitions MatrixThirdDefinitions GradientDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/HessianDefinitions.v from Coquelicot to
-   MathComp-Analysis.
-
-   Coquelicot's NormedModule R_AbsRing becomes normedModType R, as in the
-   port of MatrixDefinitions. hessian_NormedModule n is built from
-   tuple_NormedModule and matrix_NormedModule of that port, whose products
-   are euclidean_product of MatrixEuclideanProduct and keep Coquelicot's
-   product norm. A Hessian array therefore still carries the Euclidean norm
-   of all its entries, that is the Frobenius norm of the four-index array,
-   as in the original. Its ball is the norm ball, as MatrixDefinitions
-   explains, and its topology is the one of the original.
-
-   The other definitions keep the text of the original. They use only
-   tuple_build, tuple_entry, matrix_build, trace_pair and matrix_basis, and
-   the nested derivatives of GradientDefinitions and MatrixThirdDefinitions,
-   whose ports keep the same names, arguments and values. MathComp is
-   imported only for normedModType; R_scope is opened after it, so nothing
-   here uses MathComp's arithmetic. *)
+(* Hessian arrays for functions of a matrix. A hessian_array n holds one
+   matrix for each pair (i, j) of matrix indices, and carries the Euclidean
+   norm of all its entries, the Frobenius norm of the four-index array.
+   hessian_build and hessian_entry build and read an array;
+   hessian_action H V is the matrix with entries trace_pair (H i j) V, and
+   hessian_evaluation H U V is trace_pair (hessian_action H V) U.
+   matrix_nested_hessian collects the derivatives of the gradient of the
+   nested Gibbs function in the directions of the basis matrices, and
+   matrix_nested_gradient_second_derivative and
+   matrix_nested_hessian_derivative take one more derivative, in a
+   direction V. R_scope is opened after the MathComp imports, so the
+   arithmetic is Stdlib's. *)
 
 Definition hessian_NormedModule (n : nat) : normedModType R :=
   tuple_NormedModule (tuple_NormedModule (matrix_NormedModule n) n) n.

@@ -2,36 +2,14 @@ From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions JointDefinitions
   JointCoordinates RowCoordinateDefinitions RowCoordinates RowReplacement.
 
-(* Port of theories/RowVectorCoordinates.v from Coquelicot to
-   MathComp-Analysis.
-
-   The original imported Coquelicot, which it did not use itself, and the
-   bundle InterpolationProofs, from which it took the inner module
-   JointCoordinates (Import InterpolationProofs.JointProofs.JointCoordinates).
-   The port drops Coquelicot and imports the standalone ported module
-   JointCoordinates directly. These are the only changes: every theorem keeps
-   its name, its arguments in the same order, its statement word for word and
-   its proof.
-
-   The statements say the same thing as before. The joint vector xz is now an
-   element of euclidean_product (vector_NormedModule m) (vector_NormedModule n)
-   of the ported JointDefinitions, whose elements are the same pairs as
-   Coquelicot's prod_NormedModule; its type is inferred from
-   joint_vector_to_list, as in the original. joint_vector_of_list,
-   joint_vector_to_list, row_chunk, row_assemble and row_background keep their
-   definitions in their ports.
-
-   This module loads no MathComp library itself, so the notations are Stdlib's
-   as in the original: (i<N)%nat is Peano's lt, and + , * and - on nat are
-   Nat.add, Nat.mul and Nat.sub. They agree with the (S m + S n)%coq_nat of
-   the ported JointCoordinates, which denotes Nat.add. Stdlib's rewrite
-   ... by, used in the first proof, is available because ssreflect's rewrite
-   is not loaded here.
-
-   Assumptions. Print Assumptions on each theorem lists the seven axioms of
-   analysis/README.md and no other. They come from the ported modules this
-   one imports (the type euclidean_product and the lemmas of
-   JointCoordinates). *)
+(* Decoding a joint vector from a row of a list of N rows.
+   row_assemble N K i background row places row at position i, the
+   coordinates of background filling the N - 1 other rows, and
+   row_chunk K i reads row i back.
+   - row_joint_decode_assemble: placing the coordinates of a joint vector
+     xz at row i and decoding row i gives xz back.
+   - row_joint_decode_other_independent: the decoding of any other row j
+     does not depend on the joint vector placed at row i. *)
 
 Theorem row_joint_decode_assemble m n N i background xz :
   length background = ((N-1)*(S m+S n))%nat -> (i<N)%nat ->

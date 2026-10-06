@@ -1,25 +1,15 @@
-(* Results module of the draft challenge multirow_full_stein, over the
-   MathComp-Analysis port in analysis/. Nothing here is reviewed, solved or
-   accepted: the challenge is a draft of the port, and this module is a
-   pre-submission proof attempt written on 30 September 2026 by a session
-   that did not write the statement.
-
-   The imports before the proof modules are those of
-   analysis/challenges/multirow_full_stein/Challenge.v, in the same order,
-   and the statement below is the text of that file, copied unchanged
-   (SHA-256 of Challenge.v:
-   18a830f80c8a08535ae43e81c58d1282afd7cb6289a89afd4434e7a82c106d0a).
-
-   The statement assumes nothing on the norms of the score data y and B,
-   where the checkpoint theorem gaussian_row_full_stein (RowFullStein)
-   assumed a unit y and an operator-norm bound k. The proof therefore does
-   not use that theorem. It proves the polynomial regularity of the row
-   observables for arbitrary finite y and B in MultirowFullSteinBounds, and
-   feeds it to gaussian_row_full_stein_of_regular (RowStein), which needs
-   only positivity, nonempty families, symmetric B_s and 0 < t < 1. The
-   summed clause is gaussian_finite_polynomial_sum (GaussianFiniteSums),
-   which gives the domains of the sums and the exchange of the expectation
-   with the finite sum, followed by the row identities summed. *)
+(* The Stein identity for the multirow observables, row by row and summed
+   over the rows (paper_multirow_full_stein_results), for symmetric
+   matrices B s and 0 < t < 1. For each row i, the row velocity and the row
+   remainder have a Gaussian domain under the law of all the coordinates,
+   and E[velocity of row i] = sqrt t / (2 d sqrt d) * E[remainder of row i],
+   with d = S n. Summed over the rows, both sums have a domain, the
+   expectation of each sum is the sum of the expectations, and the identity
+   holds for the sums. No bound on the score data y and B is assumed: the
+   regularity of the row observables for any y and B comes from
+   MultirowFullSteinBounds, the identity of one row from
+   gaussian_row_full_stein_of_regular (RowStein), and the sums from
+   gaussian_finite_polynomial_sum (GaussianFiniteSums). *)
 From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import MatrixDefinitions SoftDefinitions TensorDefinitions
   GoeDefinitions GaussianProductDefinitions JointDefinitions RowObservableDefinitions.
@@ -31,7 +21,7 @@ Open Scope R_scope.
 
 Theorem paper_multirow_full_stein_results :
 (* Row by row: domains of the row velocity and of the row remainder under
-   the law of all N rows, and the Stein identity of row i. *)
+   the law of all the rows, and the Stein identity of row i. *)
 (forall (n m : nat) (beta gamma : R) (y : nat -> nat -> R) (B : nat -> matrix n)
     (Y S : list nat) (t : R) (i : nat),
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->

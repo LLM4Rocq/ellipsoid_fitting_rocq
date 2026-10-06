@@ -4,42 +4,17 @@ From EllipsoidFitting Require Import MatrixDefinitions GoeDefinitions JointDefin
   RowCoordinateDefinitions RowCoordinates RowReplacement RowVectorCoordinates RowArrayDefinitions
   SoftMatrixDefinitions RowSliceDefinitions.
 
-(* Port of theories/RowArrayCoordinates.v from Coquelicot to
-   MathComp-Analysis.
-
-   The original imported Coquelicot, which it did not use itself, and the
-   bundles InterpolationFoundations and InterpolationProofs, from which it
-   took the inner modules MatrixCoordinates
-   (Import InterpolationFoundations.MatrixCoordinates) and JointCoordinates
-   (Import InterpolationProofs.JointProofs.JointCoordinates). The port drops
-   Coquelicot and the bundles, and imports the standalone ported modules
-   MatrixCoordinates and JointCoordinates directly. These are the only
-   changes: every theorem keeps its name, its arguments in the same order,
-   its statement word for word and its proof.
-
-   The statements say the same thing as before.
-   - This module loads no MathComp library itself, so the notations are
-     Stdlib's, as in the original: (i<N)%nat and (i<=m)%nat are Peano's lt
-     and le, and + , * and - on nat are Nat.add, Nat.mul and Nat.sub. The
-     hypothesis (i<=m)%nat of gaussian_row_array_entry is therefore the
-     (i <= n)%coq_nat of the ported tuple_entry_build, which is Peano's le.
-   - The joint vectors xz and xz' are elements of
-     euclidean_product (vector_NormedModule n)
-       (vector_NormedModule (goe_vector_index n))
-     of the ported JointDefinitions, whose elements are the same pairs as
-     Coquelicot's prod_NormedModule; their type is inferred from
-     joint_vector_to_list, as in the original.
-   - The array of gaussian_row_array is a tuple of the ported normed module
-     matrix_NormedModule n; tuple_build and tuple_entry keep their
-     definitions by recursion on the nested pairs, and matrix_zero n is the
-     zero of that module, as Coquelicot's zero was.
-   - joint_matrix, gaussian_row_pair, gaussian_row_matrix, row_assemble,
-     row_background, soft_matrix_block_replace and soft_matrix_row_offset
-     keep the texts of their originals in their ported modules.
-
-   Assumptions. Print Assumptions on each theorem lists the seven axioms of
-   analysis/README.md and no other. They come from the ported modules this
-   one imports. *)
+(* The rows of a list built by row_assemble, where each row of length
+   S n + S (goe_vector_index n) holds a joint vector (x, z). When row i is
+   the joint vector xz and the other rows come from background:
+   - gaussian_row_pair_assemble: the pair read from row i is xz;
+   - gaussian_row_pair_other_independent and
+     gaussian_row_matrix_other_independent: the pairs and the matrices of
+     the other rows do not depend on xz;
+   - gaussian_row_zeroed_array_independent and
+     gaussian_row_offset_independent: neither do the array of row matrices
+     with block i replaced by zero, nor the offset soft_matrix_row_offset of
+     row i. *)
 
 Theorem gaussian_row_pair_assemble n N i background xz :
   length background = ((N-1)*(S n+S(goe_vector_index n)))%nat -> (i<N)%nat ->

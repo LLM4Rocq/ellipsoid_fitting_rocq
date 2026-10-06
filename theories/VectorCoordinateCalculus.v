@@ -14,66 +14,20 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module VectorCoordinateCalculus of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/GaussianVectorProofs.v), extracted to
-   build/agent2/unbundled/VectorCoordinateCalculus.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
+(* Partial derivatives of a Frechet differentiable function F on vector n,
+   the vectors with S n coordinates and the Euclidean norm. Let e_i be the
+   basis vector chaos_basis n i.
+   - vector_frechet_coordinate_line: if F has differential dF at x
+     (is_diff), then t |-> F (x + (t - a) e_i) has derivative dF e_i at a.
+   - vector_frechet_coordinate_section: the same when coordinate i of a
+     list xs of length S n varies, the vector being vector_of_list n xs.
+   - vector_frechet_coordinate_derivative: if F is differentiable at every
+     point, then xs |-> F (vector_of_list n xs) has the partial derivative
+     dF (vector_of_list n xs) e_i in coordinate i
+     (finite_coordinate_derivative). *)
 
-   Every lemma and theorem keeps its name, its arguments in the same order
-   and its hypotheses. One lemma is added, vector_coordinate_line_is_diff,
-   which the proofs share. The vectors are those of the ported
-   OperatorDefinitions: nested euclidean_product of R^o, with the Euclidean
-   norm, whose topology is the product topology. The statements change form
-   in the following ways, without a change of meaning.
-
-   1. Derivatives of a function of a real variable. Coquelicot's
-      is_derive g t l, for g : R -> V, becomes MathComp's
-      @is_derive R R^o V t 1 g l: g is derivable at t in the direction 1
-      and its derivative there is l. Both say that (g (t + h) - g t) / h
-      tends to l as h tends to 0. For V = R the codomain is R^o, the normed
-      module view of R, as in GaussianCoordinateDerivativeDefinitions. This
-      concerns vector_coordinate_line_derive (V = vector n),
-      vector_frechet_coordinate_line and vector_frechet_coordinate_section
-      (V = R^o).
-
-   2. Frechet derivatives. Coquelicot's filterdiff F (locally x) dF becomes
-      is_diff x (F : vector n -> R^o) dF of MathComp-Analysis, the form of
-      the restated challenge ellipsoid_gaussian_matrix (README difference 2):
-      F is differentiable at x and its differential 'd F x is dF. Both say
-      that dF is linear and continuous and that F (x + h) = F x + dF h +
-      o (h). The cast to R^o gives the real line its normed module
-      structure; R^o is R by definition, so F and dF are unchanged. This
-      concerns vector_frechet_coordinate_line,
-      vector_frechet_coordinate_section and
-      vector_frechet_coordinate_derivative.
-
-   3. Vector operations. Coquelicot's plus x (scal c v) becomes MathComp's
-      (x + c *: v)%R on vector n, componentwise as before. Inside %R the
-      scalar u - a is parsed with MathComp's subtraction on R. It is
-      Stdlib's Rminus u a up to conversion (Rstruct's RminusE is proved by
-      reflexivity), so the line is the one of the original. It is also the
-      form of the right-hand side of vector_of_list_replace_line in the
-      ported VectorCoordinates, so the proof of
-      vector_frechet_coordinate_section rewrites with that lemma as before.
-
-   4. Indices and lists. (i <= n)%nat becomes (i <= n)%coq_nat, Stdlib's
-      Peano order, and nth becomes List.nth, Stdlib's nth, as in the ported
-      VectorCoordinates, because with ssreflect loaded the bare notations
-      would mean ssrnat's leq and seq.nth.
-
-   The proofs follow the scheme of scalar_frechet_line in the ported
-   MatrixFrechetUnique. Coquelicot's is_derive_minus, is_derive_scal_l and
-   is_derive_plus, which gave the derivative of the line, become the
-   differential of the affine map u |-> x + (u - a) *: e, obtained from
-   is_diff_cst, is_diff_scalel and is_diffD. Coquelicot's filterdiff_comp'
-   becomes is_diff_comp, filterdiff_ext_lin becomes the computation of the
-   derivative through deriveE and diff_val, and is_derive_ext becomes a
-   rewrite of the function with funext. The original also imported
-   FunctionalExtensionality; boolp.funext takes its place. *)
-
-(* Added for the proofs below: the differential of the affine line
-   u |-> x + (u - a) *: e is h |-> h *: e, at every point. *)
+(* The differential of the affine line u |-> x + (u - a) *: e is
+   h |-> h *: e, at every point. *)
 Lemma vector_coordinate_line_is_diff n (x e : vector n) (a t : R) :
   is_diff (t : R^o)
     (fun u : R^o => (x + (u - a) *: e)%R : vector_NormedModule n)

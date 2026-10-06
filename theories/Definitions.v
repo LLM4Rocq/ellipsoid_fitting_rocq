@@ -2,6 +2,14 @@ From Stdlib Require Import Reals List PeanoNat.
 Import ListNotations.
 Open Scope R_scope.
 
+(* Definitions for the head and tail decomposition of a vector. energy w A
+   is the sum of w over the list A, and outside B A is the list of the
+   elements of A that are not in B. squared_energy y A and vector_norm y A
+   are the squared Euclidean norm and the Euclidean norm of the coordinates
+   of y listed in A. tail_indices n J lists the indices of seq 0 n outside
+   the head J. head_tail_constant theta is the constant of the bound
+   head_tail_constant theta * d * ln d on the size of the head (HeadTail). *)
+
 Fixpoint energy (w : nat -> R) (A : list nat) : R :=
   match A with [] => 0 | i :: A' => w i + energy w A' end.
 

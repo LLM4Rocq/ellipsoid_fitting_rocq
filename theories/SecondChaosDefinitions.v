@@ -6,18 +6,13 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions TensorDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/SecondChaosDefinitions.v from Coquelicot to
-   MathComp-Analysis.
-
-   Coquelicot's R_NormedModule becomes R^o, the normed module view of R, as
-   in the ports of MatrixDefinitions and OperatorDefinitions. It appears only
-   as the coordinate type given to tuple_build in chaos_basis, so chaos_basis
-   n a is still the vector whose coordinate a is 1 and whose other
-   coordinates are 0. MathComp is imported for the notation R^o and its
-   normed module structure. R_scope is opened last, so the arithmetic,
-   including the factor / 2, the products and the literals 1 and 0, is
-   Stdlib's, as before. The test Nat.eqb i a is Stdlib's boolean equality on
-   nat, as before. The meaning of every definition is unchanged. *)
+(* Inner and outer products of vectors, and the derivatives of
+   x |-> x x^T used in second-order chaos terms. vector_outer n x y is the
+   matrix x y^T and chaos_basis n a the a-th coordinate vector.
+   chaos_first n x a and chaos_second n a b are the first and second
+   partial derivatives of x |-> x x^T in the coordinates a and b, and
+   chaos_contraction n T x is half the sum over a and b of
+   T (chaos_first n x a) (chaos_first n x b) (chaos_second n a b). *)
 
 Definition vector_inner (n : nat) (x y : vector n) : R :=
   coordinate_sum n (fun i => vector_entry n x i * vector_entry n y i).

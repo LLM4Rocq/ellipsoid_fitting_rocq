@@ -1,47 +1,14 @@
-(* Port of theories/GaussianProduct.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma and theorem of the original keeps its name and its arguments,
-   in the same order. The iterated operators come from the ported
-   GaussianProductDefinitions, and gaussian_integral_exists,
-   gaussian_expectation and gaussian_density from the ported
-   GaussianDefinitions, where they are stated with the Lebesgue integral over
-   the line (difference 4 of analysis/README.md). The arithmetic in every
-   statement is Stdlib's, as in the original.
-
-   One statement changes form.
-
-   1. gaussian_expectation_density_integral concludes
-      whole_line_has_integral (fun x => f x * gaussian_density x)
-        (gaussian_expectation f)
-      in place of Coquelicot's
-      is_RInt_gen (fun x => f x * gaussian_density x)
-        (Rbar_locally m_infty) (Rbar_locally p_infty) (gaussian_expectation f).
-      This is the translation of the vocabulary table: the integrand is
-      Lebesgue integrable over the line and its integral is the expectation.
-      It is the form that gaussian_iterated_has_expectation of the ported
-      GaussianProductDefinitions asks for at each level.
-
-   The other statements keep their text. Their meaning follows the ported
-   definitions: gaussian_iterated_integrable asks at each level for the
-   Lebesgue integrability over the line of the outer function times the
-   kernel, and gaussian_iterated_has_expectation records Lebesgue integrals
-   against gaussian_density. In gaussian_separable_product_abs and
-   gaussian_separable_absolute_integrable the list map is written List.map,
-   as a precaution; the statement is the one of the original.
-
-   What changes in the proofs. With Coquelicot, gaussian_integral_exists f
-   was by definition exists l, gaussian_has_integral f l. In the port it is
-   the Lebesgue integrability of x |-> f x * gaussian_kernel x itself. So
-   gaussian_integral_exists_ext rewrites the integrand, and
-   gaussian_iterated_constant uses gaussian_integral_exists_constant of the
-   ported GaussianExpectation. gaussian_expectation_density_integral rewrites
-   the integrand f x * gaussian_density x as (/ gaussian_mass * f x) times
-   the kernel and applies gaussian_has_integral_scale.
-
-   This module imports no MathComp module, so the names of the statements
-   (List.map, length, List.Forall, and the operations on R) are Stdlib's.
-   The proofs use Stdlib's functional_extensionality, whose axiom
-   functional_extensionality_dep is one of the seven of analysis/README.md. *)
+(* Basic properties of the iterated Gaussian expectation
+   gaussian_iterated_expectation of GaussianProductDefinitions, which
+   integrates a function of d coordinates against the standard Gaussian
+   density, one coordinate at a time. It depends only on the values on
+   lists of length d (gaussian_iterated_expectation_ext), and it is linear,
+   monotone and equal to c on the constant c (gaussian_iterated_add,
+   gaussian_iterated_scale, gaussian_iterated_monotone,
+   gaussian_iterated_constant). The expectation of a product of functions
+   of distinct coordinates is the product of their expectations
+   (gaussian_separable_factorization). The integrals are Lebesgue integrals
+   (gaussian_expectation_density_integral). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions.
@@ -59,7 +26,6 @@ Proof.
   exact Hf.
 Qed.
 
-(* The conclusion is the Lebesgue integral over the line (header, item 1). *)
 Lemma gaussian_expectation_density_integral f :
   gaussian_integral_exists f ->
   whole_line_has_integral (fun x => f x * gaussian_density x)

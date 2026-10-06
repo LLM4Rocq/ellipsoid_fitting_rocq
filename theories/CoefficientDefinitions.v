@@ -6,26 +6,14 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import MatrixDefinitions HessianDefinitions ContinuityDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/CoefficientDefinitions.v from Coquelicot to
-   MathComp-Analysis.
-
-   Coquelicot's NormedModule R_AbsRing becomes normedModType R, as in the
-   ports of MatrixDefinitions, HessianDefinitions and ContinuityDefinitions.
-   Coquelicot's plus and scal on such a module become MathComp's + and *:,
-   written in ring_scope as (_ + _)%R and (_ *: _)%R. Both are the vector
-   space operations of the same module, so the sums below have the same
-   values as in the original. On R^o, (x + y)%R is Stdlib's Rplus x y, so
-   module_coordinate_sum R^o n f is coordinate_sum n f of MatrixDefinitions,
-   as in the original with R_NormedModule.
-
-   hessian_NormedModule n is the port of HessianDefinitions. Its products
-   are euclidean_product of MatrixEuclideanProduct and keep Coquelicot's
-   product norm, so the norms of third_action n T W and of the other values
-   are the Euclidean norms of all their entries, as in the original.
-
-   The definitions keep the names, arguments and text of the original.
-   MathComp is imported only for normedModType and its operations; R_scope
-   is opened after it, so the arithmetic on R written here is Stdlib's. *)
+(* Contraction of a third-order array with a matrix.
+   module_coordinate_sum V n f is the sum f 0 + ... + f n in a normed
+   module V; on R^o it has the value of coordinate_sum n f of
+   MatrixDefinitions. coefficient_contract V n F W is the sum over
+   i, j <= n of matrix_entry n W j i *: F i j. third_action n T W contracts
+   the third array T with W into a Hessian array, and
+   third_evaluation n T U V W evaluates that Hessian array at U and V with
+   hessian_evaluation. *)
 
 Fixpoint module_coordinate_sum (V : normedModType R) (n : nat) (f : nat -> V) : V :=
   match n with

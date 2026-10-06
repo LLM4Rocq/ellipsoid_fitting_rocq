@@ -6,26 +6,15 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeigh
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/TensorNestedBounds.v from Coquelicot to MathComp-Analysis.
-
-   The original imported Coquelicot but used nothing from it directly. Its
-   only Coquelicot content came through matrix n of MatrixDefinitions,
-   through matrix_operator_norm of OperatorDefinitions, through the record
-   trace_atom and tensor_cost of TensorDefinitions, through the definitions
-   of MatrixGibbsDefinitions, TensorGibbsDefinitions,
-   TensorCombinationsDefinitions and TensorNestedDefinitions, and through
-   the lemmas of OperatorBounds, OperatorProperties, TensorBounds,
-   TensorGibbs and TensorCombinations that it cites. The ports of these
-   modules keep the same names, arguments, fields and values, and the cited
-   lemmas keep their statements. So the import of Coquelicot is dropped and
-   the text below is the original's, statements and proofs.
-
-   MathComp is not imported here. So In, the lists and ++ are Stdlib's, the
-   tactics are Stdlib's (rewrite A, B keeps its meaning), and the
-   arithmetic, Rabs, the powers and the order are Stdlib's, as before.
-   weighted_average, finite_probability and gibbs_average come from
-   MomentDefinitions and GibbsDefinitions, which never used Coquelicot and
-   are unchanged. The meaning of every statement is unchanged. *)
+(* Bounds on the cost of the trace-atom representation of the third
+   derivative of the soft minimax (TensorNestedDefinitions). tensor_cost
+   sums, over the atoms, the absolute value of the coefficient times the
+   operator norms of the three matrices. If every coeff y s has operator
+   norm at most k * r y, with k and r nonnegative, the cost of
+   nested_third_atoms is at most 10 * k ^ 3 * (beta + gamma) ^ 2 times the
+   outer Gibbs average of r y ^ 3 (nested_third_atoms_cost_bound). The
+   inner, covariance and outer atoms each cost at most 8 * k ^ 3 times
+   that average (nested_inner_atoms_cost_bound and the next two). *)
 
 Lemma matrix_probability_mean_operator_envelope n q B I r :
   finite_probability q I ->

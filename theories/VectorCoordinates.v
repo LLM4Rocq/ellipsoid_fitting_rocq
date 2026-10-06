@@ -1,54 +1,18 @@
-(* Port of the inner module VectorCoordinates of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/GaussianVectorProofs.v), extracted to
-   build/agent2/unbundled/VectorCoordinates.v, from Coquelicot to
-   MathComp-Analysis.
+(* Vectors as lists of coordinates. vector_to_list n x lists the S n
+   coordinates of x, and vector_of_list n xs is the vector whose coordinate
+   i is List.nth i xs 0. They are inverse on the lists of length S n
+   (vector_of_to_list, vector_to_of_list), and vector_to_list_nth and
+   vector_entry_of_list read their coordinates. Coordinates are additive
+   and homogeneous (vector_entry_plus, vector_entry_scal), chaos_basis n i
+   is the i-th coordinate vector (vector_coordinate_basis_entry), and
+   replacing coordinate i of xs by t adds (t - x_i) times it
+   (vector_of_list_replace_line).
 
-   Every lemma and theorem keeps its name, its arguments in the same order
-   and its hypotheses. The vectors are those of the ported
-   OperatorDefinitions: nested euclidean_product of R^o, with coordinates
-   read by vector_entry and built by tuple_build. The lists are Stdlib's.
-
-   The original imported the bundle GaussianCoordinateProofs and named its
-   inner module GaussianCoordinatePermutations. This port imports the
-   standalone module GaussianCoordinatePermutations, which is the same
-   module. The original also imported FunctionalExtensionality, which it
-   did not use; this port does not import it.
-
-   Statements that change form, all without a change of meaning.
-
-   1. Indices. With ssreflect loaded, (i <= n)%nat would mean ssrnat's
-      boolean leq. The statements write (i <= n)%coq_nat, which is Stdlib's
-      Peano order le, the order of the original, as in the ported
-      MatrixCoordinates. This concerns vector_to_list_nth,
-      vector_entry_of_list, vector_coordinate_basis_entry and
-      vector_of_list_replace_line.
-
-   2. Lists. With ssreflect loaded, the bare name nth would mean MathComp's
-      seq.nth. The statements write List.nth, the function of the original.
-      length is Stdlib's in both.
-
-   3. Vector operations. Coquelicot's plus x y and scal c x become
-      MathComp's (x + y)%R and (c *: x)%R on the normed module
-      vector_NormedModule n. Both are componentwise on the nested pairs, as
-      before, so vector_entry_plus and vector_entry_scal say the same thing.
-      Their right-hand sides keep Stdlib's + and *.
-
-   4. In vector_of_list_replace_line, the right-hand side is written
-        (vector_of_list n xs + (t - List.nth i xs 0) *: chaos_basis n i)%R.
-      Inside %R the scalar t - List.nth i xs 0 is parsed with MathComp's
-      subtraction and zero on R. These are Stdlib's Rminus and 0 up to
-      conversion (Rstruct's RminusE is proved by reflexivity), so the vector
-      is the one of the original. reflexivity accepts either form against
-      the other, and a rewrite from right to left finds the right-hand side
-      in a goal written either way (both checked in scratch).
-
-   The proofs follow the original ones. Coquelicot's linear_plus and
-   linear_scal, applied to tuple_entry_linear, become MathComp's linearD
-   and linearZZ, through the instance of MatrixCoordinates that declares
-   tuple_entry V n i linear. Stdlib's rewrite A, B by tac, which does not
-   parse once ssreflect is loaded, is replaced by rewrites with explicit
-   side conditions. *)
+   The statements write List.nth because MathComp's seq.nth takes its
+   arguments in another order, and (i <= n)%coq_nat, Stdlib's le, because
+   %nat would give ssrnat's boolean leq. In vector_of_list_replace_line the
+   scalar t - List.nth i xs 0 is read in %R, so its subtraction is
+   MathComp's, equal to Stdlib's Rminus by conversion. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.

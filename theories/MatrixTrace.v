@@ -9,46 +9,18 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixTrace.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem of the original keeps its name and its arguments, in the
-   same order. Four statements change form, in the ways the port of
-   MatrixCoordinates describes.
-
-   1. Linear maps. Coquelicot's is_linear l is stated as
-        linear l /\
-        exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R,
-      that is, MathComp's algebraic linearity together with Coquelicot's
-      norm bound. The norms are those of MatrixDefinitions: the Frobenius
-      norm on matrices and the absolute value on R, as in Coquelicot. This
-      is the form of trace_pair_linear, trace_pair_left_linear and
-      matrix_trace_linear, and of the hypotheses of matrix_linear_is_diff,
-      coordinate_sum_linear and matrix_linear_comp of MatrixCoordinates.
-
-   2. Real-valued maps. A map into R is written with codomain R^o, the
-      normed module view of R, where linear or is_diff needs a module
-      structure on the codomain, as in (trace_pair n B : matrix n -> R^o).
-      R^o is R by definition, so nothing else changes.
-
-   3. Frechet derivatives. Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis: f is differentiable at A and its
-      differential 'd f A is l. Both say that
-      f (A + H) = f A + l H + o(H), with l linear and continuous, for the
-      Frobenius norm. This is the form of matrix_trace_frechet,
-      trace_pair_frechet and exp_trace_pair_frechet.
-
-   4. exp is Stdlib's exponential, as in the original. The proof of
-      exp_trace_pair_frechet moves to MathComp's expR through RexpE only
-      inside the proof.
-
-   trace_pair_is_trace_product, trace_pair_add, trace_pair_scale and
-   trace_pair_line_derivative keep their statements word for word.
-   derivable_pt_lim is Stdlib's, as in the original.
-
-   The port adds two Hierarchy Builder instances, marked below. They
-   declare matrix_trace n and trace_pair n B linear maps of MathComp, so
-   that linearD, linearZ, linear0 and the other lemmas about linear maps
-   apply to them directly. They change no statement. *)
+(* Linearity of the trace and of the pairing trace_pair n B H, the trace of
+   B H, on matrices with the Frobenius norm. A bounded linear map l is
+   written as the conjunction
+     linear l /\ exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R
+   and a map into R is typed into R^o, the normed module view of R.
+   - trace_pair_linear, trace_pair_left_linear and matrix_trace_linear: the
+     pairing, in each argument, and the trace are bounded linear maps.
+   - Two Hierarchy Builder instances make matrix_trace n and trace_pair n B
+     linear maps of MathComp, so that linearD, linearZ and the other lemmas
+     on linear maps apply to them (trace_pair_add, trace_pair_scale).
+   - trace_pair_frechet: trace_pair n B is its own Frechet derivative
+     (is_diff) at every matrix. *)
 
 (* Declaring matrix_trace n and trace_pair n B linear makes HB report
    canonical projections that duplicate existing ones. Rocq ignores the
@@ -92,12 +64,12 @@ Proof.
   apply matrix_entry_linear.
 Qed.
 
-(* Added by the port: matrix_trace n is a {linear _ -> _} of MathComp. *)
+(* matrix_trace n is a {linear _ -> _} of MathComp. *)
 HB.instance Definition _ n :=
   GRing.isLinear.Build R (matrix_NormedModule n) R^o *:%R (matrix_trace n)
     (proj1 (matrix_trace_linear n)).
 
-(* Added by the port: trace_pair n B is a {linear _ -> _} of MathComp. *)
+(* trace_pair n B is a {linear _ -> _} of MathComp. *)
 HB.instance Definition _ n (B : matrix n) :=
   GRing.isLinear.Build R (matrix_NormedModule n) R^o *:%R (trace_pair n B)
     (proj1 (trace_pair_linear n B)).

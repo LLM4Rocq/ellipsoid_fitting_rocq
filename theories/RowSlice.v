@@ -14,46 +14,20 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of the inner module RowSlice of theories/ComparisonProofs.v from
-   Coquelicot to MathComp-Analysis. The source is
-   build/agent2/unbundled/RowSlice.v.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. No item is added. Nine statements keep the text of the original:
-   soft_matrix_block_replace_current, soft_matrix_block_replace_as_add,
-   soft_matrix_row_scores, soft_matrix_row_shared_scores,
-   soft_matrix_row_shared_inner, soft_matrix_row_phi,
-   soft_matrix_third_rebase, soft_matrix_row_third and
-   soft_matrix_row_third_at_current. They mention only the definitions of
-   the ported modules, Stdlib's arithmetic, the lists, In and NoDup, whose
-   meaning the ports keep. The three others change form in the ways of the
-   ports of SoftMatrixCalculus and SoftMatrix, which they apply.
-
-   1. Frechet derivatives. In soft_matrix_row_actual_derivatives,
-      Coquelicot's filterdiff f (locally M) l becomes is_diff M f l of
-      MathComp-Analysis (README difference 2): f is differentiable at M and
-      its differential 'd f M is l. Both say that l is linear and continuous
-      and that f (M + H) = f M + l H + o(H) as H tends to 0. On matrix n the
-      norm is the Frobenius norm of MatrixDefinitions, as in Coquelicot. The
-      real-valued maps given to is_diff are typed into R^o, the normed module
-      view of R, which is R by definition, as in
-      ((fun H => ...) : matrix n -> R^o).
-
-   2. Extended reals. In soft_matrix_row_projective_sum and
-      soft_matrix_row_radial_sum, Coquelicot's Finite r and real x on Rbar
-      become MathComp's EFin r and fine x on \bar R, as in the ports of
-      TensorDefinitions, TensorSum and SoftMatrix. projective_operator_norm
-      is the infimum of the same set of costs in both libraries, and
-      N = EFin (fine N) says, as N = Finite (real N) did, that N is a real
-      number.
-
-   So these statements say the same thing as in the original.
-
-   In the proofs, Coquelicot's plus_zero_l becomes MathComp's add0r, since
-   matrix_add and matrix_zero are MathComp's + and 0 on matrix n in the port
-   of MatrixDefinitions, and filterdiff_ext becomes rewriting the function
-   with funext. Stdlib's "rewrite ... by tac" is written in the forms that
-   ssreflect accepts. *)
+(* The soft minimax of an array of matrices A as a function of one block
+   A i, the other blocks being fixed. soft_matrix_block_replace n A i M
+   replaces block i by M. The scores are then affine in M, with offset
+   soft_matrix_row_offset (block i set to 0) and coefficients
+   soft_matrix_coefficients (soft_matrix_row_scores). So soft_matrix_third,
+   the third derivative in block i, is matrix_nested_third_derivative of
+   this affine family (soft_matrix_row_third,
+   soft_matrix_row_third_at_current).
+   soft_matrix_row_projective_sum: if every y z is a unit vector with
+   entries at most theta / sqrt (S n) and every B s is symmetric with
+   operator norm at most k, the projective norms of these third derivatives
+   are finite (N = EFin (fine N)), and their sum over the blocks is at most
+   10 k^3 (beta+gamma)^2 theta / sqrt (S n). soft_matrix_row_radial_sum
+   weights the blocks by radii at most Rmax. *)
 
 Lemma soft_matrix_block_replace_current n (A : nat -> matrix n) i :
   soft_matrix_block_replace n A i (A i) = A.

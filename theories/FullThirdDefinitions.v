@@ -6,26 +6,22 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import GibbsDefinitions ThirdDefinitions LowerDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/FullThirdDefinitions.v from Coquelicot to
-   MathComp-Analysis.
+(* The third-order term of the nested soft minimax of LowerDefinitions,
+   after lower_first and lower_second. The outer Gibbs weights have
+   parameter - beta over Y, the inner ones parameter gamma over S.
+   lower_third combines the outer average of the inner third cumulants
+   (lower_inner_cumulant), three outer covariances between inner
+   covariances and inner averages, and the outer third cumulant of the
+   inner averages. For scores F z s linear in A, this is the third
+   derivative of the nested soft minimax in the directions U, V and W;
+   MatrixThird proves the matrix form of this fact, which
+   BlockRowEvaluation relates to lower_block_third along one block.
+   lower_block_third specializes lower_third to the block scores
+   lower_block_scores.
 
-   The generic definitions lower_inner_cumulant and lower_third take the
-   space E as an implicit normedModType R, where the original took an
-   implicit NormedModule R_AbsRing. This matches the port of
-   LowerDefinitions, whose lower_inner_value, lower_inner_first and
-   lower_inner_covariance take the same implicit E. E is used only as the
-   type of the points A, U, V and W, so the values are those of the
-   original.
-
-   lower_block_third is stated on block_array n m of the port of
-   LowerDefinitions, which keeps the Euclidean norm of the original. Its
-   value does not depend on that norm.
-
-   The text of the three definitions is the original's. MathComp is
-   imported only for normedModType; R_scope is opened after it, so the
-   arithmetic, including the powers gamma ^ 2 and beta ^ 2, the products,
-   the sums, the difference and the minus sign of - beta, is Stdlib's, as
-   before. *)
+   The space E is any normedModType R and serves only as the type of the
+   points A, U, V and W. MathComp is imported only for normedModType;
+   R_scope is opened after it, so the arithmetic is Stdlib's. *)
 
 Definition lower_inner_cumulant {E : normedModType R} gamma
     (F : nat -> nat -> E -> R) S (A U V W : E) z : R :=

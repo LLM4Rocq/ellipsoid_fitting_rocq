@@ -10,28 +10,19 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates MatrixT
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/SymmetricDivergence.v from Coquelicot to MathComp-Analysis.
+(* The symmetric divergence through the second-chaos matrices. For a linear
+   map L on matrices, the sum over all a, b of the (a, b) entry of
+   L (chaos_second n a b) is twice symmetric_divergence n L
+   (symmetric_divergence_identity). The proof splits the double sum into
+   its diagonal and its pairs a < b (symmetric_ordered_sum_partition), and
+   compares each part with the orthonormal basis of symmetric matrices
+   (symmetric_linear_diagonal, symmetric_linear_offdiagonal).
 
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in two ways, the same ways as in the
-   ports of MatrixCoordinates, MatrixTrace and SymmetricBasis.
-
-   1. Order on indices. With ssreflect loaded, (a <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (a <= n)%coq_nat, which is ssrnat's notation for
-      Stdlib's le. The meaning is unchanged.
-
-   2. Linear maps. Coquelicot's is_linear L is stated, as in
-      MatrixCoordinates, as the conjunction
-        linear L /\
-        exists M : R, 0 < M /\ forall x, (`|L x|)%R <= M * (`|x|)%R
-      of MathComp's algebraic linearity and Coquelicot's norm bound, for the
-      Frobenius norm of MatrixDefinitions on matrix n. The proofs use only
-      the first part, through L (c *: A) = c *: L A, as the original used
-      only the field linear_scal of is_linear.
-
-   The arithmetic, Nat.eqb, Nat.ltb, sqrt and the sums are Stdlib's, as
-   before, because R_scope is opened last. *)
+   Linearity is stated as MathComp's linear together with a norm bound for
+   the Frobenius norm; the proofs use only the linear part. The index
+   bounds are written (a <= n)%coq_nat, Stdlib's le, because %nat would
+   give ssrnat's boolean leq; R_scope is opened last, so the arithmetic is
+   Stdlib's. *)
 
 Lemma symmetric_double_sum_add n f g :
   coordinate_sum n (fun a => coordinate_sum n (fun b => f a b + g a b)) =
@@ -88,8 +79,8 @@ Lemma symmetric_linear_diagonal n (L : matrix n -> matrix n) a :
 Proof.
   intros [HL _] Ha.
   rewrite (chaos_second_diagonal n a) (symmetric_diagonal_trace n a _ Ha).
-  (* The field linear_scal of Coquelicot's is_linear, from MathComp's
-     linearity of L packed as a {linear _ -> _}. *)
+  (* L commutes with scaling: pack it as a {linear _ -> _} and use
+     linearZ_LR. *)
   pose L' : {linear matrix_NormedModule n -> matrix_NormedModule n} :=
     HB.pack L (GRing.isLinear.Build R _ _ *:%R L HL).
   have HZ : forall c (X : matrix n), L (matrix_scale n c X) = matrix_scale n c (L X).
@@ -109,7 +100,7 @@ Proof.
   intros [HL _] Ha Hb.
   rewrite (chaos_second_swap n b a) (symmetric_offdiagonal_trace n a b _ Ha Hb).
   unfold symmetric_offdiagonal_basis.
-  (* The field linear_scal of Coquelicot's is_linear, as above. *)
+  (* L commutes with scaling, as above. *)
   pose L' : {linear matrix_NormedModule n -> matrix_NormedModule n} :=
     HB.pack L (GRing.isLinear.Build R _ _ *:%R L HL).
   have HZ : forall c (X : matrix n), L (matrix_scale n c X) = matrix_scale n c (L X).

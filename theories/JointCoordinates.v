@@ -12,83 +12,20 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module JointCoordinates of
-   theories/InterpolationProofs.v (and of its identical copy in
-   theories/JointProofs.v), extracted to
-   build/agent2/unbundled/JointCoordinates.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original imported the bundles GaussianCoordinateProofs and
-   GaussianVectorProofs and named their inner modules GaussianCoordinateBasics,
-   GaussianCoordinateWeights, VectorCoordinates, VectorCoordinateContinuity
-   and GaussianVectorGrowth through them. The port imports these five
-   standalone ported modules directly. It does not import Coquelicot's
-   Compactness: Tn and close_n come from the ported
-   GaussianCoordinateDefinitions, where they are copies of Coquelicot's.
-
-   Every lemma and theorem keeps its name and its arguments in the same
-   order. No item is added. The statements change form in the following
-   ways.
-
-   1. Joint vectors. Coquelicot's
-        prod_NormedModule R_AbsRing (vector_NormedModule m) (vector_NormedModule n)
-      becomes
-        euclidean_product (vector_NormedModule m) (vector_NormedModule n),
-      the type of joint vectors of the ported JointDefinitions. Its elements
-      are the same pairs, and its norm is Coquelicot's product norm
-      sqrt (norm (fst xz) ^ 2 + norm (snd xz) ^ 2), so Coquelicot's norm xz
-      becomes MathComp's (`|xz|)%R with the same value. This concerns
-      joint_vector_to_list_length, joint_vector_of_to_list,
-      joint_norm_product_weight and joint_polynomial_pullback, which say the
-      same thing as before.
-
-   2. Pointwise continuity. In joint_continuous_pullback, Coquelicot's
-      continuous (fun yz => F (fst yz) (snd yz)) xz becomes
-      {for xz, continuous (fun yz : euclidean_product ... => F (fst yz) (snd yz))}
-      (difference 5 of analysis/README.md). The bound variable is typed with
-      the joint type, so that continuity refers to its topology, which is the
-      product topology (euclidean_product_nbhsE), as in Coquelicot. The
-      statement is the same.
-
-   3. Naturals and lists. With ssreflect loaded, + on nat would mean ssrnat's
-      addn and ++ MathComp's seq.cat. The statements write
-      (S m + S n)%coq_nat and (xs ++ ys)%list, which are Stdlib's Nat.add and
-      List.app of the original and of the ported JointDefinitions.
-
-   The forms of 1, 2 and 3 are those of the four clauses of group 1 of the
-   restated challenge ellipsoid_joint
-   (analysis/challenges/ellipsoid_joint/Challenge.v), so that
-   joint_vector_of_to_list, joint_vector_to_of_list,
-   joint_continuous_pullback and joint_polynomial_pullback prove them with
-   exact, as in theories/JointResults.v.
-
-   One statement changes meaning.
-
-   4. joint_of_coordinates_ball. In Coquelicot the ball of the product
-      prod_NormedModule is the conjunction of the balls of its components,
-      and so, by induction, the ball of joint vectors of radius e is
-      closeness of all the S m + S n coordinates within e. The original
-      concluded a ball of radius e from coordinates within e. In the port,
-      the ball of euclidean_product, and of the vectors that nest it, is the
-      ball of the Euclidean norm (blocker-notes.md, MatrixDefinitions), and
-      a ball of radius e no longer follows: for m = n = 0, the joint vector
-      with both coordinates e / 2 + e / 4 lies at distance
-      (3 / 4) sqrt 2 e > e from 0. The port concludes a ball of radius
-      INR (S m + S n) * e, since the norm is at most the sum of the absolute
-      values of the coordinates (vector_ball_coordinates of the ported
-      VectorCoordinateContinuity for each block, then
-      euclidean_product_ball_add). The radius is written Rmult, Stdlib's
-      product, because the radius argument of MathComp's ball is read in
-      ring_scope. Its only user in this module is joint_continuous_pullback,
-      whose proof now divides the radius of continuity by INR (S m + S n).
-      Its only user in theories/ outside the bundles is gaussian_row_pair_ball
-      of RowDecoderRegularity, which uses it to prove continuity and has to
-      be restated with the same factor.
-
-   The proofs follow the original ones. Coquelicot's norm_ge_0 becomes
-   MathComp's normr_ge0 through RleP. Stdlib's "rewrite A, B by tac", which
-   does not parse once ssreflect is loaded, is replaced by rewrites with
-   explicit side conditions. *)
+(* Joint vectors (x, z), with x in vector m and z in vector n, as lists of
+   S m + S n coordinates. A joint vector has type
+   euclidean_product (vector_NormedModule m) (vector_NormedModule n), whose
+   norm is the Euclidean norm of all its coordinates.
+   - joint_vector_of_to_list and joint_vector_to_of_list:
+     joint_vector_to_list and joint_vector_of_list are inverse to each
+     other, on lists of length S m + S n.
+   - joint_continuous_pullback: if (x, z) |-> F x z is continuous on joint
+     vectors, its pullback gaussian_pair_pullback m n F to lists is jointly
+     continuous (finite_joint_continuous).
+   - joint_polynomial_pullback: a bound C * (1 + `|xz|) ^ p on joint vectors
+     gives the polynomial bound finite_polynomial_bound with the same C and
+     p for the pullback, since 1 + `|xz| is at most the product weight of
+     degree 1 of the coordinates (joint_norm_product_weight). *)
 
 Lemma joint_vector_to_list_length m n
     (xz : euclidean_product (vector_NormedModule m) (vector_NormedModule n)) :
@@ -157,10 +94,12 @@ Proof.
   rewrite (joint_vector_of_append m n xs ys H); reflexivity.
 Qed.
 
-(* Changed meaning (item 4 of the header): the radius of the ball is
-   INR (S m + S n) * e instead of e, because the ball on joint vectors is
-   now the ball of the Euclidean norm, not the conjunction of the
-   coordinate balls. *)
+(* If every coordinate of b is within e of the same coordinate of a, the
+   joint vectors are within INR (S m + S n) * e for the Euclidean norm,
+   which is at most the sum of the absolute values of the coordinates. A
+   radius of e alone does not follow: for m = n = 0, the joint vector with
+   both coordinates 3 * e / 4 is at distance (3 / 4) * sqrt 2 * e > e
+   from 0. *)
 Lemma joint_of_coordinates_ball m n (a b : Tn (S m + S n)%coq_nat R) e :
   close_n (S m + S n)%coq_nat e b a ->
   ball (joint_vector_of_list m n (coordinates_to_list (S m + S n)%coq_nat a))

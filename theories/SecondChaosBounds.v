@@ -14,34 +14,18 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/SecondChaosBounds.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in two ways, and keep their meaning.
-
-   1. Norms. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. On
-      vector n it is still the Euclidean norm sqrt (x_0 ^ 2 + ... + x_n ^ 2),
-      because the port of MatrixDefinitions nests euclidean_product of
-      MatrixEuclideanProduct, which keeps Coquelicot's product norm instead
-      of MathComp's max norm (analysis/README.md, difference 1). The
-      constant 4 of the bounds is therefore stated against the same norm as
-      in the original. Comparisons, products and powers around these norms
-      are Stdlib's, as before.
-
-   2. Extended reals. As in the ports of TensorDefinitions and TensorBounds,
-      Coquelicot's Finite r becomes MathComp's r%:E, that is EFin r, in
-      chaos_projective_bound. projective_operator_norm has the same value as
-      in the original, as TensorDefinitions explains, so the statement means
-      the same.
-
-   The proofs keep their steps. In chaos_projective_bound, Coquelicot's
-   Glb_Rbar_correct is replaced by projective_operator_norm_greatest of
-   TensorDefinitionsAux, and Rbar_le of two finite values by MathComp's
-   order on \bar R, which lee_fin and RleP bring back to Stdlib's Rle.
-   With ssreflect loaded, the bare name eq_refl means ssreflect's lemma
-   x == x, so chaos_tensor_value_bound writes Logic.eq_refl, and Stdlib's
-   "rewrite A, B" and "rewrite ... by tac" are written in the forms that
-   ssreflect accepts. *)
+(* Bounds on the second-chaos contraction chaos_contraction n T x of a
+   trilinear form T on symmetric matrices, where |x| is the Euclidean norm.
+   - vector_inner_cauchy_schwarz: |<x, y>| <= |x| |y|.
+   - chaos_pure_contraction_bound: for the product form
+     T H1 H2 H3 = tr (A1 H1) tr (A2 H2) tr (A3 H3), with A1, A2, A3
+     symmetric, the contraction is at most 4 |x|^2 times the product of the
+     operator norms of A1, A2, A3.
+   - chaos_tensor_value_bound and chaos_representation_bound: for a form
+     represented by a list of such atoms, the contraction is at most
+     4 |x|^2 times the cost of the list.
+   - chaos_projective_bound: the projective norm of such a form is a finite
+     real r >= 0, and the contraction is at most 4 |x|^2 r. *)
 
 Theorem vector_inner_cauchy_schwarz n (x y : vector n) :
   Rabs (vector_inner n x y) <= (`|x|)%R * (`|y|)%R.

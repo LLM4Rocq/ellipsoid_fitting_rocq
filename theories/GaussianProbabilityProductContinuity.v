@@ -1,5 +1,9 @@
-(* Continuous functions on coordinate lists are measurable on tuples.
-   Proof by rounded, countably valued approximations. *)
+(* Jointly continuous functions of d coordinates are measurable on d-tuples
+   of reals (gpp_joint_measurable). The proof rounds each coordinate down to
+   the grid of mesh 1/(n+1) (gpp_round, gpp_grid). The rounded function is
+   constant on each of the countably many measurable fibers of the rounding,
+   hence measurable (gpp_grid_measurable), and it converges pointwise to the
+   function as n grows. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum ssrint rat.
 From mathcomp Require Import archimedean.

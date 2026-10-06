@@ -4,22 +4,13 @@ From EllipsoidFitting Require Import GaussianCoordinatePermutationDefinitions
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/GaussianPermutationWeights.v from Coquelicot to
-   MathComp-Analysis.
-
-   The original did not import Coquelicot. It depended on it only through
-   GaussianCoordinateWeightDefinitions, whose port has the same text and
-   now reaches the Lebesgue integral through GaussianDefinitions. The names
-   used here, gaussian_coordinate_weight, gaussian_coordinate_product_weight
-   and finite_polynomial_bound, are finite products and bounds that do not
-   involve an integral, so they mean what they meant. Every statement below
-   is the original text, word for word, and the proofs are the original
-   ones. No statement changed form.
-
-   This module loads no MathComp library itself, so nth is Stdlib's
-   List.nth and (i < length xs)%nat is Peano's lt, as in the original. A
-   module that imports this one after MathComp and restates these lemmas
-   must write List.nth and (i < length xs)%coq_nat to mean the same. *)
+(* Polynomial weights under permutations of the coordinates. The weight
+   gaussian_coordinate_product_weight p xs, the product of the
+   (1 + Rabs x) ^ p over the coordinates x of xs, does not change when xs is
+   permuted (gaussian_coordinate_product_weight_permutation). So the
+   polynomial bound finite_polynomial_bound is preserved when the
+   coordinates are permuted (finite_polynomial_bound_permutation), in
+   particular by swap_adjacent and move_coordinate_last. *)
 
 Lemma gaussian_coordinate_product_weight_permutation p xs ys :
   Permutation xs ys ->

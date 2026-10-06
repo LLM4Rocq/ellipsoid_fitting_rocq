@@ -2,6 +2,12 @@ From Stdlib Require Import List Arith Lia.
 From EllipsoidFitting Require Import RowCoordinateDefinitions.
 Import ListNotations.
 
+(* Lengths and rows of lists of N rows of length K. row_chunk_length: each
+   row has length K. row_assemble_rotation: row_assemble is a rotation of
+   background ++ row. row_chunk_assemble: row i of
+   row_assemble N K i background row is row. row_three_parts splits a list
+   into the rows before row i, row i, and the rows after it. *)
+
 Lemma row_index_lengths N K i : (i < N)%nat ->
   N*K = i*K + K + (N-1-i)*K /\
   (N-1)*K = (N-1-i)*K + i*K.

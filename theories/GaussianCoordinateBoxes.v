@@ -4,24 +4,15 @@ From EllipsoidFitting Require Import GaussianCoordinateCompactness.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/GaussianCoordinateBoxes.v from Coquelicot to
-   MathComp-Analysis.
-
-   The original imported Coquelicot and its Compactness library for three
-   names only: Tn, close_n and bounded_n. Tn and close_n now come from the
-   port of GaussianCoordinateDefinitions, and bounded_n from the helper
-   module GaussianCoordinateCompactness, which is imported here in addition
-   to the three modules of the original. All three are copies of the
-   definitions of Coquelicot.Compactness (Coquelicot 3.4.4), convertible
-   with them, so every statement below is the original text, word for word,
-   and says the same thing. The proofs are the original ones.
-
-   This module loads no MathComp notation itself: the import of
-   GaussianCoordinateTopology loads MathComp-Analysis but does not import
-   it here. So nth is Stdlib's List.nth, ++ is Stdlib's app and the
-   statements elaborate to the same terms as in the original. A module that
-   imports this one after MathComp sees the same constants; it writes
-   List.nth and (xs ++ ys)%list where it restates them. *)
+(* Bounds on the coordinates of points of R^d near a given point, where a
+   point is a nested tuple Tn d R and close_n d e w z says that every
+   coordinate of w is within e of that of z.
+   - coordinates_list_bounded: the entries of a list are bounded.
+   - coordinates_close_enlarged_box: if the coordinates of z are bounded by
+     M in absolute value and close_n d e w z, those of w are bounded by
+     M + e.
+   - coordinates_box_neighborhood: one bound holds for z and for every w
+     with close_n d 1 w z. *)
 
 Lemma coordinates_list_bounded (xs : list R) :
   exists R, 0 <= R /\ forall x, In x xs -> Rabs x <= R.

@@ -8,29 +8,18 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates MatrixT
   TensorDefinitions SecondChaosDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/SecondChaosAlgebra.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order, and the statements keep their meaning. They change form in one
-   way, and the proofs in two.
-
-   1. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (i <= n)%coq_nat, which is ssrnat's notation for
-      Stdlib's le. This is the convention of the ports of MatrixCoordinates,
-      OperatorProperties and TensorDefinitions. The statements are the same
-      terms as in the original.
-
-   2. The arithmetic is Stdlib's, as before, because R_scope is opened last.
-      vector_inner, vector_outer, chaos_basis, chaos_first, chaos_second,
-      chaos_contraction, matrix_action, matrix_mul and trace_pair come from
-      the ports of SecondChaosDefinitions, OperatorDefinitions and
-      MatrixDefinitions, which keep their values.
-
-   3. Proofs. Coquelicot's R_NormedModule becomes R^o in the call to
-      tuple_ext. Stdlib's "rewrite A, B" and "rewrite ... by tac" are not
-      available once ssreflect is loaded, so the proofs rewrite with lemmas
-      applied to their side conditions, or discharge them with //. *)
+(* Algebra of the second-chaos matrices. With e_a = chaos_basis n a,
+   chaos_first n x a is e_a x^T + x e_a^T and chaos_second n a b is
+   e_a e_b^T + e_b e_a^T; both are symmetric (chaos_first_symmetric,
+   chaos_second_symmetric). For a symmetric A,
+   trace_pair A (chaos_first n x a) = 2 (A x)_a and
+   trace_pair A (chaos_second n a b) = 2 A_ab (trace_pair_chaos_first,
+   trace_pair_chaos_second). Hence chaos_contraction of the product of the
+   trace pairings with symmetric A1, A2, A3 is 4 <A1 x, A3 (A2 x)>
+   (chaos_pure_contraction_inner). The module also proves the basic
+   identities of vector_inner and vector_outer. The index bounds are written
+   (i <= n)%coq_nat, Stdlib's le, because %nat would give ssrnat's boolean
+   leq; R_scope is opened last, so the arithmetic is Stdlib's. *)
 
 Lemma vector_inner_sym n (x y : vector n) : vector_inner n x y = vector_inner n y x.
 Proof. unfold vector_inner; apply coordinate_sum_ext; intros; ring. Qed.

@@ -1,86 +1,18 @@
-(* Port of theories/GaussianStein.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements use the vocabulary of AnalysisIntegralDefinitions
-   and of the bridge, as in the port of GaussianKernel: Coquelicot's
-   is_derive f x l becomes @is_derive R R^o R^o x 1 f l, continuous f x
-   becomes {for x, continuous f}, is_lim f m_infty 0 and is_lim f p_infty 0
-   become (f x @[x --> -oo%R] --> 0)%classic and
-   (f x @[x --> +oo%R] --> 0)%classic, and
-   is_RInt_gen f (Rbar_locally m_infty) (Rbar_locally p_infty) l becomes
-   whole_line_has_integral f l, which is Lebesgue integrability on the line
-   with integral l (difference 4 of analysis/README.md). The arithmetic in
-   every statement is Stdlib's, as in the original.
-
-   Statements that change form.
-
-   1. gaussian_stein_second_decay has one more hypothesis, the last one:
-      whole_line_integrable
-        (fun x => (ddf x - (x*x - 1) * f x) * gaussian_kernel x).
-      Without it the statement is false for the Lebesgue integral, as the
-      header of GaussianDefinitions says. Take df x = sin (exp (x * x)) and
-      f its primitive from 0, which is bounded. Then df, f and x * f x
-      times the kernel tend to 0 at both ends, and (x*x - 1) * f x times
-      the kernel is integrable, but ddf x * gaussian_kernel x is not
-      absolutely integrable, so the integrand of the conclusion has no
-      Lebesgue integral. The improper Riemann integral of the original
-      exists in that case. Together with the first three hypotheses, the
-      integrability of ddf x * gaussian_kernel x implies the added one
-      (gaussian_stein_second_integrand_integrable below), so an importer
-      that has that integrability instead can combine the two lemmas. The
-      proof no longer splits the integrand into two Stein integrands, whose
-      integrability does not follow from the hypothesis. It applies the
-      fundamental theorem of calculus on the line
-      (gaussian_kernel_line_FTC of GaussianKernel) to
-      (df x + x * f x) * gaussian_kernel x, whose derivative is the
-      integrand and whose limits at both ends are 0.
-
-   gaussian_stein_split_decay and gaussian_stein_second_split_decay need no
-   new hypothesis and say the same thing as before, in the new vocabulary.
-   Their hypothesis gives the integrability of the term with the highest
-   derivative, df x * gaussian_kernel x or ddf x * gaussian_kernel x, and
-   the integrability of the other term follows from it
-   (gaussian_stein_moment_integrable and
-   gaussian_stein_second_moment_integrable below). Their proofs are new for
-   that reason. gaussian_times_identity_derivative and
-   gaussian_times_identity_derivative_continuous say the same thing as
-   before.
-
-   New lemmas, used in the proofs and available to importers. All are
-   about functions R -> R with Stdlib's operations.
-   - gaussian_stein_segment_integrable: a continuous function is Lebesgue
-     integrable on `[a, b] when a <= b.
-   - gaussian_stein_abs_continuous: Rabs (g t) is continuous when g is.
-   - gaussian_stein_abs_primitive_bound: if f' = df with df continuous,
-     then Rabs (f x - f 0) <= Rabs (F x), where F x is the oriented
-     integral of Rabs df from 0 to x.
-   - gaussian_stein_abs_primitive_sign: that F x is nonnegative for
-     0 <= x and nonpositive for x <= 0.
-   - gaussian_stein_nonneg_integrable: a continuous nonnegative function
-     whose integrals over the segments [- INR n, INR n] are bounded by one
-     constant is integrable on the line (monotone convergence, through
-     MathComp's ge0_nondecreasing_set_cvg_integral).
-   - gaussian_stein_weight_integrable: if g is continuous and x * g x is
-     integrable on the line, then g is integrable on the line.
-   - gaussian_stein_moment_integrable: if f' = df, df is continuous and
-     df x * gaussian_kernel x is integrable on the line, then
-     x * f x * gaussian_kernel x is integrable on the line. The proof
-     bounds Rabs (x * f x) by Rabs x * Rabs (f 0) + x * F x and notes that
-     x * F x * gaussian_kernel x is the derivative of
-     - F x * gaussian_kernel x plus Rabs (df x) * gaussian_kernel x, so
-     that its integral over [-n, n] is at most the integral of
-     Rabs (df x) * gaussian_kernel x over the line.
-   - gaussian_stein_second_moment_integrable: if f' = df, df' = ddf, ddf
-     is continuous and ddf x * gaussian_kernel x is integrable on the
-     line, then (x*x - 1) * f x * gaussian_kernel x is integrable on the
-     line. It applies gaussian_stein_moment_integrable to df, to f and to
-     x * f x, and gaussian_stein_weight_integrable twice.
-   - gaussian_stein_second_integrand_integrable: under the same
-     hypotheses, the integrand of gaussian_stein_second_decay is
-     integrable on the line.
-
-   The original imported Classical_Prop. This port imports it too, but no
-   proof uses classic. *)
+(* Gaussian integration by parts on the line (Stein's identity), with the
+   Lebesgue integral over the line. Here f' = df and df' = ddf, and the
+   highest derivative is continuous. In the identities, the products of the
+   kernel with f, or with df and x * f x, tend to 0 at both ends.
+   - gaussian_stein_split_decay: if df x * gaussian_kernel x has integral
+     l, so has x * f x * gaussian_kernel x; that is, E[x f(x)] = E[f'(x)].
+   - gaussian_stein_second_split_decay: if ddf x * gaussian_kernel x has
+     integral l, so has (x*x - 1) * f x * gaussian_kernel x.
+   - gaussian_stein_moment_integrable: if df x * gaussian_kernel x is
+     integrable on the line, so is x * f x * gaussian_kernel x.
+     gaussian_stein_second_moment_integrable: if ddf x * gaussian_kernel x
+     is integrable, so is (x*x - 1) * f x * gaussian_kernel x.
+   - gaussian_stein_second_decay: the integral of
+     (ddf x - (x*x - 1) * f x) * gaussian_kernel x is 0 when this integrand
+     is integrable on the line. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz Classical_Prop.
 From EllipsoidFitting Require Import AnalysisBridge2.
@@ -329,7 +261,7 @@ apply: (fubini_dominated_integrable setT _ G 1 measurableT _ iG).
   lra.
 Qed.
 
-(* The lemmas of the original. *)
+(* Stein's identities. *)
 
 Lemma gaussian_stein_split_decay (f df : R -> R) l :
   (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
@@ -432,9 +364,15 @@ apply: (eq_integrable measurableT _ _ _ (integrableB measurableT Hi Im)).
 move=> x _ /=; rewrite -EFinB; congr (_%:E); rewrite -RminusE; ring.
 Qed.
 
-(* Added hypothesis, the last one: the integrand is integrable on the line.
-   The original concluded an improper Riemann integral, which exists
-   without it; the Lebesgue integral does not (header, item 1). *)
+(* The last hypothesis, the integrability of the integrand on the line, does
+   not follow from the others. For df x = sin (exp (x * x)) and f its
+   primitive from 0, the limits hold, but ddf x * gaussian_kernel x is not
+   absolutely integrable, so the integrand has no Lebesgue integral.
+   gaussian_stein_second_integrand_integrable derives the hypothesis from
+   the integrability of ddf x * gaussian_kernel x. The proof applies the
+   fundamental theorem of calculus on the line (gaussian_kernel_line_FTC) to
+   (df x + x * f x) * gaussian_kernel x, whose derivative is the integrand
+   and whose limits at both ends are 0. *)
 Lemma gaussian_stein_second_decay (f df ddf : R -> R) :
   (forall t, @is_derive R R^o R^o t 1 f (df t)) ->
   (forall t, @is_derive R R^o R^o t 1 df (ddf t)) ->

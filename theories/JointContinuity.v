@@ -16,60 +16,17 @@ Import ListNotations.
 Import QuadraticGrowthProofs.QuadraticGrowthContinuity.
 Open Scope R_scope.
 
-(* Port of the inner module JointContinuity of theories/InterpolationProofs.v
-   (also copied in theories/JointProofs.v), extracted to
-   build/agent2/unbundled/JointContinuity.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original imported the bundle GoeProofs and named its inner modules
-   GoePairs and GoeSynthesis through it. The port imports these standalone
-   ported modules directly. It opens QuadraticGrowthProofs.QuadraticGrowthContinuity,
-   as the original did.
-
-   The seven statements keep their names, their arguments in the same order
-   and their hypotheses. No item is added. Three changes of form, and none
-   of meaning, come from the ported modules this one imports.
-
-   1. Pointwise continuity. Coquelicot's continuous f x, continuity of f at
-      the one point x, becomes MathComp's {for x, continuous f}
-      (difference 5 of analysis/README.md), in every hypothesis and
-      conclusion. The domain E of the first four lemmas, a Coquelicot
-      UniformSpace in the original, is any topologicalType here, as in
-      FiniteGibbsContinuity and QuadraticGrowthProofs. This generalizes the
-      original.
-
-   2. Joint vectors. In joint_matrix_continuous and
-      joint_observables_continuous, Coquelicot's
-        prod_NormedModule R_AbsRing (vector_NormedModule n)
-          (vector_NormedModule (goe_vector_index n))
-      becomes
-        euclidean_product (vector_NormedModule n)
-          (vector_NormedModule (goe_vector_index n))
-      of MatrixEuclideanProduct, as in the ported JointDefinitions and the
-      restated challenge ellipsoid_joint. Its elements are pairs, and its
-      topology is the product topology (euclidean_product_nbhsE), so
-      continuity at q means what it meant. The bound variable of each
-      function whose continuity is stated is annotated with this type, as in
-      group 4 of analysis/challenges/ellipsoid_joint/Challenge.v, so that the
-      four conclusions of joint_observables_continuous have the text of the
-      four continuity conjuncts of that group, each of which is paired there
-      with a growth bound.
-
-   3. The functions of the statements are built from matrix_nested_gradient,
-      its derivatives, trace_pair, symmetric_divergence, chaos_contraction,
-      quadratic_matrix, goe_matrix and joint_matrix, whose ports keep their
-      names, arguments and values.
-
-   In the proofs, filterdiff_continuous with a Frechet derivative becomes
-   differentiable_continuous applied to the differentiability that the
-   ported is_diff contains, continuous_comp becomes MathComp's
-   continuous_comp, continuous_plus becomes continuousD, continuous_scal
-   becomes continuousZ, continuous_const becomes cst_continuous,
-   continuous_fst and continuous_snd become euclidean_product_fst_continuous
-   and euclidean_product_snd_continuous, and continuous_ext becomes
-   rewriting the function with funext. As QuadraticGrowthProofs explains,
-   the continuity lemmas with an implicit topological domain are applied
-   with ssreflect's apply: or with the domain given explicitly. *)
+(* Continuity of the four observables of the joint interpolation, as
+   functions of a pair (x, z) of a vector x and the coordinates z of a
+   symmetric matrix. joint_matrix n C t x z is
+   C + sqrt (t / (n+1)) (x x^T - I) + sqrt (1 - t) * goe_matrix n z.
+   joint_observables_continuous: joint_quadratic_trace, joint_goe_trace,
+   joint_divergence and joint_remainder, built from the nested Gibbs
+   gradient and its derivatives at that matrix, are continuous at every
+   point of the product space euclidean_product, whose topology is the
+   product topology. The lemmas ending in _base give the continuity of each
+   building block along a map from any topological space that is
+   continuous at the point. *)
 
 (* The joint vector space, named for the proofs only. *)
 Local Notation joint_space n :=
@@ -106,7 +63,7 @@ Lemma joint_divergence_continuous_base {E : topologicalType}
     (matrix_nested_gradient_derivative n beta gamma offset coeff Y S (A z)))}.
 Proof.
   intros Hb Hg HY HS HA.
-  (* Coquelicot's continuous_ext: the map is rewritten with goe_basis_divergence. *)
+  (* The map is rewritten with goe_basis_divergence. *)
   have -> : (fun z => symmetric_divergence n
       (matrix_nested_gradient_derivative n beta gamma offset coeff Y S (A z))) =
     (fun z => coordinate_sum (goe_vector_index n) (fun k =>
@@ -134,7 +91,7 @@ Proof.
   apply: continuous_Rmult_fct; [apply: cst_continuous|].
   apply: growth_coordinate_sum_continuous; intros a Ha.
   apply: growth_coordinate_sum_continuous; intros b Hbb.
-  (* Coquelicot's continuous_ext: the map is rewritten with actual_third_evaluation. *)
+  (* The map is rewritten with actual_third_evaluation. *)
   have -> : (fun z => matrix_nested_third_derivative n beta gamma offset coeff Y S (A z)
       (chaos_first n (X z) a) (chaos_first n (X z) b) (chaos_second n a b)) =
     (fun z => third_evaluation n

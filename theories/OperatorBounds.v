@@ -9,37 +9,14 @@ From EllipsoidFitting Require Import OperatorDefinitions OperatorDefinitionsAux.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/OperatorBounds.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in the ways of the port of
-   MatrixCoordinates.
-
-   1. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. The norms are
-      those of MatrixDefinitions: the Euclidean norm on vectors and on tuples,
-      the Frobenius norm on matrices, and the absolute value on R, as in
-      Coquelicot. Comparisons, products and powers around these norms are
-      Stdlib's, as before.
-
-   2. Coquelicot's is_linear l is stated, as in MatrixCoordinates, as the
-      conjunction
-        linear l /\
-        exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R
-      of MathComp's algebraic linearity and Coquelicot's norm bound. The
-      meaning is the same, constants included.
-
-   3. The order on indices (i <= n)%nat of the original is Stdlib's Peano
-      order. With ssreflect loaded, (i <= n)%nat means ssrnat's boolean leq,
-      so the statements write (i <= n)%coq_nat, which is Stdlib's le.
-
-   4. matrix_operator_norm is now MathComp's sup of the unit image, not
-      Coquelicot's real (Lub_Rbar _); OperatorDefinitions explains why the
-      value is the same. matrix_operator_norm_lub keeps its statement, with
-      Stdlib's is_lub. Its proof uses matrix_operator_norm_is_lub of
-      OperatorDefinitionsAux in place of Coquelicot's Lub_Rbar_correct.
-
-   The port adds one item, marked below: a Hierarchy Builder instance that
-   declares matrix_action n A a linear map. *)
+(* The action of a matrix on vectors and its operator norm. The action
+   matrix_action n A is bounded linear (matrix_action_linear), and the
+   squared Euclidean norm of a vector is the sum of its squared entries
+   (vector_norm_squared). So matrix_operator_norm n A, the supremum of
+   `|A x| over `|x| <= 1, is a least upper bound in the sense of Stdlib's
+   is_lub (matrix_operator_norm_lub). It is nonnegative and at most any
+   bound of `|A x| on the unit ball (matrix_operator_norm_nonnegative,
+   matrix_operator_norm_upper). *)
 
 (* Declaring matrix_action n A a linear map makes HB report canonical
    projections that duplicate existing ones. Rocq ignores the duplicates; the
@@ -113,10 +90,9 @@ Proof.
   apply matrix_linear_scale, tuple_entry_linear.
 Qed.
 
-(* Added by the port. matrix_action n A is a {linear _ -> _} of MathComp, so
-   that linearD, linearZ, linear0 and the other lemmas about linear maps
-   apply to it directly, in place of Coquelicot's linear_plus, linear_scal
-   and linear_zero. The instance changes no statement. *)
+(* matrix_action n A is a {linear _ -> _} of MathComp, so that linearD,
+   linearZ, linear0 and the other lemmas about linear maps apply to it
+   directly. *)
 HB.instance Definition _ n (A : matrix n) :=
   GRing.isLinear.Build R (vector_NormedModule n) (vector_NormedModule n) *:%R
     (matrix_action n A) (proj1 (matrix_action_linear n A)).

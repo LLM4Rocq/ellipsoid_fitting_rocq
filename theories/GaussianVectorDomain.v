@@ -13,49 +13,19 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module GaussianVectorDomain of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/GaussianVectorProofs.v), extracted to
-   build/agent2/unbundled/GaussianVectorDomain.v, from Coquelicot to
-   MathComp-Analysis.
-
-   The original imported the bundle GaussianCoordinateProofs and named its
-   inner modules GaussianProduct, GaussianCoordinateWeights,
-   GaussianCoordinateTopology, GaussianCoordinatePolynomialContinuity and
-   GaussianCoordinateSteinDomains through it. The port imports these
-   standalone modules directly.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. The statements change form in three ways, none of which changes
-   their meaning.
-
-   1. Pointwise continuity. Coquelicot's forall x, continuous f x becomes
-      forall x, {for x, continuous f}, continuity at every point
-      (difference 5 of analysis/README.md), in
-      gaussian_vector_polynomial_domain, gaussian_vector_coordinate_domain and
-      gaussian_vector_centered_product_domain. This is the hypothesis of the
-      ported vector_continuous_joint and the form of the restated
-      ellipsoid_gaussian_matrix challenge. The topology of vector n is the
-      product topology, as in Coquelicot.
-
-   2. Norms. Coquelicot's norm x becomes MathComp's (`|x|)%R in the same
-      three statements. The vectors nest euclidean_product of
-      MatrixEuclideanProduct, so this is still the Euclidean norm and the
-      polynomial bounds C * (1 + norm x) ^ p keep their meaning.
-
-   3. Indices. With ssreflect loaded, (i <= n)%nat would be ssrnat's boolean
-      leq. The statements write (i <= n)%coq_nat, which is Stdlib's le, as in
-      the original. In the proofs, nth is written List.nth.
-
-   gaussian_vector_domain_pullback and gaussian_vector_domain_ext keep their
-   text. The meaning of gaussian_vector_domain follows the ported
-   GaussianVectorDefinitions (difference 4 of analysis/README.md): at each
-   level of the iterated expectation, Lebesgue integrability over the line
-   against the Gaussian kernel, in place of improper Riemann integrability.
-   The polynomial domain theorems establish this Lebesgue reading, through
-   the ported gaussian_coordinate_polynomial_domain. The proofs keep their
-   steps; Stdlib's "rewrite ... by tac" is written with explicit arguments,
-   since ssreflect's rewrite is loaded. *)
+(* Functions of a standard Gaussian vector that have an expectation.
+   gaussian_vector_domain n f says that the iterated Gaussian expectations
+   of f and of |f| exist, each level being a Lebesgue integral over the line,
+   so that f must be absolutely integrable at every level.
+   - gaussian_vector_domain_pullback builds it from the iterated
+     integrability of f and |f| on lists, and gaussian_vector_domain_ext
+     transports it along a pointwise equality.
+   - gaussian_vector_polynomial_domain: a function that is continuous at
+     every point and bounded by C * (1 + |x|) ^ p, for the Euclidean norm,
+     is in the domain.
+   - gaussian_vector_coordinate_domain and
+     gaussian_vector_centered_product_domain: so are x_i * f x and
+     (x_a * x_b - [a = b]) * f x for such an f. *)
 
 Lemma gaussian_vector_domain_pullback n f :
   gaussian_iterated_integrable (S n) (fun xs => f (vector_of_list n xs)) ->

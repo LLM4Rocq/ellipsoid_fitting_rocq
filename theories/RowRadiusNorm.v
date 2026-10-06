@@ -8,42 +8,14 @@ From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions Vecto
   MaximumRadiusDefinitions InterleavedMaximumRadius.
 Open Scope R_scope.
 
-(* Port of theories/RowRadiusNorm.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma and theorem keeps its name and its arguments in the same order.
-   One notion changes notation: Coquelicot's norm becomes MathComp's norm,
-   written `|x|%R. The vectors are the nested tuples of MatrixDefinitions,
-   whose products are euclidean_product of MatrixEuclideanProduct and keep
-   Coquelicot's product norm sqrt (norm (fst x) ^ 2 + norm (snd x) ^ 2) (not
-   MathComp's max norm, difference 1 of analysis/README.md). On the last
-   coordinate, R^o, the norm is Rabs, as Coquelicot's norm on R_NormedModule
-   was. So `|vector_of_list n xs|%R is still the Euclidean norm of the S n
-   coordinates, and every statement below means what the original meant:
-   the square of the norm of fst (gaussian_row_pair n i xs), the first
-   component of the joint vector of row i, is the sum of the squares of the
-   first S n coordinates of that row.
-
-   In gaussian_joint_expected_maximum_radius, gaussian_iterated_integrable,
-   gaussian_iterated_absolutely_integrable and
-   gaussian_iterated_has_expectation of GaussianProductDefinitions now ask,
-   at each level, for Lebesgue integrability over the line against the
-   Gaussian kernel, and record Lebesgue integrals against gaussian_density,
-   in place of Coquelicot's improper Riemann integrals (difference 4 of
-   analysis/README.md). The statement keeps the original text, and it is
-   proved, as before, from gaussian_interleaved_expected_maximum_radius of
-   InterleavedMaximumRadius, whose port states the same conjunction under
-   the same meaning. No statement is weakened.
-
-   The MathComp imports are limited to ssralg, ssrnum, Rstruct and
-   normedtype, which are what the norm on vector n needs. None of them
-   imports MathComp's ssreflect, ssrnat or exp into this file. So (i<N)%nat
-   is Stdlib's Peano lt, which lia proves, as in the original, and the proofs
-   use Stdlib's tactic syntax. The logarithm of the last theorem is written
-   Rpower.ln. It is Stdlib's ln, the constant the original named and the one
-   of InterleavedMaximumRadius; the qualified name keeps that meaning in an
-   importer that loads MathComp's exp, where a bare ln is exp.ln. R_scope is
-   opened after the imports, so the arithmetic, ^, sqrt and INR are
-   Stdlib's. *)
+(* The squared radius of a row as a squared norm. Row i of a list xs is
+   read as the joint vector gaussian_row_pair n i xs = (x_i, z_i), with
+   x_i of S n coordinates. gaussian_row_first_norm_squared: |x_i|^2 is the
+   sum of the squares of the first S n coordinates of row i, by
+   vector_of_list_sum_squares. So the maximum radius of the rows is at
+   least every |x_i|^2 and equal to one of them
+   (gaussian_interleaved_maximum_norm_characterization). The norm of a
+   vector is the Euclidean norm. *)
 
 Lemma vector_of_list_sum_squares n xs :
   length xs=S n -> `|vector_of_list n xs|%R^2 = gaussian_sum_squares xs.

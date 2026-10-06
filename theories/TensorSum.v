@@ -13,34 +13,20 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/TensorSum.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma and theorem of the original keeps its name and its arguments,
-   in the same order. No lemma is added. The first four lemmas keep the text
-   of the original: they mention only definitions of the ported modules,
-   Stdlib's arithmetic, lists and In, whose meaning the ports keep.
-
-   The four theorems use Coquelicot's extended reals. As in the ports of
-   TensorDefinitions and TensorNested, and in the restatement of the
-   challenge ellipsoid_tensor_sum in analysis/challenges, Rbar becomes
-   MathComp's \bar R, Finite becomes EFin and real becomes fine. real and
-   fine both return the real value of a finite argument and 0 on the two
-   infinite values. So N = EFin (fine N) says that N is finite, as
-   N = Finite (real N) did, and fine N is the same real as real N was. The
-   prefix forms EFin and fine are used, not the notation x%:E, so that the
-   bounds keep Stdlib's arithmetic.
-
-   One change of notation: with ssreflect loaded, (1 <= d)%nat would mean
-   ssrnat's boolean leq. The original means Stdlib's Peano order le, so
-   matrix_nested_projective_sum_low_influence writes (1 <= d)%coq_nat,
-   ssrnat's notation for Stdlib's le, as the restated challenge does. The
-   meaning is unchanged.
-
-   The proofs follow the original. matrix_affine_scores_at_zero used
-   Coquelicot's linear_zero on is_linear; here trace_pair n B is a linear map
-   of MathComp by the instance of the port of MatrixTrace, and linear0 gives
-   the same identity. Stdlib's "rewrite A, B" and "rewrite ... by tac" are
-   written in the forms that ssreflect accepts. *)
+(* Sums over coordinates of the projective norms of the third derivatives
+   of nested soft minimax functions. A projective norm N is an extended
+   real; N = EFin (fine N) says that N is finite, and fine N is its value.
+   - matrix_nested_projective_real_bound: if the matrices coeff y s are
+     symmetric with operator norm at most k * r y, the projective norm of
+     matrix_nested_third_derivative is finite, nonnegative and at most
+     10 k^3 (beta+gamma)^2 times the outer Gibbs average of r^3.
+   - matrix_nested_shared_score_sum_bound and matrix_nested_zero_sum_bound:
+     for a family of coordinates i whose inner soft values induce the same
+     outer Gibbs law, the sum of these norms is at most
+     10 k^3 (beta+gamma)^2 times the Gibbs average of sum_i (r i)^3.
+   - matrix_nested_projective_sum_low_influence: when r i z = |y z i| for
+     unit vectors y z with entries at most theta / sqrt d, the sum is at
+     most 10 k^3 (beta+gamma)^2 theta / sqrt d. *)
 
 Lemma tensor_sum_gibbs_scores_ext c f g Y u :
   (forall y, In y Y -> f y = g y) ->
@@ -76,9 +62,8 @@ Lemma matrix_inner_values_at_zero n gamma H coeff S :
     (fun y => soft_max gamma (H y) S).
 Proof. unfold matrix_inner_values; rewrite matrix_affine_scores_at_zero; reflexivity. Qed.
 
-(* The real projection is used only after producing a finite, nonnegative
-   witness for the projective norm.  Finite and real of the original become
-   EFin and fine; see the comment at the top of the file. *)
+(* The real projection fine is used only after producing a finite,
+   nonnegative witness for the projective norm. *)
 Theorem matrix_nested_projective_real_bound n beta gamma H coeff Y S (A : matrix n) k r :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] -> 0 <= k ->
   (forall y, In y Y -> 0 <= r y) ->
@@ -160,8 +145,6 @@ Proof.
   intros i y Hi Hy; rewrite matrix_inner_values_at_zero; reflexivity.
 Qed.
 
-(* (1 <= d)%nat of the original is written (1 <= d)%coq_nat, Stdlib's le;
-   see the comment at the top of the file. *)
 Theorem matrix_nested_projective_sum_low_influence n beta gamma H coeff y I Y S d theta k :
   0 < beta -> 0 < gamma -> 0 <= k -> (1 <= d)%coq_nat -> 0 < theta -> Y <> [] -> S <> [] ->
   (forall z, In z Y -> euclidean_norm (y z) I = 1) ->

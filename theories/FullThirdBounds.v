@@ -11,30 +11,18 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/FullThirdBounds.v from Coquelicot to MathComp-Analysis.
-
-   Both theorems keep their names and their arguments, in the same order. No
-   lemma is added.
-
-   lower_gibbs_cumulant_uniform_bound mentions no normed space, and its text
-   is the original's.
-
-   lower_third_uniform_bound changes form in two ways, the ways of
-   lower_second_uniform_bound in the port of LowerBounds and of clause 4 of
-   the restated challenge ellipsoid_full_third in analysis/challenges.
-
-   1. NormedModule R_AbsRing becomes normedModType R. The space E is only the
-      type of the points A, U, V, W and of the arguments of F, so the values
-      are those of the original.
-
-   2. Coquelicot's norm P becomes MathComp's norm (`|P|)%R, the norm of E.
-      The constant 8 * K ^ 3 * (beta + gamma) ^ 2 is stated against it as
-      before. Comparisons, products and powers around the norms are
-      Stdlib's.
-
-   The proofs keep their steps. norm_ge_0 becomes normr_ge0 through RleP,
-   and Stdlib's "rewrite A, B" and "rewrite ... by tac" are written in the
-   forms that ssreflect accepts. *)
+(* Uniform bounds on third-order Gibbs terms.
+   - lower_gibbs_cumulant_uniform_bound: if |u|, |v| and |w| are at most
+     Ku, Kv and Kw on the nonempty list I, the third cumulant
+     gibbs_cumulant3 c f I u v w of the finite Gibbs law is at most
+     8 * Ku * Kv * Kw in absolute value.
+   - lower_third_uniform_bound: if the scores satisfy |F z s P| <= K * `|P|
+     on a normed module E, the third-order term lower_third of the soft
+     minimax in the directions U, V, W is at most
+     8 * K ^ 3 * (beta + gamma) ^ 2 * `|U| * `|V| * `|W| in absolute value,
+     for 0 < beta and 0 < gamma.
+   Centering a function bounded by K gives a function bounded by 2 * K,
+   which yields the factor 8 for a cumulant. *)
 
 Theorem lower_gibbs_cumulant_uniform_bound c f I u v w Ku Kv Kw :
   I <> [] -> 0 <= Ku -> 0 <= Kv -> 0 <= Kw ->
