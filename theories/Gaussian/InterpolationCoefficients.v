@@ -6,10 +6,7 @@
    t = 1 and t = 0 the path is the image of the first p and of the last q
    coordinates. The coefficients are bounded by the entries of P and Q for t
    in [0,1], twice differentiable in t on (0,1) with explicit derivatives,
-   and these derivatives are bounded on [lo, hi] when 0 < lo and hi < 1.
-   gaussian_covariance_stein_coefficients: for 0 < t < 1,
-     sum_k dcoef t a k * coef t b k = (1/2) ((P P^T)_ab - (Q Q^T)_ab),
-   the identity that turns the Stein terms into the covariance difference. *)
+   and these derivatives are bounded on [lo, hi] when 0 < lo and hi < 1. *)
 From Stdlib Require Import Reals List Lia Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.
 From EllipsoidFitting Require Import Soft.Definitions

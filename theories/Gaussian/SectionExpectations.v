@@ -1,12 +1,8 @@
-(* Gaussian expectations of the sections F x of a jointly continuous
-   function F of two variables with |F x y| <= g x * h y, where h is
-   nonnegative and integrable against the Gaussian kernel. The expectations
-   are Lebesgue integrals over the line.
-   - gaussian_expectation_majorant_bound: |E[f]| <= c * E[h] when f and h
-     are continuous and |f| <= c * h.
-   - gaussian_section_expectation_continuous: if g is continuous, then
-     x |-> E[F x] is continuous.
-   - gaussian_section_expectation_bound: |E[F x]| <= g x * E[h]. *)
+(* A bound on a Gaussian expectation from a majorant:
+   |E[f]| <= c * E[h] when f and h are continuous, |f| <= c * h, and h is
+   integrable against the Gaussian kernel
+   (gaussian_expectation_majorant_bound). The expectations are Lebesgue
+   integrals over the line. *)
 
 From Stdlib Require Import Reals Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.

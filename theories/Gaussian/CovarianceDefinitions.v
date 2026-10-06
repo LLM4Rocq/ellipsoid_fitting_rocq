@@ -21,10 +21,6 @@
      Gaussian coordinates it is the Gaussian interpolation
      Z(t) = sqrt t X + sqrt (1-t) Y between the independent vectors X and
      Y, as in the proofs of Slepian's and Gordon's comparison theorems.
-   - gaussian_covariance_pairing K p q P Q H is
-     sum_{a<K} sum_{b<K} ((P P^T)_{ab} - (Q Q^T)_{ab}) H a b, the pairing
-     of the covariance difference with an array H, such as the second
-     partial derivatives of a test function.
    - gaussian_covariance_domain d G has the body of gaussian_list_domain of
      Joint.Definitions, which this module does not import: G is integrable
      and absolutely integrable at every level of the iterated Gaussian

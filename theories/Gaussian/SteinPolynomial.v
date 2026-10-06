@@ -3,12 +3,8 @@
    gaussian_stein_polynomial_split: if f has a continuous derivative df,
    |f x| <= C * (1 + |x| ^ p), and df * gaussian_kernel has integral l on
    the line, then x |-> x * f x * gaussian_kernel x has integral l too.
-   gaussian_stein_second_polynomial_split: if f and its derivative df have
-   polynomial growth, df has a continuous derivative ddf, and
-   ddf * gaussian_kernel has integral l, then
-   x |-> (x * x - 1) * f x * gaussian_kernel x has integral l. Integrals
-   over the line are Lebesgue integrals, so the hypotheses include the
-   absolute integrability of the term with the highest derivative. *)
+   Integrals over the line are Lebesgue integrals, so the hypothesis
+   includes the absolute integrability of the term with the derivative. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.

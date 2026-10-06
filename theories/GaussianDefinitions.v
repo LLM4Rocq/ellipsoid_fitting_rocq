@@ -3,7 +3,7 @@
    - gaussian_kernel x = exp (- x^2 / 2), and gaussian_primitive x is its
      oriented integral from 0 to x, negative for x < 0.
    - gaussian_mass is the integral of the kernel over the line,
-     sqrt (2 pi) (gpb_mass of GaussianProbabilityDensity).
+     sqrt (2 pi) (gpb_mass of Gaussian.NormalLawDensity).
    - gaussian_integral, gaussian_has_integral and gaussian_integral_exists
      use the Lebesgue integral of x |-> f x * gaussian_kernel x over the
      line. gaussian_integral_exists f says that this product is Borel

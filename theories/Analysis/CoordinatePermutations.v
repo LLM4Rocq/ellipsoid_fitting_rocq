@@ -5,11 +5,11 @@ Open Scope R_scope.
 
 (* Properties of swap_adjacent, replace_coordinate and move_coordinate_last.
    They preserve the length; swap_adjacent and move_coordinate_last are
-   permutations of the list. The lemmas on nth give the coordinates of the
-   result, and move_coordinate_last_prefix writes move_coordinate_last i xs
-   as the coordinates before i, then those after i, then coordinate i. The
-   Forall2 lemmas carry a coordinatewise relation between two lists through
-   these operations. *)
+   permutations of the list. The lemmas on nth give the coordinates of
+   replace_coordinate i t xs, and replace_coordinate_twice and
+   replace_coordinate_self simplify a repeated or a trivial replacement.
+   The Forall2 lemmas carry a coordinatewise relation between two lists
+   through these operations. *)
 
 Lemma swap_adjacent_length i xs : length (swap_adjacent i xs) = length xs.
 Proof.

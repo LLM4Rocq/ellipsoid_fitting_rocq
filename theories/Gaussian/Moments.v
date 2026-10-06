@@ -8,7 +8,6 @@
      and 1 * 3 * ... * (n - 1) for n even. The hypothesis holds for
      J = gaussian_mass and for no other J (gaussian_kernel_mass_integral of
      Gaussian.Mass).
-   - gaussian_first_raw_moment: the moment of order 1 is 0.
    The integrals over the line are Lebesgue integrals, so each conclusion
    includes the absolute integrability of the integrand. *)
 

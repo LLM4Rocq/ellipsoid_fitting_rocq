@@ -1,20 +1,8 @@
-(* Gaussian expectations of a jointly continuous function F of two
-   variables, cut off to a rectangle [-A, A] x [-B, B].
-   - gaussian_cutoff_density and gaussian_rectangle_density write the cut
-     off expectations as oriented integrals against gaussian_density.
-   - gaussian_finite_rectangle_fubini: on a rectangle, the two iterated cut
-     off expectations of F are equal.
-   - gaussian_rectangle_approximation_given_section_continuity: if
-     |F x y| <= g x * h y, with g and h continuous, nonnegative and
-     integrable against the kernel, and if x |-> E[F x] is continuous and
-     bounded by E[h] * g x, then the iterated expectation of F differs from
-     its cut off version by at most E[h] times the tail of g outside
-     [-A, A] plus E[g] times the tail of h outside [-B, B]
-     (gaussian_cutoff_error_majorant).
-   - gaussian_vanishing_error_limit: if |J - D A| <= e A for A >= 0 and e A
-     tends to 0, then D A tends to J as A tends to +oo.
-   The integrals on segments are oriented integrals of continuous functions,
-   and the integrals over the line are Lebesgue integrals. *)
+(* The Gaussian expectation cut off to the segment [-A, A] is additive: for
+   f and g continuous, gaussian_cutoff_expectation (f - g) A is the
+   difference of the cut off expectations of f and g
+   (gaussian_cutoff_expectation_sub). The cut off expectation is an
+   oriented integral of a continuous function over the segment. *)
 
 From Stdlib Require Import Reals Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.

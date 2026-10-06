@@ -5,10 +5,12 @@
 
    The proof studies gaussian_primitive, the oriented integral of the kernel
    from 0. It is nondecreasing, positive at 1 and bounded above, so it has a
-   limit L > 0 at +oo (gaussian_primitive_positive_limit); it is odd, so its
-   limit at -oo is -L (gaussian_primitive_negative_limit). The bound above
-   comes from t * gaussian_kernel t >= gaussian_kernel t for t >= 1, where
-   the left side has the primitive - gaussian_kernel t. *)
+   limit L > 0 at +oo (gaussian_primitive_positive_limit); the kernel is
+   even (gaussian_kernel_even), so it is integrable on the line with a
+   positive integral (gaussian_kernel_integrable,
+   gaussian_kernel_positive_integral). The bound above comes from
+   t * gaussian_kernel t >= gaussian_kernel t for t >= 1, where the left
+   side has the primitive - gaussian_kernel t. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.

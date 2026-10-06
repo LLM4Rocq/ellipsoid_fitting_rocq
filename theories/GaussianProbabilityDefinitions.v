@@ -9,7 +9,7 @@
    MathComp-Analysis proves to be a probability measure (its instances
    isMeasure and isProbability, unconditional in the mean and the scale).
    That object is the paper's law N(0, 1) of one coordinate of a sample
-   x ~ N(0, I_d). GaussianProbabilityDensity and GaussianProbabilityIntegrals
+   x ~ N(0, I_d). Gaussian.NormalLawDensity and Gaussian.NormalLawIntegrals
    relate it to gaussian_density, gaussian_integral_exists and
    gaussian_expectation of GaussianDefinitions, which never mention a
    probability measure.
@@ -26,7 +26,7 @@
      as for the integrals of AnalysisIntegralDefinitions.
    Neither is a new name for a definition of GaussianDefinitions:
    gaussian_expectation f is the Lebesgue integral of f times the kernel
-   divided by the mass, and gpb_law_integral of GaussianProbabilityIntegrals
+   divided by the mass, and gpb_law_integral of Gaussian.NormalLawIntegrals
    proves that the two expectations agree when f is integrable.
 
    The variable x of the integral ranges over the carrier of lebesgue_measure,

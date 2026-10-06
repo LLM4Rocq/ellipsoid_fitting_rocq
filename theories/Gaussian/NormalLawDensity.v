@@ -2,7 +2,6 @@
    against the Gaussian kernel of GaussianDefinitions.
    - gpb_mass: gaussian_mass = sqrt (2 pi), from MathComp's
      integral_normal_pdf and the integrability of the kernel.
-   - gpb_density: the density normal_pdf 0 1 of the law is gaussian_density.
    - gpb_RN_ae and gpb_change_ge0: the Radon-Nikodym derivative of the law
      with respect to Lebesgue measure is normal_pdf 0 1 almost everywhere,
      so the integral of a nonnegative measurable function against the law

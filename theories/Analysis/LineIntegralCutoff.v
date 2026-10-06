@@ -1,8 +1,6 @@
 (* Cutoffs of integrals over the line to segments. The integrals over the
    line are Lebesgue integrals (whole_line_has_integral), which require
    absolute integrability.
-   - continuous_finite_integral_abs_bound: for continuous f and g with
-     |f| <= g and a <= b, |oriented_integral f a b| <= oriented_integral g a b.
    - improper_cutoff_interval_error_bound: if f and g have integrals If and
      Ig over the line and |f| <= g, then for a <= b,
      |If - oriented_integral f a b| <= Ig - oriented_integral g a b. The
