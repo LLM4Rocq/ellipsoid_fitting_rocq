@@ -1,4 +1,8 @@
-(* Removing the auxiliary scalar in expectation, not in a tail probability. *)
+(* The bilinear form z^T A v of a Gaussian matrix A in row-major
+   coordinates (paper_main_gordon_matrix_value), and Gordon's comparison of
+   its min-max with the min-max of the auxiliary process
+   (paper_main_gordon_matrix_comparison), proved from the library in
+   PaperMainGordonProcesses. *)
 From Stdlib Require Import Reals List Lia Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import SoftDefinitions GaussianDefinitions GaussianExpectation
   GaussianProductDefinitions GaussianProduct GaussianLastDefinitions GaussianLastIntegration
@@ -213,7 +217,9 @@ Theorem paper_main_gordon_matrix_comparison r s N M z v :
     (fun y t => paper_main_gordon_matrix_value N M (z y) (v t) xs)
     (List.seq 0 r) (List.seq 0 s)).
 Proof.
-intros Hr Hs Hz Hv; split.
-- apply paper_main_gordon_raw_matrix_domain; assumption.
-- exact (proj2 (paper_main_gordon_unaugmented_comparison r s N M z v Hr Hs Hz Hv)).
+intros Hr Hs Hz Hv.
+pose proof (paper_main_gordon_raw_matrix_domain r s N M z v Hr Hs) as HD.
+pose proof (paper_main_gordon_auxiliary_domain r s N M z v Hr Hs) as HA.
+split; [exact HD|]; split; [exact HA|].
+exact (paper_main_gordon_process_comparison r s N M z v Hr Hs Hz Hv HA HD).
 Qed.

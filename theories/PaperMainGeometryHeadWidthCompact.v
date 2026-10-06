@@ -11,14 +11,13 @@
      augmented set pmhw_aug of rows (S, lam) with lam in that interval,
      lam I <= S <= kappa lam I and <S, S> = 1;
    - pmhw_aug is closed and inside the box [-1, 1]^(d d + 1), hence compact
-     (pmhw_aug_compact), by the recovered toolkit of PaperMainGeometryCompact;
+     (pmhw_aug_compact), by the toolkit of PaperMainGeometryCompact;
    - for every Z, <Z, .> attains its maximum on K_kappa \cap S_F
      (paper_main_head_cone_sphere_max), by the extreme value theorem on
      pmhw_aug.
    The maximizer is chosen for each Z separately: no measurability of the
    choice is claimed. paper_main_head_width_transfer_maximizer combines this
-   with the supremum transfer of PaperMainGeometryHeadWidth. Nothing from
-   the paper is assumed. *)
+   with the supremum transfer of PaperMainGeometryHeadWidth. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

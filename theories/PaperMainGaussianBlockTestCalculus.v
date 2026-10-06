@@ -11,7 +11,7 @@ Lemma paper_main_gaussian_block_lengths d (xs : list R) :
   List.length xs = Nat.add d d ->
   List.length (List.firstn d xs) = d /\ List.length (List.skipn d xs) = d.
 Proof.
-intros Hxs; rewrite firstn_length length_skipn Hxs; split; lia.
+intros Hxs; rewrite length_firstn length_skipn Hxs; split; lia.
 Qed.
 
 Lemma paper_main_gaussian_firstn_replace d a t xs :

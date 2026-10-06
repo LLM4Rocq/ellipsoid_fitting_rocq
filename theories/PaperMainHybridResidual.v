@@ -4,12 +4,12 @@
    D = paper_main_symmetric_dimension mi coordinates (bulk matrices of size
    mi + 1). The hybrid residual of (H, b, B) is u = K(H, b) + R(B) with
      K(H, b)_i = g_i^T H g_i - tr H - b,  g_i the i-th head point,
-     R(B)_i = sqrt (mi + 1) * <G_i, B>,  G_i the public GOE row of x.
+     R(B)_i = sqrt (mi + 1) * <G_i, B>,  G_i the GOE row of x.
    1. The head coefficient map: K(H, b) = F(h) c(H, b) for the N x (r r + 1)
       head matrix F(h) with rows (vec (g_i g_i^T - I), -1) and
       c(H, b) = (vec H, b). The entries of F are measurable in h. For r = 0
       this is the genuine 0 x 0 head with K(H, b) = - b 1.
-   2. R(B) = sqrt 2 * the A23 bulk vector of the PSD code of B.
+   2. R(B) = sqrt 2 * the projected bulk vector of the PSD code of B.
    3. Homogeneity: the projected bulk bound for unit PSD codes gives
       ||S_J (K + R(B))|| >= sqrt 2 * beta * sqrt N * ||B||_F for every PSD B.
    4. The gap: with the head energy bound, the projected bulk bound and the
@@ -117,8 +117,8 @@ have -> : (fun h : paper_main_sample N r =>
 exact: measurable_cst.
 Qed.
 
-(* 2. The bulk value R(B)_i = sqrt (mi + 1) * <G_i, B> and the A23 bulk
-   vector of the PSD code. *)
+(* 2. The bulk value R(B)_i = sqrt (mi + 1) * <G_i, B> and the projected
+   bulk vector of the PSD code. *)
 
 Definition paper_main_hybrid_bulk_value N mi
     (x : (N * paper_main_symmetric_dimension mi).-tuple (measurableTypeR R))

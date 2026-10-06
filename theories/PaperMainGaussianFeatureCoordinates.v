@@ -1,5 +1,5 @@
 (* Frobenius coordinates for the existing GOE construction.
-   The legacy index n represents the true dimension p = S n. *)
+   The index n represents the true dimension p = S n. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import ssralg ssrnum Rstruct normedtype.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums

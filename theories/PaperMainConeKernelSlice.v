@@ -11,8 +11,7 @@
    The set is closed and inside the box [-1, 1]^(d d + 1), hence compact;
    it contains I / d; it is closed under segments in both coordinates; a
    point of the cone sphere divided by its trace lies in it; and a point of
-   it divided by its Frobenius norm lies in the cone sphere. Nothing from
-   the paper is assumed. *)
+   it divided by its Frobenius norm lies in the cone sphere. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

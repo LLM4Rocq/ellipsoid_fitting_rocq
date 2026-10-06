@@ -1,4 +1,4 @@
-(* Orthogonal invariance of smooth tests under the public product law
+(* Orthogonal invariance of smooth tests under the product law
    gaussian_product_law d. For any d-by-d loading O and continuous f, the
    map x |-> f(O x), O x = gaussian_covariance_image d d O x, is continuous
    and measurable. If f also has a finite polynomial bound, f(O x) is

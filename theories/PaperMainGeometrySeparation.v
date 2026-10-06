@@ -27,10 +27,7 @@
      S >= 0 is in the kernel, or the balanced event holds; part 4 proved
      that not both hold (paper_main_homogeneous_exclusion).
    - paper_main_fit_alternative: for d > 0 and a spanning sample, the fit
-     event holds if and only if the balanced event fails.
-
-   Internal proof workstream (analysis/reports/PROGRESS-main-geometry.md);
-   not part of any contract. No Axiom, Parameter or Admitted. *)
+     event holds if and only if the balanced event fails. *)
 
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.

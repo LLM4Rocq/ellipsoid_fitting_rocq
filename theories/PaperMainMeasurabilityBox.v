@@ -1,8 +1,6 @@
 (* Compactness of coordinate boxes in 'rV[R]_N and cluster points of
    sequences: the shared prefix of the measurability proofs of the events of
-   paper_main_results. Internal proof module of the MathComp-Analysis port,
-   written on 30 September 2026 by a Claude Code session (Fable 5.1).
-   Nothing here is reviewed or accepted.
+   paper_main_results.
 
    pm_seg m is the segment [-m, m] as the set of x with - m <= x <= m; it is
    closed (closed_ge, closed_le) and compact (transported from
@@ -17,7 +15,7 @@
    the tolerances 1 / (k + 1), and pm_le_of_eps closes a bound from all
    epsilons.
 
-   Stable interface for other modules: the definitions pm_seg, pm_box and the
+   Interface for other modules: the definitions pm_seg, pm_box and the
    lemmas pm_seg_closed, pm_seg_sub_segment, pm_seg_compact, pm_box_compact,
    pm_box_cluster, pm_cluster_near, pm_inv_small, pm_inv_mono, pm_le_of_eps,
    all inside Section compact_box with Variable N : nat (the vector length)

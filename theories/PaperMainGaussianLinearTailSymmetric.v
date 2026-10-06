@@ -1,5 +1,5 @@
 (* Applying the actual Gaussian linear-form tail to bilinear forms of the
-   public isotropic symmetric Gaussian. *)
+   isotropic symmetric Gaussian. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

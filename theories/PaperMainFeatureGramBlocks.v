@@ -1,5 +1,5 @@
-(* Exact Gram blocks of the quadratic feature map (G14, checkpoint A;
-   manuscript lines 504-517, eq:Q-def and eq:DV-def).
+(* Exact Gram blocks of the quadratic feature map (manuscript lines
+   504-517, eq:Q-def and eq:DV-def).
    For a sample x of N points of R^d, with the raw features
    x_i x_i^T - I:
    - the full Gram (Q Q^* )_ij = <x_i x_i^T - I, x_j x_j^T - I>

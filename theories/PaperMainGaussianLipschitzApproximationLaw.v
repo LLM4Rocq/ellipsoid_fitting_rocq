@@ -1,10 +1,10 @@
-(* Public-law transfer of the clipped Gaussian smoothings of a
+(* Transfer to the product law of the clipped Gaussian smoothings of a
    Euclidean-Lipschitz test F, in the form used by the limit bound for
    centered exponentials: on samples x : d.-tuple, the approximants
    A_n (tval x) are measurable and converge to F (tval x); their iterated
    Gaussian means converge to the mean of F; and these means are the
    integrals for gaussian_product_law d. The envelope is integrable for
-   the public law. *)
+   that law. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.

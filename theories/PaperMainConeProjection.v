@@ -1,7 +1,7 @@
 (* The metric projection onto the positive semidefinite cone and the Moreau
-   decomposition, for the public matrices and the Frobenius pairing: the
-   geometric input of manuscript lem:psd-width and lem:widthcone (the
-   positive part of a symmetric matrix), without the spectral theorem.
+   decomposition, for the Frobenius pairing: the geometric input of
+   manuscript lem:psd-width and lem:widthcone (the positive part of a
+   symmetric matrix), without the spectral theorem.
 
    For every Z : 'M[R]_d there is a PSD matrix P closest to Z in Frobenius
    distance (pmcp_projection_exists: a compact minimization over PSD S with
@@ -17,7 +17,7 @@
    - |Z|_F^2 = |P|_F^2 + |N|_F^2 (paper_main_psd_moreau_norm).
    For all Z, Y: |proj Z - proj Y|_F <= |Z - Y|_F and
    | |proj Z|_F - |proj Y|_F | <= |Z - Y|_F. Every result holds for every d,
-   including d = 0. Nothing from the paper is assumed. *)
+   including d = 0. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

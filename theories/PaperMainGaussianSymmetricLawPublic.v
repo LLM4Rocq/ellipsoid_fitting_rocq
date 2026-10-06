@@ -1,9 +1,9 @@
-(* The isotropic symmetric Gaussian on the public matrices 'M[R]_(S n).
+(* The isotropic symmetric Gaussian on the matrices 'M[R]_(S n).
    paper_main_public_symmetric_gaussian n xs is the transport, by
    paper_main_matrix_to_public, of the internal Z(xs) of
-   PaperMainGaussianSymmetricLaw. The public feature row of
+   PaperMainGaussianSymmetricLaw. The feature row of
    PaperMainGaussianPublicFeature is goe_scale n *: Zp(xs), with
-   goe_scale n = sqrt (2 / (n+1)). On the public side: Zp(xs) is symmetric;
+   goe_scale n = sqrt (2 / (n+1)). In 'M[R]_(S n): Zp(xs) is symmetric;
    its pairings with the transported orthonormal basis are the coordinates
    xs_k; its Frobenius pairings and norm are those of the coordinate lists;
    Zp(-xs) = -Zp(xs); and the Frobenius distance of two values is the
@@ -12,8 +12,7 @@
    E (Tr Zp)^2 = n+1 hold with their domains, and also as integrals for
    gaussian_product_law D. A test Phi that is L-Lipschitz for the Frobenius
    distance on symmetric matrices is integrable for that law, its mean is
-   the iterated mean, and E Phi(-Zp) = E Phi(Zp). No Gaussian symmetry,
-   moment or normalization is assumed. *)
+   the iterated mean, and E Phi(-Zp) = E Phi(Zp). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -77,7 +76,7 @@ rewrite /paper_main_trace /matrix_trace paper_main_matrix_coordinate_sum.
 by apply: eq_bigr => i _; rewrite paper_main_matrix_to_public_entry.
 Qed.
 
-(* The conversion from the public feature row. *)
+(* The conversion from the feature row. *)
 
 Theorem paper_main_public_symmetric_feature_conversion n xs :
   paper_main_public_gaussian_row n 0 xs =
@@ -346,7 +345,7 @@ exact: (paper_main_public_symmetric_gaussian_sign_symmetry n Phi _ 2
   (paper_main_gaussian_lipschitz_polynomial_bound _ _ L HL HLip)).
 Qed.
 
-(* Transport to the public law gaussian_product_law D. *)
+(* Transport to the law gaussian_product_law D. *)
 
 Theorem paper_main_public_symmetric_gaussian_law_moments n :
   (gaussian_product_law (paper_main_symmetric_dimension n)).-integrable setT

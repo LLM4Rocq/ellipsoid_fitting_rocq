@@ -1,12 +1,11 @@
-(* CONDITIONAL lifting of a one-dimensional Gaussian shift-derivative
+(* Conditional lifting of a one-dimensional Gaussian shift-derivative
    formula to the coordinate derivatives of the Gaussian smoothing.
 
    Every theorem here that concludes a derivative takes the one-dimensional
    statement paper_main_gaussian_shift_derivative_interface eps as an
-   explicit premise. No axiom or global hypothesis is introduced; the
-   premise is to be discharged by the master's affine-substitution and
-   weighted-density derivative work. Until then these results are
-   conditional.
+   explicit premise. paper_main_gaussian_shift_derivative_proved of
+   PaperMainGaussianAffineIntegralSmoothing proves it for every eps > 0, by
+   an affine substitution and the derivative of the weighted density.
 
    Route: the iterated Gaussian expectation is invariant under moving the
    first coordinate to position a (adjacent swaps), so the smoothing in
@@ -201,7 +200,7 @@ rewrite <- (pow2_abs (y - y')).
 apply sqrt_pow2; apply Rabs_pos.
 Qed.
 
-(* CONDITIONAL on the one-dimensional interface: the first candidate is the
+(* Conditional on the one-dimensional interface: the first candidate is the
    actual coordinate derivative of the smoothing. *)
 Theorem paper_main_gaussian_smoothing_first_derivative_conditional n K L eps G a :
   paper_main_gaussian_shift_derivative_interface eps ->
@@ -620,7 +619,7 @@ rewrite (replace_coordinate_self b xs) in Hsh.
 rewrite Hsh; ring.
 Qed.
 
-(* CONDITIONAL on the one-dimensional interface: the second candidate is the
+(* Conditional on the one-dimensional interface: the second candidate is the
    coordinate-b derivative of the first candidate in coordinate a. *)
 Theorem paper_main_gaussian_smoothing_second_derivative_conditional n K L eps G a b :
   paper_main_gaussian_shift_derivative_interface eps ->
@@ -672,7 +671,7 @@ destruct (Nat.eq_dec a b) as [Hab|Hab].
     apply is_derive_scal; exact Hd1.
 Qed.
 
-(* CONDITIONAL assembly: given the one-dimensional interface, the Gaussian
+(* Conditional assembly: given the one-dimensional interface, the Gaussian
    smoothing of a bounded Euclidean-Lipschitz test is a bounded C2 smooth
    test in the sense of paper_main_gaussian_smooth_test, with an explicit
    bound, and its squared gradient norm is at most L^2. These are exactly

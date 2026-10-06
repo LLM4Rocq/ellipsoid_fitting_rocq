@@ -12,15 +12,17 @@
    1. The loss array is the finite sum of the losses of its rows.
    2. Both row losses are continuous with values in [0, 1], so Z_data and
       Z_goe are regular with values in [0, 1].
-   3. For symmetric B the GOE loading reads the A24 bulk value:
+   3. For symmetric B the GOE loading reads the bulk value of
+      PaperMainHybridResidual:
       linear_form D (goe_loading mi B) z = sqrt (mi + 1) <G_i, B> when z is
       row i of the bulk array.
-   4. The row layout and the head-prefix/bulk-suffix layout of A24 differ by
-      a coordinate permutation. Its tuple map is measurable and keeps the
-      product law (PaperMainGaussianPermutationLaw), so every event of the
-      split layout has the same probability in the row layout.
+   4. The row layout and the head-prefix/bulk-suffix layout of
+      PaperMainHybridAssembly differ by a coordinate permutation. Its tuple
+      map is measurable and keeps the product law
+      (PaperMainGaussianPermutationLaw), so every event of the split layout
+      has the same probability in the row layout.
    5. On a hybrid row-layout tuple, the loss array of state j is N times the
-      A24 hybrid risk of the residual at (H_j, b_j, B_j). r = 0 is included. *)
+      hybrid risk of the residual at (H_j, b_j, B_j). r = 0 is included. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix finset.
@@ -188,7 +190,7 @@ move=> HN HI Hb Hxs; apply: paper_main_loss_normalized_array_bounds => //.
 by move=> i j ys _ _ _; exact: paper_main_hybrid_finite_goe_loss_bounds.
 Qed.
 
-(* 3. The GOE loading reads the A24 bulk value. *)
+(* 3. The GOE loading reads the bulk value of PaperMainHybridResidual. *)
 
 Lemma paper_main_hybrid_finite_goe_bulk N mi
     (x : (N * paper_main_symmetric_dimension mi).-tuple (measurableTypeR R))
@@ -453,7 +455,7 @@ by rewrite List.nth_skipn plusE.
 Qed.
 
 (* 5. On a hybrid row-layout tuple, the loss array of state j is N times
-   the A24 hybrid risk of the residual at (H_j, b_j, B_j). *)
+   the hybrid risk of the residual at (H_j, b_j, B_j). *)
 
 Theorem paper_main_hybrid_finite_goe_array N r mi Hs bs Bs
     (x : (N * (r + paper_main_symmetric_dimension mi)).-tuple (measurableTypeR R)) (j : nat) :

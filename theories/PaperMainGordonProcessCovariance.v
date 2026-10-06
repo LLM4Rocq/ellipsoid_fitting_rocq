@@ -27,7 +27,7 @@ Lemma paper_main_gordon_row_major_mod i j M :
 Proof.
 intros Hj.
 rewrite (Nat.add_comm (i * M) j).
-rewrite Nat.mod_add by lia.
+rewrite Nat.Div0.mod_add.
 apply Nat.mod_small; exact Hj.
 Qed.
 

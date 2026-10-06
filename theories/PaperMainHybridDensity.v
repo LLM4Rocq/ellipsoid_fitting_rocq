@@ -117,7 +117,7 @@ Proof.
 move/ssrnat.leP => Hd.
 rewrite paper_main_symmetric_dimension_formula.
 have H2 : (2 * (S mi * S (S mi) / 2) <= S mi * S (S mi))%coq_nat.
-  by apply: Nat.mul_div_le.
+  by apply: Nat.Div0.mul_div_le.
 have H3 := le_INR _ _ H2.
 rewrite !mult_INR !S_INR in H3.
 have Hm : INR mi + 1 <= INR d.

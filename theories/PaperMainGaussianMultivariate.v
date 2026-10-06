@@ -1,5 +1,4 @@
-(* Internal certificates for polynomial functions on finite real tuples.
-   No certificate or probability fact is assumed by a public statement. *)
+(* Internal certificates for polynomial functions on finite real tuples. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum poly matrix.

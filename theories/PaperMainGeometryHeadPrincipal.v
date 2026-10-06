@@ -11,7 +11,7 @@
    PaperMainGeometryHeadCoefficients this gives the exact correction, its
    bounds and the normalized support transfer for every head at once. The
    lower edge of the full Gram matrix and the residual bounds are
-   hypotheses here. Nothing from the paper is assumed. *)
+   hypotheses here. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

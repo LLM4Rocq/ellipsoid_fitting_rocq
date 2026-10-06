@@ -2,17 +2,14 @@
    d > 0, the fit event of (P) and the balanced positive definite event of
    cor:alternative are mutually exclusive, as in the exclusion half of
    lem:homogeneous (ii) (paper line 700), with no spanning hypothesis; and
-   the honest degenerate cases: at d = 0 both events hold, and at n = 0
-   with d > 0 the fit event holds and the balanced event fails.
+   the degenerate cases: at d = 0 both events hold, and at n = 0 with
+   d > 0 the fit event holds and the balanced event fails.
 
    The argument: if S >= 0 fits, x_i^T S x_i = d for every i, and M = sum_i
    y_i x_i x_i^T > 0 with sum_i y_i = 0, then <S, M> = sum_i y_i x_i^T S x_i
    = d sum_i y_i = 0, while <M, S> > 0 for S nonzero (part 2). S is nonzero
    because x_0^T S x_0 = d > 0 when n > 0, and when n = 0 the matrix M is
-   0 and is not positive definite in dimension d > 0.
-
-   Internal proof workstream (analysis/reports/PROGRESS-main-geometry.md);
-   not part of any contract. No Axiom, Parameter or Admitted. *)
+   0 and is not positive definite in dimension d > 0. *)
 
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
@@ -74,7 +71,7 @@ have := paper_main_pairing_pd_psd_gt0 _ _ _ HM HS S0.
 by rewrite paper_main_pairingC Hpair ltxx.
 Qed.
 
-(* The degenerate cases, stated honestly. *)
+(* The degenerate cases. *)
 
 Lemma paper_main_balanced_event_dim0 n (x : paper_main_sample n 0) :
   paper_main_balanced_pd_event n 0 x.

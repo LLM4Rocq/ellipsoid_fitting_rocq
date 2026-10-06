@@ -1,7 +1,7 @@
 (* The joint residual bound for the approximate cone selector, with no
    measurable-selector premise. Let D = paper_main_symmetric_dimension n,
-   z a D-tuple of Gaussian coordinates with public symmetric Gaussian matrix
-   Z(z), and x an N-point data sample of R^(S n) under the joint law
+   z a D-tuple of Gaussian coordinates with symmetric Gaussian matrix Z(z),
+   and x an N-point data sample of R^(S n) under the joint law
    gaussian_product_law (D + N (S n)). For 1 <= kappa, eps > 0 and r > 0, the
    selector P(z) of PaperMainConeApproxSelector has measurable entries, lies
    in paper_main_head_cone_sphere kappa, satisfies

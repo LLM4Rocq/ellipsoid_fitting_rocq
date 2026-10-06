@@ -1,7 +1,6 @@
 (* The shifted positive part as a bounded-condition candidate: the
    deterministic step of manuscript lem:widthcone (width of the
-   bounded-condition cone), on the public matrices, without semicircle
-   asymptotics.
+   bounded-condition cone), without semicircle asymptotics.
 
    For symmetric Z with P = paper_main_psd_projection Z, d > 0 and t > 0,
    put Q = P + t I and S = Q / |Q|_F (paper_main_cone_shift Z t). Then S is
@@ -16,8 +15,7 @@
    same bound (paper_main_cone_shift_cone_support). For b = C sqrt d and
    t = s sqrt d: kappa = (C + s) / s and loss s d + |Tr Z| / sqrt d
    (paper_main_cone_shift_scaled). The bound P <= b I is discharged from an
-   operator bound on Z in PaperMainConeConditionOperator. Nothing from the
-   paper is assumed. *)
+   operator bound on Z in PaperMainConeConditionOperator. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

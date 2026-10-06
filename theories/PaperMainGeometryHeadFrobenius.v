@@ -1,6 +1,6 @@
-(* The Frobenius pairing and norm of the public matrices, for the head
-   correction of the satisfiable phase (manuscript lem:head-correction-bounds,
-   lines 971-1061).
+(* The Frobenius pairing and norm of matrices, for the head correction of
+   the satisfiable phase (manuscript lem:head-correction-bounds, lines
+   971-1061).
 
    paper_main_pairing S M is sum_ij S_ij M_ij (PaperMainGeometryPsd) and
    paper_main_frobenius S is the square root of paper_main_pairing S S
@@ -8,7 +8,7 @@
    pairing, the Cauchy-Schwarz inequality <S, M>^2 <= <S, S> <M, M>, the bound
    |<S, M>| <= |S|_F |M|_F, the homogeneity of the norm and the two triangle
    inequalities. These finite-dimensional facts are used by
-   PaperMainGeometryHeadCorrection. Nothing from the paper is assumed. *)
+   PaperMainGeometryHeadCorrection. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

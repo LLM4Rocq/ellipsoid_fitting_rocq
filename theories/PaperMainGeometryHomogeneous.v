@@ -16,10 +16,8 @@
      S >= 0 in the kernel and a balanced positive definite combination
      cannot coexist, since <S, sum_i y_i x_i x_i^T> = c sum_i y_i = 0 while
      the pairing is positive (part 2). No spanning is used here.
-   - (ii), existence half: not in this module; see the progress report.
-
-   Internal proof workstream (analysis/reports/PROGRESS-main-geometry.md);
-   not part of any contract. No Axiom, Parameter or Admitted. *)
+   - (ii), existence half: not in this module; see
+     PaperMainGeometrySeparation (part 6). *)
 
 From Stdlib Require Import Reals List.
 From HB Require Import structures.

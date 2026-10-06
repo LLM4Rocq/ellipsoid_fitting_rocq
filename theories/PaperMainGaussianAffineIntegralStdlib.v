@@ -1,5 +1,5 @@
-(* Affine substitution in the public whole-line integral interface, followed
-   by the Gaussian inverse-density formula. Arithmetic is Stdlib R. *)
+(* Affine substitution in the whole-line integral interface, followed by the
+   Gaussian inverse-density formula. Arithmetic is Stdlib R. *)
 From Stdlib Require Import Reals Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import AnalysisBridge2 AnalysisIntegralDefinitions
   GaussianDefinitions GaussianKernel GaussianFubiniLebesgue

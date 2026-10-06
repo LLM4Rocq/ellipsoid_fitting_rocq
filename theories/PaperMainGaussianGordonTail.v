@@ -1,5 +1,5 @@
-(* Gordon lower tails for the actual set-index min-max under the public
-   Gaussian matrix law. The exact Gaussian norm mean is preserved. *)
+(* Gordon lower tails for the actual set-index min-max under the Gaussian
+   matrix law. The exact Gaussian norm mean is preserved. *)
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval.

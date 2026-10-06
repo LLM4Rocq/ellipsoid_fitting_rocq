@@ -1,16 +1,16 @@
-(* Residual tails for one Gaussian data point. For a list xs with public
-   column x = paper_main_symmetric_column xs, the feature is
+(* Residual tails for one Gaussian data point. For a list xs with column
+   x = paper_main_symmetric_column xs, the feature is
      W(xs) = (x x^T - I) / sqrt d   (paper_main_gaussian_residual_feature),
    the one-point form of paper_main_head_feature. Then
      <W(xs), P> = (x^T P x - trace P) / sqrt d,
    so for d = S n the residual event {R <= |<W, P>|} is the quadratic event
    {R sqrt d <= |x^T P x - trace P|}. For symmetric P with
-   paper_main_pairing P P = 1, 0 <= kappa and the public bilinear bound
+   paper_main_pairing P P = 1, 0 <= kappa and the bilinear bound
    paper_main_cone_opnorm_le P (kappa / sqrt d), the Gaussian Hanson-Wright
    tail of PaperMainGaussianQuadraticTail with u = R sqrt d and
    b = kappa / sqrt d gives, under gaussian_product_law d and for R > 0,
      P[R <= |<W, P>|] <= 2 exp (- d R^2 / (4 + 4 kappa R)).
-   The events are measurable. No Hanson-Wright law or row law is assumed. *)
+   The events are measurable. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval matrix.

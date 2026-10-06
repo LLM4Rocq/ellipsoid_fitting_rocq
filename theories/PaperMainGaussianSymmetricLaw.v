@@ -1,14 +1,13 @@
 (* The isotropic standard Gaussian on the symmetric (n+1) x (n+1)
    matrices. On D = (n+1)(n+2)/2 standard Gaussian coordinates xs,
-   Z(xs) is the matrix whose coordinates in the checked orthonormal
-   symmetric basis goe_basis are exactly xs. It is the existing feature row
-   rescaled: paper_main_gaussian_feature_row n 0 xs = goe_scale n * Z(xs)
-   with goe_scale n = sqrt (2 / (n+1)). This module proves the Frobenius
+   Z(xs) is the matrix whose coordinates in the orthonormal symmetric basis
+   goe_basis are exactly xs. It is the existing feature row rescaled:
+   paper_main_gaussian_feature_row n 0 xs = goe_scale n * Z(xs) with
+   goe_scale n = sqrt (2 / (n+1)). This module proves the Frobenius
    identity ||Z||_F^2 = sum_k xs_k^2, the Frobenius isometry and the
    negation identity Z(-xs) = -Z(xs); the moments E||Z||_F^2 = D,
    E Tr Z = 0 and E (Tr Z)^2 = n+1 with their domains; and the sign symmetry
-   E Phi(-Z) = E Phi(Z) for continuous, polynomially bounded Phi o Z. No
-   Gaussian symmetry, moment or normalization is assumed. *)
+   E Phi(-Z) = E Phi(Z) for continuous, polynomially bounded Phi o Z. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import ssralg ssrnum Rstruct normedtype.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums

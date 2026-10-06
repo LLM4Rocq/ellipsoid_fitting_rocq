@@ -1,4 +1,4 @@
-(* Weighted centered Gaussian squares under the public product law
+(* Weighted centered Gaussian squares under the product law
    gaussian_product_law d. Q d a xs = sum_(i < d) a_i (x_i^2 - 1) is
    continuous, so its level sets are measurable. exp(t Q) is not
    polynomially bounded, so its law integral comes from the product
@@ -10,8 +10,7 @@
      P[u <= Q] <= exp(-u^2/(4v + 4Lu)),  P[Q <= -u] <= exp(-u^2/(4v + 4Lu)),
      P[u <= Q or Q <= -u] <= 2 exp(-u^2/(4v + 4Lu)),
    whenever v + L u > 0. When every coefficient vanishes, Q = 0 and these
-   events are empty. No independence, MGF integrability, rotation law or
-   spectral representation is assumed. *)
+   events are empty. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval.

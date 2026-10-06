@@ -1,19 +1,20 @@
 (* A Gaussian Hanson-Wright tail for a real symmetric matrix under the
-   public product law gaussian_product_law d. For B : 'M[R]_d symmetric and
-   a sample x, the centered statistic is
+   product law gaussian_product_law d. For B : 'M[R]_d symmetric and a
+   sample x, the centered statistic is
      paper_main_gaussian_quadratic_statistic B (tval x)
        = x^T B x - trace B,   x = paper_main_symmetric_column (tval x),
-   the public column of the d coordinates. It is continuous, so its level
-   sets are measurable. The real orthogonal diagonalization and the bridge
-   of PaperMainSymmetricDiagonalizationBridge rewrite it, pointwise, as the
-   A13 weighted square of an image with orthonormal rows, with
-   sum_i a_i^2 = paper_main_pairing B B and |a_i| <= b under the public
-   bilinear bound paper_main_cone_opnorm_le B b. The A13 tail then gives,
-   for 0 <= b, 0 < u and 0 < |B|_F^2 + b u,
+   the column of the d coordinates. It is continuous, so its level sets are
+   measurable. The real orthogonal diagonalization and the bridge of
+   PaperMainSymmetricDiagonalizationBridge rewrite it, pointwise, as the
+   weighted square of an image with orthonormal rows, with
+   sum_i a_i^2 = paper_main_pairing B B and |a_i| <= b under the bilinear
+   bound paper_main_cone_opnorm_le B b. The two-sided tail of
+   PaperMainGaussianOrthogonalTail then gives, for 0 <= b, 0 < u and
+   0 < |B|_F^2 + b u,
      P[u <= |x^T B x - trace B|] <= 2 exp (- u^2 / (4 |B|_F^2 + 4 b u)),
    where |B|_F^2 = paper_main_pairing B B. For B <> 0 the last hypothesis
    always holds. For B = 0 the event is empty when u > 0. This is the
-   Gaussian Hanson-Wright helper, not a main phase theorem. *)
+   Gaussian Hanson-Wright helper. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval matrix.

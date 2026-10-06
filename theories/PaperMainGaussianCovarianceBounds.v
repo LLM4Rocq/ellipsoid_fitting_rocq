@@ -1,6 +1,6 @@
 (* Quantitative consequences of the proved Gaussian covariance interpolation.
-   The smoothness and growth hypotheses are analytic obligations, not axioms.
-   This module does not yet prove Gaussian Lipschitz concentration. *)
+   The smoothness and growth hypotheses are analytic obligations.
+   This module does not prove Gaussian Lipschitz concentration. *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions
   GaussianProductDefinitions GaussianProduct GaussianFiniteSums

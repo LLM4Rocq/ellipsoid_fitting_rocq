@@ -1,4 +1,4 @@
-(* Reuse the checked quadratic-feature moments for nat-indexed projections. *)
+(* Reuse the quadratic-feature moments for nat-indexed projections. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums

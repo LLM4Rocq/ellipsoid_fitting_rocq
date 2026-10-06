@@ -1,5 +1,5 @@
 (* Gaussian expectations of smooth tests are invariant under loadings
-   with orthonormal rows. The equal covariance identity is the checked
+   with orthonormal rows. The equal covariance identity is
    paper_main_covariance_equal_expectation, obtained from
    gaussian_covariance_comparison in both directions with zero covariance
    pairing, and its identity specialization is

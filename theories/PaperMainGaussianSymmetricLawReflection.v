@@ -1,10 +1,10 @@
 (* Sign symmetry of the standard Gaussian. On a symmetric segment, the
    reflection substitution of MathComp (integration_by_substitution_oppr)
    and the evenness of the kernel give the reflected cutoff integral; the
-   checked cutoff limits then give E g(-z) = E g(z) for continuous g whose
+   cutoff limits then give E g(-z) = E g(z) for continuous g whose
    Gaussian integrals exist. The iterated form E_d[F(-xs)] = E_d[F(xs)]
    for continuous, polynomially bounded F follows by induction through the
-   last marginal. No symmetry of the law is assumed. *)
+   last marginal. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.

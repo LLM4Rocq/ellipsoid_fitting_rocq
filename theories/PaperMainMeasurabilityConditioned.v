@@ -1,8 +1,5 @@
 (* Measurability of paper_main_conditioned_event, the first conjunct of the
    second clause of paper_main_results, for arbitrary real bounds lm and lp.
-   Internal proof module of the MathComp-Analysis port, written on
-   1 October 2026 by a Claude Code session (Fable 5.1). Nothing here is
-   reviewed or accepted; the statement and the glossary are not edited.
 
    The route is that of PaperMainMeasurabilityFit: the event is the union
    over m of the levels bigcap_k bigcup_q {x | index m k q /\ residual

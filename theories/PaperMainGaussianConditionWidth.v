@@ -1,4 +1,4 @@
-(* Quantitative bounded-condition support estimates for the actual public
+(* Quantitative bounded-condition support estimates for the actual
    isotropic symmetric Gaussian. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.

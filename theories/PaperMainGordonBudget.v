@@ -67,7 +67,7 @@ revert K; induction d as [|d IH]; intros K.
     pose proof (Nat.pow_nonzero 2 (S d) ltac:(lia)); lia.
   + change (length (map (cons 0) (paper_main_gordon_budget_grid d (S K)) ++
       map paper_main_gordon_raise_head (paper_main_gordon_budget_grid (S d) K)) <= 2^(S d+S K)).
-    rewrite app_length, !map_length.
+    rewrite length_app, !length_map.
     pose proof (IH (S K)) as HD.
     replace (d + S K) with (S (d+K)) in HD by lia.
     replace (S d+K) with (S (d+K)) in IK by lia.

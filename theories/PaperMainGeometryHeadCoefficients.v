@@ -12,7 +12,7 @@
    Gram bound. With |r|^2 <= mu eta^2 and 0 <= eta < 1, the normalization
    and support transfer of PaperMainGeometryHeadCorrection apply to
    a = Q^-1 r. The lower Gram edge and the residual bound are hypotheses
-   here. Nothing from the paper is assumed. *)
+   here. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix mxalgebra.

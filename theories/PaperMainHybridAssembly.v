@@ -3,14 +3,15 @@
    Hybrid sample: head coordinates h (N rows of dimension r) and bulk
    coordinates x (N rows of D = paper_main_symmetric_dimension mi GOE
    coordinates), with the product of the two Gaussian laws.
-   1. Operator event in the N x D layout: the public GOE feature event at
+   1. Operator event in the N x D layout: the GOE feature event at
       t = N / 2 and duality give ||R(B)|| <= C(rho) sqrt N ||B||_F off an
       event of probability at most 2 exp (- N / 2), when
       rho (mi + 1)^2 <= N (the GaussianForward threshold arithmetic, with
       the threshold monotone in the column count).
-   2. The exceptional event is the union of the A22 head event (r >= 1;
-      none for r = 0), the A23 bulk event for the actual head matrix, and
-      the operator event. Off it the deterministic risk gap of
+   2. The exceptional event is the union of the head small-ball event of
+      PaperMainHeadSmallBallUniform (r >= 1; none for r = 0), the bulk
+      event of PaperMainHybridBulk for the actual head matrix, and the
+      operator event. Off it the deterministic risk gap of
       PaperMainHybridLoss holds for every symmetric H, PSD B with
       ||H||_F^2 + ||B||_F^2 >= 1/4 and every b. The union has probability at
       most exp (- c d^2) for d >= d0; e, c and d0 depend only on gamma. *)
@@ -97,8 +98,9 @@ apply: Rle_trans Hnu _.
 by apply: Rmult_le_compat_r.
 Qed.
 
-(* 2. The head event: the A22 event for r >= 1 and the empty event for
-   r = 0, where the 0 x 0 head bound is deterministic. *)
+(* 2. The head event: the small-ball event of PaperMainHeadSmallBallUniform
+   for r >= 1 and the empty event for r = 0, where the 0 x 0 head bound is
+   deterministic. *)
 
 Lemma paper_main_hybrid_head_event N r :
   (r = 0%N \/ (306432 * (INR r + 1) ^ 3 <= INR N)%Rcoq) ->

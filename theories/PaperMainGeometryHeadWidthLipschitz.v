@@ -10,7 +10,7 @@
    and for every head section K_kappa \cap ker W_J \cap S_F that is
    nonempty, for instance one that contains the normalized head correction.
    No maximizer, measurable or not, is used. Gaussian integration and
-   concentration are not done here. Nothing from the paper is assumed. *)
+   concentration are not done here. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

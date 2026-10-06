@@ -1,5 +1,5 @@
 (* Deterministic existence of a cone-kernel point from positive dual
-   support. For d > 0, kappa >= 1 and public matrices W_i (i < m): if for
+   support. For d > 0, kappa >= 1 and matrices W_i (i < m): if for
    every nonzero coefficient vector y some P in the actual cone sphere
    paper_main_head_cone_sphere kappa has sum_i y_i <W_i, P> > 0, then some
    P in that cone sphere has <W_i, P> = 0 for every i.
@@ -15,8 +15,7 @@
    S_0 / |S_0|_F is the kernel point. The minimization is on the convex
    slice, never on the sphere. With m = 0 the hypothesis is vacuous and the
    conclusion is the nonemptiness of the cone sphere. A unit-y form and a
-   positive head-support margin form follow. No separation theorem or
-   existence conclusion is assumed. *)
+   positive head-support margin form follow. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

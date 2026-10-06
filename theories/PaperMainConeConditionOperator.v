@@ -17,8 +17,7 @@
    paper_main_cone_shift_opnorm and paper_main_cone_shift_opnorm_scaled
    combine this with the shifted candidate: under the operator bound the
    candidate lies in K_kappa \cap S_F with kappa = (b + t) / t, and the
-   support bound holds. The operator-norm probability is not proved here.
-   Nothing from the paper is assumed. *)
+   support bound holds. The operator-norm probability is not proved here. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

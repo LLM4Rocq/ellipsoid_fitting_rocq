@@ -4,16 +4,17 @@
    PaperMainHybridFiniteArray:
    1. One row (head g, bulk y or z): for every f, the expected soft minima
       of f j + data loss and of f j + hybrid loss differ by at most
-      2 eta + C eps S. M99 integrates the head block g of the row. For fixed g
-      the offsets a_j = g^T H_j g - Tr H_j - b_j are fixed numbers, so the
-      checked one-row comparison applies with T j = B_j. C depends only on
-      beta and eta.
+      2 eta + C eps S. paper_main_loss_conditional_suffix_comparison
+      integrates the head block g of the row. For fixed g the offsets
+      a_j = g^T H_j g - Tr H_j - b_j are fixed numbers, so the one-row
+      comparison applies with T j = B_j. C depends only on beta and eta.
    2. Repeated row replacement (PaperMainLossReplacement) and the entropy
       shift give |E Z_data - E Z_goe| <= 2 eta + C eps S for every N >= 1,
       all head and bulk dimensions, every finite prior and all offsets.
-   3. Off the A24 joint event, moved to the row layout by the permutation
-      law, every admissible state has hybrid risk at least e, so Z_goe >= e.
-      M109 gives E Z_goe >= e (1 - exp (- c d^2)).
+   3. Off the joint event of PaperMainHybridAssembly, moved to the row
+      layout by the permutation law, every admissible state has hybrid risk
+      at least e, so Z_goe >= e. paper_main_loss_expected_gap gives
+      E Z_goe >= e (1 - exp (- c d^2)).
    4. Hence E Z_data >= e (1 - exp (- c d^2)) - (2 eta + C eps S). *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From HB Require Import structures.
@@ -153,8 +154,9 @@ have key : forall A B L Bd : R, (Rabs (A - B) <= INR N * Bd)%Rcoq ->
 exact: key.
 Qed.
 
-(* 3. The hybrid mean from the A24 joint event and M109. The density
-   tolerance is shrunk to at most gamma / 2, so that N >= 1. *)
+(* 3. The hybrid mean from the joint event of PaperMainHybridAssembly and
+   paper_main_loss_expected_gap. The density tolerance is shrunk to at most
+   gamma / 2, so that N >= 1. *)
 
 Lemma paper_main_hybrid_finite_density_pos (gamma kappa : R) (d N : nat) :
   (0 < gamma)%Rcoq -> (kappa <= gamma / 2)%Rcoq -> (0 < d)%N ->

@@ -25,8 +25,7 @@
    paper_main_head_correction_close assembles 1-3 into the deterministic
    form of eq:PJ-close and eq:width-transfer. The data event, the bounds on
    a_J and the cone-width asymptotics are not proved here; they are
-   hypotheses (the norm bound eta and the Loewner slack delta). Nothing from
-   the paper is assumed. *)
+   hypotheses (the norm bound eta and the Loewner slack delta). *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

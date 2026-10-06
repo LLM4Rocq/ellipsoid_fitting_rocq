@@ -73,6 +73,26 @@ move=> /(congr1 (fun k => enum_val (cast_ord (esym (mxvec_cast m n)) k))).
 by rewrite /mxvec_index !cast_ordK !enum_rankK => -[-> ->].
 Qed.
 
+(* mxvec_index is the row-major position. *)
+Lemma mxvec_index_val (i : 'I_m) (j : 'I_n) :
+  (mxvec_index i j : nat) = (i * n + j)%N.
+Proof.
+have ixp (T1 T2 : eqType) (s1 : seq T1) (s2 : seq T2) x1 x2 :
+    x1 \in s1 -> x2 \in s2 ->
+    index (x1, x2) [seq (a, b) | a <- s1, b <- s2] =
+    (index x1 s1 * size s2 + index x2 s2)%N.
+  move=> + x2s; elim: s1 => //= a s1 IH.
+  rewrite inE index_cat; case: (eqVneq a x1) => [->|ax1] /=.
+    have inj : injective (pair x1 : T2 -> T1 * T2) by move=> u v [].
+    by move=> _; rewrite mem_map// x2s index_map// mul0n add0n.
+  move=> x1s; have -> : ((x1, x2) \in [seq (a, b) | b <- s2]) = false.
+    by apply/negbTE/mapP => -[b _ [ax]]; move: ax1; rewrite ax eqxx.
+  by rewrite size_map IH// mulSn addnA.
+rewrite /mxvec_index /= /enum_rank enum_rank_in.unlock val_insubd ifT.
+  by rewrite cardE index_mem mem_enum.
+by rewrite enumT unlock /= /prod_enum ixp ?mem_enum// !index_enum_ord size_enum_ord.
+Qed.
+
 Lemma sum_mxvec_index (V : nmodType) (f : 'I_(m * n) -> V) :
   \sum_k f k = \sum_i \sum_j f (mxvec_index i j).
 Proof.

@@ -1,4 +1,4 @@
-(* Gaussian concentration for bounded smooth tests under the exact public
+(* Gaussian concentration for bounded smooth tests under the exact
    product law. If the squared gradient norm of a bounded C2 test f is at
    most L^2 everywhere, then f exceeds its mean by u, or falls below it by
    u, with probability at most exp(-u^2/(2 L^2)) each, by Chernoff's
