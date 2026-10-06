@@ -1,4 +1,7 @@
-(* The actual isotropic PSD sphere width has normalized limit 1/2. *)
+(* The dimension D = paper_main_symmetric_dimension n of the symmetric
+   (n+1) x (n+1) matrices, as a real number: INR D = (n+1) (n+2) / 2
+   (paper_main_symmetric_dimension_real), from the count of the index pairs
+   of Goe.IndexPairs. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat.
 From EllipsoidFitting Require Import Goe.Definitions Goe.IndexPairs

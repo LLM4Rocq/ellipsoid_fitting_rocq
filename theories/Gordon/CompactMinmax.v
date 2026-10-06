@@ -1,11 +1,10 @@
-(* The genuine set-index Gordon min-max. For a matrix A given by its
-   N*M list coordinates and a nonempty set T of unit vectors of R^M,
-   minmax(A) is the infimum over the unit sphere of R^N of the supremum
-   over T of z^T A v. Both extrema are genuine least upper bounds chosen by
-   epsilon; their existence is proved by completeness from the Frobenius
-   bound, and no extremum is assumed attained. For N > 0, minmax is
-   1-Lipschitz in A for the Euclidean (Frobenius) distance, jointly
-   continuous and Gaussian integrable. *)
+(* The bilinear form of a matrix at unit vectors is bounded by its
+   Frobenius norm. For an N-by-M matrix A given by its N*M row-major list
+   coordinates xs (paper_main_gordon_matrix_value) and unit vectors u of
+   R^N and v of R^M, |u^T A v| <= paper_main_gaussian_norm xs, the
+   Euclidean norm of xs (paper_main_gordon_unit_matrix_value_bound), from
+   the ball bound paper_main_gordon_bilinear_ball_bound and the Frobenius
+   operator bound paper_main_gordon_operator_frobenius. *)
 From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
   Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
