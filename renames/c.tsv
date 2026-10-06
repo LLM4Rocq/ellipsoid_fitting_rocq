@@ -189,5 +189,5 @@ PaperMainTranslatedLoss	Loss/Translated
 PaperMainUnsatFiniteTail	Unsat/FiniteTail
 PaperMainUnsatLimit	Unsat/Limit
 PaperMainUnsatOrientation	Unsat/Orientation
-PaperMainUnsatParameters	Unsat/Parameters
+PaperMainUnsatParameters	Unsat/SupercriticalParameters
 PaperMainUnsatRates	Unsat/Rates

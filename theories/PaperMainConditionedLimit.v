@@ -4,9 +4,9 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral probability.
-From EllipsoidFitting Require Import GaussianProbabilityProductContinuity PaperMainDefinitions
- PaperMainFixedDensity PaperMainMeasurabilityConditioned
- PaperMainFixedLowerProbability PaperMainConditionedFromLower.
+From EllipsoidFitting Require Import Analysis.ContinuousTupleMeasurability
+  PaperMainDefinitions Fixed.Density Measurability.Conditioned
+  Fixed.LowerProbability Conditioned.FromLower.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

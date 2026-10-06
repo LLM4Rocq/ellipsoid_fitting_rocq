@@ -1,0 +1,73 @@
+(* The empirical loss (1/N) sum_(i < N) l(u_i) of the bounded loss
+   l(t) = 1 - exp(-t^2) of Loss.Translated, and its continuity in
+   the Euclidean norm. Deterministic.
+
+   - paper_main_loss_empirical_zero: it vanishes at u = 0.
+   - paper_main_loss_sum_absolute_bound: by Cauchy-Schwarz,
+     sum_i |w_i| <= N L D when sum_i w_i^2 <= N (L D)^2.
+   - paper_main_loss_empirical_lipschitz: since l is 4-Lipschitz
+     (paper_main_loss_lipschitz), if sum_i (u_i - v_i)^2 <= N (L D)^2 then
+     the empirical losses at u and v differ by at most 4 L D. *)
+From Stdlib Require Import Reals List Lia Lra Psatz.
+From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
+  Gordon.Lipschitz Loss.Translated.
+Open Scope R_scope.
+
+Definition paper_main_loss_empirical N u :=
+  /INR N*finite_sum (fun i => paper_main_loss(u i)) (List.seq 0 N).
+
+Lemma paper_main_loss_empirical_zero N u :
+  (forall i, (i<N)%nat -> u i=0) -> paper_main_loss_empirical N u=0.
+Proof.
+intro HU; unfold paper_main_loss_empirical.
+assert (HE : finite_sum (fun i => paper_main_loss(u i)) (List.seq 0 N)=0).
+{ rewrite <-(finite_sum_zero (List.seq 0 N)); apply finite_sum_ext; intros i Hi.
+  apply in_seq in Hi; rewrite (HU i ltac:(lia)); apply paper_main_loss_zero; reflexivity. }
+rewrite HE; ring.
+Qed.
+
+Lemma paper_main_loss_sum_absolute_bound N w L D : 0<=L -> 0<=D ->
+  finite_sum (fun i => w i^2) (List.seq 0 N)<=INR N*(L*D)^2 ->
+  finite_sum (fun i => Rabs(w i)) (List.seq 0 N)<=INR N*L*D.
+Proof.
+intros HL HD HB.
+pose proof(paper_main_gordon_sum_cauchy (fun _ => 1) (fun i => Rabs(w i)) (List.seq 0 N)) as HC.
+cbv beta in HC.
+assert (Hleft : finite_sum (fun i => 1*Rabs(w i)) (List.seq 0 N)=
+  finite_sum (fun i => Rabs(w i)) (List.seq 0 N)).
+{ apply finite_sum_ext; intros; ring. }
+assert (Hone : finite_sum (fun _ => 1^2) (List.seq 0 N)=INR N).
+{ transitivity (finite_sum (fun _ => 1) (List.seq 0 N));
+    [apply finite_sum_ext; intros; ring|rewrite finite_sum_const,List.length_seq; ring]. }
+assert (Hright : finite_sum (fun i => Rabs(w i)^2) (List.seq 0 N)=finite_sum (fun i => w i^2) (List.seq 0 N)).
+{ apply finite_sum_ext; intros i Hi.
+  destruct(Rcase_abs(w i)) as [Hneg|Hpos];
+    [rewrite Rabs_left by exact Hneg|rewrite Rabs_pos_eq by lra]; ring. }
+rewrite Hleft,Hone,Hright in HC.
+pose proof(pos_INR N) as HN.
+pose proof(Rmult_le_compat_l (INR N) _ _ HN HB) as HH.
+assert (HT : 0<=INR N*L*D) by (repeat apply Rmult_le_pos; assumption).
+nra.
+Qed.
+
+Theorem paper_main_loss_empirical_lipschitz N u v L D : (0<N)%nat -> 0<=L -> 0<=D ->
+  finite_sum (fun i => (u i-v i)^2) (List.seq 0 N)<=INR N*(L*D)^2 ->
+  Rabs(paper_main_loss_empirical N u-paper_main_loss_empirical N v)<=4*L*D.
+Proof.
+intros HN HL HD HB; pose proof(paper_main_loss_sum_absolute_bound N (fun i => u i-v i) L D HL HD HB) as HH.
+assert (Hpos : 0<INR N) by (apply lt_0_INR; exact HN).
+assert (HE : finite_sum (fun i => Rabs(paper_main_loss(u i)-paper_main_loss(v i))) (List.seq 0 N)<=
+  4*finite_sum (fun i => Rabs(u i-v i)) (List.seq 0 N)).
+{ rewrite <-finite_sum_scale; apply finite_sum_le; intros; apply paper_main_loss_lipschitz. }
+unfold paper_main_loss_empirical.
+replace (/INR N*finite_sum (fun i => paper_main_loss(u i)) (List.seq 0 N)-
+  /INR N*finite_sum (fun i => paper_main_loss(v i)) (List.seq 0 N)) with
+  (/INR N*(finite_sum (fun i => paper_main_loss(u i)) (List.seq 0 N)-
+  finite_sum (fun i => paper_main_loss(v i)) (List.seq 0 N))) by ring.
+rewrite Rabs_mult, (Rabs_pos_eq (/INR N) ltac:(apply Rlt_le,Rinv_0_lt_compat; exact Hpos)).
+rewrite <-finite_sum_minus.
+pose proof(finite_sum_abs_le (fun i => paper_main_loss(u i)-paper_main_loss(v i)) (List.seq 0 N)) as Habs.
+assert (HB2 : Rabs(finite_sum (fun i => paper_main_loss(u i)-paper_main_loss(v i)) (List.seq 0 N))<=4*(INR N*L*D)) by lra.
+pose proof(Rmult_le_compat_l (/INR N) _ _ ltac:(apply Rlt_le,Rinv_0_lt_compat; exact Hpos) HB2) as HH2.
+replace (/INR N*(4*(INR N*L*D))) with (4*L*D) in HH2 by (field; lra); exact HH2.
+Qed.

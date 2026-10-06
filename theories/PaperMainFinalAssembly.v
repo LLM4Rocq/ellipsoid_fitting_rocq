@@ -7,9 +7,9 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral probability.
-From EllipsoidFitting Require Import PaperMainDefinitions PaperMainAsymptotics
- PaperMainBalancedProbability PaperMainMeasurabilityFit PaperMainMeasurabilityBalanced
- PaperMainUnsatLimit PaperMainBalancedLimit.
+From EllipsoidFitting Require Import PaperMainDefinitions Asymptotics
+  Balanced.Probability Measurability.Fit Measurability.Balanced Unsat.Limit
+  Balanced.Limit.
 Local Open Scope ring_scope.
 
 Theorem paper_main_results_from_conditioned :
