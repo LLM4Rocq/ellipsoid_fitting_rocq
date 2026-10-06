@@ -27,6 +27,8 @@ library/comparison/partial_diff.v
 library/comparison/gauss_shift.v
 library/comparison/gauss_smoothing.v
 library/comparison/gauss_concentration.v
+library/comparison/slepian.v
+library/comparison/gordon.v
 
 theories/AffineGaussianGibbs.v
 theories/AffineGaussianRegular.v
