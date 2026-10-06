@@ -33,29 +33,6 @@ Proof.
 move=> hab; rewrite /oriented_integral; case: Rle_dec => // h'; exfalso; lra.
 Qed.
 
-(* A continuous function is integrable on every closed segment. *)
-Lemma improper_cutoff_continuous_integrable (h : R -> R) a b :
-  (forall x, {for x, continuous h}) ->
-  lebesgue_measure.-integrable `[a, b] (EFin \o h).
-Proof.
-move=> hc; apply: continuous_compact_integrable; first exact: segment_compact.
-exact/continuous_subspaceT.
-Qed.
-
-Lemma continuous_finite_integral_abs_bound f g a b :
-  (forall x, {for x, continuous f}) -> (forall x, {for x, continuous g}) ->
-  (forall x, Rabs (f x) <= g x) -> a <= b ->
-  Rabs (oriented_integral f a b) <= oriented_integral g a b.
-Proof.
-intros HC HG Hbound Hab.
-rewrite !(improper_cutoff_segment _ _ _ Hab).
-have H := fubini_Rintegral_bound `[a, b] f g 1 (measurable_itv _)
-  (improper_cutoff_continuous_integrable f a b HC)
-  (improper_cutoff_continuous_integrable g a b HG)
-  (fun y _ => ltac:(rewrite Rmult_1_l; exact: Hbound)).
-by rewrite Rmult_1_l in H.
-Qed.
-
 (* The integral over the line minus the integral over a measurable set D is
    the integral over the complement of D. *)
 Lemma improper_cutoff_whole_line_split (h : R -> R) (D : set R) :

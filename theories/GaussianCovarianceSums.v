@@ -32,10 +32,6 @@ Lemma finite_sum_scale_r (c : R) (f : nat -> R) I :
   finite_sum (fun i => f i * c) I = finite_sum f I * c.
 Proof. induction I as [|i I IH]; simpl; [ring|rewrite IH; ring]. Qed.
 
-Lemma finite_sum_opp (f : nat -> R) I :
-  finite_sum (fun i => - f i) I = - finite_sum f I.
-Proof. induction I as [|i I IH]; simpl; [ring|rewrite IH; ring]. Qed.
-
 Lemma finite_sum_minus (f g : nat -> R) I :
   finite_sum (fun i => f i - g i) I = finite_sum f I - finite_sum g I.
 Proof. induction I as [|i I IH]; simpl; [ring|rewrite IH; ring]. Qed.

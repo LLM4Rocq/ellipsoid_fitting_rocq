@@ -198,17 +198,6 @@ revert x; induction N as [|N IH]; intros x.
       rewrite (paper_main_data_drop_norm d (Nat.mul N d) x i); exact H.
 Qed.
 
-Lemma paper_main_data_finite_sum d (f : nat -> R) :
-  finite_sum f (List.seq 0 d) = (\sum_(j < d) f j)%R.
-Proof.
-revert f; induction d as [|d IH]; intro f.
-- by rewrite big_ord0.
-- rewrite big_ord_recl /= finite_sum_seq_shift.
-  change (f 0%nat + finite_sum (fun j => f (S j)) (List.seq 0 d) =
-    f 0%nat + (\sum_(j < d) f (S j))%R).
-  rewrite IH; reflexivity.
-Qed.
-
 Theorem paper_main_data_point_norm_square N d i (x : paper_main_sample N d) :
   (paper_main_data_point_norm d i (tval x))^2 =
     (((paper_main_point x i)^T *m paper_main_point x i) 0 0)%R.

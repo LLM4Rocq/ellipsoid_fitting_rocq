@@ -7,16 +7,6 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceSums Pape
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-Lemma paper_main_finite_sum_public N f :
-  finite_sum f (List.seq 0 N) = (\sum_(i < N) f i)%R.
-Proof.
-elim: N f => [|N IH] f; first by rewrite big_ord0.
-rewrite big_ord_recl /=.
-rewrite finite_sum_seq_shift.
-change (f 0%nat + finite_sum (fun i => f (S i)) (List.seq 0 N) = f 0%nat + (\sum_(i < N) f (S i))%R).
-by rewrite IH.
-Qed.
-
 Lemma paper_main_frobenius_nonnegative d (T : 'M[R]_d) :
   0 <= paper_main_frobenius T.
 Proof.

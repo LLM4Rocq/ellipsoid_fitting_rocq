@@ -102,9 +102,3 @@ Proof.
     rewrite E.
     exact (continuous_improper_dominated_absolute_integrable _ g HF HG Hbound HI).
 Qed.
-
-Corollary gaussian_polynomial_integrable (f : R -> R) C p :
-  (forall x : R, {for x, continuous f}) ->
-  (forall x, Rabs (f x) <= C * (1 + Rabs x ^ p)) ->
-  whole_line_integrable (fun x => f x * gaussian_kernel x).
-Proof. intros HC Hb; exact (proj1 (gaussian_polynomial_integrals_exist f C p HC Hb)). Qed.

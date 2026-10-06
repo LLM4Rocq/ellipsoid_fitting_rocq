@@ -17,7 +17,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCoordinateDefinitio
   GaussianCoordinateSteinDomains
   GaussianProbabilityProductDefinitions GaussianProbabilityProductIntegrals
   GaussianProbabilityProductContinuity PaperMainGaussianSmoothCalculus
-  PaperMainGaussianSmoothCovariance PaperMainGaussianSmoothExponential.
+  PaperMainGaussianSmoothCovariance.
 Import GRing.Theory Num.Theory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.

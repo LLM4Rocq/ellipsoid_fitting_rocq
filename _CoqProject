@@ -59,7 +59,6 @@ theories/GaussianBlockPermutation.v
 theories/GaussianCenteredChiSquare.v
 theories/GaussianChiSquare.v
 theories/GaussianCoordinateBasics.v
-theories/GaussianCoordinateBivariate.v
 theories/GaussianCoordinateBoxes.v
 theories/GaussianCoordinateCompactness.v
 theories/GaussianCoordinateCutoff.v
@@ -67,7 +66,6 @@ theories/GaussianCoordinateDefinitions.v
 theories/GaussianCoordinateDerivativeDefinitions.v
 theories/GaussianCoordinateDerivatives.v
 theories/GaussianCoordinateFiniteMarginal.v
-theories/GaussianCoordinateLastStein.v
 theories/GaussianCoordinateMarginals.v
 theories/GaussianCoordinateMove.v
 theories/GaussianCoordinatePermutationDefinitions.v
@@ -82,7 +80,6 @@ theories/GaussianCoordinateTopology.v
 theories/GaussianCoordinateWeightDefinitions.v
 theories/GaussianCoordinateWeights.v
 theories/GaussianCovarianceChainRule.v
-theories/GaussianCovarianceComparison.v
 theories/GaussianCovarianceDefinitions.v
 theories/GaussianCovarianceDerivative.v
 theories/GaussianCovarianceDomains.v
@@ -97,7 +94,6 @@ theories/GaussianDefinitions.v
 theories/GaussianExpectation.v
 theories/GaussianExpectationContinuity.v
 theories/GaussianFiniteSums.v
-theories/GaussianFubini.v
 theories/GaussianFubiniLebesgue.v
 theories/GaussianIntegration.v
 theories/GaussianJensen.v
@@ -124,7 +120,6 @@ theories/GaussianQuadraticMGF.v
 theories/GaussianRectangle.v
 theories/GaussianRowExchange.v
 theories/GaussianRowMarginal.v
-theories/GaussianScaling.v
 theories/GaussianSections.v
 theories/GaussianStein.v
 theories/GaussianSteinPolynomial.v
@@ -280,11 +275,6 @@ theories/PaperMainFixedCountBounds.v
 theories/PaperMainFixedDensity.v
 theories/PaperMainFixedLowerProbability.v
 theories/PaperMainFixedSubcriticalCounts.v
-theories/PaperMainGaussianAffineIntegral.v
-theories/PaperMainGaussianAffineIntegralDerivative.v
-theories/PaperMainGaussianAffineIntegralSmoothing.v
-theories/PaperMainGaussianAffineIntegralStdlib.v
-theories/PaperMainGaussianBlockTestCalculus.v
 theories/PaperMainGaussianClippingTransfer.v
 theories/PaperMainGaussianConditionWidth.v
 theories/PaperMainGaussianConditionWidthBound.v
@@ -302,9 +292,7 @@ theories/PaperMainGaussianFeatureTail.v
 theories/PaperMainGaussianForward.v
 theories/PaperMainGaussianGordonTail.v
 theories/PaperMainGaussianJointFeature.v
-theories/PaperMainGaussianLinearDensity.v
 theories/PaperMainGaussianLinearLaw.v
-theories/PaperMainGaussianLinearMGF.v
 theories/PaperMainGaussianLinearTail.v
 theories/PaperMainGaussianLinearTailSymmetric.v
 theories/PaperMainGaussianLipschitzApproximation.v
@@ -312,12 +300,7 @@ theories/PaperMainGaussianLipschitzApproximationLaw.v
 theories/PaperMainGaussianLipschitzClip.v
 theories/PaperMainGaussianLipschitzConcentration.v
 theories/PaperMainGaussianLipschitzConcentrationTail.v
-theories/PaperMainGaussianLipschitzGradient.v
-theories/PaperMainGaussianLipschitzSmooth.v
-theories/PaperMainGaussianLipschitzSmoothDerivative.v
-theories/PaperMainGaussianLipschitzSmoothDerivativeLift.v
 theories/PaperMainGaussianLipschitzVariance.v
-theories/PaperMainGaussianMatrixMGF.v
 theories/PaperMainGaussianMatrixTail.v
 theories/PaperMainGaussianMultivariate.v
 theories/PaperMainGaussianNorm.v
@@ -340,16 +323,13 @@ theories/PaperMainGaussianResidualRows.v
 theories/PaperMainGaussianSections.v
 theories/PaperMainGaussianSmoothCalculus.v
 theories/PaperMainGaussianSmoothCovariance.v
-theories/PaperMainGaussianSmoothExponential.v
 theories/PaperMainGaussianSmoothLaw.v
-theories/PaperMainGaussianSmoothProduct.v
 theories/PaperMainGaussianSmoothTail.v
 theories/PaperMainGaussianSpanning.v
 theories/PaperMainGaussianSymmetricLaw.v
 theories/PaperMainGaussianSymmetricLawPublic.v
 theories/PaperMainGaussianSymmetricLawReflection.v
 theories/PaperMainGaussianSymmetricOperatorTail.v
-theories/PaperMainGaussianTailLimit.v
 theories/PaperMainGaussianTails.v
 theories/PaperMainGaussianUnion.v
 theories/PaperMainGaussianWeightedSquare.v
@@ -374,7 +354,6 @@ theories/PaperMainGeometrySeparation.v
 theories/PaperMainGordonBilinear.v
 theories/PaperMainGordonBudget.v
 theories/PaperMainGordonCalculus.v
-theories/PaperMainGordonCompactExpectation.v
 theories/PaperMainGordonCompactMinmax.v
 theories/PaperMainGordonComparison.v
 theories/PaperMainGordonContinuity.v
@@ -385,7 +364,6 @@ theories/PaperMainGordonEntropy.v
 theories/PaperMainGordonEntropyMargin.v
 theories/PaperMainGordonEscape.v
 theories/PaperMainGordonEscapeExpectation.v
-theories/PaperMainGordonEscapeReindex.v
 theories/PaperMainGordonFinite.v
 theories/PaperMainGordonGrowth.v
 theories/PaperMainGordonLipschitz.v
@@ -394,7 +372,6 @@ theories/PaperMainGordonNetToAll.v
 theories/PaperMainGordonNets.v
 theories/PaperMainGordonOperatorContinuity.v
 theories/PaperMainGordonOperatorNet.v
-theories/PaperMainGordonPairing.v
 theories/PaperMainGordonProcessCovariance.v
 theories/PaperMainGordonProcesses.v
 theories/PaperMainGordonQuantization.v

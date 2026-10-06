@@ -33,16 +33,6 @@ Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Notation RR := (R : realType).
 
-Lemma paper_main_covariance_finite_sum n (g : nat -> R) :
-  finite_sum g (List.seq 0 n) = (\sum_(i < n) g i)%R.
-Proof.
-elim: n g => [|n IH] g; first by rewrite big_ord0.
-rewrite big_ord_recl /= finite_sum_seq_shift.
-change (g 0%nat + finite_sum (fun i => g (S i)) (List.seq 0 n) =
-  g 0%nat + (\sum_(i < n) g (S i))%R).
-by rewrite IH.
-Qed.
-
 (* The matrix of a loading: column a holds the coefficients of row a. *)
 Definition paper_main_covariance_mx p K (P : nat -> nat -> R) : 'M[RR]_(p, K) :=
   (\matrix_(i, a) P a i)%R.

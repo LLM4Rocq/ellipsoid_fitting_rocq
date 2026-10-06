@@ -46,28 +46,6 @@ destruct (Rle_dec K z) as [h1|h1]; destruct (Rle_dec K w) as [h2|h2];
   unfold Rabs; repeat destruct Rcase_abs; lra.
 Qed.
 
-Definition paper_main_gaussian_clipped K (F : list R -> R) (xs : list R) : R :=
-  paper_main_gaussian_clip K (F xs).
-
-Theorem paper_main_gaussian_clipped_lipschitz d K F L :
-  (forall xs ys, List.length xs = d -> List.length ys = d ->
-    Rabs (F xs - F ys) <= L * paper_main_gordon_distance d xs ys) ->
-  forall xs ys, List.length xs = d -> List.length ys = d ->
-    Rabs (paper_main_gaussian_clipped K F xs - paper_main_gaussian_clipped K F ys) <=
-      L * paper_main_gordon_distance d xs ys.
-Proof.
-intros HF xs ys Hx Hy; unfold paper_main_gaussian_clipped.
-eapply Rle_trans; [apply paper_main_gaussian_clip_lipschitz|exact (HF xs ys Hx Hy)].
-Qed.
-
-Theorem paper_main_gaussian_clipped_abs_bound K F xs :
-  0 <= K -> Rabs (paper_main_gaussian_clipped K F xs) <= K.
-Proof. intros HK; apply paper_main_gaussian_clip_bound; exact HK. Qed.
-
-Theorem paper_main_gaussian_clipped_eq K F xs :
-  Rabs (F xs) <= K -> paper_main_gaussian_clipped K F xs = F xs.
-Proof. intros H; apply paper_main_gaussian_clip_eq; exact H. Qed.
-
 Theorem paper_main_gaussian_lipschitz_continuous d F L :
   0 <= L ->
   (forall xs ys, List.length xs = d -> List.length ys = d ->

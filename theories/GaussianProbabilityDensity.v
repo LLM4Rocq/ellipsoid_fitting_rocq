@@ -93,9 +93,6 @@ have hc := gpb_sqrt_pos.
 by rewrite -[LHS]mul1r -[in LHS](divff (lt0r_neq0 hc)) -mulrA H' mulr1.
 Qed.
 
-Lemma gpb_density (x : R) : gaussian_law_density x = gaussian_density x.
-Proof. by rewrite gpb_law_densityE /gaussian_density gpb_mass RdivE mulrC. Qed.
-
 Lemma gpb_kernel_pos (x : R) : 0 < gaussian_kernel x.
 Proof. by rewrite /gaussian_kernel RexpE expR_gt0. Qed.
 

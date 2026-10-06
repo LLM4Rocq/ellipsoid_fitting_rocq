@@ -159,38 +159,6 @@ Proof.
   unfold gaussian_kernel; replace ((-x) * (-x)) with (x*x) by ring; reflexivity.
 Qed.
 
-Lemma gaussian_primitive_odd x : gaussian_primitive (-x) = - gaussian_primitive x.
-Proof.
-  have HD : forall t, @is_derive R R^o R^o t 1
-      (fun y => - gaussian_primitive (- y)) (gaussian_kernel t).
-  { move=> t.
-    have Hn : @is_derive R R^o R^o t 1 (fun y => - y) (- 1).
-    { exact: (is_derive_opp (fun y => y) t 1 (is_derive_id_R t)). }
-    have H := is_derive_comp gaussian_primitive (fun y => - y) t
-      (gaussian_kernel (- t)) (- 1) (gaussian_primitive_derivative (- t)) Hn.
-    have H2 := is_derive_opp _ _ _ H.
-    rewrite gaussian_kernel_even in H2.
-    replace (gaussian_kernel t) with (- (- 1 * gaussian_kernel t)) by ring.
-    exact H2. }
-  have E := rectangle_oriented_FTC _ _ 0 x HD gaussian_kernel_continuous.
-  change (gaussian_primitive x =
-    - gaussian_primitive (- x) - - gaussian_primitive (- 0)) in E.
-  have H0 : gaussian_primitive 0 = 0 by exact: rectangle_oriented_point.
-  rewrite Ropp_0 H0 in E; lra.
-Qed.
-
-Lemma gaussian_primitive_negative_limit (L : R) :
-  (gaussian_primitive x @[x --> +oo%R] --> L)%classic ->
-  (gaussian_primitive x @[x --> -oo%R] --> - L)%classic.
-Proof.
-  move=> /(cvg_Reals_pinfty gaussian_primitive L) HL.
-  apply/(cvg_Reals_ninfty gaussian_primitive (- L)); intros eps Heps.
-  destruct (HL eps Heps) as [a Ha]; exists (-a); intros x Hx.
-  replace (gaussian_primitive x - -L) with
-    (- (gaussian_primitive (-x) - L)) by (rewrite gaussian_primitive_odd; ring).
-  rewrite Rabs_Ropp; apply Ha; lra.
-Qed.
-
 (* The value is L - -L, where L is the limit of gaussian_primitive at +oo.
    The integral of the kernel over [0, +oo[ is L by MathComp's
    ge0_continuous_FTC2y, and the kernel is even, so its integral over the

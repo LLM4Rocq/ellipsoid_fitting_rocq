@@ -54,20 +54,6 @@ Proof.
     rewrite nth_skipn_add; ring.
 Qed.
 
-Lemma gaussian_covariance_path_one K p q P Q zs :
-  gaussian_covariance_path K p q P Q 1 zs = gaussian_covariance_image K p P (List.firstn p zs).
-Proof.
-  unfold gaussian_covariance_path, gaussian_covariance_image; apply map_ext; intros a.
-  rewrite sqrt_1 Rminus_diag sqrt_0; ring.
-Qed.
-
-Lemma gaussian_covariance_path_zero K p q P Q zs :
-  gaussian_covariance_path K p q P Q 0 zs = gaussian_covariance_image K q Q (List.skipn p zs).
-Proof.
-  unfold gaussian_covariance_path, gaussian_covariance_image; apply map_ext; intros a.
-  rewrite sqrt_0 Rminus_0_r sqrt_1; ring.
-Qed.
-
 (* Bounds of the coefficients on [0, 1]. *)
 Lemma sqrt_le_one t : 0 <= t <= 1 -> 0 <= sqrt t <= 1.
 Proof.
@@ -272,30 +258,4 @@ Proof.
     apply Rle_trans with (M * / (4 * (sqrt (1 - hi) * sqrt (1 - hi) * sqrt (1 - hi))));
       [apply Rmult_le_compat; lra|].
     apply Rmult_le_compat_l; lra.
-Qed.
-
-(* The Stein coefficient identity. *)
-Lemma gaussian_covariance_stein_coefficients p q P Q t a b :
-  0 < t < 1 ->
-  finite_sum (fun k => gaussian_covariance_dcoef p q P Q t a k *
-    gaussian_covariance_coef p q P Q t b k) (List.seq 0 (p + q)%coq_nat) =
-  / 2 * (gaussian_covariance_entry p P a b - gaussian_covariance_entry q Q a b).
-Proof.
-  intros Ht.
-  assert (Hst : 0 < sqrt t) by (apply sqrt_lt_R0; lra).
-  assert (Hs1 : 0 < sqrt (1 - t)) by (apply sqrt_lt_R0; lra).
-  rewrite finite_sum_seq_split.
-  unfold gaussian_covariance_entry.
-  rewrite Rmult_minus_distr_l -!finite_sum_scale.
-  unfold Rminus; rewrite <- finite_sum_opp.
-  apply f_equal2.
-  - apply finite_sum_ext; intros k Hk; apply in_seq_lt in Hk; cbv beta.
-    unfold gaussian_covariance_dcoef, gaussian_covariance_coef.
-    destruct (Nat.ltb k p) eqn:E; [|apply Nat.ltb_ge in E; lia].
-    field_nz.
-  - apply finite_sum_ext; intros k Hk; apply in_seq_lt in Hk; cbv beta.
-    unfold gaussian_covariance_dcoef, gaussian_covariance_coef.
-    destruct (Nat.ltb (p + k)%coq_nat p) eqn:E; [apply Nat.ltb_lt in E; lia|].
-    replace ((p + k)%coq_nat - p)%coq_nat with k by lia.
-    field_nz.
 Qed.

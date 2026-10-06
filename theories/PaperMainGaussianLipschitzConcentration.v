@@ -16,7 +16,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCoordinateDefinitio
   GaussianProductDefinitions GaussianProduct GaussianCoordinatePolynomialContinuity
   GaussianProbabilityProductDefinitions
   GaussianProbabilityProductContinuity PaperMainGordonLipschitz
-  PaperMainGaussianSmoothLaw PaperMainGaussianSmoothTail PaperMainGaussianTailLimit
+  PaperMainGaussianSmoothLaw PaperMainGaussianSmoothTail
   PaperMainGaussianLipschitzClip PaperMainGaussianLipschitzApproximation
   PaperMainGaussianLipschitzApproximationLaw PaperMainGaussianLipschitzConcentrationTail.
 From mathcomp Require Import matrix.
@@ -28,17 +28,6 @@ Local Open Scope classical_set_scope.
 Open Scope R_scope.
 
 Local Notation RR := (R : realType).
-
-Lemma paper_main_gaussian_finite_sum_seq d (f : nat -> R) :
-  finite_sum f (List.seq 0 d) = (\sum_(j < d) f j)%R.
-Proof.
-revert f; induction d as [|d IH]; intro f.
-- by rewrite big_ord0.
-- rewrite big_ord_recl /= finite_sum_seq_shift.
-  change (f 0%nat + finite_sum (fun j => f (S j)) (List.seq 0 d) =
-    f 0%nat + (\sum_(j < d) f (S j))%R).
-  by rewrite IH.
-Qed.
 
 (* The distance of the lists of coordinates is the Euclidean distance. *)
 Lemma paper_main_gordon_distance_list_of_row d (x y : 'rV[RR]_d) :
@@ -74,33 +63,6 @@ rewrite -(@integral_gauss_gaussian_product_law d
   (fun y => (expR (t * (G y - E)))%:E) iE).
 rewrite expF RdivE !RpowE IZRposE INRE /=.
 exact: gauss_concentration GL t.
-Qed.
-
-Theorem paper_main_gaussian_lipschitz_mgf_integrable d F L t :
-  0 <= L ->
-  (forall xs ys, List.length xs = d -> List.length ys = d ->
-    Rabs (F xs - F ys) <= L * paper_main_gordon_distance d xs ys) ->
-  0 <= t ->
-  (gaussian_product_law d).-integrable setT
-    (fun x => (exp (t * (F (tval x) - gaussian_iterated_expectation d F)))%:E).
-Proof.
-move=> HL Hlip Ht; apply/integrableP; split.
-- have HE : (fun x : d.-tuple (measurableTypeR R) =>
-      (exp (t * (F (tval x) - gaussian_iterated_expectation d F)))%:E) =
-    (fun x => (expR (t * (paper_main_gaussian_smooth_random d F x -
-      gaussian_iterated_expectation d F))%R)%:E).
-  { apply: funext => x; rewrite RexpE; reflexivity. }
-  rewrite HE; apply: paper_main_centered_exponential_measurable.
-  exact: (paper_main_gaussian_lipschitz_random_measurable d F L HL Hlip).
-- have HA : (\int[gaussian_product_law d]_x
-      `|(exp (t * (F (tval x) - gaussian_iterated_expectation d F)))%:E| =
-    \int[gaussian_product_law d]_x
-      (exp (t * (F (tval x) - gaussian_iterated_expectation d F)))%:E)%E.
-  { apply: eq_integral => x _; apply: gee0_abs.
-    by rewrite lee_fin RexpE expR_ge0. }
-  rewrite HA.
-  apply: le_lt_trans (paper_main_gaussian_lipschitz_centered_mgf d F L t HL Hlip Ht) _.
-  exact: ltry.
 Qed.
 
 Theorem paper_main_gaussian_lipschitz_upper_tail d F L u :

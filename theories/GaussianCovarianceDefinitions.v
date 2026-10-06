@@ -56,12 +56,6 @@ Definition gaussian_covariance_path (K p q : nat) (P Q : nat -> nat -> R) (t : R
     sqrt (1 - t) * gaussian_covariance_row q Q a (List.skipn p zs))
     (List.seq 0 K).
 
-Definition gaussian_covariance_pairing (K p q : nat) (P Q : nat -> nat -> R)
-    (H : nat -> nat -> R) : R :=
-  finite_sum (fun a => finite_sum (fun b =>
-    (gaussian_covariance_entry p P a b - gaussian_covariance_entry q Q a b) * H a b)
-    (List.seq 0 K)) (List.seq 0 K).
-
 Definition gaussian_covariance_domain (d : nat) (G : list R -> R) : Prop :=
   gaussian_iterated_integrable d G /\ gaussian_iterated_absolutely_integrable d G /\
   gaussian_iterated_has_expectation d G (gaussian_iterated_expectation d G) /\

@@ -33,26 +33,6 @@ move=> Hf; rewrite gaussian_covariance_image_linear.
 exact: linear_image_continuous_comp.
 Qed.
 
-Theorem paper_main_gaussian_orthogonal_ge_measurable d O (f : list R -> R) c :
-  finite_joint_continuous d f ->
-  measurable [set x : d.-tuple (measurableTypeR R) |
-    Rle c (f (gaussian_covariance_image d d O (tval x)))].
-Proof.
-move=> Hf.
-exact: (paper_main_gaussian_smooth_ge_measurable d _ c
-  (paper_main_gaussian_orthogonal_continuous d O f Hf)).
-Qed.
-
-Theorem paper_main_gaussian_orthogonal_le_measurable d O (f : list R -> R) c :
-  finite_joint_continuous d f ->
-  measurable [set x : d.-tuple (measurableTypeR R) |
-    Rle (f (gaussian_covariance_image d d O (tval x))) c].
-Proof.
-move=> Hf.
-exact: (paper_main_gaussian_continuous_le_measurable d _ c
-  (paper_main_gaussian_orthogonal_continuous d O f Hf)).
-Qed.
-
 Lemma paper_main_gaussian_orthogonal_regular d O (f : list R -> R) C r :
   finite_joint_continuous d f -> finite_polynomial_bound d C r f ->
   exists C', finite_joint_continuous d (fun xs => f (gaussian_covariance_image d d O xs)) /\

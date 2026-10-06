@@ -123,15 +123,6 @@ Proof.
   rewrite product_weight_zero Rmult_1_r in H; exact H.
 Qed.
 
-(* Continuity. *)
-Lemma linear_form_continuous d c : finite_joint_continuous d (linear_form d c).
-Proof.
-  unfold linear_form.
-  apply finite_joint_continuous_sum; intros k Hk.
-  apply finite_joint_continuous_scale.
-  apply finite_joint_continuous_nth; apply in_seq_lt; exact Hk.
-Qed.
-
 Lemma linear_form_abs_bound d c M zs :
   0 <= M -> (forall k, (k < d)%coq_nat -> Rabs (c k) <= M) -> List.length zs = d ->
   Rabs (linear_form d c zs) <= M * INR d * gaussian_coordinate_product_weight 1 zs.
@@ -143,15 +134,6 @@ Proof.
     rewrite Rabs_mult; apply Rmult_le_compat; [apply Rabs_pos|apply Rabs_pos|apply Hc; exact Hk|].
     apply coordinate_le_weight_one; rewrite Hzs; exact Hk. }
   rewrite length_seq; lra.
-Qed.
-
-Lemma linear_form_bound d c M :
-  0 <= M -> (forall k, (k < d)%coq_nat -> Rabs (c k) <= M) ->
-  finite_polynomial_bound d (M * INR d) 1 (linear_form d c).
-Proof.
-  intros HM Hc; split.
-  - apply Rmult_le_pos; [exact HM|apply pos_INR].
-  - intros zs Hzs; apply linear_form_abs_bound; assumption.
 Qed.
 
 Lemma ratio_lt_one X : 0 <= X -> X / (1 + X) < 1.
@@ -255,24 +237,6 @@ Proof.
     pose proof (is_derive_scal (c i) (fun y => y) (List.nth i zs 0) 1 (is_derive_id_R _)) as H.
     rewrite Rmult_1_r in H; exact H.
   - apply is_derive_const.
-Qed.
-
-Lemma linear_image_coordinate_derivative_comp d K c i (g : list R -> R)
-    (Dg : nat -> list R -> R) :
-  (i < d)%coq_nat ->
-  (forall a, (a < K)%coq_nat -> finite_coordinate_derivative K a g (Dg a)) ->
-  (forall a, (a < K)%coq_nat -> finite_joint_continuous K (Dg a)) ->
-  finite_coordinate_derivative d i (fun zs => g (linear_image d K c zs))
-    (fun zs => finite_sum (fun a => Dg a (linear_image d K c zs) * c a i) (List.seq 0 K)).
-Proof.
-  intros Hi HD HC.
-  apply (finite_coordinate_derivative_comp d K i g Dg (linear_image d K c)
-    (fun a _ => c a i) HD HC).
-  - intros zs _; apply linear_image_length.
-  - intros a Ha zs Hzs.
-    apply (is_derive_ext (fun s => linear_form d (c a) (replace_coordinate i s zs))).
-    { intros s; rewrite (linear_image_nth _ _ _ _ _ Ha); reflexivity. }
-    exact (linear_form_coordinate_derivative d (c a) i Hi zs Hzs).
 Qed.
 
 Lemma linear_image_parameter_derivative d K (c dc : R -> nat -> nat -> R) (t : R)

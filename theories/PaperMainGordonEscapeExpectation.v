@@ -35,17 +35,6 @@ Local Open Scope classical_set_scope.
 Section escape_library.
 Local Notation RR := (R : realType).
 
-Lemma paper_main_gordon_escape_finite_sum_seq n (f : nat -> R) :
-  finite_sum f (List.seq 0 n) = (\sum_(j < n) f j)%R.
-Proof.
-revert f; induction n as [|n IH]; intro f.
-- by rewrite big_ord0.
-- rewrite big_ord_recl /= finite_sum_seq_shift.
-  change (f 0%nat + finite_sum (fun j => f (S j)) (List.seq 0 n) =
-    f 0%nat + (\sum_(j < n) f (S j))%R).
-  by rewrite IH.
-Qed.
-
 Local Notation fsum_seq := finite_sum_seqE.
 
 (* The column vector of the first M values of v. *)

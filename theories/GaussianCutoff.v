@@ -127,23 +127,6 @@ Proof.
   apply Rmult_le_compat_r; [apply Rlt_le, Rinv_0_lt_compat; exact HM | exact H].
 Qed.
 
-Theorem gaussian_cutoff_majorant_nonnegative (g : R -> R) C A :
-  0 <= C -> 0 <= A ->
-  (forall x : R, {for x, continuous g}) -> (forall x, 0 <= g x) ->
-  gaussian_integral_exists g -> 0 <= gaussian_cutoff_error_majorant g C A.
-Proof.
-  intros HC HA HG Hnonneg HIg.
-  assert (Hbound : gaussian_cutoff_integral g A <= gaussian_integral g).
-  { apply improper_nonnegative_interval_bound.
-    - apply gaussian_weighted_continuous; exact HG.
-    - intro x; apply Rmult_le_pos;
-        [apply Hnonneg | apply Rlt_le, gaussian_kernel_positive].
-    - exact (gaussian_integral_correct g HIg).
-    - lra. }
-  unfold gaussian_cutoff_error_majorant; apply Rmult_le_pos; [| lra].
-  apply Rdiv_le_0_compat; [exact HC | exact gaussian_mass_positive].
-Qed.
-
 Theorem gaussian_cutoff_integral_limit (f : R -> R) :
   gaussian_integral_exists f ->
   (gaussian_cutoff_integral f A @[A --> +oo%R] --> gaussian_integral f)%classic.

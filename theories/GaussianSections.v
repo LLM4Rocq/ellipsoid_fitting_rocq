@@ -31,39 +31,3 @@ Proof.
   apply gaussian_expectation_monotone; [exact HAIf| |exact Hb].
   apply gaussian_integral_exists_scale; exact HIh.
 Qed.
-
-(* Dominated convergence: whole_line_parameter_continuous_weighted of
-   GaussianFubiniLebesgue, with the kernel as the weight, makes the integral
-   continuous; the expectation divides it by gaussian_mass. The continuity
-   hypothesis on h (HH) is not used. *)
-Lemma gaussian_section_expectation_continuous (F : R -> R -> R) (g h : R -> R)
-    (a : R) :
-  (forall x y, continuity_2d_pt F x y) ->
-  (forall x : R, {for x, continuous g}) -> (forall y : R, {for y, continuous h}) ->
-  (forall y, 0 <= h y) ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  gaussian_integral_exists h ->
-  {for a, continuous (fun x => gaussian_expectation (F x))}.
-Proof.
-  intros HC HG HH Hh Hb HIh.
-  have Hk : continuous gaussian_kernel := gaussian_kernel_continuous.
-  have Hk0 : forall y, 0 <= gaussian_kernel y.
-  { intro y; exact (Rlt_le _ _ (gaussian_kernel_positive y)). }
-  have Hint := whole_line_parameter_continuous_weighted F g h gaussian_kernel
-    HC HG Hk HIh Hh Hk0 Hb a.
-  unfold gaussian_expectation, gaussian_integral, Rdiv.
-  apply (continuous_mult R); [exact Hint | apply (continuous_const R)].
-Qed.
-
-Lemma gaussian_section_expectation_bound (F : R -> R -> R) (g h : R -> R) :
-  (forall x y, continuity_2d_pt F x y) ->
-  (forall y : R, {for y, continuous h}) ->
-  (forall x y, Rabs (F x y) <= g x * h y) ->
-  gaussian_integral_exists h ->
-  forall x, Rabs (gaussian_expectation (F x)) <= g x * gaussian_expectation h.
-Proof.
-  intros HC HH Hb HIh x.
-  apply (gaussian_expectation_majorant_bound (F x) h (g x)); try assumption.
-  - intro y; apply rectangle_continuous_slice_right, HC.
-  - apply Hb.
-Qed.

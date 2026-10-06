@@ -13,20 +13,6 @@ From EllipsoidFitting Require Import GaussianDefinitions GaussianKernel Gaussian
 From EllipsoidFitting Require GaussianLawBridge.
 Open Scope R_scope.
 
-Lemma gaussian_quadratic_tilt_kernel t x :
-  t < 1/2 ->
-  exp (t * (x*x)) * gaussian_kernel x =
-    gaussian_kernel (sqrt (1-2*t) * x).
-Proof.
-  intro Ht.
-  assert (Hsq : sqrt (1-2*t) * sqrt (1-2*t) = 1-2*t).
-  { apply sqrt_def; lra. }
-  unfold gaussian_kernel; rewrite <- exp_plus; f_equal.
-  replace ((sqrt (1-2*t)*x)*(sqrt (1-2*t)*x)) with
-    ((sqrt (1-2*t)*sqrt (1-2*t))*(x*x)) by ring.
-  rewrite Hsq; field.
-Qed.
-
 Theorem gaussian_quadratic_exponential_has_integral t :
   t < 1/2 ->
   gaussian_has_integral (fun x => exp (t * (x*x)))

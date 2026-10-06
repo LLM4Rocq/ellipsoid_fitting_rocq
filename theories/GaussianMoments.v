@@ -85,10 +85,3 @@ Proof.
       exact (gaussian_moment_recurrence n (moment_factor n * J) Hn). }
   intro n; exact (proj1 (Hp n)).
 Qed.
-
-Corollary gaussian_first_raw_moment J :
-  whole_line_has_integral gaussian_kernel J ->
-  whole_line_has_integral (fun x => x * gaussian_kernel x) 0.
-Proof.
-  intros _; exact gaussian_first_moment_zero.
-Qed.

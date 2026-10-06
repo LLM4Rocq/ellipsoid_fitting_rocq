@@ -41,16 +41,6 @@ Theorem paper_main_trace_abab A B :
   A^T = A -> B^T = B -> \tr (A *m B *m A *m B) <= \tr (A *m A *m B *m B).
 Proof. by move=> /symmetricmxP HA /symmetricmxP HB; exact: mxtrace_ABAB_le. Qed.
 
-(* 2. Trace-fourth control of a quadratic form. *)
-Lemma pmdb_form_cs Z (v : 'cV[R]_d) :
-  Z^T = Z ->
-  ((v^T *m Z *m v) 0 0) ^+ 2 <= (v^T *m v) 0 0 * (v^T *m (Z *m Z) *m v) 0 0.
-Proof.
-move=> HZ; rewrite -!mulmxA -!mxdot_colE.
-have -> : mxdot v (Z *m (Z *m v)) = mxdot (Z *m v) (Z *m v) by rewrite mxdot_mulmxl HZ.
-exact: mxdot_cauchy_schwarz.
-Qed.
-
 Lemma pmdb_form_frobenius Z (v : 'cV[R]_d) :
   ((Z *m v)^T *m (Z *m v)) 0 0 <= \tr (Z^T *m Z) * (v^T *m v) 0 0.
 Proof.

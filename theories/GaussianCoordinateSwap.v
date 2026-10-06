@@ -23,9 +23,3 @@ Proof.
   apply (GaussianLawBridge.gaussian_iterated_swap_adjacent_gauss (S (S n)) 0 F C p);
     [lia | exact HC | exact HB].
 Qed.
-
-Theorem gaussian_iterated_swap_adjacent d i F C p :
-  (S i < d)%nat -> finite_joint_continuous d F -> finite_polynomial_bound d C p F ->
-  gaussian_iterated_expectation d F =
-    gaussian_iterated_expectation d (fun xs => F (swap_adjacent i xs)).
-Proof. exact (GaussianLawBridge.gaussian_iterated_swap_adjacent_gauss d i F C p). Qed.

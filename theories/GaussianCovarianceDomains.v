@@ -20,62 +20,6 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions
 Import ListNotations.
 Open Scope R_scope.
 
-(* A common bound for the entries of P (a < K, k < p) and Q (a < K, k < q). *)
-Lemma gaussian_covariance_matrix_bound K p q (P Q : nat -> nat -> R) :
-  exists M, 0 <= M /\
-    (forall a k, (a < K)%coq_nat -> (k < p)%coq_nat -> Rabs (P a k) <= M) /\
-    (forall a k, (a < K)%coq_nat -> (k < q)%coq_nat -> Rabs (Q a k) <= M).
-Proof.
-  destruct (finite_matrix_bound P K p) as [M1 [HM1 H1]].
-  destruct (finite_matrix_bound Q K q) as [M2 [HM2 H2]].
-  exists (Rmax M1 M2); split; [apply Rle_trans with M1; [exact HM1|apply Rmax_l]|split].
-  - intros a k Ha Hk; apply Rle_trans with M1; [apply H1; assumption|apply Rmax_l].
-  - intros a k Ha Hk; apply Rle_trans with M2; [apply H2; assumption|apply Rmax_r].
-Qed.
-
-Lemma gaussian_covariance_path_coef_uniform K p q P Q M t :
-  0 <= t <= 1 ->
-  (forall a k, (a < K)%coq_nat -> (k < p)%coq_nat -> Rabs (P a k) <= M) ->
-  (forall a k, (a < K)%coq_nat -> (k < q)%coq_nat -> Rabs (Q a k) <= M) ->
-  forall a k, (a < K)%coq_nat -> (k < (p + q)%coq_nat)%coq_nat ->
-    Rabs (gaussian_covariance_coef p q P Q t a k) <= M.
-Proof.
-  intros Ht HP HQ a k Ha Hk.
-  apply (gaussian_covariance_coef_bound p q P Q M t a k Ht Hk).
-  - intros j Hj; apply HP; assumption.
-  - intros j Hj; apply HQ; assumption.
-Qed.
-
-(* Regularity of g composed with the path, uniformly in t on [0, 1]. *)
-Theorem gaussian_covariance_path_regular K p q P Q M (g : list R -> R) C r t :
-  0 <= t <= 1 -> 0 <= M ->
-  (forall a k, (a < K)%coq_nat -> (k < p)%coq_nat -> Rabs (P a k) <= M) ->
-  (forall a k, (a < K)%coq_nat -> (k < q)%coq_nat -> Rabs (Q a k) <= M) ->
-  finite_joint_continuous K g -> finite_polynomial_bound K C r g ->
-  finite_joint_continuous (p + q)%coq_nat
-    (fun zs => g (gaussian_covariance_path K p q P Q t zs)) /\
-  finite_polynomial_bound (p + q)%coq_nat
-    (C * (1 + M * INR (p + q)%coq_nat) ^ (r * K)%coq_nat) (r * K)%coq_nat
-    (fun zs => g (gaussian_covariance_path K p q P Q t zs)).
-Proof.
-  intros Ht HM HP HQ Hg Hb.
-  rewrite gaussian_covariance_path_linear; split.
-  - apply linear_image_continuous_comp; exact Hg.
-  - apply (linear_image_polynomial_bound_comp _ _ _ M _ _ _ HM); [|exact Hb].
-    apply gaussian_covariance_path_coef_uniform; assumption.
-Qed.
-
-Theorem gaussian_covariance_path_domain K p q P Q (g : list R -> R) C r t :
-  0 <= t <= 1 -> finite_joint_continuous K g -> finite_polynomial_bound K C r g ->
-  gaussian_covariance_domain (p + q)%coq_nat
-    (fun zs => g (gaussian_covariance_path K p q P Q t zs)).
-Proof.
-  intros Ht Hg Hb.
-  destruct (gaussian_covariance_matrix_bound K p q P Q) as [M [HM [HP HQ]]].
-  destruct (gaussian_covariance_path_regular K p q P Q M g C r t Ht HM HP HQ Hg Hb) as [Hc Hpb].
-  exact (gaussian_coordinate_polynomial_domain _ _ _ _ Hc Hpb).
-Qed.
-
 (* Regularity of g composed with an endpoint image. *)
 Theorem gaussian_covariance_image_regular K p P M (g : list R -> R) C r :
   0 <= M ->

@@ -54,10 +54,6 @@ Lemma paper_main_quadratic_form_mxdot {d : nat} (S : 'M[R]_d) (x : 'cV[R]_d) :
   paper_main_quadratic_form S x = mxdot x (S *m x).
 Proof. by rewrite paper_main_quadratic_formE mxdot_colE mulmxA. Qed.
 
-Lemma paper_main_pairing_mxdot {d : nat} (S M : 'M[R]_d) :
-  paper_main_pairing S M = mxdot S M.
-Proof. by []. Qed.
-
 Lemma paper_main_cone_opnorm_leP {d : nat} (Z : 'M[R]_d) (b : R) :
   paper_main_cone_opnorm_le Z b <-> opnorm Z <= `|b|.
 Proof.

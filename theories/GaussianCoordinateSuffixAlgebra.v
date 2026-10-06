@@ -64,8 +64,3 @@ Proof.
   apply (f_equal gaussian_expectation); apply functional_extensionality; intro t.
   rewrite app_assoc; reflexivity.
 Qed.
-
-Lemma gaussian_suffix_marginal_swap_head n F x y :
-  gaussian_suffix_marginal n (fun xs => F (swap_adjacent 0 xs)) [x;y] =
-    gaussian_suffix_marginal n F [y;x].
-Proof. reflexivity. Qed.

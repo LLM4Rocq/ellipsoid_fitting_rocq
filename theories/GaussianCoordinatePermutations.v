@@ -49,13 +49,6 @@ Proof. revert xs; induction i; intros [|z xs]; simpl; auto; rewrite IHi; reflexi
 Lemma replace_coordinate_self i xs : replace_coordinate i (nth i xs 0) xs = xs.
 Proof. revert xs; induction i; intros [|x xs]; simpl; auto; rewrite IHi; reflexivity. Qed.
 
-Lemma swap_adjacent_nth_left i xs :
-  (S i < length xs)%nat -> nth i (swap_adjacent i xs) 0 = nth (S i) xs 0.
-Proof.
-  revert xs; induction i; intros [|x [|y xs]] H; simpl in *; try lia; try reflexivity.
-  apply (IHi (y :: xs)); simpl; lia.
-Qed.
-
 Lemma move_coordinate_last_length i xs :
   length (move_coordinate_last i xs) = length xs.
 Proof.
@@ -70,14 +63,6 @@ Proof.
   revert xs; induction i; intros [|x xs]; simpl; try apply Permutation_refl.
   - change (Permutation (xs ++ [x]) ([x] ++ xs)); apply Permutation_app_comm.
   - apply perm_skip, IHi.
-Qed.
-
-Lemma move_coordinate_last_prefix i xs :
-  (i < length xs)%nat -> move_coordinate_last i xs =
-    firstn i xs ++ skipn (S i) xs ++ [nth i xs 0].
-Proof.
-  revert xs; induction i; intros [|x xs] H; simpl in *; try lia; try reflexivity.
-  f_equal; apply IHi; lia.
 Qed.
 
 Lemma coordinate_forall2_nth (rel : R -> R -> Prop) xs ys :
@@ -117,24 +102,4 @@ Proof.
   revert xs ys; induction i; intros xs ys H;
     destruct H; simpl; try constructor; auto.
   apply Forall2_app; [assumption|repeat constructor; assumption].
-Qed.
-
-Lemma move_coordinate_last_nth_selected i xs :
-  (i < length xs)%nat ->
-  nth (length xs - 1) (move_coordinate_last i xs) 0 = nth i xs 0.
-Proof.
-  intro Hi; rewrite move_coordinate_last_prefix by exact Hi.
-  rewrite app_assoc.
-  replace (length xs - 1)%nat with (length (firstn i xs ++ skipn (S i) xs)).
-  - apply nth_middle.
-  - rewrite length_app, length_firstn, length_skipn, Nat.min_l by lia; lia.
-Qed.
-
-Lemma swap_adjacent_replace_right i value xs :
-  (S i < length xs)%nat ->
-  swap_adjacent i (replace_coordinate (S i) value xs) =
-    replace_coordinate i value (swap_adjacent i xs).
-Proof.
-  revert xs; induction i; intros [|x [|y xs]] Hi; simpl in *; try lia; try reflexivity.
-  f_equal; apply (IHi (y :: xs)); simpl; lia.
 Qed.

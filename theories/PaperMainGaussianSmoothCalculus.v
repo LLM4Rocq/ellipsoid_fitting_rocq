@@ -49,16 +49,6 @@ pose proof (is_derive_mult (fun t => F (replace_coordinate a t xs))
 rewrite replace_coordinate_self in H; exact H.
 Qed.
 
-Lemma paper_main_coordinate_derivative_exp d a F DF :
-  finite_coordinate_derivative d a F DF ->
-  finite_coordinate_derivative d a (fun xs => exp (F xs)) (fun xs => exp (F xs) * DF xs).
-Proof.
-intros HF xs Hxs.
-pose proof (is_derive_exp_comp (fun t => F (replace_coordinate a t xs))
-  (List.nth a xs 0) (DF xs) (HF xs Hxs)) as H.
-rewrite replace_coordinate_self in H; exact H.
-Qed.
-
 Lemma paper_main_polynomial_zero_bound d C F :
   finite_polynomial_bound d C 0 F <->
   0 <= C /\ forall xs, List.length xs = d -> Rabs (F xs) <= C.

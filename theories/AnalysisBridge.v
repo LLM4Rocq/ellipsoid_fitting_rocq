@@ -303,9 +303,6 @@ Proof. by move=> x0; exact: is_derive_continuous (is_derive_ln x x0). Qed.
 Lemma continuous_Rsqrt (x : R) : 0 <= x -> {for x, continuous sqrt}.
 Proof. by move=> x0; apply/continuity_ptE; exact: continuity_pt_sqrt. Qed.
 
-Lemma continuous_Rinv (x : R) : x <> 0 -> {for x, continuous Rinv}.
-Proof. by move=> x0; exact: is_derive_continuous (is_derive_Rinv x x0). Qed.
-
 Lemma continuous_Rpow (n : nat) : continuous (fun y : R => y ^ n).
 Proof. by move=> x; exact: is_derive_continuous (is_derive_Rpow n x). Qed.
 
@@ -447,22 +444,6 @@ split.
   by exists M; split; [exact: num_real | move=> x /RltP /HM /HA].
 Qed.
 
-Lemma cvg_Reals_ninfty (f : R -> R) (l : R) :
-  (f x @[x --> -oo%R] --> l)%classic <->
-  (forall eps, 0 < eps -> exists M, forall x, x < M -> Rabs (f x - l) < eps).
-Proof.
-split.
-- move=> H eps eps0.
-  have Hl : nbhs l (fun z => Rabs (z - l) < eps) by apply/nbhs_Reals; exists eps.
-  have [M [_ HM]] : exists M : R, M \is Num.real /\
-      forall x, (x < M)%R -> Rabs (f x - l) < eps := H _ Hl.
-  by exists M => x /RltP /HM.
-- move=> H A /nbhs_Reals [eps [eps0 HA]].
-  have [M HM] := H eps eps0.
-  suff : exists M : R, M \is Num.real /\ forall x, (x < M)%R -> A (f x) by [].
-  by exists M; split; [exact: num_real | move=> x /RltP /HM /HA].
-Qed.
-
 Lemma is_lim_exp_m : (exp x @[x --> -oo%R] --> 0)%classic.
 Proof.
 have -> : exp = expR by apply/funext => x; exact: RexpE.
@@ -477,9 +458,6 @@ Proof. exact: cvg_Reals_nbhs. Qed.
 
 (* ---- algebra on R^o ---- *)
 
-Lemma scaleRE (a x : R) : (a *: (x : R^o))%R = a * x.
-Proof. by []. Qed.
-
 (* ---- continuity combinators at real-valued functions ---- *)
 
 Section ContinuityCombinators.
@@ -488,10 +466,6 @@ Implicit Types (f g : T -> R) (x : T).
 
 Lemma continuous_const (c : R) x : {for x, continuous (fun _ : T => c)}.
 Proof. exact: cvg_cst. Qed.
-
-Lemma continuous_ext f g x :
-  (forall y, f y = g y) -> {for x, continuous f} -> {for x, continuous g}.
-Proof. by move=> Hfg; rewrite (funext Hfg). Qed.
 
 Lemma continuous_plus f g x :
   {for x, continuous f} -> {for x, continuous g} ->

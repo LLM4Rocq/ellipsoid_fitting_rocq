@@ -302,8 +302,11 @@ class Analysis:
     def __init__(self, root, keep=()):
         self.root = root
         self.project = (root / "_CoqProject").read_text()
-        names = re.findall(r"^theories/(\w+)\.v\s*$", self.project, re.M)
-        self.modules = {name: Module(name, root / "theories" / f"{name}.v") for name in names}
+        # A module in a folder of theories/, theories/A/B.v, is named A.B, as
+        # its logical name EllipsoidFitting.A.B.
+        files = re.findall(r"^theories/([\w/]+)\.v\s*$", self.project, re.M)
+        self.modules = {f.replace("/", "."): Module(f.replace("/", "."), root / "theories" / f"{f}.v")
+                        for f in files}
         self.index = defaultdict(list)    # (module, module path, name, namespace)
                                           # -> the blocks that declare it, in order
         self.lets = defaultdict(list)     # (module, name) -> blocks of Let name
@@ -409,7 +412,11 @@ class Analysis:
         """The used blocks, and the containers that contain one."""
         roots = [block for path in FROZEN for block in self.modules[Path(path).stem].blocks]
         for entry in keep:
-            module, _, name = entry.partition(".")
+            # the longest prefix of entry that names a module
+            parts = entry.split(".")
+            k = next((k for k in range(len(parts), 0, -1)
+                      if ".".join(parts[:k]) in self.modules), 1)
+            module, name = ".".join(parts[:k]), ".".join(parts[k:])
             path, _, name = name.rpartition(".")
             if module not in self.modules:
                 self.warnings.append(f"--keep: unknown module {module}")
@@ -546,17 +553,18 @@ class Analysis:
     def write(self, target):
         removed = {module.name for module in self.unused_modules()}
         for module in self.modules.values():
-            path = target / "theories" / f"{module.name}.v"
+            path = target / "theories" / (module.name.replace(".", "/") + ".v")
             if module.name in removed:
                 for suffix in (".v", ".vo", ".vos", ".vok", ".glob"):
                     path.with_suffix(suffix).unlink(missing_ok=True)
-                path.with_name(f".{module.name}.aux").unlink(missing_ok=True)
+                path.with_name(f".{path.stem}.aux").unlink(missing_ok=True)
                 continue
             text = self.trimmed(module)
             if not path.exists() or path.read_bytes() != text:
                 path.write_bytes(text)
         project = "".join(line for line in self.project.splitlines(keepends=True)
-                          if re.sub(r"^theories/(\w+)\.v\s*$", r"\1", line) not in removed)
+                          if re.sub(r"^theories/([\w/]+)\.v\s*$", r"\1", line).replace("/", ".")
+                          not in removed)
         path = target / "_CoqProject"
         if path.read_text() != project:
             path.write_text(project)

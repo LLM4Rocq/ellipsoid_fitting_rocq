@@ -35,58 +35,9 @@ Open Scope R_scope.
 
 (* Slices and transposition. *)
 
-Lemma rectangle_continuous_slice_left (f : R -> R -> R) x y :
-  continuity_2d_pt f x y -> {for x, continuous (fun u => f u y)}.
-Proof.
-move=> h.
-have hp : {for x, continuous (fun u : R => (u, y))}.
-  rewrite /prop_for /continuous_at.
-  by apply: (@cvg_pair _ _ _ _ (nbhs x) (nbhs y)); [exact: cvg_id | exact: cvg_cst].
-exact: (continuous_comp hp h).
-Qed.
-
-Lemma rectangle_continuous_slice_right (f : R -> R -> R) x y :
-  continuity_2d_pt f x y -> {for y, continuous (fun v => f x v)}.
-Proof.
-move=> h.
-have hp : {for y, continuous (fun v : R => (x, v))}.
-  rewrite /prop_for /continuous_at.
-  by apply: (@cvg_pair _ _ _ _ (nbhs x) (nbhs y)); [exact: cvg_cst | exact: cvg_id].
-exact: (continuous_comp hp h).
-Qed.
-
-Lemma rectangle_continuous_transpose (f : R -> R -> R) x y :
-  continuity_2d_pt f x y -> continuity_2d_pt (fun u v => f v u) y x.
-Proof.
-move=> h; rewrite /continuity_2d_pt.
-exact: (continuous_comp (@swap_continuous R R (y, x)) h).
-Qed.
-
 (* Rules for continuity_2d_pt. *)
 
-Lemma continuity_2d_pt_mult (f g : R -> R -> R) x y :
-  continuity_2d_pt f x y -> continuity_2d_pt g x y ->
-  continuity_2d_pt (fun u v => f u v * g u v) x y.
-Proof. by move=> hf hg; exact: (continuousM (K := R) hf hg). Qed.
-
-Lemma continuity_2d_pt_id1 x y : continuity_2d_pt (fun u _ => u) x y.
-Proof. exact: cvg_fst. Qed.
-
-Lemma continuity_2d_pt_id2 x y : continuity_2d_pt (fun _ v => v) x y.
-Proof. exact: cvg_snd. Qed.
-
-(* The hypothesis on f is Stdlib's continuity_pt. *)
-Lemma continuity_1d_2d_pt_comp (f : R -> R) (g : R -> R -> R) x y :
-  continuity_pt f (g x y) -> continuity_2d_pt g x y ->
-  continuity_2d_pt (fun u v => f (g u v)) x y.
-Proof. by move=> /continuity_ptE hf hg; exact: (continuous_comp hg hf). Qed.
-
 (* Helpers: joint continuity, integrability on segments, bounds. *)
-
-Lemma rectangle_joint_continuous (f : R -> R -> R) :
-  (forall x y, continuity_2d_pt f x y) ->
-  continuous (fun p : R * R => f p.1 p.2).
-Proof. by move=> H [x y]; exact: H. Qed.
 
 (* A continuous function is integrable on every segment. *)
 Lemma rectangle_continuous_segment_integrable (g : R -> R) c d :
@@ -95,27 +46,6 @@ Proof.
 move=> hg; rewrite /segment_integrable.
 apply: continuous_compact_integrable; first exact: segment_compact.
 exact/continuous_subspaceT.
-Qed.
-
-(* A jointly continuous function is bounded on every closed rectangle. *)
-Lemma rectangle_bound (f : R -> R -> R) a b c d :
-  (forall x y, continuity_2d_pt f x y) ->
-  exists M, forall u v, a <= u <= b -> c <= v <= d -> Rabs (f u v) <= M.
-Proof.
-move=> H.
-pose g := fun p : R * R => (f p.1 p.2 : R^o).
-have cA : compact (`[a, b]%classic `*` `[c, d]%classic : set (R * R)).
-  by apply: compact_setX; exact: segment_compact.
-have cg : {within `[a, b]%classic `*` `[c, d]%classic, continuous g}.
-  exact/continuous_subspaceT/rectangle_joint_continuous.
-have /compact_bounded [M [_ HM]] := continuous_compact cg cA.
-exists (M + 1) => u v hu hv.
-have hM : (M < M + 1)%R by rewrite ltrDl ltr01.
-have H2 : (g @` (`[a, b]%classic `*` `[c, d]%classic)) (f u v).
-  exists (u, v) => //; split => /=; rewrite in_itv /=; apply/andP; split;
-    apply/RleP; lra.
-have /RleP := HM _ hM _ H2.
-by rewrite RabsE.
 Qed.
 
 (* The oriented integral is a signed integral over the segment between the
@@ -134,101 +64,7 @@ Lemma rectangle_segment_memE (a b x : R) :
   `[a, b]%classic x -> a <= x <= b.
 Proof. by rewrite /= in_itv /= => /andP [/RleP h1 /RleP h2]. Qed.
 
-Lemma rectangle_open_mem (a b x : R) :
-  `]a, b[%classic x -> a < x < b.
-Proof. by rewrite /= in_itv /= => /andP [/RltP h1 /RltP h2]. Qed.
-
 (* Integrals of slices and parameter integrals. *)
-
-Lemma rectangle_slice_integrable (f : R -> R -> R) :
-  (forall x y, continuity_2d_pt f x y) ->
-  forall x c d, segment_integrable (f x) c d.
-Proof.
-move=> H x c d; apply: rectangle_continuous_segment_integrable => y.
-exact: rectangle_continuous_slice_right.
-Qed.
-
-Lemma rectangle_parameter_integral_continuous (f : R -> R -> R) (c d x : R) :
-  (forall u v, continuity_2d_pt f u v) ->
-  {for x, continuous (fun u : R => oriented_integral (f u) c d)}.
-Proof.
-move=> H.
-set s := (if Rle_dec c d then 1 else -1).
-pose B := `[Rmin c d, Rmax c d]%classic : set R.
-pose F := fun u => Rintegral lebesgue_measure B (f u).
-have -> : (fun u => oriented_integral (f u) c d) = (fun u => s * F u).
-  by apply/funext => u; rewrite rectangle_oriented_integral_segment.
-have [M HM] := rectangle_bound f (x - 1) (x + 1) (Rmin c d) (Rmax c d) H.
-pose l := x - 1; pose r := x + 1.
-have hF : {in `]l, r[, continuous F}.
-  apply: (@continuity_under_integral R _ _ lebesgue_measure f B _ l r _ _ (cst M)).
-  - exact: measurable_itv.
-  - by move=> u _; exact: rectangle_slice_integrable.
-  - apply: aeW => v _ u _; exact: rectangle_continuous_slice_left.
-  - apply: continuous_compact_integrable; first exact: segment_compact.
-    exact/continuous_subspaceT/cst_continuous.
-  - move=> u /rectangle_open_mem hu; apply: aeW => v /rectangle_segment_memE hv.
-    apply/RleP; rewrite -RabsE; apply: HM; rewrite /l /r in hu; lra.
-have hFx : {for x, continuous F}.
-  apply: hF; apply/mem_set; rewrite /= in_itv /=; apply/andP; split;
-    apply/RltP; rewrite /l /r; lra.
-exact: (continuousM (@cst_continuous _ _ s x) hFx).
-Qed.
-
-(* Differentiation under the integral sign. Only df is assumed jointly
-   continuous, so the slices f u need not be continuous. The hypothesis
-   segment_integrable (f u) c d is Lebesgue integrability on the segment,
-   which includes Borel measurability. The lemma is applied, in
-   rectangle_iterated_primitive_derivative, to slices that are continuous
-   everywhere. *)
-Lemma rectangle_parameter_integral_derivative
-  (f df : R -> R -> R) (c d x : R) :
-  (forall u v : R, @is_derive R R^o R^o u 1 (fun z : R => f z v) (df u v)) ->
-  (forall u v, continuity_2d_pt df u v) ->
-  (forall u, segment_integrable (f u) c d) ->
-  @is_derive R R^o R^o x 1 (fun u : R => oriented_integral (f u) c d)
-    (oriented_integral (df x) c d).
-Proof.
-move=> HD HC HI.
-set s := (if Rle_dec c d then 1 else -1).
-pose B := `[Rmin c d, Rmax c d]%classic : set R.
-pose F := fun u => Rintegral lebesgue_measure B (f u).
-have -> : (fun u => oriented_integral (f u) c d) = (fun u => s * F u).
-  by apply/funext => u; rewrite rectangle_oriented_integral_segment.
-rewrite rectangle_oriented_integral_segment -/s.
-have [M HM] := rectangle_bound df (x - 1) (x + 1) (Rmin c d) (Rmax c d) HC.
-have M0 : 0 <= M.
-  apply: (Rle_trans _ _ _ (Rabs_pos (df x (Rmin c d)))); apply: HM.
-    lra.
-  by split; [lra | exact: (Rle_trans _ _ _ (Rmin_l c d) (Rmax_l c d))].
-pose l := x - 1; pose r := x + 1.
-have hx : `]l, r[%classic x.
-  by rewrite /= in_itv /=; apply/andP; split; apply/RltP; rewrite /l /r; lra.
-have Hd1 : forall u v, partial1of2 f u v = df u v.
-  by move=> u v; rewrite partial1of2E; case: (HD u v).
-have mB : measurable (B : set (measurableTypeR R)) by exact: measurable_itv.
-have intf : forall u, `]l, r[%classic u ->
-    lebesgue_measure.-integrable B (EFin \o f u).
-  by move=> u _; exact: HI.
-have derf1 : forall u v, `]l, r[%classic u -> B v ->
-    @derivable R R^o R^o (f^~ v) u 1.
-  by move=> u v _ _; case: (HD u v).
-have G0 : forall v : R, (0 <= cst M v)%R by move=> v; apply/RleP.
-have intG : lebesgue_measure.-integrable B (EFin \o cst M).
-  apply: continuous_compact_integrable; first exact: segment_compact.
-  exact/continuous_subspaceT/cst_continuous.
-have Gub : forall u v, `]l, r[%classic u -> B v ->
-    (`|partial1of2 f u v| <= cst M v)%R.
-  move=> u v /rectangle_open_mem hu /rectangle_segment_memE hv.
-  rewrite Hd1; apply/RleP; rewrite -RabsE; apply: HM; rewrite /l /r in hu; lra.
-have hd := derivable_under_integral mB hx intf derf1 G0 intG Gub.
-have hv := differentiation_under_integral mB hx intf derf1 G0 intG Gub.
-have hFd : @is_derive R R^o R^o x 1 F (Rintegral lebesgue_measure B (df x)).
-  apply: DeriveDef; first exact: hd.
-  rewrite -derive1E; rewrite /F hv.
-  by apply: eq_Rintegral => v _; rewrite Hd1.
-exact: (is_deriveZ s hFd).
-Qed.
 
 (* Rules of the oriented integral. *)
 
@@ -365,14 +201,6 @@ case: (Rtotal_order a b) => [hab | [<- | hba]].
   rewrite key //; lra.
 Qed.
 
-Lemma rectangle_oriented_zero c d : oriented_integral (fun _ => 0) c d = 0.
-Proof.
-have mD : measurable (`[Rmin c d, Rmax c d]%classic : set (measurableTypeR R)).
-  exact: measurable_itv.
-rewrite rectangle_oriented_integral_segment (Rintegral_cst _ mD) mul0r.
-by rewrite RmultE mulr0.
-Qed.
-
 (* More rules of the oriented integral. rectangle_oriented_ext asks for
    f x = g x on the closed segment between the end points. *)
 
@@ -489,56 +317,4 @@ Qed.
 
 (* Primitives in the first variable. *)
 
-Lemma rectangle_primitive_derivative (f : R -> R -> R) (a x y : R) :
-  (forall u v, continuity_2d_pt f u v) ->
-  @is_derive R R^o R^o x 1 (fun z : R => oriented_integral (fun t => f t y) a z)
-    (f x y).
-Proof.
-move=> H; apply: (rectangle_oriented_primitive_derivative (fun t => f t y)).
-by move=> t; apply: rectangle_continuous_slice_left.
-Qed.
-
-Lemma rectangle_primitive_integrable (f : R -> R -> R) a x c d :
-  (forall u v, continuity_2d_pt f u v) ->
-  segment_integrable (fun y => oriented_integral (fun t => f t y) a x) c d.
-Proof.
-move=> H; apply: rectangle_continuous_segment_integrable => y.
-apply: (rectangle_parameter_integral_continuous (fun y t => f t y) a x y).
-by move=> u v; apply: rectangle_continuous_transpose.
-Qed.
-
-Lemma rectangle_iterated_primitive_derivative (f : R -> R -> R) (a c d x : R) :
-  (forall u v, continuity_2d_pt f u v) ->
-  @is_derive R R^o R^o x 1
-    (fun z : R =>
-       oriented_integral (fun y => oriented_integral (fun t => f t y) a z) c d)
-    (oriented_integral (f x) c d).
-Proof.
-move=> H.
-apply: (rectangle_parameter_integral_derivative
-  (fun z y => oriented_integral (fun t => f t y) a z) f c d x).
-- by move=> u v; apply: rectangle_primitive_derivative.
-- exact: H.
-- by move=> u; apply: rectangle_primitive_integrable.
-Qed.
-
 (* Fubini's theorem on a rectangle. *)
-
-Theorem continuous_rectangle_fubini (f : R -> R -> R) a b c d :
-  (forall x y, continuity_2d_pt f x y) ->
-  oriented_integral (fun x => oriented_integral (f x) c d) a b =
-  oriented_integral (fun y => oriented_integral (fun x => f x y) a b) c d.
-Proof.
-move=> H.
-have HD : forall x, @is_derive R R^o R^o x 1
-    (fun z : R =>
-       oriented_integral (fun y => oriented_integral (fun t => f t y) a z) c d)
-    (oriented_integral (f x) c d).
-  by move=> x; exact: rectangle_iterated_primitive_derivative.
-have HK : continuous (fun z => oriented_integral (f z) c d).
-  by move=> x; exact: rectangle_parameter_integral_continuous.
-rewrite (rectangle_oriented_FTC _ _ a b HD HK).
-have -> : (fun y => oriented_integral (fun t => f t y) a a) = (fun _ => 0).
-  by apply/funext => y; exact: rectangle_oriented_point.
-by rewrite rectangle_oriented_zero Rminus_0_r.
-Qed.
