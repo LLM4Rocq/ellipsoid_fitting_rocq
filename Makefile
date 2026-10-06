@@ -7,7 +7,7 @@
 #   make check    build, then run scripts/check_sources.py: the axioms of the
 #                 main theorem are among those of check/assumptions.expected,
 #                 the frozen files are unchanged, and library/ depends neither
-#                 on the paper nor on Stdlib's reals; with CITATIONS=yes it
+#                 on the paper nor on Stdlib's reals; unless CITATIONS=no, it
 #                 also runs scripts/stale_citations.py (see make citations)
 #   make citations
 #                 list the names that comments cite but that nothing defines
@@ -19,9 +19,9 @@
 ROCQ_SWITCH ?= rocq-analysis
 EXEC = $(if $(ROCQ_SWITCH),opam exec --switch=$(ROCQ_SWITCH) --,)
 JOBS ?= 4
-# CITATIONS=yes makes "make check" fail on a stale citation in a comment. It
-# is off until the comments of every module are clean.
-CITATIONS ?= no
+# CITATIONS=no makes "make check" skip scripts/stale_citations.py, which
+# fails when a comment cites a name that nothing defines.
+CITATIONS ?= yes
 
 .PHONY: all build check citations clean FORCE
 

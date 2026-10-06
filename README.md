@@ -132,9 +132,8 @@ generated`), whose code cannot change. The other modules print none.
 - `scripts/stale_citations.py`: lists the names that the comments of
   `theories/` and `library/` cite but that no declaration defines, from
   the `.glob` files of a build and of the installed libraries. `make
-  citations` runs it, and `make check CITATIONS=yes` fails on a stale
-  citation; that setting is off until the comments of every module are
-  clean.
+  citations` runs it, and `make check` fails on a stale citation
+  (`CITATIONS=no` skips it).
 
 ## Where the proof comes from
 
