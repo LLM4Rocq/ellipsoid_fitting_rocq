@@ -2,14 +2,15 @@
    exp (t x^2) has Gaussian expectation 1 / sqrt (1 - 2 t)
    (gaussian_quadratic_exponential_expectation), and it is integrable and
    absolutely integrable against the standard Gaussian law. The proof
-   writes exp (t x^2) times the Gaussian kernel as the kernel at
-   sqrt (1 - 2 t) x (gaussian_quadratic_tilt_kernel) and changes variables
-   (gaussian_scaled_kernel_integral of GaussianScaling). The integrals are
+   reads the expectation as an integral against normal_prob 0 1
+   (gaussian_quadratic_exponential_has_integral_gauss of GaussianLawBridge,
+   from integral_normal_expR_sqr of the library). The integrals are
    Lebesgue integrals over the line. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions.
-From EllipsoidFitting Require Import GaussianDefinitions GaussianKernel GaussianMass GaussianExpectation GaussianScaling.
+From EllipsoidFitting Require Import GaussianDefinitions GaussianKernel GaussianMass GaussianExpectation.
+From EllipsoidFitting Require GaussianLawBridge.
 Open Scope R_scope.
 
 Lemma gaussian_quadratic_tilt_kernel t x :
@@ -30,14 +31,7 @@ Theorem gaussian_quadratic_exponential_has_integral t :
   t < 1/2 ->
   gaussian_has_integral (fun x => exp (t * (x*x)))
     (gaussian_mass / sqrt (1-2*t)).
-Proof.
-  intro Ht; unfold gaussian_has_integral.
-  replace (fun x => exp (t * (x*x)) * gaussian_kernel x) with
-    (fun x => gaussian_kernel (sqrt (1-2*t)*x)).
-  - apply gaussian_scaled_kernel_integral, sqrt_lt_R0; lra.
-  - apply functional_extensionality; intro x.
-    symmetry; apply gaussian_quadratic_tilt_kernel; exact Ht.
-Qed.
+Proof. exact (GaussianLawBridge.gaussian_quadratic_exponential_has_integral_gauss t). Qed.
 
 Corollary gaussian_quadratic_exponential_integrable t :
   t < 1/2 -> gaussian_integral_exists (fun x => exp (t * (x*x))).

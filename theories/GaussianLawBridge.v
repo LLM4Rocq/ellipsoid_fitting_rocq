@@ -24,7 +24,10 @@
      gauss_ibp2), and the invariance of gaussian_iterated_expectation under
      the exchange of two adjacent coordinates
      (gaussian_iterated_swap_adjacent_gauss, from the invariance of gauss d
-     under permutations of the coordinates, integral_gauss_col_perm). *)
+     under permutations of the coordinates, integral_gauss_col_perm).
+   - In one dimension, gaussian_quadratic_exponential_has_integral_gauss
+     gives the Gaussian integral of exp (t x^2) for t < 1/2 from
+     integral_normal_expR_sqr of the library. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum matrix.
@@ -33,8 +36,10 @@ From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_stieltjes_measure lebesgue_measure.
 From mathcomp Require Import measurable_realfun lebesgue_integral.
 From mathcomp Require Import probability normal_distribution.
-From mathcomp Require Import normedtype derive arithmetic_tactic.
+From mathcomp Require Import normedtype derive sequences exp.
+From Stdlib Require Import Lra.
 From GaussianAnalysis Require Import measurable_matrix gauss gauss_ibp.
+From GaussianAnalysis.comparison Require Import chi_square.
 From EllipsoidFitting Require Import GaussianProbabilityDefinitions
   GaussianProbabilityProductDefinitions GaussianProbabilityProductMeasure.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefinitions
@@ -43,7 +48,10 @@ From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefiniti
   GaussianCoordinateWeights GaussianCoordinateMarginals
   GaussianCoordinatePermutationDefinitions GaussianCoordinatePermutations
   GaussianCoordinateDerivativeDefinitions GaussianCoordinatePolynomialContinuity
-  GaussianPermutationContinuity GaussianPermutationWeights.
+  GaussianPermutationContinuity GaussianPermutationWeights
+  GaussianProbabilityDensity GaussianProbabilityIntegrals.
+From EllipsoidFitting Require Import RealsBridge.
+From EllipsoidFitting Require GaussianMass.
 Import GRing.Theory Num.Theory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
@@ -444,3 +452,42 @@ by rewrite (integral_gauss_col_perm (tperm (Ordinal ltid) (Ordinal lti1d)) iF).
 Qed.
 
 End swap.
+
+Section quadratic.
+Local Open Scope R_scope.
+
+Theorem gaussian_quadratic_exponential_has_integral_gauss t :
+  t < 1/2 ->
+  gaussian_has_integral (fun x => exp (t * (x*x)))
+    (gaussian_mass / sqrt (1-2*t)).
+Proof.
+move=> Ht.
+pose f := fun x : R => exp (t * (x * x)).
+have fE : f = (fun x => expR (t * x ^+ 2)%R).
+  by rewrite /f expF; apply/funext => x; rewrite expr2.
+have ts : (2 * t * 1 ^+ 2 < 1)%R.
+  rewrite expr1n mulr1; apply/RltP.
+  change (Rlt (Rmult (Rplus R1 R1) t) R1); lra.
+have E := integral_normal_expR_sqr (oner_neq0 R) ts.
+have mf : measurable_fun [set: measurableTypeR R] (fun x => (f x)%:E).
+  by apply/measurable_EFinP; rewrite fE; exact: measurable_expR_sqr.
+have iN : gaussian_law_integrable f.
+  apply/integrableP; split => //.
+  have -> : (\int[gaussian_law]_x `|(f x)%:E| = \int[normal_prob 0 1]_x (expR (t * x ^+ 2))%:E)%E.
+    by apply: eq_integral => x _; rewrite fE /= ger0_norm // expR_ge0.
+  by rewrite E ltry.
+have exf : gaussian_integral_exists f := (gpb_integrable_iff f).1 iN.
+have Eexp : gaussian_expectation f = (Num.sqrt (1 - 2 * t))^-1%R.
+  have := gpb_law_integral f exf.
+  have -> : (\int[gaussian_law]_x (f x)%:E = \int[normal_prob 0 1]_x (expR (t * x ^+ 2))%:E)%E.
+    by apply: eq_integral => x _; rewrite fE.
+  by rewrite E expr1n mulr1 => -[->].
+have m0 := GaussianMass.gaussian_mass_positive.
+split; first exact: exf.
+rewrite -/(gaussian_integral f) RsqrtE.
+have -> : gaussian_integral f = gaussian_expectation f * gaussian_mass.
+  by rewrite /gaussian_expectation; field; lra.
+by rewrite Eexp RdivE [RHS]mulrC.
+Qed.
+
+End quadratic.
