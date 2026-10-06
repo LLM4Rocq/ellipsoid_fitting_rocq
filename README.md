@@ -129,6 +129,12 @@ generated`), whose code cannot change. The other modules print none.
   them. Its docstring says how it decides. On the current tree it lists
   only eight function equalities of `Analysis/RealsBridge`, kept so that the
   bridge is complete.
+- `scripts/stale_citations.py`: lists the names that the comments of
+  `theories/` and `library/` cite but that no declaration defines, from
+  the `.glob` files of a build and of the installed libraries. `make
+  citations` runs it, and `make check CITATIONS=yes` fails on a stale
+  citation; that setting is off until the comments of every module are
+  clean.
 
 ## Where the proof comes from
 
