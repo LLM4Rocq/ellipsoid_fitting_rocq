@@ -14,49 +14,15 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of the inner module JointGrowth of theories/InterpolationProofs.v
-   (also copied in theories/JointProofs.v), extracted to
-   build/agent2/unbundled/JointGrowth.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original imported the bundles QuadraticGaussianProofs and GoeProofs
-   and opened their inner modules QuadraticGaussianRegular and GoeSynthesis.
-   The port imports these standalone ported modules directly.
-
-   The three statements keep their names, their arguments in the same order
-   and their hypotheses. No item is added. They change form in three ways,
-   the ways of the ported modules this one imports, and none changes
-   meaning.
-
-   1. Norms. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. On
-      vector n and matrix n the norms are those of the ports of
-      OperatorDefinitions and MatrixDefinitions, which nest euclidean_product
-      of MatrixEuclideanProduct and keep Coquelicot's Euclidean norm of all
-      entries, not MathComp's max norm (difference 1 of analysis/README.md).
-      The bounds are stated with Stdlib's order, sum, product, power,
-      inverse, sqrt and INR around MathComp's norms, and Rabs stays Stdlib's.
-      The constants are unchanged.
-
-   2. Joint vectors. Coquelicot's
-        prod_NormedModule R_AbsRing (vector_NormedModule n)
-          (vector_NormedModule (goe_vector_index n))
-      becomes
-        euclidean_product (vector_NormedModule n)
-          (vector_NormedModule (goe_vector_index n))
-      as in the ported JointDefinitions and JointContinuity. Its norm is
-      Coquelicot's product norm sqrt (norm (fst q) ^ 2 + norm (snd q) ^ 2),
-      so the polynomial bounds (1 + norm q) ^ p mean what they meant.
-
-   3. Pointwise continuity. Coquelicot's continuous f q becomes MathComp's
-      {for q, continuous f} (difference 5 of analysis/README.md). The bound
-      variable of each function is annotated with the joint vector type, so
-      that joint_observables_polynomial_regular has the text of group 4 of
-      analysis/challenges/ellipsoid_joint/Challenge.v.
-
-   In the proofs, Coquelicot's norm_ge_0 becomes normr_ge0 through RleP,
-   norm_le_prod_norm_1 and norm_le_prod_norm_2 become
-   euclidean_product_norm_fst and euclidean_product_norm_snd through RleP,
-   and Stdlib's "rewrite A, B" becomes an ssreflect rewrite. *)
+(* Polynomial growth of the four joint observables of JointDefinitions as
+   functions of the joint vector q = (x, z), whose norm is the Euclidean
+   norm of all the coordinates of x and z.
+   joint_observables_uniform_growth: |joint_quadratic_trace|,
+   |joint_goe_trace|, |joint_divergence| and |joint_remainder| are at most
+   constants times (1 + |q|) ^ 2, (1 + |q|) ^ 1, (1 + |q|) ^ 0 and
+   (1 + |q|) ^ 2, uniformly in the matrix C and in t.
+   joint_observables_polynomial_regular adds that the four functions are
+   continuous. *)
 
 (* The joint vector space, named for the proofs only. *)
 Local Notation joint_space n :=

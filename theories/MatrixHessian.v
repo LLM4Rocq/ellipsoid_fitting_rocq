@@ -13,43 +13,29 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixHessian.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem of the original keeps its name and its arguments, in the
-   same order. No lemma is added. The statements change form in three ways,
-   the same ways as in the ports of MatrixCoordinates, MatrixAssembly,
-   MatrixGradient, MatrixSecond and MatrixThird, which this module imports.
-
-   1. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (i <= n)%coq_nat, which is ssrnat's notation for
-      Stdlib's le. The meaning is unchanged.
-
-   2. Frechet derivatives. Coquelicot's NormedModule R_AbsRing becomes
-      normedModType R, and Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis: f is differentiable at A and its
-      differential 'd f A is l. Both say that l is linear and continuous and
-      that f (A + H) = f A + l H + o(H) as H tends to 0. The norms are those
-      of MatrixDefinitions and HessianDefinitions: the Frobenius norm on
-      matrix n and the Euclidean norm of all entries on hessian_array n, as
-      in Coquelicot. Differentiability does not depend on the choice among
-      equivalent norms in any case.
-
-   3. Real-valued maps. A map into R given to is_diff is written with
-      codomain R^o, the normed module view of R, as in
-      (fun M => soft_minimax ... : matrix n -> R^o). R^o is R by definition,
-      so the map is the same.
-
-   The arithmetic in the statements is Stdlib's, as in the original. The
-   definitions used here, those of HessianDefinitions, GradientDefinitions,
-   MatrixSecondDefinitions and MatrixThirdDefinitions, keep their names,
-   arguments and values in the port.
-
-   In the proofs, Coquelicot's filterdiff_ext becomes rewriting the function
-   with funext, filterdiff_comp' becomes is_diff_comp, filterdiff_linear
-   with trace_pair_left_linear becomes matrix_linear_is_diff of
-   MatrixCoordinates with trace_pair_left_linear of MatrixTrace, and
-   filterdiff_ext_lin becomes is_diff_eq. *)
+(* The Hessian of the nested soft minimax of affine matrix scores, and its
+   derivative. The Hessian matrix_nested_hessian is an array of matrices
+   (hessian_array n), which acts on a matrix direction by hessian_action.
+   The results assume 0 < beta, 0 < gamma and nonempty Y and S.
+   - hessian_entry_build and hessian_build_frechet: the entries and the
+     differential of an array built entry by entry.
+   - matrix_nested_gradient_derivative_trace and
+     matrix_nested_gradient_second_trace: the pairings trace_pair of the
+     first and second derivatives of the gradient with a matrix are the
+     second and third derivatives of the soft minimax.
+   - matrix_nested_gradient_second_frechet: the derivative of the gradient
+     in a direction U is differentiable, with differential
+     matrix_nested_gradient_second_derivative.
+   - matrix_nested_hessian_action and matrix_nested_hessian_frechet: the
+     Hessian acts as the derivative of the gradient, and it is
+     differentiable with differential matrix_nested_hessian_derivative.
+   - matrix_nested_hessian_derivative_action and
+     matrix_nested_hessian_derivative_evaluation: that differential acts as
+     the second derivative of the gradient, and evaluates to the third
+     derivative of the soft minimax.
+   The pairing identities compare two differentials of the same real map,
+   which are equal (scalar_frechet_unique). The norms are the Frobenius norm
+   on matrix n and the Euclidean norm of all entries on hessian_array n. *)
 
 Theorem hessian_entry_build n F i j :
   (i <= n)%coq_nat -> (j <= n)%coq_nat ->

@@ -1,48 +1,20 @@
-(* Port of theories/GaussianRectangle.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order, and no statement gains or loses a hypothesis. The statements use
-   the vocabulary of AnalysisIntegralDefinitions and of the bridge:
-   - Coquelicot's continuous f x becomes {for x, continuous f} (difference 5
-     of analysis/README.md);
-   - RInt f a b becomes oriented_integral f a b (difference 3);
-   - continuity_2d_pt F x y is the definition of the same name in
-     AnalysisIntegralDefinitions, which says the same thing;
-   - is_lim h p_infty l becomes (h A @[A --> +oo%R] --> l)%classic, the limit
-     of MathComp at +oo, as in the port of GaussianCutoff.
-   The bound variable in front of a continuity hypothesis is written x : R,
-   as in the port of GaussianCutoff, so that Rocq does not infer a MathComp
-   carrier for it. The arithmetic in every statement is Stdlib's, as in the
-   original.
-
-   Meaning. gaussian_integral, gaussian_integral_exists, gaussian_expectation
-   and the cutoff definitions follow the ported GaussianDefinitions and
-   GaussianCutoffDefinitions: the integral over the line is the Lebesgue
-   integral (difference 4) and the cutoff integral is oriented_integral over
-   [-A, A] (difference 3). Every integral on a segment in this module is the
-   integral of a function continuous everywhere, where oriented_integral
-   agrees with Coquelicot's RInt, and every integral over the line is the
-   integral of a continuous function dominated by an integrable one or of a
-   nonnegative integrable one, where the Lebesgue integral agrees with the
-   improper Riemann integral. So each statement is the Lebesgue counterpart
-   of the original, with the same meaning on the functions it is about.
-
-   Statements that change form, besides the vocabulary.
-   - gaussian_cutoff_density and gaussian_rectangle_density conclude an
-     equality with oriented_integral in place of RInt.
-   - gaussian_vanishing_error_limit takes and concludes limits at +oo in
-     MathComp's notation. The bridge lemma cvg_Reals_pinfty turns them into
-     the epsilon form that the original obtained with is_lim_spec.
-
-   What changes in the proofs. Coquelicot's RInt_scal, RInt_minus and RInt_ext
-   become rectangle_oriented_scal, rectangle_oriented_minus and
-   rectangle_oriented_ext of RectangleFubini. The last one asks for the
-   equality on the closed segment, and every use here proves it for every x.
-   The integrability of continuous functions on segments comes from
-   continuous_finite_integrable of ImproperBounds. The continuity lemmas on
-   one variable are those of AnalysisBridge (continuous_mult,
-   continuous_const, continuous_minus, continuous_ext), and those on two
-   variables are those of RectangleFubini, which keep Coquelicot's names. *)
+(* Gaussian expectations of a jointly continuous function F of two
+   variables, cut off to a rectangle [-A, A] x [-B, B].
+   - gaussian_cutoff_density and gaussian_rectangle_density write the cut
+     off expectations as oriented integrals against gaussian_density.
+   - gaussian_finite_rectangle_fubini: on a rectangle, the two iterated cut
+     off expectations of F are equal.
+   - gaussian_rectangle_approximation_given_section_continuity: if
+     |F x y| <= g x * h y, with g and h continuous, nonnegative and
+     integrable against the kernel, and if x |-> E[F x] is continuous and
+     bounded by E[h] * g x, then the iterated expectation of F differs from
+     its cut off version by at most E[h] times the tail of g outside
+     [-A, A] plus E[g] times the tail of h outside [-B, B]
+     (gaussian_cutoff_error_majorant).
+   - gaussian_vanishing_error_limit: if |J - D A| <= e A for A >= 0 and e A
+     tends to 0, then D A tends to J as A tends to +oo.
+   The integrals on segments are oriented integrals of continuous functions,
+   and the integrals over the line are Lebesgue integrals. *)
 
 From Stdlib Require Import Reals Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

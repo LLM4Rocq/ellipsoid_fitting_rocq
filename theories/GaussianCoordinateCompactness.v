@@ -4,42 +4,19 @@ From EllipsoidFitting Require Import GaussianCoordinateDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port note. This helper module replaces the two names of
-   Coquelicot.Compactness that the coordinate modules of theories/ use and
-   that GaussianCoordinateDefinitions does not copy: bounded_n and
-   compactness_value. Nothing here changed form.
+(* A compactness argument on boxes of R^n, whose points are nested pairs
+   (Tn n R). compactness_value_gauge: if every point t has an admissible
+   gauge value e > 0 (G t e), then some d > 0 works on the whole box: for
+   every x of the box there are a point t of the box and an admissible
+   e >= d at t such that every coordinate of x is within e of that of t.
+   The proof builds no topology. The one dimensional case,
+   compactness_segment, is a least upper bound argument, which uses
+   excluded middle (boolp.EM); dimension S n applies dimension n to every
+   slice. The gauge is a relation, so that no choice principle is
+   needed. *)
 
-   bounded_n is copied word for word from Coquelicot.Compactness
-   (Coquelicot 3.4.4), as printed by Print in the rocq-tools switch, so that
-   simpl, destruct and change behave on it as in theories/. It is the only
-   Definition of the module; no challenge statement mentions it.
-
-   compactness_value has exactly Coquelicot's statement, double negation
-   included. Its proof is classical and elementary: it does not build a
-   topology on Tn n R. The one dimensional case (compactness_segment) is a
-   least upper bound argument on the set of right endpoints y such that
-   [a, y] admits a uniform gauge value; the case of dimension S n follows
-   from the case of dimension n applied to every slice and from the one
-   dimensional case applied to the slice gauges (compactness_value_gauge).
-   The gauge is a relation there, so that no choice principle is needed
-   before the sig forms. compactness_value_pos is the positive sig form,
-   without the double negation, which the port of GaussianCoordinateTopology
-   can use directly; it needs boolp's constructive_indefinite_description,
-   the only MathComp name used here. compactness_value_exists is the same
-   with an exists and a real valued gauge.
-
-   Assumptions. compactness_segment, compactness_value_gauge and
-   compactness_value_exists depend on Stdlib's axioms for R
-   (sig_forall_dec, sig_not_dec, functional_extensionality_dep) and on
-   MathComp's boolp axioms, through boolp.EM, which is used in place of
-   Stdlib's Classical_Prop.classic so that no statement free of Rpower.ln
-   rests on classic (build/agent2/REPORT-axioms.md). compactness_value_pos
-   and compactness_value also depend on
-   boolp.constructive_indefinite_description. All are permitted by
-   analysis/README.md and the port guide. *)
-
-(* Copy of Coquelicot.Compactness.bounded_n: every coordinate of x lies
-   between the same coordinates of a and b. *)
+(* bounded_n n a b x: every coordinate of x lies between the same
+   coordinates of a and b. *)
 Fixpoint bounded_n (n : nat) : Tn n R -> Tn n R -> Tn n R -> Prop :=
   match n as n0 return (Tn n0 R -> Tn n0 R -> Tn n0 R -> Prop) with
   | O => fun _ _ _ : Tn O R => True

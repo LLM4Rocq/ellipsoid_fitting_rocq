@@ -9,45 +9,17 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates Operato
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/BlockBasis.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem of the original keeps its name and its arguments, in the
-   same order. The statements change form in the ways of the ports of
-   MatrixCoordinates, CoefficientMaps and OperatorRepresentation.
-
-   1. Linear maps. Coquelicot's is_linear l is a record with three fields:
-      l (plus x y) = plus (l x) (l y), l (scal k x) = scal k (l x), and
-      exists M, 0 < M /\ forall x, norm (l x) <= M * norm x.
-      As in MatrixCoordinates, CoefficientMaps and BlockOperatorDefinitions,
-      the port states it as the conjunction
-        linear l /\
-        exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R
-      of MathComp's algebraic linearity, which is equivalent to the first two
-      fields, and of Coquelicot's norm bound. The bound uses Stdlib's 0, <,
-      <= and * around MathComp's norms. The norms are those of
-      MatrixDefinitions and LowerDefinitions: the Frobenius norm on matrix n
-      and the Euclidean norm of the m + 1 blocks on block_array n m, as in
-      Coquelicot. So block_entry_linear and block_inject_linear mean the same
-      as in the original, constants included.
-
-   2. Coquelicot's zero of matrix_NormedModule n becomes MathComp's 0 of that
-      space, written 0%R, as in block_inject of BlockOperatorDefinitions. It
-      is the matrix whose entries are all 0, as before.
-
-   3. Order on indices. With ssreflect loaded, (j <= m)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so
-      block_entry_inject writes (j <= m)%coq_nat, which is Stdlib's le.
-
-   4. Proofs. Coquelicot's is_linear_id and is_linear_zero are proved in
-      place, with the bound constant 1. Coquelicot's scal_one and
-      scal_zero_l become MathComp's scale1r and scale0r. The scalars 1 and 0
-      of the intermediate sum in block_sum_injections are written inside %R,
-      as in module_coordinate_sum_select of OperatorRepresentation.
-
-   The port adds one item, marked below: a Hierarchy Builder instance that
-   declares block_inject n m i a linear map, as MatrixCoordinates does for
-   tuple_entry and OperatorBounds for matrix_action. It has no name of its
-   own and changes no statement. *)
+(* The blocks of a block array as coordinates. block_entry n m W i is the
+   block i of W, and block_inject n m i M is the block array with M in
+   block i and 0 elsewhere.
+   - block_entry_linear and block_inject_linear: both maps are linear
+     (MathComp's linear) and bounded, `|l x| <= M * `|x|, for the Frobenius
+     norm on matrix n and the Euclidean norm of the m + 1 blocks on
+     block_array n m.
+   - block_entry_inject: block j of block_inject n m i M is M if j = i and
+     0 otherwise, for j <= m.
+   - block_sum_injections: a block array is the sum of the injections of
+     its blocks. *)
 
 (* Declaring block_inject n m i a linear map makes HB report canonical
    projections that duplicate existing ones. Rocq ignores the duplicates; the
@@ -78,10 +50,9 @@ Proof.
       apply/RleP; apply normr_ge0.
 Qed.
 
-(* Added by the port. block_inject n m i is a {linear _ -> _} of MathComp, so
-   that linearD, linearZ, linear0 and the other lemmas about linear maps
-   apply to it directly, in place of Coquelicot's linear_plus, linear_scal
-   and linear_zero. The instance changes no statement. *)
+(* block_inject n m i is a {linear _ -> _} of MathComp, so that linearD,
+   linearZ, linear0 and the other lemmas about linear maps apply to it
+   directly. *)
 HB.instance Definition _ n m i :=
   GRing.isLinear.Build R (matrix_NormedModule n) (block_NormedModule n m) *:%R
     (block_inject n m i) (proj1 (block_inject_linear n m i)).

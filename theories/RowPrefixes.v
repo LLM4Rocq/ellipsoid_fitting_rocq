@@ -2,6 +2,13 @@ From Stdlib Require Import List Arith Lia.
 From EllipsoidFitting Require Import RowCoordinateDefinitions RowCoordinates RowReplacement RowMarginalDefinitions.
 Import ListNotations.
 
+(* Properties of row_prefixes N d D, which keeps the first d entries of
+   each of N rows of length d + D: the result has length N * d, its row i
+   is the first d entries of row i of the input (row_prefixes_row_chunk),
+   it can be computed one block at a time (row_prefixes_first_block), and
+   it preserves a coordinatewise relation between two lists
+   (row_prefixes_forall2). *)
+
 Theorem row_prefixes_length {A : Type} N d D (xs : list A) :
   length xs=N*(d+D) -> length(row_prefixes N d D xs)=N*d.
 Proof.

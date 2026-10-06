@@ -5,39 +5,19 @@ From EllipsoidFitting Require Import GaussianCoordinateDefinitions GaussianCoord
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/GaussianCoordinatePolynomialContinuity.v from Coquelicot
-   to MathComp-Analysis.
+(* Closure properties of finite_joint_continuous, the joint continuity of a
+   function of the d coordinates of a list xs. Write x_i for
+   List.nth i xs 0. Each coordinate x_i with i < d is continuous
+   (finite_joint_continuous_nth), and sums, products, scalar multiples and
+   differences of continuous functions are continuous. Hence, for F
+   continuous, so are x_i * F, (x_i * x_i - 1) * F and (x_i * x_j) * F.
 
-   Every lemma of the original keeps its name and its arguments, in the
-   same order, and says the same thing. finite_joint_continuous comes from
-   the port of GaussianCoordinateDefinitions, which copies the original
-   definition word for word. The changes of text are the following.
-
-   1. nth. With MathComp loaded, an unqualified nth is MathComp's seq.nth,
-      whose arguments come in another order. The statements write List.nth,
-      which is the nth of the original (Stdlib's). This affects
-      finite_joint_continuous_nth, finite_joint_continuous_times_coordinate,
-      finite_joint_continuous_times_centered_square and
-      finite_joint_continuous_times_two_coordinates.
-
-   2. The bound on the index. With ssreflect loaded, (i < d)%nat is
-      ssrnat's boolean ltn. The statements write (i < d)%coq_nat, which is
-      Peano's lt, the relation of the original. The same four lemmas are
-      affected.
-
-   The statements of finite_joint_continuous_add, finite_joint_continuous_mult,
-   finite_joint_continuous_scale and finite_joint_continuous_minus are the
-   original text.
-
-   Proofs. finite_joint_continuous_nth is the original proof. The original
-   proofs of add, mult and minus went through finite_joint_continuous_filter
-   and Coquelicot's continuous_plus, continuous_mult and continuous_minus on
-   coordinates_uniform_space d. The port does the same with the port of
-   finite_joint_continuous_filter (GaussianCoordinateTopology), where
-   continuity at a point is MathComp's {for z, continuous f}, and with the
-   combinators continuous_plus, continuous_mult and continuous_minus of
-   AnalysisBridge, stated for any topological domain and codomain R with
-   Stdlib's operations. The other proofs are the original ones. *)
+   The statements write List.nth and (i < d)%coq_nat because MathComp is
+   loaded: its seq.nth takes its arguments in another order, and
+   (i < d)%nat would be ssrnat's boolean ltn. The sum, product and
+   difference go through finite_joint_continuous_filter
+   (GaussianCoordinateTopology), which states the joint continuity as
+   MathComp's continuity on coordinates_uniform_space d. *)
 
 Lemma finite_joint_continuous_nth d i :
   (i < d)%coq_nat -> finite_joint_continuous d (fun xs => List.nth i xs 0).

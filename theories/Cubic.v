@@ -3,6 +3,16 @@ From EllipsoidFitting Require Import SoftDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 
+(* Bounds on the cubic mass of a vector y on a finite list of coordinates
+   I, the sum of the |y i| ^ 3 (cubic_mass). If every |y i| is at most a,
+   the cubic mass is at most a times the squared norm
+   (cubic_mass_coordinate_cap), so at most a for a unit vector
+   (cubic_mass_unit_cap). The same bound holds for an average of cubic
+   masses of unit vectors under a probability distribution given by weights
+   q on Y (weighted_cubic_mass_unit_cap), in particular for the bound
+   a = theta / sqrt d on the coordinates (weighted_cubic_mass_low_influence).
+   The first lemmas are elementary facts about finite_sum. *)
+
 Lemma cubic_sum_nonnegative (f : nat -> R) (I : list nat) :
   (forall i, In i I -> 0 <= f i) -> 0 <= finite_sum f I.
 Proof.

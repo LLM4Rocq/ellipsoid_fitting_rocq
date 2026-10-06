@@ -17,53 +17,19 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of the inner module QuadraticGaussianMatrix of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/QuadraticGaussianProofs.v), extracted to
-   build/agent2/unbundled/QuadraticGaussianMatrix.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original imported the bundles QuadraticGrowthProofs and
-   GaussianVectorProofs, and named their inner modules
-   QuadraticGrowthProofs.QuadraticGrowth,
-   GaussianVectorProofs.GaussianVectorDomain,
-   GaussianVectorProofs.GaussianVectorAlgebra and
-   GaussianVectorProofs.GaussianVectorFinite. The port imports
-   analysis/QuadraticGrowthProofs.v, whose inner module QuadraticGrowth
-   keeps that name, and the standalone ported modules GaussianVectorDomain,
-   GaussianVectorAlgebra and GaussianVectorFinite. It also imports
-   MatrixThird, for the reason given below.
-
-   Every lemma and theorem keeps its name, its arguments in the same order
-   and its hypotheses. No item is added. The statements are the text of the
-   original, and their meaning changes only through the ported definitions
-   they mention: gaussian_vector_domain and gaussian_vector_expectation
-   follow the ported GaussianVectorDefinitions (difference 4 of
-   analysis/README.md), that is Lebesgue integrability against the Gaussian
-   kernel at each level of the iterated expectation, and Lebesgue integrals.
-   The functions of the statements are continuous and bounded by a
-   polynomial in the Euclidean norm of the vector, so they are absolutely
-   integrable against the kernel and the Lebesgue and improper Riemann
-   values agree. The statement of quadratic_gaussian_matrix_stein is the
-   text of the clause "Matrix Gaussian identity and separate domains" of the
-   restated challenge ellipsoid_gaussian_matrix.
-
-   One index bound changes form, inside the proof of
-   quadratic_gaussian_matrix_stein: with ssreflect loaded, (a <= n)%nat would
-   mean ssrnat's boolean leq, so the local assertion writes (a <= n)%coq_nat,
-   Stdlib's Peano order le, as the ported lemmas it uses do.
-
-   The proofs are the original ones, with three changes of form.
-   1. The linearity and the bound of the derivative of
-      matrix_nested_gradient, which the original takes from proj1 of
-      Coquelicot's filterdiff to feed symmetric_divergence_identity, come
-      from matrix_third_is_diff_linear of MatrixThird applied to the ported
-      matrix_nested_gradient_frechet, as in the port of QuadraticExpansion.
-   2. Stdlib's "rewrite ... by tac" is written with explicit arguments, in
-      the form that ssreflect accepts.
-   3. The continuity hypotheses of gaussian_vector_polynomial_double_sum_domain
-      are stated with {for x, continuous _} and the bounds with the norm
-      `|x|%R, which are the forms given by the ported regularity lemmas. *)
+(* The Gaussian Stein identity for the nested Gibbs gradient along the
+   quadratic matrix map, for a standard Gaussian vector x and symmetric
+   matrices coeff y s (quadratic_gaussian_matrix_stein). Let
+     W x = trace_pair (x x^T - I) (quadratic_gradient ... x),
+     Div x = symmetric_divergence of matrix_nested_gradient_derivative,
+     Chaos x = chaos_contraction of matrix_nested_third_derivative along x,
+   where both derivatives are taken at quadratic_matrix n lambda C x. The
+   three functions are in the Gaussian domain and
+     E[W] = 2 lambda E[Div] + lambda^2 E[Chaos].
+   The domains come from continuity and polynomial bounds of the entries
+   (gaussian_vector_polynomial_double_sum_domain), and the identity from the
+   identity of each entry, quadratic_gaussian_entry_stein, summed over the
+   entries. Expectations are iterated Lebesgue integrals. *)
 
 Lemma quadratic_gaussian_weighted_sum_domain n beta gamma offset coeff Y S lambda C :
   0 < beta -> 0 < gamma -> Y <> [] -> S <> [] ->

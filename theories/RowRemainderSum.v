@@ -13,59 +13,25 @@ From EllipsoidFitting Require Import TensorGibbs TensorNestedRepresentation
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/RowRemainderSum.v from Coquelicot to MathComp-Analysis.
+(* Bounds on the sum over the rows of the third-order remainders. The
+   remainder gaussian_row_remainder of row i is the chaos contraction of
+   the third derivative of the nested Gibbs function of that row at the
+   vector x_i = fst (gaussian_row_pair n i xs)
+   (gaussian_row_remainder_slice). When the B s are symmetric, it is at
+   most 4 |x_i| ^ 2 times the projective norm of that third derivative
+   (gaussian_row_remainder_projective_bound). If moreover each y z is a
+   unit vector with entries at most theta / sqrt (n + 1) in absolute value
+   and the operator norms of the B s are at most k, then the sum over the
+   rows of the absolute remainders is at most
+   40 k^3 (beta + gamma)^2 theta / sqrt (n + 1) times any bound Rmax on the
+   |x_i| ^ 2 (gaussian_row_remainder_radial_sum), hence times the maximum
+   radius of the row prefixes (gaussian_row_remainder_maximum_sum,
+   gaussian_row_remainder_absolute_sum).
 
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. No item is added. The proofs are the original ones, with the
-   renamings below.
-
-   Imports. The original imported the bundle ComparisonProofs and opened its
-   inner modules TensorGibbs, TensorNestedRepresentation, SecondChaosBounds,
-   RowSlice and Cubic. The port imports the standalone ported modules of the
-   same names directly, in the same order and after the other imports, so
-   that every short name resolves to the same module as before. Cubic is the
-   module copied unchanged from theories/Cubic.v, which is identical to the
-   inner copy of the bundle.
-
-   Four changes of notation, which keep the meaning of every statement.
-
-   1. Norms. Coquelicot's norm x becomes MathComp's norm, written (`|x|)%R.
-      The vectors fst (gaussian_row_pair n i xs) are elements of vector n,
-      the nested tuples of MatrixDefinitions, whose products are
-      euclidean_product of MatrixEuclideanProduct and keep Coquelicot's
-      product norm sqrt (norm (fst x) ^ 2 + norm (snd x) ^ 2), not
-      MathComp's max norm (difference 1 of analysis/README.md). So the norm
-      is still the Euclidean norm of the S n coordinates, as in the ports of
-      SecondChaosBounds and RowRadiusNorm, and the constants 4 and 40 are
-      stated against the same norm as in the original.
-
-   2. Extended reals. Coquelicot's real x on Rbar becomes MathComp's fine x
-      on \bar R, as in the ports of TensorDefinitions, SecondChaosBounds and
-      RowSlice. projective_operator_norm is the infimum of the same set of
-      costs in both libraries, and both real and fine send the two infinite
-      values to 0, so fine (projective_operator_norm T) is the value that
-      real (projective_operator_norm T) was.
-
-   3. seq 0 (S m) is written List.seq 0 (S m). It is Stdlib's list of the
-      naturals 0, ..., m, as before; the qualification guards against
-      MathComp's type seq in importers that load ssreflect.
-
-   4. The MathComp imports are limited to ssralg, ssrnum, Rstruct,
-      normedtype and ereal: the norm on vector n needs the first four, and
-      fine the last. None of them opens MathComp's ssreflect, ssrnat or exp
-      in this file, so (i<=m)%nat is Stdlib's Peano le and + and * on nat
-      are Nat.add and Nat.mul, as in the original; (i<=m)%nat is the
-      (i <= m)%coq_nat of the ported BlockRowEvaluation. R_scope is opened
-      after the imports, so the arithmetic, ^, Rabs, sqrt and INR are
-      Stdlib's, and the proofs keep Stdlib's tactic syntax.
-
-   The definitions the statements use (gaussian_row_remainder,
-   gaussian_row_pair, gaussian_row_matrix, soft_matrix_row_offset,
-   soft_matrix_coefficients, matrix_nested_third_derivative,
-   chaos_contraction, symmetric_matrix, matrix_operator_norm,
-   euclidean_norm, finite_sum, gaussian_maximum_radius, row_prefixes,
-   goe_vector_index) keep their names, arguments and values in their
-   ports. So every statement says the same thing as in the original. *)
+   The norm on vector n is the Euclidean norm. The projective norm is an
+   extended real, read through fine, which sends the infinite values to 0.
+   The MathComp imports do not load ssreflect, so (i<=m)%nat is Stdlib's
+   le, and R_scope is opened last, so the arithmetic is Stdlib's. *)
 
 Theorem gaussian_row_remainder_slice n m beta gamma y B Y S t i xs :
   (i<=m)%nat ->

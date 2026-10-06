@@ -407,6 +407,17 @@ Section gauss_moments.
 Context {R : realType}.
 Local Notation N := (@normal_prob R 0 1).
 
+Lemma exprn1D_le (a : R) k : 0 <= a -> (1 + a) ^+ k <= 2 ^+ k * (1 + a ^+ k).
+Proof.
+move=> a0; have p2 : 0 <= (2 : R) ^+ k by rewrite exprn_ge0.
+case: (leP a 1) => a1.
+  apply: (le_trans (y := 2 ^+ k)); first by rewrite lerXn2r ?nnegrE ?addr_ge0 //; lra.
+  by rewrite ler_peMr // lerDl exprn_ge0.
+apply: (le_trans (y := (2 * a) ^+ k)).
+  by rewrite lerXn2r ?nnegrE ?addr_ge0 ?mulr_ge0 //; lra.
+by rewrite exprMn ler_wpM2l // lerDr.
+Qed.
+
 Lemma mx_norm_exprn_le m n (x : 'M[R]_(m, n)) k :
   `|x| ^+ k <= 1 + \sum_(ij : 'I_m * 'I_n) `|x ij.1 ij.2| ^+ k.
 Proof.

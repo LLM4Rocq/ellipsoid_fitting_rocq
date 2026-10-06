@@ -2,18 +2,13 @@ From Stdlib Require Import Reals.
 From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions SecondChaosDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/SymmetricDefinitions.v from Coquelicot to
-   MathComp-Analysis. The original used nothing from Coquelicot directly: its
-   only Coquelicot content came through matrix n, matrix_scale,
-   coordinate_sum and trace_pair of MatrixDefinitions, and through
-   vector_outer, chaos_basis and chaos_second of SecondChaosDefinitions.
-   Their ports keep the same names and arguments; matrix_scale is now
-   MathComp's *: on the nested tuples, which is componentwise as Coquelicot's
-   scal was. So the import of Coquelicot is dropped and nothing else changes.
-   MathComp is not imported here, so the factor / sqrt 2 is Stdlib's inverse
-   of Stdlib's square root, the sum + and the literal 0 are Stdlib's, and the
-   tests Nat.eqb a b and Nat.ltb a b are Stdlib's boolean comparisons on nat,
-   as before. *)
+(* A basis of the symmetric matrices, and the divergence of a map on them.
+   symmetric_diagonal_basis n a is E_aa, and
+   symmetric_offdiagonal_basis n a b is (E_ab + E_ba) / sqrt 2; together
+   they form an orthonormal basis of the symmetric matrices for the
+   Frobenius inner product. symmetric_divergence n L is the sum of
+   trace_pair n E (L E) over that basis, where trace_pair n B H is the
+   trace of B H. *)
 
 Definition symmetric_diagonal_basis n a : matrix n :=
   vector_outer n (chaos_basis n a) (chaos_basis n a).

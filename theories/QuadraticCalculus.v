@@ -10,49 +10,28 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates MatrixT
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/QuadraticCalculus.v from Coquelicot to MathComp-Analysis.
+(* Differentials along the quadratic family
+   quadratic_matrix n lambda C x = C + lambda * (x x^T - I), and product
+   rules. is_diff x f l says that f is differentiable at x with
+   differential l. The norms are the Euclidean norm on vector n, the
+   Frobenius norm on matrix n and the Euclidean norm of all entries on
+   hessian_array n.
+   - quadratic_matrix_frechet and quadratic_first_frechet: the
+     differential of x |-> quadratic_matrix n lambda C x is
+     quadratic_first n lambda x, and that of x |-> quadratic_first n lambda
+     x u is quadratic_second n lambda u.
+   - quadratic_first_basis and quadratic_second_basis: in the directions of
+     the basis vectors, these are lambda times chaos_first n x a and lambda
+     times chaos_second n a b.
+   - quadratic_mult_frechet, quadratic_trace_product_frechet and
+     quadratic_hessian_product_frechet: product rules for a product of real
+     maps, for trace_pair n (F z) (G z), and for hessian_action n (F z) (G z).
+   - quadratic_vector_entry_frechet and quadratic_coordinate_sum_frechet:
+     coordinates of vectors and finite sums of differentiable maps. *)
 
-   Every lemma and theorem of the original keeps its name and its arguments,
-   in the same order. The statements change form in four ways, the ways of
-   the ports of MatrixCoordinates and MatrixAssembly, which this module
-   imports.
-
-   1. Normed spaces. Coquelicot's NormedModule R_AbsRing becomes
-      normedModType R. On vector n and matrix n the norms are the Euclidean
-      and Frobenius norms of MatrixDefinitions, as in Coquelicot, and on
-      hessian_array n the Euclidean norm of all its entries.
-
-   2. Frechet derivatives. Coquelicot's filterdiff f (locally x) l becomes
-      is_diff x f l of MathComp-Analysis: f is differentiable at x and its
-      differential 'd f x is l. Both say that l is linear and continuous and
-      that f (x + h) = f x + l h + o(h) as h tends to 0.
-
-   3. Real-valued maps. A map into R given to is_diff is written with
-      codomain R^o, the normed module view of R, as in (F i : E -> R^o).
-      R^o is R by definition, so the maps are the same.
-
-   4. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statement of quadratic_coordinate_sum_frechet writes (i <= n)%coq_nat,
-      which is Stdlib's le.
-
-   So the hypotheses and the conclusions say the same thing as in the
-   original. The arithmetic is Stdlib's, as before.
-
-   The port adds one lemma, quadratic_mult_frechet, marked below. In the
-   proofs, filterdiff_linear becomes matrix_linear_is_diff of
-   MatrixCoordinates, filterdiff_const becomes is_diff_cst,
-   filterdiff_plus_fct, filterdiff_minus_fct and filterdiff_scal_r_fct become
-   is_diffD, is_diffB and is_diffZ, filterdiff_mult_fct becomes
-   quadratic_mult_frechet, filterdiff_comp' becomes is_diff_comp, and
-   filterdiff_ext_lin becomes is_diff_eq with an equation of functions. *)
-
-(* Added by the port. The product rule, with the arguments and the
-   derivative H |-> df H * g A + f A * dg H of Coquelicot's
-   filterdiff_mult_fct, whose hypothesis that the product of the scalars
-   commutes is dropped, since the scalars are the reals. MathComp-Analysis
-   states the product rule (is_diffM) with its own operations on functions,
-   so this lemma restates it with Stdlib's product and sum. *)
+(* The product rule, with differential H |-> df H * g A + f A * dg H.
+   MathComp-Analysis states it (is_diffM) with its own operations on
+   functions; this lemma restates it with Stdlib's product and sum. *)
 Lemma quadratic_mult_frechet {E : normedModType R}
     (f g : E -> R) (A : E) (df dg : E -> R) :
   is_diff A (f : E -> R^o) df -> is_diff A (g : E -> R^o) dg ->

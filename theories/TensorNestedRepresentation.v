@@ -7,24 +7,19 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeigh
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/TensorNestedRepresentation.v from Coquelicot to
-   MathComp-Analysis. The original did not import Coquelicot. Its only
-   Coquelicot content came through matrix n and trace_pair of
-   MatrixDefinitions, through the record trace_atom and the predicates
-   symmetric_matrix and tensor_represents of TensorDefinitions, and through
-   the definitions and lemmas of the matrix, tensor and nested modules it
-   cites. The ports of these modules keep the same names, arguments, fields
-   and values, so the text below is the original's, statements and proofs.
-
-   MathComp is not imported here. So the lists, In, map and [] are Stdlib's,
-   the tactics are Stdlib's (rewrite A, B keeps its meaning), and the
-   arithmetic, including the powers gamma ^ 2 and beta ^ 2, the products and
-   the minus signs of - beta and - beta * gamma, is Stdlib's, as before.
-   gibbs_average, gibbs_covariance, gibbs_cumulant3 and weighted_average come
-   from modules that never used Coquelicot and are unchanged. The only change
-   of notation upstream is in symmetric_matrix, whose port writes the order
-   on indices as (i <= n)%coq_nat, Stdlib's le, as the original meant. The
-   meaning of every statement is unchanged. *)
+(* A trace-atom representation of the third derivative of the nested Gibbs
+   function. If S is nonempty and the coefficient matrices coeff y s are
+   symmetric, then on symmetric directions matrix_nested_third_derivative
+   at A is the value of the list of symmetric atoms nested_third_atoms
+   (nested_third_atoms_represents). The derivative has three parts, each
+   represented separately: the outer average of the inner third cumulants
+   (nested_inner_atoms_represents), the outer covariance of the inner
+   covariances with the inner derivatives
+   (nested_covariance_atoms_represents), which enters with its images under
+   tensor_swap23_atoms and tensor_rotate_atoms, and the outer third
+   cumulant of the inner derivatives (nested_outer_atoms_represents). They
+   have the weights gamma ^ 2, - beta * gamma and beta ^ 2. MathComp is not
+   imported, so the lists, the tactics and the arithmetic are Stdlib's. *)
 
 Lemma nested_mean_matrix_trace n gamma offset coeff S (A U : matrix n) y :
   trace_pair n (nested_mean_matrix n gamma offset coeff S A y) U =

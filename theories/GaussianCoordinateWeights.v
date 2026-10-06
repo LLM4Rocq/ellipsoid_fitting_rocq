@@ -1,62 +1,19 @@
-(* Port of theories/GaussianCoordinateWeights.v from Coquelicot to
-   MathComp-Analysis.
+(* Polynomial weights of the coordinates. gaussian_coordinate_weight p x is
+   (1 + Rabs x) ^ p, and gaussian_coordinate_product_weight p xs is the
+   product of the weights of the coordinates of xs. The weight is
+   continuous, at least 1, at most 2 ^ p * (1 + Rabs x ^ p), and integrable
+   against the Gaussian kernel (gaussian_coordinate_weight_integrable). The
+   product weight on d coordinates has the iterated Gaussian expectation
+   gaussian_coordinate_weight_moment p ^ d
+   (gaussian_coordinate_product_weight_expectation). The module also proves
+   that finite_polynomial_bound holds for constants and is preserved by
+   sums, scalar multiples and products, and by multiplication by a
+   coordinate x_i, by x_i * x_i - 1 or by x_i * x_j, which raise the degree.
 
-   Every lemma and theorem of the original keeps its name and its
-   arguments, in the same order. The weights gaussian_coordinate_weight,
-   gaussian_coordinate_product_weight, gaussian_coordinate_weight_moment and
-   the predicate finite_polynomial_bound come from the ported
-   GaussianCoordinateWeightDefinitions, whose text is the original one. The
-   Gaussian integrals come from the ported GaussianDefinitions and
-   GaussianProductDefinitions, where they are stated with the Lebesgue
-   integral over the line (difference 4 of analysis/README.md). The
-   arithmetic in every statement is Stdlib's, as in the original.
-
-   One statement changes form.
-
-   1. gaussian_coordinate_weight_continuous p x concludes
-        {for x, continuous (gaussian_coordinate_weight p)}
-      in place of Coquelicot's pointwise
-        continuous (gaussian_coordinate_weight p) x.
-      This is difference 5 of analysis/README.md: MathComp's pointwise
-      continuity at x, for the usual topology of R. The two say the same
-      thing. The partial application gaussian_coordinate_weight_continuous p
-      has type forall x, {for x, continuous (gaussian_coordinate_weight p)},
-      which is MathComp's continuous (gaussian_coordinate_weight p), the
-      form that gaussian_polynomial_admissible of the ported
-      GaussianIntegration takes.
-
-   The other statements keep their meaning, and their terms are those of
-   the original. Because this module loads MathComp through AnalysisBridge2,
-   four spellings change without changing the term. A scratch check compiled
-   the 28 other statements of the original, word for word, in a context that
-   loads no MathComp notation, and found each one syntactically equal
-   (constr_eq) to the type of the ported lemma.
-   - Stdlib's nth is written List.nth, because the bare name is MathComp's
-     seq.nth, whose arguments come in another order.
-   - (p <= q)%nat and (i < length xs)%nat are written with %coq_nat. With
-     ssreflect loaded, %nat would denote ssrnat's boolean leq and ltn;
-     %coq_nat gives Peano's le and lt, as in the original.
-   - The exponents p * length xs and p * d and the degree p + q are written
-     with %coq_nat, so that they are Stdlib's Nat.mul and Nat.add and not
-     ssrnat's muln and addn, which are only convertible to them.
-   - xs ++ ys is written (xs ++ ys)%list. With MathComp loaded, ++ on lists
-     denotes seq.cat, a different function from Stdlib's app, and the two
-     are not convertible on a list variable.
-
-   The integrability statements mean what the ported definitions say:
-   gaussian_integral_exists f is the Lebesgue integrability over the line of
-   x |-> f x * gaussian_kernel x (Borel measurability included), and the
-   iterated notions ask for it at each level. The weight is continuous and
-   bounded by a polynomial, so the original proofs go through with the
-   ported lemmas.
-
-   What changes in the proofs. With Coquelicot, gaussian_integral_exists f
-   was exists l, gaussian_has_integral f l, and the original proved it for a
-   constant with exists (1 * gaussian_mass). In the port it is the
-   integrability itself, given by gaussian_integral_exists_constant of the
-   ported GaussianExpectation. Continuity is proved with the combinators of
-   AnalysisBridge and MathComp's continuous_comp. The ssreflect forms of
-   rewrite replace Stdlib's rewrite A, B and rewrite ... by. *)
+   The statements write List.nth because MathComp's seq.nth takes its
+   arguments in another order, (xs ++ ys)%list because ++ would be
+   MathComp's cat, and %coq_nat for the order, sum and product on nat
+   because %nat would give ssrnat's leq, ltn, addn and muln. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import AnalysisBridge2.
@@ -74,9 +31,6 @@ Lemma gaussian_coordinate_weight_at_least_one p x :
   1 <= gaussian_coordinate_weight p x.
 Proof. unfold gaussian_coordinate_weight; apply pow_R1_Rle; pose proof (Rabs_pos x); lra. Qed.
 
-(* Coquelicot's continuous (gaussian_coordinate_weight p) x becomes MathComp's
-   pointwise continuity {for x, continuous (gaussian_coordinate_weight p)}
-   (difference 5 of analysis/README.md). Same meaning. *)
 Lemma gaussian_coordinate_weight_continuous p (x : R) :
   {for x, continuous (gaussian_coordinate_weight p)}.
 Proof.

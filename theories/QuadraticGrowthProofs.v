@@ -15,79 +15,20 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/QuadraticGrowthProofs.v from Coquelicot to
-   MathComp-Analysis.
+(* Regularity of the gradient of the soft minimax along the quadratic map
+   x |-> quadratic_matrix n lambda C x = C + lambda * (x x^T - I), in four
+   submodules that importers name. QuadraticUniformBounds bounds Gibbs
+   averages, covariances and cumulants, and the second and third
+   derivatives of the soft minimax (growth_matrix_second_bound,
+   growth_matrix_third_bound). QuadraticPolynomialGrowth bounds the entries
+   of the gradient and of its first two derivatives in x by polynomials of
+   degree 0, 1 and 2 in `|x| (quadratic_gradient_entries_polynomial_growth).
+   QuadraticGrowthContinuity proves their continuity, and QuadraticGrowth
+   gathers everything (quadratic_gradient_entry_polynomial_regular).
 
-   The file keeps the four modules of the original, QuadraticUniformBounds,
-   QuadraticPolynomialGrowth, QuadraticGrowthContinuity and QuadraticGrowth,
-   because importers name them. Every lemma and theorem keeps its name and
-   its arguments, in the same order. No lemma is added. The statements change
-   form in five ways, the ways of the ports of MatrixCoordinates,
-   CoefficientBounds, FiniteGibbsContinuity, MatrixThirdContinuity and
-   QuadraticGradient, which this module imports.
-
-   1. Norms. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. On
-      vector n, matrix n, hessian_array n and third_array n the norms are
-      those of the ports of OperatorDefinitions, MatrixDefinitions,
-      HessianDefinitions and ContinuityDefinitions. They nest
-      euclidean_product of MatrixEuclideanProduct and keep Coquelicot's
-      product norm, so they are the Euclidean norm of all entries, as in the
-      original, and not MathComp's max norm (analysis/README.md,
-      difference 1). Every bound therefore means the same, constants
-      included. The bounds are stated with Stdlib's order, product, sum,
-      power and INR around MathComp's norms, and Rabs stays Stdlib's.
-
-   2. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (i <= n)%coq_nat, which is Stdlib's le. The meaning
-      is unchanged.
-
-   3. Linear maps. Coquelicot's is_linear F, in the hypothesis of
-      growth_linear_continuous, contains a norm bound. The port states it as
-      the conjunction
-        linear F /\ exists M : R, 0 < M /\ forall y, (`|F y|)%R <= M * (`|y|)%R,
-      the form of the linearity theorems of MatrixCoordinates, MatrixTrace
-      and CoefficientMaps (README difference 2). Coquelicot's
-      NormedModule R_AbsRing becomes normedModType R and its R_NormedModule
-      becomes R^o.
-
-   4. Pointwise continuity. Coquelicot's continuous f x is continuity of f at
-      the one point x. It becomes MathComp's {for x, continuous f}
-      (README difference 5). The domain E, a Coquelicot UniformSpace in the
-      original, is any topologicalType here, as in FiniteGibbsContinuity and
-      MatrixThirdContinuity. This generalizes the original.
-
-   5. Frechet derivatives. Coquelicot's filterdiff f (locally x) l becomes
-      is_diff x f l of MathComp-Analysis (README difference 2): f is
-      differentiable at x and its differential 'd f x is l. The real-valued
-      maps given to is_diff are typed into R^o, the normed module view of R,
-      whose norm is the absolute value. R^o is R by definition, so the maps
-      are the same.
-
-   The arithmetic in the statements is Stdlib's, as in the original.
-
-   In the proofs, Coquelicot's norm_ge_0 becomes MathComp's normr_ge0 through
-   RleP, filterdiff_continuous becomes differentiable_continuous,
-   continuous_comp becomes MathComp's continuous_comp, continuous_plus
-   becomes continuousD, continuous_scal becomes continuousZ,
-   continuous_const becomes cst_continuous, continuous_ext becomes
-   rewriting the function with funext, filterdiff_comp' becomes
-   is_diff_comp, and filterdiff_linear with matrix_entry_linear becomes
-   matrix_entry_frechet of MatrixCoordinates. growth_linear_continuous is
-   matrix_linear_continuous of MatrixCoordinates read at one point. The
-   proofs use one local tactic, growth_norm_nonneg, which is not a lemma and
-   is not visible to importers.
-
-   Using these lemmas. When the domain E is a concrete type, such as
-   vector n or matrix n, plain apply of growth_coordinate_sum_continuous,
-   growth_trace_pair_continuous, growth_hessian_action_continuous,
-   growth_module_sum_continuous or growth_third_action_continuous fails to
-   find the topology of E by unification, as for the lemmas of
-   FiniteGibbsContinuity. Use ssreflect's apply:, or give E explicitly.
-   growth_linear_continuous at a map into R is given the codomain R^o, as in
-   apply (@growth_linear_continuous (matrix_NormedModule n) R^o), and its
-   conclusion then closes a goal stated with the topology of R by
-   conversion. *)
+   Plain apply of the lemmas growth_..._continuous does not find the
+   topology of a concrete domain such as vector n: use ssreflect's apply:,
+   or give the domain E explicitly. *)
 
 (* A norm is nonnegative, stated with Stdlib's order. *)
 Local Ltac growth_norm_nonneg := apply/RleP; apply normr_ge0.
@@ -522,8 +463,7 @@ Import MatrixDefinitions MatrixCoordinates OperatorDefinitions GradientDefinitio
   FiniteGibbsContinuity MatrixHessian MatrixThirdContinuity QuadraticDefinitions
   QuadraticCalculus QuadraticGradient.
 
-(* Coquelicot's is_linear F is written as the conjunction of MathComp's
-   linear F and the norm bound, as in MatrixCoordinates. *)
+(* A bounded linear map, stated as in MatrixCoordinates, is continuous. *)
 Lemma growth_linear_continuous {E V : normedModType R} (F : E -> V) x :
   (linear F /\ exists M : R, 0 < M /\ forall y : E, (`|F y|)%R <= M * (`|y|)%R) ->
   {for x, continuous F}.
@@ -646,7 +586,7 @@ Proof.
       (quadratic_matrix n lambda C)
       (matrix_nested_third_coefficients n beta gamma offset coeff Y S) x); [exact HQ|].
     apply matrix_third_coefficients_continuous; assumption. }
-  (* Coquelicot's continuous_ext: the map is rewritten with actual_third_action. *)
+  (* The map is rewritten with actual_third_action. *)
   have E : (fun z => quadratic_gradient_second n beta gamma offset coeff Y S lambda C z u v) =
     (fun z => matrix_add n
       (hessian_action n

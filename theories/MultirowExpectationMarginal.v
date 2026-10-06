@@ -1,5 +1,4 @@
-(* Coordinates of the two pure endpoints of the multirow interpolation, for
-   the challenge multirow_expectation_derivative.
+(* Coordinates of the two pure endpoints of the multirow interpolation.
 
    The N rows are read from one list of N (d + D) coordinates: row i is the
    chunk of length d + D at position i, its first d entries are the
@@ -18,11 +17,8 @@
    zeros after every chunk of length d of xs. Both keep closeness of the
    coordinates and the product weights, so continuity and polynomial bounds
    pass from a function of N (d + D) coordinates to its composite with a
-   lift.
-
-   Only Stdlib and port modules without MathComp are imported, so ++,
-   length, firstn, skipn, + and * on nat and the operations on R are
-   Stdlib's. No Axiom, Parameter or Admitted. *)
+   lift (mexp_goe_lift_continuous, mexp_goe_lift_polynomial and the same
+   for mexp_quadratic_lift). *)
 
 From Stdlib Require Import Reals List Arith Lia Lra.
 From EllipsoidFitting Require Import RowCoordinateDefinitions RowMarginalDefinitions

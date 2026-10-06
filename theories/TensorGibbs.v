@@ -12,33 +12,29 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/TensorGibbs.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. All statements but two keep the text of the original. They mention
-   only the definitions of the ported modules, Stdlib's arithmetic, Rabs,
-   pow, the lists and In, whose meaning the ports keep.
-
-   The two statements that change are gibbs_projective_cumulant_bound and
-   gibbs_scaled_projective_cumulant_bound, because they use Coquelicot's
-   extended reals. As in the ports of TensorDefinitions and TensorBounds,
-   Rbar becomes MathComp's \bar R. Rbar_le x y becomes lee x y, the order of
-   \bar R, which the notation (x <= y)%E unfolds to, and Finite r becomes
-   EFin r. The prefix forms lee and EFin are used instead of the notations
-   (x <= y)%E and r%:E, so that the tensor and the bound keep Stdlib's
-   arithmetic, as in the restatement of the challenge ellipsoid_tensor_gibbs
-   in analysis/challenges. Inside r%:E the numeral 8 would be read as
-   MathComp's natmul 1 8, a different term from Stdlib's IZR 8, and inside
-   (x <= y)%E the product gamma ^ 2 * _ would not typecheck. The order of
-   \bar R has the cases of Rbar_le, so the two statements mean the same as
-   the originals.
-
-   The proofs of trace_pair_left_add, trace_pair_left_scale and
-   trace_pair_left_zero used Coquelicot's linear_plus, linear_scal and
-   linear_zero on is_linear. The port of MatrixTrace states
-   trace_pair_left_linear with MathComp's algebraic linearity, and the
-   proofs below derive the three identities from it. The other proofs
-   follow the original, with ssreflect's rewrite syntax. *)
+(* Third cumulants of finite Gibbs laws as sums of rank-one trilinear forms
+   of bounded cost. A list of atoms represents a trilinear form T on
+   symmetric matrices (tensor_represents) when every atom has symmetric
+   matrices B1, B2, B3 and T U V W is the sum over the atoms of
+   c * trace_pair B1 U * trace_pair B2 V * trace_pair B3 W. The cost
+   tensor_cost is the sum of |c| times the operator norms of B1, B2, B3.
+   - trace_pair_left_add, trace_pair_left_zero, trace_pair_left_scale and
+     matrix_weighted_sum_trace: trace_pair is linear in its first argument.
+   - matrix_weighted_sum_operator_bound,
+     matrix_probability_mean_operator_bound and
+     matrix_centered_operator_bound: under a probability vector q, the mean
+     of matrices of operator norm at most K has norm at most K, and a
+     centered matrix B i - mean has norm at most 2 * K.
+   - matrix_weighted_sum_symmetric and matrix_centered_symmetric: means and
+     centered matrices of symmetric matrices are symmetric.
+   - centered_trace_atoms_represents and centered_trace_atoms_cost_bound:
+     the third cumulant weighted_matrix_cumulant of the pairings with
+     symmetric matrices B i is represented by the atoms of the centered
+     matrices, with cost at most 8 * K ^ 3.
+   - gibbs_centered_trace_atoms_represents: the same for gibbs_cumulant3,
+     the third cumulant under a finite Gibbs law.
+   - tensor_scale_atoms_represents: scaling the coefficients of the atoms
+     by a scales the form by a (and the cost by |a|). *)
 
 Lemma trace_pair_left_add n (A B U : matrix n) :
   trace_pair n (matrix_add n A B) U = trace_pair n A U + trace_pair n B U.

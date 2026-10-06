@@ -1,4 +1,10 @@
-(* Independent solver: elementary facts about the frozen product law. *)
+(* Elementary facts about gaussian_product_law d, the law of d independent
+   standard normal coordinates on d-tuples. In dimension 0, integration is
+   evaluation at nil (gpp_zero_integral). The coordinates are measurable
+   (gpp_coordinate_measurable), and the box gpp_box d A of the tuples whose
+   coordinate i lies in A i is measurable, with measure the product of the
+   gaussian_law (A i) (gpp_boxes). gpp_cons_measurable transfers
+   measurability from (S d)-tuples to pairs (head, tail). *)
 From Stdlib Require Import Reals List.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct.

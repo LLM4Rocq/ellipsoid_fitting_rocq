@@ -12,44 +12,17 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/LowerFrechet.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem of the original keeps its name and its arguments, in the
-   same order. No lemma is added. The statements change form in three ways,
-   the same ways as in the ports of MatrixCoordinates, MatrixGibbs and
-   MatrixSecond, which this module imports.
-
-   1. Frechet derivatives. Coquelicot's NormedModule R_AbsRing becomes
-      normedModType R, and Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis: f is differentiable at A and its
-      differential 'd f A is l. Both say that l is linear and continuous and
-      that f (A + H) = f A + l H + o(H) as H tends to 0. On block_array n m
-      the norm is the Euclidean norm of all entries of LowerDefinitions, as
-      in Coquelicot; differentiability does not depend on the choice among
-      equivalent norms in any case.
-
-   2. Linear maps. Coquelicot's is_linear l is stated, as in
-      MatrixCoordinates, as the conjunction
-        linear l /\
-        exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R
-      of MathComp's algebraic linearity and Coquelicot's norm bound. The
-      norms are those of the spaces involved: the absolute value on R, and
-      on block_array n m the norm of LowerDefinitions. So the hypotheses of
-      the four generic theorems and the conclusion of
-      lower_block_score_linear mean what they meant in the original,
-      constants included.
-
-   3. Real-valued maps. A map into R given to is_diff or linear is written
-      with codomain R^o, the normed module view of R, as in
-      (F z s : E -> R^o). R^o is R by definition, so F keeps the type
-      nat -> nat -> E -> R of the original, and the maps are the same.
-
-   The arithmetic, exp and ln inside the soft maxima and Gibbs averages are
-   Stdlib's, as in the original. In the proofs, filterdiff_linear becomes
-   matrix_linear_is_diff of MatrixCoordinates, filterdiff_const becomes
-   is_diff_cst, filterdiff_ext_lin becomes is_diff_eq with an equation of
-   functions, is_linear_ext becomes rewriting the function with funext, and
-   is_linear_comp becomes matrix_linear_comp of MatrixCoordinates. *)
+(* Frechet derivatives of the soft minimax of linear scores on a normed
+   space E, for scores F z s : E -> R that are linear and bounded: linear,
+   with |F z s x| <= M |x| for some M > 0. lower_inner_frechet and
+   lower_inner_first_frechet differentiate the inner soft maximum and its
+   first derivative; lower_first_frechet: the soft minimax has
+   differential lower_first at A; lower_second_frechet: lower_first, as a
+   function of the point, has differential lower_second.
+   lower_block_derivatives applies them to lower_block_phi on block
+   arrays, whose scores are linear and bounded (lower_block_score_linear).
+   is_diff A f l says that f is differentiable at A with differential l;
+   maps into R are typed E -> R^o. *)
 
 Theorem lower_inner_frechet {E : normedModType R} gamma
     (F : nat -> nat -> E -> R) S (A : E) z :

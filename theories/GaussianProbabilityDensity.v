@@ -1,16 +1,16 @@
-(* Helper lemmas for the challenge gaussian_probability_bridge: the standard
-   normal law normal_prob 0 1 of MathComp-Analysis against the library's
-   Gaussian kernel. Written by the solver on 30 September 2026. Proof module:
-   no Definition, Axiom, Parameter or Admitted.
+(* The standard normal law gaussian_law, MathComp-Analysis's normal_prob 0 1,
+   against the Gaussian kernel of GaussianDefinitions.
    - gpb_mass: gaussian_mass = sqrt (2 pi), from MathComp's
      integral_normal_pdf and the integrability of the kernel.
-   - gpb_density: normal_pdf 0 1 = gaussian_density pointwise.
+   - gpb_density: the density normal_pdf 0 1 of the law is gaussian_density.
    - gpb_RN_ae and gpb_change_ge0: the Radon-Nikodym derivative of the law
-     against Lebesgue measure is normal_pdf 0 1 almost everywhere, so the
-     integral of a nonnegative measurable function against the law is its
-     Lebesgue integral against the density.
+     with respect to Lebesgue measure is normal_pdf 0 1 almost everywhere,
+     so the integral of a nonnegative measurable function against the law
+     is its Lebesgue integral against that density.
    - gpb_law_abs: the integral of |f| against the law is (sqrt (2 pi))^-1
-     times the Lebesgue integral of |f * kernel|. *)
+     times the Lebesgue integral of |f * gaussian_kernel|.
+   The kernel and its inverse are measurable (gpb_kernel_measurable,
+   gpb_kernel_inv_measurable). *)
 From Stdlib Require Import Reals Lra.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import classical_sets reals Rstruct.

@@ -1,49 +1,18 @@
-(* Port of theories/GaussianAdmissible.v from Coquelicot to MathComp-Analysis.
+(* Integrability against the Gaussian kernel of continuous functions of
+   polynomial growth. If f is continuous and
+   Rabs (f x) <= C * (1 + Rabs x ^ p) for all x, then
+   f x * gaussian_kernel x and Rabs (f x) * gaussian_kernel x are
+   integrable on the line (gaussian_polynomial_integrals_exist): these are
+   gaussian_integral_exists f and gaussian_absolutely_integrable f of
+   GaussianDefinitions. The integrals are Lebesgue integrals, so the second
+   conclusion also follows from the first.
 
-   Every lemma, theorem and corollary of the original keeps its name and its
-   arguments, in the same order, and no statement gains or loses a
-   hypothesis. The statements use the vocabulary of
-   AnalysisIntegralDefinitions:
-   - continuous f x becomes {for x, continuous f} (difference 5 of
-     analysis/README.md), with the binder written x : R, as in the
-     restated challenges;
-   - is_RInt_gen h (Rbar_locally m_infty) (Rbar_locally p_infty) l becomes
-     whole_line_has_integral h l, and
-     ex_RInt_gen h (Rbar_locally m_infty) (Rbar_locally p_infty) becomes
-     whole_line_integrable h, the Lebesgue integral over the line
-     (difference 4 of analysis/README.md).
-   The arithmetic in every statement is Stdlib's, as in the original.
-
-   Addition on nat. With ssreflect loaded, p+p would elaborate to ssrnat's
-   addn p p. The statements write (p+p)%coq_nat, which is Stdlib's
-   Nat.add p p, as in the original and as in the restated challenge
-   ellipsoid_gaussian_parameter (analysis/challenges). The two are
-   convertible.
-
-   Meaning. Every integrand here is a continuous function bounded in
-   absolute value by a polynomial times the Gaussian kernel. Such a function
-   is Borel measurable and absolutely integrable, so the Lebesgue and the
-   improper Riemann readings both hold and give the same value. With the
-   Lebesgue integral the second conclusion of
-   gaussian_polynomial_integrals_exist follows from the first; it is kept.
-   The two conclusions of gaussian_polynomial_integrals_exist are, by
-   conversion, gaussian_integral_exists f and
-   gaussian_absolutely_integrable f of the ported GaussianDefinitions, as
-   they were in the original.
-
-   What changes in the proofs. gaussian_polynomial_majorant_integral builds
-   the integral of C * (2 + x^(p+p)) * gaussian_kernel x from the mass of the
-   kernel (gaussian_kernel_mass_integral of GaussianMass) and the raw moment
-   (gaussian_raw_moments of GaussianMoments) with MathComp's integrableD and
-   RintegralD, and fubini_integrable_scale and fubini_integral_scale_l of
-   GaussianFubiniLebesgue, in place of Coquelicot's is_RInt_gen_scal,
-   is_RInt_gen_plus and is_RInt_gen_ext. The continuity arguments use
-   continuous_mult, continuous_plus and continuous_const of the bridge. The
-   domination lemmas are those of the ported ImproperDomination.
-
-   The original imported Classical_Prop but did not use it. This port does
-   not import it, and the assumptions of the module are the seven axioms of
-   analysis/README.md. *)
+   The proof dominates f x * gaussian_kernel x by
+   C * (2 + x ^ (p + p)) * gaussian_kernel x (gaussian_even_power_majorant),
+   whose integral over the line is computed from gaussian_mass and the even
+   moment moment_factor (p + p) (gaussian_polynomial_majorant_integral).
+   The statements write (p+p)%coq_nat, Stdlib's Nat.add, because with
+   ssreflect loaded p+p would be ssrnat's addn. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

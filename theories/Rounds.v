@@ -3,8 +3,10 @@ From Stdlib Require Import Reals Lra Lia ZArith.
 Open Scope R_scope.
 
 (** An explicit logarithmic bound on the number of geometric peeling rounds.
-    The strict integer upper bound [up] may take one extra round when the
-    logarithmic quotient is integral; the final constant absorbs that round. *)
+    logarithmic_rounds: for d >= 2 there is K with 1 / 4 ^ K <= 1 / d ^ 4
+    and K <= (4 / ln 2) ln d. The strict integer upper bound [up] may take
+    one extra round when the logarithmic quotient is integral; the final
+    constant absorbs that round. *)
 
 Lemma logarithmic_rounds (d : nat) :
   (2 <= d)%nat ->

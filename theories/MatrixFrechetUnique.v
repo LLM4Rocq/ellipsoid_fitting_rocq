@@ -8,27 +8,13 @@ From mathcomp Require Import Rstruct_topology.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixFrechetUnique.v from Coquelicot to MathComp-Analysis.
-
-   Coquelicot's hypothesis filterdiff f (locally A) df becomes MathComp's
-   is_diff A f df. Both say that df is linear and continuous and that
-   f y - f A - df (y - A) is a little-o of y - A as y tends to A. In
-   Coquelicot the continuity of df is the bound M in is_linear, and the
-   point x of is_filter_lim (locally A) x can only be A. MathComp's
-   is_diff A f df also states df = 'd f A, the chosen differential, which
-   is the same condition because that differential is unique. The meaning
-   is the same.
-
-   The type E ranges over normedModType R instead of NormedModule R_AbsRing.
-   The real line is a normedModType only as R^o, so the scalar functions
-   have type E -> R^o. R^o is R by definition, so a function with values in
-   R can be passed where one with values in R^o is expected.
-
-   Coquelicot's conclusion is_derive g 0 l, for g a function of a real
-   variable, is filterdiff g (locally 0) (fun t => scal t l). It becomes
-   MathComp's is_derive 0 1 g l: g is derivable at 0 along 1 with
-   derivative l. For a function of a real variable these say the same
-   thing. *)
+(* Uniqueness of the Frechet derivative of a real function on a normed
+   module E. is_diff A f df says that f is differentiable at A with
+   differential df, a continuous linear map. scalar_frechet_line: the
+   function t |-> f (A + t U) of a real variable then has derivative df U at
+   0. scalar_frechet_unique: two differentials of f at A agree on every
+   vector. The real line is a normed module only as R^o, so the scalar
+   functions have type E -> R^o; R^o is R by definition. *)
 
 Lemma scalar_frechet_line {E : normedModType R}
     (f df : E -> R^o) (A U : E) :

@@ -8,21 +8,12 @@ From mathcomp Require Import ereal.
 From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions TensorDefinitions.
 Open Scope R_scope.
 
-(* Facts about the port of TensorDefinitions that need proofs, kept out of
-   the definitions module.
-
-   The original defined projective_operator_norm T as
-   Glb_Rbar (tensor_cost_set T), and its importers used Coquelicot's
-   Glb_Rbar_correct, which says that Glb_Rbar E is a lower bound of E in Rbar
-   and lies above every other lower bound. The port uses MathComp's
-   ereal_inf of the image of the cost set in \bar R. The lemmas below state
-   the same two properties for it, in MathComp's order on \bar R. A greatest
-   lower bound is unique, so these two properties fix the value, and the
-   value is the one of the original.
-
-   A downstream proof that wrote
-     apply (proj1 (Glb_Rbar_correct (tensor_cost_set T)))
-   or proj2 of it can use proj1 or proj2 of projective_operator_norm_glb. *)
+(* The projective operator norm of TensorDefinitions as a greatest lower
+   bound. projective_operator_norm T is the infimum, in the extended reals,
+   of the costs of the representations of T (tensor_cost_set T).
+   projective_operator_norm_lower_bound: it is at most each such cost.
+   projective_operator_norm_greatest: it is at least every lower bound of
+   these costs. *)
 
 Lemma projective_operator_norm_lower_bound n
     (T : matrix n -> matrix n -> matrix n -> R) (c : R) :

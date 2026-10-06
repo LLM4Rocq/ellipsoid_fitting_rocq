@@ -1,15 +1,13 @@
-(* Helper lemmas for the challenge multirow_expectation_derivative: the time
-   calculus of the row velocities along the simultaneous path, pointwise in
-   the coordinate list. Written by the solver on 30 September 2026. Proof
-   module: no Axiom, Parameter or Admitted.
-   - mexp_unit_norm: the contract's unit norm (sum of squares = 1) gives
-     euclidean_norm = 1, the form of LowerBounds.
+(* Time calculus of the row velocities along the simultaneous path
+   Z(t) = gaussian_row_array n m t xs, pointwise in the coordinate list xs,
+   for 0 < t < 1, beta, gamma > 0 and nonempty Y and S.
    - mexp_first_along: t |-> lower_block_first (Z(t)) U has derivative
-     lower_block_second (Z(t)) U (dZ/dt).
-   - mexp_row_acceleration (a helper definition of this proof, not a trusted
-     one) and mexp_row_velocity_derivative: the time derivative of the row
-     velocity V_i, including the terms of the other rows through Z(t).
-   - mexp_velocity_sum_derivative: the derivative of the sum of the row
+     lower_block_second (Z(t)) U (dZ/dt), where dZ/dt is
+     gaussian_array_velocity.
+   - mexp_row_acceleration and mexp_row_velocity_derivative: the time
+     derivative of the row velocity gaussian_row_velocity, including the
+     terms of the other rows through Z(t).
+   - mexp_velocity_sum_derivative: the derivative of a finite sum of row
      velocities is the sum of the row accelerations. *)
 From Stdlib Require Import Reals List Lia Lra.
 From HB Require Import structures.

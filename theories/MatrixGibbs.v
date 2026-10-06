@@ -12,44 +12,28 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixGibbs.v from Coquelicot to MathComp-Analysis.
+(* Frechet derivatives of soft maxima and of the inner values of the matrix
+   Gibbs function. Let U be a real normed space and each score F i be
+   differentiable at A with differential D i. If c <> 0 and I is nonempty,
+   then M |-> soft_max c (fun i => F i M) I is differentiable at A, with
+   differential H |-> gibbs_average c (fun i => F i A) I (fun i => D i H)
+   (soft_max_frechet). For soft_min beta, the differential is the Gibbs
+   average with parameter - beta (soft_min_frechet). The affine score
+   offset y s + trace_pair (coeff y s) M has differential
+   trace_pair (coeff y s) (matrix_affine_score_frechet), so the inner soft
+   maxima matrix_inner_values have differential matrix_inner_derivative
+   (matrix_inner_frechet).
 
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in three ways, the same ways as in the
-   ports of MatrixCoordinates and MatrixTrace.
+   is_diff A f l is MathComp's Frechet differentiability: f is
+   differentiable at A and its differential 'd f A is l. Maps into R are
+   written with codomain R^o, the normed module view of R, because is_diff
+   needs a normed module on the codomain; R^o is R by definition. The
+   arithmetic, exp and ln are Stdlib's. *)
 
-   1. Normed spaces. Coquelicot's NormedModule R_AbsRing becomes
-      normedModType R, a real normed space of MathComp-Analysis. On
-      matrix n the norm is the Frobenius norm of MatrixDefinitions, as in
-      Coquelicot.
-
-   2. Frechet derivatives. Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis: f is differentiable at A and its
-      differential 'd f A is l. Both say that l is linear and continuous and
-      that f (A + H) = f A + l H + o(H) as H tends to 0. Coquelicot's
-      is_linear contains the continuity of l as a norm bound; in
-      MathComp-Analysis it comes with differentiable. So the hypotheses and
-      conclusions say the same thing as in the original.
-
-   3. Real-valued maps. A map into R is written with codomain R^o, the
-      normed module view of R, because is_diff needs a normed module on the
-      codomain, as in (F i : U -> R^o). R^o is R by definition, so F and D
-      keep the type nat -> U -> R of the original, and the maps are the same.
-
-   The arithmetic in the statements is Stdlib's, as in the original, and so
-   are exp and ln, both inside soft_max and gibbs_average and in the
-   statements below. This file does not import MathComp's exp module, so the
-   unqualified ln here is Stdlib's.
-
-   The port adds one lemma, matrix_gibbs_is_diff_of_Reals, marked below. It
-   turns Stdlib's derivative of a function from R to R into MathComp's
-   Frechet derivative on R^o, in place of Coquelicot's is_derive_Reals and of
-   the step from is_derive to filterdiff that filterdiff_comp' made. *)
-
-(* Added by the port. If Stdlib's derivable_pt_lim f x l holds, then f is
-   Frechet differentiable at x as a map from R^o to R^o, with differential
-   h |-> h * l. The first step, to MathComp's is_derive x 1 f l, copies the
-   proof of RadiusAlgebra_is_derive_of_Reals in RadiusAlgebra: both say that
+(* If Stdlib's derivable_pt_lim f x l holds, then f is Frechet
+   differentiable at x as a map from R^o to R^o, with differential
+   h |-> h * l. The first step, to MathComp's is_derive x 1 f l, repeats the
+   proof of is_derive_of_Reals (AnalysisBridge): both say that
    (f (x + h) - f x) / h tends to l as h tends to 0 with h <> 0. The second
    step uses derivable1_diffP and diff1E of MathComp-Analysis. *)
 Lemma matrix_gibbs_is_diff_of_Reals (f : R -> R) (x l : R) :

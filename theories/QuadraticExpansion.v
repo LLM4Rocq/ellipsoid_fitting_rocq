@@ -14,36 +14,18 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/QuadraticExpansion.v from Coquelicot to MathComp-Analysis.
-
-   Every theorem of the original keeps its name and its arguments, in the
-   same order. No lemma is added. One statement changes form, in the way of
-   the ports of QuadraticGradient and MatrixCoordinates, which this module
-   imports, and of the restated challenge ellipsoid_quadratic in
-   analysis/challenges (its conjunct 2c).
-
-   1. Frechet derivatives. In quadratic_entry_second_frechet, Coquelicot's
-      filterdiff f (locally x) l becomes is_diff x f l of MathComp-Analysis:
-      f is differentiable at x and its differential 'd f x is l. Both say
-      that l is linear and continuous and that f (x + h) = f x + l h + o(h)
-      as h tends to 0. The space vector n is the one of the port of
-      OperatorDefinitions, which keeps Coquelicot's Euclidean norm, so the
-      neighbourhoods are those of the original. The map is real-valued, and
-      is typed into R^o, the normed module view of R, whose norm is the
-      absolute value like the norm of Coquelicot's R_NormedModule. R^o is R
-      by definition, so the map is the same.
-
-   quadratic_double_sum_scale, quadratic_gradient_second_contraction,
-   quadratic_gradient_second_sum and quadratic_gradient_time_sum mention no
-   normed notion, and their text is the original's.
-
-   In the proofs, filterdiff_comp' with filterdiff_linear of
-   matrix_entry_linear becomes is_diff_comp with matrix_entry_frechet of
-   MatrixCoordinates. The linearity and the bound of the derivative of
-   matrix_nested_gradient, which the original takes from proj1 of
-   Coquelicot's filterdiff to feed symmetric_divergence_identity, come from
-   matrix_third_is_diff_linear of MatrixThird. Stdlib's "rewrite A, B" and
-   "rewrite ... by tac" are written in the forms that ssreflect accepts. *)
+(* The second derivative in x of the nested gradient at
+   quadratic_matrix n lambda C x = C + lambda (x x^T - I), summed over the
+   coordinate directions. When every coefficient matrix coeff y s is
+   symmetric, quadratic_gradient_second_sum states that the sum over a and
+   b of the entries (a, b) of quadratic_gradient_second along the basis
+   vectors chaos_basis n a and chaos_basis n b is
+   2 * lambda * symmetric_divergence of the derivative of the gradient plus
+   lambda ^ 2 * chaos_contraction of the third derivative with x, both at
+   quadratic_matrix n lambda C x. quadratic_gradient_second_contraction
+   identifies the second part. The proof uses symmetric_divergence_identity,
+   with the linearity of the derivative of matrix_nested_gradient from
+   matrix_third_is_diff_linear of MatrixThird. *)
 
 Lemma quadratic_double_sum_scale n c f :
   coordinate_sum n (fun a => coordinate_sum n (fun b => c * f a b)) =

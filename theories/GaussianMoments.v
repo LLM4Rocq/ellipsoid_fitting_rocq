@@ -1,36 +1,16 @@
-(* Port of theories/GaussianMoments.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order, and no statement gains or loses a hypothesis. The statements use
-   the vocabulary of AnalysisIntegralDefinitions and of the bridge:
-   Coquelicot's is_derive f x l becomes @is_derive R R^o R^o x 1 f l,
-   continuous f x becomes {for x, continuous f},
-   is_RInt_gen h (Rbar_locally m_infty) (Rbar_locally p_infty) l becomes
-   whole_line_has_integral h l, and
-   ex_RInt_gen h (Rbar_locally m_infty) (Rbar_locally p_infty) becomes
-   whole_line_integrable h. The arithmetic in every statement is Stdlib's,
-   as in the original.
-
-   Meaning. The integrals over the line are now Lebesgue integrals, which
-   require absolute integrability (difference 4 of analysis/README.md).
-   Every integrand here is a polynomial times the Gaussian kernel, which is
-   absolutely integrable, so each statement is the Lebesgue counterpart of
-   the original. The hypothesis whole_line_has_integral gaussian_kernel J
-   holds exactly for J = gaussian_mass, as the Coquelicot hypothesis did
-   (gaussian_kernel_mass_integral of GaussianMass).
-
-   What changes in the proofs. The derivative of t ^ S n comes from the
-   tactic auto_derive of the bridge, in place of Coquelicot's is_derive_pow,
-   and the continuity of t ^ n from continuous_Rpow of the bridge. Equalities
-   of integrands are rewritten with funext, in place of is_RInt_gen_ext. The
-   scaled integral comes from fubini_integrable_scale and
-   fubini_integral_scale_l of GaussianFubiniLebesgue, in place of
-   Coquelicot's is_RInt_gen_scal. gaussian_raw_moments_exist is proved from
-   gaussian_raw_moments with J := whole_line_integral gaussian_kernel.
-
-   The original imported Classical_Prop and Lia but used neither. This port
-   imports neither, so the assumptions of the module are the seven axioms of
-   analysis/README.md. *)
+(* The moments of the Gaussian kernel, the integrals of
+   x ^ n * gaussian_kernel x over the line.
+   - gaussian_moment_recurrence: if the moment of order n is L, then the
+     moment of order n + 2 is (n + 1) * L. This is Stein's identity
+     gaussian_stein_polynomial_split for f t = t ^ (n + 1).
+   - gaussian_raw_moments: if the kernel has integral J, then the moment of
+     order n is moment_factor n * J, where moment_factor n is 0 for n odd
+     and 1 * 3 * ... * (n - 1) for n even. The hypothesis holds for
+     J = gaussian_mass and for no other J (gaussian_kernel_mass_integral of
+     GaussianMass).
+   - gaussian_first_raw_moment: the moment of order 1 is 0.
+   The integrals over the line are Lebesgue integrals, so each conclusion
+   includes the absolute integrability of the integrand. *)
 
 From Stdlib Require Import Reals Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.

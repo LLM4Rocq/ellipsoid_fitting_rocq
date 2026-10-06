@@ -8,50 +8,16 @@ From EllipsoidFitting Require Import MatrixDefinitions.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/MatrixCoordinates.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements change form in four ways.
-
-   1. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (i <= n)%coq_nat and (n < i)%coq_nat, which are
-      ssrnat's notations for Stdlib's le and lt. The meaning is unchanged, and
-      Stdlib's lia proves these side conditions as before.
-
-   2. Linear maps. Coquelicot's is_linear l is a record with three fields:
-      l (plus x y) = plus (l x) (l y), l (scal k x) = scal k (l x), and
-      exists M, 0 < M /\ forall x, norm (l x) <= M * norm x.
-      MathComp's linear l is the algebraic part only, stated as
-      l (a *: u + v) = a *: l u + l v, which is equivalent to the first two
-      fields. The port states Coquelicot's is_linear l as the conjunction
-        linear l /\
-        exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R,
-      the same form as the linearity theorems of NormedTransport. The bound
-      uses Stdlib's order and product around MathComp's norms. The norms are
-      those of MatrixDefinitions: Euclidean on tuples, Frobenius on matrices,
-      and the absolute value on R, as in Coquelicot, so the bound means the
-      same, constants included.
-
-   3. Real-valued maps. Coquelicot's R_NormedModule becomes R^o, the normed
-      module view of R. A map into R is written with codomain R^o where linear
-      or is_diff needs a module structure on the codomain, as in
-      (f : U -> R^o). R^o is R by definition, so f : U -> R is accepted there.
-      Where a bound applies the norm to a sum or product written with Stdlib's
-      operations, it is written Num.norm (...), which is the function that the
-      notation `|...| denotes, because inside %R the operations would be
-      MathComp's.
-
-   4. Frechet derivatives. Coquelicot's filterdiff f (locally A) l becomes
-      is_diff A f l of MathComp-Analysis: f is differentiable at A and its
-      differential 'd f A is l. Both say that f (A + H) = f A + l H + o(H)
-      with l continuous and linear, for the norm of MatrixDefinitions.
-
-   The port adds four items, marked below: a Hierarchy Builder instance that
-   declares tuple_entry V n i linear, and the lemmas matrix_linear_comp,
-   matrix_linear_continuous and matrix_linear_is_diff. The last three are
-   the counterparts of Coquelicot's is_linear_comp, of the continuity that
-   Coquelicot's is_linear contains, and of filterdiff_linear. *)
+(* Entries of tuples and matrices, and bounded linear maps. A bounded
+   linear map l is stated as MathComp's linear l together with the bound
+   exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R. Entries,
+   compositions, sums, scalings and finite sums of such maps are bounded
+   linear (tuple_entry_linear, matrix_linear_comp, coordinate_sum_linear).
+   Such a map is continuous (matrix_linear_continuous) and is its own
+   Frechet derivative (matrix_linear_is_diff). A real-valued map is given
+   the codomain R^o, the normed module view of R, where linear or is_diff
+   needs one. Index bounds are written (i <= n)%coq_nat, Stdlib's le,
+   since with ssreflect loaded (i <= n)%nat is ssrnat's leq. *)
 
 (* Declaring tuple_entry V n i a linear map makes HB report canonical
    projections that duplicate existing ones. Rocq ignores the duplicates; the
@@ -107,9 +73,9 @@ Proof.
     intros x; rewrite Rmult_1_l; apply Hle.
 Qed.
 
-(* Added by the port. tuple_entry V n i is a {linear _ -> _} of MathComp, so
-   that linearD, linearZ, linear0 and the other lemmas about linear maps apply
-   to it directly. The instance changes no statement. *)
+(* tuple_entry V n i is a {linear _ -> _} of MathComp, so that linearD,
+   linearZ, linear0 and the other lemmas about linear maps apply to it
+   directly. *)
 HB.instance Definition _ (V : normedModType R) n i :=
   GRing.isLinear.Build R (tuple_NormedModule V n) V *:%R (tuple_entry V n i)
     (proj1 (tuple_entry_linear V n i)).
@@ -130,7 +96,7 @@ Proof.
   apply tuple_ext; intros j Hj; apply H; assumption.
 Qed.
 
-(* Added by the port, in place of Coquelicot's is_linear_comp. *)
+(* The composition of two bounded linear maps is bounded linear. *)
 Lemma matrix_linear_comp {U V W : normedModType R}
     (l1 : U -> V) (l2 : V -> W) :
   (linear l1 /\
@@ -176,9 +142,8 @@ Proof.
   unfold matrix_entry, matrix_zero; rewrite !linear0; reflexivity.
 Qed.
 
-(* Added by the port. Coquelicot's is_linear contains the norm bound, which
-   makes the map continuous. MathComp's linear does not, so continuity is
-   derived from the bound here. *)
+(* MathComp's linear is algebraic only; the norm bound makes the map
+   continuous. *)
 Lemma matrix_linear_continuous {U W : normedModType R} (f : U -> W) :
   (linear f /\
     exists M : R, 0 < M /\ forall x : U, (`|f x|)%R <= M * (`|x|)%R) ->
@@ -194,8 +159,8 @@ Proof.
   apply Rmult_le_compat_r; [apply/RleP; apply normr_ge0|lra].
 Qed.
 
-(* Added by the port, in place of Coquelicot's filterdiff_linear: a linear
-   map with a norm bound is its own Frechet derivative at every point. *)
+(* A linear map with a norm bound is its own Frechet derivative at every
+   point. *)
 Lemma matrix_linear_is_diff {U W : normedModType R} (f : U -> W) (x : U) :
   (linear f /\
     exists M : R, 0 < M /\ forall y : U, (`|f y|)%R <= M * (`|y|)%R) ->

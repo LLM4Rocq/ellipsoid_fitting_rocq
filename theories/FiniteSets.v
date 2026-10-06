@@ -1,7 +1,11 @@
 From Stdlib Require Import List Permutation PeanoNat Lia.
 From EllipsoidFitting Require Import Definitions.
 
-(** Finite complements represented by duplicate-free lists of indices. *)
+(** Finite complements represented by duplicate-free lists of indices.
+    outside B A keeps the elements of A that are not in B (Definitions).
+    For duplicate-free lists with B included in A, outside_length gives the
+    length of the complement, and outside_twice_permutation shows that the
+    complement of the complement is a permutation of B. *)
 Lemma outside_in (i : nat) (B A : list nat) :
   In i (outside B A) <-> In i A /\ ~ In i B.
 Proof.

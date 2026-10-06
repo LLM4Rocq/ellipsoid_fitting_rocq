@@ -5,29 +5,16 @@ From EllipsoidFitting Require Import GaussianCoordinateDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/GaussianCoordinateBivariate.v from Coquelicot to
-   MathComp-Analysis.
+(* Joint continuity in two coordinates. finite_joint_continuous 2 F
+   (GaussianCoordinateDefinitions) says, in epsilon-delta form, that
+   F : list R -> R is continuous on the lists of length 2.
+   finite_joint_continuous_two_iff states that this holds if and only if
+   (u, v) |-> F [u; v] is continuous at every point of R * R
+   (continuity_2d_pt of AnalysisIntegralDefinitions);
+   finite_joint_continuous_two_section is the direct implication. *)
 
-   Both lemmas of the original, finite_joint_continuous_two_iff and
-   finite_joint_continuous_two_section, keep their names, their arguments
-   and their statements word for word. Only the meaning of one name in them
-   changes. continuity_2d_pt is no longer Coquelicot's epsilon-delta
-   definition but the definition of the same name in
-   AnalysisIntegralDefinitions: continuity at (x, y) of p |-> f p.1 p.2 for
-   the product topology of R * R. The two say the same thing, because the
-   open squares centred at (x, y) are the balls of MathComp's product
-   distance on R * R and form a base of its neighbourhoods. The helper
-   lemma coordinate_bivariate_continuity_2d_pt_Reals below states that
-   equivalence in Coquelicot's epsilon-delta form, without posreal.
-
-   finite_joint_continuous, Tn and close_n are those of the port of
-   GaussianCoordinateDefinitions, which are copies of the originals, so the
-   left-hand side of finite_joint_continuous_two_iff is unchanged.
-
-   The proofs are the original ones, with the helper lemma inserted where
-   Coquelicot's definition of continuity_2d_pt was unfolded. *)
-
-(* The port's continuity_2d_pt in Coquelicot's epsilon-delta form. *)
+(* continuity_2d_pt in epsilon-delta form, with squares centred at
+   (x, y). *)
 Lemma coordinate_bivariate_continuity_2d_pt_Reals (f : R -> R -> R) x y :
   continuity_2d_pt f x y <->
   (forall eps, 0 < eps -> exists delta, 0 < delta /\

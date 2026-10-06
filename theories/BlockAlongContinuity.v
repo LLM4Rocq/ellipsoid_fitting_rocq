@@ -12,45 +12,27 @@ Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/BlockAlongContinuity.v from Coquelicot to
-   MathComp-Analysis.
+(* Continuity along paths of the derivatives of the block soft minimax.
+   Let A, U, V, W be paths from a topological space E to block_array n m,
+   continuous at a point q. Then the following functions of x are
+   continuous at q ({for q, continuous _}):
+   - the block scores of A x (block_score_along_continuous);
+   - the inner soft maximum and the inner Gibbs average, covariance and
+     third cumulant of the scores, in the directions U x, V x, W x
+     (block_inner_value_along_continuous and the next three lemmas);
+   - the first derivative lower_block_first at A x in the direction U x
+     (block_first_along_continuous) and the third derivative
+     lower_block_third at A x in the directions U x, V x, W x
+     (block_third_along_continuous).
+   The proofs combine the continuity of Gibbs averages, covariances and
+   third cumulants in their parameters (FiniteGibbsContinuity) with the
+   continuity of the linear score map and of the inner soft maximum.
 
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. No lemma is added. The statements change form in two ways, the
-   same ways as in the port of FiniteGibbsContinuity, which this module
-   imports.
-
-   1. Pointwise continuity. Coquelicot's continuous f q, continuity of f at
-      the one point q, becomes {for q, continuous f}, MathComp's continuity
-      at q (difference 5 of analysis/README.md). This applies both to the
-      hypotheses on the paths A, U, V, W and to the conclusions.
-
-   2. The domain. E, a Coquelicot UniformSpace in the original, is here any
-      topologicalType. Every uniform space of MathComp-Analysis is a
-      topological space, and the statements only speak of continuity at one
-      point, so this generalizes the original.
-
-   The paths take values in block_array n m of the port of LowerDefinitions,
-   whose norm is the Euclidean norm of all entries, as in Coquelicot; its
-   topology is the one of the original. The codomain of the conclusions is
-   Stdlib's R with the topology of Rstruct_topology, the topology of the
-   absolute value, which is also Coquelicot's topology on R. The functions
-   inside the conclusions are the original's, with Stdlib's arithmetic.
-
-   In the proofs, Coquelicot's filterdiff_continuous applied to the linear
-   score map becomes matrix_linear_continuous of the port of
-   MatrixCoordinates, which is why this module imports MatrixCoordinates in
-   addition to the imports of the original. filterdiff_continuous applied to
-   lower_inner_frechet becomes differentiable_continuous applied to the
-   differentiability that is_diff contains. continuous_const becomes
-   cst_continuous.
-
-   Using these lemmas. As for FiniteGibbsContinuity, when E is a concrete
-   type, Rocq's plain apply does not find the topology of E by
-   unification: with E := R, plain apply of block_first_along_continuous
-   did not finish within 20 seconds. Use ssreflect's apply:, or give E
-   explicitly, as in apply (@block_first_along_continuous R); both work at
-   once. When E is a variable of type topologicalType, plain apply works. *)
+   When E is a concrete type such as R, Rocq's plain apply may not find the
+   topology of E by unification, and then runs for a long time. Use
+   ssreflect's apply:, or give E explicitly, as in
+   apply (@block_first_along_continuous R). When E is a variable of type
+   topologicalType, plain apply works. *)
 
 Lemma block_score_along_continuous {E : topologicalType} n m y B z s
     (A : E -> block_array n m) q :

@@ -1,24 +1,13 @@
-(* Port of theories/InterleavedMaximumRadiusResults.v from Coquelicot to
-   MathComp-Analysis. It proves the restated challenge
-   analysis/challenges/interleaved_maximum_radius/Challenge.v.
-
-   The theorem gaussian_interleaved_expected_maximum_radius has exactly the
-   text of the frozen statement, under the imports of Challenge.v in the
-   same order. The only change to the file is that the import line
-   "From Coquelicot Require Import Coquelicot." is dropped: no statement or
-   proof here names a Coquelicot notion. The proof is the original one: it
-   applies the theorem of the same name of the ported
-   InterleavedMaximumRadius, whose text is, byte for byte, this statement.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one, as in Challenge.v. So (0<N)%nat, (0<d)%nat and (i<N)%nat
-   are Peano's lt, N*(d+D) and N*d are Nat.mul and Nat.add, ln is Stdlib's
-   Rpower.ln, and firstn, length, sqrt, INR, Rabs and the operations on R are
-   Stdlib's, as in the original and in the statement.
-
-   Assumptions. Stdlib defines Rpower.ln through ln_exists, whose proof uses
-   Stdlib.Logic.Classical_Prop.classic, so the theorem carries that axiom
-   besides the seven of analysis/README.md. *)
+(* The maximum squared radius of N independent standard Gaussian vectors of
+   R^d, read as the first d coordinates of N consecutive rows of length
+   d + D (gaussian_interleaved_expected_maximum_radius). The function
+   xs |-> gaussian_maximum_radius N d (row_prefixes N d D xs) of N * (d + D)
+   Gaussian coordinates is integrable, has the same expectation as
+   gaussian_maximum_radius N d of N * d coordinates (and so has its absolute
+   value), is the largest squared norm of the row prefixes, and its
+   expectation is at most d + 2 sqrt (d ln N) + 2 ln N. The theorem
+   restates the one of InterleavedMaximumRadius in a module that imports no
+   MathComp library, so that every operation in it is Stdlib's. *)
 
 From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import GaussianProductDefinitions MaximumRadiusDefinitions

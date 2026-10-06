@@ -1,30 +1,11 @@
-(* Port of theories/MaximumRadiusResults.v from Coquelicot to
-   MathComp-Analysis. It proves the restated challenge
-   analysis/challenges/maximum_radius/Challenge.v.
-
-   The three theorems keep their names, their arguments in the same order
-   and their text. The theorem gaussian_expected_maximum_radius has exactly
-   the text of the frozen statement. The only change to the file is that the
-   import line "From Coquelicot Require Import Coquelicot." is dropped: no
-   statement or proof here names a Coquelicot notion. The proofs are the
-   original ones, word for word.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one, as in Challenge.v. So (0<N)%nat, (0<d)%nat and (i<N)%nat
-   are Peano's lt, N*d and i*d are Nat.mul, ln is Stdlib's Rpower.ln, and
-   firstn, skipn, length, sqrt, INR, Rabs and the operations on R are
-   Stdlib's, as in the original and in the statement.
-
-   The proofs use gaussian_maximum_radius_domain and
-   maximum_radius_squares_nonnegative of the ported MaximumRadiusRegularity
-   and gaussian_maximum_radius_expected_bound of the ported
-   MaximumRadiusComparison. Their statements have their original texts, up
-   to the Rpower.ln qualification in the last one, which is the same
-   constant as ln here.
-
-   Assumptions. Stdlib defines Rpower.ln through ln_exists, whose proof uses
-   Stdlib.Logic.Classical_Prop.classic, so the main theorem carries that
-   axiom besides the seven of analysis/README.md. *)
+(* The expected maximum radius of N independent standard Gaussian vectors
+   of dimension d. gaussian_maximum_radius N d xs is the largest squared
+   Euclidean norm of the N consecutive blocks of d coordinates of xs. It
+   bounds every block (gaussian_maximum_radius_ge_row) and, for N > 0, is
+   attained at one (gaussian_maximum_radius_attained). For N > 0 and d > 0
+   it is integrable, and its expectation is at most
+   INR d + 2 * sqrt (INR d * ln (INR N)) + 2 * ln (INR N)
+   (gaussian_expected_maximum_radius). *)
 
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import GaussianProductDefinitions MaximumRadiusDefinitions

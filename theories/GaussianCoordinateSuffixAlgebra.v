@@ -1,31 +1,14 @@
-(* Port of theories/GaussianCoordinateSuffixAlgebra.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma keeps its name, its arguments in the same order and its text.
-   The only change to the file is that the Coquelicot import line is
-   dropped: no statement or proof here names a Coquelicot notion. The
-   predicate finite_polynomial_bound and the weights come from the ported
-   GaussianCoordinateWeightDefinitions, the marginals from the ported
-   GaussianLastDefinitions and the iterated expectation from the ported
-   GaussianProductDefinitions. The texts of these definitions are the
-   original ones, and the Gaussian expectation underneath is the Lebesgue
-   integral over the line (difference 4 of analysis/README.md).
-
-   Meaning. The first three lemmas are statements about pointwise bounds
-   and do not involve an integral. The last four are equalities of iterated
-   expectations. Three hold by unfolding the definitions, with app_nil_r for
-   gaussian_suffix_marginal_zero. gaussian_suffix_marginal_succ follows from
-   gaussian_iterated_last_expectation and gaussian_iterated_expectation_ext
-   of the ported GaussianLastIntegration and GaussianProduct, which are
-   unfoldings too. None of them depends on which integral is used, so each
-   one says what the original said.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So ++, length, the %nat scope and the operations on R are
-   Stdlib's, as in the original, and the proofs are the original ones, word
-   for word. The proof of gaussian_suffix_marginal_succ uses Stdlib's
-   functional_extensionality, whose axiom functional_extensionality_dep is
-   one of the seven of analysis/README.md. *)
+(* Algebra of polynomial bounds and of suffix marginals. A polynomial bound
+   on F (finite_polynomial_bound) holds for any function equal to F on the
+   lists of length d (finite_polynomial_bound_ext), and for the sections
+   xs |-> F (prefix ++ xs) and xs |-> F (x :: xs), with the constant
+   multiplied by the weight of the fixed coordinates
+   (finite_polynomial_bound_prefix, finite_polynomial_bound_head). The
+   suffix marginal over no coordinate is F (gaussian_suffix_marginal_zero),
+   and the one over n + 1 coordinates is the suffix marginal over n
+   coordinates of the last marginal (gaussian_suffix_marginal_succ).
+   Precomposing F with the swap of the first two coordinates swaps the two
+   fixed coordinates (gaussian_suffix_marginal_swap_head). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefinitions GaussianProduct

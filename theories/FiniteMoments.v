@@ -3,6 +3,18 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeigh
 Import ListNotations.
 Open Scope R_scope.
 
+(* Weighted averages weighted_average q I f, the sums over the index list I
+   of q i * f i. Most results assume that q is a finite probability on I
+   (finite_probability: q is nonnegative on I and sums to 1). The module
+   proves that these averages are linear, monotone and bounded in absolute
+   value by the average of the absolute value (weighted_average_abs), and
+   three moment inequalities for a nonnegative r, writing E for
+   weighted_average q I:
+   - weighted_cubic_jensen: (E r) ^ 3 <= E (r ^ 3);
+   - weighted_moment_product: E (r ^ 2) * E r <= E (r ^ 3);
+   - weighted_cubic_envelope: if 0 <= z <= r + E r, then
+     E (z ^ 3) <= 8 * E (r ^ 3). *)
+
 Lemma weighted_average_ext q I f g :
   (forall i, In i I -> f i = g i) ->
   weighted_average q I f = weighted_average q I g.
@@ -138,8 +150,9 @@ Proof.
   nra.
 Qed.
 
-(* This scalar envelope also applies once a normed-space argument bounds a
-   centered norm by an original norm plus its finite weighted average. *)
+(* Typical use: z i is the norm of x i minus the average of x, and r i
+   bounds the norm of x i, so that the triangle inequality gives
+   z i <= r i + weighted_average q I r. *)
 Theorem weighted_cubic_envelope q I r z :
   finite_probability q I ->
   (forall i, In i I -> 0 <= r i) ->

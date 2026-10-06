@@ -3,16 +3,21 @@ From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions MatrixDefi
   MatrixGibbsDefinitions MatrixSecondDefinitions TensorGibbsDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/GradientDefinitions.v from Coquelicot to
-   MathComp-Analysis. The original used nothing from Coquelicot directly: its
-   only Coquelicot content came through matrix n and matrix_build of
-   MatrixDefinitions, through matrix_gibbs_mean of TensorGibbsDefinitions,
-   and through the definitions of MatrixGibbsDefinitions and
-   MatrixSecondDefinitions. Their ports keep the same names and arguments.
-   So the import of Coquelicot is dropped and nothing else changes. MathComp
-   is not imported here, so the literals 1 and 0 are Stdlib's reals, the
-   test && is Stdlib's andb, Nat.eqb is Stdlib's, and the minus sign of
-   - beta is Stdlib's, as before. *)
+(* The gradient of the nested soft minimax of affine matrix scores, as a
+   matrix, and its derivative. The scores are
+   offset y s + trace_pair n (coeff y s) A (matrix_affine_scores).
+   - matrix_basis n i j is the matrix unit: entry (i, j) is 1, the others
+     are 0.
+   - matrix_inner_gradient is the mean of the coefficient matrices
+     coeff y s under the inner Gibbs law over S.
+   - matrix_nested_gradient is the mean of these inner gradients under the
+     outer Gibbs law over Y, at inverse temperature - beta. Its pairing
+     trace_pair with U is the derivative in the direction U
+     (matrix_nested_gradient_trace in MatrixGradient).
+   - matrix_nested_gradient_derivative n ... A V is the matrix whose entry
+     (i, j) is the second derivative matrix_nested_second_derivative in the
+     directions matrix_basis n j i and V. It is the derivative of the
+     gradient in the direction V (matrix_nested_gradient_frechet). *)
 
 Definition matrix_basis (n i j : nat) : matrix n :=
   matrix_build n (fun r c => if (Nat.eqb r i && Nat.eqb c j)%bool then 1 else 0).

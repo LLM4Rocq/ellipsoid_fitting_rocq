@@ -1,31 +1,14 @@
-(* Port of theories/InterleavedMaximumRadius.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every theorem keeps its name, its arguments in the same order, and its
-   text. The only change to the file is that the import line
-   "From Coquelicot Require Import Coquelicot." is dropped: no statement or
-   proof here names a Coquelicot notion. The proofs are the original ones,
-   word for word.
-
-   The meaning of the statements follows the ported definitions they use.
-   gaussian_maximum_radius (MaximumRadiusDefinitions), gaussian_sum_squares
-   (GaussianProductDefinitions), row_chunk (RowCoordinateDefinitions) and
-   row_prefixes (RowMarginalDefinitions) have the original text, so
-   gaussian_interleaved_maximum_ge_row and gaussian_interleaved_maximum_attained
-   say what they said before. In gaussian_interleaved_expected_maximum_radius,
-   gaussian_iterated_integrable, gaussian_iterated_absolutely_integrable and
-   gaussian_iterated_has_expectation (GaussianProductDefinitions) now ask at
-   each level for Lebesgue integrability over the line against the Gaussian
-   kernel and record Lebesgue integrals against gaussian_density, in place of
-   improper Riemann integrals (difference 4 of analysis/README.md). The
-   maximum radius composed with row_prefixes is continuous and polynomially
-   bounded, so it is absolutely integrable and the two notions agree on it.
-   No statement is weakened. The text of the last theorem is, byte for byte,
-   the statement of analysis/challenges/interleaved_maximum_radius/Challenge.v.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So firstn, length, the %nat scope, ln (Stdlib's
-   Rpower.ln) and the operations on R are Stdlib's, as in the original. *)
+(* The maximum squared radius of N rows of d Gaussian coordinates when each
+   row is followed by D other coordinates. row_prefixes N d D keeps the
+   first d coordinates of each of the N rows of length d + D, and
+   gaussian_maximum_radius N d is the maximum over the rows of their sums
+   of squares. gaussian_interleaved_maximum_ge_row and
+   gaussian_interleaved_maximum_attained: the maximum is at least the
+   squared radius of each row and is attained.
+   gaussian_interleaved_expected_maximum_radius: its iterated Gaussian
+   expectation over the N * (d + D) coordinates exists, equals that over
+   the N * d coordinates of the prefixes, and is at most
+   d + 2 sqrt (d ln N) + 2 ln N. *)
 
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import GaussianProductDefinitions

@@ -13,57 +13,20 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/RowTimeCalculus.v from Coquelicot to MathComp-Analysis.
+(* Derivatives in time along the multirow interpolation path, for
+   0 < t < 1, where gaussian_row_array n m t xs is the array of the row
+   matrices at time t.
+   - row_time_array_is_diff and gaussian_array_time_derivative: the array
+     has derivative gaussian_array_velocity n m t xs in t.
+   - gaussian_array_value_time_derivative: the value
+     gaussian_array_value ... t xs, that is lower_block_phi of the array,
+     has derivative lower_block_first of the array in the direction of the
+     velocity.
+   - gaussian_array_velocity_row_sum and gaussian_array_value_row_derivative:
+     this derivative is the sum over the rows of gaussian_row_velocity, by
+     linearity of lower_block_first. *)
 
-   The original imported the bundle InterpolationProofs for its inner module
-   JointTimeCalculus. The port imports the standalone ported module
-   JointTimeCalculus instead, and MatrixThird for matrix_third_is_diff_linear
-   (see below). The other imports are those of the original.
-
-   Every theorem keeps its name and its arguments, in the same order. The
-   statements change form in two ways, without a change of meaning.
-
-   1. Derivatives of a function of a real variable. Coquelicot's
-      is_derive g t l becomes MathComp's @is_derive R R^o V t 1 g l, as in the
-      port of JointTimeCalculus: g is derivable at t in the direction 1 and
-      its derivative there is l. For gaussian_array_time_derivative the
-      codomain V is tuple_NormedModule (matrix_NormedModule n) m, the space of
-      block arrays of the original (block_NormedModule n m of LowerDefinitions
-      by definition); for the two value derivatives it is R^o, the normed
-      module view of R.
-
-   2. Index lists. With ssreflect loaded, the bare name seq means MathComp's
-      type of sequences, so gaussian_array_velocity_row_sum and
-      gaussian_array_value_row_derivative write List.seq 0 (Datatypes.S m),
-      Stdlib's list [0; ...; m] of the original, as LowerDefinitions does.
-
-   The port adds one lemma, marked below: row_time_array_is_diff, the
-   Frechet derivative of the array path t |-> gaussian_row_array n m t xs,
-   h |-> h *: gaussian_array_velocity n m t xs, which Coquelicot's
-   is_derive was by definition. Both derivative theorems are proved from it.
-
-   What changes in the proofs. Coquelicot's tuple_build_frechet and
-   filterdiff_comp' become tuple_build_frechet of the ported MatrixAssembly and
-   MathComp's is_diff_comp. InterpolationProofs.JointTimeCalculus's
-   joint_matrix_time_derivative is used in its Frechet form
-   joint_matrix_time_is_diff of the ported JointTimeCalculus. Coquelicot's
-   filterdiff_ext_lin becomes is_diff_eq, or the computation of the derivative
-   through deriveE and diff_val. The linearity of lower_block_first at a point,
-   which the original took from proj1 of Coquelicot's filterdiff, comes from
-   matrix_third_is_diff_linear of the ported MatrixThird, in the form
-   linear L /\ bound of the ported CoefficientMaps. Coquelicot's linear_plus
-   and linear_scal become MathComp's linearD and linearZ for block_inject,
-   which BlockBasis declares linear, and two local facts for
-   lower_block_first. Stdlib's rewrite ... by, "rewrite <- ... at 1" and
-   "rewrite A, B" are replaced by ssreflect rewrites with explicit arguments.
-
-   Assumptions. The value theorems mention lower_block_phi or
-   lower_block_first, whose definitions use Stdlib's logarithm Rpower.ln
-   (through soft_max), so they rest on Classical_Prop.classic besides the
-   seven axioms of analysis/README.md, as the port of JointTimeCalculus
-   explains. No proof of this module calls classic itself. *)
-
-(* Added by the port. The Frechet derivative of the array path at t. *)
+(* The Frechet derivative of the array path at t. *)
 Lemma row_time_array_is_diff n m t xs : 0 < t < 1 ->
   is_diff (t : R^o)
     ((fun u : R^o => gaussian_row_array n m u xs) :

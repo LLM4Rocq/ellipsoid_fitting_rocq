@@ -1,21 +1,16 @@
-(* Clause 1 of the draft challenge gaussian_covariance_interpolation of the
-   MathComp-Analysis port: the Gaussian domains of the test function and of its
-   second partial derivatives along the interpolation path, and of the test
-   function at the two endpoint vectors. Solver module written on 30 September
-   2026 by a session that did not write the statement. Nothing here is reviewed
-   or accepted.
-
-   The path and the endpoint images are linear images of the coordinates
-   (GaussianCovariancePath), so a continuous, polynomially bounded g composed
-   with them is continuous and polynomially bounded (GaussianCovarianceLinear),
-   with constants uniform in t on [0, 1], and
-   gaussian_coordinate_polynomial_domain of GaussianCoordinateSteinDomains gives
-   the four conjuncts of gaussian_covariance_domain, which are word for word
-   those of gaussian_list_domain.
-
-   This module loads MathComp through AnalysisBridge2; %coq_nat marks Stdlib's
-   arithmetic on nat, and the arithmetic on R is Stdlib's, with R_scope opened
-   last. *)
+(* Integrability along the Gaussian interpolation path. Let g be a jointly
+   continuous, polynomially bounded function of K coordinates, such as a
+   test function or one of its second partial derivatives. Composed with
+   the interpolation path gaussian_covariance_path K p q P Q t, for t in
+   [0, 1], or with an endpoint image gaussian_covariance_image K p P, it
+   stays jointly continuous and polynomially bounded, with constants
+   uniform in t (gaussian_covariance_path_regular,
+   gaussian_covariance_image_regular). So both compositions satisfy
+   gaussian_covariance_domain (gaussian_covariance_path_domain,
+   gaussian_covariance_image_domain), by
+   gaussian_coordinate_polynomial_domain. The path and the endpoint images
+   are linear images of the coordinates (GaussianCovariancePath), and
+   GaussianCovarianceLinear bounds such compositions. *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import AnalysisBridge2.
 From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions
@@ -25,7 +20,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions
 Import ListNotations.
 Open Scope R_scope.
 
-(* A common bound for the entries of P (a < K, k < p) and of Q (a < K, k < q). *)
+(* A common bound for the entries of P (a < K, k < p) and Q (a < K, k < q). *)
 Lemma gaussian_covariance_matrix_bound K p q (P Q : nat -> nat -> R) :
   exists M, 0 <= M /\
     (forall a k, (a < K)%coq_nat -> (k < p)%coq_nat -> Rabs (P a k) <= M) /\

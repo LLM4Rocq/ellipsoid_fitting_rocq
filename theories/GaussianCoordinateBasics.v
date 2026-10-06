@@ -4,24 +4,19 @@ From EllipsoidFitting Require Import GaussianCoordinateCompactness.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/GaussianCoordinateBasics.v from Coquelicot to
-   MathComp-Analysis.
+(* Points of R ^ d as the nested pairs Tn d R of
+   GaussianCoordinateDefinitions, and as lists. coordinates_to_list and
+   coordinates_of_list are inverse to each other between Tn d R and the
+   lists of length d (coordinates_roundtrip, coordinates_list_roundtrip).
+   The coordinatewise closeness close_n d e is reflexive for e > 0,
+   symmetric, monotone in e and satisfies the triangle inequality;
+   coordinates_close_iff and coordinates_close_lists state it coordinate by
+   coordinate on lists.
 
-   The original imported Coquelicot and its Compactness library for three
-   names only: Tn, close_n and bounded_n. Tn and close_n now come from the
-   port of GaussianCoordinateDefinitions, and bounded_n from the helper
-   module GaussianCoordinateCompactness. All three are copies of the
-   definitions of Coquelicot.Compactness (Coquelicot 3.4.4), convertible
-   with them, so every statement below is the original text, word for word,
-   and says the same thing. The proofs are the original ones.
-
-   This module loads no MathComp library itself, so nth is Stdlib's List.nth
-   and (i<d)%nat is Peano's lt, as in the original. A module that imports
-   this one after MathComp sees the same constants: nth here is List.nth
-   (MathComp's seq.nth takes its arguments in another order), and the bound
-   on i is Peano's lt, which such a module writes (i < d)%coq_nat.
-   GaussianCoordinateCompactness depends on MathComp's boolp, but only its
-   Fixpoint bounded_n is used here, and that uses no axiom. *)
+   This module loads no MathComp library, so nth is Stdlib's List.nth
+   (MathComp's seq.nth takes its arguments in another order) and (i<d)%nat
+   is Peano's lt, which a module that imports MathComp writes
+   (i < d)%coq_nat. *)
 
 Lemma coordinates_to_list_length d z : length (coordinates_to_list d z) = d.
 Proof. induction d; [reflexivity|destruct z; simpl; rewrite IHd; reflexivity]. Qed.

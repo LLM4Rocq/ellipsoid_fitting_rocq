@@ -11,56 +11,15 @@ Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module GaussianVectorFinite of
-   theories/InterpolationFoundations.v (and of its identical copy in
-   theories/GaussianVectorProofs.v), extracted to
-   build/agent2/unbundled/GaussianVectorFinite.v, from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original imported the bundle GaussianCoordinateProofs and named its
-   inner module GaussianProduct through it. The port imports the standalone
-   ported module GaussianProduct directly.
-
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order. The statements change form in three ways, none of which changes
-   their meaning.
-
-   1. Indices. With ssreflect loaded, (a <= m)%nat would be ssrnat's boolean
-      leq. The statements write (a <= m)%coq_nat, which is Stdlib's Peano
-      order le, as in the original. This concerns
-      gaussian_vector_coordinate_double_sum and
-      gaussian_vector_polynomial_double_sum_domain.
-
-   2. Pointwise continuity. Coquelicot's continuous f x, continuity of f at
-      the one point x, becomes MathComp's {for x, continuous f} (difference 5
-      of analysis/README.md), in gaussian_vector_polynomial_double_sum_domain.
-      This is the form of the hypothesis of the ported
-      gaussian_vector_polynomial_domain and
-      gaussian_vector_polynomial_sum_domain.
-
-   3. Norms. Coquelicot's norm x becomes MathComp's (`|x|)%R, in
-      gaussian_vector_polynomial_double_sum_domain. The vectors nest
-      euclidean_product of MatrixEuclideanProduct, so this is still the
-      Euclidean norm and the polynomial bounds C * (1 + norm x) ^ p keep
-      their constants.
-
-   gaussian_vector_domain_scale keeps its text. The meaning of
-   gaussian_vector_integrable, gaussian_vector_expectation and
-   gaussian_vector_domain follows the ported GaussianVectorDefinitions
-   (difference 4 of analysis/README.md): at each level of the iterated
-   expectation, Lebesgue integrability over the line against the Gaussian
-   kernel, and Lebesgue integrals, in place of improper Riemann integrals.
-   The lemmas below hold for this reading, by the ported GaussianProduct,
-   GaussianVectorDomain and GaussianVectorAlgebra.
-
-   The proofs are the original ones, with the index hypotheses written
-   %coq_nat.
-
-   Assumptions. gaussian_vector_domain_scale and
-   gaussian_vector_coordinate_double_sum rest on the seven axioms of
-   analysis/README.md only. gaussian_vector_polynomial_double_sum_domain
-   also rests on Classical_Prop.classic, which it inherits from the ported
-   gaussian_vector_polynomial_domain of GaussianVectorDomain. *)
+(* Scaling and finite double sums for gaussian_vector_domain and
+   gaussian_vector_expectation (GaussianVectorDefinitions).
+   gaussian_vector_domain_scale: the domain is stable under scaling.
+   gaussian_vector_coordinate_double_sum: the expectation of a double sum
+   of integrable functions is the double sum of their expectations.
+   gaussian_vector_polynomial_double_sum_domain: the same for continuous
+   terms bounded by C * (1 + |x|) ^ p, with |x| the Euclidean norm, whose
+   double sum then satisfies gaussian_vector_domain. Indices are compared
+   with Stdlib's order le, written (a <= m)%coq_nat. *)
 
 Lemma gaussian_vector_domain_scale n f c :
   gaussian_vector_domain n f -> gaussian_vector_domain n (fun x => c * f x).

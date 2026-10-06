@@ -4,30 +4,16 @@ From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of the inner module GoePairs of theories/InterpolationProofs.v (also
-   copied in GoeProofs.v and JointProofs.v) from Coquelicot to
-   MathComp-Analysis, as a standalone module.
-
-   The original used nothing from Coquelicot directly. Its only Coquelicot
-   content came through matrix n, coordinate_sum, symmetric_basis and its
-   two parts, and goe_pairs, goe_vector_index and goe_basis of
-   GoeDefinitions. Their ports keep the same names, arguments and values, so
-   the import of Coquelicot is dropped and the text below is the original,
-   unchanged.
-
-   This file loads no MathComp module. As a consequence map, seq, flat_map,
-   ++, length, nth and In are Stdlib's list functions, with Stdlib's argument
-   order nth k l default, and (a <= b)%nat is Stdlib's Peano order le, as in
-   the original and as in the port of GoeDefinitions. The ports of
-   SymmetricBasis and SecondChaosAlgebra write the same order as
-   (a <= b)%coq_nat, which is the same term. The arithmetic, the literals and
-   the sums are Stdlib's, as before.
-
-   An importer that loads all_ssreflect_compat sees MathComp's nth, map,
-   seq, ++ and <= under these names and notations. To state or match these
-   lemmas it writes List.nth, List.map, List.seq, (_ ++ _)%list and
-   (_ <= _)%coq_nat. Stdlib's length, In, NoDup and the division
-   (_ / _)%nat keep their meaning there. *)
+(* The list goe_pairs n of the pairs (a, b) with a <= b <= n, which indexes
+   the coordinates of a symmetric matrix: first the diagonal pairs, then
+   the pairs a < b, row by row. goe_pairs_length counts them,
+   (n+1)(n+2)/2, goe_pairs_valid characterizes them and goe_pairs_nodup
+   says that they are distinct. goe_basis_sum splits a sum over the basis
+   goe_basis into the sums over the diagonal and the off-diagonal elements
+   of symmetric_basis.
+   This file loads no MathComp module, so map, seq, nth, ++ and <= are
+   Stdlib's. A module that loads MathComp writes List.nth, List.map,
+   List.seq, (_ ++ _)%list and (_ <= _)%coq_nat to state these lemmas. *)
 
 Lemma goe_pairs_nonempty n : goe_pairs n <> [].
 Proof. unfold goe_pairs; discriminate. Qed.

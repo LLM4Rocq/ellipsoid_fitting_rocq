@@ -1,28 +1,23 @@
-(* Results module of the draft challenge multirow_integrated_bound, over the
-   MathComp-Analysis port in analysis/. Nothing here is reviewed, solved or
-   accepted: the challenge is a draft of the port, and this module is a
-   pre-submission proof written on 30 September 2026 by a session that did
-   not write the statement.
-
-   The imports before the proof modules are those of
-   analysis/challenges/multirow_integrated_bound/Challenge.v, in the same
-   order, and the statement below is the text of that file, copied unchanged
-   (SHA-256 of Challenge.v:
-   0c7e86e61e03c24b51cb1017f2de854a935110f642849c7aca39362ec8fcce5f).
-
-   The proof composes three sources. The radius facts of clause 1 and the
-   bound 4 M3 radius on the summed remainder expectations are
-   MultirowIntegratedBounds (from the accepted maximum_radius and
-   interleaved_maximum_radius and the checkpoint remainder sum). The domain
-   of the array value on [0, 1], the derivative of its expectation on (0, 1)
-   with the value sqrt t / (2 d sqrt d) times the summed remainder
-   expectations, its continuity within [0, 1], and the endpoint identities
-   with their domains are the per-clause theorems of
-   MultirowExpectationAssembly, the assembly module of the proved challenge
-   multirow_expectation_derivative. The integration in time is the scalar
-   lemma sqrt_weighted_endpoint_bound of WeightedComparison, applied inside
-   MultirowIntegratedBounds with K = 2 radius M3 / (d sqrt d), and the
-   explicit constant 40/3 is MultirowIntegratedArithmetic. *)
+(* Interpolation bound between the GOE and the quadratic block arrays.
+   gaussian_array_value ... t is the soft minimax lower_block_phi of the
+   block array whose block i is
+   sqrt (t / d) (x_i x_i^T - I) + sqrt (1 - t) goe_matrix n z_i, with
+   d = n + 1 and x_i, z_i read from row i (RowArrayDefinitions). Let f t
+   be its Gaussian expectation, and g and w the expectations of the
+   values at the GOE and at the quadratic arrays. For unit scores y z with
+   entries at most theta / sqrt d, and symmetric B s of operator norm at
+   most k, paper_multirow_integrated_bound_results states:
+   1. the expectation of the maximum squared radius of the N rows of x,
+      called radius, lies in [0, radius_bound], with
+      radius_bound = d + 2 sqrt (d ln N) + 2 ln N, and the functions
+      integrated satisfy gaussian_list_domain;
+   2. for 0 < t < 1, f has a derivative l with
+      |l| <= (2 sqrt t / (d sqrt d)) radius M3, where
+      M3 = 10 k^3 (beta + gamma)^2 theta / sqrt d;
+   3. |w - g| <= (4 radius / (3 d sqrt d)) M3, and so
+      |w - g| <= (40/3) k^3 (beta + gamma)^2 theta radius_bound / d^2.
+   The proof combines MultirowExpectationAssembly and
+   MultirowIntegratedBounds. *)
 From Stdlib Require Import Reals List.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum classical_sets.
 From mathcomp Require Import Rstruct topology normedtype derive Rstruct_topology.

@@ -2,9 +2,16 @@ From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import MatrixDefinitions VectorCoordinateDefinitions
   GoeDefinitions JointDefinitions LowerDefinitions RowCoordinateDefinitions.
 
-(* Pure endpoints, with no unused coordinates. Dimension d = S n, rows N = S m.
-   The GOE input has N * S (goe_vector_index n) scalar coordinates;
-   the quadratic input has N * S n. Blocks are in row order. *)
+(* The two endpoints of the multirow interpolation, as functions of a list
+   of coordinates with no unused coordinate. The dimension is d = S n and
+   there are N = S m rows; block i is read from the i-th chunk of the list
+   (row_chunk), so blocks are in row order.
+   - multirow_goe_array: N GOE matrices goe_matrix n, from
+     N * S (goe_vector_index n) coordinates.
+   - multirow_quadratic_array: N matrices joint_quadratic_input n x, from
+     N * S n coordinates.
+   multirow_goe_value and multirow_quadratic_value are lower_block_phi at
+   these block arrays. *)
 Definition multirow_goe_array n m (zs : list R) : block_array n m :=
   tuple_build (matrix_NormedModule n) m (fun i =>
     goe_matrix n (vector_of_list (goe_vector_index n)

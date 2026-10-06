@@ -1,40 +1,14 @@
-(* Port of theories/MaximumRadiusMoments.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma and theorem keeps its name, its arguments in the same order,
-   and its text. The only change to the file is that the import line
-   "From Coquelicot Require Import Coquelicot." is dropped: no statement or
-   proof here names a Coquelicot notion. The proofs are the original ones,
-   word for word.
-
-   The meaning of the statements follows the ported definitions they use.
-   gaussian_iterated_integrable and gaussian_iterated_expectation
-   (GaussianProductDefinitions) now ask at each level for Lebesgue
-   integrability over the line against the Gaussian kernel, and take
-   Lebesgue integrals, in place of improper Riemann integrals (difference 4
-   of analysis/README.md). gaussian_sum_squares, gaussian_maximum_radius and
-   gaussian_radius_exponential_sum (GaussianProductDefinitions,
-   MaximumRadiusDefinitions) have their original texts and involve no
-   integral. maximum_radius_firstn_append, maximum_radius_skipn_append,
-   gaussian_radius_exponential_sum_nonnegative and
-   gaussian_maximum_radius_exponential_majorant involve no integral either,
-   and say exactly what they said. The integrands of
-   gaussian_radius_exponential_sum_moment are nonnegative, continuous and
-   Gaussian integrable for t < 1/2, so they are absolutely integrable and
-   the Lebesgue and improper Riemann values agree on them. No statement is
-   weakened.
-
-   The proofs use gaussian_iterated_constant, gaussian_iterated_add,
-   gaussian_iterated_integrable_ext and gaussian_iterated_expectation_ext
-   (ported GaussianProduct), gaussian_iterated_suffix_integrable and
-   gaussian_iterated_suffix_expectation (ported GaussianLastIntegration),
-   gaussian_centered_chisquare_exponential_moment (ported
-   GaussianCenteredChiSquare) and maximum_radius_squares_nonnegative (ported
-   MaximumRadiusRegularity), whose statements are the original texts.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So firstn, skipn, ++, length, the %nat scope and the
-   operations on R are Stdlib's, as in the original. *)
+(* Exponential moments for the maximum radius.
+   gaussian_radius_exponential_sum N d t xs is the sum, over the N blocks of
+   d consecutive coordinates of xs, of exp (t * (|block| ^ 2 - d)). For
+   t < 1/2 it is integrable, and its iterated Gaussian expectation is N
+   times that of exp (t * (|xs| ^ 2 - d)) over d coordinates
+   (gaussian_radius_exponential_sum_moment). For N > 0 and t >= 0 it bounds
+   exp (t * (gaussian_maximum_radius N d xs - d))
+   (gaussian_maximum_radius_exponential_majorant). A function of the first
+   d coordinates, or of the coordinates after the first d, keeps its
+   integrability and its expectation when coordinates are added
+   (gaussian_iterated_prefix_lift, gaussian_iterated_suffix_lift). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianExpectation GaussianProductDefinitions GaussianProduct

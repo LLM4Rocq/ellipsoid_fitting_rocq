@@ -9,35 +9,20 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates Operato
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/OperatorProperties.v from Coquelicot to MathComp-Analysis.
-
-   Every definition and lemma of the original keeps its name and its
-   arguments, in the same order. The statements change form in the ways of
-   the ports of MatrixCoordinates and OperatorBounds.
-
-   1. Coquelicot's norm x becomes MathComp's norm (`|x|)%R. The norms are
-      those of MatrixDefinitions: the Euclidean norm on vectors, the
-      Frobenius norm on matrices, and the absolute value on R, as in
-      Coquelicot. Comparisons, products and absolute values around these
-      norms are Stdlib's, as before.
-
-   2. Coquelicot's zero, plus and scal on vectors become MathComp's 0%R,
-      + and *:, which are componentwise on the nested pairs as before.
-      NormedModule R_AbsRing becomes normedModType R, and R_NormedModule
-      becomes R^o.
-
-   3. Coquelicot's is_linear l is stated, as in MatrixCoordinates, as the
-      conjunction
-        linear l /\
-        exists M : R, 0 < M /\ forall x, (`|l x|)%R <= M * (`|x|)%R
-      of MathComp's algebraic linearity and Coquelicot's norm bound. The
-      meaning is the same, constants included.
-
-   4. The order on indices (j <= n)%nat of the original is Stdlib's Peano
-      order. With ssreflect loaded, (j <= n)%nat means ssrnat's boolean leq,
-      so the statements write (j <= n)%coq_nat, which is Stdlib's le.
-
-   The meaning of every statement is unchanged. *)
+(* Properties of the action of a matrix on vectors and of the operator norm
+   matrix_operator_norm, for the Euclidean norm on vectors and the
+   Frobenius norm on matrices.
+   - real_norm_scal_exact: `|a *: x| = |a| * `|x| in any normed module.
+   - matrix_action_left_linear, matrix_action_add, matrix_action_scale and
+     matrix_action_zero: A |-> A x is linear and bounded.
+   - matrix_action_unit_bound and matrix_action_norm_bound:
+     `|A x| <= matrix_operator_norm n A when `|x| <= 1, and
+     `|A x| <= matrix_operator_norm n A * `|x| for every x.
+   - matrix_operator_norm_triangle, matrix_operator_norm_zero and
+     matrix_operator_norm_scale: the operator norm satisfies the triangle
+     inequality, vanishes at 0 and is absolutely homogeneous.
+   - matrix_action_basis_entry: coordinate i of A applied to the basis
+     vector operator_basis_vector n j is the entry (i, j) of A. *)
 
 Lemma real_norm_scal_exact {V : normedModType R} (a : R) (x : V) :
   (`|(a *: x)%R|)%R = Rabs a * (`|x|)%R.

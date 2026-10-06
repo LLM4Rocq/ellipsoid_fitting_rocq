@@ -8,28 +8,27 @@ From mathcomp Require Import Rstruct_topology.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/RadiusAlgebra.v from Coquelicot to MathComp-Analysis.
+(* Scalar inequalities for the chi-square bounds and the maximum radius.
+   - gaussian_log_remainder_bound: - ln (1 - u) - u <= u ^ 2 / (2 (1 - u))
+     for 0 <= u < 1.
+   - gaussian_centered_log_expression_bound: for d >= 0 and 0 <= t < 1/2,
+     d / 2 * (- 2 t - ln (1 - 2 t)) <= d t ^ 2 / (1 - 2 t). The left side
+     is the logarithm of E exp (t (|g| ^ 2 - d)) for a standard Gaussian
+     vector g of dimension d.
+   - gaussian_radius_parameter: for d, L > 0, the parameter
+     t = sqrt L / (sqrt d + 2 sqrt L) lies in ]0, 1/2[ and gives
+     L / t + d t / (1 - 2 t) = 2 sqrt (d L) + 2 L.
 
-   Which logarithm. This file imports MathComp's exp module, so a bare
-   "ln" would denote MathComp's exp.ln and not Stdlib's Rpower.ln. The
-   Coquelicot original, and the frozen statement of the challenge
-   ellipsoid_gaussian_product, use Stdlib's logarithm. Every statement below
-   therefore writes Rpower.ln explicitly. The two functions agree at every
-   point (RlnE in Rstruct_topology), but they are different constants, so a
-   downstream port that writes a bare ln under the same imports must either
-   write Rpower.ln too or rewrite with RlnE before applying these lemmas.
-   The unqualified sqrt below is still Stdlib's R_sqrt.sqrt.
-
-   Classical logic. Stdlib's Rpower.ln is defined through ln_exists, whose
-   proof uses Classical_Prop.classic. Every statement that mentions
-   Rpower.ln, including the Coquelicot original of each lemma here, depends
-   on it. *)
+   This module imports MathComp's exp, so a bare ln would denote exp.ln;
+   every statement writes Rpower.ln, Stdlib's logarithm. The two agree at
+   every point (RlnE of Rstruct_topology) but are different constants, so a
+   user that writes a bare ln under the same imports must write Rpower.ln
+   too or rewrite with RlnE. The unqualified sqrt is Stdlib's. *)
 
 (* Stdlib's derivative at a point gives MathComp's derivative in the
    direction 1. MathComp's is_derive x 1 f l says that the difference
    quotient (f (h + x) - f x) / h tends to l as h tends to 0 with h <> 0,
-   which is what derivable_pt_lim f x l says, and what Coquelicot's
-   is_derive f x l says for functions from R to R (is_derive_Reals). *)
+   which is what derivable_pt_lim f x l says. *)
 Lemma RadiusAlgebra_is_derive_of_Reals {f : R -> R} {x l : R} :
   derivable_pt_lim f x l -> @is_derive R R^o R^o x 1 f l.
 Proof.
@@ -49,9 +48,8 @@ all: rewrite /GRing.scale /= mulr1 RplusE RminusE RdivE.
 all: by rewrite [(h + x)%R]addrC mulrC.
 Qed.
 
-(* Coquelicot's is_derive at a point of R becomes MathComp's is_derive in
-   the direction 1, on R^o. The statement says the same thing (see the
-   comment above RadiusAlgebra_is_derive_of_Reals). *)
+(* The derivative of u ^ 2 / (2 (1 - u)) + ln (1 - u) + u on ]-oo, 1[. It
+   is nonnegative, and the function vanishes at 0. *)
 Lemma gaussian_log_remainder_derivative u :
   u < 1 ->
   @is_derive R R^o R^o u 1 (fun v => v*v / (2*(1-v)) + Rpower.ln (1-v) + v)
@@ -92,9 +90,9 @@ change ((((1*u + u*1) * (2*(1-u)) - 2*(0-1) * (u*u)) / Rsqr (2*(1-u)) + 1)
 by unfold Rsqr; field; lra.
 Qed.
 
-(* The original applies Coquelicot's MVT_gen on [0, u]. This proof applies
-   MathComp's ger0_derive1_ndecr (a function with a nonnegative derivative
-   does not decrease), which rests on MathComp's mean value theorem. *)
+(* The proof applies MathComp's ger0_derive1_ndecr on [0, u] (a function
+   with a nonnegative derivative does not decrease), which rests on
+   MathComp's mean value theorem. *)
 Theorem gaussian_log_remainder_bound u :
   0 <= u < 1 -> - Rpower.ln (1-u) - u <= u*u / (2*(1-u)).
 Proof.

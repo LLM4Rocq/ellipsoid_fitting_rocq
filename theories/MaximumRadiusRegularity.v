@@ -1,32 +1,12 @@
-(* Port of theories/MaximumRadiusRegularity.v from Coquelicot to
-   MathComp-Analysis.
-
-   Every lemma and theorem keeps its name, its arguments in the same order,
-   and its text. The only change to the file is that the import line
-   "From Coquelicot Require Import Coquelicot Compactness." is dropped: no
-   statement or proof here names a Coquelicot notion. The proofs are the
-   original ones, word for word.
-
-   The meaning of the statements follows the ported definitions they use.
-   finite_joint_continuous (GaussianCoordinateDefinitions, where Tn and
-   close_n are copies of Coquelicot's) and finite_polynomial_bound
-   (GaussianCoordinateWeightDefinitions) have the original text, so the
-   continuity, bound and polynomial statements say what they said before.
-   In gaussian_maximum_radius_domain, gaussian_iterated_integrable,
-   gaussian_iterated_absolutely_integrable and
-   gaussian_iterated_has_expectation (GaussianProductDefinitions) now ask at
-   each level for Lebesgue integrability over the line against the Gaussian
-   kernel and record Lebesgue integrals against gaussian_density, in place
-   of improper Riemann integrals (difference 4 of analysis/README.md). The
-   maximum radius is continuous and polynomially bounded, so it is
-   absolutely integrable and the two notions agree on it. No statement is
-   weakened.
-
-   This module imports no MathComp library itself, and none of its imports
-   re-exports one. So nth, firstn, skipn, ++, length, the %nat scope and the
-   operations on R are Stdlib's, as in the original. In particular nth in
-   maximum_radius_squares_continuous is Stdlib's List.nth, with the
-   original order of arguments. *)
+(* Regularity of gaussian_maximum_radius N d, the largest squared Euclidean
+   norm among the N consecutive blocks of d coordinates of a list of N * d
+   coordinates. It is jointly continuous (gaussian_maximum_radius_continuous)
+   and lies between 0 and the sum of the squares of all the coordinates
+   (gaussian_maximum_radius_bounds). So on a list xs of length N * d it is
+   at most N * d * gaussian_coordinate_product_weight 2 xs
+   (gaussian_maximum_radius_polynomial), and it and its absolute value have
+   iterated Gaussian expectations (gaussian_maximum_radius_domain, from
+   gaussian_iterated_polynomial_admissible of GaussianCoordinateMarginals). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianProductDefinitions GaussianProduct
@@ -55,7 +35,7 @@ Lemma maximum_radius_continuous_firstn d k F :
   finite_joint_continuous (d+k) (fun xs => F (firstn d xs)).
 Proof.
   apply finite_joint_continuous_list_map.
-  - intros xs H; rewrite firstn_length, H, Nat.min_l by lia; reflexivity.
+  - intros xs H; rewrite length_firstn, H, Nat.min_l by lia; reflexivity.
   - intros e xs ys Hx Hy H; apply maximum_radius_forall2_firstn, H.
 Qed.
 
@@ -64,7 +44,7 @@ Lemma maximum_radius_continuous_skipn d k F :
   finite_joint_continuous (d+k) (fun xs => F (skipn d xs)).
 Proof.
   apply finite_joint_continuous_list_map.
-  - intros xs H; rewrite skipn_length, H; lia.
+  - intros xs H; rewrite length_skipn, H; lia.
   - intros e xs ys Hx Hy H; apply maximum_radius_forall2_skipn, H.
 Qed.
 

@@ -1,55 +1,14 @@
-(* Port of theories/GaussianMass.v from Coquelicot to MathComp-Analysis.
+(* The Gaussian kernel is integrable on the line, and its integral
+   gaussian_mass is positive (gaussian_kernel_mass_integral,
+   gaussian_mass_positive). Its value, the square root of 2 * pi, is
+   computed in GaussianProbabilityDensity (gpb_mass).
 
-   Every lemma of the original keeps its name and its arguments, in the same
-   order. The statements use the vocabulary of AnalysisIntegralDefinitions
-   and of the bridge:
-   - ex_RInt f a b becomes segment_integrable f a b, and is_RInt f a b l
-     becomes oriented_has_integral f a b l;
-   - is_derive f x l becomes @is_derive R R^o R^o x 1 f l;
-   - is_lim f p_infty l and is_lim f m_infty l become
-     (f x @[x --> +oo%R] --> l)%classic and (f x @[x --> -oo%R] --> l)%classic;
-   - ex_RInt_gen f (Rbar_locally m_infty) (Rbar_locally p_infty) becomes
-     whole_line_integrable f, and is_RInt_gen over the same filters becomes
-     whole_line_has_integral f l, the Lebesgue integral over the line;
-   - continuous h x becomes {for x, continuous h}.
-   The arithmetic in every statement is Stdlib's, as in the original.
-
-   The kernel is continuous, positive and absolutely integrable, so for it
-   the Lebesgue integrals over a segment and over the line have, as a
-   mathematical fact, the values of Coquelicot's Riemann integrals
-   (differences 3 and 4 of analysis/README.md). This module does not prove
-   that agreement; it proves every statement directly with the Lebesgue
-   integral.
-
-   Statements that change form.
-
-   1. continuous_nonnegative_primitive_limit. The original concluded
-      is_RInt_gen h (at_point a) (Rbar_locally p_infty) L, which says that
-      RInt h a x tends to L as x tends to +oo. There is no half-line
-      vocabulary in AnalysisIntegralDefinitions, so the port states that
-      limit for the oriented integral, and adds the Lebesgue form: h is
-      integrable on [a, +oo[ and its integral there is L. The new statement
-      implies the translation of the old one. The hypothesis
-      (forall x, continuous h x) becomes (forall x, {for x, continuous h}).
-      No module of theories/ uses this lemma of GaussianMass.
-
-   2. gaussian_kernel_positive_integral, gaussian_kernel_integrable,
-      gaussian_kernel_absolute_integrable and gaussian_kernel_mass_integral
-      are about the Lebesgue integral over the line, which requires
-      absolute integrability. For the kernel this changes nothing: it is
-      nonnegative, and the proof obtains its integrability from the limits
-      of gaussian_primitive, with MathComp's ge0_continuous_FTC2y on
-      [0, +oo[ and the symmetry lemma ge0_symfun_integralT.
-
-   New lemmas, used in the proofs and available to importers:
-   - gaussian_mass_oriented_ge0: the oriented integral from a to b of a
-     function that is nonnegative on [a, b] is nonnegative when a <= b;
-   - gaussian_mass_oriented_le: the oriented integral is monotone in the
-     integrand when a <= b and both integrands are integrable on [a, b].
-
-   The original imported Classical_Prop for NNPP. The port uses MathComp's
-   pselect instead, so the assumptions of the module are the seven axioms
-   of analysis/README.md. *)
+   The proof studies gaussian_primitive, the oriented integral of the kernel
+   from 0. It is nondecreasing, positive at 1 and bounded above, so it has a
+   limit L > 0 at +oo (gaussian_primitive_positive_limit); it is odd, so its
+   limit at -oo is -L (gaussian_primitive_negative_limit). The bound above
+   comes from t * gaussian_kernel t >= gaussian_kernel t for t >= 1, where
+   the left side has the primitive - gaussian_kernel t. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2.
@@ -59,7 +18,8 @@ From mathcomp Require Import measurable_realfun.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
 
-(* The oriented integral of a function nonnegative on [a, b], a <= b. *)
+(* The oriented integral from a to b of a function nonnegative on [a, b] is
+   nonnegative when a <= b. *)
 Lemma gaussian_mass_oriented_ge0 (f : R -> R) a b :
   a <= b -> (forall x, a <= x <= b -> 0 <= f x) ->
   0 <= oriented_integral f a b.
@@ -160,6 +120,8 @@ Proof.
   pose proof (gaussian_kernel_positive c); nra.
 Qed.
 
+(* A nondecreasing function bounded above has a limit L at +oo, and L
+   bounds it above. *)
 Lemma increasing_bounded_positive_limit (f : R -> R) M :
   (forall x y, x <= y -> f x <= f y) ->
   (forall x, f x <= M) ->
@@ -231,7 +193,8 @@ Qed.
 
 (* The value is L - -L, where L is the limit of gaussian_primitive at +oo.
    The integral of the kernel over [0, +oo[ is L by MathComp's
-   ge0_continuous_FTC2y, and the kernel is even. *)
+   ge0_continuous_FTC2y, and the kernel is even, so its integral over the
+   line is twice that (ge0_symfun_integralT). *)
 Lemma gaussian_kernel_positive_integral :
   exists M, 0 < M /\ whole_line_has_integral gaussian_kernel M.
 Proof.

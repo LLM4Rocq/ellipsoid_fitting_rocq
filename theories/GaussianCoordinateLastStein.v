@@ -7,63 +7,25 @@ From EllipsoidFitting Require Import GaussianDefinitions GaussianIntegration
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/GaussianCoordinateLastStein.v from Coquelicot to
-   MathComp-Analysis.
+(* Stein's identities in the last coordinate of the iterated Gaussian
+   expectation E = gaussian_iterated_expectation (S d). Let x_d be the last
+   coordinate List.nth d xs 0, and let F and its derivatives in x_d be
+   bounded by constants times polynomials (finite_polynomial_bound).
+   - gaussian_iterated_last_first_stein: E DF = E (x_d * F), when DF is the
+     derivative of F in x_d and is jointly continuous.
+   - gaussian_iterated_last_second_stein: E DDF = E ((x_d ^ 2 - 1) * F),
+     when DF and DDF are the first and second derivatives of F in x_d and
+     DDF is jointly continuous.
+   The proofs apply the one-dimensional identities gaussian_first_stein and
+   gaussian_second_stein of GaussianIntegration to the sections
+   t |-> F (xs ++ [t]), whose polynomial bounds come from
+   gaussian_last_section_scalar_bound.
 
-   Every lemma and theorem keeps its name and its arguments, in the same
-   order, and no statement gains or loses a hypothesis. The changes of text
-   are the following, and nothing else.
-
-   1. Derivatives. In gaussian_iterated_last_first_stein and
-      gaussian_iterated_last_second_stein, Coquelicot's hypothesis
-        forall xs, length xs = d -> forall t,
-          is_derive (fun u => F (xs++[u])) t (DF (xs++[t]))
-      is written
-        forall xs : list R, length xs = d -> forall t : R,
-          @is_derive R R^o R^o t 1 (fun u => F (xs++[u])%list)
-            (DF (xs++[t])%list),
-      MathComp's derivative at the point t in the direction 1, on R with
-      its own normed module structure R^o (and likewise for DF and DDF).
-      Both are the ordinary derivative of a function R -> R: each is
-      equivalent to Stdlib's derivable_pt_lim (Coquelicot's is_derive_Reals
-      and is_derive_Reals of AnalysisBridge), so the meaning is unchanged.
-      This is exactly the conclusion of finite_coordinate_derivative_last in
-      the ported GaussianCoordinateDerivatives, which is how the importer
-      GaussianCoordinateStein produces these hypotheses. The binders xs and
-      t are annotated with list R and R, so that t has type R and not the
-      carrier of R^o.
-
-   2. Concatenation and nth. With ssreflect loaded, xs ++ [t] means
-      MathComp's cat and nth is MathComp's seq.nth, whose arguments come in
-      another order. The statements write (xs ++ [t])%list, which is
-      Stdlib's app, and List.nth, as in the original and as in the ported
-      GaussianLastDefinitions, GaussianCoordinateTopology and
-      GaussianCoordinateDerivatives. length, S and the arithmetic on R are
-      Stdlib's.
-
-   Meaning. finite_joint_continuous and finite_polynomial_bound involve no
-   integral and mean what they meant. gaussian_iterated_expectation is the
-   iterated Gaussian expectation of the ported GaussianProductDefinitions,
-   whose one-dimensional expectation is now the Lebesgue integral over the
-   line (difference 4 of analysis/README.md). Under the hypotheses of the
-   two theorems, every section t |-> F (xs ++ [t]) and every other function
-   integrated is continuous and bounded by a constant times a polynomial,
-   so it is absolutely integrable against the kernel, where the Lebesgue
-   and the improper Riemann integrals agree. The two identities are
-   therefore the same statements as before, about the same numbers. This
-   agreement is a mathematical argument and is not proved in Rocq.
-   gaussian_last_section_scalar_bound involves no integral and is the
-   original statement.
-
-   Proofs. The original scripts are kept. They apply gaussian_first_stein
-   and gaussian_second_stein of the ported GaussianIntegration, which keep
-   the hypotheses of the originals, with the derivative and pointwise
-   continuity hypotheses in the forms above, and
-   finite_joint_continuous_last_section of the ported
-   GaussianCoordinateTopology, whose conclusion is
-   forall t : R, {for t, continuous (fun u : R => F (xs ++ [u])%list)}.
-   The comma form of rewrite is split in two, since ssreflect's rewrite
-   does not accept it. *)
+   The derivatives are MathComp's is_derive at t in the direction 1, the
+   ordinary derivative of a function R -> R. With ssreflect loaded, the
+   statements write (xs ++ [t])%list and List.nth for Stdlib's app and nth.
+   The one-dimensional expectations are Lebesgue integrals against the
+   Gaussian kernel. *)
 
 Lemma gaussian_last_section_scalar_bound d F C p xs :
   finite_polynomial_bound (S d) C p F -> length xs = d ->

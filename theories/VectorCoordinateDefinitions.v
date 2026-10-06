@@ -7,15 +7,13 @@ From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/VectorCoordinateDefinitions.v from Coquelicot to
-   MathComp-Analysis.
-
-   Coquelicot's R_NormedModule becomes R^o, the normed module view of R, as
-   in the ports of MatrixDefinitions and OperatorDefinitions. The lists are
-   Stdlib's. With ssreflect loaded, the bare names map, seq and nth would mean
-   MathComp's seq.map, the type seq and seq.nth, so the definitions write
-   List.map, List.seq and List.nth, which are the functions the original
-   used. The meaning is unchanged. *)
+(* Conversions between x : vector n and the list of its S n coordinates.
+   vector_to_list lists the coordinates 0, ..., n, and vector_of_list
+   builds a vector from the first S n entries of a list, a missing entry
+   reading 0. The coordinates have the type R^o, the normed module view of
+   R. With ssreflect loaded, the bare names map, seq and nth would mean
+   MathComp's functions on seq, so the definitions write List.map, List.seq
+   and List.nth, Stdlib's functions on lists. *)
 
 Definition vector_to_list (n : nat) (x : vector n) : list R :=
   List.map (vector_entry n x) (List.seq 0 (S n)).

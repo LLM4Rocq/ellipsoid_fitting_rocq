@@ -1,14 +1,11 @@
-(* Helper lemmas for the challenge gaussian_probability_bridge, second part:
-   integrability and expectation under the standard normal law of
-   MathComp-Analysis against the library's Gaussian integrals. Written by the
-   solver on 30 September 2026. Proof module: no Definition, Axiom, Parameter
-   or Admitted.
-   - gpb_integrable_iff: integrability under the law is gaussian_integral_exists.
-   - gpb_law_on, gpb_law_setT: the law on Borel sets, and its total mass.
-   - gpb_RNc_ae, gpb_law_integral: the Radon-Nikodym derivative of the law's
-     charge is normal_pdf 0 1 a.e., so an integrable f has expectation
-     gaussian_expectation f under the law.
-   - gpb_law_expectation, gpb_first_moment, gpb_second_moment. *)
+(* Integrability and integrals under the standard normal law gaussian_law,
+   compared with the Gaussian integrals of GaussianDefinitions.
+   - gpb_integrable_iff: f is integrable under the law iff
+     gaussian_integral_exists f.
+   - gpb_RNc_ae: the Radon-Nikodym derivative of the law, seen as a charge,
+     with respect to Lebesgue measure is normal_pdf 0 1 almost everywhere.
+   - gpb_law_integral: if gaussian_integral_exists f, then the integral of
+     f under the law is gaussian_expectation f. *)
 From Stdlib Require Import Reals Lra.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import classical_sets reals Rstruct.

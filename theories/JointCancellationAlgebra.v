@@ -1,14 +1,12 @@
 From Stdlib Require Import Reals List Lia Lra Psatz.
 Open Scope R_scope.
 
-(* Port of the inner module JointCancellationAlgebra of
-   theories/InterpolationProofs.v (also copied in JointProofs.v) from
-   Coquelicot to MathComp-Analysis, as a standalone module.
-
-   The original imported Coquelicot but used nothing from it: the statement
-   and the proof are real arithmetic of Stdlib (sqrt, INR, field, lra). The
-   import of Coquelicot is dropped, no MathComp module is loaded, and the
-   text below is the original, unchanged. *)
+(* The cancellation that combines the two Gaussian integration by parts
+   identities of JointSections. joint_stein_cancellation: for 0 < t < 1, if
+   EP = (2 sqrt t / (n + 1)) ED + (t / ((n + 1) sqrt (n + 1))) ER and
+   EQ = (2 sqrt (1 - t) / (n + 1)) ED, then
+   EP / (2 sqrt t) - EQ / (2 sqrt (1 - t)) =
+   (sqrt t / (2 (n + 1) sqrt (n + 1))) ER: the terms in ED cancel. *)
 
 Theorem joint_stein_cancellation n t EP EQ ED ER :
   0 < t < 1 ->

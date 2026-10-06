@@ -3,10 +3,15 @@ From EllipsoidFitting Require Import Definitions.
 Import ListNotations.
 Open Scope R_scope.
 
-(** Finite energy and iterative removal of coordinates above a relative
-    squared-weight threshold. Classical real comparison is used only to
-    select a finite sublist. No assumption is made about strictly positive
-    energy, so empty and zero-energy tails are covered. *)
+(** Iterative removal of heavy coordinates. energy w A is the sum of the
+    weights w i over A, and i is heavy at threshold beta if
+    beta * energy w A < w i. With nonnegative weights there are at most
+    1 / beta heavy indices (heavy_count), and a round removes them
+    (peeling_round). After at most K rounds, at most K / beta indices are
+    removed, and either the energy is at most energy w A / 4 ^ K, or every
+    remaining weight is at most 4 * beta times the remaining energy
+    (peeling_iteration). Classical comparison (Rlt_dec) only selects the
+    heavy indices, and empty and zero-energy lists are covered. *)
 Lemma energy_nonneg w A :
   (forall i, In i A -> 0 <= w i) -> 0 <= energy w A.
 Proof.

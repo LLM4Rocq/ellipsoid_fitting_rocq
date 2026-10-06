@@ -9,30 +9,24 @@ From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates MatrixT
 Import Num.Theory.
 Open Scope R_scope.
 
-(* Port of theories/SymmetricBasis.v from Coquelicot to MathComp-Analysis.
-
-   Every lemma of the original keeps its name and its arguments, in the same
-   order, and the statements keep their meaning. They change form in two
-   ways, and the proofs in one.
-
-   1. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so the
-      statements write (i <= n)%coq_nat, which is ssrnat's notation for
-      Stdlib's le. This is the convention of the ports of MatrixCoordinates,
-      TensorDefinitions and SecondChaosAlgebra. The statements are the same
-      terms as in the original.
-
-   2. Norm. Coquelicot's norm A in symmetric_basis_unit_norm becomes
-      MathComp's norm (`|A|)%R. The norm on matrix n is the one of the port
-      of MatrixDefinitions, the Frobenius norm, as in Coquelicot, so the
-      statement means the same. The arithmetic, the square root, the
-      literals and the tests Nat.eqb and Nat.ltb are Stdlib's, as before,
-      because R_scope is opened last.
-
-   3. Proofs. Stdlib's "rewrite A, B" and "rewrite ... by tac" are not
-      available once ssreflect is loaded, so the proofs chain the rewrites
-      and discharge their side conditions with //. Coquelicot's norm_ge_0
-      becomes MathComp's normr_ge0, read in Stdlib's order through RleP. *)
+(* The orthonormal basis of the symmetric matrices of SymmetricDefinitions.
+   For a <= b <= n, symmetric_basis n a b is e_a e_a^T when a = b and
+   (e_a e_b^T + e_b e_a^T) / sqrt 2 otherwise, where e_a is
+   chaos_basis n a.
+   - symmetric_diagonal_trace and symmetric_offdiagonal_trace: the trace
+     pairing of a basis matrix with A is the entry (a, a) of A, or
+     (A a b + A b a) / sqrt 2.
+   - symmetric_basis_symmetric: every basis matrix is symmetric.
+   - symmetric_basis_orthonormal and symmetric_basis_normalized: the basis
+     is orthonormal for trace_pair; symmetric_basis_unit_norm: each basis
+     matrix has Frobenius norm 1.
+   - chaos_second_diagonal and chaos_second_swap: chaos_second n a a is
+     twice the diagonal basis matrix, and chaos_second is symmetric in a
+     and b.
+   With ssreflect loaded, the statements write (i <= n)%coq_nat for
+   Stdlib's order on nat. The arithmetic, the square root, the literals and
+   the tests Nat.eqb and Nat.ltb are Stdlib's, since R_scope is opened
+   last. *)
 
 Lemma symmetric_trace_pair_comm n (A B : matrix n) : trace_pair n A B = trace_pair n B A.
 Proof.
