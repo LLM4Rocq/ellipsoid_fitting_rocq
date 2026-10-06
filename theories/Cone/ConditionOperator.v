@@ -5,7 +5,7 @@
 
    The operator bound is bilinear and squared:
    (u^T Z v)^2 <= b^2 |u|^2 |v|^2 for all u, v (paper_main_cone_opnorm_le).
-   For symmetric Z it gives -b I <= Z <= b I (paper_main_cone_opnorm_loewner).
+   For symmetric Z it gives -b I <= Z <= b I.
    With P = paper_main_psd_projection Z and N = P - Z:
    - N P = 0 (paper_main_psd_negative_mul_projection): <P, N> = 0, P is a
      sum of w_i w_i^T, so each w_i^T N w_i = 0 and N w_i = 0
@@ -14,8 +14,8 @@
    - |P v|^2 = v^T Z (P v) <= b |v| |P v|, so |P v| <= b |v|, and by vector
      Cauchy-Schwarz v^T P v <= b |v|^2, that is P <= b I
      (paper_main_psd_projection_opnorm). There is no loss in b.
-   paper_main_cone_shift_opnorm and paper_main_cone_shift_opnorm_scaled
-   combine this with the shifted candidate: under the operator bound the
+   paper_main_cone_shift_opnorm_scaled combines this with the shifted
+   candidate: under the operator bound the
    candidate lies in K_kappa \cap S_F with kappa = (b + t) / t, and the
    support bound holds. The operator-norm probability is not proved here. *)
 From Stdlib Require Import Reals List.

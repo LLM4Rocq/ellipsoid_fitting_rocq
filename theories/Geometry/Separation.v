@@ -24,8 +24,7 @@
      holds. At d = 0 this is paper_main_balanced_event_dim0; at n = 0 and
      d > 0 the hypothesis is contradictory (e e^T is in the empty kernel).
    - paper_main_homogeneous_alternative: for every n and d, some nonzero
-     S >= 0 is in the kernel, or the balanced event holds; part 4 proved
-     that not both hold (paper_main_homogeneous_exclusion).
+     S >= 0 is in the kernel, or the balanced event holds.
    - paper_main_fit_alternative: for d > 0 and a spanning sample, the fit
      event holds if and only if the balanced event fails. *)
 

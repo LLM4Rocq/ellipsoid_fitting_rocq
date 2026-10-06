@@ -7,13 +7,10 @@
    of R^M and u > 0, the event
      inf_(v in T) |U X v| <= sqrt (s - 1) - w(T) - u
    is measurable and has probability at most exp (- u^2 / 2)
-   (paper_main_projected_escape_tail). For s = 0 and w(T) >= 0 the event is
-   empty (paper_main_projected_escape_zero).
+   (paper_main_projected_escape_tail).
    PSD instance: T is the coded PSD unit sphere of size n + 1 in
    R^D, D = paper_main_symmetric_dimension n (nonempty, unit vectors), with
-   0 <= w(T) <= sqrt (D / 2) (paper_main_projected_psd_width). For the
-   entries N(0, 2) of the manuscript the statistic and the threshold are
-   multiplied by sqrt 2 (paper_main_projected_psd_escape). *)
+   0 <= w(T) <= sqrt (D / 2) (paper_main_projected_psd_width). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval finset.

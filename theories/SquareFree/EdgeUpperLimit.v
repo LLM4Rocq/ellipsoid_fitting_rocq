@@ -12,9 +12,11 @@
      At t = 104 d^2 the probability is at most 1/d
      (paper_main_squarefree_offdiag_rate), so it tends to 0.
    - With the diagonal event of SquareFree.Diagonal at eps = 1, the
-     union is measurable and its probability tends to 0. Outside it,
-     V V^T <= 106 d^2 I in the Loewner order, whenever 0 < N(d) <= d^2
-     eventually (paper_main_squarefree_upper_edge). *)
+     union paper_main_squarefree_upper_event is measurable, and its
+     probability tends to 0 whenever 0 < N(d) <= d^2 eventually
+     (paper_main_squarefree_upper_event_tends_to_zero). Outside it,
+     V V^T <= 106 d^2 I in the Loewner order
+     (paper_main_squarefree_upper_bound). *)
 From Stdlib Require Import Reals Lia ArithRing.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

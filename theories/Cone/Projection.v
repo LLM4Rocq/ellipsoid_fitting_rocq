@@ -7,8 +7,8 @@
    distance (pmcp_projection_exists: a compact minimization over PSD S with
    <S, S> <= (2 |Z|_F)^2, inside a box, extended to the whole cone by the
    triangle inequality). It is characterized by the variational inequality
-   <Z - P, S - P> <= 0 for all PSD S (pmcp_min_variational,
-   pmcp_variational_min), hence unique (pmcp_variational_unique).
+   <Z - P, S - P> <= 0 for all PSD S (pmcp_min_variational), hence
+   unique (pmcp_variational_unique).
    paper_main_psd_projection Z chooses it. For symmetric Z:
    - Moreau decomposition: P = proj Z and N = P - Z are PSD with Z = P - N
      and <P, N> = 0 (paper_main_psd_moreau), and such a pair is unique

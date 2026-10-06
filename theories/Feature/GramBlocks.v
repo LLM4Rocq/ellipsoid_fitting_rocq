@@ -3,7 +3,7 @@
    For a sample x of N points of R^d, with the raw features
    x_i x_i^T - I:
    - the full Gram (Q Q^* )_ij = <x_i x_i^T - I, x_j x_j^T - I>
-     = (x_i^T x_j)^2 - |x_i|^2 - |x_j|^2 + d (paper_main_feature_gram_entry);
+     (paper_main_feature_gram);
    - the diagonal block D_ia = x_ia^2 - 1, an N x d matrix;
    - the square-free block V, an N x (d * d) matrix: row i is mxvec of the
      d x d matrix with entry sqrt 2 x_ia x_ib for a < b and 0 otherwise.

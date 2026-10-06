@@ -1,12 +1,12 @@
-(* Concrete approximants of a Euclidean-Lipschitz test F on lists of
-   length d: clip F at the level n+1, then smooth it with the Gaussian
-   width 1/(n+1). For every d (including d = 0) and every L >= 0
-   (including L = 0): F is integrable by its linear growth; the
-   approximants converge to F pointwise; they have an integrable envelope
-   independent of n; and their iterated Gaussian means converge to the
-   mean of F, with the explicit rate 1/(n+1). The smooth-test and
-   gradient properties of the approximants are conditional on the
-   one-dimensional interface of PaperMainGaussianLipschitzSmoothDerivativeLift. *)
+(* Growth and integrability of a Euclidean-Lipschitz test F on lists of
+   length d, for every d (including d = 0) and every L >= 0 (including
+   L = 0). With the zero list paper_main_gaussian_zero_list d,
+   |F xs| <= |F 0| + L |xs| (paper_main_gaussian_lipschitz_linear_growth),
+   so F has a polynomial bound of degree 2 with the constant
+   paper_main_gaussian_growth_constant d F L
+   (paper_main_gaussian_lipschitz_polynomial_bound), and F is integrable
+   at every level of the iterated Gaussian expectation
+   (paper_main_gaussian_lipschitz_domain). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Soft.Definitions
   Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
@@ -94,13 +94,3 @@ destruct (gaussian_coordinate_polynomial_domain d F _ 2
   (paper_main_gaussian_lipschitz_polynomial_bound d F L HL HLip)) as [HI [HA _]].
 split; [exact HI|exact HA].
 Qed.
-
-(* Properties of one approximant. *)
-
-(* Pointwise convergence. *)
-
-(* An integrable envelope independent of n. *)
-
-(* Explicit convergence of the iterated Gaussian means. *)
-
-(* Conditional on the one-dimensional interface at width 1/(n+1). *)
