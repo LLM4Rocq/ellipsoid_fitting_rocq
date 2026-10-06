@@ -446,7 +446,7 @@ rewrite ler_norml !maxEle.
 by case: (leP a b); case: (leP c d) => * /=; apply/andP; split; lra.
 Qed.
 
-Lemma measurable_pos (Phi : 'rV[R]_k -> R) (L : R) :
+Lemma measurable_lipschitz_gt0 (Phi : 'rV[R]_k -> R) (L : R) :
   (forall x y, `|Phi x - Phi y| <= L * frobenius (x - y)) ->
   measurable [set x | 0 < Phi x].
 Proof.
@@ -478,7 +478,7 @@ Lemma measurable_lipschitz_pos : measurable = <<s lipschitz_pos >>.
 Proof.
 apply/seteqP; split; last first.
   apply: smallest_sub; first exact: sigma_algebra_measurable.
-  by move=> _ [P [_ [L PL]] <-]; exact: measurable_pos PL.
+  by move=> _ [P [_ [L PL]] <-]; exact: measurable_lipschitz_gt0 PL.
 pose T := g_sigma_algebraType lipschitz_pos.
 have mid : measurable_fun [set: T] (fun x : T => x : 'rV[R]_k).
   apply/measurable_fun_mxP => i j.
@@ -500,7 +500,7 @@ Lemma lipschitz_pos_agree (mu1 mu2 : {measure set 'rV[R]_k -> \bar R}) :
   forall A, lipschitz_pos A -> mu1 A = mu2 A.
 Proof.
 move=> h _ [P [P0 [L PL]] <-].
-have mA := measurable_pos PL.
+have mA := measurable_lipschitz_gt0 PL.
 pose phi (i : nat) x := Num.min 1 (i%:R * P x).
 have phi01 i x : 0 <= phi i x <= 1.
   by rewrite /phi le_min ge_min lexx ler01 mulr_ge0.
@@ -628,6 +628,25 @@ rewrite preimage_setT => <-.
 have := ge0_integral_pushforward mB (gauss m) measurableT mf (fun y _ => f0 y).
 rewrite preimage_setT => <-.
 by apply: eq_measure_integral => X mX _; exact: gauss_mulmx_law.
+Qed.
+
+Corollary integral_gauss_mulmx n m k (A : 'M[R]_(n, k)) (B : 'M[R]_(m, k))
+    (f : 'rV[R]_k -> \bar R) :
+  A^T *m A = B^T *m B -> measurable_fun [set: 'rV[R]_k] f ->
+  (\int[gauss n]_x f (x *m A) = \int[gauss m]_y f (y *m B))%E.
+Proof.
+move=> AB mf; rewrite [LHS]integralE [RHS]integralE.
+rewrite -[fun x : 'rV[R]_n => f (x *m A)]/(f \o (fun x => x *m A)).
+rewrite -[fun y : 'rV[R]_m => f (y *m B)]/(f \o (fun y => y *m B)).
+rewrite (funepos_comp f (fun x : 'rV[R]_n => x *m A)).
+rewrite (funepos_comp f (fun y : 'rV[R]_m => y *m B)).
+rewrite (funeneg_comp f (fun x : 'rV[R]_n => x *m A)).
+rewrite (funeneg_comp f (fun y : 'rV[R]_m => y *m B)).
+have fp0 y : (0 <= f^\+ y)%E by exact: funepos_ge0.
+have fn0 y : (0 <= f^\- y)%E by exact: funeneg_ge0.
+congr (_ - _)%E.
+  exact: (@ge0_integral_gauss_mulmx n m k A B (f^\+)%E AB (measurable_funepos mf) fp0).
+exact: (@ge0_integral_gauss_mulmx n m k A B (f^\-)%E AB (measurable_funeneg mf) fn0).
 Qed.
 
 Corollary integral_gauss_orthogonal n k (A : 'M[R]_(n, k)) (f : 'rV[R]_k -> \bar R) :

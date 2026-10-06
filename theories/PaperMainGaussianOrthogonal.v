@@ -1,16 +1,13 @@
-(* Gaussian expectations of smooth tests are invariant under loadings
-   with orthonormal rows. The equal covariance identity is
-   paper_main_covariance_equal_expectation, obtained from
-   gaussian_covariance_comparison in both directions with zero covariance
-   pairing, and its identity specialization is
-   paper_main_gaussian_standard_covariance_expectation. A d-by-d loading O
-   has orthonormal rows when its covariance entries are those of the
-   identity loading. Then
-     E_d f(O xs) = E_d f,   O xs = gaussian_covariance_image d d O xs,
-   for every C2 test f whose value and first and second coordinate
-   derivatives satisfy the existing finite polynomial bounds. No rotation
-   law, spectral decomposition or diagonalization is used. The identity is
-   only claimed for such tests here. *)
+(* Gaussian expectations of smooth tests are invariant under loadings with
+   orthonormal rows. A d-by-d loading O has orthonormal rows
+   (paper_main_gaussian_orthonormal_rows) when its covariance entries are
+   those of the identity loading. Then
+     E_d f (O xs) = E_d f,   O xs = gaussian_covariance_image d d O xs,
+   for every test f of paper_main_gaussian_smooth_test
+   (paper_main_gaussian_orthogonal_smooth_expectation). This is
+   paper_main_gaussian_standard_covariance_expectation, which rests on the
+   law of Gaussian vectors with a given covariance (gauss_law.v of the
+   library). *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions
   GaussianProductDefinitions GaussianProduct

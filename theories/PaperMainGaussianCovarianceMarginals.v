@@ -1,13 +1,17 @@
-(* Marginals of the Gaussian covariance interpolation.
-   These are identities of expectations for C2, polynomially bounded tests;
-   no assertion about arbitrary measurable tests is made here. *)
+(* The identity loading paper_main_gaussian_identity: its image of a list of
+   d values is the list itself (paper_main_gaussian_identity_image), and its
+   covariance entries are those of the identity matrix. So a loading whose
+   covariance entries are those of the identity gives the test f the same
+   expectation as the standard Gaussian vector
+   (paper_main_gaussian_standard_covariance_expectation, from
+   paper_main_covariance_equal_expectation). *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions
   GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions
   GaussianCoordinateDerivativeDefinitions
   GaussianCovarianceDefinitions GaussianCovarianceSums GaussianCovarianceLinear
-  GaussianCovariancePath PaperMainGaussianCovarianceBounds.
+  PaperMainGaussianCovarianceBounds.
 Import ListNotations.
 Open Scope R_scope.
 
@@ -49,27 +53,6 @@ transitivity (finite_sum (fun k => if Nat.eqb k a then
   + apply Nat.eqb_eq in E; subst k; ring.
   + ring.
 - apply finite_sum_delta; exact Ha.
-Qed.
-
-Lemma paper_main_gaussian_path_covariance p q P Q t a b :
-  0 <= t <= 1 ->
-  gaussian_covariance_entry (p + q)%coq_nat (gaussian_covariance_coef p q P Q t) a b =
-  t * gaussian_covariance_entry p P a b +
-    (1 - t) * gaussian_covariance_entry q Q a b.
-Proof.
-intros Ht; unfold gaussian_covariance_entry.
-rewrite finite_sum_seq_split.
-rewrite <- (finite_sum_scale t), <- (finite_sum_scale (1 - t)).
-f_equal.
-- apply finite_sum_ext; intros k Hk; apply in_seq_lt in Hk.
-  unfold gaussian_covariance_coef.
-  assert (E : Nat.ltb k p = true) by (apply Nat.ltb_lt; exact Hk).
-  rewrite E; pose proof (sqrt_def t ltac:(lra)); nra.
-- apply finite_sum_ext; intros k Hk; apply in_seq_lt in Hk.
-  unfold gaussian_covariance_coef.
-  assert (E : Nat.ltb (p + k)%coq_nat p = false) by (apply Nat.ltb_ge; lia).
-  rewrite E; replace ((p + k)%coq_nat - p)%coq_nat with k by lia.
-  pose proof (sqrt_def (1 - t) ltac:(lra)); nra.
 Qed.
 
 Section SmoothFunction.

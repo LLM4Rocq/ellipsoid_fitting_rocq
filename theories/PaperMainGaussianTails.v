@@ -1,91 +1,78 @@
-(* Two-sided tails for linear forms under the exact Gaussian product law. *)
-From Stdlib Require Import Reals List Lra Psatz.
+(* Two-sided tails of linear forms under the Gaussian product law. For a
+   unit vector a (paper_main_gordon_dot d a a = 1) and u > 0,
+     P[u <= |<a, x>|] <= 2 exp (- u^2 / 2)
+   (paper_main_gaussian_unit_linear_absolute_tail). Read on row vectors
+   through GaussianLawBridge, <a, x> is mxdot x a, and the bound is
+   gauss_mxdot_abs_tail of the library. The event is measurable
+   (paper_main_gaussian_linear_absolute_measurable). *)
+From Stdlib Require Import Reals List.
 From HB Require Import structures.
-From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.
 From mathcomp Require Import boolp classical_sets reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability exp measurable_realfun.
+From GaussianAnalysis Require Import measurable_matrix gauss euclidean gauss_linear.
 From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions
-  PaperMainGordonProcessCovariance PaperMainGordonBilinear
-  PaperMainGaussianMatrixMGF PaperMainGaussianLinearLaw.
-Import GRing.Theory Num.Theory.
+  GaussianProbabilityProductMeasure GaussianLawBridge RealsBridge
+  PaperMainGordonProcessCovariance PaperMainGaussianLinearLaw
+  PaperMainGaussianLipschitzConcentration.
+Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
+Local Notation RR := (R : realType).
 
-Lemma paper_main_gaussian_linear_upper_measurable d a u :
-  measurable [set x : d.-tuple (measurableTypeR R) |
-    Rle u (paper_main_gaussian_linear_random d a x)].
+Section linear_tails.
+Variables (d : nat) (a : nat -> R).
+
+Let ar : 'rV[RR]_d := (\row_i a i)%R.
+
+Let linear_row t : paper_main_gaussian_linear_random d a t = mxdot (row_of_tuple d t) ar.
 Proof.
-have HE : [set x : d.-tuple (measurableTypeR R) | Rle u (paper_main_gaussian_linear_random d a x)] =
- paper_main_gaussian_linear_random d a @^-1` `[u, +oo[.
-{ rewrite preimage_itvcy; apply/seteqP; split=> x /=.
-  - by move=> H; apply/RleP.
-  - by move/RleP. }
-rewrite HE.
-have H := paper_main_gaussian_linear_random_measurable d a measurableT `[u, +oo[ (measurable_itv _).
-by rewrite setTI in H.
+rewrite /paper_main_gaussian_linear_random /paper_main_gordon_dot.
+rewrite paper_main_gaussian_finite_sum_seq /mxdot big_ord1.
+by apply: eq_bigr => i _; rewrite !mxE gpp_nthE -tnth_nth mulrC.
 Qed.
 
-Lemma paper_main_gaussian_linear_negative d a x :
-  paper_main_gaussian_linear_random d (fun i => -a i) x =
-  -paper_main_gaussian_linear_random d a x.
-Proof.
-unfold paper_main_gaussian_linear_random.
-pose proof (paper_main_gaussian_dot_scale_left d a (fun i => List.nth i (tval x) 0) (-1)) as H.
-replace (fun i => -1*a i) with (fun i => -a i) in H.
-- rewrite H; lra.
-- apply FunctionalExtensionality.functional_extensionality; intros i; lra.
-Qed.
-
-Lemma paper_main_gaussian_unit_negative d a :
-  paper_main_gordon_dot d a a = 1 ->
-  paper_main_gordon_dot d (fun i => -a i) (fun i => -a i) = 1.
-Proof.
-intro Ha.
-pose proof (paper_main_gordon_dot_scale d a (-1)) as H.
-replace (fun i => -1*a i) with (fun i => -a i) in H.
-- rewrite H Ha; lra.
-- apply FunctionalExtensionality.functional_extensionality; intros i; lra.
-Qed.
-
-Lemma paper_main_gaussian_linear_absolute_event d a u :
-  [set x : d.-tuple (measurableTypeR R) |
+Let event u : [set x : d.-tuple (measurableTypeR R) |
     Rle u (Rabs (paper_main_gaussian_linear_random d a x))] =
-  [set x | Rle u (paper_main_gaussian_linear_random d a x)] `|`
-  [set x | Rle u (paper_main_gaussian_linear_random d (fun i => -a i) x)].
+  row_of_tuple d @^-1` [set x | (u <= `|mxdot x ar|)%R].
 Proof.
-apply/seteqP; split=> x /=; rewrite paper_main_gaussian_linear_negative.
-- unfold Rabs; destruct Rcase_abs; lra.
-- pose proof (Rle_abs (paper_main_gaussian_linear_random d a x)).
-  pose proof (Rle_abs (-paper_main_gaussian_linear_random d a x)).
-  rewrite Rabs_Ropp in H0; intros [H1|H1]; lra.
+apply/seteqP; split => t /=; rewrite linear_row RabsE.
+  by move/RleP.
+by move=> /RleP.
 Qed.
 
-Lemma paper_main_gaussian_linear_absolute_measurable d a u :
+Let measurable_row_event u : measurable [set x : 'rV[RR]_d | (u <= `|mxdot x ar|)%R].
+Proof.
+have := measurableT_comp (@normr_measurable RR _) (measurable_mxdot ar)
+  measurableT (measurable_itv (`[u, +oo[)%R).
+rewrite setTI; congr measurable; apply/seteqP; split => x /=;
+  by rewrite in_itv/= andbT.
+Qed.
+
+Lemma paper_main_gaussian_linear_absolute_measurable u :
   measurable [set x : d.-tuple (measurableTypeR R) |
     Rle u (Rabs (paper_main_gaussian_linear_random d a x))].
 Proof.
-rewrite paper_main_gaussian_linear_absolute_event.
-apply: measurableU; apply: paper_main_gaussian_linear_upper_measurable.
+rewrite event; have := measurable_row_of_tuple d measurableT _ (measurable_row_event u).
+by rewrite setTI.
 Qed.
 
-Theorem paper_main_gaussian_unit_linear_absolute_tail d a u :
+Theorem paper_main_gaussian_unit_linear_absolute_tail u :
   paper_main_gordon_dot d a a = 1 -> 0 < u ->
   (gaussian_product_law d [set x | Rle u (Rabs (paper_main_gaussian_linear_random d a x))] <=
     (2*exp(-u^2/2))%:E)%E.
 Proof.
 move=> Ha Hu.
-rewrite paper_main_gaussian_linear_absolute_event.
-have H1 := paper_main_gaussian_unit_linear_upper_tail d a u Ha Hu.
-have H2 := paper_main_gaussian_unit_linear_upper_tail d (fun i => -a i) u
- (paper_main_gaussian_unit_negative d a Ha) Hu.
-Import Order.TTheory.
-eapply le_trans; first exact: (measureU2 _ (paper_main_gaussian_linear_upper_measurable d a u)
- (paper_main_gaussian_linear_upper_measurable d (fun i => -a i) u)).
-have H := leeD H1 H2.
-move: H; rewrite -EFinD.
-have HE (z : R) : (z+z)%R = Rmult 2 z.
-{ change (z + z = 2*z); lra. }
-rewrite HE; trivial.
+have a1 : mxdot ar ar = 1.
+  rewrite -Ha /paper_main_gordon_dot paper_main_gaussian_finite_sum_seq /mxdot big_ord1.
+  by apply: eq_bigr => i _; rewrite !mxE.
+have a0 : ar != 0%R by rewrite -mxdot_eq0 a1 oner_eq0.
+rewrite event -(gauss_gaussian_product_law _ _ (measurable_row_event u)).
+have Hu' : (0 <= u)%R by apply/ltW/RltP.
+apply: (le_trans (gauss_mxdot_abs_tail a0 Hu')).
+by rewrite /frobenius a1 sqrtr1 expr1n mulr1 lee_fin expF RpowE RdivE !IZRposE !INRE.
 Qed.
+
+End linear_tails.

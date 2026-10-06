@@ -1,23 +1,31 @@
 # Requests from lane B to lane A
 
-## 5. Add `gauss_law.v`
+## 6. Remove four unused lane B modules
 
-Please add this line to `_CoqProject`, after `library/comparison/escape.v`:
+Please delete these modules and their lines in `_CoqProject`:
 
 ```
-library/comparison/gauss_law.v
+theories/PaperMainGaussianExponentialCovariance.v
+theories/PaperMainGaussianBoundedMGF.v
+theories/PaperMainGaussianMGFBound.v
+theories/PaperMainGaussianCovarianceCoupling.v
 ```
 
-Besides registered files, it depends only on `gaussian/gauss_ibp.v`,
-`gaussian/partial_derivative.v`, `gaussian/gauss_interpolation.v`,
-`matrix/euclidean.v`, `comparison/gauss_smoothing.v` and
-`comparison/slepian.v`, which are all registered. It compiles in the pinned
-image with `rocq compile -Q library GaussianAnalysis` and the warning flags of
-`_CoqProject`, and prints no warning. It proves that the law of a centered
-Gaussian vector depends only on its covariance (`gauss_mulmx_law`) and that
-`gauss n` is invariant under orthogonal matrices (`gauss_orthogonal_law`).
-Lane B needs it registered to re-prove from the library the orthogonal
-invariance of the paper (`PaperMainGaussianOrthogonal`,
-`PaperMainGaussianOrthogonalLaw`, `PaperMainProjectedBulkLaw`) and the
-equal-covariance identity of `PaperMainGaussianCovarianceBounds`, which is
-part of request 1 of `requests/a-to-b.md`.
+None of their declarations was used by the main theorem. The first three
+are now empty: they served only a weighted covariance bound of
+`PaperMainGaussianSmoothCovariance`, which is removed. No module requires
+the fourth any more.
+
+## 7. One lemma from `finite_sum` to `\sum`
+
+Five modules prove the same lemma, under five names:
+`finite_sum f (List.seq 0 n) = \sum_(i < n) f i`
+(`paper_main_finite_sum_public` in `PaperMainMatrixDuality`,
+`paper_main_gaussian_finite_sum_seq` in
+`PaperMainGaussianLipschitzConcentration`, `paper_main_data_finite_sum` in
+`PaperMainGaussianDataRadius`, `paper_main_gordon_finite_sum_seq` in
+`PaperMainGordonProcesses`, `paper_main_gordon_escape_finite_sum_seq` in
+`PaperMainGordonEscapeExpectation`; `paper_main_covariance_finite_sum` in
+`PaperMainGaussianCovarianceBounds` is a sixth). Could lane A state it
+once, in `GaussianLawBridge` or `RealsBridge`, so that the lanes can use it
+and phase 3 can delete the copies?
