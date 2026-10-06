@@ -7,7 +7,11 @@
 #   make check    build, then run scripts/check_sources.py: the axioms of the
 #                 main theorem are among those of check/assumptions.expected,
 #                 the frozen files are unchanged, and library/ depends neither
-#                 on the paper nor on Stdlib's reals
+#                 on the paper nor on Stdlib's reals; unless CITATIONS=no, it
+#                 also runs scripts/stale_citations.py (see make citations)
+#   make citations
+#                 list the names that comments cite but that nothing defines
+#                 (scripts/stale_citations.py), after a build
 #   make clean    remove compiled files
 #
 # ROCQ_SWITCH names the opam switch with the toolchain of README.md. Set it
@@ -15,8 +19,11 @@
 ROCQ_SWITCH ?= rocq-analysis
 EXEC = $(if $(ROCQ_SWITCH),opam exec --switch=$(ROCQ_SWITCH) --,)
 JOBS ?= 4
+# CITATIONS=no makes "make check" skip scripts/stale_citations.py, which
+# fails when a comment cites a name that nothing defines.
+CITATIONS ?= yes
 
-.PHONY: all build check clean FORCE
+.PHONY: all build check citations clean FORCE
 
 all: check
 
@@ -33,7 +40,11 @@ check: build
 	mkdir -p build
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -o build/Assumptions.vo check/Assumptions.v > build/assumptions.txt
 	python3 scripts/check_sources.py build/assumptions.txt
+	$(if $(filter yes,$(CITATIONS)),$(EXEC) python3 scripts/stale_citations.py,@true)
 	@echo "make check passed."
+
+citations: Makefile.rocq
+	$(EXEC) python3 scripts/stale_citations.py
 
 clean:
 	if [ -f Makefile.rocq ]; then $(EXEC) $(MAKE) -f Makefile.rocq clean; fi
