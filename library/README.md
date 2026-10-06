@@ -5,9 +5,10 @@ inequalities, and the linear algebra and probability tools they need. It is
 written over an arbitrary `R : realType`, in the style of MathComp-Analysis,
 so that parts of it can later be proposed to MathComp-Analysis. It does not
 depend on the ellipsoid fitting paper. The proof of the paper in
-`theories/` is being changed to use it, at Stdlib's `R`.
+`theories/` uses it at Stdlib's `R`.
 
-The library is being written. No human has reviewed its statements yet.
+No human has reviewed its statements yet. The table of main results below
+is the place to start.
 
 ## Conventions
 
@@ -32,18 +33,18 @@ The library is being written. No human has reviewed its statements yet.
 
 ## Layout
 
-| Directory | Lane | Topic |
-|---|---|---|
-| `gaussian/` | A | the standard Gaussian measure on `'rV[R]_n`, marginals and Fubini, moments, Gaussian integration by parts (Stein's identity) in one and several dimensions, Gaussian interpolation between two covariances |
-| `comparison/` | B | linear images and rotation invariance, tails, moment generating functions and chi-square laws, concentration of Lipschitz functions, Slepian, Sudakov-Fernique and Gordon comparison inequalities, escape through a mesh, norms of Gaussian matrices |
-| `matrix/` | C | the spectral theorem for real symmetric matrices, operator and Frobenius norms, nets on spheres |
-| `probability/` | C | Paley-Zygmund and other moment inequalities, the Lindeberg replacement method |
+| Directory | Topic |
+|---|---|
+| `gaussian/` | the standard Gaussian measure on `'rV[R]_n`, marginals and Fubini, moments, Gaussian integration by parts (Stein's identity) in one and several dimensions, Gaussian interpolation between two covariances |
+| `comparison/` | linear images and rotation invariance, tails, moment generating functions and chi-square laws, concentration of Lipschitz functions and the Poincare inequality, Slepian, Sudakov-Fernique and Gordon comparison inequalities, escape through a mesh, norms of Gaussian matrices |
+| `matrix/` | the spectral theorem for real symmetric matrices, operator and Frobenius norms, nets on spheres |
+| `probability/` | Paley-Zygmund and other moment inequalities, the Lindeberg replacement method |
 
 ## Main results
 
-Each lane lists here the main results of its files, with an informal
-statement and the paper modules that use them. This table is what the user
-will review.
+The main results of each file, with an informal statement and the modules
+of `theories/` that use them, directly or through the bridge
+`Gaussian/LawBridge`.
 
 | File | Result | Informal statement | Used in `theories/` by |
 |---|---|---|---|
@@ -96,7 +97,7 @@ will review.
 | `comparison/normal_mgf.v` | `integral_normal_expR` | The moment generating function of `normal_prob m s`, for `s != 0`, is `t \|-> expR (t m + t^2 s^2 / 2)`. | |
 | `comparison/normal_mgf.v` | `normal_prob_upper_tail`, `normal_prob_lower_tail`, `normal_prob_abs_tail` | For `X` of law `normal_prob m s` and `u >= 0`, `P(X >= m + u)` and `P(X <= m - u)` are at most `expR (- u^2 / (2 s^2))`, and `P(\|X - m\| >= u)` is at most twice that. | |
 | `comparison/normal_mgf.v` | `measure_ge_expR` | Chernoff's bound: `P(u <= f) <= E[expR (t (f - u))]` for every measure, measurable `f` and `t >= 0`. | |
-| `comparison/chi_square.v` | `integral_normal_expR_sqr`, `integral_normal_expR_sqrB1` | For `X` of law `normal_prob 0 s` and `2 t s^2 < 1`, `E[expR (t X^2)] = 1 / sqrt (1 - 2 t s^2)`; for the standard law, `E[expR (t (X^2 - 1))] = expR (- t) / sqrt (1 - 2 t)`. | |
+| `comparison/chi_square.v` | `integral_normal_expR_sqr`, `integral_normal_expR_sqrB1` | For `X` of law `normal_prob 0 s` and `2 t s^2 < 1`, `E[expR (t X^2)] = 1 / sqrt (1 - 2 t s^2)`; for the standard law, `E[expR (t (X^2 - 1))] = expR (- t) / sqrt (1 - 2 t)`. | `Gaussian/LawBridge`, for `Gaussian/QuadraticMGF` |
 | `comparison/chi_square.v` | `ln_subgamma`, `integral_normal_expR_sqrB1_le` | `- ln (1 - u) - u <= u^2 / (2 (1 - \|u\|))` for `\|u\| < 1`; hence `E[expR (t (X^2 - 1))] <= expR (t^2 / (1 - 2 \|t\|))` for the standard normal law and `\|2 t\| < 1`. | |
 | `comparison/chi_square.v` | `integral_gauss_expR_centered_chi2_le`, `gauss_centered_chi2_abs_tail` | For `x` of law `gauss n` and weights `a` with `\|a_i\| <= L`, `Q = sum_i a_i (x_i^2 - 1)` satisfies `E[expR (t Q)] <= expR (t^2 \|a\|^2 / (1 - 2 \|t\| L))` when `2 \|t\| L < 1`, and `P(\|Q\| >= u) <= 2 expR (- u^2 / (4 (\|a\|^2 + L u)))` for `u > 0`. | `Gaussian/WeightedSquareLaw` |
 | `comparison/normal_linear.v` | `lebesgue_measure_affine`, `ge0_integral_lebesgue_affine` | Under `x \|-> a x + b` with `a != 0`, Lebesgue measure on the line is multiplied by `\|a\|^-1`. | |

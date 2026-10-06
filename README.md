@@ -91,13 +91,24 @@ make check ROCQ_SWITCH= JOBS=8                    # the rocq on your PATH
 ```
 
 On 5 October 2026 a full build took 13 minutes with `JOBS=12` on a 16-core
-Mac (104 minutes of processor time). The compiler prints some deprecation
-warnings; they do not affect the proof.
+Mac (104 minutes of processor time). Compiling the modules prints no
+warning.
 
 ## Layout
 
-- `theories/`: 632 modules under the logical root `EllipsoidFitting`. They
-  are `MainStatement.v`, `MainTheorem.v` and the 630 modules of the proof.
+- `theories/`: 605 modules under the logical root `EllipsoidFitting`. The
+  statement (`MainStatement.v`), the theorem (`MainTheorem.v`), the five
+  definition modules of the statement, the top of the proof
+  (`PaperMainResults.v`, `PaperMainFinalAssembly.v`,
+  `PaperMainConditionedLimit.v`) and two more modules are at the top; the
+  others are in 36 folders by topic (`Gaussian`, `Gordon`, `Matrix`, `Head`,
+  ...), and `theories/A/B.v` is the module `EllipsoidFitting.A.B`.
+- `library/`: the library `GaussianAnalysis`, 25 files of general results
+  on Gaussian measures, Gaussian comparison and concentration, real
+  matrices and probability, over an arbitrary `R : realType`. The proof
+  uses it at Stdlib's `R` through the modules `Analysis/RealsBridge` and
+  `Gaussian/LawBridge`. `library/README.md` gives its conventions and main
+  results.
 - `check/Assumptions.v`: prints the axioms of the main theorem.
   `check/assumptions.expected` is the expected output.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
@@ -109,8 +120,9 @@ warnings; they do not affect the proof.
   (see below).
 - `scripts/unused.py`: lists the declarations of `theories/` that the main
   theorem does not use, from the `.glob` files of a build, and can delete
-  them. Its docstring says how it decides. `unused.txt` is its output on the
-  current tree.
+  them. Its docstring says how it decides. On the current tree it lists
+  only eight function equalities of `Analysis/RealsBridge`, kept so that the
+  bridge is complete.
 
 ## Where the proof comes from
 
@@ -131,12 +143,15 @@ repository.
   python3 scripts/export_from_ellipsoid_rocq.py ../ellipsoid_rocq 9556cdd --check
   ```
 
-- Since then, 17 of these modules and 714 declarations of the others have
-  been deleted, because the main theorem does not use them.
-  `scripts/unused.py` finds them from the `.glob` files of a build, and the
-  proof builds without them. Deleted code stays in the history: a general
-  result can be recovered from commit `29df54e`, for example with
-  `git show 29df54e:theories/OperatorSpaces.v`.
+- Since then, what the main theorem does not use has been deleted twice:
+  17 modules and 714 declarations at the tag `phase1`, then 23 modules and
+  431 declarations once the proof used the library. `scripts/unused.py`
+  finds them from the `.glob` files of a build, and the proof builds
+  without them. Other special-purpose proofs were replaced by results of
+  the library, and the modules were renamed and grouped in folders.
+  Deleted code stays in the history: a general result can be recovered
+  from commit `29df54e`, where the modules have their original names, for
+  example with `git show 29df54e:theories/OperatorSpaces.v`.
 - `MainStatement.v` is the statement of
   `analysis/challenges/paper_main_results/Challenge.v` in the source
   repository, copied verbatim, as a definition instead of an admitted
@@ -149,22 +164,35 @@ repository.
 
 ## Planned work
 
-This is the copy without what the main theorem does not use. The modules
-keep their names from the source repository (many start with `PaperMain`),
-many comments still describe how the port was made, and much of the general
-mathematics is written for this paper only. The plan, described for the agents in `AGENTS.md`:
+The three steps of the plan of `AGENTS.md` are done.
 
-1. Build `library/` (logical root `GaussianAnalysis`): the general results
-   of the proof (Gaussian integration by parts and interpolation,
-   concentration, Slepian and Gordon comparison, the spectral theorem for
-   real symmetric matrices, nets, moment inequalities), stated over an
-   arbitrary `R : realType` in MathComp-Analysis style, independent of the
-   paper. `library/README.md` gives its conventions.
-2. Make the proof of the paper use the library, and delete what it no
-   longer needs.
-3. Remove notes about the port from comments, then rename the remaining
-   modules and group them in folders.
+1. `library/` states and proves the general results that the proof needed,
+   over an arbitrary `R : realType`, in the style of MathComp-Analysis and
+   independently of the paper: the standard Gaussian measure on `'rV[R]_n`
+   and its integration by parts, Gaussian interpolation and the comparison
+   inequalities of Kahane, Slepian, Sudakov-Fernique and Gordon, escape
+   through a mesh, Gaussian concentration and the Poincare inequality, the
+   spectral theorem for real symmetric matrices, operator norms and nets,
+   Paley-Zygmund and the Lindeberg replacement method.
+2. The proof of the paper uses these results at Stdlib's `R`, and what it
+   no longer needed is deleted: `theories/` had 632 modules and 102,415
+   lines at the tag `phase1`, and has 605 modules and 88,947 lines now. The
+   library has 25 files and 10,822 lines.
+3. The comments no longer describe how the modules were produced, and the
+   modules are renamed and grouped in folders.
 
-These steps rename or remove modules and lemmas, so do not cite those names
-yet. The statement keeps its meaning throughout: `make check` checks after
-each step that its code and the code of its definitions are unchanged.
+What remains:
+
+- No human has reviewed the statements of the library yet. The table of
+  main results in `library/README.md` is the place to start; the most
+  general results are candidates for MathComp-Analysis.
+- Much of `theories/` still proves general facts in the special form that
+  the paper needs, with lists of coordinates and Stdlib's `R`. For example,
+  the `Projection` modules compare quadratic Gaussian features with their
+  Gaussian replacement through an interpolation of their own
+  (`Gaussian/CovarianceDerivative` and the modules it uses), which the
+  library does not state in that form. Such modules can be re-proved from
+  the library as the Stein identities of `Gaussian/CoordinateStein` were.
+
+The statement keeps its meaning throughout: `make check` checks after each
+step that its code and the code of its definitions are unchanged.
