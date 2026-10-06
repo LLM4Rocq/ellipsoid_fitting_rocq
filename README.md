@@ -203,9 +203,8 @@ done, and the second is done in part.
    of its marginals (`Gaussian/Iterated/Stein`,
    `Gaussian/Iterated/BlockRotation`, `Gaussian/Iterated/PolynomialGrowth`).
    What it no longer needed is deleted: `theories/` had 632 modules and
-   102,415 lines at the tag `phase1`, and has 588 modules and
-   86,430 lines now. The library has 26 files and
-   11,097 lines.
+   102,415 lines at the tag `phase1`, and has 588 modules and 86,410 lines
+   now. The library has 26 files and 11,097 lines.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -222,10 +221,10 @@ What remains:
   more; the `Projection` modules use it to compare quadratic Gaussian
   features with their Gaussian replacement, which the library does not
   state in that form), matrix norms (`Matrix/OperatorNorm`,
-  `Matrix/FrobeniusNorm` and six more), real analysis for functions of
-  lists (`Analysis/CoordinateTopology`, `Analysis/CoordinateChainRule` and
-  twelve more), and the machinery of the paper's Gibbs laws, soft min-max
-  and cumulants. The facts about the iterated expectation that carry no
+  `Matrix/FrobeniusNorm` and six more), real analysis in one variable and
+  for functions of lists (`Analysis/CoordinateTopology`,
+  `Analysis/TaylorRemainder` and ten more), and the machinery of the
+  paper's Gibbs laws, soft min-max and cumulants. The facts about the iterated expectation that carry no
   continuity hypothesis (its linearity, monotonicity and the identities
   between its levels) are proved from its recursive definition and have no
   counterpart in the library.
