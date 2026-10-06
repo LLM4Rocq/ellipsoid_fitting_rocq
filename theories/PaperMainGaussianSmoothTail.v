@@ -1,8 +1,10 @@
-(* Gaussian concentration for bounded smooth tests under the exact
-   product law. If the squared gradient norm of a bounded C2 test f is at
-   most L^2 everywhere, then f exceeds its mean by u, or falls below it by
-   u, with probability at most exp(-u^2/(2 L^2)) each, by Chernoff's
-   inequality applied to the transported centered exponential moment. *)
+(* Measurability of continuous tests under the product law
+   gaussian_product_law d: the centered test f (x) - E_d f
+   (paper_main_gaussian_smooth_centered) is measurable, and so is the event
+   {c <= f (x)} (paper_main_gaussian_smooth_ge_measurable).
+   paper_main_gaussian_chernoff_exponent is the identity
+     exp ((u / L^2)^2 L^2 / 2) exp (- (u / L^2) u) = exp (- u^2 / (2 L^2))
+   of Chernoff's bound at the parameter t = u / L^2. *)
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval.
@@ -16,7 +18,7 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCoordinateDefinitio
   GaussianCoordinateSteinDomains GaussianCovarianceSums
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity
   PaperMainGaussianSmoothCalculus PaperMainGaussianSmoothCovariance
-  PaperMainGaussianMGFBound PaperMainGaussianSmoothLaw.
+  PaperMainGaussianSmoothLaw.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
