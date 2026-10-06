@@ -1,0 +1,2912 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{hyperref}
+
+\newcommand{\formal}[1]{\textnormal{[\texttt{\small #1}]}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\Sym}{\mathcal{S}}
+\newcommand{\Spsd}{\mathcal{S}_{+}}
+\newcommand{\ip}[2]{\langle #1, #2\rangle}
+\newcommand{\norm}[1]{\lVert #1\rVert}
+\newcommand{\abs}[1]{\lvert #1\rvert}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\op}{\mathrm{op}}
+\newcommand{\Fro}{F}
+\newcommand{\sqd}{\sqrt{d}}
+\newcommand{\Id}{I}
+\newcommand{\cone}{\mathcal{K}}
+\newcommand{\gauss}{\gamma}
+\newcommand{\Dd}{D}
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\Fit}{\mathrm{Fit}}
+\newcommand{\Cond}{\mathrm{Cond}}
+\newcommand{\Bal}{\mathrm{Bal}}
+\newcommand{\sign}{\operatorname{sign}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\supp}{\operatorname{supp}}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{convention}[theorem]{Convention}
+
+\title{The ellipsoid fitting transition at $n = d^2/4$:\\ the proof as formalized}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document presents, as a mathematical paper, the proof of the sharp
+threshold for the ellipsoid fitting problem that has been formalized in
+Rocq (the repository \texttt{EllipsoidFitting} with its library
+\texttt{GaussianAnalysis}). It follows the route of the formal proof,
+which departs from the informal proof of arXiv:2608.10184v1 in several
+places: the spectral edge of the quadratic feature map is proved by
+self-contained moment methods; Gordon's inequality is used in expectation
+on finite nets; the fit of the satisfiable phase is produced from a kernel
+element of a bounded-condition cone; the unsatisfiable phase works with a
+constant spectral cutoff, nets of orientations, finite priors of
+candidates, and a Lindeberg replacement with a replica expansion in place
+of the free-entropy universality of Bandeira and Maillard. Each stated
+result carries, in brackets, the name of the formal theorem and, when
+there is one, the number of the corresponding result of the paper.
+\end{abstract}
+
+\tableofcontents
+
+\section{The three theorems}\label{sec:main}
+
+\subsection{The formal setting}
+
+Throughout, $d \ge 1$ is the dimension and $n$ is the number of
+observations; in the limit theorems $n = n(d)$ is an arbitrary sequence of
+natural numbers. The only probability space is the following one.
+
+\begin{definition}[Samples and their law]\label{def:sample}
+A \emph{sample} of $n$ points of $\R^d$ is a tuple
+$x = (x_0, \dots, x_{nd - 1})$ of $nd$ real numbers, carrying the product
+Borel $\sigma$-algebra of the coordinates
+\formal{PaperMainDefinitions.paper\_main\_sample}. Its $i$-th point
+($0 \le i < n$) is the column vector
+\[
+x_i = (x_{id}, x_{id + 1}, \dots, x_{id + d - 1})^{\top} \in \R^d
+\qquad\formal{PaperMainDefinitions.paper\_main\_point}.
+\]
+The law of the sample is the probability measure $\Prob_{n, d}$ on
+$nd$-tuples defined by recursion on the number of coordinates: the law of
+the empty tuple is the Dirac mass, and the law of $(m+1)$-tuples is the
+image of the product of the standard normal law $N(0, 1)$ on $\R$ with the
+law of $m$-tuples under $(t, u) \mapsto (t, u)$
+\formal{GaussianProbabilityProductDefinitions.gaussian\_product\_law}. It
+is the law of $nd$ independent standard normal coordinates, and we write
+$\Prob_{n,d}(E) = $ \formal{PaperMainDefinitions.paper\_main\_probability}
+for the probability of a measurable event $E$ of samples.
+\end{definition}
+
+Everything below is stated for the matrix space $\R^{d \times d}$ with the
+following vocabulary, which is that of the formal statement
+\formal{PaperMainDefinitions}. For $S \in \R^{d\times d}$ and
+$v \in \R^d$, the quadratic form is $v^{\top} S v = \sum_{i, j} v_i S_{ij} v_j$.
+$S$ is \emph{symmetric} when $S_{ij} = S_{ji}$ for all $i, j$; $S$ is
+\emph{positive semidefinite}, written $S \succeq 0$, when it is symmetric
+and $v^{\top} S v \ge 0$ for every $v$; $S$ is \emph{positive definite},
+$S \succ 0$, when it is symmetric and $v^{\top} S v > 0$ for every
+$v \ne 0$; $A \preceq B$ means $B - A \succeq 0$; $\tr S = \sum_i S_{ii}$.
+
+\begin{definition}[The three events]\label{def:events}
+For $n, d \in \N$ and real numbers $\lambda_-, \lambda_+$:
+\begin{align*}
+\Fit_{n,d} &= \{x : \exists S \succeq 0,\ x_i^{\top} S x_i = d \text{ for all } i < n\}
+  &&\formal{PaperMainDefinitions.paper\_main\_fit\_event},\\
+\Cond_{n,d}(\lambda_-, \lambda_+) &= \{x : \exists S \succeq 0,\ x_i^{\top} S x_i = d \ (i < n),\ \tr S = d,\ \lambda_- \Id \preceq S \preceq \lambda_+ \Id\}
+  &&\formal{PaperMainDefinitions.paper\_main\_conditioned\_event},\\
+\Bal_{n,d} &= \Bigl\{x : \exists y \in \R^n,\ \sum_{i<n} y_i = 0,\ \sum_{i<n} y_i x_i x_i^{\top} \succ 0\Bigr\}
+  &&\formal{PaperMainDefinitions.paper\_main\_balanced\_pd\_event}.
+\end{align*}
+\end{definition}
+
+The asymptotic hypotheses and conclusions are written out as follows
+\formal{PaperMainDefinitions}: for a real sequence $u = (u_d)$ and a real
+$c$,
+\begin{itemize}
+\item $u_d \le c$ \emph{eventually} means: there is $D$ with $u_d \le c$ for all $d \ge D$;
+\item $\limsup_d u_d < c$ means: there is $c' < c$ with $u_d \le c'$ eventually;
+\item $\limsup_d u_d \le c$ means: for every $\varepsilon > 0$, $u_d \le c + \varepsilon$ eventually;
+\item $\liminf_d u_d > c$ means: there is $c' > c$ with $u_d \ge c'$ eventually;
+\item for a sequence $p = (p_d)$ of extended reals and a real $\ell$,
+  $p_d \to \ell$ means: for every $\varepsilon > 0$ there is $D$ with
+  $\abs{p_d - \ell} < \varepsilon$ for all $d \ge D$ (an infinite $p_d$ never
+  satisfies this).
+\end{itemize}
+The \emph{density} of a sequence $n = n(d)$ is $n(d)/d^2$
+\formal{PaperMainDefinitions.paper\_main\_density}.
+
+\subsection{Statements}
+
+The formal main theorem \formal{MainTheorem.ellipsoid\_fitting\_main} is a
+proof of the conjunction of the following three statements
+\formal{MainStatement.main\_statement}; the formal proof of the
+conjunction is \formal{PaperMainResults.paper\_main\_results}. Each
+statement asserts the measurability of the events it measures as part of
+its conclusion.
+
+\begin{theorem}[Sharp threshold \formal{PaperMainResults.paper\_main\_results}; paper Theorem~1.2]\label{thm:main}
+For every $n, d$ the event $\Fit_{n,d}$ is measurable, and for every
+sequence $n = n(d)$:
+\begin{enumerate}
+\item[(a)] if $\limsup_d n(d)/d^2 < 1/4$, then $\Prob_{n(d), d}(\Fit_{n(d), d}) \to 1$;
+\item[(b)] if $\liminf_d n(d)/d^2 > 1/4$, then $\Prob_{n(d), d}(\Fit_{n(d), d}) \to 0$.
+\end{enumerate}
+\end{theorem}
+
+\begin{theorem}[Well-conditioned fits \formal{PaperMainConditionedLimit.paper\_main\_conditioned\_limit}; paper Theorem~1.3]\label{thm:cond}
+For every real $\alpha^* < 1/4$ there are reals $0 < \lambda_- \le \lambda_+$
+such that $\Cond_{n,d}(\lambda_-, \lambda_+)$ is measurable for all $n, d$,
+and for every sequence $n = n(d)$ with $\limsup_d n(d)/d^2 \le \alpha^*$,
+\[
+\Prob_{n(d), d}\bigl(\Cond_{n(d), d}(\lambda_-, \lambda_+)\bigr) \to 1 .
+\]
+\end{theorem}
+
+\begin{theorem}[Balanced positive definite combinations \formal{PaperMainFinalAssembly.paper\_main\_results\_from\_conditioned}; paper Corollary~1.4]\label{thm:bal}
+For every $n, d$ the event $\Bal_{n,d}$ is measurable, and for every
+sequence $n = n(d)$: if $\limsup_d n(d)/d^2 < 1/4$ then
+$\Prob_{n(d), d}(\Bal_{n(d), d}) \to 0$, and if $\liminf_d n(d)/d^2 > 1/4$
+then $\Prob_{n(d), d}(\Bal_{n(d), d}) \to 1$.
+\end{theorem}
+
+The constants $\lambda_\pm$ of Theorem~\ref{thm:cond} have the form
+$\lambda_- = (2\kappa + 1)^{-1}$, $\lambda_+ = 2\kappa + 1$ for a
+$\kappa = \kappa(\alpha^*) \ge 1$ produced by the proof; they are not
+computed.
+
+\subsection{Plan}
+
+Section~\ref{sec:tools} presents the general tools of the library:
+the standard Gaussian measure on $\R^m$, Gaussian integration by parts,
+interpolation and the comparison inequalities of Slepian, Sudakov and
+Fernique, and Gordon, escape through a mesh, concentration of Lipschitz
+functions, the spectral theorem for real symmetric matrices, nets, and the
+moment inequalities. Section~\ref{sec:prelim} develops the objects of the
+problem: the quadratic features of the sample and their Gram matrix, the
+bounded-condition cones and their Gaussian widths, the elementary estimates
+on the sample, the spectral edges of the feature map, the homogeneous
+formulation of the problem and the alternative behind
+Theorem~\ref{thm:bal}, the measurability of the events, and the reduction
+to fixed densities. Section~\ref{sec:sat} proves the satisfiable phase,
+Section~\ref{sec:unsat} the unsatisfiable one, and Section~\ref{sec:assembly}
+assembles the three theorems.
+
+Where the formal proof follows another route than the paper, this is said
+in one sentence at the place in question, and the formal argument is given.
+
+\section{Notation and conventions}\label{sec:notation}
+
+\begin{convention}[Vectors, matrices, norms]
+Vectors are columns. $\ip{u}{v} = u^{\top} v$ and $\norm{u}_2 = \ip{u}{u}^{1/2}$ on $\R^m$.
+$\Sym^d$ is the space of real symmetric $d\times d$ matrices, of dimension
+$\Dd_d = d(d+1)/2$; $\Spsd^d \subseteq \Sym^d$ is the cone of positive
+semidefinite matrices. On $\R^{d \times d}$, $\ip{A}{B} = \sum_{i,j} A_{ij} B_{ij} = \tr(A^{\top} B)$
+is the Frobenius pairing \formal{Geometry.Psd.paper\_main\_pairing} and
+$\norm{A}_\Fro = \ip{A}{A}^{1/2}$ the Frobenius norm. For a symmetric
+$A$, $\norm{A}_\op = \sup_{\norm{v}_2 = 1} \abs{v^{\top} A v}$; the formal
+proof mostly uses the bilinear form of this bound,
+$\abs{u^{\top} A v} \le b \norm{u}_2 \norm{v}_2$ for all $u, v$, written
+$\norm{A}_\op \le b$ \formal{Cone.ConditionOperator.paper\_main\_cone\_opnorm\_le}.
+The unit Frobenius sphere of $\Sym^d$ is $\mathbb{S}_\Fro$, and
+$\mathbb{S}^{m-1}$ is the Euclidean unit sphere of $\R^m$.
+\end{convention}
+
+\begin{convention}[Gaussian objects]
+$\gauss_m$ is the standard Gaussian measure on $\R^m$ (Section~\ref{sec:gauss}).
+$g, h, \ldots$ denote standard Gaussian vectors, and $Z$ a standard
+Gaussian element of $\Sym^d$, that is $Z = \sum_{k < \Dd_d} z_k E_k$ for an
+orthonormal basis $(E_k)$ of $\Sym^d$ and $z \sim \gauss_{\Dd_d}$
+\formal{Gaussian.SymmetricLawPublic.paper\_main\_public\_symmetric\_gaussian}.
+The GOE rows of the paper are $G_i = \sqrt{2/d}\, Z_i$ with independent
+copies $Z_i$ of $Z$; in the formal proof they are the \emph{Gaussian
+feature rows} \formal{Gaussian.PublicFeature.paper\_main\_public\_gaussian\_row},
+whose pairing with a symmetric $T$ is the linear form
+$\sqrt{2/d}\, \sum_k z_k \ip{E_k}{T}$ of the coordinates.
+\end{convention}
+
+\begin{convention}[Expectations]
+Two expectations occur. For a measurable $F$ on tuples,
+$\E_{n,d} F = \int F\, d\Prob_{n,d}$ is the Lebesgue integral of
+MathComp-Analysis. For a function $F$ of a list of $m$ real numbers, the
+\emph{iterated expectation} $\E^{(m)} F$ integrates the coordinates one at
+a time against the Gaussian kernel $e^{-t^2/2}/\sqrt{2\pi}$
+\formal{Gaussian.IteratedExpectationDefinitions.gaussian\_iterated\_expectation},
+each level being a Lebesgue integral on the line. For $F$ continuous with
+polynomial growth the two agree, and both equal the integral of
+$x \mapsto F(\text{coordinates of } x)$ against $\gauss_m$
+(Proposition~\ref{prop:bridge}). We write $\E$ for either when no
+confusion is possible.
+\end{convention}
+
+\begin{convention}[Sample sizes]
+A statement "for all large $d$" means: there is $D$ such that the statement
+holds for every $d \ge D$. The thresholds $D$ of the formal proof are
+existential and, in a few places, explicit but enormous
+(for instance $2^{9600}$ in the walk-count estimates of
+Section~\ref{sec:edge}); they play no role in the limit theorems.
+\end{convention}
+
+\section{General tools}\label{sec:tools}
+
+The results of this section are stated for an arbitrary real closed field
+$\R$ of MathComp-Analysis and are the content of the library
+\texttt{GaussianAnalysis}. The main proof instantiates them at the reals of
+the standard library through a bridge (Proposition~\ref{prop:bridge}).
+
+\subsection{The standard Gaussian measure}\label{sec:gauss}
+
+\begin{definition}[\formal{GaussianAnalysis.gaussian.gauss.gauss}]
+For $m \in \N$, $\gauss_m$ is the probability measure on the row vectors
+$\R^{1\times m}$, with the Borel $\sigma$-algebra of the product topology,
+defined by recursion on $m$: $\gauss_0$ is the Dirac mass at the empty
+vector, and $\gauss_{m+1}$ is the image of the product $N(0,1) \otimes \gauss_m$
+under $(t, x) \mapsto (t, x)$.
+\end{definition}
+
+\begin{proposition}[Boxes and uniqueness]\label{prop:gaussE}
+For measurable $A_1, \dots, A_m \subseteq \R$,
+$\gauss_m(\prod_i A_i) = \prod_i N(0,1)(A_i)$
+\formal{GaussianAnalysis.gaussian.gauss.gauss\_box}. A probability
+measure on $\R^{1\times m}$ that gives every box this value is $\gauss_m$
+\formal{GaussianAnalysis.gaussian.gauss.gaussE}. Consequently $\gauss_m$
+is invariant under permutations of the coordinates
+\formal{GaussianAnalysis.gaussian.gauss.integral\_gauss\_col\_perm} and
+under $x \mapsto -x$ \formal{GaussianAnalysis.comparison.escape.integral\_gauss\_opp},
+the law of a block of $k$ coordinates is $\gauss_k$, and for
+$f$ integrable, $\int f\, d\gauss_{m+1} = \int \int f(t, x)\, d\gauss_m(x)\, dN(0,1)(t)$
+(Fubini for the first coordinate).
+\end{proposition}
+
+\begin{proof}
+The box formula is the recursion and the product measure formula. Two
+probability measures that agree on the boxes agree on the $\pi$-system of
+boxes, which generates the Borel sets of the product, hence on all Borel
+sets. The invariances follow since a permutation, or the sign change, maps
+boxes to boxes of the same measure.
+\end{proof}
+
+\begin{proposition}[Linear images \formal{GaussianAnalysis.comparison.gauss\_law.gauss\_mulmx\_law}]\label{prop:mulmx}
+Let $A \in \R^{n\times k}$ and $B \in \R^{m \times k}$ with
+$A^{\top} A = B^{\top} B$. Then for every measurable $X \subseteq \R^{1\times k}$,
+\[
+\gauss_n\{x : xA \in X\} = \gauss_m\{y : yB \in X\}.
+\]
+In particular, if the columns of $A$ are orthonormal, $x A \sim \gauss_k$
+when $x \sim \gauss_n$ \formal{GaussianAnalysis.comparison.gauss\_law.gauss\_orthogonal\_law};
+and $\gauss_n$ is invariant under every orthogonal matrix.
+\end{proposition}
+
+\begin{proof}
+For a test $F$ of class $C^2$ whose derivatives grow at most polynomially,
+Kahane's comparison (Theorem~\ref{thm:kahane}) in both directions gives
+$\int F(xA)\, d\gauss_n = \int F(yB)\, d\gauss_m$. A bounded Lipschitz $G$
+is the uniform limit of its double Gaussian smoothings
+$G_{t} = \gauss\text{-}\mathrm{smooth}_t(\gauss\text{-}\mathrm{smooth}_t G)$,
+which are of class $C^2$ with bounded derivatives, because integration by
+parts moves one derivative inside the second smoothing
+\formal{GaussianAnalysis.comparison.gauss\_law.gauss\_smooth\_partial\_stein};
+hence the equality holds for $G$. Finally a finite measure on
+$\R^{1\times k}$ is determined by the integrals of the Lipschitz functions
+with values in $[0,1]$ \formal{GaussianAnalysis.comparison.gauss\_law.measure\_lipschitz\_unique}:
+the sets $\{\Phi > 0\}$, for $\Phi \ge 0$ Lipschitz, are closed under
+intersection and generate the Borel sets, and their indicators are
+increasing limits of $\min(1, i\Phi)$.
+\end{proof}
+
+\begin{proposition}[The bridge to the sample law \formal{Gaussian.LawBridge.gauss\_gaussian\_product\_law}]\label{prop:bridge}
+At the reals of the standard library, let $\rho$ send an $m$-tuple to the
+row vector of its coordinates. Then $\gauss_m$ is the image of
+$\Prob$-law of $m$-tuples under $\rho$: for every measurable $X \subseteq \R^{1\times m}$,
+$\gauss_m(X) = \Prob_{1, m}(\rho^{-1} X)$. Moreover, for $F$ a continuous
+function of lists that is integrable at every level of the iterated
+expectation, in particular when $F$ has polynomial growth,
+\[
+\E^{(m)} F = \int F(\rho(x))\, d\gauss_m(x)
+\qquad\formal{Gaussian.LawBridge.gaussian\_iterated\_expectation\_gauss}.
+\]
+\end{proposition}
+
+\begin{proof}
+Both measures give a box the product of the standard normal measures of
+its sides (Proposition~\ref{prop:gaussE} and the recursion defining
+$\Prob_{1,m}$), so they agree by uniqueness. The iterated expectation is a
+Lebesgue integral at each level, and Fubini for the first coordinate,
+applied $m$ times, identifies it with the integral against $\gauss_m$.
+\end{proof}
+
+All the probabilistic statements below about the sample are proved either
+directly on the tuples, or on row vectors and transported through
+Proposition~\ref{prop:bridge}. The bridge also carries over continuity,
+polynomial growth and partial derivatives of a function of lists to the
+corresponding function of row vectors \formal{Gaussian.LawBridge.list\_of\_row\_derive}.
+
+\subsection{Integration by parts}
+
+\begin{theorem}[One-dimensional Stein identity \formal{GaussianAnalysis.gaussian.gauss\_ibp.normal\_ibp}]\label{thm:normal_ibp}
+Let $f : \R \to \R$ be differentiable with continuous derivative $f'$, and
+suppose $\abs{f(t)}, \abs{f'(t)} \le C(1 + \abs{t}^k)$. Then
+$\int t f(t)\, dN(0,1)(t) = \int f'(t)\, dN(0,1)(t)$.
+\end{theorem}
+
+\begin{proof}
+$t e^{-t^2/2}$ is the derivative of $-e^{-t^2/2}$; integrate by parts on
+$[-M, M]$ and let $M \to \infty$: the boundary terms $f(\pm M) e^{-M^2/2}$
+vanish by the growth bound, and both integrands are integrable on the line
+by the growth bound and the Gaussian tail.
+\end{proof}
+
+\begin{theorem}[Gaussian integration by parts \formal{GaussianAnalysis.gaussian.gauss\_ibp.gauss\_ibp}, \formal{GaussianAnalysis.gaussian.gauss\_ibp.gauss\_ibp2}]\label{thm:ibp}
+Let $F : \R^{1\times m} \to \R$ be continuous with partial derivative
+$\partial_i F$ along the $i$-th coordinate, continuous, both of
+polynomial growth $C(1 + \norm{x}^k)$. Then
+\[
+\int x_i F(x)\, d\gauss_m(x) = \int \partial_i F(x)\, d\gauss_m(x) .
+\]
+If moreover $\partial_i F$ has a partial derivative $\partial_i^2 F$
+along the same coordinate, continuous and of polynomial growth, then
+\[
+\int (x_i^2 - 1) F(x)\, d\gauss_m(x) = \int \partial_i^2 F(x)\, d\gauss_m(x) .
+\]
+\end{theorem}
+
+\begin{proof}
+Move the $i$-th coordinate to the first place (Proposition~\ref{prop:gaussE})
+and apply Fubini: for fixed values of the other coordinates, the inner
+integral is the one-dimensional identity of Theorem~\ref{thm:normal_ibp}.
+The second identity is the first applied to $x_i F$, whose derivative is
+$F + x_i \partial_i F$, followed by the first applied to $\partial_i F$.
+Measurability of a partial derivative of a continuous function comes from
+its expression as a limit of difference quotients
+\formal{GaussianAnalysis.gaussian.gauss\_ibp.measurable\_derive\_rV}.
+\end{proof}
+
+At the reals of the standard library and in the language of iterated
+expectations, these are the \emph{coordinate Stein identities}
+\formal{Gaussian.LawBridge.gaussian\_iterated\_coordinate\_stein\_gauss},
+\formal{Gaussian.LawBridge.gaussian\_iterated\_coordinate\_second\_stein\_gauss},
+which the chaos computations of Sections~\ref{sec:sat} and~\ref{sec:unsat}
+use: for $F$ continuous of polynomial growth with continuous derivatives of
+polynomial growth,
+\[
+\E[(x_a x_b - \delta_{ab}) F(x)] = \E[\partial_a \partial_b F(x)] .
+\]
+
+\subsection{Interpolation and comparison}\label{sec:comparison}
+
+\begin{theorem}[Gaussian interpolation \formal{GaussianAnalysis.gaussian.gauss\_interpolation.gauss\_interpolation}]\label{thm:interp}
+Let $F : \R^{1\times k} \to \R$ be of class $C^2$ with partial derivatives
+$\partial_j F$ and $\partial_j \partial_l F$ continuous and of polynomial
+growth, and let $M : (u, v) \to \R^{n\times k}$ be differentiable with
+derivative $M'$, both bounded on $(u, v)$. Then $t \mapsto \int F(xM(t))\, d\gauss_n(x)$
+is differentiable on $(u, v)$ with derivative
+\[
+\sum_{j, l < k} \bigl(M'(t)^{\top} M(t)\bigr)_{jl} \int \partial_j \partial_l F(xM(t))\, d\gauss_n(x) .
+\]
+\end{theorem}
+
+\begin{proof}
+Differentiate under the integral (dominated convergence with the
+polynomial growth and the bounds on $M, M'$): the derivative of
+$F(xM(t))$ is $\sum_j \partial_j F(xM(t)) (xM'(t))_j = \sum_j \partial_j F(xM(t)) \sum_i x_i M'(t)_{ij}$.
+Integration by parts (Theorem~\ref{thm:ibp}) in $x_i$ turns
+$x_i \partial_j F(xM(t))$ into $\sum_l \partial_l \partial_j F(xM(t)) M(t)_{il}$,
+and $\sum_i M'(t)_{ij} M(t)_{il} = (M'(t)^{\top} M(t))_{jl}$.
+\end{proof}
+
+\begin{theorem}[Kahane's comparison \formal{GaussianAnalysis.gaussian.gauss\_interpolation.gauss\_comparison}]\label{thm:kahane}
+Let $F$ be as in Theorem~\ref{thm:interp} and let $A \in \R^{n \times k}$,
+$B \in \R^{m \times k}$ satisfy
+$\sum_{j,l} (A^{\top} A - B^{\top} B)_{jl}\, \partial_j \partial_l F(z) \le 0$
+for every $z$. Then $\int F(xA)\, d\gauss_n \le \int F(yB)\, d\gauss_m$.
+\end{theorem}
+
+\begin{proof}
+Put the two vectors side by side: for $w = (x, y) \sim \gauss_{n+m}$ and
+$M(t) = \bigl(\sqrt{t}\, A;\ \sqrt{1-t}\, B\bigr)$ (stacked), $wM(t) = \sqrt t\, xA + \sqrt{1-t}\, yB$
+has covariance $tA^{\top}A + (1-t)B^{\top}B$. Theorem~\ref{thm:interp}
+gives $\frac{d}{dt} \int F(wM(t)) = \frac12 \sum_{j,l} (A^{\top}A - B^{\top}B)_{jl} \int \partial_j\partial_l F(wM(t)) \le 0$
+on $(0,1)$, and the endpoints are the two sides, by continuity and the
+polynomial growth.
+\end{proof}
+
+The next three inequalities concern finite centered Gaussian families
+written as $x \mapsto xA$ for $x \sim \gauss_n$ and $A \in \R^{n \times p}$,
+whose covariance is $A^{\top} A$. The \emph{increment variance} of two
+indices is $\sigma_A(j, l) = \E (xA)_j - (xA)_l)^2 = (A^{\top}A)_{jj} + (A^{\top}A)_{ll} - 2(A^{\top}A)_{jl}$.
+
+\begin{theorem}[Sudakov--Fernique \formal{GaussianAnalysis.comparison.slepian.sudakov\_fernique}; Slepian \formal{GaussianAnalysis.comparison.slepian.slepian}]\label{thm:sf}
+If $\sigma_A(j, l) \le \sigma_B(j, l)$ for all $j, l < p$, then
+$\E \max_j (xA)_j \le \E \max_j (yB)_j$ for $x \sim \gauss_n$, $y \sim \gauss_m$.
+In particular, if the variances agree and $(B^{\top} B)_{jl} \le (A^{\top} A)_{jl}$
+for all $j, l$, the same conclusion holds.
+\end{theorem}
+
+\begin{proof}
+For $\beta > 0$ let $\ell_\beta(z) = \beta^{-1} \ln \sum_j e^{\beta z_j}$, the
+soft maximum, which satisfies $\max_j z_j \le \ell_\beta(z) \le \max_j z_j + \beta^{-1}\ln p$.
+Its Hessian is $\beta(\diag(\pi) - \pi \pi^{\top})$ where
+$\pi_j = e^{\beta z_j}/\sum_l e^{\beta z_l}$, so for every symmetric
+$\Sigma$, $\sum_{jl} \Sigma_{jl} \partial_j\partial_l \ell_\beta = \beta \sum_{jl} \pi_j \pi_l (\Sigma_{jj} - \Sigma_{jl}) = \frac{\beta}{2} \sum_{jl} \pi_j\pi_l (\Sigma_{jj} + \Sigma_{ll} - 2\Sigma_{jl})$.
+With $\Sigma = A^{\top}A - B^{\top}B$ the last factor is
+$\sigma_A(j,l) - \sigma_B(j,l) \le 0$, and Theorem~\ref{thm:kahane}
+(with the growth of $\ell_\beta$ and its derivatives) gives
+$\E \ell_\beta(xA) \le \E \ell_\beta(yB)$. Let $\beta \to \infty$.
+\end{proof}
+
+\begin{theorem}[Gordon's min--max comparison \formal{GaussianAnalysis.comparison.gordon.gordon}]\label{thm:gordon}
+Let $p, q \ge 1$ and let $A \in \R^{n \times pq}$, $B \in \R^{m\times pq}$
+index the entries by pairs $(u, t)$, $u < p$, $t < q$. Suppose
+\[
+\sigma_A((u,t),(u,s)) \le \sigma_B((u,t),(u,s)) \quad\text{and}\quad
+\sigma_B((u,t),(v,s)) \le \sigma_A((u,t),(v,s)) \text{ for } u \ne v .
+\]
+Then $\E \min_u \max_t (xA)_{(u,t)} \le \E \min_u \max_t (yB)_{(u,t)}$
+for $x \sim \gauss_n$, $y \sim \gauss_m$. With equal variances this reads:
+larger covariances inside the rows and smaller covariances across rows
+give a smaller expected min--max \formal{GaussianAnalysis.comparison.gordon.gordon\_cov}.
+\end{theorem}
+
+\begin{proof}
+Replace $\min_u \max_t$ by a smooth min--max $s_\beta$
+\formal{GaussianAnalysis.comparison.gordon.smm}: the soft minimum over $u$
+of the soft maxima over $t$, which is within $2\beta^{-1}\ln(pq)$ of
+$\min_u\max_t z_{(u,t)}$. Its Hessian is a combination of the Gibbs weights
+of the two levels, and the sum $\sum_{jl} \Sigma_{jl}\partial_j\partial_l s_\beta$
+with $\Sigma = A^{\top}A - B^{\top}B$ splits into a sum over pairs inside a
+row, with coefficient $-(\sigma_A - \sigma_B)$ times a nonnegative weight,
+and a sum over pairs in different rows, with coefficient $+(\sigma_A - \sigma_B)$
+times a nonnegative weight. The hypotheses make both sums nonpositive, so
+Theorem~\ref{thm:kahane} gives $\E s_\beta(xA) \le \E s_\beta(yB)$, and
+$\beta \to \infty$ concludes. (The formal proof carries out this computation
+on the explicit second derivatives of $s_\beta$.)
+\end{proof}
+
+The instance that the main proof uses is the comparison of a bilinear
+Gaussian process with its additive surrogate.
+
+\begin{corollary}[Bilinear processes \formal{GaussianAnalysis.comparison.escape.auxT\_bilT\_minmax}]\label{cor:bil}
+Let $z_0, \dots, z_{p-1}$ be unit vectors of $\R^N$ and $v_0, \dots, v_{q-1}$ unit
+vectors of $\R^M$, let $\Gamma \in \R^{N \times M}$ have independent
+$N(0,1)$ entries and let $g \sim \gauss_N$, $h \sim \gauss_M$ be
+independent. Then
+\[
+\E \min_u \max_t \bigl(\ip{g}{z_u} + \ip{h}{v_t}\bigr) \le \E \min_u \max_t z_u^{\top} \Gamma v_t .
+\]
+\end{corollary}
+
+\begin{proof}
+Both processes have unit variances, and
+$\E(z_u^{\top}\Gamma v_t)(z_{u'}^{\top}\Gamma v_s) = \ip{z_u}{z_{u'}} \ip{v_t}{v_s}$
+while the surrogate has covariance $\ip{z_u}{z_{u'}} + \ip{v_t}{v_s}$. The
+difference of increment variances is $2(1 - \ip{z_u}{z_{u'}})(1 - \ip{v_t}{v_s}) \ge 0$,
+which vanishes for $u = u'$: Theorem~\ref{thm:gordon} applies with the
+surrogate as $A$ and the bilinear process as $B$.
+\end{proof}
+
+\begin{theorem}[Escape through a mesh \formal{GaussianAnalysis.comparison.escape.gordon\_escape}, \formal{GaussianAnalysis.comparison.escape.gordon\_escape\_tail}; paper Lemma~2.4]\label{thm:escape}
+Let $T$ be a nonempty set of unit vectors of $\R^M$, let
+$w(T) = \E \sup_{v \in T} \ip{h}{v}$ ($h \sim \gauss_M$) be its Gaussian
+width, and let $\Gamma \in \R^{N\times M}$, $N \ge 1$, have independent
+$N(0,1)$ entries. Then
+\[
+\E \inf_{v \in T} \norm{\Gamma v}_2 \ge \E\norm{g}_2 - w(T), \qquad g \sim \gauss_N,
+\]
+and for $u \ge 0$,
+$\Prob\{\inf_{v\in T} \norm{\Gamma v}_2 \le \E\norm{g}_2 - w(T) - u\} \le e^{-u^2/2}$.
+\end{theorem}
+
+\begin{proof}
+For finite families $(v_t) \subseteq T$ and $(z_u)$ a net of the unit
+sphere of $\R^N$, Corollary~\ref{cor:bil} with the roles of the two factors
+exchanged gives
+$\E \min_t \max_u z_u^{\top}\Gamma v_t \ge \E \max_u \ip{g}{z_u} - \E \max_t \ip{h}{v_t}$.
+As the net of the sphere becomes finer, $\max_u z_u^{\top} \Gamma v_t \to \norm{\Gamma v_t}_2$
+and $\max_u \ip{g}{z_u} \to \norm{g}_2$ (a $\delta$-net of the sphere
+captures $(1-\delta)$ of the norm); as the family $(v_t)$ becomes a finer
+net of $T$, the minimum tends to $\inf_T$ and $\E\max_t \ip{h}{v_t} \le w(T)$,
+since $\norm{\Gamma v - \Gamma v'}_2 \le \norm{\Gamma}_\Fro \norm{v - v'}_2$.
+The tail follows from Theorem~\ref{thm:conc}, the function
+$\Gamma \mapsto \inf_T \norm{\Gamma v}_2$ being $1$-Lipschitz for the
+Frobenius norm.
+\end{proof}
+
+\begin{theorem}[Norms of Gaussian matrices \formal{GaussianAnalysis.comparison.escape.gauss\_opnorm\_mean}, \formal{GaussianAnalysis.comparison.escape.gauss\_opnorm\_tail}; paper Lemma~2.5]\label{thm:opnorm}
+For $\Gamma$ as above, $\E\norm{\Gamma}_\op \le \E\norm{g}_2 + \E\norm{h}_2 \le \sqrt N + \sqrt M$,
+and $\Prob\{\norm{\Gamma}_\op \ge \E\norm{g}_2 + \E\norm{h}_2 + u\} \le e^{-u^2/2}$.
+\end{theorem}
+
+\begin{proof}
+Theorem~\ref{thm:sf} compares $\max_{u,t} z_u^{\top}\Gamma v_t$ with
+$\max_{u,t}(\ip{g}{z_u} + \ip{h}{v_t}) = \max_u\ip{g}{z_u} + \max_t \ip{h}{v_t}$
+on nets of the two spheres, and the net argument of the previous proof
+concludes; the tail is again Theorem~\ref{thm:conc}.
+\end{proof}
+
+The main proof does not use Theorem~\ref{thm:opnorm}: it bounds operator
+norms of Gaussian matrices through nets and a union bound, with worse
+constants (Lemma~\ref{lem:opnet}).
+
+\subsection{Concentration}
+
+\begin{theorem}[Gaussian concentration \formal{GaussianAnalysis.comparison.gauss\_concentration.gauss\_concentration}]\label{thm:conc}
+Let $F : \R^{1\times m} \to \R$ satisfy $\abs{F(x) - F(y)} \le L \norm{x - y}_2$.
+Then for every real $t$, $\E e^{t(F - \E F)} \le e^{t^2 L^2/2}$ under
+$\gauss_m$. Consequently, for $u \ge 0$, each of $\Prob\{F \ge \E F + u\}$
+and $\Prob\{F \le \E F - u\}$ is at most $e^{-u^2/(2L^2)}$, and
+$\operatorname{Var} F \le L^2$ \formal{GaussianAnalysis.comparison.gauss\_concentration.gauss\_poincare\_lipschitz}.
+\end{theorem}
+
+\begin{proof}
+First let $F$ be bounded, of class $C^1$, with $\norm{\nabla F}_2 \le L$,
+and $t \ge 0$. Let $y$ be an independent copy of $x$ and
+$\varphi(\theta) = \E F(x) e^{tF(\cos\theta\, x + \sin\theta\, y)}$.
+After rotating $(x, y)$ by $\theta$, integration by parts in $y$
+(Theorem~\ref{thm:ibp} on the pair) shows $\varphi'(\theta) \ge -\sin\theta\, tL^2\, \E e^{tF}$;
+comparing $\varphi(0)$ with $\varphi(\pi/2) = \E F \cdot \E e^{tF}$ gives
+Herbst's covariance inequality $\E F e^{tF} \le (\E F + tL^2)\E e^{tF}$.
+With $\psi(t) = \ln \E e^{t(F - \E F)}$ this reads
+$\psi'(t) \le tL^2$, and $\psi(0) = 0$ gives $\psi(t) \le t^2L^2/2$.
+A general Lipschitz $F$ is the pointwise limit of the Gaussian smoothings
+of $F$ clipped to $[-k-1, k+1]$, which are smooth with gradient at most
+$L$; Fatou's lemma passes the bound to $F$. The tails are Chernoff's
+bound, and the variance bound follows from the two exponential bounds at
+$\pm t$, $\cosh(y) \ge 1 + y^2/2$, and $t \to 0$.
+\end{proof}
+
+\begin{theorem}[Chi-square tails \formal{GaussianAnalysis.comparison.chi\_square.gauss\_centered\_chi2\_abs\_tail}]\label{thm:chi2}
+Let $a \in \R^m$ with $\abs{a_i} \le L$ and let $Q = \sum_i a_i (x_i^2 - 1)$,
+$x \sim \gauss_m$. For $u > 0$ with $\norm{a}_2^2 + Lu > 0$,
+\[
+\Prob\{\abs{Q} \ge u\} \le 2\exp\Bigl(-\frac{u^2}{4(\norm{a}_2^2 + Lu)}\Bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+For $2\abs{t}L < 1$, $\E e^{tQ} = \prod_i e^{-ta_i}(1 - 2ta_i)^{-1/2} \le \exp\bigl(t^2\norm{a}_2^2/(1 - 2\abs{t}L)\bigr)$,
+from $\E e^{sx^2} = (1-2s)^{-1/2}$ for $s < 1/2$
+\formal{GaussianAnalysis.comparison.chi\_square.integral\_normal\_expR\_sqr}
+and $-\ln(1-u) - u \le u^2/(2(1-\abs{u}))$. Chernoff's bound with
+$t = u/(2(\norm{a}_2^2 + Lu))$ gives each one-sided tail.
+\end{proof}
+
+\begin{proposition}[Linear forms \formal{GaussianAnalysis.comparison.gauss\_linear.gauss\_mxdot\_abs\_tail}]\label{prop:linear}
+For a unit vector $a \in \R^m$ and $u > 0$, $\gauss_m\{\abs{\ip{x}{a}} \ge u\} \le 2e^{-u^2/2}$.
+\end{proposition}
+
+\begin{proof}
+$\ip{x}{a} \sim N(0,1)$ by Proposition~\ref{prop:mulmx}, and the normal
+tail is at most $e^{-u^2/2}$ on each side.
+\end{proof}
+
+\subsection{The spectral theorem and operator norms}\label{sec:spectral}
+
+MathComp's spectral theorem is stated over an algebraically closed field;
+the real-closed package is not available, so the library proves the real
+spectral theorem directly.
+
+\begin{theorem}[Real spectral theorem \formal{GaussianAnalysis.matrix.real\_spectral.symmetric\_spectral}]\label{thm:spectral}
+Every symmetric $A \in \R^{m\times m}$ can be written $A = P^{\top} \diag(a) P$
+with $P$ orthogonal ($P^{\top}P = \Id$) and $a \in \R^m$.
+\end{theorem}
+
+\begin{proof}
+By induction on $m$. For $m \ge 1$, the quadratic form $v \mapsto v^{\top} A v$
+attains its maximum on the compact unit sphere at some $v$
+\formal{GaussianAnalysis.matrix.real\_spectral.rayleigh\_max}; a first-order
+condition shows $A v = \lambda v$ with $\lambda = v^{\top} A v$
+\formal{GaussianAnalysis.matrix.real\_spectral.symmetric\_eigenvector}:
+indeed, for every $w$ and small $\varepsilon$, $(v + \varepsilon w)^{\top}A(v + \varepsilon w) \le \lambda \norm{v + \varepsilon w}_2^2$,
+whose first-order term gives $\ip{w}{Av - \lambda v} = 0$. The Householder
+reflection $H = \Id - 2ww^{\top}/\norm{w}_2^2$ with $w = v - e_1$
+(or $H = \Id$ if $w = 0$) is orthogonal and symmetric and sends $v$ to $e_1$
+\formal{GaussianAnalysis.matrix.real\_spectral.householder\_swap}; then
+$HAH$ has $e_1$ as eigenvector, so it is block diagonal with blocks
+$\lambda$ and a symmetric $(m-1)\times(m-1)$ matrix, to which the induction
+hypothesis applies.
+\end{proof}
+
+\begin{corollary}[\formal{GaussianAnalysis.matrix.real\_spectral.spectral\_form}, \formal{GaussianAnalysis.matrix.real\_spectral.spectral\_trace}, \formal{GaussianAnalysis.matrix.real\_spectral.spectral\_mxdot}, \formal{GaussianAnalysis.matrix.real\_spectral.spectral\_form\_abs}]\label{cor:spectral}
+With $A = P^{\top}\diag(a)P$: $v^{\top} A v = \sum_i a_i (Pv)_i^2$,
+$\tr A = \sum_i a_i$, $\norm{A}_\Fro^2 = \sum_i a_i^2$, and if
+$\abs{u^{\top} A w} \le b\norm{u}_2\norm{w}_2$ for all $u, w$ then
+$\abs{a_i} \le b$ for all $i$. For $A \succeq 0$ all $a_i \ge 0$.
+\end{corollary}
+
+The operator norm of the library, $\norm{A}_\op = \sup_{\norm{v}=1}\norm{Av}_2$
+\formal{GaussianAnalysis.matrix.opnorm.opnorm}, satisfies the following
+two bounds, which replace spectral arguments on the traces of powers.
+
+\begin{proposition}[\formal{GaussianAnalysis.matrix.opnorm.opnorm\_le\_trace\_exp}, \formal{GaussianAnalysis.matrix.opnorm.opnorm\_le\_form\_exp}]\label{prop:opnorm_trace}
+Let $A$ be symmetric and $p \ge 1$, $t \ge 0$. If $\tr(A^{2p}) \le t^{2p}$ then
+$\norm{A}_\op \le t$. If $\abs{v^{\top} A^{2p} v} \le t^{2p}\norm{v}_2^2$ for
+every $v$ then $\norm{A}_\op \le t$.
+\end{proposition}
+
+\begin{proof}
+For a unit $v$, $\norm{Av}_2^{2p} = (v^{\top}A^2 v)^p \le v^{\top} A^{2p} v$ by
+Jensen's inequality along the spectral decomposition ($A^2 = P^{\top}\diag(a^2)P$
+and $u \mapsto u^p$ is convex), and $v^{\top}A^{2p}v \le \tr A^{2p}$ since
+$A^{2p} \succeq 0$.
+\end{proof}
+
+\begin{proposition}[\formal{GaussianAnalysis.matrix.real\_spectral.mxtrace\_ABAB\_le}]\label{prop:abab}
+For symmetric $A, B$, $\tr(ABAB) \le \tr(A^2 B^2)$.
+\end{proposition}
+
+\begin{proof}
+$\tr(A^2B^2) - \tr(ABAB) = \frac12 \tr\bigl((AB - BA)^{\top}(AB - BA)\bigr) \ge 0$,
+using $(AB - BA)^{\top} = BA - AB$ for symmetric $A, B$.
+\end{proof}
+
+\subsection{Nets}\label{sec:nets}
+
+\begin{theorem}[\formal{GaussianAnalysis.matrix.nets.net\_exists}, \formal{GaussianAnalysis.matrix.nets.unit\_sphere\_net}]\label{thm:nets}
+Let $S \subseteq \R^m$ be contained in the ball of radius $r$ and let
+$\varepsilon > 0$. There is a finite subset $N \subseteq S$, of cardinality at
+most $(2e(1 + 2r/\varepsilon))^m$, such that every point of $S$ is within
+$\varepsilon$ of a point of $N$. In particular the unit sphere has an
+$\varepsilon$-net of unit vectors of cardinality at most $(2e(1 + 2/\varepsilon))^m$,
+and if $\abs{u^{\top} A v} \le b$ for all $u, v$ in a $1/4$-net of the unit
+sphere of unit vectors, then $\norm{A}_\op \le 2b$
+\formal{GaussianAnalysis.matrix.nets.opnorm\_net\_sphere}.
+\end{theorem}
+
+\begin{proof}
+Take a maximal $\varepsilon$-separated subset of $S$; the balls of radius
+$\varepsilon/2$ around its points are disjoint and contained in the ball of
+radius $r + \varepsilon/2$. The library counts the points with the volume
+of a lattice box rather than Lebesgue measure: each ball of radius
+$\varepsilon/2$ contains a cube of side $\varepsilon/\sqrt m$, and the cubes
+of a grid of mesh $\varepsilon/\sqrt m$ that meet the big ball number at most
+$(2e(1 + 2r/\varepsilon))^m$ (a binomial count). For the operator norm, write
+a unit $x$ as $u + (x - u)$ with $u$ in the net: $\abs{x^{\top}Ay} \le b + \frac14\norm{A}_\op + \frac14 \norm{A}_\op + \frac1{16}\norm{A}_\op$,
+and the supremum over unit $x, y$ gives $\norm{A}_\op \le 2b$ after
+rearranging (the library's constant).
+\end{proof}
+
+\subsection{Moment inequalities}
+
+\begin{theorem}[Paley--Zygmund \formal{GaussianAnalysis.probability.moments.paley\_zygmund}]\label{thm:pz}
+On a probability space, let $X$ be square integrable and $0 \le \theta < \E X$.
+Then $\Prob\{X \ge \theta\} \ge (\E X - \theta)^2 / \E X^2$.
+\end{theorem}
+
+\begin{proof}
+For every $s \ge 0$ and real $z$, $2sz \le 2s\theta + s^2 z^2 + \one\{z \ge \theta\}$
+(if $z < \theta$ the first term is below the second; otherwise use
+$2sz \le s^2z^2 + 1$). Integrate at $z = X$ and optimize in $s$.
+\end{proof}
+
+\begin{theorem}[Lindeberg replacement \formal{GaussianAnalysis.probability.lindeberg.lindeberg\_replacement}]\label{thm:lindeberg}
+Let $\mu_i, \nu_i$ ($i < n$) be probability measures on a measurable space
+$T$, with product laws $\mu = \bigotimes \mu_i$, $\nu = \bigotimes \nu_i$ on
+$n$-tuples, and let $F$ be bounded measurable on $n$-tuples. If replacing
+the $i$-th coordinate of any tuple by a $\mu_i$-distributed or a
+$\nu_i$-distributed coordinate changes the expectation of $F$ by at most
+$B_i$, then $\abs{\int F\, d\mu - \int F\, d\nu} \le \sum_i B_i$.
+\end{theorem}
+
+\begin{proof}
+Telescope through the hybrid laws $\mu_0 \otimes\cdots\otimes\mu_{i-1}\otimes\nu_i\otimes\cdots$
+and apply Fubini at the replaced coordinate.
+\end{proof}
+
+The main proof uses its own instance of this principle for Gaussian rows
+(Proposition~\ref{prop:replacement}); the library's general form is not
+referenced by the main theorem.
+
+\section{Preliminaries on the problem}\label{sec:prelim}
+
+From now on the real field is that of the standard library, the sample
+$x$ of $n$ points of $\R^d$ has the law $\Prob_{n,d}$ of
+Definition~\ref{def:sample}, and $d = m + 1$ is positive whenever a
+statement needs it.
+
+\subsection{Features and Gram matrices}\label{sec:features}
+
+\begin{definition}[Features]
+The \emph{raw feature} of the point $x_i$ is $Q_i = x_i x_i^{\top} - \Id \in \Sym^d$
+and its \emph{head feature} is
+\[
+W_i = \frac{x_i x_i^{\top} - \Id}{\sqd}
+\qquad\formal{Geometry.HeadFeature.paper\_main\_head\_feature}.
+\]
+For $S \in \Sym^d$, $\ip{Q_i}{S} = x_i^{\top} S x_i - \tr S$, so the
+constraints $x_i^{\top} S x_i = d$ of $\Fit_{n,d}$ read $\ip{W_i}{S} = (d - \tr S)/\sqd$
+for all $i$. The \emph{feature Gram matrix} is the $n\times n$ matrix
+$Q Q^{*} = (\ip{Q_i}{Q_j})_{ij}$ \formal{Feature.GramBlocks.paper\_main\_feature\_gram}
+and, for a finite family $W = (W_j)_{j < m}$ of symmetric matrices, its
+Gram matrix is $(\ip{W_j}{W_l})_{jl}$
+\formal{Geometry.HeadCorrection.paper\_main\_head\_gram}. A matrix $M$ is
+\emph{coercive with constant $\mu$} when $u^{\top} M u \ge \mu \norm{u}_2^2$
+for every $u$ \formal{Geometry.HeadCoefficients.paper\_main\_head\_coercive}.
+\end{definition}
+
+\begin{lemma}[Blocks \formal{Feature.GramBlocks.paper\_main\_feature\_gram\_blocks}; paper (2.14)]\label{lem:blocks}
+$Q Q^{*} = D D^{\top} + V V^{\top}$, where $D \in \R^{n\times d}$ has entries
+$D_{ia} = x_{ia}^2 - 1$ and $V \in \R^{n \times d^2}$ has entries
+$\sqrt 2\, x_{ia} x_{ib}$ at the positions $(a, b)$ with $a < b$ and $0$ at the
+others. Moreover $(V V^{\top})_{ii} = \norm{x_i}_2^4 - \sum_a x_{ia}^4$
+\formal{Feature.GramBlocks.paper\_main\_squarefree\_gram\_diag}, and
+$V V^{\top} \preceq Q Q^{*}$ \formal{Feature.GramBlocks.paper\_main\_squarefree\_gram\_le}.
+\end{lemma}
+
+\begin{proof}
+$\ip{Q_i}{Q_j} = \sum_{a} (x_{ia}^2 - 1)(x_{ja}^2 - 1) + 2\sum_{a < b} x_{ia}x_{ib}x_{ja}x_{jb}$,
+by expanding $\ip{x_ix_i^{\top} - \Id}{x_jx_j^{\top} - \Id} = (x_i^{\top}x_j)^2 - \norm{x_i}^2 - \norm{x_j}^2 + d$
+and $(x_i^{\top}x_j)^2 = \sum_{a,b} x_{ia}x_{ib}x_{ja}x_{jb}$.
+\end{proof}
+
+\begin{lemma}[From raw to head features \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_coercive}, \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_upper}]\label{lem:bridge_features}
+If $Q Q^{*}$ is coercive with constant $c d^2$ then the Gram matrix of
+$(W_i)_{i<n}$ is coercive with constant $c d$; if $Q Q^{*} \preceq C d^2 \Id$
+then that Gram matrix is at most $C d\, \Id$. Consequently, under both
+bounds, $\norm{\sum_i c_i W_i}_\Fro \le \sqrt{Cd}\,\norm{c}_2$ for every
+$c \in \R^n$ \formal{Feature.SpectralBridge.paper\_main\_raw\_feature\_operator}.
+\end{lemma}
+
+\begin{proof}
+$\ip{W_i}{W_j} = \ip{Q_i}{Q_j}/d$, and $\norm{\sum_i c_i W_i}_\Fro^2 = c^{\top}(W W^{*})c$.
+\end{proof}
+
+\subsection{Bounded-condition cones, support functions and widths}\label{sec:cones}
+
+\begin{definition}[Cones and sections]
+For $\kappa \ge 1$, a matrix $S$ satisfies the \emph{condition $\kappa$}
+when $\lambda \Id \preceq S \preceq \kappa\lambda \Id$ for some $\lambda > 0$
+\formal{Geometry.HeadCorrection.paper\_main\_head\_condition}; this is the
+paper's cone $\cone_\kappa = \{S \succeq 0 : \lambda_{\max}(S) \le \kappa \lambda_{\min}(S)\}$
+without its apex. The \emph{cone sphere} is
+$\cone_\kappa \cap \mathbb{S}_\Fro$ \formal{Geometry.HeadWidth.paper\_main\_head\_cone\_sphere},
+and for a family $W = (W_j)_{j<m}$ the \emph{section} is
+$\cone_\kappa \cap \mathbb{S}_\Fro \cap \{S : \ip{W_j}{S} = 0,\ j < m\}$
+\formal{Geometry.HeadWidth.paper\_main\_head\_section}. The \emph{support
+value} of $Z \in \Sym^d$ on a set $A$ is $h_A(Z) = \sup_{S \in A}\ip{Z}{S}$
+\formal{Geometry.HeadWidth.paper\_main\_head\_support}.
+\end{definition}
+
+\begin{lemma}[Spectral box \formal{Geometry.HeadSpectral.paper\_main\_head\_condition\_box}; paper (3.13)]\label{lem:box}
+If $S$ is on the cone sphere $\cone_\kappa \cap \mathbb{S}_\Fro$, then
+$(\kappa\sqd)^{-1}\Id \preceq S \preceq (\kappa/\sqd)\Id$. In particular
+$\abs{u^{\top}Sv} \le (\kappa/\sqd)\norm{u}_2\norm{v}_2$
+\formal{Spectral.OperatorTransport.paper\_main\_matrix\_operator\_cone\_sphere}.
+The cone sphere is nonempty: it contains $\Id/\sqd$
+\formal{Geometry.HeadWidthCompact.paper\_main\_head\_cone\_sphere\_nonempty}.
+\end{lemma}
+
+\begin{proof}
+From $\lambda\Id \preceq S \preceq \kappa\lambda\Id$ and
+$1 = \norm{S}_\Fro^2 = \tr(S^2)$: $d\lambda^2 \le \tr(S^2) \le d\kappa^2\lambda^2$
+gives $\lambda \le 1/\sqd \le \kappa\lambda$, hence the box. (The formal
+proof avoids eigenvalues: $\tr(S^2) \le \kappa\lambda\tr S \le d\kappa^2\lambda^2$
+and $\tr(S^2) \ge \lambda \tr S \ge d\lambda^2$ by $\tr(S^2) = \tr(S^{1/2}SS^{1/2})$
+written with the Loewner bounds.)
+\end{proof}
+
+\begin{definition}[Gaussian width]
+Let $Z$ be the standard Gaussian element of $\Sym^d$ (Section~\ref{sec:notation}),
+seen as a function of $z \sim \gauss_{\Dd_d}$. For a nonempty $A \subseteq \mathbb{S}_\Fro$,
+$w(A) = \E^{(\Dd_d)} h_A(Z)$ is its \emph{Gaussian width}. For the cone
+sphere we write $w_\kappa = w(\cone_\kappa\cap\mathbb{S}_\Fro)$
+\formal{Gaussian.ConditionWidth.paper\_main\_gaussian\_condition\_width},
+and for a section $w(\cone_\kappa \cap \mathbb{S}_\Fro \cap \ker W)$ is the
+\emph{section width} \formal{Head.SectionWidthLaw.paper\_main\_head\_section\_width},
+an extended real which is finite and at most $\E\norm{z}_2$ since
+$\abs{h_A(Z)} \le \norm{Z}_\Fro = \norm{z}_2$ for $A \subseteq \mathbb{S}_\Fro$
+\formal{Head.SectionWidthLaw.paper\_main\_head\_section\_width\_bound}.
+\end{definition}
+
+\begin{lemma}[Support functions are Lipschitz \formal{Geometry.HeadWidthLipschitz.paper\_main\_head\_support\_lipschitz}]\label{lem:support_lip}
+For $A \subseteq \mathbb{S}_\Fro$ nonempty, $\abs{h_A(Z) - h_A(Y)} \le \norm{Z - Y}_\Fro$;
+in the Gaussian coordinates this is the Euclidean distance of $z$ and $y$
+\formal{Gaussian.SymmetricLawPublic.paper\_main\_public\_symmetric\_gaussian\_isometry}.
+\end{lemma}
+
+\begin{proposition}[Moreau decomposition \formal{Cone.Projection.paper\_main\_psd\_moreau}]\label{prop:moreau}
+Every symmetric $Z$ has a unique decomposition $Z = Z_+ - Z_-$ with
+$Z_+, Z_- \succeq 0$ and $\ip{Z_+}{Z_-} = 0$; $Z_+$ is the nearest point of
+$\Spsd^d$ to $Z$ in Frobenius norm, the map $Z \mapsto Z_+$ is
+$1$-Lipschitz, and $(-Z)_+ = Z_-$.
+\end{proposition}
+
+\begin{proof}
+With $Z = P^{\top}\diag(a)P$ (Theorem~\ref{thm:spectral}) put
+$Z_+ = P^{\top}\diag(\max(a,0))P$ and $Z_- = P^{\top}\diag(\max(-a,0))P$.
+The nearest-point property is the variational characterization:
+$Z_+ \succeq 0$ and $\ip{Z - Z_+}{S - Z_+} \le 0$ for every $S \succeq 0$,
+since $\ip{-Z_-}{S} \le 0$ and $\ip{Z_-}{Z_+} = 0$. Uniqueness and the
+Lipschitz bound follow from the characterization as for any projection on
+a closed convex set.
+\end{proof}
+
+\begin{proposition}[Width of the positive semidefinite sphere \formal{Gaussian.PsdWidth.paper\_main\_gaussian\_psd\_width\_bounds}; paper Lemma~2.1]\label{prop:psdwidth}
+$\E\norm{Z_+}_\Fro^2 = \Dd_d/2$ and
+$\sqrt{\Dd_d/2 - 1} \le w(\Spsd^d \cap \mathbb{S}_\Fro) \le \sqrt{\Dd_d/2}$.
+\end{proposition}
+
+\begin{proof}
+$\norm{Z}_\Fro^2 = \norm{Z_+}_\Fro^2 + \norm{Z_-}_\Fro^2$ by orthogonality,
+$\E\norm{Z}_\Fro^2 = \E\norm{z}_2^2 = \Dd_d$, and $Z \mapsto -Z$ preserves
+the law (Proposition~\ref{prop:gaussE}) and exchanges $Z_+$ with $Z_-$;
+hence $\E\norm{Z_+}_\Fro^2 = \Dd_d/2$
+\formal{Gaussian.PsdWidth.paper\_main\_gaussian\_psd\_projection\_second\_moment}.
+Next, $\max(h(Z), 0) = \norm{Z_+}_\Fro$ for $h = h_{\Spsd^d\cap\mathbb{S}_\Fro}$
+\formal{Cone.ProjectionSupport.paper\_main\_psd\_sphere\_support\_max}:
+for $S \succeq 0$ of unit norm, $\ip{Z}{S} = \ip{Z_+}{S} - \ip{Z_-}{S} \le \norm{Z_+}_\Fro$,
+with equality at $S = Z_+/\norm{Z_+}_\Fro$ when $Z_+ \ne 0$, and $h(Z) \le 0$
+when $Z_+ = 0$, that is $Z \preceq 0$. So $\E\max(h,0)^2 = \Dd_d/2$. The
+function $h$ is $1$-Lipschitz (Lemma~\ref{lem:support_lip}), so is
+$\max(h, 0)$, and the Gaussian Poincar\'e inequality (Theorem~\ref{thm:conc})
+gives $\operatorname{Var}\max(h,0) \le 1$, whence
+$(\E\max(h,0))^2 \ge \Dd_d/2 - 1$; also $\E h \le \E\max(h,0)$ and
+$(\E h)^2 \le \E h^2 \le \E\max(h,0)^2$ once $\E h \ge 0$, which holds since
+$h(Z) \ge \ip{Z}{\Id}/\sqd = \tr Z/\sqd$ has mean $0$. Finally
+$\E\max(h,0) \ge \E h$ needs the reverse: $\max(h,0) - h = \max(-h, 0) \le \norm{Z_-}_\Fro \one\{Z_+ = 0\}$
+vanishes unless $Z \preceq 0$, and then equals $-h(Z) \le \norm{Z}_\Fro\one\{Z\preceq 0\}$;
+the formal proof instead bounds $w$ from below through
+$\E h \ge \sqrt{\E\max(h,0)^2 - 1}$, using $\E\max(h,0)^2 - 1 \le (\E h)^2$
+for a $1$-Lipschitz $h$ with $\E h \ge 0$
+\formal{Gaussian.WidthVariance.paper\_main\_gaussian\_mean\_positive\_square\_lower}.
+\end{proof}
+
+The cited width-dimension inequality of the paper (its line 365) is thus
+replaced by the Poincar\'e inequality for the Lipschitz function $\max(h,0)$.
+
+\begin{proposition}[Width of bounded-condition cones \formal{Gaussian.ConditionWidthBound.paper\_main\_gaussian\_condition\_width\_lower}, \formal{Gaussian.ConditionWidthBound.paper\_main\_gaussian\_condition\_width\_large}; paper Lemma~2.2]\label{prop:conewidth}
+For every $s > 0$ and $d \ge 1$, with $\kappa = (20 + s)/s$,
+\[
+w_\kappa \ge \Bigl(\frac12 - s\Bigr) d - 3 - \frac{864}{d} .
+\]
+Consequently, for every $\varepsilon > 0$ there is $\kappa \ge 1$ with
+$w_\kappa \ge (1/2 - \varepsilon) d$ for all large $d$.
+\end{proposition}
+
+The paper proves this through the semicircle law and convergence in
+probability; the formal proof is a direct computation with a crude
+operator-norm event.
+
+\begin{proof}
+\emph{The shift.} Let $Z$ be symmetric with $Z_+ \preceq C\sqd\,\Id$, let
+$t = s\sqd$ and $Q = Z_+ + t\Id$. Then $t\Id \preceq Q \preceq (C + s)\sqd\,\Id = \kappa t\Id$
+with $\kappa = (C+s)/s$, so $P = Q/\norm{Q}_\Fro$ lies on the cone sphere
+\formal{Cone.Condition.paper\_main\_cone\_shift\_scaled}. Its support value is
+$\ip{Z}{P} = (\norm{Z_+}_\Fro^2 + t\tr Z)/\norm{Q}_\Fro$ (using
+$\ip{Z}{Z_+} = \norm{Z_+}_\Fro^2$), and $\norm{Q}_\Fro \le \norm{Z_+}_\Fro + t\sqd$.
+Writing $a = \norm{Z_+}_\Fro$ and $b = \abs{\tr Z}$: if $a^2 - tb \ge 0$ then
+$h(Z) \ge (a^2 - tb)/(a + t\sqd) \ge a - t\sqd - b/\sqd$, since
+$(a - t\sqd - b/\sqd)(a + t\sqd) = a^2 - t^2d - b(a + t\sqd)/\sqd \le a^2 - tb$;
+if $a^2 - tb < 0$ then $a < \sqrt{tb}$, so $a - t\sqd - b/\sqd \le -b/\sqd$
+(by the inequality $\sqrt{tb} \le \frac12(t\sqd + b/\sqd)$ between the
+geometric and the arithmetic means), while
+$h(Z) \ge \ip{Z}{\Id/\sqd} = \tr Z/\sqd \ge -b/\sqd$. In both cases
+\[
+h_{\cone_\kappa\cap\mathbb{S}_\Fro}(Z) \ge \norm{Z_+}_\Fro - s d - \frac{\abs{\tr Z}}{\sqd}
+\qquad\formal{Cone.Condition.paper\_main\_cone\_shift\_cone\_support}.
+\]
+
+\emph{The operator-norm event.} With $C = 20$: outside a measurable set $A$
+with $\gauss_{\Dd_d}(A) \le 2e^{-10d}$, the Gaussian $Z$ satisfies
+$\abs{u^{\top}Zv} \le 20\sqd\,\norm{u}_2\norm{v}_2$ for all $u, v$
+\formal{Gaussian.SymmetricOperatorTail.paper\_main\_symmetric\_gaussian\_operator\_good\_set},
+hence $Z_+ \preceq 20\sqd\,\Id$. (Proof: $u^{\top}Zv = \ip{Z}{(uv^{\top} + vu^{\top})/2}$
+is a Gaussian linear form of $z$ with variance at most $\norm{u}^2\norm{v}^2$
+\formal{Spectral.SymmetricBilinear.paper\_main\_symmetric\_bilinear\_coefficients\_le};
+a $1/4$-net of the unit sphere of $\R^d$ with $\ln\abs{\text{net}} \le 20d\ln 2$
+\formal{Spectral.OperatorNet.paper\_main\_symmetric\_operator\_net\_quarter\_stdlib},
+Proposition~\ref{prop:linear} at level $10\sqd$ and a union bound give
+$2\abs{\text{net}}^2 e^{-50d} \le 2e^{-10d}$, and Theorem~\ref{thm:nets}
+doubles the level.)
+
+\emph{The expectation.} Using $\abs{\tr Z}/\sqd \le 1/2 + (\tr Z)^2/(2d)$
+and, on $A$, the bound $\abs{h} \le \norm{Z}_\Fro$ together with
+$\norm{Z_+}_\Fro \le \norm{Z}_\Fro \le \norm{Z}_\Fro^2/(2a) + a/2$ for $a > 0$,
+one gets pointwise, for every $Z$
+\formal{Gaussian.ConditionWidth.paper\_main\_gaussian\_condition\_point\_bound},
+\[
+\norm{Z_+}_\Fro \le h(Z) + sd + \tfrac12 + \frac{(\tr Z)^2}{2d} + \frac{\norm{Z}_\Fro^2}{2a} + 2a\one_A(Z).
+\]
+Take expectations: $\E(\tr Z)^2 = d$ \formal{Gaussian.SymmetricLawPublic.paper\_main\_public\_symmetric\_gaussian\_moments},
+$\E\norm{Z}_\Fro^2 = \Dd_d \le d^2$, and
+$\E\norm{Z_+}_\Fro \ge \sqrt{\Dd_d/2 - 1} \ge d/2 - 1$
+\formal{Gaussian.ConditionWidthBound.paper\_main\_gaussian\_psd\_projection\_mean\_lower}.
+With $a = d^2$ this gives
+$w_\kappa \ge (1/2 - s)d - 2 - \Dd_d/(2d^2) - 4d^2 e^{-10d}$
+\formal{Gaussian.ConditionWidthBound.paper\_main\_gaussian\_condition\_width\_finite},
+and $\Dd_d/(2d^2) \le 1/2$, $d^2e^{-10d} \le 216/d$ give the claim. For the
+second statement take $s = \varepsilon/2$ and $d$ large.
+\end{proof}
+
+\subsection{Elementary estimates on the sample}\label{sec:data}
+
+\begin{lemma}[Radius \formal{Gaussian.DataRadius.paper\_main\_data\_radius\_probability}, \formal{Gaussian.DataRadius.paper\_main\_data\_radius\_good}; paper (2.17)]\label{lem:radius}
+The event that some point has $\norm{x_i}_2 \ge 2\sqd$ is measurable with
+probability at most $n e^{-d/2}$; outside it, $\norm{x_i}_2^2 \le 4d$ for
+every $i < n$.
+\end{lemma}
+
+\begin{proof}
+$x \mapsto \norm{x}_2$ is $1$-Lipschitz on $\R^d$ with mean at most $\sqd$
+(Jensen), so $\gauss_d\{\norm{x}_2 \ge 2\sqd\} \le e^{-d/2}$
+(Theorem~\ref{thm:conc}); a union bound over the $n$ points, whose law is
+$\gauss_d$ each (Proposition~\ref{prop:gaussE}), concludes.
+\end{proof}
+
+\begin{lemma}[Coordinates \formal{Data.SampleTail.paper\_main\_data\_coordinate\_tail}; paper (2.18)]\label{lem:coord}
+For $u > 0$, the event that some coordinate satisfies $\abs{x_{ia}} \ge u$
+is measurable with probability at most $2nd\, e^{-u^2/2}$.
+\end{lemma}
+
+\begin{proof}
+Each coordinate is a unit linear form of the sample (Proposition~\ref{prop:linear});
+union bound.
+\end{proof}
+
+The formal proof uses this lemma at the level $u = d^{1/4}$
+\formal{Clipping.Limits.paper\_main\_coordinate\_clipping\_tends\_to\_zero},
+where the probability is $2nd\,e^{-\sqd/2} \to 0$ for $n \le Cd^2$; it is
+the \emph{coordinate clipping event}, and all the coordinate-wise clippings
+below are at this level.
+
+\begin{lemma}[Coherence \formal{Data.SampleTail.paper\_main\_data\_coherence\_tail}, \formal{Data.CoherenceLimit.paper\_main\_data\_coherence\_log\_good}; paper (2.19)]\label{lem:coherence}
+$\ip{W_i}{W_j} = \bigl((x_i^{\top}x_j)^2 - \norm{x_i}_2^2 - \norm{x_j}_2^2 + d\bigr)/d$.
+For $B > 0$, the event that some pair $i < j$ has $\norm{x_i}_2^2 \le 4d$ and
+$\abs{x_i^{\top}x_j} \ge B$ is measurable with probability at most
+$2n^2 e^{-B^2/(8d)}$. Outside it and outside the radius event,
+$\abs{\ip{W_i}{W_j}} \le B^2/d + 9$ for all $i \ne j$. With
+$B^2 = 64d\ln d$ and $d > 1$ the probability is at most $2n^2/d^8$ and the
+bound is $73\ln d$.
+\end{lemma}
+
+\begin{proof}
+Condition on $x_i$ through Fubini for the block of $x_j$: for fixed
+$v = x_i$ with $0 < \norm{v}_2^2 \le 4d$, the section is the event
+$\abs{\ip{v/\norm{v}_2}{x_j}} \ge B/\norm{v}_2$, of probability at most
+$2e^{-B^2/(2\norm{v}^2)} \le 2e^{-B^2/(8d)}$ (Proposition~\ref{prop:linear});
+the formal proof splits the sample before row $j$ and bounds the section
+probability \formal{Head.LawBounds.paper\_main\_split\_points\_section\_bound}.
+Union bound over pairs.
+\end{proof}
+
+\begin{lemma}[Sparse column norms \formal{Data.HeadOperatorUniform.paper\_main\_data\_head\_operator\_uniform}, \formal{Head.DataLog.paper\_main\_head\_data\_log\_event}; paper (2.20)]\label{lem:sparse}
+For $u > 0$ there is a measurable event of probability at most $2e^{-u}$
+outside which, for every $m \le K$ and every injective selection
+$J$ of $m$ points, the $d\times m$ matrix $X_J$ of the selected points satisfies
+\[
+X_J X_J^{\top} \preceq 8\bigl(20\ln 2\,(d + K) + \ln(K+1) + K\ln(n+1) + u\bigr)\,\Id .
+\]
+Consequently, for $K = K_0 d\ln d$ with $K_0 \ge 0$ and $n \le Cd^2$ there is
+$L = L(C, K_0)$ such that, outside an event of probability at most $2/d$,
+$X_J X_J^{\top} \preceq L d(\ln d)^2\,\Id$ for every $J$ with $\abs{J} \le K_0 d\ln d$.
+\end{lemma}
+
+\begin{proof}
+For a fixed selection, $u^{\top}X_J v$ is a unit linear form of the sample
+when $u, v$ are unit (the selection is injective), so for $1/4$-nets $z$ of
+$\mathbb{S}^{d-1}$ and $w$ of $\mathbb{S}^{m-1}$ the event
+$\max_{y,t}\abs{z_y^{\top}X_Jw_t} \ge b$ has probability at most
+$2\abs{z}\abs{w}e^{-b^2/2}$ \formal{Data.HeadOperator.pmdo\_test\_tail},
+and outside it $\norm{X_J}_\op \le 2b$ (Theorem~\ref{thm:nets}, with nets
+of entropy $\ln\abs{z} + \ln\abs{w} \le 20\ln2\,(d + m)$
+\formal{Gordon.OperatorNet.paper\_main\_gordon\_operator\_discretization}).
+Take $b^2 = 2(20\ln 2\,(d + K) + t)$ with $t = \ln(K+1) + K\ln(n+1) + u$;
+the number of selections of at most $K$ points is at most $(K+1)(n+1)^K$,
+and the union bound gives $2e^{-u}$. The second statement is the first with
+$u = \ln d$.
+\end{proof}
+
+\begin{lemma}[Hanson--Wright for Gaussian vectors \formal{Gaussian.QuadraticTail.paper\_main\_gaussian\_quadratic\_tail}; paper Lemma~2.11]\label{lem:hw}
+Let $P \in \Sym^d$ with $\abs{u^{\top}Pv} \le b\norm{u}_2\norm{v}_2$ for all
+$u, v$, let $x \sim \gauss_d$ and $u > 0$ with $\norm{P}_\Fro^2 + bu > 0$. Then
+\[
+\Prob\bigl\{\abs{x^{\top}Px - \tr P} \ge u\bigr\} \le 2\exp\Bigl(-\frac{u^2}{4\norm{P}_\Fro^2 + 4bu}\Bigr).
+\]
+For $W = (xx^{\top} - \Id)/\sqd$ and $P$ on the cone sphere $\cone_\kappa\cap\mathbb{S}_\Fro$, this gives
+$\Prob\{\abs{\ip{W}{P}} \ge r\} \le 2\exp\bigl(-dr^2/(4 + 4\kappa r)\bigr)$ for $r > 0$
+\formal{Gaussian.Residual.paper\_main\_gaussian\_residual\_tail}.
+\end{lemma}
+
+\begin{proof}
+Write $P = O^{\top}\diag(a)O$ (Theorem~\ref{thm:spectral}); then
+$x^{\top}Px - \tr P = \sum_i a_i((Ox)_i^2 - 1)$ with $\sum a_i^2 = \norm{P}_\Fro^2$
+and $\abs{a_i} \le b$ (Corollary~\ref{cor:spectral}), and $Ox \sim \gauss_d$
+(Proposition~\ref{prop:mulmx}). Theorem~\ref{thm:chi2} concludes. For the
+second claim, $\ip{W}{P} = (x^{\top}Px - \tr P)/\sqd$, $\norm{P}_\Fro = 1$ and
+$b = \kappa/\sqd$ (Lemma~\ref{lem:box}).
+\end{proof}
+
+\subsection{The spectral edges of the feature map}\label{sec:edge}
+
+This section proves the two-sided bounds on $QQ^{*}$ that the two phases
+use. The paper relies on the extreme-eigenvalue theorem of Kogan, Nandy and
+Huang and on the matrix Bernstein inequality; the formal proof is
+self-contained. It gives the upper edge for every $n \le d^2$ and the lower
+edge only for $4n \le d^2$, which is all the satisfiable phase needs.
+
+\subsubsection{The diagonal block}
+
+\begin{proposition}[\formal{DiagonalBlock.Limit.paper\_main\_diag\_trace\_event\_bound}, \formal{DiagonalBlock.Limit.paper\_main\_diag\_trace\_event\_markov}; paper Lemma~2.7]\label{prop:diag}
+Let $Z = D^{\top}D - 2n\Id$. The event $\tr Z^4 > n^4$ is measurable, and
+outside it $D^{\top}D \preceq 3n\Id$ and $DD^{\top} \preceq 3n\Id$. For $n \ge 1$,
+\[
+\Prob\{\tr Z^4 > n^4\} \le \frac{n(2^{21}d^4 + 16d) + 3n(n-1)d(4d + 52)^2}{n^4},
+\]
+which is at most $\bigl((2^{21} + 16)/c^3 + 9408/c^2\bigr)/d$ when $n \ge cd^2$.
+\end{proposition}
+
+\begin{proof}
+\emph{Deterministic part.} $Z$ is symmetric, so $\tr Z^4 \le n^4$ gives
+$-n\Id \preceq Z \preceq n\Id$ (Proposition~\ref{prop:opnorm_trace} with
+$p = 2$) and $D^{\top}D \preceq 3n\Id$; then $DD^{\top} \preceq 3n\Id$ since
+$\norm{D^{\top}u}_2^2 = u^{\top}DD^{\top}u$ and $\norm{Dv}_2^2 \le 3n\norm{v}_2^2$
+give $\norm{DD^{\top}u}_2^2 = \norm{D(D^{\top}u)}_2^2 \le 3n\, u^{\top}DD^{\top}u$,
+hence $u^{\top}DD^{\top}u \le 3n\norm{u}_2^2$ by Cauchy--Schwarz
+\formal{DiagonalBlock.Trace.paper\_main\_gram\_transfer}.
+
+\emph{Moments.} Let $v(t) = t^2 - 1$; for $t \sim N(0,1)$, $\E v = 0$,
+$\E v^2 = 2$, $\E v^4 = 60$ and $\E v^8 \le 2^{21}$ (the Gaussian moments
+$\E t^{2k} = (2k-1)!!$). Let $u_i \in \R^d$ have entries $v(x_{ia})$ and
+$M_i = u_iu_i^{\top} - 2\Id$, so $Z = \sum_i M_i$
+\formal{DiagonalBlock.Moment.paper\_main\_diag\_block\_centered}. One row:
+$\E M_i = 0$, $\E M_i^2 = (4d + 52)\Id$ (the diagonal entry $a$ of $M^2$ is
+$v_a^2\sum_c v_c^2 - 4v_a^2 + 4$, of mean $60 + 2(d-1)\cdot 2 - 8 + 4 = 4d + 52$;
+off-diagonal entries have mean $0$), and
+$\E\tr M_i^4 \le 2^{21}d^4 + 16d$ (expand $M^4 = \norm{u}^4 uu^{\top} - \ldots$
+through $(uu^{\top} - 2\Id)^4 = (\norm{u}_2^2 - 2)^4 \frac{uu^{\top}}{\norm{u}_2^2} + 16(\Id - \frac{uu^{\top}}{\norm{u}_2^2})$, so
+$\tr M^4 = (\norm{u}_2^2 - 2)^4 + 16(d - 1)$ \formal{DiagonalBlock.Trace.paper\_main\_rank\_one\_trace\_fourth},
+and $\E(\sum_a v_a^2 - 2)^4 \le d^3\sum_a\E(v_a^2 - 2/d)^4 \le \ldots \le 2^{21}d^4$).
+By induction over the rows, with the expansion
+$\tr(S + M)^4 = \tr S^4 + 4\tr S^3M + 4\tr S^2M^2 + 2\tr SMSM + 4\tr SM^3 + \tr M^4$
+\formal{DiagonalBlock.Trace.paper\_main\_trace\_fourth\_expand}, the
+independence of the last row, $\E M = 0$, $\E M^2 = (4d+52)\Id$ and
+$\tr(SMSM) \le \tr(S^2M^2)$ (Proposition~\ref{prop:abab}):
+$\E\tr S_k^2 = kd(4d + 52)$ and
+$\E\tr S_{k+1}^4 \le \E\tr S_k^4 + 6(4d+52)\E\tr S_k^2 + 4\E\tr(S_k\,\E M^3) + \E\tr M^4$,
+where $\E\tr(S_kC_3) = \tr(\E S_k\, C_3) = 0$. Summing gives the stated bound
+\formal{DiagonalBlock.Moment.paper\_main\_diag\_trace\_moment}.
+
+\emph{Probability.} The function $\tr Z^4$ of the sample is a polynomial,
+hence measurable, and Markov's inequality with the moment bound gives the
+claim. The rate for $n \ge cd^2$ is arithmetic.
+\end{proof}
+
+\subsubsection{The upper edge of the square-free block}
+
+Let $G = VV^{\top}$, with entries $G_{ij} = \sum_{a\ne b}x_{ia}x_{ib}x_{ja}x_{jb}$
+(the sum over ordered pairs absorbs the factor $2$ of $\sqrt2^2$)
+\formal{SquareFree.WalkExpansion.paper\_main\_squarefree\_gram\_list}, and
+let $\mathcal{W} = G - \diag(G)$ be its off-diagonal part.
+
+\begin{proposition}[Walk expansion \formal{SquareFree.WalkExpansion.paper\_main\_squarefree\_offdiag\_walks}]\label{prop:walks}
+For $L \ge 1$, $\E\tr\mathcal{W}^L$ is the sum, over closed walks
+$i_0, i_1, \dots, i_{L-1}, i_0$ of rows with consecutive rows distinct and
+over sequences of ordered label pairs $(a_s, b_s)$, $a_s \ne b_s$, $s < L$,
+of the Gaussian moment of the monomial
+$\prod_{s<L} x_{i_sa_s}x_{i_sb_s}x_{i_{s+1}a_s}x_{i_{s+1}b_s}$. The moment of a
+monomial $\prod_c x_c^{n_c}$ in the coordinates is $\prod_c (n_c - 1)!!$ if
+every $n_c$ is even and $0$ otherwise.
+\end{proposition}
+
+\begin{proof}
+Expand the entries of $\mathcal{W}^L$ along paths and the entries of $G$
+along label pairs; the moment of a monomial is the product of the
+one-dimensional moments by Fubini (Proposition~\ref{prop:gaussE}).
+\end{proof}
+
+\begin{proposition}[Trace moment of the off-diagonal part \formal{SquareFree.EdgeUpper.paper\_main\_squarefree\_offdiag\_trace\_le}]\label{prop:tracemoment}
+If $0 < n \le d^2$, $L \ge 32$ and $16L^2(2L)^{45} \le d$, then
+$\E\tr\mathcal{W}^L \le n(52d^2)^L$.
+\end{proposition}
+
+\begin{proof}
+A walk with a nonzero moment is \emph{even}: for every row $r$ and color
+(coordinate index) $c$, the degree
+$\sum_s(\one\{i_s = r\} + \one\{i_{s+1} = r\})(\one\{a_s = c\} + \one\{b_s = c\})$
+is even \formal{SquareFree.WalkWeight.pmsw\_word\_moment\_even}. For such a
+walk with $R$ distinct rows and $C$ distinct colors, the moment is at most
+$(4L)^{2e}$ where $e = 2L + 2 - 2R - C \ge 0$ is the \emph{deficiency}
+\formal{SquareFree.WalkBridge.pmsw\_bridge\_weight}: the moment is at most
+$(4L)^X$ with $X = \sum_{r,c}(\deg(r,c)/2 - \one\{\deg(r,c) > 0\})$ the
+multiplicity excess, since $(m-1)!! \le m^{m/2 - 1}$ for even $m \ge 2$ and
+the monomial has $4L$ factors \formal{SquareFree.WalkWeight.pmsw\_moment\_le},
+and $X \le 2e$ \formal{SquareFree.WalkExcess.pmsc\_X\_le}, by an induction
+that removes a row visited once (contraction or excursion). The same
+induction gives $2R + C \le 2L + 2$ \formal{SquareFree.WalkCount.pmsc\_rows\_colors\_le},
+the degree-two case of the Kogan--Nandy--Huang count, so $e \ge 0$.
+
+The walks are then counted by a \emph{twin code}
+\formal{SquareFree.WalkShapeCode}: each step is encoded either as a closer
+(it repeats the label pair of an earlier open step at the current row,
+given by its rank among at most three such steps, or by its index) or as
+an explicit step (its target row, fresh or by index, and its two colors,
+fresh or by an earlier occurrence). The code determines the walk from its
+root \formal{SquareFree.WalkShapeCode.pmsk\_inj}. A walk in which every
+non-root row is visited at least twice (a \emph{terminal} walk) has at most
+$45e$ index slots in its code \formal{SquareFree.WalkShapeBound.pmsb\_point},
+since lonely steps number at most $27e$ \formal{SquareFree.WalkShapeTwin.pmst\_lonely\_le};
+with $n$ choices for a fresh row, $d$ for a fresh color and $y = 2(L+1)$
+for an index slot, the weighted sum of the codes of terminal walks of
+length $L$ is at most $n(13d^2)^L$ when $n \le d^2$ and
+$(4L)^2y^{45} \le d$ \formal{SquareFree.WalkShapeBound.pmsb\_T\_le}.
+Non-terminal walks reduce to terminal ones by removing rows visited once
+\formal{SquareFree.WalkShapeOnce}; the position recursion
+\formal{SquareFree.WalkShapeRecursion.pmsr\_bound} costs a factor $2^L$
+and the weight $B^{2e}$ is accounted for by the reduction, giving the bound
+$2n(4L)^4(26d^2)^L$ on the sum over all walks \formal{SquareFree.WalkShapeBound.pmsb\_S\_le}.
+Finally $2(4L)^4 \le 2^L$ for $L \ge 32$ \formal{SquareFree.EdgeUpper.pmeu\_absorb}
+turns $2n(4L)^4(26d^2)^L$ into $n(52d^2)^L$.
+\end{proof}
+
+\begin{proposition}[Upper edge \formal{SquareFree.EdgeUpperLimit.paper\_main\_squarefree\_upper\_bound}, \formal{SquareFree.EdgeUpperLimit.paper\_main\_squarefree\_upper\_event\_tends\_to\_zero}; paper Lemma~2.6, upper part]\label{prop:upperedge}
+Let $L(d) = 2^{k+3}$ with $k = \lfloor\log_2\lfloor\log_2 d\rfloor\rfloor$ and
+$t = 104d^2$. The event
+$E_d^{\mathrm{up}} = \{\tr\mathcal{W}^{L(d)} > t^{L(d)}\} \cup \{\exists i : \abs{G_{ii}/d^2 - 1} > 1\}$
+is measurable; if $0 < n(d) \le d^2$ eventually then $\Prob(E_d^{\mathrm{up}}) \to 0$;
+and outside $E_d^{\mathrm{up}}$, for $d \ge 1$, $VV^{\top} \preceq 106d^2\,\Id$.
+Consequently, with Proposition~\ref{prop:diag}, outside an event of
+probability tending to zero, $QQ^{*} \preceq (3n + 106d^2)\Id \preceq 109d^2\,\Id$
+\formal{Feature.UpperProbability.paper\_main\_feature\_upper\_edge}.
+\end{proposition}
+
+\begin{proof}
+For $d \ge 2^{9600}$, $L(d) \ge 32$, $16L^2(2L)^{45} \le d$ and $d^3 \le 2^{L}$
+\formal{SquareFree.EdgeUpperLimit.pmel\_L\_facts}. Markov's inequality and
+Proposition~\ref{prop:tracemoment} give
+$\Prob\{\tr\mathcal{W}^L > t^L\} \le n(52d^2)^L/(104d^2)^L = n2^{-L} \le n/d^3 \le 1/d$.
+Outside the event, since $L$ is even (a power of two),
+$-t\Id \preceq \mathcal{W} \preceq t\Id$ (Proposition~\ref{prop:opnorm_trace}).
+The diagonal: $G_{ii} = \norm{x_i}_2^4 - \sum_ax_{ia}^4$ (Lemma~\ref{lem:blocks});
+outside the row event $\{\abs{\norm{x_i}_2^2 - d} \ge \eta d\}$, of
+probability at most $2\exp(-(\eta d)^2/(4d + 4\eta d))$ by Theorem~\ref{thm:chi2}
+with the weights $\one_{\text{row } i}$, and outside the coordinate event at
+level $U = d^{1/4}$ (so that $\sum_a x_{ia}^4 \le U^2\norm{x_i}_2^2$),
+$\abs{G_{ii}/d^2 - 1} < \eta(2 + \eta) + U^2(1 + \eta)/d \le 1$ for
+$\eta = 1/6$ and large $d$ \formal{SquareFree.Diagonal.paper\_main\_row\_diag\_bound};
+both events have probability tending to zero for $n \le d^2$
+\formal{SquareFree.DiagonalLimit.paper\_main\_squarefree\_diag\_tends\_to\_zero}.
+So $G_{ii} \le 2d^2$ and $v^{\top}Gv = v^{\top}\mathcal{W}v + \sum_i v_i^2G_{ii} \le (104 + 2)d^2\norm{v}_2^2$.
+\end{proof}
+
+\subsubsection{The lower edge of the square-free block}
+
+Here $X \in \R^{n\times d^2}$ has entries $X_{i,(a,b)} = x_{ia}x_{ib}$ for
+$a < b$ and $0$ otherwise, so that $VV^{\top} = 2XX^{\top} = 2\sum_c R_c$ with
+$R_c = X_cX_c^{\top}$ for the columns $c = (a, b)$
+\formal{Column.ConcentrationFrame.pmccf\_rankone\_sum}. Let
+$M = \binom d2$, $\kappa = (nM)^{-1/2}$ and $s = \kappa n = \sqrt{n/M}$, so
+that $\kappa^2nM = 1$ and $1/\kappa = sM$.
+
+\begin{definition}[Non-backtracking matrices \formal{SquareFree.EdgeLower.pmlo\_T}]
+Let $D_c = \diag(R_c)$ and $P_c = \kappa(R_c - D_c)$. Define $T_0 = \Id$,
+$T_0^c = 0$ and, for $\ell \ge 0$, $T^c_{\ell+1} = P_c(T_\ell - T^c_\ell)$,
+$T_{\ell+1} = \sum_cT^c_{\ell+1}$. Thus $T_1 = \sum_cP_c = \kappa(\sum_cR_c - \sum_cD_c)$,
+and $(T_\ell)_{ij}$ is $\kappa^\ell$ times the sum over walks of $\ell$ steps
+from $i$ to $j$ with consecutive rows distinct and consecutive columns
+distinct of the products $\prod_sX_{r_sc_s}X_{r_{s+1}c_s}$
+\formal{SquareFree.WalkNB.pmnb\_T\_walks}; $T_\ell$ is symmetric.
+\end{definition}
+
+\begin{lemma}[The recursion of Kogan, Nandy and Huang \formal{SquareFree.EdgeLower.pmlo\_knh}]\label{lem:knh}
+Let $S_j = \sum_cP_c^j$, $E_k = S_{k+2} - s^{k+1}T_1 - s^k\Id$ and
+$\Psi_\ell = \sum_{k<\ell}(-1)^kE_kT_{\ell-1-k}$. Then for every $\ell \ge 0$,
+\[
+(T_1 - s\Id)\,T_{\ell+1} = T_{\ell+2} + T_\ell + \Psi_{\ell+1} + s\Psi_\ell .
+\]
+\end{lemma}
+
+\begin{proof}
+Unrolling $T^c_{\ell} = \sum_{k<\ell}(-1)^kP_c^{k+1}T_{\ell-1-k}$ gives
+$T_{\ell+1} = T_1T_\ell - \sum_{k<\ell}(-1)^kS_{k+2}T_{\ell-1-k}$
+\formal{SquareFree.EdgeLower.pmlo\_rec\_S}; substitute
+$S_{k+2} = E_k + s^{k+1}T_1 + s^k\Id$ and collect the terms.
+\end{proof}
+
+\begin{lemma}[Chebyshev step \formal{SquareFree.EdgeLower.pmlo\_cheb\_box}]\label{lem:cheb}
+Let $B$ be symmetric, $0 \le s \le 1$, and let $(T_m)$, $(R_m)$ be matrices
+with $T_0 = \Id$, $BT_0 = T_1 - sT_0$ and $BT_{m+1} = T_{m+2} + T_m + R_{m+1}$.
+Let $K = 2^{k+1}$. If $\abs{v^{\top}T_mv} \le \tau\norm{v}_2^2$ for $m \le K$,
+$\norm{B}_\op \le \beta$, $\norm{R_m}_\op \le \rho$ for $0 < m < K$, and
+$2^K\tau + \rho_K \le \theta^K$ where $\rho_0 = 0$,
+$\rho_{m+1} = \beta\rho_m + 2^m\rho$, then $-\theta\Id \preceq B \preceq \theta\Id$.
+\end{lemma}
+
+\begin{proof}
+Define coefficients $\gamma_{K,m}$ by the recursion of the Chebyshev-type
+polynomials attached to the three-term relation; then
+$B^K = \sum_{m\le K}\gamma_{K,m}T_m + \mathrm{rem}_K$ with
+$\mathrm{rem}_{K+1} = B\,\mathrm{rem}_K + \sum_{m<K}\gamma_{K,m+1}R_{m+1}$
+\formal{SquareFree.EdgeLower.pmlo\_cheb}, and $\sum_m\abs{\gamma_{K,m}} \le 2^K$
+for $0 \le s \le 1$ \formal{SquareFree.EdgeLower.pmlo\_gam\_abs}. Hence
+$\norm{\mathrm{rem}_K}_\op \le \rho_K$ and
+$\abs{v^{\top}B^Kv} \le (2^K\tau + \rho_K)\norm{v}_2^2 \le \theta^K\norm{v}_2^2$;
+Proposition~\ref{prop:opnorm_trace} (form version, $K$ even) concludes.
+\end{proof}
+
+\begin{proposition}[Box for the first non-backtracking matrix \formal{SquareFree.Box.paper\_main\_squarefree\_box\_from\_remainders}]\label{prop:nbbox}
+Let $0 \le s \le 1$, $t \ge 1$, $\eta, \theta \ge 0$, $K = 2^{k+1}$ and
+$p = 2^{j+2}$. Suppose $\tr T_m^p \le t^p$ for $1 \le m \le K$, that every
+$E_m$ with $m < K$ has $\norm{E_m}_\op \le \eta$, and that
+$2^Kt + \rho(t+1, 3K\eta t, K) \le \theta^K$ with $\rho$ as in Lemma~\ref{lem:cheb}.
+Then $-\theta\Id \preceq T_1 - s\Id \preceq \theta\Id$.
+\end{proposition}
+
+\begin{proof}
+The trace bounds give $\norm{T_m}_\op \le t$ and $\abs{v^{\top}T_mv} \le t\norm{v}^2$
+for $m \le K$ (Proposition~\ref{prop:opnorm_trace}; $T_0 = \Id$ and $t \ge 1$),
+so $B = T_1 - s\Id$ has $\norm{B}_\op \le t + 1$. The remainders of
+Lemma~\ref{lem:knh}, $R_{m+1} = \Psi_{m+1} + s\Psi_m$, have operator norm at
+most $3K\eta t$ for $m < K$ \formal{Column.RemainderRecurrence.pmcr\_recurrence\_opbound}.
+Lemma~\ref{lem:cheb} applies.
+\end{proof}
+
+\begin{proposition}[Coercivity from the box \formal{SquareFree.Coercivity.paper\_main\_squarefree\_coercivity}, \formal{SquareFree.Coercivity.paper\_main\_squarefree\_coercivity\_scale}]\label{prop:coercive}
+Let $n > 0$, $d \ge 9$ and $4n \le d^2$, so that $0 \le s \le 3/4$. If every
+row satisfies $\abs{D_i/M - 1} \le 1/64$, where $D_i = \sum_cX_{ic}^2$, and
+$-(49/24)\Id \preceq T_1 - s\Id$, then $QQ^{*}$ is coercive with constant
+$d^2/128$.
+\end{proposition}
+
+\begin{proof}
+From $\kappa(\sum_cR_c - \sum_cD_c) \succeq (s - 49/24)\Id$, $\sum_cD_c = \diag(D_i) \succeq (63/64)M\Id$
+and $1/\kappa = sM$: $\sum_cR_c \succeq M(63/64 + s^2 - (49/24)s)\Id \succeq (M/64)\Id$,
+since $1 + s^2 - (49/24)s - 1/32 = (s - 3/4)(s - 31/24) \ge 0$ on $[0, 3/4]$.
+Then $VV^{\top} = 2\sum_cR_c \succeq (M/32)\Id$, $2M = d(d-1) \ge d^2/2$, and
+$QQ^{*} \succeq VV^{\top}$ (Lemma~\ref{lem:blocks}). Finally
+$s^2 = n/M \le (d^2/4)/(d(d-1)/2) = d/(2(d-1)) \le 9/16$ for $d \ge 9$.
+\end{proof}
+
+The three hypotheses of Proposition~\ref{prop:nbbox} hold with probability
+tending to one at the scale $4n \le d^2 \le c_1n$.
+
+\begin{proposition}[Column remainders \formal{Column.RemainderProbability.paper\_main\_column\_remainder\_probability}]\label{prop:remainders}
+Let $n(d)$ have density at least $c > 0$ eventually and $0 < n(d) \le d^2$
+eventually. For every $K$ and $\eta > 0$ there are measurable events of
+probability tending to zero outside which, for all large $d$, every $E_m$
+with $m < K$ has $\norm{E_m}_\op \le \eta$.
+\end{proposition}
+
+\begin{proof}
+The remainder splits as
+\[
+E_k = \kappa^{k+2}\sum_c\bigl((R_c - D_c)^{k+2} - R_c^{k+2}\bigr) + \kappa^{k+2}\sum_c(Q_c^{k+1} - n^{k+1})R_c + s^k\Bigl(\kappa^2n\sum_cD_c - \Id\Bigr),
+\]
+where $Q_c = \norm{X_c}_2^2$ and $R_c^{k+1} = Q_c^kR_c$
+\formal{Column.Remainder.paper\_main\_column\_remainder\_split}. Each term is
+controlled by the \emph{frame} conditions
+\formal{Column.ConcentrationFrame.paper\_main\_column\_frame\_good}:
+(i) every $Q_c \le C_0n$ and $\abs{Q_c/n - 1} \le \delta$ for $a < b$;
+(ii) every $X_{ic}^2 \le d$; (iii) $\sum_cR_c \preceq C_0n\Id$;
+(iv) every row sum $D_i \le C_0n$ and $\abs{D_i/M - 1} \le \delta$;
+with $C_0 = 2 + 109/c$. The first term is a sum of products of matrices
+with $D_c$ inserted, bounded by a Cauchy--Schwarz over the family
+\formal{Column.RemainderPowers.pmcr\_power\_sum\_error} using the energy
+bounds $\sum_c\norm{R_cu}^2 \le (C_0n)^2\norm{u}^2$ and
+$\sum_c\norm{D_cu}^2 \le d\,C_0n\norm{u}^2$; the second by
+$\abs{Q_c^{k+1} - n^{k+1}} \le n^{k+1}(2^{k+1} - 1)\delta$ and (iii)
+\formal{Column.ConcentrationCoefficient.paper\_main\_column\_coefficient\_opbound};
+the third is diagonal with entries $\abs{\kappa^2nD_i - 1} = \abs{D_i/M - 1} \le \delta$.
+With $\kappa n \le 2$ and $d \le C_0n\delta^2$ the total is at most
+$\bigl((k+2)(4C_0)^{k+2} + 4^{k+1}2C_0 + 2^k\bigr)\delta$
+\formal{Column.RemainderFrame.paper\_main\_column\_remainder\_frame\_scaled},
+which is at most $\eta$ for $k < K$ when $\delta = \delta(K, C_0, \eta)$ is
+small \formal{Column.RemainderTolerance.paper\_main\_remainder\_tolerance\_spec}.
+The frame conditions hold outside the union of: the column event
+$\{\exists a < b : \abs{Q_{ab} - n} > \min(\delta,1)n\}$, of probability at
+most $d^2(10176n + 192n(n-1))/(\min(\delta,1)n)^4$ by Markov with the fourth
+moment of $Q_{ab} - n$ \formal{Column.Concentration.paper\_main\_column\_event\_bound}
+(the entries $(x_{ia}x_{ib})^2 - 1$ have mean $0$, variance $8$ and fourth
+moment $10176$ \formal{Column.ConcentrationMoments}); the upper-edge event
+of Proposition~\ref{prop:upperedge}, outside which $\sum_cR_c = \frac12VV^{\top} \preceq \frac12\cdot109d^2\Id \preceq (109/c)n\Id$;
+the coordinate clipping event, outside which $(x_{ia}x_{ib})^2 \le d$; and
+the diagonal event of Proposition~\ref{prop:upperedge} at level
+$\delta/4$, which gives $\abs{D_i/M - 1} \le \delta$ since $D_i = \frac12G_{ii}$
+and $2M = d(d-1)$. All have probability tending to zero
+\formal{Column.ConcentrationFrameEvents.paper\_main\_column\_frame\_event\_limit}.
+\end{proof}
+
+\begin{proposition}[Traces of the non-backtracking matrices \formal{SquareFree.WalkNBMoment.pmnct\_moment\_le}, \formal{SquareFree.WalkNBRate.pmnbr\_rate}, \formal{SquareFree.LowerProbabilityTrace.paper\_main\_squarefree\_trace\_tends\_to\_zero}]\label{prop:nbtrace}
+Fix $k$ and let $K = 2^{k+1}$, $t = 12(K+1)$ and $p = 2^{\lfloor\log_2\lfloor\log_2 d\rfloor\rfloor + 4} = 2L(d)$.
+If eventually $0 < n(d)$, $4n(d) \le d^2$ and $d^2 \le c_1n(d)$, then the
+union over $1 \le m \le K$ of the events $\{\tr T_m^p > t^p\}$ is measurable
+and its probability tends to zero; for all large $d$ it is at most $1/d$.
+\end{proposition}
+
+\begin{proof}
+$\E\tr T_{m}^{q}$ is $\kappa^{mq}$ times a sum over closed walks of $q$
+segments of $m$ non-backtracking steps, the junction rows being summed, of
+the walk moments \formal{SquareFree.WalkNB.pmnb\_trace\_moment}. Marking the
+segment starts turns these into walks that are non-backtracking except at
+marks \formal{SquareFree.WalkNBMarks}, and a sharp count of the marked
+walks by a twin code with a terminal core
+\formal{SquareFree.WalkNBCore.pmnc\_XFZ\_le}, \formal{SquareFree.WalkNBCoreSum.pmns\_T\_le}
+gives, with $L = mq$ and $B = 4L$, $\E\tr T_m^q \le F(L, q)(L+1)^2(1 + \delta)^L\Theta$,
+where $F(L, q) = 2^q\binom{L+q}{q}$, $\delta = 2Ld(4L)^4n\kappa^2$ and
+$\Theta = n\mu^L + n(1 + 13c_0^2)^2 + (4L)^4$, $\mu = 1 + \vartheta(1 + K_L)$,
+under the deterministic hypotheses $n \le d^2$, $nM \le \lambda^4$,
+$n \le \lambda^2$, $d \le c_0\lambda$, $B^2 \le \lambda\vartheta^{294}$ and
+$B^24^{45} \le d$, with $\kappa = \lambda^{-2}$. The paper's constants are
+not needed: with $\lambda = (nM)^{1/4}$, $c_0 = 4c_1$,
+$\vartheta = 1/(CL_{\max}^4)$ and $L_{\max} = pK$, one has
+$F2^p \le t^p$, $L\delta \le 1$ and $L\vartheta(1 + K_L) \le 1$, so Markov
+gives for each $m \le K$ a bound
+$3(L_{\max}+1)^2\bigl(3n + n(1 + 13c_0^2)^2 + (4L_{\max})^4\bigr)/2^p$ on
+$\Prob\{\tr T_m^p > t^p\}$ \formal{SquareFree.WalkNBRate.pmnbr\_term}; summed
+over $m \le K$ this is at most $1/d$ once $d \ge 2^{9600}$ and
+$A(c_1, k)L(d)^{1178} \le d$ \formal{SquareFree.WalkNBRate.pmnbr\_rate},
+which holds for all large $d$ since $L(d) \le 8\log_2d$
+\formal{SquareFree.LogarithmicGrowth.pmlg\_eventual}.
+\end{proof}
+
+\begin{theorem}[Lower edge \formal{SquareFree.LowerProbability.paper\_main\_squarefree\_lower\_probability}, \formal{Fixed.LowerProbability.paper\_main\_fixed\_lower\_probability}; paper Lemma~2.6 and Proposition~2.8, lower part, for $n/d^2 \le 1/4$]\label{thm:loweredge}
+Let $n(d)$ have density at least $c > 0$ eventually and satisfy
+$0 < n(d)$, $4n(d) \le d^2$ and $d^2 \le c_1n(d)$ eventually. There are
+measurable events $E_d$ with $\Prob(E_d) \to 0$ such that for all large $d$
+and every sample outside $E_d$, $QQ^{*}$ is coercive with constant
+$d^2/128$. In particular this holds for $n(d) = \lfloor\beta d^2\rfloor$,
+$0 < \beta < 1/4$.
+\end{theorem}
+
+\begin{proof}
+Choose the scalar parameters before the data: with $\theta = 49/24 > 2$ and
+$A = 12$, there is $k$ such that $2^Kt + g \le \theta^K$ for some $g > 0$,
+$K = 2^{k+1}$, $t = 12(K+1)$ \formal{SquareFree.ChebyshevParameters.paper\_main\_chebyshev\_parameters}
+(Bernoulli's inequality: $(\theta/2)^K \ge (1 + K u/2)^2$ with
+$u = \theta/2 - 1$ beats $12(K+1)$ for large $K$), and then $\eta > 0$ with
+$\rho(t+1, 3K\eta t, K) \le g$ \formal{SquareFree.ChebyshevParametersEdge.paper\_main\_chebyshev\_edge\_parameters\_exact}
+(the remainder bound is linear in $\eta$). Let $E_d$ be the union of the
+remainder event of Proposition~\ref{prop:remainders} at $(K, \eta)$, the row
+event $\{\exists i : \abs{D_i/M - 1} > 1/64\}$ (the frame at tolerance
+$1/64$, Proposition~\ref{prop:remainders}) and the trace event of
+Proposition~\ref{prop:nbtrace}. Outside $E_d$, Propositions~\ref{prop:nbbox}
+and~\ref{prop:coercive} give the coercivity. For $n(d) = \lfloor\beta d^2\rfloor$,
+the count conditions hold eventually with $c = \beta/2$ and some $c_1$
+\formal{Fixed.SubcriticalCounts.paper\_main\_fixed\_subcritical\_counts}.
+\end{proof}
+
+\subsection{The homogeneous formulation and the alternative}\label{sec:alternative}
+
+\begin{definition}
+The sample \emph{spans} $\R^d$ when $x_i^{\top}v = 0$ for all $i$ implies
+$v = 0$ \formal{Geometry.Homogeneous.paper\_main\_spanning}. A matrix $S$
+is in the \emph{kernel} of the sample when all the values $x_i^{\top}Sx_i$
+are equal \formal{Geometry.Homogeneous.paper\_main\_kernel}.
+\end{definition}
+
+\begin{lemma}[Homogeneous formulation \formal{Geometry.Homogeneous.paper\_main\_homogeneous\_kernel}, \formal{Geometry.Homogeneous.paper\_main\_homogeneous\_witness}; paper Lemma~2.12(i), Lemma~4.2]\label{lem:homog}
+For $d > 0$ and a spanning sample, $x \in \Fit_{n,d}$ if and only if some
+nonzero $S \succeq 0$ is in the kernel, if and only if there are $S \succeq 0$
+with $\norm{S}_\Fro = 1$ and $b \in \R$ with $x_i^{\top}Sx_i - \tr S = b$ for
+all $i$. Without any hypothesis, a fit yields such a pair $(S, b)$ with
+$S \succeq 0$, $\norm{S}_\Fro = 1$ \formal{Pinching.Loss.paper\_main\_fit\_unit\_witness}.
+\end{lemma}
+
+\begin{proof}
+A fit $S$ is nonzero (as $d > 0$) and in the kernel. Conversely let
+$0 \ne S \succeq 0$ have all values equal to $c$. If $c = 0$ then
+$x_i^{\top}Sx_i = 0$ forces $Sx_i = 0$ for all $i$ ($S \succeq 0$), so $S = 0$
+by spanning \formal{Geometry.Homogeneous.paper\_main\_psd\_spanning\_zero},
+a contradiction; so $c > 0$ and $dS/c$ is a fit. The witness form is the
+normalization $S/\norm{S}_\Fro$, $b = (c - \tr S)/\norm{S}_\Fro$, and
+conversely $c = \tr S + b$.
+\end{proof}
+
+\begin{theorem}[The alternative \formal{Geometry.Separation.paper\_main\_homogeneous\_alternative}, \formal{Geometry.Exclusion.paper\_main\_fit\_balanced\_exclusive}, \formal{Geometry.Separation.paper\_main\_fit\_alternative}; paper Lemma~2.12(ii)]\label{thm:alternative}
+For every sample, either some nonzero $S \succeq 0$ is in the kernel, or
+$x \in \Bal_{n,d}$; for $d > 0$ not both. Hence for $d > 0$ and a spanning
+sample, $x \in \Fit_{n,d}$ if and only if $x \notin \Bal_{n,d}$.
+\end{theorem}
+
+\begin{proof}
+\emph{Exclusion.} If $S \succeq 0$ is in the kernel with common value $c$
+and $y$ has $\sum_iy_i = 0$ with $M_y = \sum_iy_ix_ix_i^{\top} \succ 0$, then
+$0 < \ip{M_y}{S} = \sum_iy_ix_i^{\top}Sx_i = c\sum_iy_i = 0$ when $S \ne 0$
+(a positive definite $M_y$ pairs positively with a nonzero $S \succeq 0$),
+a contradiction.
+
+\emph{Existence.} Suppose no nonzero $S \succeq 0$ is in the kernel, and
+$d, n > 0$ (if $d = 0$ the balanced event holds trivially; if $n = 0$ the
+hypothesis fails since $\Id$ is in the empty kernel). On the compact set
+$\{S \succeq 0 : \tr S = 1\}$ \formal{Geometry.Compact}, the continuous
+function $F(S) = \sum_i(a_i(S) - \bar a(S))^2$, $a_i(S) = x_i^{\top}Sx_i$,
+$\bar a = \frac1n\sum_ia_i$, attains its minimum at some $S_0$; $F(S_0) > 0$,
+else $S_0$ would be a nonzero kernel element. Put $y_i = a_i(S_0) - \bar a(S_0)$,
+so $\sum_iy_i = 0$. For $S$ in the set and $\tau \in (0, 1]$,
+$S_0 + \tau(S - S_0)$ is in the set and
+$F(S_0) \le F(S_0 + \tau(S - S_0)) = F(S_0) + \tau\,c + \tau^2a$ with
+$c = 2\sum_iy_i(z_i - y_i)$, $z_i = a_i(S) - \bar a(S)$, and $a \ge 0$; letting
+$\tau \to 0$ gives $c \ge 0$, that is $\sum_iy_ia_i(S) = \sum_iy_iz_i \ge \sum_iy_i^2 = F(S_0) > 0$
+\formal{Geometry.Separation.pms\_separation}. Testing with $S = ww^{\top}/\norm{w}_2^2$
+gives $w^{\top}M_yw > 0$ for every $w \ne 0$.
+
+The last claim combines both parts with Lemma~\ref{lem:homog}.
+\end{proof}
+
+\begin{lemma}[Almost sure spanning \formal{Gaussian.Spanning.paper\_main\_gaussian\_spanning\_ae}; paper line 678]\label{lem:spanning}
+If $d \le n$, the sample spans $\R^d$ almost surely.
+\end{lemma}
+
+\begin{proof}
+The determinant of the $d\times d$ matrix of the first $d$ points is a
+polynomial in the coordinates that does not vanish identically (it equals
+$1$ at the sample whose first $d$ points are the standard basis), and the
+zero set of a nonzero polynomial is $\Prob_{n,d}$-null, by induction on the
+number of variables through Fubini (a nonzero one-variable polynomial has
+finitely many roots) \formal{Gaussian.Multivariate.paper\_main\_gaussian\_multivariate\_null}.
+A nonzero determinant means the points span.
+\end{proof}
+
+\subsection{Measurability of the events}\label{sec:measurability}
+
+The paper does not discuss the measurability of its events. The formal
+proof establishes it by countable rational approximation.
+
+\begin{proposition}[\formal{Measurability.Fit.pm\_fit\_event\_measurable}, \formal{Measurability.Conditioned.pm\_conditioned\_event\_measurable}, \formal{Measurability.Balanced.pm\_balanced\_pd\_event\_measurable}]\label{prop:measurable}
+For all $n, d$ and reals $\lambda_\pm$, the events $\Fit_{n,d}$,
+$\Cond_{n,d}(\lambda_-, \lambda_+)$ and $\Bal_{n,d}$ are measurable.
+\end{proposition}
+
+\begin{proof}
+Let $\mathrm{res}(S, x) = \sum_{i<n}(x_i^{\top}Sx_i - d)^2$, a polynomial in
+the coordinates for fixed $S$, hence measurable
+\formal{Measurability.Coordinates.pm\_fit\_residual\_measurable}. For
+$m, k \in \N$ let $\mathcal{I}_{m,k}$ be the countable set of symmetric
+rational matrices $q$ with entries bounded by $m$ and
+$q + \frac{1}{k+1}\Id \succeq 0$ (a condition on $q$ only), and
+\[
+F_m = \bigcap_k\bigcup_{q\in\mathcal{I}_{m,k}}\{x : \mathrm{res}(q, x) < \tfrac1{k+1}\}.
+\]
+Each $F_m$ is measurable, and $\Fit_{n,d} = \bigcup_mF_m$. Indeed, a fit $S$
+has entries bounded by some $m - 1$, and for each $k$ a symmetric rational
+$q$ within $\eta$ of $S$ entrywise, with $\eta$ small against $d$, $k$ and
+the sample, lies in $\mathcal{I}_{m,k}$ with $\mathrm{res}(q,x) < 1/(k+1)$
+\formal{Measurability.Fit.pm\_fit\_witness}. Conversely, if
+$x \in F_m$, the witnesses $q_k \in \mathcal{I}_{m,k}$ form a bounded
+sequence in $\R^{d\times d}$, which has a cluster point $p$ (compactness of
+a box \formal{Measurability.Box.pm\_box\_cluster}); by continuity of
+$S \mapsto \mathrm{res}(S, x)$, of the entries and of the quadratic form,
+$p \succeq 0$ and $\mathrm{res}(p, x) = 0$ \formal{Measurability.Fit.pm\_fit\_cluster},
+so $p$ is a fit. The conditioned event adds to the index the conditions
+$\abs{\tr q - d} \le \frac1{k+1}$ and
+$-\frac{\norm{v}^2}{k+1} \le v^{\top}qv - \lambda_-\norm{v}^2$,
+$v^{\top}qv - \lambda_+\norm{v}^2 \le \frac{\norm{v}^2}{k+1}$ for all $v$, which pass
+to the cluster point. The balanced event is the union over rational weights
+$r$ with $\sum r_i = 0$ and over $k$ of the sets
+$\bigcap_{w\in\mathbb{Q}^d}\{x : \frac{\norm{w}^2}{k+1} \le w^{\top}M_r(x)w\}$,
+using that a positive definite matrix is uniformly positive,
+$v^{\top}Mv \ge \norm{v}^2/(k+1)$ for some $k$ (by compactness of the sphere),
+that rational $w$ suffice by continuity, and that rational weights with sum
+zero approximate real ones (subtract the mean)
+\formal{Measurability.Balanced.pm\_rat\_zero\_sum\_approx}.
+\end{proof}
+
+Every exceptional event of the proof is of the form $\{F(x) \le c\}$ or
+$\{c < F(x)\}$ for a continuous function $F$ of the coordinates, or a finite
+or countable union of such; these are measurable
+\formal{Analysis.ContinuousTupleMeasurability}.
+
+\subsection{Reduction to fixed densities}\label{sec:fixed}
+
+\begin{lemma}[Deleting points \formal{Sampling.paper\_main\_drop\_points\_law}, \formal{Sampling.paper\_main\_fit\_probability\_antitone\_add}, \formal{Sampling.paper\_main\_conditioned\_probability\_antitone\_add}]\label{lem:drop}
+The map that forgets the first $k$ points of a sample of $k + n$ points is
+measurable and sends $\Prob_{k+n,d}$ to $\Prob_{n,d}$. A fit, or a
+well-conditioned fit, of the larger sample is one of the smaller sample,
+so $\Prob_{k+n,d}(\Fit_{k+n,d}) \le \Prob_{n,d}(\Fit_{n,d})$ and likewise for
+$\Cond$.
+\end{lemma}
+
+\begin{proof}
+Forgetting the first coordinate of a tuple sends the law of $(m+1)$-tuples
+to that of $m$-tuples by construction (Definition~\ref{def:sample});
+iterate $kd$ times. The inclusions are immediate.
+\end{proof}
+
+\begin{proposition}[Fixed densities \formal{Fixed.Density.paper\_main\_conditioned\_from\_fixed}, \formal{Fixed.Density.paper\_main\_unsat\_from\_fixed}]\label{prop:fixed}
+Let $n_\beta(d) = \lfloor\beta d^2\rfloor$ \formal{Fixed.Density.paper\_main\_fixed\_count}.
+\begin{enumerate}
+\item[(a)] Suppose that the events $\Cond_{n,d}(\lambda_-,\lambda_+)$ are
+measurable and that for every $0 < \beta < 1/4$ there are
+$0 < \lambda_- \le \lambda_+$ with $\Prob_{n_\beta(d),d}(\Cond_{n_\beta(d),d}(\lambda_-,\lambda_+)) \to 1$.
+Then Theorem~\ref{thm:cond} holds.
+\item[(b)] Suppose that the events $\Fit_{n,d}$ are measurable and that
+$\Prob_{n_\beta(d),d}(\Fit_{n_\beta(d),d}) \to 0$ for every $1/4 < \beta < 1/2$.
+Then Theorem~\ref{thm:main}(b) holds.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) Given $\alpha^* < 1/4$ pick $\beta$ with $0 < \beta$ and
+$\alpha^* < \beta < 1/4$, and the constants $\lambda_\pm$ for $\beta$. If
+$\limsup n(d)/d^2 \le \alpha^*$ then $n(d)/d^2 \le \beta$ eventually, hence
+$n(d) \le n_\beta(d)$ eventually, and Lemma~\ref{lem:drop} gives
+$\Prob_{n(d),d}(\Cond) \ge \Prob_{n_\beta(d),d}(\Cond) \to 1$, while
+probabilities are at most $1$. (b) If $\liminf n(d)/d^2 > 1/4$, pick
+$1/4 < \beta < 1/2$ below the liminf; then $n_\beta(d) \le n(d)$ eventually,
+and $\Prob_{n(d),d}(\Fit) \le \Prob_{n_\beta(d),d}(\Fit) \to 0$.
+\end{proof}
+
+\section{The satisfiable phase}\label{sec:sat}
+
+\subsection{Statement and strategy}
+
+Throughout this section $0 \le \alpha < 1/4$, $d = m + 1$, and the sample
+has $N \le \alpha d^2$ points (eventually). We write $W_i$ for the head
+features and $g = 1/2 - \sqrt\alpha > 0$.
+
+\begin{theorem}[Well-conditioned fits from the feature edges \formal{Conditioned.SpectralReduction.paper\_main\_subcritical\_raw\_spectral\_reduction}, \formal{Head.SubcriticalFit.paper\_main\_head\_subcritical\_fit\_exception}; paper Theorem~3.1]\label{thm:sat}
+For every $0 \le \alpha < 1/4$ there is $\kappa \ge 1$ with the following
+property. Let $C \ge 0$, $c > 0$, and let $N(d) \le \alpha d^2$ eventually.
+Let $B_d$ be measurable events with $\Prob(B_d) \to 0$ such that, for all
+large $d$, every sample outside $B_d$ has $QQ^{*}$ coercive with constant
+$cd^2$ and $QQ^{*} \preceq Cd^2\,\Id$. Then
+\[
+\Prob_{N(d),d}\bigl(\Cond_{N(d),d}((2\kappa+1)^{-1}, 2\kappa + 1)\bigr) \to 1 .
+\]
+\end{theorem}
+
+Combined with the feature edges of Section~\ref{sec:edge} at
+$N(d) = \lfloor\beta d^2\rfloor$ this gives Theorem~\ref{thm:cond}
+(Section~\ref{sec:assembly}).
+
+\emph{Strategy.} The paper proves $0 \in \mathcal{W}(\mathcal{B})$ for a
+Loewner box $\mathcal{B}$ by convex separation (its Lemma~3.2). The formal
+proof produces the fit from a \emph{kernel element} of a bounded-condition
+cone (Proposition~\ref{prop:kernel}): it suffices to show that, for every
+unit $y \in \R^N$, some $P$ of condition $\kappa'$ has
+$\sum_iy_i\ip{W_i}{P} > 0$. Each unit $y$ is split into a head $y_J$
+supported on a set $J$ of $O(d\ln d)$ coordinates and a tail $y_{J^c}$ that
+is either tiny or spread (Lemma~\ref{lem:peel}). For every head $J$ of
+that size, the section $\cone_{\kappa}\cap\mathbb{S}_\Fro\cap\ker W_J$ has
+Gaussian width at least $(1/2 - \varepsilon)d$ with probability tending to
+one, uniformly in $J$ (Theorem~\ref{thm:heads}); on such a section, Gordon's
+inequality for the Gaussian surrogate rows, a second-chaos interpolation and
+a concentration argument give, for every spread tail direction $t$ capped
+by $\theta/\sqd$, a section element $P$ with $\sum_{i\notin J}t_i\ip{W_i}{P} > 0$
+(Theorem~\ref{thm:lowinf}), simultaneously over all heads. A tiny tail is
+absorbed by a perturbation of a section element (Proposition~\ref{prop:support_all}).
+
+\subsection{Head--tail decomposition}
+
+\begin{lemma}[\formal{Head.TailDecompositionLog.paper\_main\_head\_tail\_regularity}; paper Lemma~3.5]\label{lem:peel}
+Let $\theta > 0$, $d \ge 1$ and $y \in \R^N$ with $\norm{y}_2 = 1$. There is a
+set $J \subseteq \{0, \dots, N-1\}$ with $\abs{J} \le \frac{16}{\theta^2\ln 2}\,d\ln d$
+such that, with $r = \norm{y_{J^c}}_2$, either $r \le d^{-2}$, or $r > 0$ and
+$\abs{y_i}/r \le \theta/\sqd$ for all $i \notin J$.
+\end{lemma}
+
+\begin{proof}
+Peel: start with $J = \varnothing$ and $r = 1$. While $r > d^{-2}$, move to
+$J$ every $i \notin J$ with $\abs{y_i} > \theta r/(2\sqd)$; at most
+$4d/\theta^2$ coordinates are moved in a round (their squares sum to at
+most $r^2$). If the new remainder norm $r'$ satisfies $r' \ge r/2$, stop: every
+remaining coordinate is at most $\theta r/(2\sqd) \le \theta r'/\sqd$.
+Otherwise $r' < r/2$ and the process continues; after $\ell$ rounds the
+remainder is at most $2^{-\ell}$, so it falls below $d^{-2}$ within
+$\lceil 2\log_2 d\rceil + 1$ rounds. The size bound follows
+\formal{Head.Peeling.peeling\_iteration}.
+\end{proof}
+
+\subsection{From positive support values to a kernel element}
+
+\begin{proposition}[Kernel elements \formal{Cone.Kernel.paper\_main\_cone\_kernel\_exists\_support}, \formal{Cone.Kernel.paper\_main\_cone\_kernel\_exists}; replaces paper Lemma~3.2]\label{prop:kernel}
+Let $d > 0$, $\kappa \ge 1$ and $W_0, \dots, W_{m-1} \in \R^{d\times d}$. If for
+every unit $y \in \R^m$ some $P$ on the cone sphere $\cone_\kappa\cap\mathbb{S}_\Fro$
+has $\sum_iy_i\ip{W_i}{P} > 0$, then some $P$ on the cone sphere has
+$\ip{W_i}{P} = 0$ for every $i$.
+\end{proposition}
+
+\begin{proof}
+The trace-one slice $\Sigma = \{S : \lambda\Id \preceq S \preceq \kappa\lambda\Id \text{ for some } \lambda \ge 0,\ \tr S = 1\}$
+(the closure of the cone in the Loewner form, cut at trace one) is compact
+\formal{Cone.KernelSlice.paper\_main\_cone\_kernel\_slice\_compact}: it is
+bounded since $0 \preceq S$ and $\tr S = 1$ give $\norm{S}_\Fro \le 1$, and
+closed since $\lambda$ ranges in $[1/(d\kappa), 1/d]$ on it. The continuous
+function $F(S) = \sum_i\ip{W_i}{S}^2$ attains its minimum on $\Sigma$ at
+some $S_0$. If $F(S_0) > 0$, put $y_i = \ip{W_i}{S_0}$, not all zero. For $S \in \Sigma$
+and $\tau \in (0,1]$ the segment point $S_0 + \tau(S - S_0)$ lies in the
+convex set $\Sigma$, and $F(S_0) \le F(S_0 + \tau(S - S_0))$ gives, as
+$\tau \to 0$, $\sum_iy_i\ip{W_i}{S - S_0} \ge 0$, that is
+$\sum_iy_i\ip{W_i}{S} \ge F(S_0) > 0$ for all $S \in \Sigma$. Every $P$ on the
+cone sphere is a positive multiple of a point of $\Sigma$, so
+$\sum_i(-y_i)\ip{W_i}{P} < 0$ for all such $P$, contradicting the hypothesis
+for the unit vector $-y/\norm{y}_2$. Hence $F(S_0) = 0$; $S_0 \ne 0$
+(trace one), and $P = S_0/\norm{S_0}_\Fro$ is a kernel element on the cone
+sphere (if $\lambda = 0$ at $S_0$ then $S_0 \preceq 0$, impossible with trace
+one, so $S_0$ has condition $\kappa$).
+\end{proof}
+
+\begin{lemma}[A kernel element is a well-conditioned fit \formal{Conditioned.SupportFit.paper\_main\_cone\_kernel\_conditioned\_fit}]\label{lem:kernel_fit}
+If $d > 0$, $\kappa \ge 1$ and $P$ on $\cone_\kappa\cap\mathbb{S}_\Fro$ has
+$\ip{W_i}{P} = 0$ for all $i < N$, then $x \in \Cond_{N,d}(\kappa^{-1}, \kappa)$.
+\end{lemma}
+
+\begin{proof}
+$\ip{W_i}{P} = 0$ means $x_i^{\top}Px_i = \tr P$. With $\lambda\Id \preceq P \preceq \kappa\lambda\Id$,
+$\lambda > 0$, one has $d\lambda \le \tr P \le d\kappa\lambda$; put
+$S = dP/\tr P$. Then $x_i^{\top}Sx_i = d$, $\tr S = d$, and
+$\kappa^{-1}\Id \preceq (d\lambda/\tr P)\Id \preceq S \preceq (d\kappa\lambda/\tr P)\Id \preceq \kappa\Id$.
+\end{proof}
+
+\begin{proposition}[All dual directions \formal{Head.TailSupportAll.paper\_main\_support\_all}, \formal{Head.TailSupportSplit.paper\_main\_support\_spread}, \formal{Head.TailSupportSplit.paper\_main\_support\_tiny}, \formal{Cone.HeadTailFit.paper\_main\_cone\_head\_tail\_conditioned\_fit}]\label{prop:support_all}
+Let $d \ge 2$, $\theta > 0$, $\kappa \ge 1$, $\mu > 0$, $A \ge 0$, and let
+$\mathcal{J}$ be the family of sets $J$ of distinct indices with
+$\abs{J} \le \frac{16}{\theta^2\ln2}d\ln d$. Suppose:
+\begin{enumerate}
+\item[(i)] the Gram matrix of $(W_i)_{i<N}$ is coercive with constant $\mu$;
+\item[(ii)] for every $J \in \mathcal{J}$ there is $P$ of condition $\kappa$ with $\ip{W_i}{P} = 0$ for $i \in J$;
+\item[(iii)] $\norm{\sum_ic_iW_i}_\Fro \le A\norm{c}_2$ for every $c \in \R^N$;
+\item[(iv)] for every $J \in \mathcal{J}$ and every unit $t \in \R^N$ supported off $J$ with
+$\abs{t_i} \le \theta/\sqd$ for all $i$, there is $P$ of condition $\kappa$ with
+$\ip{W_i}{P} = 0$ for $i \in J$ and $\sum_it_i\ip{W_i}{P} > 0$;
+\item[(v)] $A\,d^{-2}(\kappa + \tfrac12)\sqd < \tfrac12\cdot\tfrac{\sqrt\mu}{2}$.
+\end{enumerate}
+Then $x \in \Cond_{N,d}((2\kappa+1)^{-1}, 2\kappa+1)$.
+\end{proposition}
+
+\begin{proof}
+Scale the matrices of (ii) and (iv) so that their lower Loewner bound is
+$\Id$: then $\Id \preceq P \preceq \kappa\Id$. Let $y$ be a unit vector and
+decompose it by Lemma~\ref{lem:peel} into $y_J$ and $y_{J^c}$,
+$r = \norm{y_{J^c}}_2$. Put $a = 1$, $b = \kappa$, $\delta = 1/2$.
+
+\emph{Spread tail.} If $r > 0$ and $t = y_{J^c}/r$ is capped, (iv) gives $P$
+with $\ip{W_i}{P} = 0$ on $J$ and $\sum_it_i\ip{W_i}{P} > 0$; then
+$\sum_iy_i\ip{W_i}{P} = r\sum_it_i\ip{W_i}{P} > 0$, and $P$ lies in the box
+$[a - \delta, b + \delta]$.
+
+\emph{Tiny tail.} If $r \le d^{-2}$, take $S_0$ from (ii), with $\Id \preceq S_0 \preceq \kappa\Id$,
+and let $M_u = \sum_{i\in J}y_iW_i$, $M_v = \sum_{i\notin J}y_iW_i$. Then
+$\ip{M_u}{S_0} = 0$, $\norm{M_u}_\Fro^2 \ge \mu\norm{y_J}_2^2 \ge \mu(1 - r^2) \ge \mu/4$
+by (i), and $\norm{M_v}_\Fro \le Ar$ by (iii). The perturbation
+$S = S_0 + \delta M_u/\norm{M_u}_\Fro$ satisfies
+$(a - \delta)\Id \preceq S \preceq (b + \delta)\Id$ (a unit Frobenius matrix
+has operator norm at most one) and
+\[
+\ip{M_u + M_v}{S} \ge \delta\norm{M_u}_\Fro - \norm{M_v}_\Fro\norm{S}_\Fro
+\ge \delta\frac{\sqrt\mu}{2} - A\,d^{-2}(b + \delta)\sqd > 0
+\]
+by (v), using $\norm{S}_\Fro \le (b+\delta)\sqd$
+\formal{Head.TailSupport.paper\_main\_support\_perturbation}. Thus in both
+cases some $S$ in the box $[1/2, \kappa + 1/2]$, that is of condition
+$\kappa' = 2\kappa + 1$, has $\sum_iy_i\ip{W_i}{S} > 0$; normalizing $S$ to
+unit Frobenius norm, Proposition~\ref{prop:kernel} gives a kernel element on
+$\cone_{\kappa'}\cap\mathbb{S}_\Fro$, and Lemma~\ref{lem:kernel_fit} concludes.
+\end{proof}
+
+The rest of the section establishes (ii) and (iv) with probability tending
+to one, with $\mu = cd$ and $A = \sqrt{C}\sqd$ (Lemma~\ref{lem:bridge_features}),
+for which (v) holds for large $d$.
+
+\subsection{Section widths}\label{sec:widths}
+
+Fix $\kappa_0 \ge 1$ and let $P(z)$ be a measurable choice of an
+approximate maximizer of the support value on the cone sphere.
+
+\begin{lemma}[Approximate maximizers \formal{Cone.ApproxSelector.paper\_main\_cone\_selector\_gaussian}; replaces the measurable maximum theorem of the paper, line 964]\label{lem:selector}
+For $\kappa_0 \ge 1$ and $\varepsilon > 0$ there is a map $z \mapsto P(z)$ from
+$\R^{\Dd_d}$ to $\Sym^d$ with measurable entries such that for every $z$,
+$P(z)$ lies on $\cone_{\kappa_0}\cap\mathbb{S}_\Fro$ and
+$h_{\kappa_0}(Z) - \varepsilon\norm{Z}_\Fro \le \ip{Z}{P(z)} \le h_{\kappa_0}(Z)$,
+where $h_{\kappa_0} = h_{\cone_{\kappa_0}\cap\mathbb{S}_\Fro}$.
+\end{lemma}
+
+\begin{proof}
+Take a finite $\varepsilon$-net $P_0, \dots, P_{s-1}$ of the cone sphere in
+Frobenius norm (Theorem~\ref{thm:nets}, applied to the codes of the
+matrices) and let $P(z)$ be the first net point maximizing
+$\ip{Z}{P_t}$ \formal{Head.FiniteSupportSelector.paper\_main\_finite\_argmax\_measurable}.
+For every $S$ on the cone sphere there is $t$ with $\norm{S - P_t}_\Fro \le \varepsilon$,
+so $\ip{Z}{S} \le \ip{Z}{P_t} + \varepsilon\norm{Z}_\Fro$.
+\end{proof}
+
+\begin{lemma}[Residuals of the maximizer \formal{Clipping.ResidualConditional.paper\_main\_cone\_selector\_conditional}, \formal{Cone.ApproxSelectorResidual.paper\_main\_cone\_selector\_residual}]\label{lem:residual}
+Let $P$ be as in Lemma~\ref{lem:selector} and $r, \tau > 0$. The joint event
+$\{(z, x) : \exists i < N,\ \abs{\ip{W_i}{P(z)}} \ge r\}$ is measurable with
+$\gauss_{\Dd_d}\otimes\Prob_{N,d}$-probability at most $2N\exp(-dr^2/(4 + 4\kappa_0r))$,
+and the event of samples $\{x : \gauss_{\Dd_d}\{z : \exists i,\ \abs{\ip{W_i}{P(z)}} \ge r\} \ge \tau\}$
+is measurable with probability at most $\tau^{-1}\cdot 2N\exp(-dr^2/(4 + 4\kappa_0r))$.
+\end{lemma}
+
+\begin{proof}
+For fixed $z$, $P(z)$ is a fixed element of the cone sphere, so by
+Lemma~\ref{lem:hw} and a union bound over the rows (whose law is $\gauss_d$),
+the section of the joint event has probability at most
+$2N\exp(-dr^2/(4 + 4\kappa_0r))$; Fubini gives the joint bound. The
+second event is the set where the section probability is at least $\tau$;
+by Markov's inequality its probability is at most $\tau^{-1}$ times the
+joint probability \formal{Gaussian.ConditionalException.paper\_main\_conditional\_exception\_reverse\_markov}.
+\end{proof}
+
+We take $r = \sqrt{4 + 4\kappa_0}\,d^{-1/4}$
+\formal{Clipping.ResidualRates.paper\_main\_residual\_threshold}, for which
+$dr^2/(4 + 4\kappa_0r) \ge \sqd/2$ once $d \ge (4 + 4\kappa_0)^2$, and
+$\tau = d^{-4}$; the second event of Lemma~\ref{lem:residual} then has
+probability at most $2Nd^4e^{-\sqd/2}$, which tends to zero for $N \le Cd^2$.
+
+\begin{definition}[Regular heads \formal{Head.WidthRegular.paper\_main\_head\_regular}]
+Let $K, Q, L \ge 0$ and $c, c_0 > 0$. A selection $s$ of $m$ distinct rows of the sample is
+\emph{regular} when $m \le Kd\ln d$, the Gram matrix of all the $W_i$ is
+coercive with constant $cd$, $\ip{W_{s(k)}}{W_{s(k)}} \ge c_0d$ for every $k$,
+$\abs{\ip{W_{s(k)}}{W_{s(l)}}} \le Q\ln d$ for $k \ne l$, and the selected points
+satisfy $X_JX_J^{\top} \preceq Ld(\ln d)^2\,\Id$.
+\end{definition}
+
+\begin{proposition}[Deterministic correction \formal{Head.WidthActual.paper\_main\_head\_width\_actual\_selected}, \formal{Geometry.HeadSpectral.paper\_main\_head\_correction\_bounds\_cone}, \formal{Geometry.HeadCorrection.paper\_main\_head\_condition\_transfer}; paper Lemma~3.8]\label{prop:correction}
+Let $s$ select $m$ distinct rows, let the Gram matrix $G$ of all the $W_i$
+be coercive with constant $\mu > 0$, let $\ip{W_{s(k)}}{W_{s(k)}} \ge q_0 > 0$
+and $\abs{\ip{W_{s(k)}}{W_{s(l)}}} \le q_1$ for $k \ne l$, and
+$X_JX_J^{\top} \preceq \lambda\Id$. Let $P \in \cone_{\kappa_0}\cap\mathbb{S}_\Fro$
+with residuals $r_k = \ip{W_{s(k)}}{P}$, $\abs{r_k} \le r$. Let
+$\eta, A_1, A_\infty, \delta \ge 0$ satisfy $mr^2 \le \mu\eta^2$, $\eta < 1$,
+$mr \le \mu A_1$, $r + q_1A_1 \le q_0A_\infty$, $(A_\infty\lambda + A_1)/\sqd \le \delta$,
+$\delta < (\kappa_0\sqd)^{-1}$ and $\kappa_0/\sqd + \delta \le \kappa((\kappa_0\sqd)^{-1} - \delta)$.
+Then there is $\tilde P$ in the section $\cone_\kappa\cap\mathbb{S}_\Fro\cap\ker W_J$
+with $\ip{Z}{\tilde P} \ge \ip{Z}{P} - 2\eta\norm{Z}_\Fro$ for every $Z$.
+\end{proposition}
+
+\begin{proof}
+Let $G_J$ be the Gram matrix of the selected features, coercive with
+constant $\mu$ as a principal submatrix of $G$. Solve $G_Ja = r_J$ and put
+$E = -\sum_ka_kW_{s(k)}$, so that $\ip{W_{s(k)}}{P + E} = 0$ for all $k$
+\formal{Geometry.HeadCorrection.paper\_main\_head\_correction\_kernel}.
+Bounds: $\norm{E}_\Fro^2 = a^{\top}G_Ja = a^{\top}r_J \le \norm{a}_2\norm{r_J}_2$
+and $\mu\norm{a}_2^2 \le a^{\top}G_Ja$ give $\norm{a}_2 \le \norm{r_J}_2/\mu \le \sqrt m\,r/\mu$
+and $\norm{E}_\Fro^2 \le mr^2/\mu \le \eta^2$; $\norm{a}_1 \le \sqrt m\norm{a}_2 \le mr/\mu \le A_1$;
+from $(G_J)_{kk}a_k = r_k - \sum_{l\ne k}(G_J)_{kl}a_l$,
+$\norm{a}_\infty \le (r + q_1\norm{a}_1)/q_0 \le A_\infty$. Since
+$E = -d^{-1/2}\bigl(X_J\diag(a)X_J^{\top} - (\sum_ka_k)\Id\bigr)$,
+$\norm{E}_\op \le (A_\infty\lambda + A_1)/\sqd \le \delta$, so
+$-\delta\Id \preceq E \preceq \delta\Id$. By Lemma~\ref{lem:box},
+$(\kappa_0\sqd)^{-1}\Id \preceq P \preceq (\kappa_0/\sqd)\Id$, hence
+$((\kappa_0\sqd)^{-1} - \delta)\Id \preceq P + E \preceq (\kappa_0/\sqd + \delta)\Id$,
+which is the condition $\kappa$ by the last hypothesis; in particular
+$P + E \ne 0$. Let $\tilde P = (P + E)/\norm{P + E}_\Fro$. From
+$\norm{E}_\Fro \le \eta < 1$ and $\norm{P}_\Fro = 1$ one gets
+$\norm{\tilde P - P}_\Fro \le 2\eta$ \formal{Geometry.HeadCorrection.paper\_main\_head\_normalize\_close},
+whence the support transfer.
+\end{proof}
+
+\begin{lemma}[Rates \formal{Head.CorrectionScale.paper\_main\_head\_correction\_eventual}]\label{lem:rates}
+Let $K, a \ge 0$, $c, c_0 > 0$, $Q, L \ge 0$, $\kappa_0 \ge 1$. There are
+$E > 0$, $A, B \ge 0$, $F > 0$ and $D$ such that for every $d \ge D$, with
+$t = d^{1/32}$, the choices $\eta = E/t^7$, $A_1 = A/t^7$, $A_\infty = B/(dt^6)$,
+$\delta = F/(\sqd\,t^4)$ satisfy the hypotheses of
+Proposition~\ref{prop:correction} with $\mu = cd$, $q_0 = c_0d$, $q_1 \le Q\ln d$,
+$\lambda \le Ld(\ln d)^2$, $m \le Kd\ln d$, $r = a/t^8$, and $\kappa = 2\kappa_0^2$.
+\end{lemma}
+
+\begin{proof}
+Each hypothesis is a comparison of powers of $d$ with powers of $\ln d$,
+which holds for large $d$: for instance $mr^2 \le Kd\ln d\cdot a^2t^{-16} \le cd\,E^2t^{-14}$
+once $K a^2\ln d \le cE^2t^2$; the constants $E, A, B, F$ are chosen in this
+order \formal{Head.CorrectionRates.paper\_main\_head\_rate\_constants}. The
+residual threshold $r = \sqrt{4 + 4\kappa_0}\,d^{-1/4} = a/t^8$ with
+$a = \sqrt{4 + 4\kappa_0}$. The last two hypotheses hold because
+$\delta\sqd = Ft^{-4} \to 0$ while $\kappa_0/\sqd + \delta \le 2\kappa_0^2((\kappa_0\sqd)^{-1} - \delta)$
+reads $\kappa_0 + \delta\sqd \le 2\kappa_0 - 2\kappa_0^2\delta\sqd$.
+\end{proof}
+
+\begin{proposition}[Width transfer \formal{Head.WidthRegular.paper\_main\_head\_width\_regular\_transfer}, \formal{Head.WidthExpectation.paper\_main\_head\_width\_expectation\_transfer}]\label{prop:width_transfer}
+Let $\varepsilon > 0$ and $\kappa_0 \ge 1$, and let $P$ be the selector of
+Lemma~\ref{lem:selector} at precision $\varepsilon/2$. For all large $d$,
+every sample outside the event of Lemma~\ref{lem:residual} (at $r$, $\tau = d^{-4}$)
+and every regular selection $s$ of $m$ rows satisfy
+\[
+w_{\kappa_0} - w\bigl(\cone_{2\kappa_0^2}\cap\mathbb{S}_\Fro\cap\ker W_J\bigr) \le \varepsilon d .
+\]
+\end{proposition}
+
+\begin{proof}
+Let $A_x = \{z : \exists k,\ \abs{\ip{W_{s(k)}}{P(z)}} \ge r\}$; outside the
+event of Lemma~\ref{lem:residual}, $\gauss_{\Dd_d}(A_x) < d^{-4}$. For
+$z \notin A_x$, Proposition~\ref{prop:correction} with the rates of
+Lemma~\ref{lem:rates} gives a section element $\tilde P$ with
+$h_{\mathrm{sec}}(Z) \ge \ip{Z}{\tilde P} \ge \ip{Z}{P(z)} - 2\eta\norm{Z}_\Fro \ge h_{\kappa_0}(Z) - (\varepsilon/2 + 2\eta)\norm{Z}_\Fro$.
+For every $z$, $\abs{h_{\mathrm{sec}}(Z)} \le \norm{Z}_\Fro \le \norm{Z}_\Fro^2/(2a) + a/2$
+for any $a > 0$, and likewise for $h_{\kappa_0}$. Integrating, with
+$\E\norm{Z}_\Fro \le \sqrt{\Dd_d} \le d$, $\E\norm{Z}_\Fro^2 = \Dd_d$ and $a = d^2$,
+\[
+w_{\kappa_0} - w_{\mathrm{sec}} \le (\varepsilon/2 + 2\eta)d + \frac{\Dd_d}{d^2} + d^2\gauss_{\Dd_d}(A_x) \le (\varepsilon/2 + 2\eta)d + 1 + d^{-2},
+\]
+which is at most $\varepsilon d$ for large $d$ since $\eta \to 0$.
+\end{proof}
+
+\begin{theorem}[Uniform section widths \formal{Head.RegularProbability.paper\_main\_head\_width\_coercive\_probability\_uniform}; paper Proposition~3.3]\label{thm:heads}
+For every $\varepsilon > 0$ there is $\kappa \ge 1$ such that for all
+$C, K \ge 0$ and $c > 0$ and every $N(d) \le Cd^2$ eventually, there are
+measurable events $A_d$ with $\Prob(A_d) \to 0$ such that, for all large
+$d$, every sample outside $A_d$ whose feature Gram matrix is coercive with
+constant $cd$ satisfies: for every selection $s$ of $m \le Kd\ln d$ distinct
+rows, the section $\cone_\kappa\cap\mathbb{S}_\Fro\cap\ker W_J$ has width at
+least $(1/2 - \varepsilon)d$.
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:conewidth} choose $\kappa_0 \ge 1$ with
+$w_{\kappa_0} \ge (1/2 - \varepsilon/2)d$ for all large $d$, and put
+$\kappa = 2\kappa_0^2$. Let $A_d$ be the union of the event of
+Lemma~\ref{lem:residual}, of the sparse-norm event of Lemma~\ref{lem:sparse}
+(with $L = L(C, K)$), of the radius event and of the coherence event
+(Lemmas~\ref{lem:radius}, \ref{lem:coherence}); all have probability
+tending to zero. Outside $A_d$, a selection of $m \le Kd\ln d$ rows is
+regular with $c_0 = c$ (the diagonal entries of a coercive matrix are at
+least its constant), $Q = 73$ and the $L$ of Lemma~\ref{lem:sparse}, and
+Proposition~\ref{prop:width_transfer} at $\varepsilon/2$ gives
+$w_{\mathrm{sec}} \ge w_{\kappa_0} - \varepsilon d/2 \ge (1/2 - \varepsilon)d$.
+\end{proof}
+
+The paper's constant is $\kappa_1 = 2\kappa_0$; the formal proof works with
+Loewner boxes and obtains $2\kappa_0^2$.
+
+\subsection{The low-influence tail margin}\label{sec:lowinf}
+
+Fix a head $J$ of $k$ rows and write $h$ for the head sample (the rows of
+$J$) and $x$ for the tail sample of $q$ rows; the \emph{section} is
+$\mathcal{D} = \cone_\kappa\cap\mathbb{S}_\Fro\cap\ker W_J$, assumed
+nonempty, with features $V_i = W_i$, $i \notin J$. For a set $Y$ of unit
+vectors of $\R^q$ the \emph{section minimax} is
+\[
+\inf_{y\in Y}\ \sup_{S\in\mathcal{D}}\ \sum_{i<q}y_i\ip{V_i}{S}
+\qquad\formal{Head.SectionMinimax.paper\_main\_head\_section\_minimax}.
+\]
+The \emph{capped sphere} is the set of unit $y$ with $\abs{y_i} \le \theta/\sqd$
+for all $i$.
+
+\begin{definition}[Soft minimax \formal{Soft.Definitions.soft\_minimax}]
+For finite index lists $Y, S$ and $H : Y \times S \to \R$, with $\beta, \gamma > 0$,
+\[
+\Phi_{\beta,\gamma}(H) = -\frac1\beta\ln\sum_{y\in Y}\exp\Bigl(-\beta\cdot\frac1\gamma\ln\sum_{s\in S}e^{\gamma H(y,s)}\Bigr).
+\]
+It satisfies $\min_y\max_sH - \frac{\ln\abs{Y}}{\beta} \le \Phi_{\beta,\gamma}(H) \le \min_y\max_sH + \frac{\ln\abs{S}}{\gamma}$
+\formal{Soft.Extrema.soft\_minimax\_bounds}.
+\end{definition}
+
+\begin{lemma}[Nets of the section and of the capped sphere \formal{Head.SectionApproxWidth.paper\_main\_head\_section\_approx\_width\_exists}, \formal{Gordon.Entropy.paper\_main\_gordon\_entropy\_net}, \formal{Gordon.Nets.paper\_main\_gordon\_net\_width\_error}]\label{lem:section_nets}
+Let $\kappa \ge 1$, $\varepsilon > 0$, $Y$ a nonempty set of unit vectors of
+$\R^q$ and $\mathcal{D} \ne \varnothing$. There are unit vectors $y^0, \dots, y^{r-1}$
+with $r \le e^{C(\varepsilon)q}$ forming an $\varepsilon$-net of $Y$ and
+section elements $B_0, \dots, B_{s-1} \in \mathcal{D}$ with $s \le e^{C(\varepsilon)\Dd_d}$
+forming an $\varepsilon$-net of $\mathcal{D}$, where $C(\varepsilon) = (4 + 4/\varepsilon)\ln 2$,
+such that:
+\begin{enumerate}
+\item[(a)] $w(\{B_t\}) \le w(\mathcal{D}) \le w(\{B_t\}) + \varepsilon\sqrt{\Dd_d}$, where
+$w(\{B_t\}) = \E\max_t\ip{Z}{B_t}$;
+\item[(b)] for every family $V$ with $\norm{\sum_iu_iV_i}_\Fro \le L\norm{u}_2$ and every $\beta, \gamma > 0$,
+\[
+\Bigl|\ \inf_{y\in Y}\sup_{S\in\mathcal{D}}\sum_iy_i\ip{V_i}{S} - \Phi_{\beta,\gamma}\bigl(\textstyle\sum_iy^a_i\ip{V_i}{B_t}\bigr)\ \Bigr|
+\le \frac{C(\varepsilon)\Dd_d}{\gamma} + \frac{C(\varepsilon)q}{\beta} + L\varepsilon .
+\]
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+The nets come from Theorem~\ref{thm:nets} applied to the codes of the
+section elements in the orthonormal basis of $\Sym^d$ (unit vectors of
+$\R^{\Dd_d}$) and to $Y$; the library's grid construction
+\formal{Gordon.Entropy} gives nets \emph{inside} the sets with the stated
+entropy. (a): $\max_t\ip{Z}{B_t} \le h_{\mathcal{D}}(Z)$ since the $B_t$ are
+in $\mathcal{D}$, and every $S \in \mathcal{D}$ has a net point with
+$\ip{Z}{S - B_t} \le \varepsilon\norm{Z}_\Fro$, whose mean is at most
+$\varepsilon\sqrt{\Dd_d}$. (b): replacing $y$ by a net point changes
+$\sum_iy_i\ip{V_i}{S}$ by at most $\norm{\sum_i(y - y^a)_iV_i}_\Fro\norm{S}_\Fro \le L\varepsilon$,
+and replacing $S$ by a net point changes it by at most
+$\norm{\sum_iy_iV_i}_\Fro\varepsilon \le L\varepsilon$; the soft minimax is
+within the entropy terms of the finite minimax.
+\end{proof}
+
+\begin{proposition}[Gordon's margin for the Gaussian surrogate \formal{Gordon.Width.paper\_main\_gordon\_finite\_width\_margin}, \formal{Gordon.SoftMargin.paper\_main\_gordon\_soft\_width\_margin}, \formal{Soft.FeatureMargin.paper\_main\_public\_goe\_soft\_margin}; replaces paper Lemma~2.3 and Lemma~3.13]\label{prop:gordon_margin}
+Let $z^0, \dots, z^{r-1}$ be unit vectors of $\R^N$ and $v^0, \dots, v^{s-1}$ unit
+vectors of $\R^M$, and let $\Gamma \in \R^{N\times M}$ have independent
+$N(0,1)$ entries. Then, with $w = \E\max_t\ip{h}{v^t}$ for $h \sim \gauss_M$,
+\[
+\E\min_a\max_t (z^a)^{\top}\Gamma v^t \ge w - \sqrt N,
+\qquad
+\E\,\Phi_{\beta,\gamma}\bigl((z^a)^{\top}\Gamma v^t\bigr) \ge w - \sqrt N - \frac{\ln r}{\beta}.
+\]
+Consequently, for the Gaussian feature rows $G_i$, $i < N$, unit vectors
+$y^a \in \R^N$ and symmetric $B_t$ with $\norm{B_t}_\Fro = 1$,
+\[
+\E\,\Phi_{\beta,\gamma}\Bigl(\sum_iy^a_i\ip{G_i}{B_t}\Bigr) \ge \sqrt{\tfrac2d}\,\bigl(w(\{B_t\}) - \sqrt N\bigr) - \frac{\ln r}{\beta}.
+\]
+\end{proposition}
+
+\begin{proof}
+Corollary~\ref{cor:bil} gives
+$\E\min_a\max_t(z^a)^{\top}\Gamma v^t \ge \E\min_a\max_t(\ip{g}{z^a} + \ip{h}{v^t}) = \E\max_t\ip{h}{v^t} + \E\min_a\ip{g}{z^a} \ge w - \E\norm{g}_2 \ge w - \sqrt N$
+\formal{Gordon.Processes.paper\_main\_gordon\_process\_comparison}, with
+$\E\norm{g}_2 \le \sqrt N$ by Jensen. The soft minimax is at least the
+minimax minus $\ln r/\beta$. For the feature rows,
+$\ip{G_i}{B_t} = \sqrt{2/d}\,\ip{\Gamma_i}{v^t}$ where $v^t$ is the unit code
+of $B_t$ and $\Gamma_i$ the row of Gaussian coordinates, so the array
+$\sum_iy^a_i\ip{G_i}{B_t}$ is $\sqrt{2/d}$ times the bilinear process, and
+the soft minimax is positively homogeneous after rescaling $\beta, \gamma$;
+the formal statement is the scaled inequality.
+\end{proof}
+
+The paper obtains a high-probability margin from Gordon's tail inequality
+and passes to expectations with a second-moment bound; the formal proof
+uses the expectation form directly.
+
+\begin{theorem}[Second-chaos interpolation for the soft minimax \formal{Soft.Comparison.paper\_main\_soft\_public\_comparison}, \formal{Soft.PublicFeatures.paper\_main\_public\_feature\_soft\_comparison\_coarse}, \formal{Multirow.IntegratedBound.paper\_multirow\_integrated\_bound\_results}; paper Lemmas~3.9, 3.10, 3.12 and 3.14 in the special case of the soft minimax]\label{thm:interp_soft}
+Let $y^a$ ($a \in Y$) be unit vectors of $\R^N$ with $\abs{y^a_i} \le \theta/\sqd$,
+and $B_t$ ($t \in S$) symmetric with $\norm{B_t}_\op \le k$. Let
+$\Phi(A) = \Phi_{\beta,\gamma}(\sum_iy^a_i\ip{A_i}{B_t})$ for a family
+$A = (A_i)_{i<N}$ of symmetric matrices. Then
+\[
+\abs{\E\Phi(W) - \E\Phi(G)} \le \frac{40}{3}\,k^3(\beta + \gamma)^2\theta\,\frac{d + 2\sqrt{d\ln N} + 2\ln N}{d^2},
+\]
+and if $\ln N \le d$ this is at most $\frac{200}{3}k^3(\beta + \gamma)^2\theta/d$.
+\end{theorem}
+
+\begin{proof}
+\emph{Interpolation.} For $t \in [0,1]$ let $Z_i(t) = \sqrt t\,W_i + \sqrt{1-t}\,G_i$,
+with $W_i$ built from the point $x_i \sim \gauss_d$ and $G_i$ from
+independent Gaussian coordinates, and $f(t) = \E\Phi(Z(t))$; $f$ is
+continuous on $[0,1]$ \formal{Multirow.ExpectationAssembly.mexp\_clause\_endpoints}
+and $f(1) = \E\Phi(W)$, $f(0) = \E\Phi(G)$.
+
+\emph{Derivative.} For $0 < t < 1$, by the chain rule and the two Stein
+identities, with $\Psi_i = \nabla_i\Phi(Z(t))$ (the derivative of $\Phi$ in
+its $i$-th matrix argument, a symmetric matrix),
+\[
+f'(t) = \sum_i\Bigl(\frac{1}{2\sqrt t}\E\ip{W_i}{\Psi_i} - \frac{1}{2\sqrt{1-t}}\E\ip{G_i}{\Psi_i}\Bigr).
+\]
+Gaussian integration by parts in the coordinates of $G_i$ (covariance
+$(2/d)\Id$ in the orthonormal basis) gives $\frac{1}{2\sqrt{1-t}}\E\ip{G_i}{\Psi_i} = \frac1d\E\operatorname{div}_i\Psi_i$,
+where $\operatorname{div}_i\Psi = \sum_\nu\ip{E_\nu}{D_i\Psi[E_\nu]}$. The
+second-order Stein identity in the coordinates of $x_i$ applied to the
+entries of $\Psi_i$ (with $\ip{W_i}{\Psi} = d^{-1/2}\sum_{a,b}(x_{ia}x_{ib} - \delta_{ab})(\Psi)_{ab}$
+and $\partial_a\partial_b$ of $\Psi(Z_i(t))$ through
+$D_xZ_i[e_a] = \sqrt{t/d}\,(e_ax_i^{\top} + x_ie_a^{\top})$ and
+$D_x^2Z_i[e_a,e_b] = \sqrt{t/d}\,(e_ae_b^{\top} + e_be_a^{\top})$) gives
+\[
+\frac{1}{2\sqrt t}\E\ip{W_i}{\Psi_i} = \frac1d\E\operatorname{div}_i\Psi_i + \frac{\sqrt t}{2d^{3/2}}\E\mathcal{R}_i(t),
+\quad
+\mathcal{R}_i(t) = \frac12\sum_{a,b}D_i^3\Phi[U_a, U_b, V_{ab}],
+\]
+with $U_a = e_ax_i^{\top} + x_ie_a^{\top}$ and $V_{ab} = e_ae_b^{\top} + e_be_a^{\top}$
+\formal{Multirow.FullStein.paper\_multirow\_full\_stein\_results}. The
+divergence terms cancel and
+$f'(t) = \frac{\sqrt t}{2d^{3/2}}\sum_i\E\mathcal{R}_i(t)$.
+
+\emph{The remainder.} For a trilinear form given as $\sum_\ell c_\ell\prod_{j\le3}\tr(B_{\ell j}H_j)$
+the contraction $\frac12\sum_{a,b}T[U_a,U_b,V_{ab}]$ equals
+$4\sum_\ell c_\ell\,x_i^{\top}B_{\ell1}B_{\ell3}B_{\ell2}x_i$, so
+$\abs{\mathcal{R}_i(t)} \le 4\norm{x_i}_2^2\,\norm{D_i^3\Phi}_{\pi,\op}$, the
+projective operator norm being the infimum of $\sum_\ell\abs{c_\ell}\prod_j\norm{B_{\ell j}}_\op$
+over such representations \formal{Soft.MatrixProjectiveBound}. For the soft
+minimax, the third derivative is a sum of three terms (the inner third
+cumulant, a covariance of the inner Hessian with the gradient, and the
+outer third cumulant), each a combination of pure tensors
+$\tr(y_iB_s\cdot)\tr(y_iB_{s'}\cdot)\tr(y_iB_{s''}\cdot)$ with Gibbs
+weights, and the computation of its projective norm gives
+\[
+\sum_i\norm{D_i^3\Phi}_{\pi,\op} \le \frac{10\,k^3(\beta + \gamma)^2\theta}{\sqd}
+\qquad\formal{Soft.MatrixProjectiveBound.soft\_matrix\_projective\_sum\_bound},
+\]
+using $\sum_i\abs{y_i}^3 \le \theta d^{-1/2}\sum_iy_i^2 = \theta/\sqd$ and
+$\norm{B_s}_\op \le k$. Hence
+$\abs{f'(t)} \le \frac{2\sqrt t}{d^{3/2}}\,\E\max_i\norm{x_i}_2^2\cdot\frac{10k^3(\beta+\gamma)^2\theta}{\sqd}$.
+
+\emph{The radius.} $\E\max_{i<N}\norm{x_i}_2^2 \le d + 2\sqrt{d\ln N} + 2\ln N$
+\formal{Radius.ExpectedMaximum.gaussian\_maximum\_radius\_expected\_bound}:
+for $0 < \lambda < 1/2$, $\ln\E e^{\lambda(\norm{x}_2^2 - d)} = \frac d2(-2\lambda - \ln(1 - 2\lambda)) \le \frac{d\lambda^2}{1 - 2\lambda}$,
+so by the log-sum-exp bound and Jensen, $\E(\max_i\norm{x_i}^2 - d) \le \frac{\ln N}{\lambda} + \frac{d\lambda}{1-2\lambda}$,
+and $\lambda = \sqrt{\ln N}/(\sqd + 2\sqrt{\ln N})$ gives the claim (for
+$N = 1$ let $\lambda \to 0$).
+
+\emph{Integration.} $\int_0^12\sqrt t\,dt = 4/3$ gives
+$\abs{f(1) - f(0)} \le \frac{4}{3}\cdot\frac{R_{N,d}}{d^{3/2}}\cdot\frac{10k^3(\beta+\gamma)^2\theta}{\sqd}$
+\formal{Analysis.UnitIntervalComparison}, which is the first bound; the
+second uses $R_{N,d} \le 5d$ when $\ln N \le d$.
+\end{proof}
+
+\begin{corollary}[Expected margin for the chaos rows \formal{Soft.ConeMargin.paper\_main\_data\_soft\_cone\_margin}, \formal{Head.SoftTail.paper\_main\_head\_soft\_expectation}; paper Corollary~3.14]\label{cor:chaos_margin}
+In the setting of Lemma~\ref{lem:section_nets} with $\kappa \ge 1$, unit
+$y^a$ capped by $\theta/\sqd$ and section elements $B_t$ (so
+$\norm{B_t}_\op \le \kappa/\sqd$ by Lemma~\ref{lem:box}), for $\ln N \le d$,
+\[
+\E\,\Phi_{\beta,\gamma}\Bigl(\sum_iy^a_i\ip{W_i}{B_t}\Bigr)
+\ge \sqrt{\tfrac2d}\bigl(w(\{B_t\}) - \sqrt N\bigr) - \frac{\ln r}{\beta} - \frac{200}{3}\,\frac{\kappa^3(\beta+\gamma)^2\theta}{d^2\sqd}.
+\]
+\end{corollary}
+
+\begin{proof}
+Proposition~\ref{prop:gordon_margin} and Theorem~\ref{thm:interp_soft} with
+$k = \kappa/\sqd$.
+\end{proof}
+
+\begin{lemma}[Parameters \formal{Soft.ParameterChoice.paper\_main\_soft\_parameters}, \formal{Soft.ParameterChoice.paper\_main\_soft\_scaled\_margin}]\label{lem:params}
+Let $g = 1/2 - \sqrt\alpha$, $\kappa \ge 1$ and $L \ge 0$. There are
+$\varepsilon, A, \theta > 0$ with $\varepsilon \le g/16$, $L\varepsilon \le g/16$,
+$C(\varepsilon)(\alpha + 1)/A \le g/16$ and $\frac{800}{3}\kappa^3A^2\theta \le g/16$.
+With these, $\beta = \gamma = Ad\sqd$, $q \le \alpha d^2$, $\Dd_d \le d^2$,
+$\ln r \le C(\varepsilon)q$, $\ln s \le C(\varepsilon)\Dd_d$ and a net width
+$w \ge (1/2 - g/16)d$, the level of Corollary~\ref{cor:chaos_margin} minus
+the entropy and net errors of Lemma~\ref{lem:section_nets}(b) is at least
+$\frac g2\sqd$:
+\[
+\sqrt{\tfrac2d}\bigl(w - \varepsilon\sqrt{\Dd_d} - \sqrt q\bigr) - \frac{\ln r + \ln s}{Ad\sqd} - \frac{200}{3}\frac{\kappa^3(2Ad\sqd)^2\theta}{d^2\sqd} - L\sqd\,\varepsilon \ge \frac g2\sqd .
+\]
+\end{lemma}
+
+\begin{proof}
+$\sqrt{2/d}\,(w - \varepsilon\sqrt{\Dd_d} - \sqrt q) \ge \sqrt2\,(1/2 - g/16 - g/16 - \sqrt\alpha)\sqd = \sqrt2\,\frac{7g}{8}\sqd$;
+the entropy terms are at most $C(\varepsilon)(\alpha + 1)d^2/(Ad\sqd) \le \frac{g}{16}\sqd$;
+the interpolation term is $\frac{800}{3}\kappa^3A^2\theta\sqd \le \frac g{16}\sqd$;
+and $L\varepsilon\sqd \le \frac g{16}\sqd$. Since $\sqrt2\cdot\frac78 - \frac3{16} > \frac12$,
+the claim follows.
+\end{proof}
+
+\begin{lemma}[Clipping and concentration \formal{Data.ClippedScore.paper\_main\_data\_contraction\_score\_lipschitz}, \formal{Data.SoftConcentration.paper\_main\_data\_soft\_clipped\_lower\_margin}, \formal{Data.SoftScale.paper\_main\_data\_soft\_scaled\_clipping\_large}; replaces paper Lemma~3.15]\label{lem:clip}
+Let $U > 0$ and let $\overline W_i$ be the feature of the point whose
+coordinates are clipped to $[-U, U]$. For unit $y$ and symmetric $B$ with
+$\norm{B}_\op \le k$, the score $x \mapsto \sum_iy_i\ip{\overline W_i}{B}$ is
+$2kU$-Lipschitz for the Euclidean norm of all the $Nd$ coordinates, and so
+is the soft minimax of such scores. If $b \le \E\Phi(W)$, then for $u > 0$
+\[
+\Prob\bigl\{\Phi(\overline W) \le b - \ell - u\bigr\} \le \exp\Bigl(-\frac{u^2}{2(2kU)^2}\Bigr),
+\qquad \ell = \frac{V}{a} + a\cdot2Nd\,e^{-U^2/2},
+\]
+for every $a > 0$, where $V$ bounds the second moments of $\Phi(W)$ and
+$\Phi(\overline W)$. At $U = d^{1/4}$, $k = \kappa/\sqd$, $\beta = \gamma = Ad\sqd$,
+$a = d^6$ and $N \le Cd^2$, $\ell \le \eta'\sqd$ for every $\eta' > 0$ and
+all large $d$, and the exponent at $u = c\sqd$ is $c^2d\sqd/(8\kappa^2)$.
+\end{lemma}
+
+\begin{proof}
+For clipped rows $u, u'$ with $\norm{u}_2, \norm{u'}_2 \le U\sqd$,
+$\ip{\overline W_i(u) - \overline W_i(u')}{B} = d^{-1/2}(u^{\top}Bu - u'^{\top}Bu')$
+and $\abs{u^{\top}Bu - u'^{\top}Bu'} = \abs{(u - u')^{\top}B(u + u')} \le k\norm{u - u'}_2\cdot2U\sqd$;
+Cauchy--Schwarz over the rows with $\norm{y}_2 \le 1$ gives the Lipschitz
+constant $2kU$ with no factor $\sqrt N$ (the clipping is $1$-Lipschitz).
+A soft minimax of $L$-Lipschitz functions is $L$-Lipschitz. The two
+functionals agree outside the coordinate event at level $U$; on it,
+$\abs{\Phi(W) - \Phi(\overline W)}$ is bounded through the second moments
+(both scores grow at most like $k(\sum x_{ia}^2 + Nd)/\sqd$ plus the entropy
+terms, whose squares have Gaussian means $O(d^4)$), and the elementary
+inequality $\E\abs{F}\one_E \le \E F^2/a + a\Prob(E)$ gives
+$\E\Phi(W) - \E\Phi(\overline W) \le \ell$. Theorem~\ref{thm:conc}
+(through Proposition~\ref{prop:bridge}) gives the tail. The scale claims
+are arithmetic: $V \le Md^4$, $2Nde^{-\sqd/2} \le 2C\cdot14^7/\sqd$, so
+$\ell \le M/(2d^2) + 2C\,38^{19}/\sqd$ \formal{Clipping.Rates.paper\_main\_clipping\_mean\_error\_rate}.
+\end{proof}
+
+\begin{proposition}[The bad event of a fixed head \formal{Head.SubcriticalTail.paper\_main\_head\_subcritical\_clipped\_tail}, \formal{Head.CompactTail.paper\_main\_head\_compact\_clipped\_tail}]\label{prop:fixed_head}
+Let $0 \le \alpha < 1/4$, $\kappa \ge 1$, $L \ge 0$ and $g = 1/2 - \sqrt\alpha$.
+There are $\varepsilon, A, \theta, c > 0$ and $D$ such that for all $d \ge D$,
+all $m, q$ with $q + 1 \le \alpha d^2$, every head sample $h$ of $m$ rows whose
+section $\mathcal{D}$ has width at least $(1/2 - g/16)d$, and every
+nonempty set $Y$ of unit vectors of $\R^{q+1}$ capped by $\theta/\sqd$: the
+event of tail samples $x$ of $q + 1$ rows on which the clipped features
+satisfy $\norm{\sum_iu_i\overline W_i}_\Fro \le L\sqd\norm{u}_2$ and the
+section minimax of the clipped features over $Y$ is at most $\frac g4\sqd$,
+has probability at most $e^{-cd\sqd}$.
+\end{proposition}
+
+\begin{proof}
+Take the nets of Lemma~\ref{lem:section_nets} at precision $\varepsilon$ and
+the parameters of Lemma~\ref{lem:params}. By Lemma~\ref{lem:section_nets}(a)
+the net width is at least $w(\mathcal{D}) - \varepsilon\sqrt{\Dd_d} \ge (1/2 - g/16)d - \varepsilon d$,
+and Corollary~\ref{cor:chaos_margin} with Lemma~\ref{lem:params} gives
+$\E\Phi(W) \ge \frac g2\sqd + (\text{net and entropy errors})$, where the
+errors are those that Lemma~\ref{lem:section_nets}(b) charges to pass from
+$\Phi$ to the section minimax. By Lemma~\ref{lem:clip} with $u = \frac g8\sqd$
+and $\ell \le \frac g{16}\sqd$ for large $d$, outside an event of probability
+$\exp(-g^2d\sqd/(512\kappa^2))$ the clipped soft minimax is at least
+$\frac g2\sqd - \frac g{16}\sqd - \frac g8\sqd + \text{errors}$, hence by
+Lemma~\ref{lem:section_nets}(b) (applied to the clipped features, which have
+the operator bound $L\sqd$ on the event) the section minimax of the clipped
+features over $Y$ exceeds $\frac g4\sqd$.
+\end{proof}
+
+\begin{proposition}[All heads \formal{Head.SubcriticalFamily.paper\_main\_head\_subcritical\_family\_event}, \formal{Head.SubcriticalProbability.paper\_main\_head\_subcritical\_probability}, \formal{Head.SelectionLaw.paper\_main\_head\_selection\_law}, \formal{Head.FamilyCount.paper\_main\_head\_families\_exp}]\label{prop:all_heads}
+Let $0 \le \alpha < 1/4$, $\kappa \ge 1$, $L \ge 0$. There is $\theta > 0$
+such that for every $K \ge 0$ and every $N(d) \le \alpha d^2$ eventually there
+are measurable events $E_d$ with $\Prob(E_d) \to 0$ with the following
+property for all large $d$. Let $x$ be a sample outside $E_d$ and outside the
+coordinate clipping event at $d^{1/4}$, with $\norm{\sum_iu_iW_i}_\Fro \le L\sqd\norm{u}_2$.
+Then every set $J$ of at most $Kd\ln d$ distinct rows whose section has
+width at least $(1/2 - g/16)d$ satisfies: some $P$ of condition $\kappa$ has
+$\ip{W_i}{P} = 0$ on $J$, and for every unit $t$ supported off $J$ and
+capped by $\theta/\sqd$, some such $P$ has $\sum_it_i\ip{W_i}{P} > 0$.
+\end{proposition}
+
+\begin{proof}
+\emph{One head.} Fix $J$ with $k$ rows. There is a permutation $\pi$ of the
+rows whose first $k$ images are $J$ in order; the permuted sample has the
+same law, and the pair (head rows, tail rows) has the product law
+$\Prob_{k,d}\otimes\Prob_{N-k,d}$ \formal{Head.SelectionLaw.paper\_main\_head\_selection\_law}
+(permutation invariance of the product law of the coordinates,
+Proposition~\ref{prop:gaussE}). Let $E_J$ be the event that the head $h$
+has section width at least $(1/2 - g/16)d$ and the tail $x$ lies in the
+bad event of Proposition~\ref{prop:fixed_head} for $Y$ the capped sphere of
+$\R^{N-k}$ (nonempty when $N - k \ge d/\theta^2$). By Fubini on the product,
+$\Prob(E_J) \le e^{-cd\sqd}$ \formal{Head.LawBounds.paper\_main\_head\_exception\_bound};
+measurability holds since the section minimax of continuous features is a
+measurable function of the pair \formal{Head.SectionMinimax.paper\_main\_head\_section\_minimax\_measurable}.
+Outside $E_J$ and outside the coordinate event (so that $\overline W_i = W_i$),
+the section minimax exceeds $\frac g4\sqd > 0$: for every capped unit $t$
+the support value $\sup_{S\in\mathcal{D}}\sum_it_i\ip{W_i}{S}$ is positive,
+so some $S \in \mathcal{D}$ has a positive score; and $\mathcal{D} \ne \varnothing$
+since its width is finite and positive \formal{Head.SubcriticalGood.paper\_main\_head\_subcritical\_selected\_good}.
+
+\emph{The union.} The number of sets $J$ of at most $Kd\ln d$ distinct rows
+among $N \le \alpha d^2$ is at most $\exp(K(\ln(\alpha + 1) + 2)d(\ln d)^2)$
+\formal{Head.FamilyCount.paper\_main\_head\_families\_entropy}, so
+$E_d = \bigcup_JE_J$ has probability at most
+$\exp(K'd(\ln d)^2 - cd\sqd) \to 0$ \formal{Clipping.Limits.paper\_main\_clipped\_head\_union\_tends\_to\_zero}.
+\end{proof}
+
+\begin{theorem}[Low-influence tail margin; paper Proposition~3.4]\label{thm:lowinf}
+Proposition~\ref{prop:all_heads} is the formal form of the paper's
+Proposition~3.4: the margin $c_*d$ on $\sqd\,\mathcal{D}$ corresponds to
+the margin $\frac g4\sqd$ on $\mathcal{D}$ that the proof establishes, and
+the conclusion retained is the positivity of the support value.
+\end{theorem}
+
+\subsection{Assembly of the satisfiable phase}
+
+\begin{proof}[Proof of Theorem~\ref{thm:sat}]
+Let $0 \le \alpha < 1/4$ and $g = 1/2 - \sqrt\alpha$. Apply
+Theorem~\ref{thm:heads} with $\varepsilon = g/16$ to get $\kappa \ge 1$, and
+Proposition~\ref{prop:all_heads} with this $\kappa$ and $L = \sqrt C$ to get
+$\theta$; let $K = \frac{16}{\theta^2\ln2}$ be the head budget of
+Lemma~\ref{lem:peel}. Let $E_d$ be the union of $B_d$, of the events $A_d$
+of Theorem~\ref{thm:heads} (with the given $C, K, c$), of the events of
+Proposition~\ref{prop:all_heads} (with this $K$), and of the coordinate
+clipping event; $\Prob(E_d) \to 0$ \formal{Head.SubcriticalFit.paper\_main\_head\_subcritical\_fit\_exception}.
+Outside $E_d$, for large $d$: the head Gram matrix is coercive with
+constant $cd$ and $\norm{\sum_iu_iW_i}_\Fro \le \sqrt C\sqd\norm{u}_2$
+(Lemma~\ref{lem:bridge_features}); every head of at most $Kd\ln d$ rows has
+section width at least $(1/2 - g/16)d$; hence hypotheses (ii) and (iv) of
+Proposition~\ref{prop:support_all} hold with $\mu = cd$ and $A = \sqrt C\sqd$,
+and (v) holds for large $d$ since $\sqrt C\,d^{-2}(\kappa + \frac12)d \to 0$
+while $\sqrt{cd}/4 \to \infty$. Proposition~\ref{prop:support_all} gives
+$x \in \Cond_{N,d}((2\kappa+1)^{-1}, 2\kappa+1)$, and the probability of the
+conditioned event, which is measurable (Proposition~\ref{prop:measurable}),
+is at least $1 - \Prob(E_d) \to 1$
+\formal{Conditioned.SpectralReduction.paper\_main\_event\_from\_vanishing\_exception}.
+\end{proof}
+
+\section{The unsatisfiable phase}\label{sec:unsat}
+
+\subsection{Statement and strategy}
+
+\begin{theorem}[Unsatisfiable phase at fixed density \formal{Unsat.Limit.paper\_main\_unsat\_fixed\_density\_limit}; paper Theorem~4.1]\label{thm:unsat}
+For every $1/4 < \gamma < 1/2$, with $n_\gamma(d) = \lfloor\gamma d^2\rfloor$,
+$\Prob_{n_\gamma(d),d}(\Fit_{n_\gamma(d),d}) \to 0$.
+\end{theorem}
+
+With Proposition~\ref{prop:fixed}(b) this is Theorem~\ref{thm:main}(b).
+
+\emph{Strategy.} A fit yields a unit witness $S \succeq 0$ with
+$x_i^{\top}Sx_i - \tr S = b$ for all $i$ (Lemma~\ref{lem:homog}), and $\abs{b}$
+is bounded when the feature Gram matrix is (Lemma~\ref{lem:offset}). The
+witness is split at a \emph{constant} spectral cutoff $\varepsilon_0$ into a
+head of rank at most $1/\varepsilon_0^2$ and a bulk of operator norm at most
+$\varepsilon_0$; the paper uses the cutoff $d^{-1/4}$ and heads of rank up to
+$\sqrt d$. The orientation of the head is rounded to a finite net of
+orthogonal matrices measured by the head projector, and the witness is
+\emph{pinched} by the net projector, which keeps the quadratic risk small
+(Section~\ref{sec:witness}); the paper rotates instead. For a fixed
+orientation, the admissible candidates are approximated by a finite
+\emph{prior} of block pairs, and the quantity studied is the entropy-shifted
+soft minimum $\mathcal{Z}$ of the normalized empirical risks over the prior
+(Section~\ref{sec:prior}). Under the hybrid law, where the bulk coordinates
+are replaced by GOE rows, every candidate has risk at least $e$ outside an
+event of probability $e^{-cd^2}$ (Section~\ref{sec:hybrid}); the expectation of
+$\mathcal{Z}$ under the data law is close to its expectation under the
+hybrid law, by a Lindeberg replacement with a replica expansion
+(Section~\ref{sec:universality}); and $\mathcal{Z}$ concentrates around its
+mean at scale $N^{-1/2}$ (Section~\ref{sec:concentration}). A union over the
+net of orientations and over the ranks concludes (Section~\ref{sec:unsat_assembly}).
+
+\begin{definition}[Risk \formal{Feature.LossControl.paper\_main\_quadratic\_risk}, \formal{Loss.Translated.paper\_main\_loss}]
+$\varphi(t) = 1 - e^{-t^2}$, which satisfies $e^{-1}\min(t^2, 1) \le \varphi(t) \le \min(t^2, 1)$
+and is $4$-Lipschitz \formal{Loss.Translated.paper\_main\_loss\_sandwich},
+\formal{Loss.Translated.paper\_main\_loss\_lipschitz}. The \emph{quadratic
+risk} of $(S, b)$ on the sample is
+$\mathcal{L}(S, b) = \frac1N\sum_{i<N}\varphi(x_i^{\top}Sx_i - \tr S - b)$;
+it vanishes exactly when $(S, b)$ is a witness.
+\end{definition}
+
+\begin{lemma}[Lipschitz control of the risk \formal{Feature.LossControl.paper\_main\_quadratic\_risk\_lipschitz}, \formal{Feature.LossControl.paper\_main\_feature\_witness\_offset}; paper (4.5), (4.22)]\label{lem:offset}
+Suppose $QQ^{*} \preceq K\Id$ with $K \le NL^2$. Then
+$\abs{\mathcal{L}(S, b) - \mathcal{L}(T, b)} \le 4L\norm{S - T}_\Fro$ for all
+$S, T$, and $\abs{\mathcal{L}(S,b) - \mathcal{L}(S,b')} \le 4\abs{b - b'}$. If
+$\norm{S}_\Fro = 1$ and $x_i^{\top}Sx_i - \tr S = b$ for all $i$, then $\abs{b} \le L$.
+\end{lemma}
+
+\begin{proof}
+$\sum_i(\ip{Q_i}{S - T})^2 = (S - T)^{\top}QQ^{*}(S - T) \le K\norm{S - T}_\Fro^2 \le N(L\norm{S - T}_\Fro)^2$
+(reading $S - T$ in Frobenius coordinates), and $\varphi$ is $4$-Lipschitz;
+Cauchy--Schwarz gives the first bound \formal{Loss.Empirical.paper\_main\_loss\_empirical\_lipschitz}.
+For the witness, $Nb^2 = \sum_i\ip{Q_i}{S}^2 \le K \le NL^2$.
+\end{proof}
+
+\subsection{Witnesses, orientations and pinching}\label{sec:witness}
+
+\begin{proposition}[Ordered spectral split \formal{Orientation.Spectral.paper\_main\_orientation\_spectral\_decomposition}; paper (4.8), (4.9)]\label{prop:split}
+Let $S \succeq 0$ with $\norm{S}_\Fro = 1$ and $\varepsilon_0 > 0$. There are
+$r \le d$, an orthogonal $O$ and $a \in \R^d$ with $S = O^{\top}\diag(a)O$,
+$a_i > \varepsilon_0$ exactly for $i < r$, $r \le 1/\varepsilon_0^2$, such that
+with $P = O^{\top}\diag(\one_{i<r})O$ (the \emph{head projector}
+\formal{Orientation.Net.paper\_main\_orientation\_projector}), $H = PSP$
+and $B = S - H$: $H, B \succeq 0$, $\norm{B}_\op \le \varepsilon_0$,
+$\norm{H}_\Fro \le 1$, $PHP = H$, $PS = SP$, $P^{\top} = P = P^2$.
+\end{proposition}
+
+\begin{proof}
+Theorem~\ref{thm:spectral} gives $O$ and $a \ge 0$ with $\sum_ia_i^2 = 1$;
+permute the rows of $O$ and the entries of $a$ so that the entries above
+$\varepsilon_0$ come first \formal{Orientation.Spectral.paper\_main\_orientation\_spectral\_order}.
+Their number $r$ satisfies $r\varepsilon_0^2 < \sum_ia_i^2 = 1$
+\formal{Spectral.Cutoff.paper\_main\_spectral\_head\_cardinality}. The
+claims follow from $H = O^{\top}\diag(a\one_{i<r})O$ and
+$B = O^{\top}\diag(a\one_{i\ge r})O$.
+\end{proof}
+
+\begin{proposition}[Nets of orientations \formal{Orientation.Net.paper\_main\_orientation\_net}, \formal{Orientation.Family.paper\_main\_orientation\_family\_uniform}; replaces the Grassmannian nets of the paper, line 1755]\label{prop:onets}
+For $r \le d$ and $\tau > 0$ there are orthogonal matrices $O_0, \dots, O_{s-1}$,
+$\ln s \le (4 + 8r/\tau)\ln 2\,(r + 1)(d + 1)$, such that every orthogonal
+$O$ has a $k$ with $\norm{P_r(O) - P_r(O_k)}_\Fro \le \tau$. For $r \le r_{\max}$
+these families can be chosen with a common entropy bound
+$\ln s_r \le (4 + 8r_{\max}/\tau)\ln2\,(r_{\max} + 1)(d + 1)$.
+\end{proposition}
+
+\begin{proof}
+Let $W$ be the matrix of the first $r$ rows of $O$ (zero below), so
+$P_r(O) = W^{\top}W$ and $\norm{W}_\Fro^2 = r$. For two orthogonal $O, O'$,
+$\norm{P_r(O) - P_r(O')}_\Fro \le 2\sqrt r\norm{W - W'}_\Fro$
+\formal{Projection.Frobenius.paper\_main\_frobenius\_product}. The codes
+$W/\sqrt r$ are unit vectors of $\R^{rd}$; a net of the image of the
+orthogonal matrices in the unit ball at mesh $\tau/(2r)$
+\formal{Loss.BallNet.paper\_main\_loss\_ball\_net}, with a chosen orthogonal
+representative for each net point, has $\ln(\text{size}) \le (4 + 8r/\tau)\ln2\,(rd + 1)$
+by Theorem~\ref{thm:nets}, which is at most the stated bound. For $r = 0$
+the single matrix $\Id$ works.
+\end{proof}
+
+\begin{definition}[Pinching and admissible candidates \formal{Projection.Pinching.paper\_main\_pinching}, \formal{Orientation.Witness.paper\_main\_orientation\_admissible}]
+For a projector $U$ and a matrix $S$, the \emph{pinching} is
+$\Pi_U(S) = USU + (\Id - U)S(\Id - U)$. Given $r$, an orthogonal $O$ with
+$U = P_r(O)$, $\varepsilon \ge 0$ and $L \ge 0$, the pair $(A, b)$ is
+\emph{admissible} when $A \succeq 0$, $\Pi_U(A) = A$,
+$1/4 \le \norm{A}_\Fro^2 \le 4$, $\norm{(\Id - U)A(\Id - U)}_\op \le \varepsilon$
+and $\abs{b} \le L$.
+\end{definition}
+
+\begin{proposition}[From a fit to an admissible candidate \formal{Orientation.Witness.paper\_main\_orientation\_fit\_witness}, \formal{Pinching.Loss.paper\_main\_pinching\_witness\_risk}, \formal{Pinching.Annulus.paper\_main\_pinching\_annulus}, \formal{Pinching.Operator.paper\_main\_pinching\_bulk\_opnorm}; replaces paper Lemma~4.6]\label{prop:witness}
+Let $\varepsilon_0 > 0$, $0 \le \tau \le 1/8$, $\varepsilon \ge \varepsilon_0 + \tau^2$,
+$L, K \ge 0$ and $1/\varepsilon_0^2 \le r_{\max} < d$. Let, for each
+$r \le r_{\max}$, $(O_{r,k})_{k<s_r}$ be a $\tau$-net of orientations as in
+Proposition~\ref{prop:onets}. Let $x \in \Fit_{N,d}$ with $N > 0$ and
+$QQ^{*} \preceq K\Id$, $K \le NL^2$. Then there are $r \le r_{\max}$, $k < s_r$
+and an admissible $(A, b)$ for $O_{r,k}$ with $\mathcal{L}(A, b) \le 16L\tau$.
+\end{proposition}
+
+\begin{proof}
+Lemma~\ref{lem:homog} gives a unit witness $(S, b)$, $\abs{b} \le L$ by
+Lemma~\ref{lem:offset}. Split $S$ by Proposition~\ref{prop:split} at
+$\varepsilon_0$: $r \le 1/\varepsilon_0^2 \le r_{\max}$, $P = P_r(O)$. Choose
+$k$ with $\norm{U - P}_\Fro \le \tau$, $U = P_r(O_{r,k})$, and let
+$A = \Pi_U(S)$. Then: $A \succeq 0$ as a sum of two congruences of $S$;
+$\Pi_U(A) = A$ since $U(\Id - U) = 0$; $\norm{A}_\Fro^2 = \norm{USU}_\Fro^2 + \norm{(\Id-U)S(\Id-U)}_\Fro^2 \in [1/4, 4]$
+when $\norm{U - P}_\Fro \le 1/8$, because $PS = SP$ makes $\Pi_P(S) = S$ and
+the pinching is $4\tau$-close to $S$: $\norm{A - S}_\Fro \le 4\tau \le 1/2$
+and $\norm{S}_\Fro = 1$; the bulk block
+$(\Id - U)A(\Id - U) = (\Id - U)(H + B)(\Id - U)$ has operator norm at most
+$\norm{U - P}_\Fro^2\norm{H}_\Fro + \varepsilon_0 \le \tau^2 + \varepsilon_0 \le \varepsilon$,
+since $(\Id - U)H(\Id - U) = (\Id - U)(P - U)H(P - U)(\Id - U)$ for $PHP = H$
+\formal{Pinching.Operator.paper\_main\_compression\_leakage}. Finally
+$\mathcal{L}(S, b) = 0$ and Lemma~\ref{lem:offset} give
+$\mathcal{L}(A, b) \le 4L\norm{A - S}_\Fro \le 16L\tau$.
+\end{proof}
+
+The bound $\norm{A - S}_\Fro \le 4\tau$ used twice above: with $PS = SP$,
+$A - S = -(US(\Id - U) + (\Id - U)SU)$ and
+$US(\Id - U) = (U - P)S(\Id - U) + PS(\Id - U) = (U - P)S(\Id - U) + SP(P - U)$,
+whose Frobenius norm is at most $2\tau\norm{S}_\Fro$ (each factor $U - P$,
+$P - U$ contributes $\tau$ and projectors have operator norm at most one);
+the other term is its transpose \formal{Projection.Pinching.paper\_main\_pinching\_perturbation}.
+
+\subsection{Finite priors and the soft minimum}\label{sec:prior}
+
+Fix an orientation $O$ of $\R^d$, $d = r + m$, $m = m_i + 1$, with head
+projector $U = P_r(O)$. For a sample $x$, the \emph{rotated sample}
+$Ox = (Ox_i)_{i<N}$ has the same law \formal{Orientation.Rotation.paper\_main\_orientation\_rotate\_law}
+(the rotation is a linear image with orthonormal rows, Proposition~\ref{prop:mulmx});
+its rows split into head coordinates $g_i \in \R^r$ and bulk coordinates
+$y_i \in \R^m$. An admissible $A$ is block diagonal in this orientation,
+$O A O^{\top} = \diag(H, B)$ with $H \in \Spsd^r$, $B \in \Spsd^m$,
+$1/4 \le \norm{H}_\Fro^2 + \norm{B}_\Fro^2 \le 4$, $\norm{B}_\op \le \varepsilon$
+\formal{Orientation.Witness.paper\_main\_orientation\_admissible\_blocks},
+and $x_i^{\top}Ax_i - \tr A = g_i^{\top}Hg_i - \tr H + y_i^{\top}By_i - \tr B$
+\formal{Orientation.Rotation.paper\_main\_orientation\_head\_value}.
+
+\begin{definition}[The finite-prior functionals \formal{Hybrid.FiniteArray.paper\_main\_hybrid\_finite\_data}, \formal{Hybrid.FiniteArray.paper\_main\_hybrid\_finite\_goe}, \formal{Loss.NormalizedArray.paper\_main\_loss\_normalized\_array}]
+Let $I = \{0, \dots, s-1\}$ index a finite \emph{prior} of states
+$(H_j, b_j, B_j)$, and let $\beta > 0$. The \emph{data row loss} of state
+$j$ on the row $(g, y)$ is $\ell^{\mathrm{dat}}_j(g, y) = \varphi(g^{\top}H_jg - \tr H_j - b_j + y^{\top}B_jy - \tr B_j)$;
+the \emph{hybrid row loss} replaces the bulk term by the linear form
+$\sqrt m\ip{G}{B_j} = \sqrt2\ip{z}{\mathrm{code}(B_j)}$ of a GOE coordinate
+vector $z \in \R^{\Dd_m}$, which has the same mean and covariance as the
+quadratic term \formal{Projection.Public.paper\_main\_projection\_goe\_covariance}.
+For a sample with rows $(g_i, y_i)$, resp. $(g_i, z_i)$, the \emph{array}
+of state $j$ is $\mathcal{A}_j = \sum_{i<N}\ell_j(g_i, \cdot)$, and
+\[
+\mathcal{Z} = \frac1N\Bigl(\min\nolimits_\beta^{j\in I}\mathcal{A}_j + \frac{\ln s}{\beta}\Bigr),
+\qquad \min\nolimits_\beta^{j}f_j = -\frac1\beta\ln\sum_{j\in I}e^{-\beta f_j},
+\]
+written $\mathcal{Z}_{\mathrm{dat}}$ and $\mathcal{Z}_{\mathrm{goe}}$.
+\end{definition}
+
+\begin{lemma}[Properties of $\mathcal{Z}$ \formal{Loss.NormalizedArray.paper\_main\_loss\_normalized\_array\_bounds}, \formal{Loss.NormalizedArray.paper\_main\_loss\_normalized\_array\_gap}, \formal{Loss.NormalizedArray.paper\_main\_loss\_normalized\_array\_witness}]\label{lem:Z}
+$0 \le \mathcal{Z} \le 1$; if $\mathcal{A}_j \ge Ne$ for every $j \in I$ then
+$\mathcal{Z} \ge e$; and $\mathcal{Z} \le \mathcal{A}_j/N + \ln s/(\beta N)$ for
+every $j \in I$. $\mathcal{Z}$ is a continuous function of the coordinates
+of the sample, and replacing one row changes it by at most $1/N$
+\formal{Loss.Gibbs.paper\_main\_gibbs\_row\_change}.
+\end{lemma}
+
+\begin{proof}
+The soft minimum satisfies $\min_jf_j - \ln s/\beta \le \min_\beta f \le \min_jf_j$;
+the row losses take values in $[0,1]$, so a row change moves each
+$\mathcal{A}_j$ by at most one and the soft minimum by at most one.
+\end{proof}
+
+\begin{proposition}[A finite prior for an orientation \formal{Loss.QuadraticPrior.paper\_main\_quadratic\_prior\_positive}, \formal{Orientation.Prior.paper\_main\_orientation\_prior}, \formal{Orientation.BlocksLoss.paper\_main\_orientation\_candidate\_bound}; replaces paper Lemma~4.9]\label{prop:prior}
+Let $O$ be orthogonal, $L \ge 0$, $\delta > 0$, and suppose some admissible
+candidate exists. There are $s > 0$ and states $(H_j, b_j, B_j)_{j<s}$ with
+$H_j \in \Spsd^r$, $B_j \in \Spsd^m$, $1/4 \le \norm{H_j}_\Fro^2 + \norm{B_j}_\Fro^2 \le 4$,
+$\norm{B_j}_\op \le \varepsilon$, $\abs{b_j} \le L$ and
+$\ln s \le 3C(\delta/(L+3))\,d^2$, such that for every sample of $N > 0$ points
+with $QQ^{*} \preceq K\Id$, $K \le NL^2$: if some admissible $(A, b)$ has
+$\mathcal{L}(A, b) \le a$, then $\mathcal{Z}_{\mathrm{dat}}(Ox) \le a + 4(L+1)\delta + \ln s/(\beta N)$.
+\end{proposition}
+
+\begin{proof}
+The admissible candidates form a subset of $\{(A, b) : A \text{ symmetric},\ \norm{A}_\Fro^2 \le 4,\ \abs{b} \le L\}$,
+a ball of radius $\sqrt{8 + L^2} \le L + 3$ in the metric
+$\sqrt{2\norm{A - A'}_\Fro^2 + (b - b')^2}$ on $\R^{\Dd_d + 1}$; take a
+$\delta$-net of the admissible set inside itself, of size
+$\ln s \le C(\delta/(L+3))(\Dd_d + 2) \le 3C(\delta/(L+3))d^2$
+\formal{Loss.JointNet.paper\_main\_loss\_joint\_net}. By Lemma~\ref{lem:offset},
+every admissible $(A, b)$ has a net point $(A_j, b_j)$ with
+$\abs{\mathcal{L}(A, b) - \mathcal{L}(A_j, b_j)} \le 4L\norm{A - A_j}_\Fro + 4\abs{b - b_j} \le 4(L+1)\delta$.
+The blocks of $A_j$ in the orientation are the states. Finally, for the
+rotated sample the array of state $j$ is $N\mathcal{L}(A_j, b_j)$, and
+Lemma~\ref{lem:Z} gives $\mathcal{Z}_{\mathrm{dat}}(Ox) \le \mathcal{L}(A_j, b_j) + \ln s/(\beta N)$.
+\end{proof}
+
+\subsection{The hybrid model}\label{sec:hybrid}
+
+In this section the head sample $h = (g_i)_{i<N}$, $g_i \in \R^r$, and the
+bulk array $z = (z_i)_{i<N}$, $z_i \in \R^{\Dd_m}$, are independent standard
+Gaussian, $m = m_i + 1$, and the \emph{hybrid residual} of $(H, b, B)$ is
+$u = \mathsf{K}(H, b) + \mathsf{R}(B) \in \R^N$ with
+$\mathsf{K}(H,b)_i = g_i^{\top}Hg_i - \tr H - b$ and
+$\mathsf{R}(B)_i = \sqrt2\ip{z_i}{\mathrm{code}(B)}$
+\formal{Hybrid.Residual.paper\_main\_hybrid\_residual}; its risk is
+$\frac1N\sum_i\varphi(u_i)$ \formal{Hybrid.Loss.paper\_main\_hybrid\_risk}.
+
+\begin{theorem}[Hybrid risk gap \formal{Hybrid.Assembly.paper\_main\_hybrid\_gap\_event}; paper Proposition~4.4, strengthened]\label{thm:hybrid}
+For every $\gamma > 1/4$ there are $\eta, e, c > 0$ and $d_0$ such that for
+all $d \ge d_0$, $N$ with $\abs{N - \gamma d^2} \le \eta d^2$, $r \le \sqd + 1$
+and $r + m_i + 1 \le d$, there is a measurable event $E$ of
+$\Prob_{N,r}\otimes\gauss_{N\Dd_m}$-probability at most $e^{-cd^2}$ outside
+which, for every symmetric $H$, every $B \succeq 0$ and every $b$ with
+$\norm{H}_\Fro^2 + \norm{B}_\Fro^2 \ge 1/4$, the hybrid risk of $(H, b, B)$ is
+at least $e$.
+\end{theorem}
+
+The paper requires $H \succeq 0$ and $\norm{H}_\Fro^2 + \norm{B}_\Fro^2 \le 4$;
+neither is needed. The proof has three probabilistic inputs and one
+deterministic step.
+
+\begin{proposition}[Uniform head small ball \formal{Head.SmallBallUniform.paper\_main\_head\_small\_ball\_uniform\_poly}; paper Lemma~4.10]\label{prop:smallball}
+Let $r = n + 1$ and $306432(r+1)^3 \le N$. There is a measurable event
+$\mathcal{B}$ of head samples with $\Prob_{N,r}(\mathcal{B}) \le \exp(-\frac{2\ln2 - 1}{2432}N)$
+such that outside $\mathcal{B}$, for every symmetric $H \in \R^{r\times r}$,
+every $b$ and every $J \subseteq \{0,\dots,N-1\}$ with $\abs{J} \ge (1 - 1/1216)N$,
+\[
+\sum_{i\in J}\bigl(g_i^{\top}Hg_i - \tr H - b\bigr)^2 \ge \frac{N}{4864}\bigl(2\norm{H}_\Fro^2 + b^2\bigr).
+\]
+\end{proposition}
+
+\begin{proof}
+Write $Y_{H,b}(g) = g^{\top}Hg - \tr H - b$ and $\sigma^2(H,b) = 2\norm{H}_\Fro^2 + b^2$.
+
+\emph{One row.} For $g \sim \gauss_r$, $\E Y_{H,b}^2 = \sigma^2$ and
+$\E Y_{H,b}^4 \le 19\sigma^4$ \formal{Head.SmallBallFourth.paper\_main\_head\_small\_ball\_moments}:
+diagonalize $H = O^{\top}\diag(a)O$, so that $Y = \sum_ia_i(w_i^2 - 1) - b$
+with $w = Og \sim \gauss_r$, and compute with the moments $\E v = 0$,
+$\E v^2 = 2$, $\E v^3 = 8$, $\E v^4 = 60$ of $v = w_i^2 - 1$:
+$\E Y^4 = 48\sum a_i^4 + 12(\sum a_i^2)^2 - 32b\sum a_i^3 + 12b^2\sum a_i^2 + b^4$,
+and $\sum a_i^4 \le (\sum a_i^2)^2$, $-32b\sum a_i^3 \le 16b^2\sum a_i^2 + 16\sum a_i^4$
+give $\E Y^4 \le 19(2\sum a_i^2 + b^2)^2$. The paper's hypercontractivity
+bound $\E Y^4 \le 81\sigma^4$ is not used. Paley--Zygmund
+(Theorem~\ref{thm:pz} with $X = Y^2$, $\theta = \sigma^2/2$) gives
+$\Prob\{Y^2 \ge \sigma^2/2\} \ge (\sigma^2/2)^2/(19\sigma^4) = 1/76$
+\formal{Head.SmallBallPZ.paper\_main\_head\_small\_ball\_probability}.
+Also, with $A(g) = gg^{\top} - \Id$, $\E\norm{A(g)}_\Fro^2 = r(r+1)$
+\formal{Data.FeatureMoments.paper\_main\_data\_feature\_frobenius}, so
+$\Prob\{\norm{A(g)}_\Fro^2 \ge \Psi\} \le 1/1216$ for $\Psi = 1216r(r+1)$.
+
+\emph{Net.} The parameters $(H, b)$ with $\sigma^2(H,b) = 1$ form the unit
+sphere of $\R^{\Dd_r + 1}$ in the coordinates $(\sqrt2\,\mathrm{code}(H), b)$,
+and $\abs{Y_{H,b}(g) - Y_{H',b'}(g)} \le \sigma(H - H', b - b')\sqrt{\norm{A(g)}_\Fro^2/2 + 1}$
+by Cauchy--Schwarz \formal{Head.SmallBallNet.paper\_main\_head\_small\_ball\_value\_diff}.
+Take an $\epsilon$-net $(H_t, b_t)_{t<s}$ of the unit parameter sphere with
+$\epsilon^2(\Psi/2 + 1) = 1/25$ and $\ln s \le C(\epsilon)(\Dd_r + 1) \le 504\ln2\,(r+1)^3$
+\formal{Head.SmallBallNet.paper\_main\_head\_small\_ball\_param\_net}.
+
+\emph{Counts.} For each $t$, the number of rows with $Y_{H_t,b_t}(g_i)^2 \ge 1/2$
+is at least $N/304$ outside an event of probability $\exp(-\frac1{76}N(\frac12 - \frac{\ln2}{4}))$:
+the count of rows in an event of probability $p$ is at most $pN/4$ with
+probability at most $2^{pN/4}(1 - p/2)^N \le \exp(-pN(\frac12 - \frac{\ln 2}{4}))$
+\formal{Head.SmallBallCount.paper\_main\_head\_row\_count\_lower\_exp}, by
+the binomial recursion obtained by splitting off one row; and the number
+of rows with $\norm{A(g_i)}_\Fro^2 \ge \Psi$ is below $N/608$ outside an event
+of probability $\exp(N/1216 - (N/608)\ln 2) = \exp(-\frac{2\ln2 - 1}{1216}N)$
+\formal{Head.SmallBallCount.paper\_main\_head\_row\_count\_upper\_exp}.
+Let $\mathcal{B}$ be the union of these $s + 1$ events; its probability is at
+most $\exp(504\ln2(r+1)^3 - \frac{N}{76}(\frac12 - \frac{\ln2}4)) + \exp(-\frac{2\ln2-1}{1216}N)$,
+and the hypothesis $306432(r+1)^3 \le N$ makes this at most
+$\exp(-\frac{2\ln2-1}{2432}N)$ \formal{Head.SmallBallUniform.paper\_main\_head\_small\_ball\_uniform}.
+
+\emph{Deterministic step.} Outside $\mathcal{B}$, let $\sigma^2(H,b) = 1$ (the
+general case follows by homogeneity) and let $t$ be a net point within
+$\epsilon$. On the at least $N/304 - N/608 = N/608$ rows where
+$Y_{H_t,b_t}^2 \ge 1/2$ and $\norm{A(g_i)}_\Fro^2 < \Psi$,
+$\abs{Y_{H,b}(g_i)} \ge 1/\sqrt2 - \epsilon\sqrt{\Psi/2 + 1} \ge 1/\sqrt2 - 1/5 \ge 1/2$.
+Removing at most $N/1216$ rows leaves at least $N/1216$ of them, whose
+squares sum to at least $N/4864$ \formal{Head.SmallBallUniform.paper\_main\_head\_small\_ball\_good}.
+\end{proof}
+
+\begin{proposition}[Projected bulk escape \formal{Hybrid.Bulk.paper\_main\_hybrid\_bulk\_event}, \formal{Projected.BulkConditional.paper\_main\_projected\_psd\_conditional\_tail}, \formal{Projected.BulkEscape.paper\_main\_projected\_escape\_tail}; paper Lemma~4.11]\label{prop:bulk}
+For $\gamma > 1/4$ there are $\eta, \delta, t, c, c_2 > 0$ and $d_0$, with
+$\delta < 1/1216$, such that for $d \ge d_0$, $\abs{N - \gamma d^2} \le \eta d^2$,
+$r \le \sqd + 1$, $r + m_i + 1 \le d$, $q \le r^2 + 1$, $k = \lfloor\delta N\rfloor$
+and every head feature matrix $F \in \R^{N\times q}$ with entries measurable in
+the head sample: the event $E_{\mathrm{bulk}}$ that some $J$ with $\abs{J} \ge N - k$,
+some unit $v$ in the coded positive semidefinite sphere of $\Sym^m$ and some
+$c \in \R^q$ have $\norm{S_J(Zv + Fc)}_2 \le \sqrt{\abs{J} - q - 1} - \sqrt{\Dd_m/2} - td$
+is measurable, with probability at most $e^{-c_2d^2}$ under the joint law of
+head and bulk, and outside it every such $J, v, c$ satisfy
+$\norm{S_J(Zv + Fc)}_2 > cd$ and $\abs{J} \ge (1 - 1/1216)N$. Here $Z \in \R^{N\times\Dd_m}$
+is the bulk array and $S_J$ the selection of the rows of $J$.
+\end{proposition}
+
+\begin{proof}
+Condition on the head, so $F$ is fixed. For a fixed $J$ let $F_J = S_JF$;
+there is a matrix $V$ with $s \ge \abs{J} - q$ orthonormal rows and $VF_J = 0$
+(keep the rows of an orthogonal diagonalization of $F_JF_J^{\top}$ with
+eigenvalue $0$; the others number at most $\rank F_J \le q$)
+\formal{Projected.BulkComplement.paper\_main\_projected\_complement\_mx}.
+Then $\norm{S_J(Zv + Fc)}_2 \ge \norm{VS_JZv}_2$ (Bessel), and $VS_JZ$ is an
+$s\times\Dd_m$ array with independent standard Gaussian entries
+(Proposition~\ref{prop:mulmx}, \formal{Projected.BulkLaw.paper\_main\_projected\_law}).
+The coded positive semidefinite sphere $T$ has Gaussian width at most
+$\sqrt{\Dd_m/2}$ (Proposition~\ref{prop:psdwidth}), so Theorem~\ref{thm:escape}
+gives $\Prob\{\inf_{v\in T}\norm{VS_JZv}_2 \le \sqrt{s - 1} - \sqrt{\Dd_m/2} - u\} \le e^{-u^2/2}$
+\formal{Gaussian.EscapeTail.paper\_main\_gaussian\_escape\_sqrt\_tail}.
+The number of sets $J$ with $\abs{J} \ge N - k$ is at most
+$\exp(k(1 + \ln(N/k)))$ \formal{Projected.BulkUnion.paper\_main\_projected\_count\_entropy},
+and the union over $J$ with $u = td$ has conditional probability at most
+$\exp(k(1 + \ln(N/k)) - t^2d^2/2) \le e^{-c_2d^2}$ by the choice of $\delta$ and
+$t$ \formal{Hybrid.Density.paper\_main\_hybrid\_density\_margin}; the same
+choice gives $\sqrt{(N - k) - q - 1} - \sqrt{\Dd_m/2} - td \ge cd$, since
+$N - k \ge (1 - \delta)(\gamma - \eta)d^2$, $q \le d + 2\sqd + 2$ and
+$\Dd_m/2 \le (d+1)^2/4$, while $\sqrt{(1-\delta)(\gamma - \eta)} > 1/2$ for
+$\delta, \eta$ small ($\gamma > 1/4$). Measurability of the joint event
+holds because the infimum over $(v, c)$ is witnessed on countable nets
+\formal{Projected.BulkConditional.paper\_main\_projected\_conditional\_tail}.
+\end{proof}
+
+\begin{lemma}[Bulk operator bound \formal{Hybrid.Assembly.paper\_main\_hybrid\_operator\_event}; paper (2.16)]\label{lem:bulkop}
+Let $\rho > 0$ with $\rho m^2 \le N$. Outside a measurable event of
+probability at most $2e^{-N/2}$, $\norm{\mathsf{R}(B)}_2 \le C(\rho)\sqrt N\norm{B}_\Fro$
+for every symmetric $B$, with $C(\rho) = 4\sqrt{20\ln2(1 + 2/\rho) + 1}$.
+\end{lemma}
+
+\begin{proof}
+The $N\times\Dd_m$ array $Z$ of the bulk coordinates has operator norm at most
+$2B$ outside probability $2\exp(20\ln2(N + \Dd_m) - B^2/2)$ (nets of the two
+spheres and Proposition~\ref{prop:linear}, Lemma~\ref{lem:opnet}); with
+$B^2 = 2(20\ln2(N + \Dd_m) + N/2)$ and $\Dd_m \le m^2 \le N/\rho$ this is
+$2e^{-N/2}$ and $2B \le C(\rho)\sqrt N$ \formal{Gaussian.Forward.paper\_main\_gaussian\_forward\_threshold}.
+\end{proof}
+
+\begin{lemma}[Operator norms by nets \formal{Gaussian.OperatorTail.paper\_main\_gaussian\_operator\_tail}; paper Lemma~2.5, with worse constants]\label{lem:opnet}
+For an $N\times M$ array $\Gamma$ of independent standard Gaussian entries,
+$N, M \ge 1$ and $B > 0$, $\Prob\{\norm{\Gamma}_\op > 2B\} \le 2\exp(20\ln2\,(N + M) - B^2/2)$.
+\end{lemma}
+
+\begin{proof}
+For $1/4$-nets $(z_y)$, $(v_t)$ of the two unit spheres made of unit vectors,
+with $\ln(\abs{z}\abs{v}) \le 20\ln2(N+M)$ (Theorem~\ref{thm:nets} with
+$(2e(1 + 8))^N \le 2^{20N}$, through the grid nets of \formal{Gordon.Entropy}),
+$\max_{y,t}\abs{z_y^{\top}\Gamma v_t} \le B$ implies $\norm{\Gamma}_\op \le 2B$
+\formal{Gordon.OperatorNet.paper\_main\_gordon\_operator\_discretization},
+and each $z_y^{\top}\Gamma v_t$ is a unit linear form of the entries
+(Proposition~\ref{prop:linear}).
+\end{proof}
+
+\begin{proposition}[The deterministic gap \formal{Hybrid.Residual.paper\_main\_hybrid\_residual\_gap}, \formal{Hybrid.Loss.paper\_main\_hybrid\_risk\_gap}]\label{prop:detgap}
+Let $\beta_0, C_0 > 0$, $k$ with $\delta N < k + 1$, and suppose:
+(1) for every symmetric $H$, real $b$ and $J$ with $\abs{J} \ge N - k$,
+$\sum_{i\in J}\mathsf{K}(H,b)_i^2 \ge \frac N{4864}(2\norm{H}_\Fro^2 + b^2)$;
+(2) for every $J$ with $\abs{J} \ge N - k$, every unit coded positive
+semidefinite $v$ and every head coefficient vector $c$,
+$\norm{S_J(Zv + Fc)}_2 > \beta_0\sqrt N$, where $F$ is the $N\times(r^2+1)$
+matrix with rows $(\mathrm{vec}(g_ig_i^{\top} - \Id), -1)$, so that
+$\mathsf{K}(H,b) = F\,(\mathrm{vec}H, b)$;
+(3) $\norm{\mathsf{R}(B)}_2 \le C_0\sqrt N\norm{B}_\Fro$ for every symmetric $B$.
+Then for every symmetric $H$, $B \succeq 0$ and $b$ with
+$\norm{H}_\Fro^2 + \norm{B}_\Fro^2 \ge 1/4$, the hybrid risk of $(H, b, B)$ is at
+least $e^{-1}\min(\delta, c_4^2)$, where $c_4 = c_4(\beta_0, C_0) > 0$.
+\end{proposition}
+
+\begin{proof}
+Fix $(H, b, B)$ and $u = \mathsf{K}(H,b) + \mathsf{R}(B)$. For every $J$ with
+$\abs{J} \ge N - k$ we claim $\norm{S_Ju}_2 \ge c_4\sqrt N$. If $\norm{B}_\Fro \ge \theta_0$,
+with $\theta_0 = \min(1/4, 1/(8\cdot4864^{1/2}C_0))$ say: by (2) and
+homogeneity, $\norm{S_J(\mathsf{R}(B) + \mathsf{K}(H,b))}_2 = \sqrt2\norm{B}_\Fro\norm{S_J(Zv + Fc)}_2 \ge \sqrt2\beta_0\sqrt N\norm{B}_\Fro$
+with $v = \mathrm{code}(B)/\norm{B}_\Fro$ and $c = (\mathrm{vec}H, b)/(\sqrt2\norm{B}_\Fro)$.
+Otherwise $\norm{H}_\Fro^2 \ge 1/4 - \theta_0^2 \ge 3/16$, and (1), (3) give
+$\norm{S_Ju}_2 \ge \norm{S_J\mathsf{K}}_2 - \norm{\mathsf{R}(B)}_2 \ge \sqrt{N/4864}\sqrt{2\cdot3/16} - C_0\theta_0\sqrt N$,
+which is positive for $\theta_0$ small. Now let $I = \{i : \abs{u_i} > 1\}$. If
+$\abs{I} > k$ then the risk is at least $e^{-1}(k+1)/N > e^{-1}\delta$; otherwise
+$J = I^c$ has $\abs{J} \ge N - k$, every $i \in J$ has $\varphi(u_i) \ge e^{-1}u_i^2$,
+and the risk is at least $e^{-1}\norm{S_Ju}_2^2/N \ge e^{-1}c_4^2$
+\formal{Hybrid.Loss.paper\_main\_hybrid\_loss\_gap}.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:hybrid}]
+Take the constants of Proposition~\ref{prop:bulk} and $\rho = \gamma/2$ in
+Lemma~\ref{lem:bulkop} (so $\rho m^2 \le N$ for large $d$). Let $E$ be the
+union of the head event of Proposition~\ref{prop:smallball} (for $r \ge 1$;
+for $r = 0$, $\mathsf{K}(0, b) = -b\one$ satisfies (1) trivially), of the bulk
+event of Proposition~\ref{prop:bulk} with $F$ the head feature matrix, and of
+the operator event. Its probability is at most
+$\exp(-\frac{2\ln2-1}{2432}N) + e^{-c_2d^2} + 2e^{-N/2} \le e^{-cd^2}$ for large
+$d$. Outside $E$, Proposition~\ref{prop:detgap} applies with
+$\beta_0 = c/\sqrt{\gamma + \eta}$ (as $cd \ge \beta_0\sqrt N$) and
+$C_0 = C(\rho)$.
+\end{proof}
+
+\begin{corollary}[Expectation under the hybrid law \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_goe\_mean}]\label{cor:goe_mean}
+With $\gamma, \eta, e, c, d_0$ as in Theorem~\ref{thm:hybrid}, for all
+$d \ge d_0$, $N$, $r$, $m_i$ as there, every $\beta > 0$ and every prior
+$(H_j, b_j, B_j)_{j\in I}$ with $H_j$ symmetric, $B_j \succeq 0$ and
+$\norm{H_j}_\Fro^2 + \norm{B_j}_\Fro^2 \ge 1/4$:
+$\E\mathcal{Z}_{\mathrm{goe}} \ge e(1 - e^{-cd^2})$.
+\end{corollary}
+
+\begin{proof}
+Outside $E$ (transported to the row layout of $\mathcal{Z}_{\mathrm{goe}}$
+by the coordinate permutation, which preserves the law), every state $j$
+has $\mathcal{A}_j = N\cdot(\text{hybrid risk of }(H_j, b_j, B_j)) \ge Ne$, so
+$\mathcal{Z}_{\mathrm{goe}} \ge e$ (Lemma~\ref{lem:Z}); and $\mathcal{Z} \ge 0$
+everywhere. Hence $\E\mathcal{Z}_{\mathrm{goe}} \ge e\Prob(E^c)$
+\formal{Loss.ExpectedGap.paper\_main\_loss\_expected\_gap}.
+\end{proof}
+
+\subsection{Universality for the finite prior}\label{sec:universality}
+
+\begin{theorem}[Comparison of the two means \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_mean\_comparison}; replaces paper Propositions~4.3 and 4.8 and Lemma~4.9]\label{thm:universality}
+For every $\beta > 0$ and $\eta > 0$ there is $C = C(\beta, \eta) \ge 0$ such
+that for all $N \ge 1$, all dimensions $r, m_i$, all finite priors with $B_j$
+symmetric, $\norm{B_j}_\op \le \varepsilon$ and $\norm{B_j}_\Fro \le S_f$, and all
+offsets,
+\[
+\abs{\E\mathcal{Z}_{\mathrm{dat}} - \E\mathcal{Z}_{\mathrm{goe}}} \le 2\eta + C\varepsilon S_f .
+\]
+\end{theorem}
+
+The free-entropy universality of Bandeira and Maillard, which the paper
+cites, is replaced by the following three steps.
+
+\begin{proposition}[Row replacement \formal{Loss.Replacement.paper\_main\_loss\_array\_comparison}, \formal{Loss.BlockComparison.paper\_main\_loss\_conditional\_prefix\_comparison}]\label{prop:replacement}
+Let $\ell^{\mathrm{Q}}_{ij}$, $\ell^{\mathrm{G}}_{ij}$ ($i < N$, $j \in I$) be
+continuous row losses with values in $[0,1]$ on rows of lengths $p$ and $q$.
+If for every $i$ and every $f : I \to \R$,
+$\abs{\E^{(p)}\min_\beta^j(f_j + \ell^{\mathrm{Q}}_{ij}) - \E^{(q)}\min_\beta^j(f_j + \ell^{\mathrm{G}}_{ij})} \le B$,
+then for every $f$,
+$\abs{\E^{(Np)}\min_\beta^j(f_j + \sum_i\ell^{\mathrm{Q}}_{ij}) - \E^{(Nq)}\min_\beta^j(f_j + \sum_i\ell^{\mathrm{G}}_{ij})} \le NB$.
+\end{proposition}
+
+\begin{proof}
+Replace the rows one at a time: with $i$ rows of the second kind and $N - i$
+of the first, the difference between consecutive hybrids is, after
+integrating out all the other rows (Fubini, with the other rows fixed, the
+functional is a soft minimum of $f'_j = f_j + \sum_{i'\ne i}\ell_{i'j}$ plus
+the $i$-th row loss), at most $B$ by hypothesis. Sum over $i$.
+\end{proof}
+
+\begin{proposition}[One row \formal{Loss.SoftCost.paper\_main\_loss\_row\_value\_comparison}, \formal{Loss.RowIncrement.paper\_main\_loss\_row\_increment\_comparison}]\label{prop:onerow}
+For $\beta, \eta > 0$ there is $C \ge 0$ such that for every $n$, every
+$f : I \to \R$, offsets $(a_j)$ and symmetric $T_j \in \R^{(n+1)\times(n+1)}$
+with $\norm{T_j}_\op \le \varepsilon$ and $\norm{T_j}_\Fro \le S_f$, with
+$Q_j(x) = x^{\top}T_jx - \tr T_j$ for $x \sim \gauss_{n+1}$ and
+$G_j(z) = \ip{z}{\mathrm{loading}(T_j)}$ the Gaussian linear forms with the
+same covariances, $z \sim \gauss_{\Dd_n}$,
+\[
+\Bigl|\E\min\nolimits_\beta^j\bigl(f_j + \varphi(a_j + Q_j(x))\bigr) - \E\min\nolimits_\beta^j\bigl(f_j + \varphi(a_j + G_j(z))\bigr)\Bigr| \le 2\eta + C\varepsilon S_f .
+\]
+\end{proposition}
+
+\begin{proof}
+\emph{Replica expansion.} For losses $\ell_j \in [0,1]$,
+$\min_\beta^j(f_j + \ell_j) - \min_\beta^jf_j = -\beta^{-1}\ln\mathcal{A}$, where
+$\mathcal{A} = \sum_j\pi_je^{-\beta\ell_j}$ is the average of $e^{-\beta\ell_j}$
+under the Gibbs weights $\pi_j \propto e^{-\beta f_j}$, and
+$e^{-\beta} \le \mathcal{A} \le 1$ \formal{Loss.Gibbs.paper\_main\_gibbs\_row\_increment}.
+With $u_j = 1 - e^{-\beta\ell_j} \in [0, 1 - e^{-\beta}]$,
+$-\ln\mathcal{A} = -\ln(1 - \sum_j\pi_ju_j) = \sum_{k\ge1}\frac1k\bigl(\sum_j\pi_ju_j\bigr)^k$,
+and the truncation at degree $k_0$ has error at most
+$q^{k_0}/(1 - q)$ with $q = 1 - e^{-\beta}$, uniformly in everything
+\formal{Loss.LogPolynomial.paper\_main\_loss\_log\_remainder}; choose $k_0$
+with $q^{k_0}/((1-q)\beta) \le \eta$ \formal{Loss.Replica.paper\_main\_loss\_row\_poly\_uniform}.
+Each term $(\sum_j\pi_ju_j)^k$ is the average over $k$ independent replicas
+$j_1, \dots, j_k$ drawn from $\pi$ of the product $\prod_{l\le k}u_{j_l}$
+\formal{Loss.Replica}.
+
+\emph{Comparison of a product.} With $\ell_j = \varphi(a_j + Q_j(x))$, the
+factor $u_j = 1 - \exp(-\beta\varphi(a_j + Q_j(x)))$ is a smooth bounded
+function of $Q_j(x)$ with derivatives bounded by $C_\beta = 1 + 10\beta + 16\beta^2$
+\formal{Loss.SmoothFactor.paper\_main\_loss\_factor\_smooth}, and the
+product of $k$ factors is a $C^2$ function $F$ of the $k$ features
+$(Q_{j_1}, \dots, Q_{j_k})$ with $F$ and its first two derivatives bounded by
+$(4C_\beta)^k$ \formal{Loss.SmoothProduct.paper\_main\_loss\_test\_smooth}.
+By Proposition~\ref{prop:smooth_comparison} below,
+$\abs{\E F(Q_{j_1}(x), \dots) - \E F(G_{j_1}(z), \dots)} \le 2k^2(4C_\beta)^k\varepsilon S_f$
+\formal{Loss.ReplicaComparison.paper\_main\_loss\_product\_comparison};
+averaging over the replicas keeps the bound
+\formal{Loss.ReplicaIntegral.paper\_main\_loss\_replica\_comparison}, and
+summing the $k_0$ terms with their factors $1/k$ gives a constant
+$C' = C'(\beta, k_0)$ with
+$\abs{\E(\text{truncated}^{\mathrm{Q}}) - \E(\text{truncated}^{\mathrm{G}})} \le C'\varepsilon S_f$
+\formal{Loss.RowPolynomial.paper\_main\_loss\_row\_polynomial\_comparison}.
+Adding the two truncation errors $\eta$ gives the claim with $C = C'/\beta$.
+\end{proof}
+
+\begin{proposition}[Fixed-dimensional smooth comparison \formal{Projection.PublicOperator.paper\_main\_projection\_public\_comparison}, \formal{Projection.Comparison.paper\_main\_projection\_smooth\_comparison}]\label{prop:smooth_comparison}
+Let $T_0, \dots, T_{K-1}$ be symmetric $(n+1)\times(n+1)$ matrices with
+$\norm{T_a}_\op \le \varepsilon$ and $\norm{T_a}_\Fro \le S_f$, and let $F : \R^K \to \R$
+be of class $C^2$ with $F$ and its first and second partial derivatives
+bounded by $C_F$. Then
+\[
+\Bigl|\E F\bigl((x^{\top}T_ax - \tr T_a)_{a<K}\bigr) - \E F\bigl((\ip{z}{\mathrm{loading}(T_a)})_{a<K}\bigr)\Bigr| \le 2K^2C_F\varepsilon S_f ,
+\]
+for $x \sim \gauss_{n+1}$ and $z \sim \gauss_{\Dd_n}$, where the loadings are
+chosen so that the covariances agree: $\E G_aG_b = \E Q_aQ_b = 2\ip{T_a}{T_b}$.
+\end{proposition}
+
+\begin{proof}
+Put the two Gaussian vectors side by side and interpolate the features:
+$\Xi_a(t) = \sqrt t\,Q_a(x) + \sqrt{1-t}\,G_a(z)$. The map
+$t \mapsto \E F(\Xi(t))$ is differentiable on $(0,1)$ with derivative
+$\E\sum_a\partial_aF(\Xi(t))\bigl(\frac{Q_a}{2\sqrt t} - \frac{G_a}{2\sqrt{1-t}}\bigr)$
+\formal{Projection.Interpolation.paper\_main\_projection\_interpolation\_derivative}.
+Integration by parts in $z$ (Theorem~\ref{thm:ibp}) turns the $G$ term into
+$\frac12\sum_{a,b}\E\,\partial_a\partial_bF(\Xi(t))\,\E G_aG_b$, and integration
+by parts in $x$ turns the $Q$ term, since $Q_a$ is a centered quadratic
+form, into $\frac12\sum_{a,b}\E\,\partial_a\partial_bF(\Xi(t))\cdot2\ip{T_a}{T_b}$
+plus an error term that involves the second derivatives of $F$ and the
+\emph{cross products} $x^{\top}T_aT_bx$ centered at their means
+\formal{Projection.Stein.paper\_main\_projection\_quadratic\_stein},
+\formal{Projection.Error.paper\_main\_projection\_mixed\_error}. The
+covariance terms cancel, and the error term is bounded, by Cauchy--Schwarz
+and the moments of quadratic forms, by $2C_F\sum_{a,b}\norm{T_a}_\op\norm{T_b}_\Fro \le 2K^2C_F\varepsilon S_f$
+\formal{Projection.ErrorBound.paper\_main\_projection\_error\_bound};
+integrate over $[0,1]$. The loadings and the orthogonality of the two blocks
+are handled by \formal{Projection.Independent.paper\_main\_projection\_independent\_comparison}
+and \formal{Projection.Public.paper\_main\_projection\_goe\_covariance}.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:universality}]
+For a row $(g, y)$ or $(g, z)$ with the head $g$ fixed, the offsets
+$a_j = g^{\top}H_jg - \tr H_j - b_j$ are numbers, and
+Proposition~\ref{prop:onerow} with $T_j = B_j$ bounds the difference of the
+expected row values by $2\eta + C\varepsilon S_f$; integrating over $g$
+(Fubini, \formal{Loss.BlockComparison}) gives the one-row hypothesis of
+Proposition~\ref{prop:replacement} with $B = 2\eta + C\varepsilon S_f$, and
+the normalization by $N$ and the entropy shift (which is the same on both
+sides) give the claim \formal{Hybrid.FiniteMean.paper\_main\_hybrid\_finite\_row\_comparison}.
+\end{proof}
+
+\subsection{Concentration}\label{sec:concentration}
+
+\begin{proposition}[Bounded differences for Gaussian rows \formal{Loss.ConcentrationRow.paper\_main\_concentration\_rows}, \formal{Loss.ConcentrationTail.paper\_main\_concentration\_lower\_tail}, \formal{Loss.ConcentrationSoftMin.paper\_main\_softmin\_lower\_tail}; replaces McDiarmid's inequality, paper line 2330]\label{prop:bdd}
+Let $F$ be a continuous bounded function of $N$ rows of $p$ Gaussian
+coordinates such that changing one row changes $F$ by at most $c$. Then
+$\E e^{\lambda(F - \E F)} \le e^{\lambda^2Nc^2/2}$ for every real $\lambda$, and
+$\Prob\{F \le \E F - t\} \le e^{-t^2/(2Nc^2)}$ for $t > 0$. For
+$F = \mathcal{Z}_{\mathrm{dat}}$ (Lemma~\ref{lem:Z}, $c = 1/N$):
+$\Prob\{\mathcal{Z}_{\mathrm{dat}} \le \E\mathcal{Z}_{\mathrm{dat}} - t\} \le e^{-Nt^2/2}$.
+\end{proposition}
+
+\begin{proof}
+Induction on the rows: integrating out the last row, $F - \E_{\text{last}}F$
+has absolute value at most $c$ for fixed other rows, and
+$\E_{\text{last}}e^{\lambda(F - \E_{\text{last}}F)} \le e^{\lambda^2c^2/2}$,
+by the convexity of the exponential on $[-c, c]$: for a centered variable
+$V$ with $\abs{V} \le c$, $e^{\lambda V} \le \cosh(\lambda c) + V\sinh(\lambda c)/c$,
+whose mean is $\cosh(\lambda c) \le e^{\lambda^2c^2/2}$. The function
+$\E_{\text{last}}F$ of the remaining rows has the same oscillation bound,
+so the induction closes. Chernoff's bound gives the tail.
+\end{proof}
+
+\begin{corollary}[Lower tail of the data functional \formal{Unsat.FiniteTail.paper\_main\_unsat\_ordered\_tail}, \formal{Hybrid.FiniteTail.paper\_main\_hybrid\_finite\_data\_lower\_tail}; replaces paper Lemma~4.12]\label{cor:tail}
+For $\gamma > 1/4$ there are $\kappa \le \gamma/2$, $e, c > 0$ and $d_0$ such
+that for all $\beta, \eta > 0$ there is $C \ge 0$ with: for $d \ge d_0$,
+$\abs{N - \gamma d^2} \le \kappa d^2$, $r \le \sqd + 1$, $r + m_i + 1 \le d$, every
+prior with $H_j$ symmetric, $B_j \succeq 0$, $\norm{H_j}_\Fro^2 + \norm{B_j}_\Fro^2 \ge 1/4$,
+$\norm{B_j}_\op \le \varepsilon$, $\norm{B_j}_\Fro \le S_f$, and every $t > 0$,
+\[
+\Prob\Bigl\{\mathcal{Z}_{\mathrm{dat}} \le e(1 - e^{-cd^2}) - (2\eta + C\varepsilon S_f) - t\Bigr\} \le e^{-Nt^2/2}.
+\]
+\end{corollary}
+
+\begin{proof}
+Corollary~\ref{cor:goe_mean}, Theorem~\ref{thm:universality} and
+Proposition~\ref{prop:bdd}.
+\end{proof}
+
+\subsection{Assembly of the unsatisfiable phase}\label{sec:unsat_assembly}
+
+\begin{proposition}[The exceptional event of an orientation \formal{Orientation.Exception.paper\_main\_orientation\_exception}, \formal{Unsat.Orientation.paper\_main\_unsat\_orientation\_constants}; replaces paper Proposition~4.5 for one net point]\label{prop:exception}
+For $\gamma > 1/4$ there are $\kappa \le \gamma/2$, $e, c, L > 0$ with
+$\frac\gamma2L^2 = 109$, $\varepsilon > 0$, $0 < \tau \le 1/8$ with
+$\varepsilon/2 + \tau^2 \le \varepsilon$, and $d_0$, such that for all $d \ge d_0$,
+every orthogonal $O$, every $r < d$ with $r \le \sqd + 1$, every $N$ with
+$\abs{N - \gamma d^2} \le \kappa d^2$ and $e^{-cd^2} \le 1/4$: there is a
+measurable event $E_O$ with $\Prob_{N,d}(E_O) \le \exp(-N(e/4)^2/2)$ that
+contains every sample with $QQ^{*} \preceq K\Id$, $K \le NL^2$, which admits an
+admissible $(A, b)$ for $O$ (at $r$, $\varepsilon$, $L$) with
+$\mathcal{L}(A, b) \le 16L\tau$.
+\end{proposition}
+
+\begin{proof}
+Choose, in this order: $\kappa, e, c, d_0$ from Corollary~\ref{cor:tail};
+$L$ with $\frac\gamma2L^2 = 109$ \formal{Loss.EntropyBudget.paper\_main\_loss\_feature\_constant};
+$\delta, \beta, \eta$ with $4(L+1)\delta \le e/16$, $2\eta = e/32$ and
+$3C(\delta/(L+3))/(\frac\gamma2\beta) \le e/16$ \formal{Unsat.SupercriticalParameters.paper\_main\_unsat\_net\_parameters};
+then $C = C(\beta,\eta)$ from Corollary~\ref{cor:tail}, and $\varepsilon, \tau$
+with $\tau \le 1/8$, $\varepsilon/2 + \tau^2 \le \varepsilon$, $2C\varepsilon \le e/32$
+and $16L\tau \le e/16$ \formal{Unsat.SupercriticalParameters.paper\_main\_unsat\_cutoff\_parameters}.
+Given $O$ and $r$, take the prior of Proposition~\ref{prop:prior} for the
+pinched admissible set (if it is empty, $E_O = \varnothing$), with
+$S_f = 2$. Let $E_O$ be the pullback under the rotation by $O$ of the
+event $\{\mathcal{Z}_{\mathrm{dat}} \le z\}$ with
+$z = 16L\tau + 4(L+1)\delta + 3C(\delta/(L+3))/(\frac\gamma2\beta) \le 3e/16$;
+it is measurable and has the same probability, since the rotation
+preserves the law. By Proposition~\ref{prop:prior} (the density
+$\frac\gamma2d^2 \le N$ bounds $\ln s/(\beta N)$ by $3C(\delta/(L+3))/(\frac\gamma2\beta)$),
+every sample with a low-risk admissible candidate lies in $E_O$. By
+Corollary~\ref{cor:tail} with $t = e/4$: the threshold there is at least
+$e\cdot\frac34 - \frac e{16} - \frac e4 = \frac{7e}{16} > \frac{3e}{16} \ge z$,
+so $\Prob(E_O) \le e^{-N(e/4)^2/2}$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:unsat}]
+Fix $\gamma \in (1/4, 1/2)$ and the constants of Proposition~\ref{prop:exception};
+let $\varepsilon_0 = \varepsilon/2$ and $r_{\max} = \lceil 1/\varepsilon_0^2\rceil$,
+a constant. Let $N = n_\gamma(d)$, so $\abs{N - \gamma d^2} \le 1 \le \kappa d^2$
+and $N \le d^2$ for large $d$. For each $r \le r_{\max}$ take the $\tau$-net of
+orientations of Proposition~\ref{prop:onets} and the events
+$E_{r,k} = E_{O_{r,k}}$; their union $F_d$ is measurable with
+\[
+\Prob(F_d) \le (r_{\max} + 1)\exp\bigl((4 + 8r_{\max}/\tau)\ln2(r_{\max}+1)(d+1)\bigr)\,e^{-N(e/4)^2/2} \to 0,
+\]
+since $N(e/4)^2/2 \ge ad^2$ with $a = \gamma(e/4)^2/4$
+\formal{Orientation.Union.paper\_main\_orientation\_union\_fit},
+\formal{Unsat.Rates.paper\_main\_unsat\_orientation\_union\_limit}. Outside
+the upper-edge event of Proposition~\ref{prop:upperedge}, $QQ^{*} \preceq 109d^2\Id \preceq NL^2\Id$
+(as $\frac\gamma2d^2 \le N$), so by Proposition~\ref{prop:witness} every fit
+lies in some $E_{r,k}$. Hence
+$\Prob(\Fit_{N,d}) \le \Prob(\text{upper-edge event}) + \Prob(F_d) \to 0$
+\formal{Unsat.Limit.paper\_main\_unsat\_fixed\_density\_limit\_from\_events}.
+\end{proof}
+
+\section{Assembly of the three theorems}\label{sec:assembly}
+
+\begin{proof}[Proof of Theorem~\ref{thm:cond}]
+Let $0 < \beta < 1/4$ and $N(d) = \lfloor\beta d^2\rfloor$. By
+Theorem~\ref{thm:loweredge} there are events $E_d$ of vanishing probability
+outside which $QQ^{*}$ is coercive with constant $d^2/128$; by
+Proposition~\ref{prop:upperedge} there are events of vanishing probability
+outside which $QQ^{*} \preceq 109d^2\Id$ (the counts satisfy $0 < N(d) \le d^2$
+and the density is at least $\beta/2$ eventually
+\formal{Fixed.CountBounds.paper\_main\_fixed\_count\_density\_bounds}).
+Theorem~\ref{thm:sat} with $\alpha = \beta$, $c = 1/128$ and $C = 109$ gives
+$\kappa = \kappa(\beta) \ge 1$ with
+$\Prob_{N(d),d}(\Cond_{N(d),d}((2\kappa+1)^{-1}, 2\kappa+1)) \to 1$
+\formal{Conditioned.FromLower.paper\_main\_conditioned\_from\_lower}. The
+events are measurable (Proposition~\ref{prop:measurable}), and
+Proposition~\ref{prop:fixed}(a) concludes
+\formal{PaperMainConditionedLimit.paper\_main\_conditioned\_limit}.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+$\Fit_{n,d}$ is measurable by Proposition~\ref{prop:measurable}.
+(a) If $\limsup n(d)/d^2 < 1/4$, pick $\alpha^* < 1/4$ with
+$n(d)/d^2 \le \alpha^*$ eventually; Theorem~\ref{thm:cond} gives
+$\lambda_\pm$ with $\Prob(\Cond_{n(d),d}(\lambda_-,\lambda_+)) \to 1$, and
+$\Cond \subseteq \Fit$ \formal{Asymptotics.paper\_main\_conditioned\_subset},
+so $\Prob(\Fit_{n(d),d}) \to 1$ (probabilities are at most one)
+\formal{Asymptotics.paper\_main\_sat\_from\_conditioned}.
+(b) Theorem~\ref{thm:unsat} and Proposition~\ref{prop:fixed}(b)
+\formal{Unsat.Limit.paper\_main\_unsat\_supercritical\_limit}.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:bal}]
+$\Bal_{n,d}$ is measurable by Proposition~\ref{prop:measurable}. For
+$d > 0$, no sample is both in $\Fit_{n,d}$ and in $\Bal_{n,d}$
+(Theorem~\ref{thm:alternative}, exclusion), so
+$\Prob(\Bal_{n,d}) \le 1 - \Prob(\Fit_{n,d})$
+\formal{Balanced.Probability.paper\_main\_balanced\_probability\_le\_complement};
+below the threshold, Theorem~\ref{thm:main}(a) gives $\Prob(\Bal) \to 0$
+\formal{Balanced.Probability.paper\_main\_balanced\_from\_sat}. Above the
+threshold, $0 < d \le n(d)$ for all large $d$
+\formal{Balanced.Supercritical.paper\_main\_supercritical\_spanning\_count},
+the sample spans almost surely (Lemma~\ref{lem:spanning}), and a spanning
+sample that is not a fit is in $\Bal_{n,d}$ (Theorem~\ref{thm:alternative}),
+so $\Bal_{n,d}$ and the complement of $\Fit_{n,d}$ agree almost surely and
+$\Prob(\Bal_{n(d),d}) = 1 - \Prob(\Fit_{n(d),d}) \to 1$ by
+Theorem~\ref{thm:main}(b) \formal{Balanced.Supercritical.paper\_main\_balanced\_from\_unsat},
+\formal{Balanced.Limit.paper\_main\_balanced\_supercritical\_limit}.
+\end{proof}
+
+\begin{remark}[Where the threshold enters]
+In the satisfiable phase, the density $\alpha < 1/4$ enters through
+$g = 1/2 - \sqrt\alpha > 0$: the width of the bounded-condition cone is
+close to $d/2$ (Proposition~\ref{prop:conewidth}), the section widths keep
+all but $\frac g{16}d$ of it (Theorem~\ref{thm:heads}), and Gordon's
+inequality compares the width with $\sqrt N \le \sqrt\alpha\,d$
+(Proposition~\ref{prop:gordon_margin}). The lower feature edge is also used
+there, and it is proved only for $4N \le d^2$ (Theorem~\ref{thm:loweredge});
+the paper claims it up to density $1/2$. In the unsatisfiable phase, the
+density $\gamma > 1/4$ enters through the escape estimate for the projected
+bulk: $\sqrt{(1-\delta)\gamma} - 1/2 > 0$ (Proposition~\ref{prop:bulk}). The
+other ingredients (small ball, nets, universality, concentration) work at
+any density; the formal proof restricts to $\gamma < 1/2$ only through the
+upper-edge bound $N \le d^2$.
+\end{remark}
+
+\begin{remark}[What is not computed]
+The constants $\kappa(\alpha^*)$, hence $\lambda_\pm$ of
+Theorem~\ref{thm:cond}, and all thresholds in $d$ are produced by the proof
+but not computed. The walk-count estimates of Section~\ref{sec:edge} need
+$d \ge 2^{9600}$; the other thresholds are of the usual kind (polynomial
+versus logarithmic comparisons).
+\end{remark}
+
+\begin{remark}[Axioms]
+The formal development uses, besides the logic of Rocq, the classical
+axioms of MathComp-Analysis (excluded middle, functional and propositional
+extensionality, and a choice principle), which also underlie the informal
+proof.
+\end{remark}
+
+\end{document}
