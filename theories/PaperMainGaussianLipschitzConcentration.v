@@ -12,16 +12,38 @@ From EllipsoidFitting Require Import SoftDefinitions GaussianCoordinateDefinitio
   GaussianProductDefinitions GaussianProduct GaussianCoordinatePolynomialContinuity
   GaussianProbabilityProductDefinitions
   GaussianProbabilityProductContinuity PaperMainGordonLipschitz
-  PaperMainGaussianSmoothCovariance PaperMainGaussianMGFBound
-  PaperMainGaussianSmoothLaw PaperMainGaussianSmoothTail
-  PaperMainGaussianTailLimit PaperMainGaussianLipschitzClip
-  PaperMainGaussianLipschitzSmooth PaperMainGaussianLipschitzSmoothDerivative
-  PaperMainGaussianLipschitzSmoothDerivativeLift
-  PaperMainGaussianLipschitzApproximation PaperMainGaussianLipschitzApproximationLaw
-  PaperMainGaussianAffineIntegralSmoothing PaperMainGaussianLipschitzConcentrationTail.
+  PaperMainGaussianSmoothLaw PaperMainGaussianSmoothTail PaperMainGaussianTailLimit
+  PaperMainGaussianLipschitzClip PaperMainGaussianLipschitzApproximation
+  PaperMainGaussianLipschitzApproximationLaw PaperMainGaussianLipschitzConcentrationTail.
+From mathcomp Require Import matrix.
+From GaussianAnalysis Require Import measurable_matrix gauss euclidean gauss_smoothing.
+From GaussianAnalysis Require Import gauss_concentration.
+From EllipsoidFitting Require Import GaussianCovarianceSums GaussianLawBridge RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
+
+Local Notation RR := (R : realType).
+
+Lemma paper_main_gaussian_finite_sum_seq d (f : nat -> R) :
+  finite_sum f (List.seq 0 d) = (\sum_(j < d) f j)%R.
+Proof.
+revert f; induction d as [|d IH]; intro f.
+- by rewrite big_ord0.
+- rewrite big_ord_recl /= finite_sum_seq_shift.
+  change (f 0%nat + finite_sum (fun j => f (S j)) (List.seq 0 d) =
+    f 0%nat + (\sum_(j < d) f (S j))%R).
+  by rewrite IH.
+Qed.
+
+(* The distance of the lists of coordinates is the Euclidean distance. *)
+Lemma paper_main_gordon_distance_list_of_row d (x y : 'rV[RR]_d) :
+  paper_main_gordon_distance d (list_of_row x) (list_of_row y) = frobenius (x - y).
+Proof.
+rewrite /paper_main_gordon_distance paper_main_gaussian_finite_sum_seq sqrtF.
+rewrite /frobenius /mxdot big_ord1; congr Num.sqrt; apply: eq_bigr => j _.
+by rewrite !list_of_row_nth !mxE powF expr2.
+Qed.
 
 Theorem paper_main_gaussian_lipschitz_centered_mgf d F L t :
   0 <= L ->
@@ -33,24 +55,21 @@ Theorem paper_main_gaussian_lipschitz_centered_mgf d F L t :
      (exp (t ^ 2 * L ^ 2 / 2))%:E)%E.
 Proof.
 move=> HL Hlip Ht.
-under eq_integral do rewrite RexpE.
-rewrite RexpE.
-eapply (@paper_main_centered_exponential_limit_bound _ _ (gaussian_product_law d)
-  (paper_main_gaussian_approximant_random d F)
-  (paper_main_gaussian_smooth_random d F)
-  (fun n => gaussian_iterated_expectation d (paper_main_gaussian_approximant d F n))
-  (gaussian_iterated_expectation d F) t _).
-- move=> n; exact: (paper_main_gaussian_approximant_random_measurable d F L n HL Hlip).
-- move=> x; exact: (paper_main_gaussian_approximant_random_cvg d F L x HL Hlip).
-- exact: (paper_main_gaussian_approximant_mean_cvg d F L HL Hlip).
-- move=> n.
-  have HI := paper_main_gaussian_shift_derivative_proved _ (paper_main_gaussian_width_pos n).
-  have HS := paper_main_gaussian_approximant_smooth_test_conditional d F L n HI HL Hlip.
-  have HG := paper_main_gaussian_approximant_gradient_conditional d F L n HI HL Hlip.
-  have [_ HB] := paper_main_gaussian_smooth_law_centered_mgf d _ _ _ _ L t HS HG Ht.
-  move: HB.
-  under eq_integral do rewrite /paper_main_gaussian_centered_exp RexpE.
-  rewrite RexpE; done.
+have [iG ->] := @gaussian_iterated_expectation_gauss_poly d F _ _
+  (paper_main_gaussian_lipschitz_continuous d F L HL Hlip)
+  (paper_main_gaussian_lipschitz_polynomial_bound d F L HL Hlip).
+pose G := fun x : 'rV[RR]_d => (F (list_of_row x) : RR).
+have GL (x y : 'rV[RR]_d) : (`|G x - G y| <= L * frobenius (x - y))%R.
+  have := Hlip (list_of_row x) (list_of_row y) (list_of_row_length x)
+    (list_of_row_length y).
+  by rewrite paper_main_gordon_distance_list_of_row RabsF => /RleP.
+pose E := (\int[gauss d]_x G x)%R.
+have iE := integrable_gauss_concentration GL t.
+under eq_integral do rewrite -list_of_row_of_tuple expF.
+rewrite -(@integral_gauss_gaussian_product_law d
+  (fun y => (expR (t * (G y - E)))%:E) iE).
+rewrite expF RdivE !RpowE IZRposE INRE /=.
+exact: gauss_concentration GL t.
 Qed.
 
 Theorem paper_main_gaussian_lipschitz_mgf_integrable d F L t :
