@@ -7,11 +7,15 @@
 
    To state a library result at Stdlib's R, rewrite with these lemmas, from
    right to left, the Stdlib forms of the paper into the MathComp forms of
-   the library. *)
-From Stdlib Require Import Reals.
+   the library.
+
+   finite_sum_seqE reads the paper's finite_sum over List.seq 0 n
+   (SoftDefinitions) as MathComp's \sum_(i < n). *)
+From Stdlib Require Import Reals List.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum boolp reals.
 From mathcomp Require Import Rstruct Rstruct_topology sequences exp.
-Import Num.Theory.
+From EllipsoidFitting Require Import SoftDefinitions.
+Import GRing.Theory Num.Theory.
 
 Lemma RleF : Rle = (fun x y : R => (x <= y)%R).
 Proof. by apply/funext => x; apply/funext => y; apply/propext; split => /RleP. Qed.
@@ -48,3 +52,15 @@ Proof. by apply/funext => x; rewrite RexpE. Qed.
 
 Lemma lnF : Rpower.ln = (fun x : R => @exp.ln (R : realType) x).
 Proof. by apply/funext => x; rewrite RlnE. Qed.
+
+Lemma finite_sum_seq_addE k n (f : nat -> R) :
+  finite_sum f (List.seq k n) = (\sum_(i < n) f (k + i)%N)%R.
+Proof.
+elim: n k => [|n IH] k; first by rewrite big_ord0.
+rewrite big_ord_recl /= addn0 IH.
+by congr (_ + _)%R; apply: eq_bigr => i _; rewrite addSnnS.
+Qed.
+
+Lemma finite_sum_seqE n (f : nat -> R) :
+  finite_sum f (List.seq 0 n) = (\sum_(i < n) f i)%R.
+Proof. by rewrite finite_sum_seq_addE. Qed.
