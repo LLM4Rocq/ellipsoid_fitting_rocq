@@ -5,17 +5,12 @@ From EllipsoidFitting Require Import Analysis.CoordinatePermutationDefinitions
 Import ListNotations.
 Open Scope R_scope.
 
-(* Coordinate derivatives under changes of coordinates. Here
+(* The coordinate derivative of a product with another coordinate. Here
    finite_coordinate_derivative d i F DF says that DF is the derivative of
    F : list R -> R in coordinate i, at every list of length d.
-   - finite_coordinate_derivative_last: for the last of S d coordinates,
-     DF (xs ++ [t]) is the derivative of u |-> F (xs ++ [u]) at t, for
-     every list xs of length d.
-   - finite_coordinate_derivative_swap_right: swapping coordinates i and
-     S i turns a derivative in coordinate i into one in coordinate S i.
-   - finite_coordinate_derivative_times_other: multiplying F by coordinate
-     j <> i multiplies its derivative in coordinate i by coordinate j.
-   The derivatives are MathComp's is_derive at t in the direction 1 on R^o,
+   finite_coordinate_derivative_times_other: multiplying F by coordinate
+   j <> i multiplies its derivative in coordinate i by coordinate j. The
+   derivatives are MathComp's is_derive at t in the direction 1 on R^o,
    the ordinary derivative of a function R -> R. *)
 
 Lemma finite_coordinate_derivative_times_other d i j F DF :

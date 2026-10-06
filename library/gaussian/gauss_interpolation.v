@@ -4,7 +4,8 @@ From mathcomp Require Import arithmetic_tactic.
 From mathcomp Require Import boolp classical_sets functions reals ereal.
 From mathcomp Require Import interval topology normedtype.
 From mathcomp Require Import derive trigo measure.
-From mathcomp Require Import lebesgue_measure measurable_realfun lebesgue_integral.
+From mathcomp Require Import lebesgue_measure measurable_realfun.
+From mathcomp Require Import lebesgue_integral.
 From GaussianAnalysis Require Import measurable_matrix gauss gauss_ibp.
 From GaussianAnalysis Require Import partial_derivative.
 
@@ -37,7 +38,7 @@ From GaussianAnalysis Require Import partial_derivative.
 (* partial_derivative.v).                                                     *)
 (*                                                                            *)
 (* The first sections hold general facts used by the proofs: the chain rule   *)
-(* along a curve, continuity and derivatives of matrix products, and          *)
+(* along a curve, the derivative of a matrix product along a path, and        *)
 (* integrals of finite sums.                                                  *)
 (*                                                                            *)
 (******************************************************************************)
@@ -61,7 +62,8 @@ move=> dF; rewrite {1}(row_sum_delta v) linear_sum.
 by apply: eq_bigr => j _; rewrite linearZ deriveE.
 Qed.
 
-Lemma is_derive_rV_comp (F : 'rV[R]_k -> W) (g : R -> 'rV[R]_k) t (dg : 'rV[R]_k) :
+Lemma is_derive_rV_comp (F : 'rV[R]_k -> W) (g : R -> 'rV[R]_k) t
+    (dg : 'rV[R]_k) :
   differentiable F (g t) -> is_derive t 1 g dg ->
   is_derive t 1 (F \o g) (\sum_(j < k) dg 0 j *: 'D_(delta_mx 0 j) F (g t)).
 Proof.
@@ -75,45 +77,11 @@ Qed.
 
 End differential_rV.
 
-Section mulmx_norm.
+Section mulmx_derive.
 Context {R : realType}.
 
-Lemma mx_norm_mulmx_le m n p (A : 'M[R]_(m, n)) (B : 'M[R]_(n, p)) :
-  `|A *m B| <= n%:R * `|A| * `|B|.
-Proof.
-have -> : `|A *m B| = \big[maxr/0]_ij `|(A *m B) ij.1 ij.2| by rewrite -mx_normrE.
-apply: bigmax_le => [|[i j] _]; first by rewrite !mulr_ge0.
-rewrite mxE /= (le_trans (ler_norm_sum _ _ _))// -mulrA.
-have -> : n%:R * (`|A| * `|B|) = \sum_(l < n) (`|A| * `|B|).
-  by rewrite sumr_const card_ord mulr_natl.
-by apply: ler_sum => l _; rewrite normrM ler_pM // mx_norm_entry_le.
-Qed.
-
-Lemma continuous_mulmxr m n p (B : 'M[R]_(n, p)) :
-  continuous (fun A : 'M[R]_(m, n) => A *m B).
-Proof.
-move=> A; apply/(cvgrPdist_lt (F := nbhs A)) => e e0.
-have k0 : 0 < n%:R * `|B| + 1 :> R by rewrite ltr_pwDr // mulr_ge0.
-have := @cvgr_dist_lt _ _ _ (nbhs A) (nbhs_filter A) id A cvg_id _ (divr_gt0 e0 k0).
-apply: filterS => A' hA'; rewrite -mulmxBl (le_lt_trans (mx_norm_mulmx_le _ _))//.
-move: hA'; rewrite ltr_pdivlMr // => h.
-have hn : 0 <= n%:R * `|B| :> R by rewrite mulr_ge0.
-by have ha := normr_ge0 (A - A'); nra.
-Qed.
-
-Lemma continuous_mulmxl m n p (A : 'M[R]_(m, n)) :
-  continuous (fun B : 'M[R]_(n, p) => A *m B).
-Proof.
-move=> B; apply/(cvgrPdist_lt (F := nbhs B)) => e e0.
-have k0 : 0 < n%:R * `|A| + 1 :> R by rewrite ltr_pwDr // mulr_ge0.
-have := @cvgr_dist_lt _ _ _ (nbhs B) (nbhs_filter B) id B cvg_id _ (divr_gt0 e0 k0).
-apply: filterS => B' hB'; rewrite -mulmxBr (le_lt_trans (mx_norm_mulmx_le _ _))//.
-move: hB'; rewrite ltr_pdivlMr // => h.
-have hn : 0 <= n%:R * `|A| :> R by rewrite mulr_ge0.
-by have hb := normr_ge0 (B - B'); nra.
-Qed.
-
-Lemma is_derive_mulmxl m n p (A : 'M[R]_(m, n)) (M : R -> 'M[R]_(n, p)) (t : R) dM :
+Lemma is_derive_mulmxl m n p (A : 'M[R]_(m, n)) (M : R -> 'M[R]_(n, p))
+    (t : R) dM :
   is_derive t 1 M dM -> is_derive t 1 (fun s => A *m M s) (A *m dM).
 Proof.
 move=> Md; have dM_ : differentiable M t by apply/derivable1_diffP; case: Md.
@@ -122,19 +90,9 @@ have cL : continuous L by exact: continuous_mulmxl.
 have dL z : differentiable L z by exact: linear_differentiable.
 have dLM : differentiable (L \o M) t by exact: differentiable_comp.
 apply: DeriveDef; first exact: diff_derivable.
-rewrite (_ : (fun s => A *m M s) = L \o M) // deriveE // diff_comp // diff_lin //=.
+rewrite (_ : (fun s => A *m M s) = L \o M) // deriveE // diff_comp //.
+rewrite diff_lin //=.
 by rewrite -deriveE //; case: Md => _ ->.
-Qed.
-
-Lemma mx_norm_col_mx_le m1 m2 n (P : 'M[R]_(m1, n)) (Q : 'M[R]_(m2, n)) :
-  `|col_mx P Q| <= `|P| + `|Q|.
-Proof.
-have -> : `|col_mx P Q| = \big[maxr/0]_ij `|col_mx P Q ij.1 ij.2|.
-  by rewrite -mx_normrE.
-apply: bigmax_le => [|[i j] _]; first by rewrite addr_ge0.
-rewrite /= -[i]splitK; case: (fintype.split i) => i' /=.
-  by rewrite col_mxEu (le_trans (mx_norm_entry_le _ _ _)) // lerDl.
-by rewrite col_mxEd (le_trans (mx_norm_entry_le _ _ _)) // lerDr.
 Qed.
 
 Lemma mulmx_col_mx m n1 n2 p (x : 'M[R]_(m, n1 + n2)) (P : 'M[R]_(n1, p))
@@ -142,7 +100,7 @@ Lemma mulmx_col_mx m n1 n2 p (x : 'M[R]_(m, n1 + n2)) (P : 'M[R]_(n1, p))
   x *m col_mx P Q = lsubmx x *m P + rsubmx x *m Q.
 Proof. by rewrite -{1}(hsubmxK x) mul_row_col. Qed.
 
-End mulmx_norm.
+End mulmx_derive.
 
 Section is_derive_scalel.
 Context {R : realType} {V : normedModType R}.
@@ -160,14 +118,16 @@ Qed.
 End is_derive_scalel.
 
 Section Rintegral_sum.
-Context d (T : measurableType d) (R : realType) (mu : {measure set T -> \bar R}).
+Context d (T : measurableType d) (R : realType).
+Variable mu : {measure set T -> \bar R}.
 
 Lemma Rintegral_sum (I : Type) (s : seq I) (D : set T) (f : I -> T -> R) :
   measurable D -> (forall i, mu.-integrable D (EFin \o f i)) ->
   \int[mu]_(x in D) \sum_(i <- s) f i x = \sum_(i <- s) \int[mu]_(x in D) f i x.
 Proof.
 move=> mD fi; elim: s => [|i s IH].
-  by under eq_Rintegral do rewrite big_nil; rewrite big_nil Rintegral_cst// mul0r.
+  by under eq_Rintegral do rewrite big_nil;
+    rewrite big_nil Rintegral_cst// mul0r.
 under eq_Rintegral do rewrite big_cons.
 rewrite big_cons -IH RintegralD //.
 rewrite (_ : EFin \o _ = (fun x => \sum_(j <- s) (EFin \o f j) x)).
@@ -181,25 +141,15 @@ Section gauss_entry_integrable.
 Context {R : realType}.
 
 Lemma integrable_gauss_entry n (i : 'I_n) (G : 'rV[R]_n -> R) (c : R) q :
-  measurable_fun [set: 'rV[R]_n] G -> (forall x, `|G x| <= c * (1 + `|x| ^+ q)) ->
-  (gauss n).-integrable [set: 'rV[R]_n] (EFin \o (fun x : 'rV[R]_n => x 0 i * G x)).
+  measurable_fun [set: 'rV[R]_n] G ->
+  (forall x, `|G x| <= c * (1 + `|x| ^+ q)) ->
+  (gauss n).-integrable [set: 'rV[R]_n]
+    (EFin \o (fun x : 'rV[R]_n => x 0 i * G x)).
 Proof.
-move=> mG GC; have c0 : 0 <= c.
-  have := GC 0; rewrite normr0 expr0n => h; have := normr_ge0 (G 0).
-  by case: (q == 0%N) h => /= h; nra.
+move=> mG GC.
 have mxG : measurable_fun [set: 'rV[R]_n] (fun x : 'rV[R]_n => x 0 i * G x).
   by apply: measurable_funM => //; exact: measurable_mxentry.
-apply: (integrable_gauss_poly mxG (C := 2 * c) (k := q.+1)) => x.
-rewrite normrM exprS; have hb := GC x; have a0 := normr_ge0 x.
-have ae := mx_norm_entry_le x 0 i; have e0 := normr_ge0 (x 0 i).
-have p0 := exprn_ge0 q a0; have b0 := normr_ge0 (G x).
-have h1 : `|x 0 i| * `|G x| <= c * (`|x| + `|x| * `|x| ^+ q).
-  by have := ler_wpM2r b0 ae; have := ler_wpM2l a0 hb; nra.
-have h2 : `|x| <= 1 + `|x| * `|x| ^+ q.
-  case: (leP `|x| 1) => x1; first by nra.
-  have : 1 <= `|x| ^+ q by rewrite exprn_ege1// ltW.
-  nra.
-nra.
+exact: integrable_gauss_poly mxG (entry_mul_bound i GC).
 Qed.
 
 End gauss_entry_integrable.
@@ -221,10 +171,7 @@ Hypothesis DF_poly : forall j z, `|DF j z| <= C * (1 + `|z| ^+ p).
 Hypothesis D2F_poly : forall j l z, `|D2F j l z| <= C * (1 + `|z| ^+ p).
 
 Let C_ge0 : 0 <= C.
-Proof.
-have := F_poly 0; rewrite normr0 expr0n => h; have := normr_ge0 (F 0).
-by case: (p == 0%N) h => /= h; nra.
-Qed.
+Proof. exact: poly_bound_ge0 F_poly. Qed.
 
 Let poly_mulmx n (G : 'rV[R]_k -> R) (M : 'M[R]_(n, k)) (K : R) :
   `|M| <= K -> (forall z, `|G z| <= C * (1 + `|z| ^+ p)) ->
@@ -267,14 +214,16 @@ have cM : continuous (fun x : 'rV[R]_n => x *m M) := continuous_mulmxr (B := M).
 pose G (x : 'rV[R]_n) := DF j (x *m M).
 pose dG (x : 'rV[R]_n) := \sum_(l < k) M i l * D2F j l (x *m M).
 have cG : continuous G.
-  by move=> x; apply: continuous_comp; [exact: cM|exact: differentiable_continuous].
+  move=> x; apply: continuous_comp; first exact: cM.
+  exact: differentiable_continuous.
 have cD2 l : continuous (fun x : 'rV[R]_n => D2F j l (x *m M)).
   move=> x; apply: (continuous_comp (f := fun y : 'rV[R]_n => y *m M)
     (g := D2F j l)); [exact: cM|exact: D2F_cont].
 have cdG : continuous dG.
   by apply: continuous_sum => l x; exact: (cvgM (cvg_cst _) (cD2 l x)).
 have dG_ x : is_derive x (delta_mx 0 i) G (dG x).
-  apply: (is_derive_transfer (G := DF j) (b := x *m M) (w := delta_mx 0 i *m M)).
+  apply: (is_derive_transfer (G := DF j) (b := x *m M)
+    (w := delta_mx 0 i *m M)).
     by move=> h; rewrite /G mulmxDl scalemxAl.
   apply: DeriveDef; first exact/diff_derivable/DF_diff.
   rewrite deriveE // diff_rV_sum //; apply: eq_bigr => l _.
@@ -342,7 +291,7 @@ rewrite mxE big_distrl /=; apply: eq_bigr => i _.
 by rewrite mxE mulrA.
 Qed.
 
-Theorem gauss_interpolation n (M M' : R -> 'M[R]_(n, k)) (u v K : R) :
+Lemma gauss_interpolation n (M M' : R -> 'M[R]_(n, k)) (u v K : R) :
   (forall s, s \in `]u, v[ -> is_derive s 1 M (M' s)) ->
   (forall s, s \in `]u, v[ -> `|M s| <= K) ->
   (forall s, s \in `]u, v[ -> `|M' s| <= K) ->
@@ -363,7 +312,8 @@ have mf s : measurable_fun [set: 'rV[R]_n] (f s).
   exact: cF.
 have intf s : `]u, v[%classic s -> (gauss n).-integrable setT (EFin \o f s).
   move=> sI'; have sI : s \in `]u, v[ := sI'.
-  apply: (integrable_gauss_poly (mf s) (C := C * (1 + (n%:R * K) ^+ p)) (k := p)).
+  apply: (integrable_gauss_poly (mf s) (C := C * (1 + (n%:R * K) ^+ p))
+    (k := p)).
   exact: (poly_mulmx (Mb s sI) F_poly).
 have fd s x : s \in `]u, v[ -> is_derive s 1 (f ^~ x) (df s x).
   move=> sI; exact: (is_derive_rV_comp (F_diff (x *m M s))
@@ -379,7 +329,8 @@ have G_ge0 x : 0 <= G x.
   by apply: mulr_ge0; [apply: mulr_ge0|rewrite addr_ge0 // exprn_ge0].
 have mG : measurable_fun [set: 'rV[R]_n] G.
   apply: measurable_funM => //; apply: measurable_funD => //.
-  apply: measurable_funX; exact: (continuous_measurable_mx (@norm_continuous _ _)).
+  apply: measurable_funX.
+  exact: (continuous_measurable_mx (@norm_continuous _ _)).
 have intG : (gauss n).-integrable [set: 'rV[R]_n] (EFin \o G).
   apply: (integrable_gauss_poly mG (C := 2 * c2) (k := p.+1)) => x.
   by rewrite ger0_norm.
@@ -409,13 +360,15 @@ have derf1 s x : `]u, v[%classic s -> [set: 'rV[R]_n] x ->
 apply: DeriveDef.
   exact: (derivable_under_integral measurableT tI' intf derf1 G_ge0 intG G_ub).
 rewrite -derive1E.
-rewrite (differentiation_under_integral measurableT tI' intf derf1 G_ge0 intG G_ub).
+rewrite (differentiation_under_integral measurableT tI' intf derf1 G_ge0 intG
+  G_ub).
 rewrite -gauss_ibp_gradient; apply: eq_Rintegral => x _.
 by rewrite partial1of2E (@derive_val _ _ _ _ _ _ _ (fd t x tI)).
 Qed.
 
-Theorem gauss_comparison n m (A : 'M[R]_(n, k)) (B : 'M[R]_(m, k)) :
-  (forall z, \sum_(j < k) \sum_(l < k) (A^T *m A - B^T *m B) j l * D2F j l z <= 0) ->
+Lemma gauss_comparison n m (A : 'M[R]_(n, k)) (B : 'M[R]_(m, k)) :
+  (forall z,
+    \sum_(j < k) \sum_(l < k) (A^T *m A - B^T *m B) j l * D2F j l z <= 0) ->
   (\int[gauss n]_x (F (x *m A))%:E <= \int[gauss m]_y (F (y *m B))%:E)%E.
 Proof.
 move=> SF; set S := A^T *m A - B^T *m B.
@@ -426,7 +379,8 @@ pose M' (t : R) : 'M[R]_(n + m, k) := col_mx (- sin t *: A) (cos t *: B).
 pose phi (t : R) := \int[gauss (n + m)]_x F (x *m M t).
 have Md (t : R) : is_derive t 1 M (M' t).
   have -> : M = fun t => cos t *: col_mx A 0 + sin t *: col_mx 0 B.
-    by apply/funext => s; rewrite /M !scale_col_mx add_col_mx !scaler0 addr0 add0r.
+    by apply/funext => s;
+      rewrite /M !scale_col_mx add_col_mx !scaler0 addr0 add0r.
   have -> : M' t = - sin t *: col_mx A 0 + cos t *: col_mx 0 B.
     by rewrite /M' !scale_col_mx add_col_mx !scaler0 addr0 add0r.
   exact: (is_deriveD (is_derive_scalel _ (is_derive_cos t))
@@ -470,12 +424,14 @@ have Ile0 (t : R) : \sum_(j < k) \sum_(l < k)
     by rewrite RintegralZl //; exact: integrable_D2F_mulmx.
   have ig : (gauss (n + m)).-integrable [set: 'rV[R]_(n + m)]
       (EFin \o (fun x => \sum_(jl : 'I_k * 'I_k) h jl x)).
-    rewrite (_ : EFin \o _ = (fun x => \sum_(jl : 'I_k * 'I_k) (EFin \o h jl) x)%E).
+    rewrite (_ : EFin \o _ =
+        (fun x => \sum_(jl : 'I_k * 'I_k) (EFin \o h jl) x)%E).
       by apply/funext => x; rewrite /= sumEFin.
     by apply: integrable_sum => // jl _; exact: ih.
   rewrite -oppr_ge0 -mulN1r -RintegralZl //.
   apply: Rintegral_ge0 => x _; rewrite mulN1r oppr_ge0.
-  by rewrite -(pair_bigA _ (fun j l => S j l * D2F j l (x *m M t))) /=; exact: SF.
+  by rewrite -(pair_bigA _ (fun j l => S j l * D2F j l (x *m M t))) /=;
+    exact: SF.
 (* So phi is nondecreasing on [0, pi / 2]. *)
 have pi2 : 0 < pi / 2 :> R by rewrite divr_gt0 // pi_gt0.
 have pi2lt : pi / 2 < 2 :> R := @pihalf_lt2 R.
@@ -485,7 +441,8 @@ have dphi (t : R) : 0 <= t -> t <= pi / 2 -> derivable phi t 1.
   by move=> t0 t1; case: (phid t (inI t t0 t1)).
 have phi'ge0 (t : R) : t \in `]0, pi / 2[ -> 0 <= phi^`() t.
   rewrite in_itv /= => /andP[t0 t1].
-  rewrite derive1E (@derive_val _ _ _ _ _ _ _ (phid t (inI t (ltW t0) (ltW t1)))).
+  rewrite derive1E.
+  rewrite (@derive_val _ _ _ _ _ _ _ (phid t (inI t (ltW t0) (ltW t1)))).
   have -> : \sum_(j < k) \sum_(l < k) ((M' t)^T *m M t) j l *
       \int[gauss (n + m)]_x D2F j l (x *m M t) =
       - (sin t * cos t) * \sum_(j < k) \sum_(l < k)
@@ -537,7 +494,8 @@ Context {R : realType} {k : nat}.
 Variables (F : 'rV[R]_k -> R) (DF : 'I_k -> 'rV[R]_k -> R)
   (D2F : 'I_k -> 'I_k -> 'rV[R]_k -> R).
 Hypothesis F_partial : forall j z, is_derive z (delta_mx 0 j) F (DF j z).
-Hypothesis DF_partial : forall j l z, is_derive z (delta_mx 0 l) (DF j) (D2F j l z).
+Hypothesis DF_partial : forall j l z,
+  is_derive z (delta_mx 0 l) (DF j) (D2F j l z).
 Hypothesis D2F_cont : forall j l, continuous (D2F j l).
 Variables (C : R) (p : nat).
 Hypothesis F_poly : forall z, `|F z| <= C * (1 + `|z| ^+ p).
@@ -554,7 +512,9 @@ Let DF_cont j : continuous (DF j).
 Proof. by move=> z; apply: differentiable_continuous; exact: DF_diff. Qed.
 
 Let F_diff z : differentiable F z.
-Proof. exact: (differentiable_partials (fun j z => @F_partial j z) DF_cont). Qed.
+Proof.
+exact: (differentiable_partials (fun j z => @F_partial j z) DF_cont).
+Qed.
 
 Let DFE j : 'D_(delta_mx 0 j) F = DF j.
 Proof. by apply/funext => z; case: (@F_partial j z). Qed.
@@ -568,8 +528,9 @@ Proof. by case: (@F_partial j z). Qed.
 Let D2FEz j l z : 'D_(delta_mx 0 l) ('D_(delta_mx 0 j) F) z = D2F j l z.
 Proof. by rewrite (DFE j); case: (@DF_partial j l z). Qed.
 
-Theorem gauss_comparison_partial n m (A : 'M[R]_(n, k)) (B : 'M[R]_(m, k)) :
-  (forall z, \sum_(j < k) \sum_(l < k) (A^T *m A - B^T *m B) j l * D2F j l z <= 0) ->
+Lemma gauss_comparison_partial n m (A : 'M[R]_(n, k)) (B : 'M[R]_(m, k)) :
+  (forall z,
+    \sum_(j < k) \sum_(l < k) (A^T *m A - B^T *m B) j l * D2F j l z <= 0) ->
   (\int[gauss n]_x (F (x *m A))%:E <= \int[gauss m]_y (F (y *m B))%:E)%E.
 Proof.
 move=> SF; apply: (gauss_comparison F_diff _ _ F_poly).

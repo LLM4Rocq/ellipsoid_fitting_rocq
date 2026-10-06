@@ -1,15 +1,12 @@
-(* Integrability along the Gaussian interpolation path. Let g be a jointly
-   continuous, polynomially bounded function of K coordinates, such as a
-   test function or one of its second partial derivatives. Composed with
-   the interpolation path gaussian_covariance_path K p q P Q t, for t in
-   [0, 1], or with an endpoint image gaussian_covariance_image K p P, it
-   stays jointly continuous and polynomially bounded, with constants
-   uniform in t (gaussian_covariance_path_regular,
-   gaussian_covariance_image_regular). So both compositions satisfy
-   gaussian_covariance_domain (gaussian_covariance_path_domain,
-   gaussian_covariance_image_domain), by
-   gaussian_coordinate_polynomial_domain. The path and the endpoint images
-   are linear images of the coordinates (Gaussian.InterpolationCoefficients), and
+(* Integrability of a test function composed with a linear image. Let g be
+   a jointly continuous, polynomially bounded function of K coordinates.
+   Composed with the image gaussian_covariance_image K p P, the endpoint of
+   the Gaussian interpolation, it stays jointly continuous and polynomially
+   bounded, with a constant that depends on a bound M on the entries of P
+   (gaussian_covariance_image_regular). So the composition satisfies
+   gaussian_covariance_domain (gaussian_covariance_image_domain), by
+   gaussian_coordinate_polynomial_domain. The image is a linear image of
+   the coordinates (Gaussian.InterpolationCoefficients), and
    Gaussian.CovarianceLinearImages bounds such compositions. *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.

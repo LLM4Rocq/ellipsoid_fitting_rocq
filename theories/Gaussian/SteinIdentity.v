@@ -1,18 +1,13 @@
 (* Gaussian integration by parts on the line (Stein's identity), with the
-   Lebesgue integral over the line. Here f' = df and df' = ddf, and the
-   highest derivative is continuous. In the identities, the products of the
-   kernel with f, or with df and x * f x, tend to 0 at both ends.
+   Lebesgue integral over the line. Here f' = df, and df is continuous. In
+   the identity, the product of the kernel with f tends to 0 at both ends.
    - gaussian_stein_split_decay: if df x * gaussian_kernel x has integral
      l, so has x * f x * gaussian_kernel x; that is, E[x f(x)] = E[f'(x)].
-   - gaussian_stein_second_split_decay: if ddf x * gaussian_kernel x has
-     integral l, so has (x*x - 1) * f x * gaussian_kernel x.
    - gaussian_stein_moment_integrable: if df x * gaussian_kernel x is
      integrable on the line, so is x * f x * gaussian_kernel x.
-     gaussian_stein_second_moment_integrable: if ddf x * gaussian_kernel x
-     is integrable, so is (x*x - 1) * f x * gaussian_kernel x.
-   - gaussian_stein_second_decay: the integral of
-     (ddf x - (x*x - 1) * f x) * gaussian_kernel x is 0 when this integrand
-     is integrable on the line. *)
+   The other lemmas are tools: a continuous function is integrable on a
+   segment, and |f x - f 0| is bounded by the oriented integral of |df|
+   from 0 to x, which has the sign of x. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz Classical_Prop.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.

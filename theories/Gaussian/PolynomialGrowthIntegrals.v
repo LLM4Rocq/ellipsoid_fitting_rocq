@@ -2,12 +2,9 @@
    continuous f with Rabs (f x) <= C * (1 + Rabs x ^ p) is Gaussian
    integrable (gaussian_polynomial_admissible). The n-th moment is
    moment_factor n, which is (n-1)!! for even n and 0 for odd n
-   (gaussian_power_moments, gaussian_standard_moments). Stein's identities:
-   if f has a continuous derivative df, both of polynomial growth, the
-   expectation of df is that of x * f x (gaussian_first_stein); if df has
-   a continuous derivative ddf of polynomial growth, the expectation of ddf
-   is that of (x*x - 1) * f x (gaussian_second_stein). Integrability is the
-   Lebesgue integrability of x |-> f x * gaussian_kernel x over the line. *)
+   (gaussian_power_moments, gaussian_standard_moments). Integrability is
+   the Lebesgue integrability of x |-> f x * gaussian_kernel x over the
+   line. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.

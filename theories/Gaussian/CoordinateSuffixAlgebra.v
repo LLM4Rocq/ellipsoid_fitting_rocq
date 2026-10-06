@@ -6,9 +6,7 @@
    (finite_polynomial_bound_prefix, finite_polynomial_bound_head). The
    suffix marginal over no coordinate is F (gaussian_suffix_marginal_zero),
    and the one over n + 1 coordinates is the suffix marginal over n
-   coordinates of the last marginal (gaussian_suffix_marginal_succ).
-   Precomposing F with the swap of the first two coordinates swaps the two
-   fixed coordinates (gaussian_suffix_marginal_swap_head). *)
+   coordinates of the last marginal (gaussian_suffix_marginal_succ). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import GaussianDefinitions

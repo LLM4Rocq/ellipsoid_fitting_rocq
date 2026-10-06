@@ -1,7 +1,6 @@
-(* Exchanging two adjacent coordinates does not change the iterated Gaussian
-   expectation of a continuous function F of polynomial growth
-   (gaussian_iterated_swap_adjacent; gaussian_iterated_swap_head is the case
-   of the first two coordinates). Both are instances of
+(* Exchanging the first two coordinates does not change the iterated
+   Gaussian expectation of a continuous function F of polynomial growth
+   (gaussian_iterated_swap_head). It is an instance of
    gaussian_iterated_swap_adjacent_gauss of Gaussian.LawBridge: the iterated
    expectation is an integral against the standard Gaussian measure, which
    is invariant under permutations of the coordinates. *)

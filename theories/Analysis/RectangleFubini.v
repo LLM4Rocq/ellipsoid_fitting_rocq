@@ -1,24 +1,25 @@
-(* Fubini's theorem for a jointly continuous function on a rectangle:
-   continuous_rectangle_fubini exchanges the two oriented integrals of f
-   over [a, b] x [c, d]. oriented_integral g a b is the Lebesgue integral
-   over the segment between a and b, with a minus sign when b < a, and
-   segment_integrable g a b is Lebesgue integrability on that segment,
-   which includes Borel measurability (AnalysisIntegralDefinitions).
-
-   The proof differentiates under the integral sign the function of z
-   that integrates over [c, d] the primitive of f from a to z, and
-   concludes with the second fundamental theorem of calculus. Continuity
-   and differentiation of parameter integrals come from MathComp's
-   continuity_under_integral and differentiation_under_integral, with a
-   constant bound, since a jointly continuous function is bounded on a
-   compact rectangle (rectangle_bound). The fundamental theorems come from
-   MathComp's continuous_FTC1 and continuous_FTC2, extended to the
-   oriented integral (rectangle_oriented_primitive_derivative,
-   rectangle_oriented_FTC).
-
-   The module also proves rules of continuity_2d_pt and of
-   oriented_integral: point, swap, Chasles's relation for end points in
-   any order, extension, scaling and difference. *)
+(* Rules for the oriented integral of AnalysisIntegralDefinitions.
+   oriented_integral g a b is the Lebesgue integral over the segment
+   between a and b, with a minus sign when b < a, and segment_integrable
+   g a b is Lebesgue integrability on that segment, which includes Borel
+   measurability.
+   - A continuous function is integrable on every segment
+     (rectangle_continuous_segment_integrable), and integrability on
+     [a, b] and on [b, c] gives integrability on [a, c]
+     (rectangle_integrable_union).
+   - The oriented integral as a signed Lebesgue integral
+     (rectangle_oriented_integral_segment, rectangle_oriented_from_left),
+     the point and swap rules (rectangle_oriented_point,
+     rectangle_oriented_swap), Chasles's relation for end points in order
+     (rectangle_chasles) or in any order (rectangle_oriented_chasles),
+     extensionality on the segment (rectangle_oriented_ext), scaling
+     (rectangle_oriented_scal) and difference (rectangle_oriented_minus).
+   - The fundamental theorems of calculus for a continuous g:
+     z |-> oriented_integral g a z has the derivative g z
+     (rectangle_oriented_primitive_derivative), and oriented_integral K a b
+     is F b - F a when F has the continuous derivative K
+     (rectangle_oriented_FTC). They come from MathComp's continuous_FTC1
+     and continuous_FTC2. *)
 
 From Stdlib Require Import Reals Lra.
 From HB Require Import structures.
@@ -33,11 +34,8 @@ Import GRing.Theory Num.Theory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
 
-(* Slices and transposition. *)
-
-(* Rules for continuity_2d_pt. *)
-
-(* Helpers: joint continuity, integrability on segments, bounds. *)
+(* Integrability on segments, and the oriented integral as a signed
+   integral. *)
 
 (* A continuous function is integrable on every segment. *)
 Lemma rectangle_continuous_segment_integrable (g : R -> R) c d :
@@ -63,8 +61,6 @@ Qed.
 Lemma rectangle_segment_memE (a b x : R) :
   `[a, b]%classic x -> a <= x <= b.
 Proof. by rewrite /= in_itv /= => /andP [/RleP h1 /RleP h2]. Qed.
-
-(* Integrals of slices and parameter integrals. *)
 
 (* Rules of the oriented integral. *)
 
@@ -314,7 +310,3 @@ move=> hf hg; rewrite !rectangle_oriented_integral_segment.
 rewrite (RintegralB (rectangle_segment_measurable a b) hf hg).
 set I := Rintegral _ _ _; set J := Rintegral _ _ _; rewrite -RminusE; ring.
 Qed.
-
-(* Primitives in the first variable. *)
-
-(* Fubini's theorem on a rectangle. *)

@@ -1,10 +1,12 @@
 From HB Require Import structures.
-From mathcomp Require Import all_ssreflect_compat ssralg ssrnum arithmetic_tactic.
-From mathcomp Require Import boolp classical_sets functions cardinality reals ereal.
-From mathcomp Require Import interval interval_inference topology normedtype.
-From mathcomp Require Import sequences exp numfun measure lebesgue_stieltjes_measure.
-From mathcomp Require Import lebesgue_measure measurable_realfun lebesgue_integral.
-From mathcomp Require Import charge probability.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
+From mathcomp Require Import arithmetic_tactic.
+From mathcomp Require Import boolp classical_sets functions cardinality.
+From mathcomp Require Import reals ereal interval interval_inference topology.
+From mathcomp Require Import normedtype sequences exp numfun measure.
+From mathcomp Require Import lebesgue_stieltjes_measure lebesgue_measure.
+From mathcomp Require Import measurable_realfun lebesgue_integral charge.
+From mathcomp Require Import probability.
 
 (**md**************************************************************************)
 (* # Integrals against the normal law                                         *)
@@ -41,7 +43,8 @@ Proof.
 apply: integral_ae_eq => //.
 - exact: Radon_Nikodym_SigmaFinite.f_integrable (normal_prob_dominates m s).
 - move=> E _ mE.
-  by rewrite -(Radon_Nikodym_SigmaFinite.f_integral (normal_prob_dominates m s) mE).
+  by rewrite -(Radon_Nikodym_SigmaFinite.f_integral
+    (normal_prob_dominates m s) mE).
 Qed.
 
 Lemma ge0_integral_normal_prob (f : R -> \bar R) :
@@ -99,7 +102,8 @@ Context {R : realType}.
 Local Notation mu := (@lebesgue_measure R).
 Local Notation N := (@normal_prob R 0 1).
 
-Lemma exprn_le_expR (x : R) k : `|x| ^+ k <= (k`! * 4 ^ k)%:R * expR (x ^+ 2 / 4).
+Lemma exprn_le_expR (x : R) k :
+  `|x| ^+ k <= (k`! * 4 ^ k)%:R * expR (x ^+ 2 / 4).
 Proof.
 set y := x ^+ 2 / 4.
 have y0 : 0 <= y by rewrite /y divr_ge0 ?sqr_ge0.
@@ -139,7 +143,8 @@ rewrite normal_pdfE ?oner_neq0// normal_pdfE//=.
 have p1 : 0 < normal_peak (1 : R) by rewrite normal_peak_gt0 ?oner_neq0.
 have p2 : 0 < normal_peak (Num.sqrt 2 : R) by rewrite normal_peak_gt0.
 have c0 : 0 <= c.
-  by apply: mulr_ge0; [apply: mulr_ge0 => //; exact: ltW|rewrite invr_ge0; exact: ltW].
+  apply: mulr_ge0; last by rewrite invr_ge0; exact: ltW.
+  by apply: mulr_ge0 => //; exact: ltW.
 have h1 : 0 <= `|x| ^+ k * (normal_peak 1 * normal_fun 0 1 x).
   apply: mulr_ge0; first exact: exprn_ge0.
   by apply: mulr_ge0; [exact: ltW|exact: normal_fun_ge0].

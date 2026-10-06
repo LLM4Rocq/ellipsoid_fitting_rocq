@@ -1,24 +1,21 @@
-(* The endpoints of the Gaussian interpolation, and its continuity in time.
-   Write Z(t, zs) = gaussian_covariance_path K p q P Q t zs for p + q
-   coordinates zs, and E for the iterated Gaussian expectation.
-   - gaussian_covariance_endpoint_one and gaussian_covariance_endpoint_zero:
-     E f(Z(1)) is the expectation of f(P xi) over the p coordinates of xi,
-     and E f(Z(0)) that of f(Q eta) over the q coordinates of eta.
+(* The Gaussian interpolation path as a function of time. Write
+   Z(t, zs) = gaussian_covariance_path K p q P Q t zs for p + q coordinates
+   zs, with the entries of P and Q bounded by M.
+   - gaussian_covariance_coef_difference_bound and
+     gaussian_covariance_segment_coef_bound: the coefficients of
+     Z(b) - Z(a) are bounded by M (|sqrt b - sqrt a| + |sqrt (1-b) -
+     sqrt (1-a)|), and those of the points of the segment from Z(a) to Z(b)
+     by M, for a and b in [0, 1].
    - gaussian_covariance_path_difference_bound: when f has continuous,
      polynomially bounded partial derivatives Df, the difference
      f(Z(b, zs)) - f(Z(a, zs)) is bounded by a constant times
      |sqrt b - sqrt a| + |sqrt (1-b) - sqrt (1-a)| times a polynomial
-     weight of zs.
-   - gaussian_covariance_expectation_continuous_within: t |-> E f(Z(t)) is
-     continuous within [0, 1] at every point of [0, 1].
-   For the endpoints, Z(1, zs) = P (firstn p zs) and Z(0, zs) =
-   Q (skipn p zs), and the iterated expectation over p + q coordinates
-   integrates the last q coordinates first
-   (gaussian_iterated_suffix_expectation). The difference bound applies
-   the mean value theorem along the segment from Z(a, zs) to Z(b, zs).
-   Continuity then follows from
-   gaussian_iterated_expectation_continuous_modulus_within, with this
-   bound as modulus. *)
+     weight of zs. The proof applies the mean value theorem along the
+     segment from Z(a, zs) to Z(b, zs).
+   - gaussian_covariance_modulus_continuous: this modulus is continuous in
+     b at every a in [0, 1].
+   firstn_app_exact and skipn_app_exact split a concatenation of lists at
+   the length of its first part. *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.
 From EllipsoidFitting Require Import Soft.Definitions

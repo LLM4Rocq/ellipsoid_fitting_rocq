@@ -1,28 +1,25 @@
-(* Parameter integrals over the real line, with the Lebesgue integrals of
+(* Tools for integrals over the real line, with the Lebesgue integrals of
    AnalysisIntegralDefinitions and of MathComp, and Stdlib's operations on
    R in every statement.
-   - whole_line_parameter_continuous: x |-> whole_line_integral (F x) is
-     continuous when F is jointly continuous and dominated by g x * h y,
-     with g continuous and h nonnegative and integrable. The proof applies
-     MathComp's continuity_under_integral on ]x - 1, x + 1[.
-     whole_line_parameter_continuous_weighted is the same for the
-     integrand F x y * w y, with a nonnegative continuous weight w.
-   - whole_line_parameter_derivative: on the band |t - a| <= rho, let
-     every F t be integrable, let F t x have the derivative D t x in t,
-     and let D be dominated by an integrable G >= 0. Then D a is
-     integrable and t |-> whole_line_integral (F t) has the derivative
-     whole_line_integral (D a) at a. The proof applies MathComp's
-     derivable_under_integral and differentiation_under_integral; the
-     measurability of D a comes from the difference quotients along
-     a + rho / 2 * harmonic n.
    - fubini_cutoff_cvg: for f integrable on the line, the integral of f
      over [-n, n] tends to its integral over the line, by dominated
      convergence.
-   The other lemmas are tools: continuity of the sections and products of
-   jointly continuous functions, boundedness on segments, integrability
-   and bounds on a measurable set (fubini_dominated_integrable,
-   fubini_Rintegral_bound), and the oriented integral over [-A, A]
-   (fubini_oriented_symmetric, fubini_segment_integrable).
+   - Integrability on a measurable set D: of c * f, Rabs (f x) and `|f x|
+     when f is integrable (fubini_integrable_scale, fubini_integrable_abs,
+     fubini_integrable_norm), and of a measurable f dominated by c * G with
+     G integrable (fubini_dominated_integrable); then the integral of f
+     over D is at most c times that of G in absolute value
+     (fubini_Rintegral_bound), and at most the integral of |f|
+     (fubini_Rintegral_abs_le).
+   - For h >= 0 integrable on the line, its integral over D is at most its
+     integral over the line (fubini_segment_le_whole_line), and the
+     integral of c * f over the line is c times that of f
+     (fubini_integral_scale_l).
+   - The oriented integral of f over [-A, A] is its Lebesgue integral there
+     (fubini_oriented_symmetric), and a continuous f is integrable on
+     [-A, A] (fubini_segment_integrable). A continuous function is
+     measurable (fubini_continuous_measurable), and a sequence has at most
+     one limit (fubini_seq_unique).
 
    Conventions. Measurability of f : R -> R is stated for f seen as a map
    measurableTypeR R -> measurableTypeR R, on setT. The bounds of an

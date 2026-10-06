@@ -23,7 +23,11 @@ occurs in its code and the module of the tactic is the module of the block
 or one that it requires.
 
 The output is a list of candidates, not a proof of non-use: the build
-decides.
+decides. In the two deletion passes of this repository (commits cf13a08
+and 5979050) the build needed nothing that the analysis called unused, so
+--keep was not needed. Declarations that are alive only because a
+Notation, Hint, Instance or Canonical command of a live container mentions
+them count as used and are not reported.
 
     python3 scripts/unused.py            one Module.name per line for each
                                          unused declaration

@@ -91,8 +91,11 @@ make check ROCQ_SWITCH= JOBS=8                    # the rocq on your PATH
 ```
 
 On 5 October 2026 a full build took 13 minutes with `JOBS=12` on a 16-core
-Mac (104 minutes of processor time). Compiling the modules prints no
-warning.
+Mac (104 minutes of processor time). Compiling prints eleven warnings, all
+at the two `HB.instance` commands of the frozen module
+`theories/GaussianProbabilityProductDefinitions.v` (ten
+`redundant-canonical-projection` and one `HB: no new instance is
+generated`), whose code cannot change. The other modules print none.
 
 ## Layout
 
@@ -106,9 +109,12 @@ warning.
 - `library/`: the library `GaussianAnalysis`, 25 files of general results
   on Gaussian measures, Gaussian comparison and concentration, real
   matrices and probability, over an arbitrary `R : realType`. The proof
-  uses it at Stdlib's `R` through the modules `Analysis/RealsBridge` and
-  `Gaussian/LawBridge`. `library/README.md` gives its conventions and main
-  results.
+  uses it at Stdlib's `R`: `Gaussian/LawBridge` identifies the library's
+  Gaussian measure with the product law of the statement,
+  `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
+  and 20 other modules of `theories/` require library files directly.
+  `library/README.md` gives its conventions, its main results and their
+  users.
 - `check/Assumptions.v`: prints the axioms of the main theorem.
   `check/assumptions.expected` is the expected output.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
@@ -144,11 +150,12 @@ repository.
   ```
 
 - Since then, what the main theorem does not use has been deleted twice:
-  17 modules and 714 declarations at the tag `phase1`, then 23 modules and
-  431 declarations once the proof used the library. `scripts/unused.py`
-  finds them from the `.glob` files of a build, and the proof builds
-  without them. Other special-purpose proofs were replaced by results of
-  the library, and the modules were renamed and grouped in folders.
+  17 modules and 714 declarations of the other modules at the tag
+  `phase1`, then 23 modules and 212 declarations of the other modules once
+  the proof used the library. `scripts/unused.py` finds them from the
+  `.glob` files of a build, and the proof builds without them. Some
+  special-purpose proofs were replaced by results of the library, and the
+  modules were renamed and grouped in folders.
   Deleted code stays in the history: a general result can be recovered
   from commit `29df54e`, where the modules have their original names, for
   example with `git show 29df54e:theories/OperatorSpaces.v`.
@@ -164,7 +171,8 @@ repository.
 
 ## Planned work
 
-The three steps of the plan of `AGENTS.md` are done.
+Of the three steps of the plan of `AGENTS.md`, the first and the third are
+done, and the second is done in part.
 
 1. `library/` states and proves the general results that the proof needed,
    over an arbitrary `R : realType`, in the style of MathComp-Analysis and
@@ -174,10 +182,15 @@ The three steps of the plan of `AGENTS.md` are done.
    through a mesh, Gaussian concentration and the Poincare inequality, the
    spectral theorem for real symmetric matrices, operator norms and nets,
    Paley-Zygmund and the Lindeberg replacement method.
-2. The proof of the paper uses these results at Stdlib's `R`, and what it
-   no longer needed is deleted: `theories/` had 632 modules and 102,415
-   lines at the tag `phase1`, and has 605 modules and 88,947 lines now. The
-   library has 25 files and 10,822 lines.
+2. The proof of the paper uses these results at Stdlib's `R` in its
+   modules on the comparison inequalities, the spectral theorem, the
+   operator norms, the nets, the Paley-Zygmund inequality and the Lindeberg
+   method, and in three modules on the Gaussian measure
+   (`Gaussian/CoordinateStein`, `Gaussian/CoordinateSwap`,
+   `Gaussian/QuadraticMGF`). What it no longer needed is deleted:
+   `theories/` had 632 modules and 102,415 lines at the tag `phase1`, and
+   has 605 modules and 88,947 lines now. The library has 25 files and
+   10,822 lines.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -186,13 +199,25 @@ What remains:
 - No human has reviewed the statements of the library yet. The table of
   main results in `library/README.md` is the place to start; the most
   general results are candidates for MathComp-Analysis.
-- Much of `theories/` still proves general facts in the special form that
-  the paper needs, with lists of coordinates and Stdlib's `R`. For example,
-  the `Projection` modules compare quadratic Gaussian features with their
-  Gaussian replacement through an interpolation of their own
-  (`Gaussian/CovarianceDerivative` and the modules it uses), which the
-  library does not state in that form. Such modules can be re-proved from
-  the library as the Stein identities of `Gaussian/CoordinateStein` were.
+- About 230 modules of `theories/`, those on the Gaussian measure, real
+  analysis and matrix norms, still prove general facts in the special form
+  that the paper needs, with lists of coordinates and Stdlib's `R`,
+  although the library now states them in general: the Gaussian integral
+  on the line and Stein's identity (`Gaussian/Kernel`, `Gaussian/Mass`,
+  `Gaussian/Moments`, `Gaussian/SteinIdentity` and eight more modules),
+  the iterated expectation with its Fubini and permutation facts
+  (`Gaussian/IteratedExpectation`, `Gaussian/CoordinateMarginals`,
+  `Gaussian/BlockExchange` and eleven more), the interpolation between two
+  covariances (`Gaussian/CovarianceDefinitions` and five more; the
+  `Projection` modules use it to compare quadratic Gaussian features with
+  their Gaussian replacement, which the library does not state in that
+  form), matrix norms (`Matrix/OperatorNorm`, `Matrix/FrobeniusNorm` and
+  six more), real analysis for functions of lists
+  (`Analysis/RectangleFubini`, `Analysis/ParameterIntegrals` and eight
+  more), and the machinery of the paper's Gibbs laws, soft min-max and
+  cumulants. The first two groups are corollaries of `Gaussian/LawBridge`
+  and can be re-proved from the library as the Stein identities of
+  `Gaussian/CoordinateStein` were.
 
 The statement keeps its meaning throughout: `make check` checks after each
 step that its code and the code of its definitions are unchanged.
