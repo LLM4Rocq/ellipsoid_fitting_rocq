@@ -33,13 +33,15 @@ the theorem.
   declaration, the declarations that its statement and proof name. The
   adaptation (not in the repository) differs from `scripts/unused.py` in
   three points: it reads the modules in folders and in `library/`, it starts
-  from these two theorems, and it outputs the graph. The graph has 5,681
-  declarations in 625 modules: 602 of `theories/` and 23 of the 25 files of
-  `library/` (530 declarations). Each formal counterpart below was found
-  in that graph, and its statement was read. The reading was done on the
-  state just before phase 3 (commit `2b85d8e`); a script checked that the
-  182 declarations cited here have the same statements in `2a06058`. For
-  the main results the proof was read or skimmed as well. Some proofs were read only through their module
+  from these two theorems, and it outputs the graph. The graph has 5,642
+  declarations in 624 modules: 602 of `theories/` and 22 of the 25 files of
+  `library/` (514 declarations); outside it are `probability/lindeberg.v`,
+  `comparison/gauss_shift.v` and `gaussian/gauss_moments.v`. Each formal
+  counterpart below was found in that graph, and its statement was read.
+  The reading was done on the state just before phase 3 (commit
+  `2b85d8e`); a script checked that the 182 declarations cited here have
+  the same statements in `2a06058`. For the main results the proof was
+  read or skimmed as well. Some proofs were read only through their module
   headers and statements: the walk counting of the feature edge
   (`SquareFree.Walk*` modules), the measurability modules, and the
   interpolation machinery below Lemma 3.9 (`Multirow.*`, `Row.*`, `Joint.*`
@@ -68,6 +70,8 @@ the theorem.
     non-asymptotic bound);
   - **replaced**: the formal proof reaches the same point of the argument
     by another argument; the statement may coincide up to constants;
+  - **replaced, weaker**: replaced, and the formal statement also says
+    less (Lemmas 2.3, 3.13 and 4.12);
   - **absent**: the formal proof does not need the result.
 - Notation: d is the dimension, n (formally N) the number of points,
   W_i = (x_i x_i^T - I)/sqrt(d), Q_x Q_x^* the Gram matrix of the quadratic
@@ -83,7 +87,7 @@ the theorem.
 | Corollary 1.4 `cor:alternative` (sec. 1.2) | `Balanced.Probability.paper_main_balanced_from_sat`, `Balanced.Limit.paper_main_balanced_supercritical_limit`, `Gaussian.Spanning.paper_main_gaussian_spanning_ae` | same | Below 1/4 only the exclusion half of lem:homogeneous (ii) is used; it needs no spanning. Above 1/4 the existence half needs the sample to span R^d; the formal proof proves that this holds almost surely when n >= d, which the paper asserts. Measurability is added. |
 | Lemma 2.1 `lem:psd-width` (sec. 2.1) | `Gaussian.PsdWidth.paper_main_gaussian_psd_projection_second_moment`, `Gaussian.PsdWidth.paper_main_gaussian_psd_width_bounds` | same | E \|Z_+\|_F^2 = D_d/2 by Moreau's decomposition and Z = -Z in law, as in the paper. The width bounds come from the Gaussian Poincare inequality instead of the cited Proposition 10.2 of Amelunxen, Lotz, McCoy and Tropp (see (a)). The clause w = d/2 + O(1) is not stated separately. |
 | Lemma 2.2 `lem:widthcone` (sec. 2.1) | `Gaussian.ConditionWidthBound.paper_main_gaussian_condition_width_lower`, `Gaussian.ConditionWidthBound.paper_main_gaussian_condition_width_large` | stronger | Non-asymptotic: w(K_k cap S_F) >= (1/2 - s) d - 3 - 864/d for every d and s > 0, with k = (20 + s)/s. Same candidate (Z_+ + s sqrt(d) I)/norm as the paper, with the cutoff \|Z\|_op <= 20 sqrt(d). No semicircle law, no operator-norm limit, no uniform integrability (route R1). |
-| Lemma 2.3 `lem:gordon` (sec. 2.2) | `GaussianAnalysis.comparison.gordon.gordon`, `GaussianAnalysis.comparison.escape.auxT_bilT_minmax`, `Gordon.Width.paper_main_gordon_finite_width_margin` | replaced | Only an expectation bound for finite families: E min_y max_t z_y^T A v_t >= E max_t <h, v_t> - sqrt(N), proved by Kahane's comparison applied to a soft min-max. No tail bound, no gamma_0, no compact index set. The probability bound needed later comes from the concentration of the data functional (route R2). |
+| Lemma 2.3 `lem:gordon` (sec. 2.2) | `GaussianAnalysis.comparison.gordon.gordon`, `GaussianAnalysis.comparison.escape.auxT_bilT_minmax`, `Gordon.Width.paper_main_gordon_finite_width_margin` | replaced, weaker | Only an expectation bound for finite families: E min_y max_t z_y^T A v_t >= E max_t <h, v_t> - sqrt(N), proved by Kahane's comparison applied to a soft min-max. No tail bound, no gamma_0, no compact index set. The probability bound needed later comes from the concentration of the data functional (route R2). |
 | Lemma 2.4 `lem:escape` (sec. 2.2) | `GaussianAnalysis.comparison.escape.gordon_escape`, `Gaussian.EscapeTail.paper_main_gaussian_escape_sqrt_tail` | weaker | Proved, where the paper cites Gordon (1988): P(inf_T \|A x\| <= sqrt(N - 1) - w(T) - u) <= exp(-u^2/2). The threshold sqrt(N - 1) <= E\|g_N\| gives a smaller event than the paper's, and it is what eq:gap-mean uses. T may be any nonempty set of unit vectors, not only a compact one. |
 | Lemma 2.5 `lem:gauss-rect` (sec. 2.2) | `Gaussian.OperatorTail.paper_main_gaussian_operator_tail`, `Gaussian.FeatureTail.paper_main_gaussian_operator_exponential_tail` | weaker | Proved by nets, where the paper cites Vershynin: P(\|A\|_op > 2B) <= 2 exp(20 ln 2 (N + M) - B^2/2) for standard entries, in place of sigma (sqrt(N) + sqrt(M) + t). Enough for the O(sqrt(n)) bounds that are used. |
 | Lemma 2.6 `lem:squarefree-edge` (sec. 2.3) | `SquareFree.EdgeUpperLimit.paper_main_squarefree_upper_bound`, `SquareFree.LowerProbability.paper_main_squarefree_lower_probability`, `SquareFree.Coercivity.paper_main_squarefree_coercivity_generic` | weaker | Bounds, not limits: V V^T <= 106 d^2 I when N <= d^2, and the raw feature Gram matrix is >= (d^2/128) I only when 4 N <= d^2, that is density at most 1/4 (the paper: any compact subset of (0, 1/2)). Proved by moment methods instead of citing Kogan, Nandy and Huang (see (a) and route R3). |
@@ -103,7 +107,7 @@ the theorem.
 | Lemma 3.10 `lem:chaos-ibp` (sec. 3.4) | `Quadratic.TimeStein.quadratic_gaussian_time_stein`, `Joint.SteinIdentities.joint_gaussian_stein_cancellation`, `Chaos.SecondContractionBounds.chaos_projective_bound` | weaker | Same identity and same remainder bound 4 \|x\|^2 \|D^3 F\|_(pi,op), for the soft min-max only. The second-order Gaussian integration by parts that the paper states without proof is proved (`Gaussian.VectorStein.gaussian_vector_second_stein`). |
 | Lemma 3.11 `lem:max-radius` (sec. 3.4) | `Radius.ExpectationBound.gaussian_expected_maximum_radius` | same | Same bound d + 2 sqrt(d log N) + 2 log N and same proof (moment generating function of the chi-square, log-sum-exp, Jensen). |
 | Lemma 3.12 `lem:soft` (sec. 3.4) | `Soft.Extrema.soft_minimax_bounds`, `Tensor.ProjectiveSum.matrix_nested_projective_sum_low_influence`, `Soft.MatrixProjectiveBound.soft_matrix_projective_sum_bound` | same | Same sandwich bounds and the same three terms of the third derivative, with the explicit constant C = 10. |
-| Lemma 3.13 `lem:gaussian-soft-head` (sec. 3.5) | `Soft.FeatureMargin.paper_main_public_goe_soft_margin`, `Gordon.SoftMargin.paper_main_gordon_soft_width_margin`, `Head.SectionApproxWidth.paper_main_head_section_net_width` | replaced | Only the mean bound eq:PhiG-mean, proved directly from Gordon's inequality in expectation on the two finite nets: E_G Phi >= sqrt(2/d) (w(net) - sqrt(N)) - ln r/beta. The high-probability bound eq:net-margin-G, the bound on \|G^*\| (eq:Gstar-bound) and the Cauchy-Schwarz step have no counterpart (route R2). |
+| Lemma 3.13 `lem:gaussian-soft-head` (sec. 3.5) | `Soft.FeatureMargin.paper_main_public_goe_soft_margin`, `Gordon.SoftMargin.paper_main_gordon_soft_width_margin`, `Head.SectionApproxWidth.paper_main_head_section_net_width` | replaced, weaker | Only the mean bound eq:PhiG-mean, proved directly from Gordon's inequality in expectation on the two finite nets: E_G Phi >= sqrt(2/d) (w(net) - sqrt(N)) - ln r/beta. The high-probability bound eq:net-margin-G, the bound on \|G^*\| (eq:Gstar-bound) and the Cauchy-Schwarz step have no counterpart (route R2). |
 | Corollary 3.14 `cor:chaos-soft-head` (sec. 3.5) | `Head.SoftTail.paper_main_head_soft_expectation`, `Soft.ConeMargin.paper_main_data_soft_cone_margin` | same | An explicit lower bound on E_W Phi for a fixed head. The formal scores are the paper's divided by sqrt(d), so the formal inverse temperatures A d sqrt(d) are the paper's beta = gamma = L d. |
 | Lemma 3.15 `lem:clipped-soft-heads` (sec. 3.5) | `Data.SoftConcentration.paper_main_data_soft_clipped_lower_margin`, `Head.SubcriticalTail.paper_main_head_subcritical_clipped_tail`, `Head.SubcriticalFamily.paper_main_head_subcritical_family_event` | weaker | Every coordinate is clipped at d^(1/4), instead of the radius at 2 sqrt(d). The clipped functional is 2 k d^(-1/4)-Lipschitz, so one head fails with probability exp(-c d^(3/2)) instead of exp(-c d^2). That still beats the exp(C d (ln d)^2) heads (route R4). |
 | Theorem 4.1 `thm:unsat` (sec. 4) | `Unsat.Limit.paper_main_unsat_supercritical_limit`, `Unsat.Limit.paper_main_unsat_fixed_density_limit`, `Unsat.Limit.paper_main_unsat_fixed_density_limit_from_events` | same | Same statement, with measurability. P(fit) is bounded by P(the upper feature edge fails) + P(F_d), where F_d is a union over a net of orientations. The steps of section 4.1 are replaced (routes R8 to R12). |
@@ -116,9 +120,10 @@ the theorem.
 | Lemma 4.9 `lem:ground-state-transfer` (sec. 4.2) | `Orientation.Prior.paper_main_orientation_prior`, `Loss.QuadraticPrior.paper_main_quadratic_prior_positive`, `Orientation.BlocksLoss.paper_main_orientation_candidate_bound_rotate` | replaced | The delta-net, its entropy and the Lipschitz step are used sample by sample after concentration, on the data side only, with beta fixed. There is no comparison of expected ground states. |
 | Lemma 4.10 `lem:head-smallball` (sec. 4.3) | `Head.SmallBallUniform.paper_main_head_small_ball_uniform_poly`, `Head.SmallBallPZ.paper_main_head_small_ball_probability` | replaced | Same statement with a_0^2 = 1/4864 and delta_0 = 1/1216, for n >= 306432 (r + 1)^3. Proved with a net, a Markov truncation and binomial tails instead of the VC inequality, and with E Y^4 <= 19 sigma^4 computed instead of hypercontractivity (route R11). |
 | Lemma 4.11 `lem:projected-bulk-escape` (sec. 4.3) | `Hybrid.Bulk.paper_main_hybrid_bulk_event`, `Projected.BulkConditional.paper_main_projected_psd_conditional_tail`, `Hybrid.Assembly.paper_main_hybrid_operator_event` | stronger | Holds for every fixed head, without the small-ball condition. The distance from R(B)_J to the range of the head features replaces \|P_J R(B)_J\| (a complement basis and Bessel's inequality), so no full column rank is needed (route R11). |
-| Lemma 4.12 `lem:conditional-true-mean-gap` (sec. 4.4) | `Hybrid.FiniteMean.paper_main_hybrid_finite_goe_mean`, `Loss.ExpectedGap.paper_main_loss_expected_gap`, `Unsat.FiniteTail.paper_main_unsat_ordered_tail` | replaced | Nothing is conditioned on the head. E Z_goe >= e (1 - exp(-c d^2)) holds for the mean over heads and bulks together, and E Z_data >= E Z_goe - (2 eta + C eps \|B\|_F) (route R9). |
+| Lemma 4.12 `lem:conditional-true-mean-gap` (sec. 4.4) | `Hybrid.FiniteMean.paper_main_hybrid_finite_goe_mean`, `Loss.ExpectedGap.paper_main_loss_expected_gap`, `Unsat.FiniteTail.paper_main_unsat_ordered_tail` | replaced, weaker | Nothing is conditioned on the head. E Z_goe >= e (1 - exp(-c d^2)) holds for the mean over heads and bulks together, and E Z_data >= E Z_goe - (2 eta + C eps \|B\|_F) (route R9). |
 
-Count by relation: same 12, weaker 14, stronger 3, replaced 10, absent 0.
+Count by relation: same 12, weaker 14, stronger 3, replaced 7, replaced and
+weaker 3, absent 0.
 
 **Remarks.** Remarks 3.6, 3.7 and 4.7 have no formal statement. Their
 claims hold in the formal proof as follows.
@@ -466,7 +471,9 @@ independent and identically distributed):
 arguments would survive non-Gaussian data, up to the covariance of the
 surrogate): the widths of Lemmas 2.1 and 2.2; Gordon's
 inequality and escape through a mesh (library `comparison/gordon.v`,
-`comparison/escape.v`); the norms of Gaussian matrices (Lemma 2.5); the
+`comparison/escape.v`); the norms of Gaussian matrices (Lemma 2.5) for the
+surrogate, although the same net argument is also applied to the data (row
+"Data estimates" of the table below); the
 Stein identity for the GOE rows (`Joint.SectionStein.joint_goe_section_stein`);
 the rotation invariance of the hybrid bulk array
 (`Projected.BulkLaw.paper_main_projected_law`).
@@ -477,7 +484,7 @@ the rotation invariance of the hybrid bulk array
 |---|---|---|---|
 | Chaos-to-GOE transfer, satisfiable phase | Lemmas 3.9, 3.10 | Second-order Stein identity for x; the GOE surrogate matches the covariance of the chaos rows. For independent coordinates with fourth moment m_4, Var(x^T A x) = 2 \|A\|_F^2 + (m_4 - 3) sum_a A_aa^2, so the GOE surrogate is the right one only when m_4 = 3. | `Gaussian.VectorStein`, `Quadratic.EntryStein`, `Quadratic.TimeStein`, `Multirow.*`, `Soft.Comparison` |
 | Concentration of the clipped functional | Lemma 3.15 | Dimension-free Gaussian concentration of a Lipschitz function of all n d coordinates. The soft min-max is not convex, so Talagrand's convex-distance inequality would not replace it directly. | `Data.SoftConcentration`, `Gaussian.LipschitzConcentration` |
-| Data estimates | Lemma 2.10, eq:radius | Chi-square and linear Gaussian tails (sub-Gaussian tails would do); the coherence bound uses the law of <x_i, x_j> given x_i, that is rotation invariance. | `Gaussian.DataRadius*`, `Data.CoherenceLimit`, `Data.SampleTail`, `Head.DataLog` |
+| Data estimates | Lemma 2.10, eq:radius | Chi-square and linear Gaussian tails (sub-Gaussian tails would do); the coherence bound uses the law of <x_i, x_j> given x_i, that is rotation invariance. The bound L d (ln d)^2 on the Gram matrices of the data heads is the operator-norm net bound of Lemma 2.5 applied to the data: the exception events are net tests of the bilinear forms u^T X_J v of the sample, whose tails are the Gaussian tails of unit linear forms of the sample (`Data.HeadOperator`). A sub-Gaussian operator-norm bound would do. | `Gaussian.DataRadius*`, `Data.CoherenceLimit`, `Data.SampleTail`, `Data.HeadOperator`, `Data.HeadOperatorUniform`, `Head.DataLog` |
 | Residuals of the head correction | Lemma 2.11 in Prop. 3.3 | The Hanson-Wright proof uses diagonalization and rotation invariance. By our reading of the proof, the Markov step costs a factor N d^4, so a one-row tail o(d^(-6)) at the threshold d^(-1/4) suffices, and a high moment bound on x^T P x - Tr P would do. | `Gaussian.QuadraticTail`, `Gaussian.Residual*` |
 | Feature edge | Lemmas 2.6, 2.7 | Exact Gaussian moments of monomials, including the vanishing of odd moments, and explicit fourth and eighth moments. The paper cites Kogan, Nandy and Huang, whose theorem covers centered coordinates with moment growth; the formal proof is more Gaussian-specific here, and a non-Gaussian version would have to redo the walk count for odd multiplicities. | `SquareFree.Walk*`, `Column.*`, `DiagonalBlock.*` |
 | Orientations and head/bulk independence | eq:decompose, secs. 4.1, 4.4 | Rotation invariance of the sample: it reduces every orientation to fixed coordinates and makes the head and bulk parts of a point independent standard Gaussians. This is the main obstacle in the unsatisfiable phase for non-Gaussian data. | `Orientation.Rotation`, `Head.Law` |
@@ -531,7 +538,9 @@ only:
   `Hybrid.FiniteTail`, and in `Loss.ConcentrationTail`
   ("1. Product-law forms."). The header of `Orientation.Spectral`
   still names "the checked M119 decomposition" and "the M121
-  decomposition", labels from the source repository.
+  decomposition", labels from the source repository. The two lane C
+  items, `Loss.ConcentrationTail` and `Orientation.Spectral`, are fixed
+  in commit `3a2cb48` of the branch `fix/c`.
 - The proof of the paper does not use these library theorems:
   `gordon_escape_tail`, `gauss_opnorm_mean` and `gauss_opnorm_tail` of
   `library/comparison/escape.v` (the forms of Lemmas 2.4 and 2.5 with the
