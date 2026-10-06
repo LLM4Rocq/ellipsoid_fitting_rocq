@@ -127,8 +127,8 @@ generated`), whose code cannot change. The other modules print none.
 - `scripts/unused.py`: lists the declarations of `theories/` that the main
   theorem does not use, from the `.glob` files of a build, and can delete
   them. Its docstring says how it decides. On the current tree it lists
-  only eight function equalities of `Analysis/RealsBridge`, kept so that the
-  bridge is complete.
+  111 declarations in 27 modules, left without users when the proof started
+  to use the library; 17 of these modules have no user at all.
 - `scripts/stale_citations.py`: lists the names that the comments of
   `theories/` and `library/` cite but that no declaration defines, from
   the `.glob` files of a build and of the installed libraries. `make
