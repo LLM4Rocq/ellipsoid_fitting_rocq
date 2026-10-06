@@ -7,8 +7,7 @@
      polynomial factor at logarithmic walk length.
    - paper_main_squarefree_offdiag_trace_le: for the off-diagonal part W of
      V V^T and L >= 32, E tr W^L <= N (52 d^2)^L when 0 < N <= d^2 and
-     16 L^2 (2L)^45 <= d; also under the actual law
-     (paper_main_squarefree_offdiag_law_trace_le).
+     16 L^2 (2L)^45 <= d.
    - pmeu_trace_box: for symmetric Z and L = 2^(j+1), tr Z^L <= t^L gives
      -t I <= Z <= t I, by opnorm_le_trace_exp of
      GaussianAnalysis.matrix.opnorm. *)

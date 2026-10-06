@@ -1,19 +1,16 @@
-(* Support values of the PSD unit ball and unit sphere through the Moreau
-   decomposition: the correct pointwise identities behind manuscript
-   lem:psd-width (width of the PSD cone and its positive part).
+(* Support values of the PSD unit sphere through the Moreau decomposition:
+   the correct pointwise identities behind manuscript lem:psd-width (width
+   of the PSD cone and its positive part).
 
    For symmetric Z with P = paper_main_psd_projection Z and
-   h_A(Z) = sup_(S in A) <Z, S>:
-   - PSD unit ball (|S|_F <= 1): h(Z) = |P|_F, for every d
-     (paper_main_psd_ball_support);
-   - PSD unit sphere (|S|_F = 1): h(Z) = |P|_F when P <> 0
-     (paper_main_psd_sphere_support_pos), and in general, for d > 0,
-     max(h(Z), 0) = |P|_F (paper_main_psd_sphere_support_max).
-   Equality without the maximum fails. For Z = -I and d > 0, P = 0 while the
-   sphere support is at most -1 (paper_main_psd_sphere_support_neg_identity):
-   a unit PSD S has Tr S >= 1, since <S, S> <= (Tr S)^2 from
-   S_ij^2 <= S_ii S_jj. So the width of the PSD unit sphere is not
-   pointwise |P|_F; only its positive part is. *)
+   h(Z) = sup_(S in A) <Z, S> over the PSD unit sphere A (|S|_F = 1,
+   paper_main_psd_sphere): h(Z) = |P|_F when P <> 0
+   (paper_main_psd_sphere_support_pos), and in general, for d > 0,
+   max(h(Z), 0) = |P|_F (paper_main_psd_sphere_support_max).
+   Equality without the maximum fails: for Z = -I and d > 0, P = 0 while the
+   sphere support is at most -1, since a unit PSD S has Tr S >= 1
+   (<S, S> <= (Tr S)^2 from S_ij^2 <= S_ii S_jj). So the width of the PSD
+   unit sphere is not pointwise |P|_F; only its positive part is. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

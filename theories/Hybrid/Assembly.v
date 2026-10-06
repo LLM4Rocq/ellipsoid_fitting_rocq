@@ -6,7 +6,7 @@
    1. Operator event in the N x D layout: the GOE feature event at
       t = N / 2 and duality give ||R(B)|| <= C(rho) sqrt N ||B||_F off an
       event of probability at most 2 exp (- N / 2), when
-      rho (mi + 1)^2 <= N (the GaussianForward threshold arithmetic, with
+      rho (mi + 1)^2 <= N (the threshold arithmetic of Gaussian.Forward, with
       the threshold monotone in the column count).
    2. The exceptional event is the union of the head small-ball event of
       Head.SmallBallUniform (r >= 1; none for r = 0), the bulk

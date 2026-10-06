@@ -1,15 +1,14 @@
-(* Uniformity over deletion sets for fixed head data. For n rows and k <= n
-   deletions, the deletion sets J with |J| >= n - k number
-   sum_(j <= k) C(n, j) (paper_main_projected_count_admissible), and this
-   count is at most exp (k (1 + ln (n / k))) for 1 <= k
-   (paper_main_projected_count_entropy), from
-   sum_(j <= k) C(n, j) t^k <= (1 + t)^n <= exp (t n) at t = k / n. With the
-   head matrix F of all rows fixed and F_J = S_J F, the union of the section
-   events of Projected.BulkComplement over all admissible J is a
-   measurable event of probability at most count * exp (- u^2 / 2), off
-   which every admissible J, unit direction v in A and head parameter h
-   have a restricted residual above sqrt (|J| - q - 1) - w(A) - u
-   (paper_main_projected_union_tail). *)
+(* Counting deletion sets, and finite unions of events, for the uniformity
+   over deletion sets. For n rows and k <= n deletions, the deletion sets J
+   with |J| >= n - k number sum_(j <= k) C(n, j)
+   (paper_main_projected_count_admissible), and this count is at most
+   exp (k (1 + ln (n / k))) for 1 <= k (paper_main_projected_count_entropy),
+   from sum_(j <= k) C(n, j) t^k <= (1 + t)^n <= exp (t n) at t = k / n.
+   A union of events indexed by a list L contains x exactly when an event
+   of the list does (paper_main_projected_union_mem); when every event of
+   the list is measurable with probability at most b, the union is
+   measurable with probability at most (size L) b
+   (paper_main_projected_union_list). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix finset binomial.
