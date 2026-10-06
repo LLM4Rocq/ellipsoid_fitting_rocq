@@ -10,7 +10,8 @@ From mathcomp Require Import probability normal_distribution.
 From GaussianAnalysis.gaussian Require Import measurable_matrix normal_integral gauss gauss_ibp.
 From GaussianAnalysis.gaussian Require Import gauss_interpolation.
 From GaussianAnalysis.matrix Require Import euclidean.
-From GaussianAnalysis.comparison Require Import partial_diff gauss_smoothing slepian.
+From GaussianAnalysis.gaussian Require Import partial_derivative.
+From GaussianAnalysis.comparison Require Import gauss_smoothing slepian.
 
 (**md**************************************************************************)
 (* # Gordon's min-max inequality                                              *)
@@ -365,7 +366,7 @@ Qed.
 Lemma smm_D_differentiable u t z :
   differentiable ((fun z => smm_D z u t) : 'rV[R]_N -> R^o) z.
 Proof.
-apply: (@partial_differentiable R N ((fun z => smm_D z u t))
+apply: (@differentiable_partials R N ((fun z => smm_D z u t))
   (fun j => 'D_(delta_mx 0 j) ((fun z => smm_D z u t)))).
   move=> j w; case/mxvec_indexP: j => v s.
   by have h := is_derive_smm_D w u t v s; rewrite derive_val.
@@ -493,7 +494,7 @@ Qed.
 
 Lemma smm_differentiable z : differentiable (smm : 'rV[R]_N -> R^o) z.
 Proof.
-apply: (@partial_differentiable R N smm (fun j => 'D_(delta_mx 0 j) smm)).
+apply: (@differentiable_partials R N smm (fun j => 'D_(delta_mx 0 j) smm)).
   move=> j w; case/mxvec_indexP: j => v s.
   by have h := is_derive_smm w v s; rewrite derive_val.
 by move=> j; case/mxvec_indexP: j => v s; rewrite smm_DE; exact: continuous_smm_D.

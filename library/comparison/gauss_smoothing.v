@@ -9,7 +9,8 @@ From mathcomp Require Import measurable_realfun lebesgue_integral.
 From mathcomp Require Import probability normal_distribution.
 From GaussianAnalysis.gaussian Require Import measurable_matrix normal_integral gauss gauss_ibp.
 From GaussianAnalysis.matrix Require Import euclidean.
-From GaussianAnalysis.comparison Require Import normal_mgf gauss_shift partial_diff.
+From GaussianAnalysis.gaussian Require Import partial_derivative.
+From GaussianAnalysis.comparison Require Import normal_mgf gauss_shift.
 
 (**md**************************************************************************)
 (* # Gaussian smoothing of Lipschitz functions                                *)
@@ -103,9 +104,9 @@ Lemma lipschitz_frobenius_grad F (DF : 'I_n -> 'rV[R]_n -> R) (L : R) :
   forall x, mxdot (\row_j DF j x) (\row_j DF j x) <= L ^+ 2.
 Proof.
 move=> dF cDF FL x; set g := \row_j DF j x.
-have Fd := partial_differentiable dF cDF x.
+have Fd := differentiable_partials dF cDF x.
 have Dg : 'D_g (F : 'rV[R]_n -> R^o) x = mxdot g g.
-  rewrite deriveE// (partial_diffE dF cDF) /partial_lin /mxdot big_ord1.
+  rewrite deriveE// (diff_partials dF cDF) /mxdot big_ord1.
   by apply: eq_bigr => j _; rewrite mxE.
 have D_le : 'D_g (F : 'rV[R]_n -> R^o) x <= L * frobenius g.
   apply: limr_le; first exact: diff_derivable.
@@ -420,7 +421,7 @@ Qed.
 Theorem gauss_smooth_differentiable x :
   differentiable (gauss_smooth eps G : 'rV[R]_n -> R^o) x.
 Proof.
-exact: (partial_differentiable (fun j x => gauss_smooth_derive x j)
+exact: (differentiable_partials (fun j x => gauss_smooth_derive x j)
   continuous_gauss_smooth_partial).
 Qed.
 

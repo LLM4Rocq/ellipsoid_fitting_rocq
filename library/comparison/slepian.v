@@ -10,7 +10,8 @@ From mathcomp Require Import probability normal_distribution.
 From GaussianAnalysis.gaussian Require Import measurable_matrix normal_integral gauss gauss_ibp.
 From GaussianAnalysis.gaussian Require Import gauss_interpolation.
 From GaussianAnalysis.matrix Require Import euclidean.
-From GaussianAnalysis.comparison Require Import partial_diff gauss_smoothing.
+From GaussianAnalysis.gaussian Require Import partial_derivative.
+From GaussianAnalysis.comparison Require Import gauss_smoothing.
 
 (**md**************************************************************************)
 (* # The Sudakov-Fernique and Slepian inequalities                            *)
@@ -265,7 +266,7 @@ Definition lse_D2 (j l : 'I_k.+1) (z : 'rV[R]_k.+1) : R :=
 
 Lemma lse_differentiable z : differentiable (lse b : 'rV[R]_k.+1 -> R^o) z.
 Proof.
-apply: (@partial_differentiable R k.+1 (lse b) (fun j z => softmax b z j)).
+apply: (@differentiable_partials R k.+1 (lse b) (fun j z => softmax b z j)).
   by move=> j w; exact: is_derive_lse.
 by move=> j; exact: continuous_softmax.
 Qed.
@@ -291,7 +292,7 @@ Qed.
 Lemma softmax_differentiable j z :
   differentiable (softmax b ^~ j : 'rV[R]_k.+1 -> R^o) z.
 Proof.
-apply: (@partial_differentiable R k.+1 (softmax b ^~ j) (lse_D2 j)).
+apply: (@differentiable_partials R k.+1 (softmax b ^~ j) (lse_D2 j)).
   by move=> l w; exact: is_derive_softmax.
 by move=> l; exact: continuous_lse_D2.
 Qed.
