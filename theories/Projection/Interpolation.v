@@ -1,13 +1,12 @@
 (* Actual differentiation of a quadratic/Gaussian interpolation, with its error. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages
-  Gaussian.IteratedExpectationDefinitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Joint.Definitions Data.FeatureMomentsCoordinates
-  Gaussian.SmoothCovariance Projection.Stein Projection.Image Projection.Path
-  Projection.Mix Projection.Regular Projection.Spatial Projection.Algebra
-  Projection.Error.
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages
+  Gaussian.Iterated.Definitions Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Joint.Definitions Data.FeatureMomentsCoordinates Gaussian.Smooth.Test
+  Projection.Stein Projection.Image Projection.Path Projection.Mix
+  Projection.Regular Projection.Spatial Projection.Algebra Projection.Error.
 Open Scope R_scope.
 
 Theorem paper_main_projection_regular_mix_expectation d K Q L F DF D2F C t :

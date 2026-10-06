@@ -1,10 +1,10 @@
 (* Finite nets approximate the genuine support function and Gaussian width. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Gaussian.CovarianceDefinitions Analysis.FiniteSumAlgebra
-  Gordon.ProcessCovariance Gordon.Scalar Gaussian.Norm Gordon.Width
-  Gordon.SoftMargin Gordon.SetWidth.
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Gaussian.Covariance.Definitions Analysis.FiniteSumAlgebra
+  Gordon.ProcessCovariance Gordon.Scalar Gaussian.Lipschitz.EuclideanNorm
+  Gordon.Width Gordon.SoftMargin Gordon.SetWidth.
 Import ListNotations.
 Open Scope R_scope.
 

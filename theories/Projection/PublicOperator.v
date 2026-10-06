@@ -2,12 +2,12 @@
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages Matrix.Definitions
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages Matrix.Definitions
   Spectral.Transport Spectral.Duality PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.HeadCoefficients Cone.ConditionOperator
-  Gaussian.SmoothCovariance Gaussian.FeatureCoordinates Data.FeatureMoments
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Projection.Stein Projection.Image Projection.Variance Projection.Product
+  Gaussian.Smooth.Test Gaussian.Symmetric.Coordinates Data.FeatureMoments
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation Projection.Stein
+  Projection.Image Projection.Variance Projection.Product
   Projection.Independent Projection.Public.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory.

@@ -1,7 +1,7 @@
 (* Gaussian expected soft margin with constructed nets and explicit entropy. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Gaussian.IteratedExpectationDefinitions Gaussian.CovarianceDefinitions
+  Gaussian.Iterated.Definitions Gaussian.Covariance.Definitions
   Gordon.ProcessCovariance Gordon.Scalar Gordon.SetWidth Gordon.Nets
   Gordon.Entropy.
 Import ListNotations.

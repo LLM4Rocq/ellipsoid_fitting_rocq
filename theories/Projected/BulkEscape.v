@@ -3,7 +3,7 @@
    (paper_main_projected_orthonormal) and the projected array U X of an
    N-by-M standard Gaussian array X (paper_main_projected_map), the exact law
    of Projected.BulkLaw transports the escape tail of
-   Gaussian.EscapeTail: for s > 0, a nonempty set T of unit vectors
+   Gaussian.Lipschitz.EscapeTail: for s > 0, a nonempty set T of unit vectors
    of R^M and u > 0, the event
      inf_(v in T) |U X v| <= sqrt (s - 1) - w(T) - u
    is measurable and has probability at most exp (- u^2 / 2)
@@ -20,9 +20,10 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun l
 From mathcomp Require Import probability numfun.
 From EllipsoidFitting Require Import Soft.Definitions
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
-  Gordon.ProcessCovariance Gordon.SetWidth Gordon.Escape Gaussian.GordonTail
-  Gaussian.EscapeTail Gaussian.FeatureCoordinates Cone.GaussianCoordinates
-  Cone.GaussianCoordinatesSpheres Gaussian.PsdWidth Cone.ProjectionSupport
+  Gordon.ProcessCovariance Gordon.SetWidth Gordon.Escape
+  Gaussian.Lipschitz.LowerMargin Gaussian.Lipschitz.EscapeTail
+  Gaussian.Symmetric.Coordinates Cone.GaussianCoordinates
+  Cone.GaussianCoordinatesSpheres Gaussian.Width.Psd Cone.ProjectionSupport
   Projected.BulkLaw.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

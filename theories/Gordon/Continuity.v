@@ -1,10 +1,10 @@
 (* Joint continuity of the finite Gibbs functions used in Gaussian comparison. *)
 From Stdlib Require Import Reals List Lra.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Gibbs.Definitions Gibbs.Weights Gibbs.CurveDerivatives
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateTuples
-  Analysis.CoordinateTopology Gaussian.CoordinatePolynomialContinuity
-  Gaussian.FiniteSums Gordon.Covariance Gordon.Calculus.
+  Gibbs.Definitions Gibbs.Weights Gibbs.SoftMinIdentity
+  Analysis.CoordinateContinuityDefinitions Gaussian.Coordinate.Tuples
+  Analysis.CoordinateTopology Gaussian.Coordinate.PolynomialContinuity
+  Gaussian.Iterated.FiniteSums Gordon.Covariance Gordon.Calculus.
 Import ListNotations.
 Open Scope R_scope.
 

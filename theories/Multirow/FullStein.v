@@ -9,15 +9,15 @@
    regularity of the row observables for any y and B comes from
    Multirow.ObservableBounds, the identity of one row from
    gaussian_row_full_stein_of_regular (Row.ConditionalStein), and the sums from
-   gaussian_finite_polynomial_sum (Gaussian.FiniteSums). *)
+   gaussian_finite_polynomial_sum (Gaussian.Iterated.FiniteSums). *)
 From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import Matrix.Definitions Soft.Definitions
-  Tensor.Definitions Goe.Definitions Gaussian.IteratedExpectationDefinitions
+  Tensor.Definitions Goe.Definitions Gaussian.Iterated.Definitions
   Joint.Definitions Row.ObservableDefinitions.
 From Stdlib Require Import Lia.
 From EllipsoidFitting Require Import Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateWeightDefinitions Multirow.ObservableBounds
-  Row.ConditionalStein Gaussian.FiniteSums.
+  Gaussian.Coordinate.WeightDefinitions Multirow.ObservableBounds
+  Row.ConditionalStein Gaussian.Iterated.FiniteSums.
 Import ListNotations.
 Open Scope R_scope.
 

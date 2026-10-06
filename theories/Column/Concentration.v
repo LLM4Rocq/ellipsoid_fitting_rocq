@@ -24,12 +24,12 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral probability.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
-From EllipsoidFitting Require Import Gaussian.IteratedExpectationDefinitions
+From EllipsoidFitting Require Import Gaussian.Iterated.Definitions
   Analysis.CoordinateContinuityDefinitions Analysis.CoordinateTopology
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
   PaperMainDefinitions Data.FeatureMomentsCoordinates Data.FeatureMoments
-  SquareFree.Diagonal Gaussian.Union DiagonalBlock.Moment DiagonalBlock.Limit
-  Column.ConcentrationMoments.
+  SquareFree.Diagonal Gaussian.Tail.UnionBound Feature.DiagonalMoment
+  Feature.DiagonalLimit Column.ConcentrationMoments.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

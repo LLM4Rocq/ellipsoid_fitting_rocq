@@ -2,11 +2,11 @@
    The support is a genuine least upper bound, not a finite surrogate. *)
 From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From EllipsoidFitting Require Import Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateTuples
-  Gaussian.CoordinateWeightDefinitions Gaussian.CoordinatePolynomialDomain
-  Gaussian.CovarianceDefinitions Analysis.FiniteSumAlgebra
-  Gordon.ProcessCovariance Gordon.Lipschitz Gaussian.Norm.
+  Gaussian.Iterated.Definitions Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.Tuples Gaussian.Coordinate.WeightDefinitions
+  Gaussian.Iterated.PolynomialDomain Gaussian.Covariance.Definitions
+  Analysis.FiniteSumAlgebra Gordon.ProcessCovariance Gordon.Lipschitz
+  Gaussian.Lipschitz.EuclideanNorm.
 Import ListNotations.
 Open Scope R_scope.
 

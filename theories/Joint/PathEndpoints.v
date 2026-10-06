@@ -11,14 +11,14 @@ From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.
 From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.EntriesAndLinearMaps Matrix.OperatorDefinitions Soft.Definitions
-  Gibbs.MatrixDefinitions Goe.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.VectorDefinitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Joint.Definitions Joint.ListCoordinates Gaussian.PairExchange
-  Gaussian.ExpectationContinuity Joint.TimeVelocity Joint.PathTimeDerivative
-  Joint.PathIncrements.
-From EllipsoidFitting Require Import Gaussian.IteratedExpectation
-  Gaussian.CoordinateMarginals Gaussian.VectorDomain Gaussian.VectorLinearity.
+  Gibbs.MatrixDefinitions Goe.Definitions Gaussian.Iterated.Definitions
+  Gaussian.Vector.Definitions Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Joint.Definitions Joint.ListCoordinates
+  Gaussian.Iterated.PairExchange Gaussian.Iterated.ParameterContinuity
+  Joint.TimeVelocity Joint.PathTimeDerivative Joint.PathIncrements.
+From EllipsoidFitting Require Import Gaussian.Iterated.Expectation
+  Gaussian.Iterated.PolynomialGrowth Gaussian.Vector.Domain
+  Gaussian.Vector.Linearity.
 Import ListNotations.
 Open Scope R_scope.
 

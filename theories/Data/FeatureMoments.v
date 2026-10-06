@@ -32,15 +32,15 @@ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral me
 From mathcomp Require Import probability normal_distribution.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinatePolynomialDomain Gaussian.CovarianceDefinitions
-  GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
-  Gaussian.ProductLawIntegrals Matrix.Definitions Tensor.Definitions
-  Goe.Definitions Goe.MatrixBasis PaperMainDefinitions Geometry.Psd
-  Geometry.Homogeneous Spectral.Transport Gaussian.FeatureCoordinates
-  Geometry.HeadFrobenius Geometry.HeadFeature Spectral.SymmetricBilinear
-  Data.FeatureMomentsCoordinates.
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Iterated.PolynomialDomain
+  Gaussian.Covariance.Definitions GaussianProbabilityProductDefinitions
+  Analysis.ContinuousTupleMeasurability Gaussian.Law.ProductIntegrals
+  Matrix.Definitions Tensor.Definitions Goe.Definitions Goe.MatrixBasis
+  PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Spectral.Transport
+  Gaussian.Symmetric.Coordinates Geometry.HeadFrobenius Geometry.HeadFeature
+  Spectral.SymmetricBilinear Data.FeatureMomentsCoordinates.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 

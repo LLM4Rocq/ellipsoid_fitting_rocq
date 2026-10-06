@@ -9,7 +9,7 @@
    mexp_row_suffixes_gaussian_expectation says that the iterated Gaussian
    expectation of F (mexp_row_suffixes xs) over N (d + D) coordinates is the
    expectation of F over N D coordinates, as
-   row_prefixes_gaussian_expectation of Gaussian.RowPrefixMarginal does for the
+   row_prefixes_gaussian_expectation of Gaussian.Iterated.RowPrefixMarginal does for the
    prefixes. Neither needs a hypothesis on F.
 
    mexp_goe_lift N d D zs goes the other way: it puts d zeros in front of
@@ -22,10 +22,10 @@
 
 From Stdlib Require Import Reals List Arith Lia Lra.
 From EllipsoidFitting Require Import Row.CoordinateDefinitions
-  Row.PrefixDefinitions Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation Gaussian.SuffixMarginalDefinitions
-  Gaussian.LastIntegration Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateWeightDefinitions Gaussian.CoordinateWeights
+  Row.PrefixDefinitions Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Iterated.SuffixMarginalDefinitions
+  Gaussian.Iterated.LastIntegration Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
   Analysis.CoordinatePermutationContinuity.
 Import ListNotations.
 Open Scope R_scope.

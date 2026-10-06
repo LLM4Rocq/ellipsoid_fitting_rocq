@@ -22,9 +22,9 @@ From Stdlib Require Import Reals List.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum classical_sets.
 From mathcomp Require Import Rstruct topology normedtype derive Rstruct_topology.
 From EllipsoidFitting Require Import Matrix.Definitions Soft.Definitions
-  Matrix.OperatorDefinitions Tensor.Definitions
-  Gaussian.IteratedExpectationDefinitions Joint.Definitions Goe.Definitions
-  Multirow.ArrayTimeDefinitions Multirow.EndpointDefinitions Radius.Definitions.
+  Matrix.OperatorDefinitions Tensor.Definitions Gaussian.Iterated.Definitions
+  Joint.Definitions Goe.Definitions Multirow.ArrayTimeDefinitions
+  Multirow.EndpointDefinitions Radius.Definitions.
 From Stdlib Require Import Lra.
 From EllipsoidFitting Require Import Multirow.IntegratedArithmetic
   Multirow.IntegratedBoundSteps.

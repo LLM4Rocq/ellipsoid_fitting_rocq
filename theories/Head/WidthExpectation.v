@@ -17,12 +17,12 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix numfun.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral measurable_realfun.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
+  Gaussian.Iterated.Definitions GaussianProbabilityProductDefinitions
   Analysis.ContinuousTupleMeasurability PaperMainDefinitions
-  Geometry.Homogeneous Geometry.HeadFrobenius Gaussian.FeatureCoordinates
-  Gaussian.SymmetricLawPublic Gaussian.ConditionWidth Gaussian.Norm
-  Gaussian.NormConcentration Gaussian.LipschitzApproximationLaw
-  Gaussian.PsdWidthLimit.
+  Geometry.Homogeneous Geometry.HeadFrobenius Gaussian.Symmetric.Coordinates
+  Gaussian.Symmetric.PublicLaw Gaussian.Width.Condition
+  Gaussian.Lipschitz.EuclideanNorm Gaussian.Lipschitz.NormConcentration
+  Gaussian.Lipschitz.Law Gaussian.Symmetric.DimensionReal.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.

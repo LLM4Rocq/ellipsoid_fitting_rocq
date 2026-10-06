@@ -25,13 +25,13 @@ From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From mathcomp Require Import probability.
 From EllipsoidFitting Require Import Soft.Definitions
-  Analysis.CoordinateContinuityDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
-  Gaussian.ProductLawBasics PaperMainDefinitions Geometry.Psd
-  Geometry.HeadFrobenius Geometry.HeadFeature Geometry.HeadWidth Gaussian.Norm
-  Gaussian.SmoothLaw Gaussian.FeatureCoordinates Gaussian.SymmetricLawPublic
-  Gaussian.ResidualJoint Cone.ApproxSelector Head.SectionMeasurable.
+  Analysis.CoordinateContinuityDefinitions Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation GaussianProbabilityProductDefinitions
+  Analysis.ContinuousTupleMeasurability Gaussian.Law.ProductBasics
+  PaperMainDefinitions Geometry.Psd Geometry.HeadFrobenius Geometry.HeadFeature
+  Geometry.HeadWidth Gaussian.Lipschitz.EuclideanNorm Gaussian.Smooth.Law
+  Gaussian.Symmetric.Coordinates Gaussian.Symmetric.PublicLaw
+  Gaussian.Sample.ResidualJoint Cone.ApproxSelector Head.SectionMeasurable.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

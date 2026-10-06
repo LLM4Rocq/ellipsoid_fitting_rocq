@@ -4,7 +4,7 @@
    paper_main_probability N d = gaussian_product_law (N * d).
    1. Finite unions of measurable events with event-dependent bounds have
       probability at most the sum of the bounds
-      (paper_main_orientation_union_bound_var; Gaussian.Union has
+      (paper_main_orientation_union_bound_var; Gaussian.Tail.UnionBound has
       the case of a common bound).
    2. For a family s : nat -> nat and events Ev r k, the union over
       r <= rmax and k < s r is measurable with probability at most
@@ -32,9 +32,9 @@ From mathcomp Require Import topology normedtype Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
-  PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Gaussian.Union
-  Feature.GramBlocks Feature.LossControl Spectral.Duality Orientation.Net
-  Orientation.Witness Orientation.Family.
+  PaperMainDefinitions Geometry.Psd Geometry.Homogeneous
+  Gaussian.Tail.UnionBound Feature.GramBlocks Feature.LossControl
+  Spectral.Duality Orientation.Net Orientation.Witness Orientation.Family.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

@@ -24,15 +24,15 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct ereal 
 From mathcomp Require Import lebesgue_measure lebesgue_integral probability.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
+  Gaussian.Iterated.Definitions GaussianProbabilityProductDefinitions
   Analysis.ContinuousTupleMeasurability PaperMainDefinitions Asymptotics
   Data.FeatureMomentsCoordinates Data.FeatureMoments Feature.GramBlocks
   SquareFree.Diagonal SquareFree.DiagonalLimit SquareFree.WalkMoments
   SquareFree.WalkExpansion SquareFree.WalkBridge Geometry.Psd
   Geometry.Homogeneous Geometry.Separation Geometry.HeadFrobenius
   Geometry.HeadFeature Geometry.HeadCorrection Geometry.HeadCoefficients
-  Spectral.SymmetricBilinear Cone.ConditionOperator DiagonalBlock.Trace
-  DiagonalBlock.Limit SquareFree.EdgeUpper.
+  Spectral.SymmetricBilinear Cone.ConditionOperator Feature.DiagonalTrace
+  Feature.DiagonalLimit SquareFree.EdgeUpper.
 Import GRing.Theory Num.Theory Order.TTheory.
 
 (* 1. The off-diagonal event and Markov. *)

@@ -6,9 +6,9 @@
      x^T H x - Tr H = sum_(i < d) c_i (z_i^2 - 1),  z = O x,
      sum_(i < d) c_i^2 = |H|_F^2.
    - For every k the function (sum_i c_i (z_i^2 - 1) - b)^(k+2) is a smooth
-     test in the sense of Gaussian.SmoothCovariance: explicit first
+     test in the sense of Gaussian.Smooth.Test: explicit first
      and second coordinate derivatives (chain and product rules of
-     Gaussian.OrthogonalCutoff), continuity, and polynomial bounds
+     Gaussian.Orthogonal.SquareDerivatives), continuity, and polynomial bounds
      with the weight prod_j (1 + |z_j|)^(2(k+2))
      (paper_main_head_small_ball_test_smooth).
    - Hence, by the rotation invariance
@@ -23,16 +23,16 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
   Soft.Extrema Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateWeightDefinitions Gaussian.CoordinateWeights
-  Gaussian.CoordinateDerivativeDefinitions Analysis.CoordinateTopology
-  Gaussian.CoordinatePolynomialContinuity Gaussian.FiniteSums
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages
-  Gaussian.IteratedExpectationDefinitions Gaussian.CovarianceDefinitions
-  Gaussian.IteratedExpectation Gaussian.Moments PaperMainDefinitions
-  Geometry.Psd Gordon.Continuity Gaussian.SmoothCalculus
-  Gaussian.SmoothCovariance Gaussian.WeightedSquare Gaussian.WeightedSquareLaw
-  Gaussian.Orthogonal Gaussian.OrthogonalCutoff Spectral.DiagonalizationLists
-  Gaussian.QuadraticTail.
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Coordinate.DerivativeDefinitions Analysis.CoordinateTopology
+  Gaussian.Coordinate.PolynomialContinuity Gaussian.Iterated.FiniteSums
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages
+  Gaussian.Iterated.Definitions Gaussian.Covariance.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Line.Moments PaperMainDefinitions
+  Geometry.Psd Gordon.Continuity Gaussian.Smooth.Calculus Gaussian.Smooth.Test
+  Gaussian.Orthogonal.WeightedSquare Gaussian.Orthogonal.WeightedSquareTail
+  Gaussian.Orthogonal.Invariance Gaussian.Orthogonal.SquareDerivatives
+  Spectral.DiagonalizationLists Gaussian.Orthogonal.HansonWright.
 Import ListNotations.
 Open Scope R_scope.
 

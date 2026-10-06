@@ -9,13 +9,13 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
-  Analysis.CoordinateContinuityDefinitions
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
-  Matrix.OperatorDefinitions Multirow.EndpointDefinitions PaperMainDefinitions
-  Geometry.Psd Geometry.HeadFeature Spectral.Transport Gordon.Lipschitz
+  Analysis.CoordinateContinuityDefinitions Gaussian.Iterated.Definitions
+  GaussianProbabilityProductDefinitions Matrix.OperatorDefinitions
+  Multirow.EndpointDefinitions PaperMainDefinitions Geometry.Psd
+  Geometry.HeadFeature Spectral.Transport Gordon.Lipschitz
   Gordon.ProcessCovariance Gordon.SoftMargin Data.SampleTail Data.Clipped
   Data.ClippedSoft Soft.Comparison Soft.PublicFeatures
-  Gaussian.ClippingTransfer.
+  Gaussian.Lipschitz.ClippingTransfer.
 Import GRing.Theory Num.Theory Order.TTheory.
 Import ListNotations.
 Local Open Scope classical_set_scope.

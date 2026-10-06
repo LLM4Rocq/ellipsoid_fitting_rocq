@@ -1,7 +1,7 @@
 (* Finite Gaussian soft min-max comparison with all analytic premises proved. *)
 From Stdlib Require Import Reals List Lra.
-From EllipsoidFitting Require Import Gaussian.IteratedExpectationDefinitions
-  Gaussian.CovarianceDefinitions Gaussian.CovariancePathDomains
+From EllipsoidFitting Require Import Gaussian.Iterated.Definitions
+  Gaussian.Covariance.Definitions Gaussian.Covariance.PathDomains
   Gordon.Covariance Gordon.Coordinates Gordon.Growth.
 Import ListNotations.
 Open Scope R_scope.

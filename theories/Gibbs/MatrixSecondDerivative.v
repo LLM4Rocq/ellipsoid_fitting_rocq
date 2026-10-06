@@ -6,7 +6,7 @@ From mathcomp Require Import Rstruct.
 From mathcomp Require Import topology normedtype derive realfun.
 From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Soft.Definitions Gibbs.Definitions
-  Gibbs.Weights Gibbs.CurveDerivatives Matrix.Definitions
+  Gibbs.Weights Gibbs.SoftMinIdentity Matrix.Definitions
   Matrix.EntriesAndLinearMaps Matrix.Trace Gibbs.MatrixDefinitions
   Gibbs.MatrixFrechet Gibbs.MatrixSecondDerivativeDefinitions.
 Import ListNotations.
@@ -17,7 +17,7 @@ Open Scope R_scope.
    the second derivative of the soft minimax of matrices
    (Gibbs.MatrixDefinitions). With differentiable scores, the partition
    function, the Gibbs weights and the Gibbs averages are differentiable,
-   with the formulas of Gibbs.CurveDerivatives (matrix_partition_frechet,
+   with the formulas of Gibbs.SoftMinIdentity (matrix_partition_frechet,
    matrix_gibbs_weight_frechet, gibbs_average_frechet). On matrices, the
    differential of matrix_nested_derivative is
    matrix_nested_second_derivative (matrix_nested_derivative_frechet), which

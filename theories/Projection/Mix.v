@@ -1,11 +1,11 @@
 (* Actual square-root interpolation of two polynomial feature families. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
-  Gaussian.IteratedExpectationDefinitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Gaussian.CoordinatePolynomialContinuity
-  Gaussian.InterpolationCoefficients Joint.Definitions
-  Gaussian.SmoothCovariance Projection.Path.
+  Gaussian.Iterated.Definitions Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Coordinate.PolynomialContinuity
+  Gaussian.Covariance.InterpolationCoefficients Joint.Definitions
+  Gaussian.Smooth.Test Projection.Path.
 Open Scope R_scope.
 
 Definition paper_main_projection_mixcoef t k :=

@@ -24,14 +24,16 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun l
 From mathcomp Require Import probability numfun hoelder.
 From GaussianAnalysis.probability Require Import moments.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
-  Gaussian.CovarianceDefinitions PaperMainDefinitions Geometry.Psd
-  Geometry.Homogeneous Gaussian.WeightedSquare Gaussian.SmoothCovariance
-  Gaussian.Orthogonal Gaussian.OrthogonalLaw Spectral.DiagonalizationLists
-  Gaussian.QuadraticTail Measurability.Coordinates Head.SectionMeasurable
-  Head.SmallBall Head.SmallBallFourth.
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation GaussianProbabilityProductDefinitions
+  Analysis.ContinuousTupleMeasurability Gaussian.Covariance.Definitions
+  PaperMainDefinitions Geometry.Psd Geometry.Homogeneous
+  Gaussian.Orthogonal.WeightedSquare Gaussian.Smooth.Test
+  Gaussian.Orthogonal.Invariance Gaussian.Orthogonal.Law
+  Spectral.DiagonalizationLists Gaussian.Orthogonal.HansonWright
+  Measurability.Coordinates Head.SectionMeasurable Head.SmallBall
+  Head.SmallBallFourth.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.

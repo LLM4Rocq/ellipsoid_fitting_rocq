@@ -8,7 +8,7 @@
    (gaussian_expected_maximum_radius). *)
 
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import Gaussian.IteratedExpectationDefinitions
+From EllipsoidFitting Require Import Gaussian.Iterated.Definitions
   Radius.Definitions Radius.Regularity Radius.ExpectedMaximum.
 Import ListNotations.
 Open Scope R_scope.

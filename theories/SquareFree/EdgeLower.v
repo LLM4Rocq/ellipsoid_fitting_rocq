@@ -26,7 +26,7 @@ From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 From EllipsoidFitting Require Import PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.Separation Geometry.HeadCoefficients
   Geometry.HeadFeature Geometry.HeadCorrection Cone.ConditionOperator
-  DiagonalBlock.Trace Spectral.SymmetricDiagonalization.
+  Feature.DiagonalTrace Spectral.SymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 

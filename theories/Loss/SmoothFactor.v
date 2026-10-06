@@ -14,10 +14,10 @@
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Extrema
   Loss.Translated Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateDerivativeDefinitions
+  Gaussian.Coordinate.DerivativeDefinitions
   Analysis.CoordinatePermutationDefinitions Analysis.CoordinatePermutations
-  Analysis.CoordinateTopology Gaussian.CoordinatePolynomialContinuity
-  Gordon.Continuity Gaussian.SmoothCalculus Gaussian.SmoothCovariance.
+  Analysis.CoordinateTopology Gaussian.Coordinate.PolynomialContinuity
+  Gordon.Continuity Gaussian.Smooth.Calculus Gaussian.Smooth.Test.
 Open Scope R_scope.
 
 Definition paper_main_loss_factor beta a t := 1-exp(-beta*paper_main_loss(a+t)).

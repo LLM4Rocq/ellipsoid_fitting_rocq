@@ -13,7 +13,7 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
-  PaperMainDefinitions Gaussian.Union Head.FamilyCount Head.DataRates
+  PaperMainDefinitions Gaussian.Tail.UnionBound Head.FamilyCount Head.DataRates
   Clipping.Limits.
 Import GRing.Theory Num.Theory Order.TTheory ListNotations.
 Local Open Scope classical_set_scope.

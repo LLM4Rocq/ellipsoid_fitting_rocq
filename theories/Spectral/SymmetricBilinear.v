@@ -27,9 +27,9 @@ From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   Matrix.Definitions Tensor.Definitions Goe.Definitions PaperMainDefinitions
   Geometry.Psd Geometry.Gram Geometry.Homogeneous Spectral.Transport
-  Spectral.Duality Gordon.ProcessCovariance Gaussian.FeatureCoordinates
-  Gaussian.PublicFeature Geometry.HeadFrobenius Geometry.HeadCoefficients
-  Cone.ConditionOperator.
+  Spectral.Duality Gordon.ProcessCovariance Gaussian.Symmetric.Coordinates
+  Gaussian.Symmetric.PublicFeature Geometry.HeadFrobenius
+  Geometry.HeadCoefficients Cone.ConditionOperator.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.

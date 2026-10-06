@@ -10,8 +10,8 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Gibbs.NestedGradientDefinitions Gibbs.MatrixThirdDerivativeDefinitions
   Chaos.SecondOrderDefinitions Matrix.SymmetricBasisDefinitions
   Quadratic.Definitions Quadratic.GradientSecondContraction
-  Gaussian.VectorDefinitions Gaussian.VectorDomain Gaussian.VectorLinearity
-  Gaussian.VectorFiniteSums Quadratic.GaussianMatrixStein.
+  Gaussian.Vector.Definitions Gaussian.Vector.Domain Gaussian.Vector.Linearity
+  Gaussian.Vector.FiniteSums Quadratic.GaussianMatrixStein.
 Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.

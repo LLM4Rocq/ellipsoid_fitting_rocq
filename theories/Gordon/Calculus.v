@@ -2,7 +2,7 @@
    connect the covariance contraction to actual first and second derivatives. *)
 From Stdlib Require Import Reals List Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import Soft.Definitions Gibbs.Definitions
-  Gibbs.Weights Gibbs.CurveDerivatives Gibbs.MomentBounds Gordon.Covariance.
+  Gibbs.Weights Gibbs.SoftMinIdentity Gibbs.MomentBounds Gordon.Covariance.
 Import ListNotations.
 Open Scope R_scope.
 

@@ -25,9 +25,9 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun l
 From mathcomp Require Import probability.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
   Analysis.FiniteSumAlgebra GaussianProbabilityDefinitions
-  GaussianProbabilityProductDefinitions Gaussian.ProductLawBasics
-  Analysis.ContinuousTupleMeasurability PaperMainDefinitions Sampling Head.Law
-  Data.SampleTail Head.SmallBallFourth.
+  GaussianProbabilityProductDefinitions Gaussian.Law.ProductBasics
+  Analysis.ContinuousTupleMeasurability PaperMainDefinitions
+  Gaussian.Sample.Deletion Head.Law Data.SampleTail Head.SmallBallFourth.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.

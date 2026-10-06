@@ -1,8 +1,8 @@
 (* The genuine rectangular operator norm and its finite-net reduction. *)
 From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
-  Gordon.ProcessCovariance Gordon.Scalar Gaussian.Norm Gordon.Bilinear
-  Gordon.NetToAll Gordon.Nets Gordon.Entropy.
+  Gordon.ProcessCovariance Gordon.Scalar Gaussian.Lipschitz.EuclideanNorm
+  Gordon.Bilinear Gordon.NetToAll Gordon.Nets Gordon.Entropy.
 Import ListNotations.
 Open Scope R_scope.
 

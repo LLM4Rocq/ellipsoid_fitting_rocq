@@ -15,9 +15,9 @@
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
   Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateDerivativeDefinitions Analysis.CoordinateTopology
-  Gaussian.CoordinatePolynomialContinuity Gaussian.SmoothCalculus
-  Gaussian.SmoothCovariance Loss.SmoothFactor.
+  Gaussian.Coordinate.DerivativeDefinitions Analysis.CoordinateTopology
+  Gaussian.Coordinate.PolynomialContinuity Gaussian.Smooth.Calculus
+  Gaussian.Smooth.Test Loss.SmoothFactor.
 Open Scope R_scope.
 
 Definition paper_main_loss_product_first (F G : list R -> R)

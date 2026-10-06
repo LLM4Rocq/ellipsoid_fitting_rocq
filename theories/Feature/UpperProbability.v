@@ -7,7 +7,7 @@ From mathcomp Require Import lebesgue_measure lebesgue_integral probability.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions
   PaperMainDefinitions Asymptotics Geometry.Psd Geometry.HeadCorrection
-  Feature.GramBlocks DiagonalBlock.Limit SquareFree.EdgeUpperLimit.
+  Feature.GramBlocks Feature.DiagonalLimit SquareFree.EdgeUpperLimit.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

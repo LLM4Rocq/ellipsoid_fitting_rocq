@@ -1,7 +1,7 @@
 (* Center the contraction and bound its coefficient norm by an operator bound. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages
   Data.FeatureMomentsCoordinates Projection.Stein Projection.Quadratic
   Projection.Algebra Projection.Variance.
 Open Scope R_scope.

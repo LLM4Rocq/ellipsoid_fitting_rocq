@@ -40,11 +40,11 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun l
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
   Analysis.FiniteSumAlgebra GaussianProbabilityProductDefinitions
   Analysis.ContinuousTupleMeasurability Gordon.ProcessCovariance
-  Gordon.SetWidth Gordon.Escape Gaussian.FeatureCoordinates Projected.BulkLaw
-  Projected.BulkEscape Projected.BulkComplement Projected.BulkUnion
-  Spectral.SymmetricDiagonalization Cone.ConditionOperator Head.Law Gordon.Nets
-  Gordon.Cover Gordon.NetExistence Spectral.Duality Head.SmallBallPZ
-  Head.SectionMeasurable.
+  Gordon.SetWidth Gordon.Escape Gaussian.Symmetric.Coordinates
+  Projected.BulkLaw Projected.BulkEscape Projected.BulkComplement
+  Projected.BulkUnion Spectral.SymmetricDiagonalization Cone.ConditionOperator
+  Head.Law Gordon.Nets Gordon.Cover Gordon.NetExistence Spectral.Duality
+  Head.SmallBallPZ Head.SectionMeasurable.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

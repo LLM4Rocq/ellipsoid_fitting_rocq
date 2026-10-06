@@ -1,10 +1,10 @@
 From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.OperatorDefinitions Matrix.VectorListDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.VectorDefinitions
-  Goe.Definitions Gibbs.NestedGradientDefinitions
-  Gibbs.MatrixThirdDerivativeDefinitions Chaos.SecondOrderDefinitions
-  Quadratic.Definitions Matrix.SymmetricBasisDefinitions.
+  Gaussian.Iterated.Definitions Gaussian.Vector.Definitions Goe.Definitions
+  Gibbs.NestedGradientDefinitions Gibbs.MatrixThirdDerivativeDefinitions
+  Chaos.SecondOrderDefinitions Quadratic.Definitions
+  Matrix.SymmetricBasisDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 

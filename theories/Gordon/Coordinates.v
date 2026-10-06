@@ -3,9 +3,9 @@
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
   Gibbs.Definitions Gibbs.Weights Analysis.CoordinateContinuityDefinitions
-  Analysis.CoordinateTopology Gaussian.CoordinatePolynomialContinuity
+  Analysis.CoordinateTopology Gaussian.Coordinate.PolynomialContinuity
   Analysis.CoordinatePermutationDefinitions Analysis.CoordinatePermutations
-  Gaussian.CoordinateDerivativeDefinitions Gordon.Covariance Gordon.Calculus
+  Gaussian.Coordinate.DerivativeDefinitions Gordon.Covariance Gordon.Calculus
   Gordon.Continuity.
 Import ListNotations.
 Open Scope R_scope.

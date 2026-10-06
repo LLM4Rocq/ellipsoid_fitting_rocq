@@ -1,5 +1,5 @@
 (* Moments of one column of the square-free features under the Gaussian
-   law. Coordinates are lists, as in DiagonalBlock.Moment. For a
+   law. Coordinates are lists, as in Feature.DiagonalMoment. For a
    list ys of length d and a <> b below d, Y(ys) = (y_a y_b)^2 - 1. For a
    list xs of n * d coordinates, row i is xs_(i d), ..., xs_(i d + d - 1),
    and S_n(xs) = sum_(i < n) Y(row i of xs) (pmccm_S). E_D is the iterated
@@ -24,11 +24,11 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp reals Rstruct.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Gaussian.Expectation Gaussian.PolynomialGrowthIntegrals
-  Gaussian.SuffixMarginalDefinitions Gaussian.LastIntegration
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Gaussian.Line.Expectation Gaussian.Line.PolynomialGrowthIntegrals
+  Gaussian.Iterated.SuffixMarginalDefinitions Gaussian.Iterated.LastIntegration
   Data.FeatureMomentsCoordinates Data.FeatureMoments PaperMainDefinitions
-  DiagonalBlock.Moment.
+  Feature.DiagonalMoment.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 

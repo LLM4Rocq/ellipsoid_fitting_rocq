@@ -1,8 +1,8 @@
 (* Polynomial domination of the value and its actual coordinate derivatives. *)
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Gaussian.CoordinateWeightDefinitions Gaussian.CoordinateWeights
-  Gaussian.CovarianceLinearImages Gordon.Coordinates.
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Covariance.LinearImages Gordon.Coordinates.
 Import ListNotations.
 Open Scope R_scope.
 

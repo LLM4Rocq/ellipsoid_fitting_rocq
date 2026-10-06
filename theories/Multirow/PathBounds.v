@@ -36,13 +36,13 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Goe.Definitions Joint.Definitions Joint.TimeVelocity Row.ArrayDefinitions
   Matrix.BlockInjection Row.ObservableDefinitions Multirow.ArrayTimeDefinitions
   Matrix.EuclideanProduct Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateWeightDefinitions Multirow.RowVelocityDerivatives
+  Gaussian.Coordinate.WeightDefinitions Multirow.RowVelocityDerivatives
   Analysis.CoordinateTopology.
 From EllipsoidFitting Require Analysis.CalculusBridge Joint.PathTimeDerivative
   Joint.PathIncrements Joint.ObservableGrowth Goe.MatrixBasis
   Matrix.OperatorNormProperties Matrix.EntryNormBounds Soft.MinimaxFrechet
   Soft.LowerDerivativeBounds Multirow.ObservableBounds Row.DecoderRegularity
-  Analysis.CoordinateTopology Gaussian.CoordinateWeights Matrix.BlockBasis.
+  Analysis.CoordinateTopology Gaussian.Coordinate.Weights Matrix.BlockBasis.
 Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
@@ -160,7 +160,7 @@ Proof.
   move=> Ht HL; rewrite Rmult_assoc.
   apply: Matrix.EntryNormBounds.tuple_build_norm_bound.
   - apply Rmult_le_pos; [have := mexp_KZ_nonneg n; lra|].
-    apply Gaussian.CoordinateWeights.gaussian_coordinate_product_weight_nonnegative.
+    apply Gaussian.Coordinate.Weights.gaussian_coordinate_product_weight_nonnegative.
   - move=> i Hi; unfold gaussian_row_matrix.
     eapply Rle_trans; [apply mexp_joint_matrix_bound; exact Ht|].
     have := mexp_pair_weight n m i xs Hi HL; have := mexp_KZ_nonneg n; nra.
@@ -177,7 +177,7 @@ Proof.
   move=> Hs Ht HL; unfold gaussian_row_array; rewrite mexp_tuple_build_sub.
   have HM : 0 <= Rabs (sqrt t - sqrt s) + Rabs (sqrt (1-t) - sqrt (1-s)).
   { apply Rplus_le_le_0_compat; apply Rabs_pos. }
-  have HW := Gaussian.CoordinateWeights.gaussian_coordinate_product_weight_nonnegative 2 xs.
+  have HW := Gaussian.Coordinate.Weights.gaussian_coordinate_product_weight_nonnegative 2 xs.
   have HK := mexp_KZ_nonneg n.
   rewrite !Rmult_assoc.
   apply: Matrix.EntryNormBounds.tuple_build_norm_bound.
@@ -206,7 +206,7 @@ Theorem mexp_velocity_array_bound n m t xs :
 Proof.
   move=> HL; rewrite Rmult_assoc.
   have HK := mexp_KZ_nonneg n.
-  have HW := Gaussian.CoordinateWeights.gaussian_coordinate_product_weight_nonnegative 2 xs.
+  have HW := Gaussian.Coordinate.Weights.gaussian_coordinate_product_weight_nonnegative 2 xs.
   have Ha := Rabs_pos (/(2*sqrt t)); have Hb := Rabs_pos (/(2*sqrt (1-t))).
   apply: Matrix.EntryNormBounds.tuple_build_norm_bound.
   - apply Rmult_le_pos; [apply Rmult_le_pos; lra|exact HW].
@@ -334,7 +334,7 @@ Proof.
   set A := gaussian_row_array n m t xs.
   have H1 := HL A 0%R; rewrite subr0 in H1.
   have H2 := mexp_row_array_bound n m t xs Ht Hxs; fold A c in H2.
-  have Hw := Gaussian.CoordinateWeights.gaussian_coordinate_product_weight_at_least_one 2 xs.
+  have Hw := Gaussian.Coordinate.Weights.gaussian_coordinate_product_weight_at_least_one 2 xs.
   have H3 := Rabs_triang_inv (lower_block_phi n m beta gamma y B Y S A)
     (lower_block_phi n m beta gamma y B Y S 0%R).
   fold P0 in H3.
@@ -477,12 +477,12 @@ Proof.
   set w2 := gaussian_coordinate_product_weight 2 xs.
   set w4 := gaussian_coordinate_product_weight 4 xs.
   have Hw2 : 1 <= w2
-    by apply Gaussian.CoordinateWeights.gaussian_coordinate_product_weight_at_least_one.
+    by apply Gaussian.Coordinate.Weights.gaussian_coordinate_product_weight_at_least_one.
   have Hw24 : w2 * w2 = w4.
-  { rewrite /w2 /w4 -Gaussian.CoordinateWeights.gaussian_coordinate_product_weight_degree_add.
+  { rewrite /w2 /w4 -Gaussian.Coordinate.Weights.gaussian_coordinate_product_weight_degree_add.
     reflexivity. }
   have Hw2le : w2 <= w4.
-  { apply Gaussian.CoordinateWeights.gaussian_coordinate_product_weight_degree_monotone; lia. }
+  { apply Gaussian.Coordinate.Weights.gaussian_coordinate_product_weight_degree_monotone; lia. }
   unfold mexp_row_acceleration; cbv zeta.
   set A := gaussian_row_array n m t xs.
   set V := gaussian_array_velocity n m t xs.
@@ -564,7 +564,7 @@ Proof.
   exists (INR (Datatypes.S m) * C); move=> t Ht; split.
   { apply Rmult_le_pos; [apply pos_INR|exact HC]. }
   move=> xs HL.
-  have Hw := Gaussian.CoordinateWeights.gaussian_coordinate_product_weight_nonnegative 4 xs.
+  have Hw := Gaussian.Coordinate.Weights.gaussian_coordinate_product_weight_nonnegative 4 xs.
   eapply Rle_trans.
   - apply (mexp_finite_sum_abs_le _ (C * gaussian_coordinate_product_weight 4 xs)).
     move=> i Hi; apply HB; [exact Ht| |exact HL].

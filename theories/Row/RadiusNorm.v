@@ -4,9 +4,9 @@ From mathcomp Require Import Rstruct.
 From mathcomp Require Import normedtype.
 From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.OperatorDefinitions Matrix.VectorListDefinitions Joint.Definitions
-  Goe.Definitions Gaussian.IteratedExpectationDefinitions
-  Row.CoordinateDefinitions Row.Coordinates Row.ArrayDefinitions
-  Row.PrefixDefinitions Radius.Definitions Radius.InterleavedRows.
+  Goe.Definitions Gaussian.Iterated.Definitions Row.CoordinateDefinitions
+  Row.Coordinates Row.ArrayDefinitions Row.PrefixDefinitions Radius.Definitions
+  Radius.InterleavedRows.
 Open Scope R_scope.
 
 (* The squared radius of a row as a squared norm. Row i of a list xs is

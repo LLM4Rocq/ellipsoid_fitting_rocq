@@ -26,12 +26,13 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import ereal measure lebesgue_measure.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
-  Gaussian.CovarianceLinearImages Analysis.CoordinateContinuityDefinitions
-  Analysis.CoordinateTopology Gaussian.CoordinatePolynomialContinuity
-  Gaussian.FiniteSums GaussianProbabilityProductDefinitions
+  Gaussian.Covariance.LinearImages Analysis.CoordinateContinuityDefinitions
+  Analysis.CoordinateTopology Gaussian.Coordinate.PolynomialContinuity
+  Gaussian.Iterated.FiniteSums GaussianProbabilityProductDefinitions
   PaperMainDefinitions Geometry.Psd Geometry.HeadCoefficients Spectral.Duality
-  Data.HeadOperator Gaussian.Union Gaussian.GordonTail Data.SampleTail
-  Gaussian.WeightedSquare Gaussian.WeightedSquareLaw Feature.GramBlocks.
+  Data.HeadOperator Gaussian.Tail.UnionBound Gaussian.Lipschitz.LowerMargin
+  Data.SampleTail Gaussian.Orthogonal.WeightedSquare
+  Gaussian.Orthogonal.WeightedSquareTail Feature.GramBlocks.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

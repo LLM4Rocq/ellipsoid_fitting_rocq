@@ -8,7 +8,7 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.OperatorDefinitions Tensor.Definitions Chaos.SecondOrderDefinitions
   Analysis.CoordinatePermutationDefinitions
-  Gaussian.CoordinateDerivativeDefinitions Matrix.VectorListDefinitions
+  Gaussian.Coordinate.DerivativeDefinitions Matrix.VectorListDefinitions
   Matrix.VectorCoordinates.
 Import GRing.Theory Num.Theory.
 Import ListNotations.

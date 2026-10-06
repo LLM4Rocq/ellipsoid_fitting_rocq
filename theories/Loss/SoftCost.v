@@ -16,13 +16,13 @@
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions Analysis.CoordinateTopology
-  Gaussian.CoordinatePolynomialContinuity Data.FeatureMomentsCoordinates
+  Gaussian.Coordinate.PolynomialContinuity Data.FeatureMomentsCoordinates
   Data.FeatureMoments PaperMainDefinitions Geometry.Homogeneous
-  Cone.ConditionOperator Gaussian.FeatureCoordinates Projection.Regular
-  Projection.Public Gaussian.CovarianceLinearImages Gordon.Continuity
-  Gaussian.SmoothCalculus Soft.Lipschitz Loss.Translated Loss.RowIncrement.
+  Cone.ConditionOperator Gaussian.Symmetric.Coordinates Projection.Regular
+  Projection.Public Gaussian.Covariance.LinearImages Gordon.Continuity
+  Gaussian.Smooth.Calculus Soft.Lipschitz Loss.Translated Loss.RowIncrement.
 Open Scope R_scope.
 
 Theorem paper_main_loss_soft_regular d beta f I (F : nat -> list R -> R) C :

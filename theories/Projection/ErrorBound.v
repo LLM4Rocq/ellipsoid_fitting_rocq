@@ -1,12 +1,12 @@
 (* A dimension-independent Hessian error bound from the actual quadratic moments. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation Gaussian.FiniteSums
-  Data.FeatureMomentsCoordinates Gaussian.SmoothCovariance
-  Gaussian.SmoothCalculus Projection.Stein Projection.Regular Projection.Image
-  Projection.Algebra Projection.Error Projection.MomentBound
-  Projection.Variance Projection.Product.
+  Analysis.FiniteSumAlgebra Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Iterated.FiniteSums
+  Data.FeatureMomentsCoordinates Gaussian.Smooth.Test Gaussian.Smooth.Calculus
+  Projection.Stein Projection.Regular Projection.Image Projection.Algebra
+  Projection.Error Projection.MomentBound Projection.Variance
+  Projection.Product.
 Open Scope R_scope.
 
 Theorem paper_main_projection_product_test_bound n A B G eps S C :

@@ -7,7 +7,7 @@
    in paper_main_head_cone_sphere kappa, satisfies
      support(Z(z), K) - eps |Z(z)|_F <= <Z(z), P(z)> <= support(Z(z), K),
    and the joint residual event "exists i < N, r <= |<W_i(x), P(z)>|" of
-   Gaussian.ResidualJoint is measurable with probability at most
+   Gaussian.Sample.ResidualJoint is measurable with probability at most
      N 2 exp (- (S n) r^2 / (4 + 4 kappa r)).
    No bad set is needed, since every value of the selector is in the cone
    sphere. *)
@@ -21,8 +21,9 @@ From mathcomp Require Import probability exp.
 From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions
   PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Geometry.HeadFrobenius
   Geometry.HeadFeature Geometry.HeadWidth Cone.ConditionOperator
-  Gaussian.FeatureCoordinates Gaussian.SymmetricLawPublic Head.Law
-  Gaussian.ResidualRows Gaussian.ResidualJoint Cone.ApproxSelector.
+  Gaussian.Symmetric.Coordinates Gaussian.Symmetric.PublicLaw Head.Law
+  Gaussian.Sample.ResidualRows Gaussian.Sample.ResidualJoint
+  Cone.ApproxSelector.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

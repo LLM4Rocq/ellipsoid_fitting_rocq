@@ -22,7 +22,7 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology ereal measure lebesgue_measure.
 From mathcomp Require Import lebesgue_integral measurable_realfun probability.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
-  GaussianProbabilityProductDefinitions Gaussian.ProductLawBasics
+  GaussianProbabilityProductDefinitions Gaussian.Law.ProductBasics
   Analysis.ContinuousTupleMeasurability PaperMainDefinitions
   Geometry.HeadFeature Geometry.HeadWidth Gordon.ProcessCovariance Head.Law
   Head.LawBounds Head.SelectionLaw Head.SectionMinimax Head.SectionApprox

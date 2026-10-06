@@ -30,7 +30,7 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Spectral.Transport Spectral.SymmetricBilinear Data.FeatureMoments
   Data.FeatureMomentsRow Gordon.SoftMargin Goe.Definitions
   GaussianProbabilityProductDefinitions Matrix.OperatorDefinitions
-  Gaussian.IteratedExpectationDefinitions Soft.Comparison.
+  Gaussian.Iterated.Definitions Soft.Comparison.
 Import GRing.Theory Num.Theory Order.TTheory.
 Import ListNotations.
 Local Open Scope classical_set_scope.

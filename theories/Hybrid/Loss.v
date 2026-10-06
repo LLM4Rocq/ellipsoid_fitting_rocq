@@ -20,7 +20,7 @@ From mathcomp Require Import topology normedtype Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
 From EllipsoidFitting Require Import Loss.Translated
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
-  PaperMainDefinitions Geometry.Homogeneous Gaussian.FeatureCoordinates
+  PaperMainDefinitions Geometry.Homogeneous Gaussian.Symmetric.Coordinates
   Head.SmallBallNet Head.SmallBallUniform Projected.BulkEscape
   Projected.BulkComplement Projected.BulkConditional Hybrid.Residual.
 Import GRing.Theory Num.Theory Order.TTheory.

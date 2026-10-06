@@ -1,10 +1,9 @@
 From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import Soft.Definitions Matrix.Definitions
-  Matrix.OperatorDefinitions Goe.Definitions
-  Gaussian.IteratedExpectationDefinitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinatePolynomialDomain Row.ObservableDefinitions
-  Row.ObservableContinuity Row.ObservableBounds.
+  Matrix.OperatorDefinitions Goe.Definitions Gaussian.Iterated.Definitions
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Iterated.PolynomialDomain
+  Row.ObservableDefinitions Row.ObservableContinuity Row.ObservableBounds.
 Import ListNotations.
 Open Scope R_scope.
 

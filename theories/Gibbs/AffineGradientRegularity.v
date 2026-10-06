@@ -10,8 +10,8 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Gibbs.MatrixSecondDerivativeDefinitions Gibbs.NestedGradientDefinitions
   Gibbs.MatrixNestedGradient Gibbs.NestedHessian Matrix.OperatorDefinitions
   Matrix.EntryNormBounds Quadratic.GradientRegularity
-  Gaussian.VectorDefinitions Chaos.SecondOrderDefinitions
-  Gibbs.AffineGradientStein Gaussian.VectorDomain.
+  Gaussian.Vector.Definitions Chaos.SecondOrderDefinitions
+  Gibbs.AffineGradientStein Gaussian.Vector.Domain.
 Import Quadratic.GradientRegularity.QuadraticGrowthContinuity.
 Import GRing.Theory Num.Theory.
 Import ListNotations.
@@ -27,7 +27,7 @@ Open Scope R_scope.
      matrix_nested_gradient_derivative, the derivative of the gradient, in
      the direction U is continuous at every point and bounded by a constant.
    These are the hypotheses of gaussian_vector_polynomial_domain
-   (Gaussian.VectorDomain). *)
+   (Gaussian.Vector.Domain). *)
 
 Theorem affine_gaussian_weighted_trace_regular n m beta gamma offset coeff Y S
     (T : vector m -> matrix n) C r B i :

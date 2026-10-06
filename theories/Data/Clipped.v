@@ -1,7 +1,7 @@
 (* Clipped quadratic data-feature scores.
    For d = S n and N rows, the clipped feature of row i of a list xs is
    paper_main_data_feature n (fun j => clip U (nth (i * d + j) xs 0)), with
-   the clip max(-U, min(U, z)) of Gaussian.LipschitzClip
+   the clip max(-U, min(U, z)) of Gaussian.Lipschitz.Clip
    (paper_main_data_clipped_feature). For symmetric B with operator norm at
    most k and weights y with Euclidean norm at most 1, the score
    sum_i y_i <Wclip_i(xs), B> is 2 k U-Lipschitz in the Euclidean distance
@@ -18,7 +18,7 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval 
 From mathcomp Require Import classical_sets functions reals Rstruct.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   Matrix.Definitions Matrix.OperatorDefinitions PaperMainDefinitions
-  Geometry.Psd Geometry.HeadFeature Gordon.Lipschitz Gaussian.LipschitzClip
+  Geometry.Psd Geometry.HeadFeature Gordon.Lipschitz Gaussian.Lipschitz.Clip
   Spectral.SymmetricBilinear Spectral.Transport Data.FeatureMoments
   Data.FeatureMomentsRow Data.ClippedScore.
 Import GRing.Theory Num.Theory Order.TTheory.

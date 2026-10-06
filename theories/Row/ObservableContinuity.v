@@ -8,7 +8,7 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.OperatorDefinitions Goe.Definitions Joint.Definitions
   Chaos.SecondOrderDefinitions Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateTuples Analysis.CoordinateTopology
+  Gaussian.Coordinate.Tuples Analysis.CoordinateTopology
   Quadratic.GradientRegularity Quadratic.GradientEntryRegularity
   Joint.ObservableContinuity Goe.MatrixBasis Soft.MinimaxDerivativeDefinitions
   Soft.LowerThirdDefinitions Matrix.BlockInjection Matrix.BlockBasis

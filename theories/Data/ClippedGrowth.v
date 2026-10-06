@@ -28,7 +28,7 @@ From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
   Analysis.FiniteSumAlgebra Matrix.Definitions Matrix.OperatorDefinitions
   PaperMainDefinitions Geometry.Psd Geometry.HeadFrobenius Geometry.HeadFeature
   Geometry.HeadCoefficients Gordon.Lipschitz Gordon.ProcessCovariance
-  Gordon.Growth Gaussian.LipschitzClip Spectral.SymmetricBilinear
+  Gordon.Growth Gaussian.Lipschitz.Clip Spectral.SymmetricBilinear
   Spectral.Transport Spectral.Duality Data.FeatureMoments Data.HeadOperator
   Data.ClippedScore Data.Clipped Data.ClippedSoft.
 From EllipsoidFitting Require Import Analysis.RealsBridge.

@@ -6,7 +6,7 @@ From mathcomp Require Import Rstruct.
 From mathcomp Require Import topology normedtype derive realfun.
 From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Soft.Definitions Gibbs.Definitions
-  Gibbs.Weights Gibbs.CurveDerivatives Matrix.Definitions
+  Gibbs.Weights Gibbs.SoftMinIdentity Matrix.Definitions
   Matrix.EntriesAndLinearMaps Matrix.Trace Gibbs.MatrixDefinitions.
 Import ListNotations.
 Import GRing.Theory Num.Theory.

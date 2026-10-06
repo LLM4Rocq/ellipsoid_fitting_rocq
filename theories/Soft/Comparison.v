@@ -24,11 +24,11 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral measurable_realfun.
 From EllipsoidFitting Require Import Matrix.Definitions Soft.Definitions
-  Matrix.OperatorDefinitions Tensor.Definitions
-  Gaussian.IteratedExpectationDefinitions Joint.Definitions Goe.Definitions
-  Multirow.ArrayTimeDefinitions Multirow.EndpointDefinitions Radius.Definitions
+  Matrix.OperatorDefinitions Tensor.Definitions Gaussian.Iterated.Definitions
+  Joint.Definitions Goe.Definitions Multirow.ArrayTimeDefinitions
+  Multirow.EndpointDefinitions Radius.Definitions
   Analysis.CoordinateContinuityDefinitions Analysis.CoordinateTopology
-  GaussianProbabilityProductDefinitions Gaussian.ProductLawIntegrals
+  GaussianProbabilityProductDefinitions Gaussian.Law.ProductIntegrals
   Analysis.ContinuousTupleMeasurability Multirow.PathBounds
   Multirow.EndpointMarginals Multirow.ExpectationAssembly
   Multirow.IntegratedBound.

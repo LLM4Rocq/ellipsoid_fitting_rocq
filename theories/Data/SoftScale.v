@@ -19,8 +19,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
   Analysis.ContinuousTupleMeasurability PaperMainDefinitions
-  Gaussian.FeatureCoordinates Gaussian.PsdWidthLimit Data.ClippedGrowth
-  Data.SoftConcentration Soft.ClippingScale.
+  Gaussian.Symmetric.Coordinates Gaussian.Symmetric.DimensionReal
+  Data.ClippedGrowth Data.SoftConcentration Soft.ClippingScale.
 Import ListNotations.
 Open Scope R_scope.
 

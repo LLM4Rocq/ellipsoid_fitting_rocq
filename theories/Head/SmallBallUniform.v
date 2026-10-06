@@ -40,12 +40,13 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun l
 From mathcomp Require Import probability numfun.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
   Analysis.FiniteSumAlgebra GaussianProbabilityProductDefinitions
-  Analysis.ContinuousTupleMeasurability PaperMainDefinitions Sampling
-  Geometry.Psd Geometry.Homogeneous Geometry.HeadFrobenius Data.FeatureMoments
-  Spectral.DiagonalizationLists Gaussian.QuadraticTail Head.SectionMeasurable
-  Gaussian.Union Spectral.Duality Gaussian.FeatureCoordinates
-  Gaussian.DimensionBounds Gordon.Entropy Head.SmallBallPZ Head.SmallBallCount
-  Head.SmallBallNet.
+  Analysis.ContinuousTupleMeasurability PaperMainDefinitions
+  Gaussian.Sample.Deletion Geometry.Psd Geometry.Homogeneous
+  Geometry.HeadFrobenius Data.FeatureMoments Spectral.DiagonalizationLists
+  Gaussian.Orthogonal.HansonWright Head.SectionMeasurable
+  Gaussian.Tail.UnionBound Spectral.Duality Gaussian.Symmetric.Coordinates
+  Gaussian.Symmetric.DimensionBounds Gordon.Entropy Head.SmallBallPZ
+  Head.SmallBallCount Head.SmallBallNet.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

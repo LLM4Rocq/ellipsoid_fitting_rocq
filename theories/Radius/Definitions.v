@@ -1,5 +1,5 @@
 From Stdlib Require Import Reals List.
-From EllipsoidFitting Require Import Gaussian.IteratedExpectationDefinitions.
+From EllipsoidFitting Require Import Gaussian.Iterated.Definitions.
 Import ListNotations.
 Open Scope R_scope.
 

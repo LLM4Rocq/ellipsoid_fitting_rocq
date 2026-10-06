@@ -1,6 +1,6 @@
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateTuples Analysis.CoordinateTopology.
+  Gaussian.Coordinate.Tuples Analysis.CoordinateTopology.
 From EllipsoidFitting Require Import Analysis.BoxCompactness.
 Import ListNotations.
 Open Scope R_scope.

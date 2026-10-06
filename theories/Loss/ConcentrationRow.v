@@ -14,13 +14,13 @@
       has zero mean. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
-  GaussianDefinitions Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation Gaussian.SuffixMarginalDefinitions
-  Gaussian.LastIntegration Analysis.CoordinateContinuityDefinitions
-  Analysis.CoordinateTopology Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Gaussian.CoordinateMarginals
-  Gaussian.CoordinateSuffixAlgebra Gaussian.CoordinateSuffixRegularity
-  Gaussian.LipschitzVariance.
+  GaussianDefinitions Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Iterated.SuffixMarginalDefinitions
+  Gaussian.Iterated.LastIntegration Analysis.CoordinateContinuityDefinitions
+  Analysis.CoordinateTopology Gaussian.Coordinate.WeightDefinitions
+  Gaussian.Coordinate.Weights Gaussian.Iterated.PolynomialGrowth
+  Gaussian.Iterated.SuffixAlgebra Gaussian.Iterated.SuffixRegularity
+  Gaussian.Lipschitz.Variance.
 Import ListNotations.
 Open Scope R_scope.
 

@@ -1,15 +1,14 @@
 (* Fixed-dimensional smooth comparison for orthogonal quadratic and Gaussian features. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Gaussian.CoordinateWeightDefinitions Gaussian.CoordinateWeights
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
   Analysis.UnitIntervalComparison Analysis.FiniteSumAlgebra
-  Gaussian.CovarianceLinearImages Data.FeatureMomentsCoordinates
-  Gaussian.SmoothCovariance Projection.Stein Projection.Regular
-  Projection.Image Projection.Path Projection.Mix Projection.Spatial
-  Projection.Algebra Projection.Error Projection.Interpolation
-  Projection.Variance Projection.Product Projection.ErrorBound
-  Projection.Endpoints.
+  Gaussian.Covariance.LinearImages Data.FeatureMomentsCoordinates
+  Gaussian.Smooth.Test Projection.Stein Projection.Regular Projection.Image
+  Projection.Path Projection.Mix Projection.Spatial Projection.Algebra
+  Projection.Error Projection.Interpolation Projection.Variance
+  Projection.Product Projection.ErrorBound Projection.Endpoints.
 Open Scope R_scope.
 
 Lemma paper_main_projection_endpoint_bound (g dg : R -> R) B :

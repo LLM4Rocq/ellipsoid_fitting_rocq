@@ -103,13 +103,15 @@ generated`), whose code cannot change. The other modules print none.
   statement (`MainStatement.v`), the theorem (`MainTheorem.v`), the five
   definition modules of the statement, the top of the proof
   (`PaperMainResults.v`, `PaperMainFinalAssembly.v`,
-  `PaperMainConditionedLimit.v`) and two more modules are at the top; the
-  others are in 36 folders by topic (`Gaussian`, `Gordon`, `Matrix`, `Head`,
-  ...), and `theories/A/B.v` is the module `EllipsoidFitting.A.B`.
+  `PaperMainConditionedLimit.v`) and `Asymptotics.v` are at the top; the
+  others are in 33 folders by topic (`Gaussian`, `Gordon`, `Matrix`, `Head`,
+  ...), and `theories/A/B.v` is the module `EllipsoidFitting.A.B`. The
+  14 subfolders of `Gaussian/` divide its modules further:
+  `theories/Gaussian/C/D.v` is the module `EllipsoidFitting.Gaussian.C.D`.
 - `library/`: the library `GaussianAnalysis`, 26 files of general results
   on Gaussian measures, Gaussian comparison and concentration, real
   matrices and probability, over an arbitrary `R : realType`. The proof
-  uses it at Stdlib's `R`: `Gaussian/LawBridge` identifies the library's
+  uses it at Stdlib's `R`: `Gaussian/Law/LibraryBridge` identifies the library's
   Gaussian measure with the product law of the statement,
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
   and 20 other modules of `theories/` require library files directly.
@@ -190,13 +192,13 @@ done, and the second is done in part.
 2. The proof of the paper uses these results at Stdlib's `R` in its
    modules on the comparison inequalities, the spectral theorem, the
    operator norms, the nets, the Paley-Zygmund inequality and the Lindeberg
-   method, and, through `Gaussian/LawBridge`, in its modules on the
+   method, and, through `Gaussian/Law/LibraryBridge`, in its modules on the
    iterated Gaussian expectation: the coordinate Stein identities, the
    exchange and the rotation of coordinates, the integrability at every
    level of a continuous function of polynomial growth and the continuity
-   of its marginals (`Gaussian/CoordinateStein`, `Gaussian/CoordinateSwap`,
-   `Gaussian/BlockRotation`, `Gaussian/CoordinateMarginals`,
-   `Gaussian/QuadraticMGF`). What it no longer needed is deleted:
+   of its marginals (`Gaussian/Iterated/Stein`, `Gaussian/Iterated/HeadSwap`,
+   `Gaussian/Iterated/BlockRotation`, `Gaussian/Iterated/PolynomialGrowth`,
+   `Gaussian/Line/QuadraticMGF`). What it no longer needed is deleted:
    `theories/` had 632 modules and 102,415 lines at the tag `phase1`, and
    has 605 modules and 89,109 lines now. The library has 26 files and
    11,097 lines.
@@ -212,10 +214,10 @@ What remains:
   analysis and matrix norms, still prove general facts in the special form
   that the paper needs, with lists of coordinates and Stdlib's `R`,
   although the library now states them in general: the Gaussian integral
-  on the line and Stein's identity (`Gaussian/Kernel`, `Gaussian/Mass`,
-  `Gaussian/Moments`, `Gaussian/SteinIdentity` and eight more modules),
+  on the line and Stein's identity (`Gaussian/Line/Kernel`, `Gaussian/Line/Mass`,
+  `Gaussian/Line/Moments`, `Gaussian/Line/SteinIdentity` and eight more modules),
   the interpolation between two covariances
-  (`Gaussian/CovarianceDefinitions` and five more; the `Projection`
+  (`Gaussian/Covariance/Definitions` and five more; the `Projection`
   modules use it to compare quadratic Gaussian features with their
   Gaussian replacement, which the library does not state in that form),
   matrix norms (`Matrix/OperatorNorm`, `Matrix/FrobeniusNorm` and six

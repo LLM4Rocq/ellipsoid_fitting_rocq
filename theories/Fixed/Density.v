@@ -6,7 +6,7 @@
    - paper_main_fit_probability_antitone,
      paper_main_conditioned_probability_antitone: adding points can only
      decrease the probability of the fit event and of the well-conditioned
-     fit event (from Sampling).
+     fit event (from Gaussian.Sample.Deletion).
    - paper_main_eventual_padding, paper_main_eventual_trimming: the
      eventual comparisons of n(d) with floor(beta d^2) under the limsup and
      liminf conditions.
@@ -28,7 +28,8 @@ From mathcomp Require Import boolp classical_sets reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability normal_distribution.
-From EllipsoidFitting Require Import PaperMainDefinitions Asymptotics Sampling.
+From EllipsoidFitting Require Import PaperMainDefinitions Asymptotics
+  Gaussian.Sample.Deletion.
 Import Order.TTheory GRing.Theory Num.Theory.
 Open Scope ring_scope.
 Open Scope classical_set_scope.

@@ -2,15 +2,16 @@ From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum classical_sets.
 From mathcomp Require Import Rstruct topology normedtype derive Rstruct_topology.
 From EllipsoidFitting Require Import Matrix.Definitions Soft.Definitions
-  Matrix.OperatorDefinitions Tensor.Definitions
-  Gaussian.IteratedExpectationDefinitions Joint.Definitions Goe.Definitions
-  Multirow.ArrayTimeDefinitions Multirow.EndpointDefinitions Radius.Definitions
-  Row.CoordinateDefinitions Row.PrefixDefinitions Row.ArrayDefinitions
-  Row.ObservableDefinitions Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateWeightDefinitions Gaussian.IteratedExpectation
-  Gaussian.LastIntegration Gaussian.FiniteSums Radius.ExpectationBound
-  Radius.InterleavedResults Row.ObservableRegularity Row.RemainderSum
-  Analysis.UnitIntervalComparison Multirow.IntegratedArithmetic.
+  Matrix.OperatorDefinitions Tensor.Definitions Gaussian.Iterated.Definitions
+  Joint.Definitions Goe.Definitions Multirow.ArrayTimeDefinitions
+  Multirow.EndpointDefinitions Radius.Definitions Row.CoordinateDefinitions
+  Row.PrefixDefinitions Row.ArrayDefinitions Row.ObservableDefinitions
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Iterated.Expectation
+  Gaussian.Iterated.LastIntegration Gaussian.Iterated.FiniteSums
+  Radius.ExpectationBound Radius.InterleavedResults Row.ObservableRegularity
+  Row.RemainderSum Analysis.UnitIntervalComparison
+  Multirow.IntegratedArithmetic.
 Import ListNotations.
 Import GRing.Theory Num.Theory.
 Open Scope R_scope.
@@ -22,7 +23,7 @@ Open Scope R_scope.
    2. multirow_integrated_remainder_sum_bound: the sum over the rows of
       the expectations of the row remainders is at most 4 M3 radius in
       absolute value. The expectation of the sum is the sum of the
-      expectations (Gaussian.FiniteSums); the sum is bounded pointwise by
+      expectations (Gaussian.Iterated.FiniteSums); the sum is bounded pointwise by
       4 M3 times the interleaved maximum radius (Row.RemainderSum), whose
       expectation is that of the maximum radius of consecutive rows
       (Radius.InterleavedResults).

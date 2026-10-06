@@ -23,7 +23,7 @@ From EllipsoidFitting Require Import Analysis.CalculusBridge
   Soft.Definitions PaperMainDefinitions Geometry.Psd Geometry.HeadFrobenius
   Geometry.HeadFeature Geometry.HeadWidth Spectral.Duality Gordon.SoftMargin
   Gordon.ProcessCovariance Gordon.Nets Gordon.Entropy
-  Gaussian.FeatureCoordinates Head.SectionMinimax Head.SectionApprox
+  Gaussian.Symmetric.Coordinates Head.SectionMinimax Head.SectionApprox
   Head.SectionApproxWidth Head.SectionWidthLaw Head.SoftTail
   Soft.PublicFeatures Data.Clipped Data.ClippedSoft Data.ClippedMoments
   Data.SoftConeExpectation Data.SoftConcentration.

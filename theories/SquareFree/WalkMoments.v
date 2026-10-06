@@ -10,7 +10,7 @@
      is E_D x^w = prod_(c < D) moment_factor (count of c in w)
      (pmsw_moment), by induction on D through the definition of
      gaussian_iterated_expectation, with the one-coordinate moments
-     pmdm_pow_moment of DiagonalBlock.Moment;
+     pmdm_pow_moment of Feature.DiagonalMoment;
    - moment_factor k is 0 for odd k, positive for even k and nonnegative
      for every k (pmsw_mf_odd, pmsw_mf_gt0, pmsw_mf_ge0), so the moment is 0
      when some multiplicity is odd (paper_main_monomial_moment_odd). *)
@@ -21,10 +21,10 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct ereal 
 From mathcomp Require Import lebesgue_measure lebesgue_integral.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Gaussian.Expectation Gaussian.PolynomialGrowthIntegrals
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Gaussian.Line.Expectation Gaussian.Line.PolynomialGrowthIntegrals
   GaussianProbabilityProductDefinitions Data.FeatureMomentsCoordinates
-  Data.FeatureMoments DiagonalBlock.Moment.
+  Data.FeatureMoments Feature.DiagonalMoment.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 

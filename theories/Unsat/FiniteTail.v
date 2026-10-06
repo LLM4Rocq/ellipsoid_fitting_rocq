@@ -24,11 +24,11 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology normedtype Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
   Head.SectionMeasurable PaperMainDefinitions Geometry.Homogeneous
-  Cone.ConditionOperator Gaussian.FeatureCoordinates
+  Cone.ConditionOperator Gaussian.Symmetric.Coordinates
   Data.FeatureMomentsCoordinates Loss.NormalizedArray Loss.ConcentrationRow
   Loss.ConcentrationTail Loss.ConcentrationSoftMin Hybrid.FiniteArray
   Hybrid.FiniteMean.

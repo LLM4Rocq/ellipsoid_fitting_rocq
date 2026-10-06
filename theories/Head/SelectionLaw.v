@@ -4,7 +4,7 @@
    - Row permutations. For pi : 'S_N, the coordinate map
      t d + j |-> pi(t) d + j is a permutation of 'I_(N d)
      (paper_main_row_perm pi), and paper_main_permute_rows pi x is the sample
-     whose row t is row pi(t) of x. By Gaussian.PermutationLaw it
+     whose row t is row pi(t) of x. By Gaussian.Sample.PermutationLaw it
      preserves gaussian_product_law (N d) on every measurable event
      (paper_main_permute_rows_law).
    - Head and tail blocks. For N = k + n, paper_main_head_selection k n d pi x
@@ -27,9 +27,9 @@ From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From mathcomp Require Import probability.
 From EllipsoidFitting Require Import GaussianProbabilityDefinitions
-  GaussianProbabilityProductDefinitions Gaussian.ProductLawBasics
-  PaperMainDefinitions Geometry.HeadFeature Sampling Head.Law Data.SampleTail
-  Gaussian.PermutationLaw.
+  GaussianProbabilityProductDefinitions Gaussian.Law.ProductBasics
+  PaperMainDefinitions Geometry.HeadFeature Gaussian.Sample.Deletion Head.Law
+  Data.SampleTail Gaussian.Sample.PermutationLaw.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

@@ -11,7 +11,7 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix boolp cla
 From mathcomp Require Import topology Rstruct_topology ereal measure lebesgue_measure lebesgue_integral
   measurable_realfun probability normal_distribution.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
+  Gaussian.Iterated.Definitions GaussianProbabilityProductDefinitions
   Data.FeatureMomentsCoordinates Data.FeatureMoments.
 Import GRing.Theory Num.Theory Order.TTheory.
 Delimit Scope R_scope with Rcoq.

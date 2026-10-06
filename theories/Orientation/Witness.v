@@ -20,7 +20,7 @@
       spectral head at the cutoff eps0 gives r and an orientation O
       (paper_main_orientation_spectral_decomposition); the cover gives the
       member k, and A is the pinching of S by the head projector of that
-      member. The estimates of Pinching.Loss and
+      member. The estimates of Projection.PinchingLoss and
       Feature.LossControl give the norm annulus, the bulk operator
       bound, the offset bound and the risk bound. r = 0 is included. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
@@ -30,9 +30,9 @@ From mathcomp Require Import boolp classical_sets reals Rstruct.
 From EllipsoidFitting Require Import Analysis.ContinuousTupleMeasurability
   PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Geometry.HeadFrobenius
   Cone.ConditionOperator Feature.GramBlocks Feature.LossControl
-  Projection.Frobenius Projection.Pinching Pinching.Operator Pinching.Loss
-  Spectral.Cutoff Spectral.Split Spectral.BlockGeometry Orientation.Net
-  Orientation.Spectral Orientation.Blocks.
+  Projection.Frobenius Projection.Pinching Projection.PinchingOperator
+  Projection.PinchingLoss Spectral.Cutoff Spectral.Split Spectral.BlockGeometry
+  Orientation.Net Orientation.Spectral Orientation.Blocks.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 

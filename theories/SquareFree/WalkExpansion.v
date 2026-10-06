@@ -28,10 +28,10 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct ereal 
 From mathcomp Require Import lebesgue_measure lebesgue_integral.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   GaussianProbabilityProductDefinitions PaperMainDefinitions
   Data.FeatureMomentsCoordinates Data.FeatureMoments Feature.GramBlocks
-  DiagonalBlock.Moment SquareFree.WalkMoments.
+  Feature.DiagonalMoment SquareFree.WalkMoments.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 

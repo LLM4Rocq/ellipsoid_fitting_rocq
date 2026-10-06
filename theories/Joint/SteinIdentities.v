@@ -5,9 +5,9 @@ From mathcomp Require Import Rstruct.
 From mathcomp Require Import topology normedtype.
 From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Matrix.Definitions
-  Matrix.OperatorDefinitions Tensor.Definitions Gaussian.VectorDefinitions
-  Gaussian.VectorLinearity Goe.Definitions Joint.Definitions
-  Gaussian.PairExchange Joint.ObservableGrowth Joint.SectionStein
+  Matrix.OperatorDefinitions Tensor.Definitions Gaussian.Vector.Definitions
+  Gaussian.Vector.Linearity Goe.Definitions Joint.Definitions
+  Gaussian.Iterated.PairExchange Joint.ObservableGrowth Joint.SectionStein
   Joint.SteinCancellation Gibbs.Continuity.
 Import GRing.Theory Num.Theory.
 Import ListNotations.
@@ -37,7 +37,7 @@ Open Scope R_scope.
      for 0 < t < 1 the divergence terms cancel in its expectation, which is
      sqrt t / (2 * (n + 1) * sqrt (n + 1)) times that of joint_remainder.
    The observables are continuous and polynomially bounded (Joint.ObservableGrowth),
-   which gives the integrability (Gaussian.PairExchange). Each level of the
+   which gives the integrability (Gaussian.Iterated.PairExchange). Each level of the
    iterated expectation is a Lebesgue integral against the Gaussian
    kernel. *)
 

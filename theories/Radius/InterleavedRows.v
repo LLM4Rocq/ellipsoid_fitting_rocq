@@ -11,9 +11,9 @@
    d + 2 sqrt (d ln N) + 2 ln N. *)
 
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import Gaussian.IteratedExpectationDefinitions
+From EllipsoidFitting Require Import Gaussian.Iterated.Definitions
   Row.CoordinateDefinitions Row.PrefixDefinitions Row.Prefixes
-  Gaussian.RowPrefixMarginal Radius.Definitions Radius.Regularity
+  Gaussian.Iterated.RowPrefixMarginal Radius.Definitions Radius.Regularity
   Radius.ExpectationBound.
 Open Scope R_scope.
 

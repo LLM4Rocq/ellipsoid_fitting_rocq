@@ -24,15 +24,16 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval 
 From mathcomp Require Import classical_sets functions reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Analysis.FiniteSumAlgebra GaussianDefinitions Gaussian.Expectation
-  Gaussian.PolynomialGrowthIntegrals Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateWeightDefinitions Gaussian.CoordinateWeights
-  Analysis.CoordinateTopology Gaussian.CoordinatePolynomialContinuity
-  Gaussian.FiniteSums Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation Gaussian.CoordinateMarginals
+  Analysis.FiniteSumAlgebra GaussianDefinitions Gaussian.Line.Expectation
+  Gaussian.Line.PolynomialGrowthIntegrals
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Analysis.CoordinateTopology Gaussian.Coordinate.PolynomialContinuity
+  Gaussian.Iterated.FiniteSums Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Iterated.PolynomialGrowth
   GaussianProbabilityProductDefinitions Radius.Regularity
-  Radius.ExpectedMaximum Gaussian.Norm Gaussian.SmoothLaw Gordon.Continuity
-  Gordon.Lipschitz Gaussian.LipschitzClip Matrix.Definitions
+  Radius.ExpectedMaximum Gaussian.Lipschitz.EuclideanNorm Gaussian.Smooth.Law
+  Gordon.Continuity Gordon.Lipschitz Gaussian.Lipschitz.Clip Matrix.Definitions
   Matrix.OperatorDefinitions PaperMainDefinitions Geometry.Psd
   Spectral.SymmetricBilinear Spectral.Transport Spectral.Duality
   Data.FeatureMoments Data.ClippedScore Data.Clipped Data.ClippedSoft

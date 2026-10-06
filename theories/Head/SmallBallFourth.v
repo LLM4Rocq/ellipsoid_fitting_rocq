@@ -21,11 +21,11 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp reals Rstruct.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  GaussianDefinitions Gaussian.Expectation
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Analysis.FiniteSumAlgebra PaperMainDefinitions Geometry.Psd
-  Gaussian.WeightedSquare Gaussian.Orthogonal Gaussian.QuadraticTail
-  DiagonalBlock.Moment Head.SmallBall.
+  GaussianDefinitions Gaussian.Line.Expectation Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Analysis.FiniteSumAlgebra PaperMainDefinitions
+  Geometry.Psd Gaussian.Orthogonal.WeightedSquare
+  Gaussian.Orthogonal.Invariance Gaussian.Orthogonal.HansonWright
+  Feature.DiagonalMoment Head.SmallBall.
 Import ListNotations.
 Open Scope R_scope.
 

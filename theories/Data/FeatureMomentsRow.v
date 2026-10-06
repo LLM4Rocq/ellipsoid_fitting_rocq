@@ -16,14 +16,15 @@ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral me
 From mathcomp Require Import probability normal_distribution.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Analysis.FiniteSumAlgebra Radius.Regularity
-  Gaussian.BlockExchange GaussianProbabilityProductDefinitions
-  Matrix.Definitions Tensor.Definitions Goe.Definitions PaperMainDefinitions
-  Geometry.Psd Geometry.Homogeneous Spectral.Transport
-  Gaussian.FeatureCoordinates Geometry.HeadFrobenius Geometry.HeadFeature
-  Spectral.SymmetricBilinear Data.FeatureMomentsCoordinates Data.FeatureMoments.
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Analysis.FiniteSumAlgebra Radius.Regularity Gaussian.Iterated.BlockExchange
+  GaussianProbabilityProductDefinitions Matrix.Definitions Tensor.Definitions
+  Goe.Definitions PaperMainDefinitions Geometry.Psd Geometry.Homogeneous
+  Spectral.Transport Gaussian.Symmetric.Coordinates Geometry.HeadFrobenius
+  Geometry.HeadFeature Spectral.SymmetricBilinear
+  Data.FeatureMomentsCoordinates Data.FeatureMoments.
 Import GRing.Theory Num.Theory Order.TTheory.
 
 Section RowList.

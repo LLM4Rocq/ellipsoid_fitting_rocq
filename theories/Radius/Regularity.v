@@ -6,16 +6,16 @@
    at most N * d * gaussian_coordinate_product_weight 2 xs
    (gaussian_maximum_radius_polynomial), and it and its absolute value have
    iterated Gaussian expectations (gaussian_maximum_radius_domain, from
-   gaussian_iterated_polynomial_admissible of Gaussian.CoordinateMarginals). *)
+   gaussian_iterated_polynomial_admissible of Gaussian.Iterated.PolynomialGrowth). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateTuples
-  Analysis.CoordinateTopology Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Gaussian.CoordinateMarginals
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Analysis.CoordinateContinuityDefinitions Gaussian.Coordinate.Tuples
+  Analysis.CoordinateTopology Gaussian.Coordinate.WeightDefinitions
+  Gaussian.Coordinate.Weights Gaussian.Iterated.PolynomialGrowth
   Analysis.CoordinatePermutationContinuity
-  Gaussian.CoordinatePolynomialContinuity Radius.Definitions.
+  Gaussian.Coordinate.PolynomialContinuity Radius.Definitions.
 Import ListNotations.
 Open Scope R_scope.
 

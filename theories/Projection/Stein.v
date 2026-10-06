@@ -1,15 +1,16 @@
 (* First Gaussian integration by parts for a centered quadratic entry. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.FiniteSums
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Analysis.FiniteSumAlgebra Gaussian.Iterated.FiniteSums
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions Analysis.CoordinateTopology
-  Gaussian.CoordinateWeightDefinitions Gaussian.CoordinateWeights
-  Gaussian.CoordinateDerivativeDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Coordinate.DerivativeDefinitions
   Analysis.CoordinatePermutationDefinitions Analysis.CoordinatePermutations
-  Gaussian.CoordinateDerivatives Gaussian.CoordinatePolynomialContinuity
-  Gaussian.CoordinateSuffixAlgebra Gaussian.CoordinateStein
-  Gaussian.CoordinatePolynomialDomain Gaussian.SmoothCalculus.
+  Gaussian.Coordinate.ProductDerivative
+  Gaussian.Coordinate.PolynomialContinuity Gaussian.Iterated.SuffixAlgebra
+  Gaussian.Iterated.Stein Gaussian.Iterated.PolynomialDomain
+  Gaussian.Smooth.Calculus.
 Open Scope R_scope.
 
 Definition paper_main_projection_entry i j (xs : list R) :=

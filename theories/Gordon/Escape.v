@@ -12,13 +12,14 @@
    integrable. *)
 From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Gaussian.CoordinatePolynomialDomain Gaussian.CoordinateWeights
-  Analysis.FiniteSumAlgebra Gordon.ProcessCovariance Gordon.Scalar
-  Gordon.Lipschitz Gordon.Bilinear Gordon.NetToAll Gordon.OperatorNet
-  Gordon.OperatorContinuity Gaussian.Norm Gaussian.SmoothCalculus
-  Gaussian.LipschitzClip Gordon.CompactMinmax.
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Iterated.PolynomialDomain
+  Gaussian.Coordinate.Weights Analysis.FiniteSumAlgebra
+  Gordon.ProcessCovariance Gordon.Scalar Gordon.Lipschitz Gordon.Bilinear
+  Gordon.NetToAll Gordon.OperatorNet Gordon.OperatorContinuity
+  Gaussian.Lipschitz.EuclideanNorm Gaussian.Smooth.Calculus
+  Gaussian.Lipschitz.Clip Gordon.UnitValueBound.
 Import ListNotations.
 Open Scope R_scope.
 

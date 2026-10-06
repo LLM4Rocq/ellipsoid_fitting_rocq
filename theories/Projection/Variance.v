@@ -2,8 +2,8 @@
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation PaperMainDefinitions Geometry.Psd
+  Analysis.FiniteSumAlgebra Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation PaperMainDefinitions Geometry.Psd
   Spectral.Duality Data.FeatureMomentsCoordinates Data.FeatureMoments
   Projection.Stein Projection.Regular.
 From EllipsoidFitting Require Import Analysis.RealsBridge.

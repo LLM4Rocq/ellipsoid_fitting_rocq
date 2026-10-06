@@ -1,11 +1,12 @@
 (* Continuity through the endpoints for bounded smooth nonlinear features. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.IteratedExpectationDefinitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Gaussian.CovarianceDefinitions
-  Gaussian.CovariancePathEndpoints Gaussian.ExpectationContinuity
-  Gaussian.CoordinatePolynomialContinuity Gaussian.SmoothCovariance
+  Analysis.FiniteSumAlgebra Gaussian.Iterated.Definitions
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Covariance.Definitions Gaussian.Covariance.PathEndpoints
+  Gaussian.Iterated.ParameterContinuity
+  Gaussian.Coordinate.PolynomialContinuity Gaussian.Smooth.Test
   Projection.Image Projection.Path Projection.Mix.
 Import ListNotations.
 Open Scope R_scope.

@@ -13,10 +13,12 @@
      prefix fixed and the suffix integrated. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.SuffixMarginalDefinitions Gaussian.LastIntegration
-  Gaussian.BlockExchange Data.FeatureMomentsCoordinates Loss.RowIncrement.
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions
+  Gaussian.Iterated.SuffixMarginalDefinitions Gaussian.Iterated.LastIntegration
+  Gaussian.Iterated.BlockExchange Data.FeatureMomentsCoordinates
+  Loss.RowIncrement.
 Open Scope R_scope.
 
 Lemma paper_main_loss_prefix_integral_regular p m F : pmdf_regular (Nat.add p m) F ->

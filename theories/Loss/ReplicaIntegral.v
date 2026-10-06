@@ -11,8 +11,8 @@
      their replica averages. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation Gaussian.FiniteSums Gibbs.Definitions
+  Analysis.FiniteSumAlgebra Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Iterated.FiniteSums Gibbs.Definitions
   Gibbs.Weights Loss.Replica.
 Open Scope R_scope.
 

@@ -7,7 +7,7 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.OperatorDefinitions Matrix.VectorListDefinitions
   Matrix.VectorCoordinates Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateTuples.
+  Gaussian.Coordinate.Tuples.
 Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.

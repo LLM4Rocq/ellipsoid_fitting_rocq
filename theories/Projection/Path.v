@@ -1,13 +1,13 @@
 (* Differentiation of bounded C2 tests along nonlinear Gaussian features. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.IteratedExpectationDefinitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Gaussian.CoordinatePolynomialContinuity
-  Gaussian.FiniteSums Gaussian.CovarianceLinearImages
-  Gaussian.CovarianceDerivative Gaussian.ParameterDifferentiation
-  Joint.Definitions Gaussian.SmoothCovariance Gaussian.SmoothCalculus
-  Projection.Image.
+  Analysis.FiniteSumAlgebra Gaussian.Iterated.Definitions
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Coordinate.PolynomialContinuity Gaussian.Iterated.FiniteSums
+  Gaussian.Covariance.LinearImages Gaussian.Coordinate.UniformSumBound
+  Gaussian.Iterated.ParameterDifferentiation Joint.Definitions
+  Gaussian.Smooth.Test Gaussian.Smooth.Calculus Projection.Image.
 Open Scope R_scope.
 
 Definition paper_main_projection_value (K : nat) (U : nat -> R -> list R -> R)

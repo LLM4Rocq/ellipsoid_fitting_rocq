@@ -12,7 +12,7 @@
      in [0, 1] changes the soft minimum by at most 1. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Gibbs.Definitions Gibbs.Weights Gibbs.MomentBounds Gibbs.CurveDerivatives
+  Gibbs.Definitions Gibbs.Weights Gibbs.MomentBounds Gibbs.SoftMinIdentity
   Loss.Translated.
 Open Scope R_scope.
 

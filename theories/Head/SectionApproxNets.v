@@ -35,7 +35,7 @@ From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
   Analysis.FiniteSumAlgebra PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.HeadFrobenius Geometry.HeadFeature
   Geometry.HeadWidth Gordon.ProcessCovariance Gordon.Nets Gordon.Entropy
-  Gaussian.FeatureCoordinates Cone.GaussianCoordinates
+  Gaussian.Symmetric.Coordinates Cone.GaussianCoordinates
   Cone.GaussianCoordinatesSpheres Head.SectionMeasurable Head.SectionMinimax
   Head.SectionApprox.
 Import GRing.Theory Num.Theory Order.TTheory.

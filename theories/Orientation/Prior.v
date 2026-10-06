@@ -27,7 +27,7 @@ From mathcomp Require Import boolp classical_sets reals Rstruct.
 From EllipsoidFitting Require Import Analysis.ContinuousTupleMeasurability
   PaperMainDefinitions Geometry.Homogeneous Geometry.HeadFrobenius
   Feature.GramBlocks Feature.LossControl Cone.ConditionOperator
-  Gaussian.FeatureCoordinates Gordon.Entropy Loss.QuadraticPrior
+  Gaussian.Symmetric.Coordinates Gordon.Entropy Loss.QuadraticPrior
   Orientation.Witness Orientation.BlocksLoss Orientation.Rotation
   Hybrid.FiniteArray.
 Import GRing.Theory Num.Theory Order.TTheory.

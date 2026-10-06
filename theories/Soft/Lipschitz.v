@@ -19,9 +19,9 @@ From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral measurable_realfun.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
   Analysis.FiniteSumAlgebra Analysis.CoordinateContinuityDefinitions
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
-  Gordon.Lipschitz Gaussian.LipschitzClip Gaussian.LipschitzApproximationLaw
-  Gaussian.LipschitzConcentration Gaussian.GordonTail.
+  Gaussian.Iterated.Definitions GaussianProbabilityProductDefinitions
+  Gordon.Lipschitz Gaussian.Lipschitz.Clip Gaussian.Lipschitz.Law
+  Gaussian.Lipschitz.Concentration Gaussian.Lipschitz.LowerMargin.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Import ListNotations.

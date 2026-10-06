@@ -19,7 +19,7 @@ From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
   PaperMainDefinitions Geometry.HeadCoefficients Geometry.HeadCorrection
-  Geometry.HeadFeature Data.HeadOperatorUniform Gaussian.FeatureTail
+  Geometry.HeadFeature Data.HeadOperatorUniform Gaussian.Symmetric.FeatureTail
   Gordon.Entropy Gordon.Quantization Head.DataRates Clipping.Limits.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

@@ -1,8 +1,8 @@
 (* Finite Gaussian soft margin with explicit outer entropy error. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Gaussian.CovarianceDefinitions Analysis.FiniteSumAlgebra Gordon.Coordinates
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Gaussian.Covariance.Definitions Analysis.FiniteSumAlgebra Gordon.Coordinates
   Gordon.Comparison Gordon.ProcessCovariance Gordon.Scalar Gordon.Width.
 Import ListNotations.
 Open Scope R_scope.

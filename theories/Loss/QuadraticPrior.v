@@ -17,8 +17,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct n
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
   Analysis.FiniteSumAlgebra PaperMainDefinitions Geometry.Homogeneous
   Geometry.HeadFrobenius Feature.GramBlocks Feature.LossControl
-  Gaussian.FeatureCoordinates Gordon.Entropy Gordon.EntropyMargin Loss.JointNet
-  Loss.JointRiskLipschitz Loss.EntropyBudget.
+  Gaussian.Symmetric.Coordinates Gordon.Entropy Gordon.EntropyMargin
+  Loss.JointNet Loss.JointRiskLipschitz Loss.EntropyBudget.
 Open Scope R_scope.
 
 Theorem paper_main_quadratic_prior n (T : 'M[R]_(S n) -> R -> Prop) L delta :

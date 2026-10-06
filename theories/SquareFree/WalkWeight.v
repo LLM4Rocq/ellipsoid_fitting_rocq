@@ -18,7 +18,7 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp reals Rstruct.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
-From EllipsoidFitting Require Import GaussianDefinitions DiagonalBlock.Moment
+From EllipsoidFitting Require Import GaussianDefinitions Feature.DiagonalMoment
   SquareFree.WalkMoments SquareFree.WalkExpansion.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.

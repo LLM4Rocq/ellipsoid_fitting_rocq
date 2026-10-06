@@ -1,10 +1,10 @@
 (* Transport the comparison to two independent Gaussian coordinate blocks. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation Gaussian.SuffixMarginalDefinitions
-  Gaussian.LastIntegration Gaussian.CovarianceLinearImages
-  Gaussian.CovariancePathEndpoints Gaussian.SmoothCovariance Projection.Stein
+  Analysis.FiniteSumAlgebra Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Iterated.SuffixMarginalDefinitions
+  Gaussian.Iterated.LastIntegration Gaussian.Covariance.LinearImages
+  Gaussian.Covariance.PathEndpoints Gaussian.Smooth.Test Projection.Stein
   Projection.Image Projection.Algebra Projection.Variance Projection.Product
   Projection.Blocks Projection.Comparison.
 Open Scope R_scope.

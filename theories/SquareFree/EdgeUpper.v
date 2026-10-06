@@ -19,14 +19,14 @@ From mathcomp Require Import lebesgue_measure lebesgue_integral probability.
 From mathcomp Require Import ring_tactic arithmetic_tactic sesquilinear.
 From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
+  Gaussian.Iterated.Definitions GaussianProbabilityProductDefinitions
   SquareFree.WalkMoments SquareFree.WalkExpansion SquareFree.WalkWeight
   SquareFree.WalkCount SquareFree.WalkExcess SquareFree.WalkBridge
   SquareFree.WalkShapeRecursion SquareFree.WalkShapeOnce
   SquareFree.WalkShapeBound PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.Separation Geometry.HeadFrobenius
   Geometry.HeadFeature Geometry.HeadCorrection Geometry.HeadCoefficients
-  Spectral.SymmetricBilinear Cone.ConditionOperator DiagonalBlock.Trace
+  Spectral.SymmetricBilinear Cone.ConditionOperator Feature.DiagonalTrace
   Spectral.SymmetricDiagonalization.
 Import GRing.Theory Num.Theory Order.TTheory.
 

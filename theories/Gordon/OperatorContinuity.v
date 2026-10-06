@@ -1,7 +1,7 @@
 (* Continuity of the genuine rectangular operator supremum. *)
 From Stdlib Require Import Reals List Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateTuples Gaussian.CoordinateWeightDefinitions
+  Gaussian.Coordinate.Tuples Gaussian.Coordinate.WeightDefinitions
   Analysis.FiniteSumAlgebra Gordon.Scalar Gordon.Lipschitz Gordon.SetWidth
   Gordon.Bilinear Gordon.OperatorNet.
 Open Scope R_scope.

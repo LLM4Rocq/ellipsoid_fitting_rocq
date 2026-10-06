@@ -19,7 +19,7 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology normedtype Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
 From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions
-  Analysis.ContinuousTupleMeasurability Gaussian.FeatureCoordinates Head.Law
+  Analysis.ContinuousTupleMeasurability Gaussian.Symmetric.Coordinates Head.Law
   Projected.BulkEscape Projected.BulkComplement Projected.BulkConditional
   Hybrid.Density.
 Import GRing.Theory Num.Theory Order.TTheory.

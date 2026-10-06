@@ -29,23 +29,24 @@ From Stdlib Require Import Reals List.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum classical_sets.
 From mathcomp Require Import Rstruct topology normedtype derive Rstruct_topology.
 From EllipsoidFitting Require Import Matrix.Definitions Soft.Definitions
-  Matrix.OperatorDefinitions Gaussian.IteratedExpectationDefinitions
-  Gaussian.VectorDefinitions Goe.Definitions Tensor.Definitions
+  Matrix.OperatorDefinitions Gaussian.Iterated.Definitions
+  Gaussian.Vector.Definitions Goe.Definitions Tensor.Definitions
   Joint.Definitions Multirow.ArrayTimeDefinitions Row.ObservableDefinitions
   Multirow.EndpointDefinitions.
 From Stdlib Require Import Lia Lra.
 From EllipsoidFitting Require Import Row.ArrayDefinitions
   Row.CoordinateDefinitions Row.PrefixDefinitions
   Soft.MinimaxDerivativeDefinitions Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateWeightDefinitions Matrix.VectorListDefinitions
+  Gaussian.Coordinate.WeightDefinitions Matrix.VectorListDefinitions
   Multirow.RowVelocityDerivatives Multirow.EndpointMarginals
   Multirow.PathBounds.
 From EllipsoidFitting Require Joint.PathEndpoints
-  Gaussian.ExpectationContinuity Gaussian.ParameterDifferentiation
-  Gaussian.BlockExchange Gaussian.RowPrefixMarginal Gaussian.FiniteSums
+  Gaussian.Iterated.ParameterContinuity
+  Gaussian.Iterated.ParameterDifferentiation Gaussian.Iterated.BlockExchange
+  Gaussian.Iterated.RowPrefixMarginal Gaussian.Iterated.FiniteSums
   Row.ObservableContinuity Multirow.ObservableBounds Multirow.FullStein
   Multirow.TimeCalculus Analysis.CoordinateTopology
-  Gaussian.IteratedExpectation Row.Coordinates Row.Prefixes.
+  Gaussian.Iterated.Expectation Row.Coordinates Row.Prefixes.
 Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
@@ -151,7 +152,7 @@ Theorem mexp_clause_domain n m beta gamma y B Y S t :
 Proof.
   move=> Hb Hg HY HS Ht.
   destruct (mexp_value_polynomial n m beta gamma y B Y S Hb Hg HY HS) as [C [HC HP]].
-  exact: (Gaussian.BlockExchange.gaussian_list_domain_polynomial _ _ C 2
+  exact: (Gaussian.Iterated.BlockExchange.gaussian_list_domain_polynomial _ _ C 2
     (mexp_value_continuous n m beta gamma y B Y S t Hb Hg HY HS) (HP t Ht)).
 Qed.
 
@@ -170,7 +171,7 @@ Proof.
   move=> Hb Hg HY HS Ha.
   destruct (mexp_value_polynomial n m beta gamma y B Y S Hb Hg HY HS) as [C [HC HP]].
   destruct (mexp_value_difference n m beta gamma y B Y S Hb Hg HY HS) as [L [HL HD]].
-  refine (proj1 (Gaussian.ExpectationContinuity.gaussian_iterated_expectation_continuous_modulus_within
+  refine (proj1 (Gaussian.Iterated.ParameterContinuity.gaussian_iterated_expectation_continuous_modulus_within
     (Datatypes.S m * (Datatypes.S n + Datatypes.S (goe_vector_index n)))%coq_nat
     (fun t => gaussian_array_value n m beta gamma y B Y S t) (fun t => 0 <= t <= 1) a C 2 2
     (fun t => L * (Rabs (sqrt t - sqrt a) + Rabs (sqrt (1-t) - sqrt (1-a))))
@@ -268,7 +269,7 @@ Proof.
   have HCF : forall t, Rabs (t-a) <= rho -> finite_joint_continuous d (F t).
   { move=> t _; exact: mexp_value_continuous. }
   have HCD : finite_joint_continuous d (Dv a).
-  { apply: (Gaussian.FiniteSums.finite_joint_continuous_sum d I
+  { apply: (Gaussian.Iterated.FiniteSums.finite_joint_continuous_sum d I
       (fun i xs => gaussian_row_velocity n m beta gamma y B Y S a i xs)).
     move=> i Hi.
     exact: (Row.ObservableContinuity.gaussian_row_velocity_continuous n m beta gamma y B Y S a i
@@ -282,9 +283,9 @@ Proof.
     destruct (Multirow.ObservableBounds.multirow_row_observables_polynomial_bounds
       n m beta gamma y B Y S a i Hb Hg HY HS (HinI i Hi)) as [CV [CR [HV _]]].
     exists CV; exact HV. }
-  destruct (Gaussian.FiniteSums.finite_polynomial_bound_sum d I
+  destruct (Gaussian.Iterated.FiniteSums.finite_polynomial_bound_sum d I
     (fun i xs => gaussian_row_velocity n m beta gamma y B Y S a i xs) 2 HBsum) as [B1 HB1].
-  destruct (Gaussian.ParameterDifferentiation.finite_gaussian_parameter_differentiation d F Dv D2 a rho
+  destruct (Gaussian.Iterated.ParameterDifferentiation.finite_gaussian_parameter_differentiation d F Dv D2 a rho
     C2 4 C0 2 B1 2 Hrho HD HD2 Hpoly2 HCF HCD HpolyF HB1) as [_ [HDdom HE]].
   destruct (Multirow.FullStein.paper_multirow_full_stein_results) as [FS1 FS2].
   have Hcancel : gaussian_iterated_expectation d
@@ -347,7 +348,7 @@ Proof.
   have H11 : 0 <= 1 <= 1 by lra.
   have HdomG : gaussian_list_domain (Datatypes.S m * Datatypes.S (goe_vector_index n))%coq_nat
       (multirow_goe_value n m beta gamma y B Y S).
-  { apply: (Gaussian.BlockExchange.gaussian_list_domain_polynomial _ _ C 2).
+  { apply: (Gaussian.Iterated.BlockExchange.gaussian_list_domain_polynomial _ _ C 2).
     - apply: (Analysis.CoordinateTopology.finite_joint_continuous_ext _
         (fun zs => gaussian_array_value n m beta gamma y B Y S 0
           (mexp_goe_lift (Datatypes.S m) (Datatypes.S n) (Datatypes.S (goe_vector_index n)) zs))).
@@ -360,7 +361,7 @@ Proof.
       + apply: mexp_goe_lift_polynomial; exact: (HP 0 H01). }
   have HdomW : gaussian_list_domain (Datatypes.S m * Datatypes.S n)%coq_nat
       (multirow_quadratic_value n m beta gamma y B Y S).
-  { apply: (Gaussian.BlockExchange.gaussian_list_domain_polynomial _ _ C 2).
+  { apply: (Gaussian.Iterated.BlockExchange.gaussian_list_domain_polynomial _ _ C 2).
     - apply: (Analysis.CoordinateTopology.finite_joint_continuous_ext _
         (fun xs => gaussian_array_value n m beta gamma y B Y S 1
           (mexp_quadratic_lift (Datatypes.S m) (Datatypes.S n)
@@ -382,7 +383,7 @@ Proof.
       (Datatypes.S m * (Datatypes.S n + Datatypes.S (goe_vector_index n)))%coq_nat
       (fun xs => multirow_goe_value n m beta gamma y B Y S
         (mexp_row_suffixes (Datatypes.S m) (Datatypes.S n) (Datatypes.S (goe_vector_index n)) xs))).
-    - apply: Gaussian.IteratedExpectation.gaussian_iterated_expectation_ext => xs HL.
+    - apply: Gaussian.Iterated.Expectation.gaussian_iterated_expectation_ext => xs HL.
       exact: mexp_value_zero_suffixes.
     - exact: (mexp_row_suffixes_gaussian_expectation (Datatypes.S m) (Datatypes.S n)
         (Datatypes.S (goe_vector_index n))). }
@@ -395,9 +396,9 @@ Proof.
       (Datatypes.S m * (Datatypes.S n + Datatypes.S (goe_vector_index n)))%coq_nat
       (fun xs => multirow_quadratic_value n m beta gamma y B Y S
         (row_prefixes (Datatypes.S m) (Datatypes.S n) (Datatypes.S (goe_vector_index n)) xs))).
-    - apply: Gaussian.IteratedExpectation.gaussian_iterated_expectation_ext => xs HL.
+    - apply: Gaussian.Iterated.Expectation.gaussian_iterated_expectation_ext => xs HL.
       exact: mexp_value_one_prefixes.
-    - exact: (Gaussian.RowPrefixMarginal.row_prefixes_gaussian_expectation (Datatypes.S m)
+    - exact: (Gaussian.Iterated.RowPrefixMarginal.row_prefixes_gaussian_expectation (Datatypes.S m)
         (Datatypes.S n) (Datatypes.S (goe_vector_index n))). }
   split; [exact HdomG|]; split; [exact HdomW|]; split; [exact E0|]; split; [exact E1|].
   split.

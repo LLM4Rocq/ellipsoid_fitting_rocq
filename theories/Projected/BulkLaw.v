@@ -9,7 +9,7 @@
    (paper_main_projected_loading_orthonormal). The map
    paper_main_projected_map : (N M)-tuples -> (s M)-tuples is measurable, and
    it sends gaussian_product_law (N * M) to gaussian_product_law (s * M)
-   (paper_main_projected_law): read on row vectors through Gaussian.LawBridge,
+   (paper_main_projected_law): read on row vectors through Gaussian.Law.LibraryBridge,
    it is x |-> x *m A for a matrix A with orthonormal columns, and
    gauss_orthogonal_law of the library gives the law of x *m A. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
@@ -20,12 +20,13 @@ From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From mathcomp Require Import probability numfun.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceDefinitions
-  Gaussian.CovarianceLinearImages Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinatePolynomialContinuity Gaussian.FiniteSums
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.Definitions
+  Gaussian.Covariance.LinearImages Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.PolynomialContinuity Gaussian.Iterated.FiniteSums
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
-  Gaussian.ProductLawBasics Gordon.ProcessCovariance
-  Analysis.CoordinateTopology Gaussian.LawBridge Gaussian.CovarianceBounds.
+  Gaussian.Law.ProductBasics Gordon.ProcessCovariance
+  Analysis.CoordinateTopology Gaussian.Law.LibraryBridge
+  Gaussian.Orthogonal.EqualCovariance.
 From GaussianAnalysis Require Import measurable_matrix gauss gauss_law.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

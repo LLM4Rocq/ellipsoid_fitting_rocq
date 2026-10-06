@@ -12,8 +12,8 @@ From mathcomp Require Import topology Rstruct_topology sequences.
 From mathcomp Require Import normedtype.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral measurable_realfun.
 From EllipsoidFitting Require Import Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateTuples.
-From EllipsoidFitting Require Import Gaussian.ProductLawBasics.
+  Gaussian.Coordinate.Tuples.
+From EllipsoidFitting Require Import Gaussian.Law.ProductBasics.
 Import GRing.Theory Num.Theory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

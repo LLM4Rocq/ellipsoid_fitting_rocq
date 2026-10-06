@@ -17,11 +17,11 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct.
 From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From EllipsoidFitting Require Import Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   PaperMainDefinitions Geometry.Psd Geometry.Homogeneous
   Geometry.HeadCorrection Geometry.HeadSpectral Geometry.HeadWidth
   Geometry.HeadWidthCompact Cone.ProjectionSupport Gordon.ProcessCovariance
-  Gordon.SetWidth Gaussian.FeatureCoordinates Gaussian.SymmetricLawPublic
+  Gordon.SetWidth Gaussian.Symmetric.Coordinates Gaussian.Symmetric.PublicLaw
   Cone.GaussianCoordinates.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

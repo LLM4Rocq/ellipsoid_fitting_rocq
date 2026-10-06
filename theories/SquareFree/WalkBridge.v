@@ -22,7 +22,7 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
+  Gaussian.Iterated.Definitions GaussianProbabilityProductDefinitions
   SquareFree.WalkMoments SquareFree.WalkExpansion SquareFree.WalkWeight
   SquareFree.WalkCount SquareFree.WalkExcess.
 Import GRing.Theory Num.Theory Order.TTheory.

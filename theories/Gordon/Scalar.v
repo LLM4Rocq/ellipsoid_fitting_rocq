@@ -5,10 +5,10 @@
    Gordon.Processes. *)
 From Stdlib Require Import Reals List Lia Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import Soft.Definitions GaussianDefinitions
-  Gaussian.Expectation Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation Gaussian.SuffixMarginalDefinitions
-  Gaussian.LastIntegration Gaussian.Moments Gaussian.Mass
-  Gaussian.CovarianceDefinitions Analysis.FiniteSumAlgebra Gordon.Coordinates
+  Gaussian.Line.Expectation Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Iterated.SuffixMarginalDefinitions
+  Gaussian.Iterated.LastIntegration Gaussian.Line.Moments Gaussian.Line.Mass
+  Gaussian.Covariance.Definitions Analysis.FiniteSumAlgebra Gordon.Coordinates
   Gordon.Finite Gordon.ProcessCovariance Gordon.Processes.
 Import ListNotations.
 Open Scope R_scope.

@@ -24,12 +24,13 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun l
 From mathcomp Require Import probability.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   GaussianProbabilityDefinitions GaussianProbabilityProductDefinitions
-  Gaussian.ProductLawBasics PaperMainDefinitions Geometry.Psd
+  Gaussian.Law.ProductBasics PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.HeadFrobenius Geometry.HeadFeature
   Geometry.HeadWidth Gordon.ProcessCovariance Gordon.Bilinear Gordon.Nets
-  Gordon.NetExistence Sampling Head.Law Data.SampleTail Gaussian.ResidualJoint
-  Head.SelectionLaw Head.FiniteSupportSelector Head.SectionMeasurable
-  Head.SectionMinimax Head.SectionApprox Head.CompactEvent.
+  Gordon.NetExistence Gaussian.Sample.Deletion Head.Law Data.SampleTail
+  Gaussian.Sample.ResidualJoint Head.SelectionLaw Head.FiniteSupportSelector
+  Head.SectionMeasurable Head.SectionMinimax Head.SectionApprox
+  Head.CompactEvent.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope R_scope.

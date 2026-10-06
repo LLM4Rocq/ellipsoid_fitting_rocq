@@ -7,8 +7,8 @@ From mathcomp Require Import topology normedtype derive.
 From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.OperatorDefinitions Tensor.Definitions Chaos.SecondOrderDefinitions
-  Quadratic.Definitions Quadratic.GradientRegularity Gaussian.VectorDefinitions
-  Gaussian.VectorStein.
+  Quadratic.Definitions Quadratic.GradientRegularity
+  Gaussian.Vector.Definitions Gaussian.Vector.Stein.
 Import Quadratic.GradientRegularity.QuadraticGrowth.
 Import ListNotations.
 Import GRing.Theory Num.Theory.
@@ -22,7 +22,7 @@ Open Scope R_scope.
    chaos_basis n b, and (x_a * x_b - [a = b]) * g x satisfy
    gaussian_vector_domain, and the Gaussian expectation of the second
    derivative equals that of (x_a * x_b - [a = b]) * g x. The proof applies
-   gaussian_vector_second_stein of Gaussian.VectorStein, with the
+   gaussian_vector_second_stein of Gaussian.Vector.Stein, with the
    regularity given by quadratic_gradient_entry_polynomial_regular.
 
    gaussian_vector_domain and gaussian_vector_expectation ask for Lebesgue

@@ -1,13 +1,14 @@
 (* Polynomial regularity packaging for actual projection integration by parts. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages Gaussian.FiniteSums
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Gaussian.CoordinateDerivativeDefinitions
-  Gaussian.CoordinateStein Gaussian.CoordinatePolynomialContinuity
-  Data.FeatureMomentsCoordinates Gaussian.SmoothCalculus Projection.Stein
-  Projection.Quadratic Projection.Image Projection.Mix.
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages
+  Gaussian.Iterated.FiniteSums Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Coordinate.DerivativeDefinitions Gaussian.Iterated.Stein
+  Gaussian.Coordinate.PolynomialContinuity Data.FeatureMomentsCoordinates
+  Gaussian.Smooth.Calculus Projection.Stein Projection.Quadratic
+  Projection.Image Projection.Mix.
 Open Scope R_scope.
 
 Lemma paper_main_projection_regular_uniform d I (F : nat -> list R -> R) :

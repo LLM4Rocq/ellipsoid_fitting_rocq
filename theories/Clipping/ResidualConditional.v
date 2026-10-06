@@ -20,9 +20,10 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
   PaperMainDefinitions Asymptotics GaussianProbabilityProductDefinitions
   Analysis.ContinuousTupleMeasurability Clipping.Limits Clipping.ResidualRates
-  Gaussian.ConditionalException Gaussian.ResidualJoint Cone.ConditionOperator
-  Geometry.Psd Cone.ApproxSelectorResidual Geometry.HeadWidth
-  Geometry.Homogeneous Gaussian.SymmetricLawPublic Gaussian.FeatureCoordinates.
+  Gaussian.Sample.ConditionalException Gaussian.Sample.ResidualJoint
+  Cone.ConditionOperator Geometry.Psd Cone.ApproxSelectorResidual
+  Geometry.HeadWidth Geometry.Homogeneous Gaussian.Symmetric.PublicLaw
+  Gaussian.Symmetric.Coordinates.
 Import GRing.Theory Num.Theory Order.TTheory.
 Open Scope R_scope.
 

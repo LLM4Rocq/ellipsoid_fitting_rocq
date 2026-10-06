@@ -22,14 +22,15 @@
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Gaussian.ExpectationContinuity Analysis.CoordinateContinuityDefinitions
-  Analysis.CoordinateTopology Gaussian.CoordinatePolynomialContinuity
-  Data.FeatureMomentsCoordinates Data.FeatureMoments PaperMainDefinitions
-  Geometry.Homogeneous Cone.ConditionOperator Gaussian.FeatureCoordinates
-  Projection.Regular Projection.Public Gaussian.CovarianceLinearImages
-  Gordon.Continuity Gaussian.SmoothCalculus Loss.Translated Loss.Gibbs
-  Loss.LogPolynomial Loss.SmoothFactor Loss.Replica Loss.RowPolynomial.
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Gaussian.Iterated.ParameterContinuity
+  Analysis.CoordinateContinuityDefinitions Analysis.CoordinateTopology
+  Gaussian.Coordinate.PolynomialContinuity Data.FeatureMomentsCoordinates
+  Data.FeatureMoments PaperMainDefinitions Geometry.Homogeneous
+  Cone.ConditionOperator Gaussian.Symmetric.Coordinates Projection.Regular
+  Projection.Public Gaussian.Covariance.LinearImages Gordon.Continuity
+  Gaussian.Smooth.Calculus Loss.Translated Loss.Gibbs Loss.LogPolynomial
+  Loss.SmoothFactor Loss.Replica Loss.RowPolynomial.
 Open Scope R_scope.
 
 Definition paper_main_loss_row_increment beta f I a (U : nat -> list R -> R) (xs : list R) :=

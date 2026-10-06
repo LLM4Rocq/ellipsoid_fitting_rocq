@@ -3,8 +3,9 @@ From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
   Analysis.FiniteSumAlgebra PaperMainDefinitions Geometry.Homogeneous
-  Geometry.HeadFrobenius Gaussian.FeatureCoordinates Gordon.ProcessCovariance
-  Gordon.Nets Gordon.Entropy Loss.BallNet Head.SmallBallNet.
+  Geometry.HeadFrobenius Gaussian.Symmetric.Coordinates
+  Gordon.ProcessCovariance Gordon.Nets Gordon.Entropy Loss.BallNet
+  Head.SmallBallNet.
 Open Scope R_scope.
 
 Definition paper_main_loss_joint_code n (A : 'M[R]_(S n)) b radius k :=

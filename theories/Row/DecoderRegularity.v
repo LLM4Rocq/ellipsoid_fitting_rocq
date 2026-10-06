@@ -6,11 +6,12 @@ From mathcomp Require Import topology normedtype.
 From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.OperatorDefinitions Goe.Definitions Joint.Definitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateTuples Analysis.CoordinateTopology
-  Gaussian.CoordinateWeights Analysis.CoordinatePermutationContinuity
-  Gaussian.BlockRotation Joint.ListCoordinates Joint.ObservableContinuity
-  Gaussian.VectorPolynomialGrowth Soft.MinimaxDerivativeDefinitions
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Tuples
+  Analysis.CoordinateTopology Gaussian.Coordinate.Weights
+  Analysis.CoordinatePermutationContinuity Gaussian.Iterated.BlockRotation
+  Joint.ListCoordinates Joint.ObservableContinuity
+  Gaussian.Vector.PolynomialGrowth Soft.MinimaxDerivativeDefinitions
   Gibbs.MatrixThirdContinuity Row.CoordinateDefinitions Row.Coordinates
   Row.ArrayDefinitions.
 Import GRing.Theory Num.Theory.

@@ -1,12 +1,13 @@
 (* Remove the finite soft-extrema approximation in Gaussian comparison. *)
 From Stdlib Require Import Reals List Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions Analysis.CoordinateTopology
-  Gaussian.CoordinatePolynomialContinuity Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Gaussian.CovarianceDefinitions
-  Gaussian.CovarianceLinearImages Gaussian.CovariancePathDomains
-  Gordon.Coordinates Gordon.Growth Gordon.Comparison.
+  Gaussian.Coordinate.PolynomialContinuity
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Covariance.Definitions Gaussian.Covariance.LinearImages
+  Gaussian.Covariance.PathDomains Gordon.Coordinates Gordon.Growth
+  Gordon.Comparison.
 Import ListNotations.
 Open Scope R_scope.
 

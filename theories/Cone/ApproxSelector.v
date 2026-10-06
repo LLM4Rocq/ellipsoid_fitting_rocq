@@ -15,7 +15,7 @@
        support(Z, K) - eps |Z|_F <= <Z, P(Z)> <= support(Z, K),
      where support(Z, K) = paper_main_head_support Z K.
    - Gaussian version (paper_main_cone_selector_gaussian). For the actual
-     symmetric Gaussian matrix Z(xs) of Gaussian.SymmetricLawPublic,
+     symmetric Gaussian matrix Z(xs) of Gaussian.Symmetric.PublicLaw,
      the entries of x |-> P(Z(tval x)) are measurable, since the entries of Z
      are 1-Lipschitz in the coordinates. No measurable maximum or selector
      premise is used. *)
@@ -32,8 +32,8 @@ From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   Geometry.HeadFeature Geometry.HeadCorrection Geometry.HeadSpectral
   Geometry.HeadWidth Cone.ConditionOperator Spectral.OperatorTransport
   Gordon.ProcessCovariance Gordon.Lipschitz Gordon.Nets Gordon.NetExistence
-  Gaussian.LipschitzClip Gaussian.FeatureCoordinates
-  Gaussian.SymmetricLawPublic Cone.GaussianCoordinates
+  Gaussian.Lipschitz.Clip Gaussian.Symmetric.Coordinates
+  Gaussian.Symmetric.PublicLaw Cone.GaussianCoordinates
   Cone.GaussianCoordinatesSpheres Spectral.SymmetricDiagonalization
   Head.FiniteSupportSelector.
 Import GRing.Theory Num.Theory Order.TTheory.

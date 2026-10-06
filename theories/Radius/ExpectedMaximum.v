@@ -10,12 +10,13 @@
    MathComp's exp.ln. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import GaussianDefinitions Gaussian.Expectation
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Gaussian.CoordinateWeightDefinitions Gaussian.CoordinateMarginals
-  Gaussian.PolynomialGrowthIntegrals Gaussian.CenteredChiSquare
-  Gaussian.ExponentialJensen Radius.ScalarInequalities Radius.Definitions
-  Radius.Regularity Radius.ExponentialMoments.
+From EllipsoidFitting Require Import GaussianDefinitions
+  Gaussian.Line.Expectation Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Coordinate.WeightDefinitions
+  Gaussian.Iterated.PolynomialGrowth Gaussian.Line.PolynomialGrowthIntegrals
+  Gaussian.Iterated.CenteredChiSquare Gaussian.Iterated.ExponentialJensen
+  Radius.ScalarInequalities Radius.Definitions Radius.Regularity
+  Radius.ExponentialMoments.
 Import ListNotations.
 Open Scope R_scope.
 

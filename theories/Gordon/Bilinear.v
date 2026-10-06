@@ -1,9 +1,9 @@
 (* Rectangular bilinear forms and Euclidean operator bounds. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Soft.Definitions
-  Gaussian.CovarianceDefinitions Analysis.FiniteSumAlgebra
+  Gaussian.Covariance.Definitions Analysis.FiniteSumAlgebra
   Gordon.ProcessCovariance Gordon.Scalar Gordon.Lipschitz Gordon.SetWidth
-  Gaussian.Norm.
+  Gaussian.Lipschitz.EuclideanNorm.
 Import ListNotations.
 Open Scope R_scope.
 

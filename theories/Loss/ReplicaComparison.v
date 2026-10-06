@@ -21,12 +21,12 @@
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinatePolynomialContinuity Data.FeatureMomentsCoordinates
+  Gaussian.Coordinate.PolynomialContinuity Data.FeatureMomentsCoordinates
   Data.FeatureMoments PaperMainDefinitions Geometry.Homogeneous
-  Cone.ConditionOperator Gaussian.FeatureCoordinates Gaussian.SmoothCovariance
+  Cone.ConditionOperator Gaussian.Symmetric.Coordinates Gaussian.Smooth.Test
   Projection.Image Projection.Regular Projection.Public
   Projection.PublicOperator Loss.SmoothFactor Loss.SmoothProduct Loss.Replica
   Loss.ReplicaIntegral.

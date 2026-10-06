@@ -5,14 +5,13 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Soft.MinimaxDerivativeDefinitions Soft.LowerThirdDefinitions
   Gibbs.NestedGradientDefinitions Gibbs.MatrixDefinitions
   Gibbs.MatrixThirdDerivativeDefinitions Chaos.SecondOrderDefinitions
-  Gaussian.IteratedExpectationDefinitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gibbs.MatrixNestedGradient Matrix.BlockInjection
-  Row.BlockDirectionDerivatives Row.CoordinateDefinitions Row.Coordinates
-  Row.JointDecoding Row.ArrayDefinitions Row.ArrayCoordinates
-  Row.ObservableDefinitions Gaussian.RowExchange.
-From EllipsoidFitting Require Gaussian.IteratedExpectation
-  Joint.ListCoordinates Joint.SteinIdentities Gaussian.BlockExchange
+  Gaussian.Iterated.Definitions Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gibbs.MatrixNestedGradient
+  Matrix.BlockInjection Row.BlockDirectionDerivatives Row.CoordinateDefinitions
+  Row.Coordinates Row.JointDecoding Row.ArrayDefinitions Row.ArrayCoordinates
+  Row.ObservableDefinitions Gaussian.Iterated.RowExchange.
+From EllipsoidFitting Require Gaussian.Iterated.Expectation
+  Joint.ListCoordinates Joint.SteinIdentities Gaussian.Iterated.BlockExchange
   Tensor.GibbsCumulantAtoms Soft.MatrixScorePerturbation.
 Import ListNotations.
 Open Scope R_scope.
@@ -167,15 +166,15 @@ Proof.
     rewrite Joint.ListCoordinates.joint_vector_to_of_list in H by exact Hrow.
     unfold gaussian_pair_pullback, V, Rem, off; split; symmetry; tauto. }
   split.
-  - eapply Gaussian.BlockExchange.gaussian_list_domain_ext;
+  - eapply Gaussian.Iterated.BlockExchange.gaussian_list_domain_ext;
       [intros row Hrow; exact (proj1 (Hsections row Hrow))|exact HVD].
   - split.
-    + eapply Gaussian.BlockExchange.gaussian_list_domain_ext;
+    + eapply Gaussian.Iterated.BlockExchange.gaussian_list_domain_ext;
         [intros row Hrow; exact (proj2 (Hsections row Hrow))|exact HRD].
     + unfold gaussian_pair_expectation in HE; fold K V Rem in HE.
-      rewrite (Gaussian.IteratedExpectation.gaussian_iterated_expectation_ext K
+      rewrite (Gaussian.Iterated.Expectation.gaussian_iterated_expectation_ext K
         (gaussian_pair_pullback n (goe_vector_index n) V) _ (fun row Hrow => proj1 (Hsections row Hrow))) in HE.
-      rewrite (Gaussian.IteratedExpectation.gaussian_iterated_expectation_ext K
+      rewrite (Gaussian.Iterated.Expectation.gaussian_iterated_expectation_ext K
         (gaussian_pair_pullback n (goe_vector_index n) Rem) _ (fun row Hrow => proj2 (Hsections row Hrow))) in HE.
       exact HE.
 Qed.

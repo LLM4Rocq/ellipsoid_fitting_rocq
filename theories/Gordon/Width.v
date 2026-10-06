@@ -1,13 +1,14 @@
 (* Expected finite Gaussian margin. This module proves no tail inequality. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions Analysis.CoordinateTopology
-  Gaussian.CoordinatePolynomialContinuity Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Gaussian.CoordinatePolynomialDomain
-  Gaussian.FiniteSums Gaussian.CovarianceDefinitions Analysis.FiniteSumAlgebra
+  Gaussian.Coordinate.PolynomialContinuity
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Iterated.PolynomialDomain Gaussian.Iterated.FiniteSums
+  Gaussian.Covariance.Definitions Analysis.FiniteSumAlgebra
   Radius.ExponentialMoments Gordon.Finite Gordon.ProcessCovariance
-  Gordon.Processes Gordon.Scalar Gaussian.Norm.
+  Gordon.Processes Gordon.Scalar Gaussian.Lipschitz.EuclideanNorm.
 Import ListNotations.
 Open Scope R_scope.
 

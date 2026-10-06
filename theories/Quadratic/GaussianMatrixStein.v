@@ -13,8 +13,8 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Chaos.SecondOrderDefinitions Matrix.SymmetricBasisDefinitions
   Matrix.SymmetricDivergence Quadratic.Definitions Quadratic.GradientSymmetry
   Quadratic.GradientSecondContraction Quadratic.GradientRegularity
-  Gaussian.VectorDefinitions Gaussian.VectorDomain Gaussian.VectorLinearity
-  Gaussian.VectorFiniteSums Quadratic.GradientEntryRegularity
+  Gaussian.Vector.Definitions Gaussian.Vector.Domain Gaussian.Vector.Linearity
+  Gaussian.Vector.FiniteSums Quadratic.GradientEntryRegularity
   Quadratic.WeightedEntryRegularity Quadratic.EntryStein.
 Import Quadratic.GradientRegularity.QuadraticGrowth.
 Import ListNotations.

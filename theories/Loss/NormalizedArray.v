@@ -17,7 +17,7 @@
      most (array value at j) / N + ln |I| / (beta N) for every j in I. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions Data.FeatureMomentsCoordinates
   Loss.Array Loss.SoftNormalized.
 Open Scope R_scope.

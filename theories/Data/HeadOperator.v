@@ -30,13 +30,14 @@ From mathcomp Require Import topology normedtype Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability normal_distribution measurable_realfun.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
-  GaussianProbabilityProductDefinitions Gaussian.ProductLawBasics
+  GaussianProbabilityProductDefinitions Gaussian.Law.ProductBasics
   PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Geometry.Gram
   Geometry.Separation Geometry.HeadFrobenius Geometry.HeadCorrection
   Geometry.HeadCoefficients Geometry.HeadFeature Spectral.Duality
   Gordon.ProcessCovariance Gordon.Scalar Gordon.Bilinear Gordon.Nets
-  Gordon.Entropy Gordon.OperatorNet Gaussian.LinearLaw Gaussian.Tails
-  Gaussian.Union Gaussian.FeatureTail Data.FeatureMomentsCoordinates
+  Gordon.Entropy Gordon.OperatorNet Gaussian.Tail.LinearMeasurable
+  Gaussian.Tail.UnitLinear Gaussian.Tail.UnionBound
+  Gaussian.Symmetric.FeatureTail Data.FeatureMomentsCoordinates
   Data.SampleTail.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.

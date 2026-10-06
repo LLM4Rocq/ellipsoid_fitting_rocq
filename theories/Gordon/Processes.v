@@ -3,11 +3,11 @@
    the bilinear form z y ^T A v t of an N x M Gaussian matrix A dominates in
    mean the min-max of the auxiliary process <g, z y> + <h, v t>
    (paper_main_gordon_process_comparison). The proof reads both processes on
-   row vectors through Gaussian.LawBridge and applies auxT_bilT_minmax of the
+   row vectors through Gaussian.Law.LibraryBridge and applies auxT_bilT_minmax of the
    library, an instance of Gordon's inequality. *)
 From Stdlib Require Import Reals List Lia Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.CovarianceDefinitions
+  Gaussian.Iterated.Definitions Gaussian.Covariance.Definitions
   Analysis.FiniteSumAlgebra Gordon.Coordinates Gordon.Finite
   Gordon.ProcessCovariance.
 Import ListNotations.
@@ -55,8 +55,8 @@ apply H; assumption.
 Qed.
 
 From EllipsoidFitting Require Import Analysis.CoordinateContinuityDefinitions
-  Analysis.CoordinateTopology Gaussian.CoordinatePolynomialContinuity
-  Gaussian.FiniteSums.
+  Analysis.CoordinateTopology Gaussian.Coordinate.PolynomialContinuity
+  Gaussian.Iterated.FiniteSums.
 
 (* Continuity and domain of the min-max of the auxiliary process. *)
 Lemma paper_main_gordon_minimax_continuous d (H : nat -> nat -> list R -> R) Y S :
@@ -147,7 +147,7 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral probability.
 From GaussianAnalysis Require Import measurable_matrix gauss euclidean slepian gordon escape.
-From EllipsoidFitting Require Import Soft.Extrema Gaussian.LawBridge.
+From EllipsoidFitting Require Import Soft.Extrema Gaussian.Law.LibraryBridge.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 

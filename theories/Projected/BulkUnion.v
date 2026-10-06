@@ -17,7 +17,7 @@ From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
-  Gordon.ProcessCovariance Gordon.SetWidth Gaussian.FeatureCoordinates
+  Gordon.ProcessCovariance Gordon.SetWidth Gaussian.Symmetric.Coordinates
   Projected.BulkLaw Projected.BulkEscape Projected.BulkComplement.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

@@ -1,5 +1,5 @@
 (* Bridge from the real orthogonal diagonalization to the list forms of
-   Gaussian.Orthogonal. For O : 'M[R]_d and a : 'rV[R]_d, the loading
+   Gaussian.Orthogonal.Invariance. For O : 'M[R]_d and a : 'rV[R]_d, the loading
    paper_main_symmetric_loading O : nat -> nat -> R and the coefficients
    paper_main_symmetric_coefficients a : nat -> R read the entries with
    indices below d and are 0 elsewhere. For any list xs and its public
@@ -9,7 +9,7 @@
      is sum_(i < d) a_i ((O x)_i^2 - 1), so the column and list forms are the
      same number;
    - if O^T O = 1, the loading has orthonormal rows in the exact predicate
-     paper_main_gaussian_orthonormal_rows of Gaussian.Orthogonal.
+     paper_main_gaussian_orthonormal_rows of Gaussian.Orthogonal.Invariance.
    For a symmetric B the diagonalization of Spectral.SymmetricDiagonalization
    gives, for EVERY column x,
      x^T B x - trace B = sum_(i < d) a_i ((O x)_i^2 - 1),
@@ -23,9 +23,9 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import ring_tactic.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
-  Gaussian.CovarianceDefinitions PaperMainDefinitions Geometry.Psd
-  Cone.ConditionOperator Spectral.Duality Gaussian.WeightedSquare
-  Gaussian.Orthogonal Spectral.SymmetricDiagonalization.
+  Gaussian.Covariance.Definitions PaperMainDefinitions Geometry.Psd
+  Cone.ConditionOperator Spectral.Duality Gaussian.Orthogonal.WeightedSquare
+  Gaussian.Orthogonal.Invariance Spectral.SymmetricDiagonalization.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
@@ -76,7 +76,7 @@ apply: eq_bigr => i _.
 by rewrite paper_main_symmetric_coefficients_val paper_main_symmetric_image_nth RpowE.
 Qed.
 
-(* Orthonormal rows in the predicate of Gaussian.Orthogonal. *)
+(* Orthonormal rows in the predicate of Gaussian.Orthogonal.Invariance. *)
 
 Lemma paper_main_symmetric_loading_entry {d : nat} (O : 'M[R]_d) (i j : 'I_d) :
   gaussian_covariance_entry d (paper_main_symmetric_loading O) i j = (O *m O^T) i j.

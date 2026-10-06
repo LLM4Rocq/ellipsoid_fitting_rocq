@@ -27,8 +27,8 @@ From EllipsoidFitting Require Import Analysis.CalculusBridge
   PaperMainDefinitions Asymptotics Geometry.Psd Geometry.HeadCoefficients
   Geometry.HeadCorrection Geometry.HeadFeature Head.WidthRegular
   Head.WidthProbability Head.SectionWidthLaw Head.DataLog Data.CoherenceLimit
-  Data.SampleTail Gaussian.DataRadius Gaussian.DataRadiusLimit
-  Gaussian.ConditionWidth Gaussian.ConditionWidthBound.
+  Data.SampleTail Gaussian.Sample.Radius Gaussian.Sample.RadiusLimit
+  Gaussian.Width.Condition Gaussian.Width.ConditionBound.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

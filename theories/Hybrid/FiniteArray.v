@@ -19,7 +19,7 @@
    4. The row layout and the head-prefix/bulk-suffix layout of
       Hybrid.Assembly differ by a coordinate permutation. Its tuple
       map is measurable and keeps the product law
-      (Gaussian.PermutationLaw), so every event of the split layout
+      (Gaussian.Sample.PermutationLaw), so every event of the split layout
       has the same probability in the row layout.
    5. On a hybrid row-layout tuple, the loss array of state j is N times the
       hybrid risk of the residual at (H_j, b_j, B_j). r = 0 is included. *)
@@ -30,17 +30,17 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology normedtype Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions
-  GaussianProbabilityProductDefinitions Gaussian.ProductLawBasics
+  GaussianProbabilityProductDefinitions Gaussian.Law.ProductBasics
   Analysis.ContinuousTupleMeasurability PaperMainDefinitions Geometry.Psd
-  Geometry.Homogeneous Spectral.Transport Gaussian.FeatureCoordinates
-  Gaussian.PublicFeature Cone.GaussianCoordinates
+  Geometry.Homogeneous Spectral.Transport Gaussian.Symmetric.Coordinates
+  Gaussian.Symmetric.PublicFeature Cone.GaussianCoordinates
   Data.FeatureMomentsCoordinates Data.FeatureMoments Projection.Regular
   Projection.Public Loss.Translated Loss.Array Loss.RowIncrement
-  Loss.SoftNormalized Loss.NormalizedArray Sampling Head.Law
-  Gaussian.PermutationLaw Head.SmallBallNet Projected.BulkComplement
+  Loss.SoftNormalized Loss.NormalizedArray Gaussian.Sample.Deletion Head.Law
+  Gaussian.Sample.PermutationLaw Head.SmallBallNet Projected.BulkComplement
   Hybrid.Residual Hybrid.Loss.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
@@ -125,7 +125,7 @@ have -> : paper_main_hybrid_finite_data_loss r mi Hs bs Bs i j =
       pmdf_quad mi (Bs j) (List.skipn r row))))%Rcoq.
   by apply: functional_extensionality => row; rewrite Rplus_0_l.
 apply: paper_main_loss_joint_continuous.
-apply: Gaussian.CoordinatePolynomialContinuity.finite_joint_continuous_add.
+apply: Gaussian.Coordinate.PolynomialContinuity.finite_joint_continuous_add.
   exact: (paper_main_hybrid_finite_offset_regular r (S mi) Hs bs j).1.
 exact: (paper_main_loss_skipn_continuous r (S mi) _ (pmdf_quad_regular mi (Bs j)).1).
 Qed.
@@ -140,7 +140,7 @@ have -> : paper_main_hybrid_finite_goe_loss r mi Hs bs Bs i j =
         (paper_main_projection_goe_loading mi (Bs j)) (List.skipn r row))))%Rcoq.
   by apply: functional_extensionality => row; rewrite Rplus_0_l.
 apply: paper_main_loss_joint_continuous.
-apply: Gaussian.CoordinatePolynomialContinuity.finite_joint_continuous_add.
+apply: Gaussian.Coordinate.PolynomialContinuity.finite_joint_continuous_add.
   exact: (paper_main_hybrid_finite_offset_regular r _ Hs bs j).1.
 exact: (paper_main_loss_skipn_continuous r _ _
   (paper_main_projection_regular_linear _ _).1).

@@ -7,7 +7,7 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Soft.Definitions Matrix.Definitions
   Matrix.OperatorDefinitions Goe.Definitions Joint.Definitions
   Chaos.SecondOrderDefinitions Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateWeightDefinitions Soft.MatrixDefinitions
+  Gaussian.Coordinate.WeightDefinitions Soft.MatrixDefinitions
   Soft.MinimaxDerivativeDefinitions Soft.LowerThirdDefinitions
   Soft.BlockScoreBounds Soft.LowerDerivativeBounds Gibbs.ThirdDerivativeBounds
   Matrix.OperatorNorm Soft.Extrema Goe.MatrixBasis Joint.ObservableGrowth

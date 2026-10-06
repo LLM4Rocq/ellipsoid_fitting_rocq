@@ -23,7 +23,7 @@ From mathcomp Require Import topology normedtype derive realfun sequences exp Rs
 From mathcomp Require Import lebesgue_measure lebesgue_integral probability.
 From mathcomp Require Import ring_tactic.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
+  Gaussian.Iterated.Definitions GaussianProbabilityProductDefinitions
   PaperMainDefinitions SquareFree.EdgeUpperLimit SquareFree.EdgeLower
   SquareFree.WalkNB SquareFree.WalkNBMarks SquareFree.WalkNBMoment
   SquareFree.WalkNBEvent.

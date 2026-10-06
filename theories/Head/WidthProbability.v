@@ -19,8 +19,8 @@ From mathcomp Require Import lebesgue_measure lebesgue_integral.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
   PaperMainDefinitions Geometry.HeadFeature Head.SectionWidthLaw
-  Head.WidthRegular Clipping.Limits Gaussian.ConditionWidth
-  Gaussian.ConditionWidthBound.
+  Head.WidthRegular Clipping.Limits Gaussian.Width.Condition
+  Gaussian.Width.ConditionBound.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

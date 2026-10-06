@@ -1,11 +1,11 @@
 (* Spatial chain rules and actual Stein identities for mixed quadratic features. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages
-  Gaussian.IteratedExpectationDefinitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateDerivativeDefinitions Data.FeatureMomentsCoordinates
-  Gaussian.SmoothCalculus Gaussian.SmoothCovariance Projection.Stein
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages
+  Gaussian.Iterated.Definitions Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions
+  Gaussian.Coordinate.DerivativeDefinitions Data.FeatureMomentsCoordinates
+  Gaussian.Smooth.Calculus Gaussian.Smooth.Test Projection.Stein
   Projection.Quadratic Projection.Image Projection.Regular.
 Open Scope R_scope.
 

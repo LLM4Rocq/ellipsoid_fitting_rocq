@@ -2,10 +2,10 @@
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
   Analysis.FiniteSumAlgebra Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinateTuples Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateDerivativeDefinitions
+  Gaussian.Coordinate.Tuples Gaussian.Coordinate.WeightDefinitions
+  Gaussian.Coordinate.DerivativeDefinitions
   Analysis.CoordinatePermutationDefinitions Analysis.CoordinatePermutations
-  Analysis.CoordinateChainRule Gaussian.SmoothCalculus.
+  Analysis.CoordinateChainRule Gaussian.Smooth.Calculus.
 Open Scope R_scope.
 
 Definition paper_main_projection_image K (U : nat -> list R -> R) xs :=

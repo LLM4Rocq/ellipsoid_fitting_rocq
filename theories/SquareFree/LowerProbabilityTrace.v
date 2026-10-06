@@ -20,7 +20,7 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct ereal 
 From mathcomp Require Import lebesgue_measure lebesgue_integral probability.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions
-  PaperMainDefinitions DiagonalBlock.Limit Geometry.HeadCoefficients
+  PaperMainDefinitions Feature.DiagonalLimit Geometry.HeadCoefficients
   Feature.GramBlocks SquareFree.EdgeUpperLimit SquareFree.EdgeLower
   SquareFree.WalkNB SquareFree.WalkNBEvent SquareFree.WalkNBRate
   SquareFree.LogarithmicGrowth SquareFree.LowerProbabilityBox.

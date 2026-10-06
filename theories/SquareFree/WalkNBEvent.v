@@ -23,10 +23,10 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct ereal 
 From mathcomp Require Import lebesgue_measure lebesgue_integral probability sesquilinear.
 From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
+  Gaussian.Iterated.Definitions GaussianProbabilityProductDefinitions
   Analysis.ContinuousTupleMeasurability PaperMainDefinitions
   Data.FeatureMomentsCoordinates Data.FeatureMoments Geometry.HeadCoefficients
-  DiagonalBlock.Trace DiagonalBlock.Moment SquareFree.Diagonal
+  Feature.DiagonalTrace Feature.DiagonalMoment SquareFree.Diagonal
   SquareFree.WalkExpansion SquareFree.EdgeUpper SquareFree.EdgeLower
   SquareFree.WalkNB SquareFree.WalkNBMarks SquareFree.WalkNBMoment.
 Import GRing.Theory Num.Theory Order.TTheory.

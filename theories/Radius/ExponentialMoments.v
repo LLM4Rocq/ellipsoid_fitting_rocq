@@ -11,10 +11,11 @@
    (gaussian_iterated_prefix_lift, gaussian_iterated_suffix_lift). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import GaussianDefinitions Gaussian.Expectation
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Gaussian.SuffixMarginalDefinitions Gaussian.LastIntegration
-  Gaussian.CenteredChiSquare Radius.Definitions Radius.Regularity.
+From EllipsoidFitting Require Import GaussianDefinitions
+  Gaussian.Line.Expectation Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Iterated.SuffixMarginalDefinitions
+  Gaussian.Iterated.LastIntegration Gaussian.Iterated.CenteredChiSquare
+  Radius.Definitions Radius.Regularity.
 Import ListNotations.
 Open Scope R_scope.
 

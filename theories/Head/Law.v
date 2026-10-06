@@ -26,7 +26,7 @@ From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability normal_distribution measurable_realfun.
 From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions
-  Gaussian.ProductLawBasics PaperMainDefinitions Sampling.
+  Gaussian.Law.ProductBasics PaperMainDefinitions Gaussian.Sample.Deletion.
 Import Order.TTheory GRing.Theory Num.Theory.
 Open Scope ring_scope.
 Open Scope classical_set_scope.

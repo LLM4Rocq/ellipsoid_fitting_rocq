@@ -11,7 +11,7 @@ From EllipsoidFitting Require Import Analysis.CalculusBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import Analysis.RectangleFubini
   Analysis.ParameterIntegrals.
-From EllipsoidFitting Require Import Gaussian.Mass
+From EllipsoidFitting Require Import Gaussian.Line.Mass
   Analysis.SegmentIntegralBounds.
 From mathcomp Require Import measurable_realfun.
 Local Open Scope classical_set_scope.

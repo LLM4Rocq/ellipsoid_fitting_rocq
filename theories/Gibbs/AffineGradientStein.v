@@ -10,8 +10,8 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Gibbs.MatrixSecondDerivativeDefinitions Gibbs.NestedGradientDefinitions
   Gibbs.MatrixNestedGradient Gibbs.NestedHessian Matrix.OperatorDefinitions
   Matrix.EntryNormBounds Gibbs.Definitions Quadratic.GradientRegularity
-  Gaussian.VectorDefinitions Matrix.SymmetricBasis Chaos.SecondOrderDefinitions
-  Gaussian.VectorDomain Gaussian.VectorStein.
+  Gaussian.Vector.Definitions Matrix.SymmetricBasis
+  Chaos.SecondOrderDefinitions Gaussian.Vector.Domain Gaussian.Vector.Stein.
 Import Quadratic.GradientRegularity.QuadraticUniformBounds
   Quadratic.GradientRegularity.QuadraticPolynomialGrowth
   Quadratic.GradientRegularity.QuadraticGrowthContinuity.

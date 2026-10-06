@@ -29,14 +29,14 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct normedtype ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral measurable_realfun.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation GaussianProbabilityProductDefinitions
-  Gaussian.CovarianceDefinitions Matrix.Definitions Matrix.EntriesAndLinearMaps
-  Matrix.OperatorDefinitions Matrix.VectorListDefinitions
-  Matrix.VectorCoordinates Goe.Definitions Row.CoordinateDefinitions
-  Row.Coordinates Multirow.EndpointDefinitions PaperMainDefinitions
-  Geometry.Psd Geometry.Homogeneous Spectral.Transport
-  Gaussian.FeatureCoordinates Gordon.ProcessCovariance Gordon.Scalar
+  Analysis.FiniteSumAlgebra Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation GaussianProbabilityProductDefinitions
+  Gaussian.Covariance.Definitions Matrix.Definitions
+  Matrix.EntriesAndLinearMaps Matrix.OperatorDefinitions
+  Matrix.VectorListDefinitions Matrix.VectorCoordinates Goe.Definitions
+  Row.CoordinateDefinitions Row.Coordinates Multirow.EndpointDefinitions
+  PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Spectral.Transport
+  Gaussian.Symmetric.Coordinates Gordon.ProcessCovariance Gordon.Scalar
   Gordon.Bilinear Geometry.HeadFeature Gordon.Width Gordon.SoftMargin
   Soft.Comparison Soft.PublicFeatures.
 Import GRing.Theory Num.Theory Order.TTheory.

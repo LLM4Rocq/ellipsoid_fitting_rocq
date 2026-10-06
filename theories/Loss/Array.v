@@ -14,9 +14,9 @@
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
   Soft.Extrema Analysis.CoordinateContinuityDefinitions
-  Analysis.CoordinateTopology Gaussian.CoordinatePolynomialContinuity
-  Analysis.CoordinatePermutationContinuity Gaussian.BlockRotation
-  Data.FeatureMomentsCoordinates Gaussian.SmoothCalculus Gordon.Continuity
+  Analysis.CoordinateTopology Gaussian.Coordinate.PolynomialContinuity
+  Analysis.CoordinatePermutationContinuity Gaussian.Iterated.BlockRotation
+  Data.FeatureMomentsCoordinates Gaussian.Smooth.Calculus Gordon.Continuity
   Soft.Lipschitz.
 Open Scope R_scope.
 

@@ -42,13 +42,14 @@ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability normal_distribution measurable_realfun.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   Analysis.CoordinateContinuityDefinitions
-  Gaussian.CoordinatePolynomialContinuity Gaussian.FiniteSums
-  GaussianProbabilityProductDefinitions Gaussian.ProductLawBasics
+  Gaussian.Coordinate.PolynomialContinuity Gaussian.Iterated.FiniteSums
+  GaussianProbabilityProductDefinitions Gaussian.Law.ProductBasics
   Analysis.ContinuousTupleMeasurability PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.Gram Geometry.HeadFrobenius
   Geometry.HeadCoefficients Geometry.HeadFeature Spectral.Duality
-  Gordon.ProcessCovariance Gordon.Lipschitz Gaussian.LinearLaw Gaussian.Tails
-  Gaussian.Union Sampling Head.Law Head.LawBounds Spectral.SymmetricBilinear
+  Gordon.ProcessCovariance Gordon.Lipschitz Gaussian.Tail.LinearMeasurable
+  Gaussian.Tail.UnitLinear Gaussian.Tail.UnionBound Gaussian.Sample.Deletion
+  Head.Law Head.LawBounds Spectral.SymmetricBilinear
   Data.FeatureMomentsCoordinates.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.

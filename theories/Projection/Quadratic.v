@@ -1,13 +1,13 @@
 (* Coordinate calculus and polynomial regularity of quadratic projections. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages Gaussian.FiniteSums
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Analysis.CoordinateTopology
-  Gaussian.CoordinateDerivativeDefinitions
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages
+  Gaussian.Iterated.FiniteSums Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Analysis.CoordinateTopology Gaussian.Coordinate.DerivativeDefinitions
   Analysis.CoordinatePermutationDefinitions
-  Gaussian.CoordinatePolynomialContinuity Gaussian.CoordinateSuffixAlgebra
-  Data.FeatureMomentsCoordinates Gaussian.SmoothCalculus Projection.Stein.
+  Gaussian.Coordinate.PolynomialContinuity Gaussian.Iterated.SuffixAlgebra
+  Data.FeatureMomentsCoordinates Gaussian.Smooth.Calculus Projection.Stein.
 Open Scope R_scope.
 
 Lemma paper_main_projection_delta_sum d i f : (i<d)%coq_nat ->

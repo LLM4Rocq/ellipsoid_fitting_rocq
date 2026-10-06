@@ -21,12 +21,12 @@ From mathcomp Require Import lebesgue_measure lebesgue_integral.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
   PaperMainDefinitions Geometry.HeadWidth Geometry.HeadFeature
-  Head.SectionMeasurable Head.SectionWidthLaw Gaussian.FeatureCoordinates
+  Head.SectionMeasurable Head.SectionWidthLaw Gaussian.Symmetric.Coordinates
   Head.SectionApprox Head.SectionApproxWidth Soft.Definitions Goe.Definitions
-  Goe.MatrixBasis Gaussian.IteratedExpectationDefinitions
-  Matrix.OperatorDefinitions Cone.GaussianCoordinates Gordon.Width
-  Spectral.Transport Soft.PublicFeatures Data.ClippedSoft Data.ClippedMoments
-  Data.SoftConeExpectation Data.SoftConcentration.
+  Goe.MatrixBasis Gaussian.Iterated.Definitions Matrix.OperatorDefinitions
+  Cone.GaussianCoordinates Gordon.Width Spectral.Transport Soft.PublicFeatures
+  Data.ClippedSoft Data.ClippedMoments Data.SoftConeExpectation
+  Data.SoftConcentration.
 Import GRing.Theory Num.Theory Order.TTheory ListNotations.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

@@ -12,7 +12,7 @@ From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
   Analysis.FiniteSumAlgebra PaperMainDefinitions Geometry.Homogeneous
-  Geometry.HeadFrobenius Gaussian.FeatureCoordinates Gordon.Entropy
+  Geometry.HeadFrobenius Gaussian.Symmetric.Coordinates Gordon.Entropy
   Loss.Empirical Loss.JointNet.
 Open Scope R_scope.
 

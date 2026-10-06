@@ -24,7 +24,8 @@ From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
   Analysis.FiniteSumAlgebra PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.HeadFrobenius Geometry.HeadFeature
   Gordon.ProcessCovariance Gordon.Nets Gordon.Entropy
-  Gaussian.FeatureCoordinates Cone.GaussianCoordinates Head.SectionApproxNets.
+  Gaussian.Symmetric.Coordinates Cone.GaussianCoordinates
+  Head.SectionApproxNets.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.

@@ -27,16 +27,17 @@ From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From mathcomp Require Import probability.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  GaussianProbabilityProductDefinitions PaperMainDefinitions Geometry.Psd
-  Geometry.Homogeneous Geometry.HeadFrobenius Geometry.HeadFeature
-  Geometry.HeadWidth Gaussian.Norm Gaussian.SmoothLaw
-  Gaussian.FeatureCoordinates Gaussian.SymmetricLawPublic
-  Gordon.ProcessCovariance Gordon.Processes Gordon.SetWidth Gordon.Width
-  Gordon.Nets Gordon.Entropy Cone.GaussianCoordinates
-  Cone.GaussianCoordinatesSpheres Head.SectionMeasurable Head.SectionWidthLaw
-  Head.SectionMinimax Head.SectionApprox Head.SectionApproxNets.
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation GaussianProbabilityProductDefinitions
+  PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Geometry.HeadFrobenius
+  Geometry.HeadFeature Geometry.HeadWidth Gaussian.Lipschitz.EuclideanNorm
+  Gaussian.Smooth.Law Gaussian.Symmetric.Coordinates
+  Gaussian.Symmetric.PublicLaw Gordon.ProcessCovariance Gordon.Processes
+  Gordon.SetWidth Gordon.Width Gordon.Nets Gordon.Entropy
+  Cone.GaussianCoordinates Cone.GaussianCoordinatesSpheres
+  Head.SectionMeasurable Head.SectionWidthLaw Head.SectionMinimax
+  Head.SectionApprox Head.SectionApproxNets.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope R_scope.

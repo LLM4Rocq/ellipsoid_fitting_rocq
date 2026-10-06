@@ -6,7 +6,7 @@
    1. Operator event in the N x D layout: the GOE feature event at
       t = N / 2 and duality give ||R(B)|| <= C(rho) sqrt N ||B||_F off an
       event of probability at most 2 exp (- N / 2), when
-      rho (mi + 1)^2 <= N (the threshold arithmetic of Gaussian.Forward, with
+      rho (mi + 1)^2 <= N (the threshold arithmetic of Gaussian.Symmetric.ForwardConstant, with
       the threshold monotone in the column count).
    2. The exceptional event is the union of the head small-ball event of
       Head.SmallBallUniform (r >= 1; none for r = 0), the bulk
@@ -24,11 +24,12 @@ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
   PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Spectral.Duality
-  Gordon.Bilinear Gaussian.FeatureCoordinates Gaussian.FeatureTail
-  Gaussian.JointFeature Gaussian.PublicFeature Gaussian.Forward Head.Law
-  Head.SmallBallNet Head.SmallBallUniform Projected.BulkEscape
-  Projected.BulkComplement Projected.BulkConditional Hybrid.Density Hybrid.Bulk
-  Hybrid.Residual Hybrid.Loss.
+  Gordon.Bilinear Gaussian.Symmetric.Coordinates Gaussian.Symmetric.FeatureTail
+  Gaussian.Symmetric.JointWidth Gaussian.Symmetric.PublicFeature
+  Gaussian.Symmetric.ForwardConstant Head.Law Head.SmallBallNet
+  Head.SmallBallUniform Projected.BulkEscape Projected.BulkComplement
+  Projected.BulkConditional Hybrid.Density Hybrid.Bulk Hybrid.Residual
+  Hybrid.Loss.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
@@ -268,7 +269,7 @@ split.
       (Bh `*` [set: (N * paper_main_symmetric_dimension mi).-tuple (measurableTypeR R)]) =
       gaussian_product_law (N * r) Bh)%E.
     rewrite product_measure1E //.
-    have Hm := Gaussian.ProductLawBasics.gpp_mass (N * paper_main_symmetric_dimension mi).
+    have Hm := Gaussian.Law.ProductBasics.gpp_mass (N * paper_main_symmetric_dimension mi).
     transitivity (gaussian_product_law (N * r) Bh * 1)%E; last exact: mule1.
     congr (_ * _)%E.
     exact: Hm.
@@ -277,7 +278,7 @@ split.
       ([set: paper_main_sample N r] `*` Eo) =
       gaussian_product_law (N * paper_main_symmetric_dimension mi) Eo)%E.
     rewrite product_measure1E //.
-    have Hm := Gaussian.ProductLawBasics.gpp_mass (N * r).
+    have Hm := Gaussian.Law.ProductBasics.gpp_mass (N * r).
     transitivity (1 * gaussian_product_law (N * paper_main_symmetric_dimension mi) Eo)%E;
       last exact: mul1e.
     congr (_ * _)%E.

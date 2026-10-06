@@ -11,7 +11,7 @@
    measurable_tuple of measure_theory/measurable_structure.v). A tuple x is
    read as the coordinate list tval x : list R (first coordinate first), the
    list that gaussian_iterated_expectation integrates
-   (Gaussian.IteratedExpectationDefinitions); the i-th coordinate is
+   (Gaussian.Iterated.Definitions); the i-th coordinate is
    List.nth i (tval x) 0.
 
    Construction, by recursion on d.

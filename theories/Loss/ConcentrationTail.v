@@ -16,11 +16,11 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology normedtype Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From EllipsoidFitting Require Import GaussianDefinitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions Analysis.CoordinateTopology
-  Gaussian.CoordinateWeightDefinitions Gaussian.CoordinateMarginals
-  GaussianProbabilityProductDefinitions Gaussian.ProductLawBasics
-  Gaussian.ProductLawIntegrals Analysis.ContinuousTupleMeasurability
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Iterated.PolynomialGrowth
+  GaussianProbabilityProductDefinitions Gaussian.Law.ProductBasics
+  Gaussian.Law.ProductIntegrals Analysis.ContinuousTupleMeasurability
   Head.SectionMeasurable Loss.ConcentrationRow.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

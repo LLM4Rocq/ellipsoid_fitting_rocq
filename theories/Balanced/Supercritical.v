@@ -23,7 +23,7 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun l
 From mathcomp Require Import probability normal_distribution.
 From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions
   PaperMainDefinitions Asymptotics Fixed.Density Balanced.Probability
-  Geometry.Exclusion Geometry.Homogeneous Gaussian.Spanning.
+  Geometry.Exclusion Geometry.Homogeneous Gaussian.Spanning.AlmostSure.
 Import Order.TTheory GRing.Theory Num.Theory.
 Open Scope ring_scope.
 Open Scope classical_set_scope.

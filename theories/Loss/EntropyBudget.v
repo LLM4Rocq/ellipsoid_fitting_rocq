@@ -1,7 +1,7 @@
 (* Dimension-free normalized finite-prior entropy and feature constants. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import Gaussian.FeatureCoordinates Gordon.Entropy
-  Gordon.EntropyMargin Unsat.SupercriticalParameters.
+From EllipsoidFitting Require Import Gaussian.Symmetric.Coordinates
+  Gordon.Entropy Gordon.EntropyMargin Unsat.SupercriticalParameters.
 Open Scope R_scope.
 
 Lemma paper_main_loss_joint_dimension n :

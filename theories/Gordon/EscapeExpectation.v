@@ -12,13 +12,13 @@
    paper_main_gordon_set_support_list_of_row,
    paper_main_gaussian_norm_list_of_row), where they are the infimum, the
    supremum and the Euclidean norm of the library for the set of column
-   vectors of T, and Gaussian.LawBridge turns the iterated expectations into
+   vectors of T, and Gaussian.Law.LibraryBridge turns the iterated expectations into
    integrals against gauss. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality Epsilon.
 From EllipsoidFitting Require Import Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Analysis.FiniteSumAlgebra Gordon.ProcessCovariance Gaussian.Norm
-  Gordon.SetWidth Gordon.Escape.
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Analysis.FiniteSumAlgebra Gordon.ProcessCovariance
+  Gaussian.Lipschitz.EuclideanNorm Gordon.SetWidth Gordon.Escape.
 Open Scope R_scope.
 
 From HB Require Import structures.
@@ -27,7 +27,7 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral probability.
 From GaussianAnalysis Require Import measurable_matrix gauss euclidean gordon escape.
-From EllipsoidFitting Require Import Gaussian.LawBridge.
+From EllipsoidFitting Require Import Gaussian.Law.LibraryBridge.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 

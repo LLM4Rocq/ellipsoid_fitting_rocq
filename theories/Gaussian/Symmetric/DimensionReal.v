@@ -1,0 +1,20 @@
+(* The dimension D = paper_main_symmetric_dimension n of the symmetric
+   (n+1) x (n+1) matrices, as a real number: INR D = (n+1) (n+2) / 2
+   (paper_main_symmetric_dimension_real), from the count of the index pairs
+   of Goe.IndexPairs. *)
+From Stdlib Require Import Reals List Lia Lra Psatz.
+From mathcomp Require Import all_ssreflect_compat.
+From EllipsoidFitting Require Import Goe.Definitions Goe.IndexPairs
+  Gaussian.Symmetric.Coordinates Gaussian.Width.Psd.
+Open Scope R_scope.
+
+Lemma paper_main_symmetric_dimension_real n :
+  INR (paper_main_symmetric_dimension n) = INR (S n) * (INR (S n)+1)/2.
+Proof.
+pose proof (goe_pairs_length_twice n) as H.
+rewrite <- goe_vector_dimension in H.
+apply (f_equal INR) in H.
+rewrite !mult_INR in H.
+change (2*INR (paper_main_symmetric_dimension n) = INR (S n)*INR (S (S n))) in H.
+rewrite (S_INR (S n)) in H; lra.
+Qed.

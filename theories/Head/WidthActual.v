@@ -21,11 +21,11 @@ From mathcomp Require Import lebesgue_measure lebesgue_integral measurable_realf
 From EllipsoidFitting Require Import Analysis.CalculusBridge
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
   PaperMainDefinitions Geometry.Homogeneous Geometry.HeadWidth
-  Gaussian.FeatureCoordinates Gaussian.SymmetricLawPublic
-  Gaussian.ConditionWidth Head.SectionMeasurable Head.SectionWidthLaw
+  Gaussian.Symmetric.Coordinates Gaussian.Symmetric.PublicLaw
+  Gaussian.Width.Condition Head.SectionMeasurable Head.SectionWidthLaw
   Head.WidthExpectation Geometry.Psd Geometry.HeadCorrection
   Geometry.HeadFeature Geometry.HeadCoefficients Geometry.HeadSpectral
-  Head.WidthApprox Clipping.ResidualConditional Gaussian.ResidualJoint.
+  Head.WidthApprox Clipping.ResidualConditional Gaussian.Sample.ResidualJoint.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.

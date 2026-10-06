@@ -10,7 +10,7 @@
    MathComp library, so that every operation in it is Stdlib's. *)
 
 From Stdlib Require Import Reals List.
-From EllipsoidFitting Require Import Gaussian.IteratedExpectationDefinitions
+From EllipsoidFitting Require Import Gaussian.Iterated.Definitions
   Radius.Definitions Row.CoordinateDefinitions Row.PrefixDefinitions.
 From EllipsoidFitting Require Radius.InterleavedRows.
 Open Scope R_scope.

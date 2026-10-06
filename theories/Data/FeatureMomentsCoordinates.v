@@ -3,7 +3,7 @@
    Data.FeatureMoments.
 
    E is the iterated Gaussian expectation gaussian_iterated_expectation of
-   Gaussian.IteratedExpectationDefinitions in dimension S n. Its coordinates are
+   Gaussian.Iterated.Definitions in dimension S n. Its coordinates are
    x_a = List.nth a xs 0, and delta_ab = pmdf_kron a b. For a, b, c, e <= n:
    - E[x_a x_b] = delta_ab (pmdf_second_moment);
    - E[x_a x_b x_c x_e] = delta_ab delta_ce + delta_ac delta_be +
@@ -15,7 +15,7 @@
    has the integrability domains gaussian_covariance_domain
    (pmdf_regular_domain, from gaussian_coordinate_polynomial_domain). The
    identities come from the first-order Stein identity
-   gaussian_iterated_coordinate_first_stein of Gaussian.CoordinateStein, for
+   gaussian_iterated_coordinate_first_stein of Gaussian.Iterated.Stein, for
    F = x_b (degree two) and F = x_b x_c x_e (degree four). The derivatives
    come from the product rule (pmdf_derivative_nth, pmdf_derivative_mult). *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
@@ -26,12 +26,13 @@ From mathcomp Require Import Rstruct.
 From mathcomp Require Import topology normedtype derive.
 From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateWeightDefinitions
-  Gaussian.CoordinateWeights Gaussian.CoordinateDerivativeDefinitions
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
+  Analysis.CoordinateContinuityDefinitions
+  Gaussian.Coordinate.WeightDefinitions Gaussian.Coordinate.Weights
+  Gaussian.Coordinate.DerivativeDefinitions
   Analysis.CoordinatePermutationDefinitions Analysis.CoordinatePermutations
-  Gaussian.CoordinatePolynomialContinuity Gaussian.CoordinateStein
-  Gaussian.CoordinatePolynomialDomain Gaussian.CovarianceDefinitions.
+  Gaussian.Coordinate.PolynomialContinuity Gaussian.Iterated.Stein
+  Gaussian.Iterated.PolynomialDomain Gaussian.Covariance.Definitions.
 Import ListNotations.
 Open Scope R_scope.
 

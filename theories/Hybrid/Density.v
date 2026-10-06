@@ -15,7 +15,7 @@
    The gamma form takes a = (gamma + 1/4) / 2 and A = gamma + (gamma - 1/4) / 2. *)
 From Stdlib Require Import Reals ZArith Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat.
-From EllipsoidFitting Require Import Gaussian.FeatureCoordinates.
+From EllipsoidFitting Require Import Gaussian.Symmetric.Coordinates.
 Open Scope R_scope.
 
 (* Elementary logarithm bounds. *)

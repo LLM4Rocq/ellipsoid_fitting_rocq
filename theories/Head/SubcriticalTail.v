@@ -19,8 +19,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From EllipsoidFitting Require Import Analysis.CalculusBridge
   Analysis.ContinuousTupleMeasurability PaperMainDefinitions
-  Geometry.HeadFeature Geometry.HeadWidth Gaussian.FeatureCoordinates
-  Gaussian.PsdWidthLimit Gordon.ProcessCovariance Gordon.Entropy
+  Geometry.HeadFeature Geometry.HeadWidth Gaussian.Symmetric.Coordinates
+  Gaussian.Symmetric.DimensionReal Gordon.ProcessCovariance Gordon.Entropy
   Head.SectionMinimax Head.SectionApprox Head.SectionApproxWidth
   Head.SectionWidthLaw Head.SoftTail Head.CompactTail Data.Clipped
   Data.SoftScale Data.SoftConcentration Soft.ParameterChoice Clipping.Rates

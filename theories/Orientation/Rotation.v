@@ -23,12 +23,13 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology normedtype Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
-  Gaussian.CovarianceDefinitions Gaussian.CovarianceLinearImages
-  GaussianProbabilityProductDefinitions Gaussian.ProductLawBasics
-  Analysis.ContinuousTupleMeasurability PaperMainDefinitions Sampling
-  Spectral.Duality Projected.BulkLaw Gaussian.Union Head.SmallBallNet
-  Geometry.Homogeneous Cone.ConditionOperator Hybrid.FiniteArray
-  Hybrid.FiniteMean Hybrid.FiniteTail.
+  Gaussian.Covariance.Definitions Gaussian.Covariance.LinearImages
+  GaussianProbabilityProductDefinitions Gaussian.Law.ProductBasics
+  Analysis.ContinuousTupleMeasurability PaperMainDefinitions
+  Gaussian.Sample.Deletion Spectral.Duality Projected.BulkLaw
+  Gaussian.Tail.UnionBound Head.SmallBallNet Geometry.Homogeneous
+  Cone.ConditionOperator Hybrid.FiniteArray Hybrid.FiniteMean
+  Hybrid.FiniteTail.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

@@ -10,7 +10,7 @@
    Loss.Replica applies this to the Gibbs row factor, which lies
    in [exp(-beta), 1]. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import Soft.Definitions Gibbs.CurveDerivatives.
+From EllipsoidFitting Require Import Soft.Definitions Gibbs.SoftMinIdentity.
 Open Scope R_scope.
 
 Fixpoint paper_main_loss_log_poly (n : nat) (z : R) : R :=

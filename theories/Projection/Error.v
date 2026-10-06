@@ -1,9 +1,9 @@
 (* An actual Gaussian expectation identity for the interpolation error. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.IteratedExpectationDefinitions
-  Gaussian.IteratedExpectation Gaussian.CovarianceLinearImages
-  Gaussian.FiniteSums Gaussian.SmoothCovariance Projection.Stein
+  Analysis.FiniteSumAlgebra Gaussian.Iterated.Definitions
+  Gaussian.Iterated.Expectation Gaussian.Covariance.LinearImages
+  Gaussian.Iterated.FiniteSums Gaussian.Smooth.Test Projection.Stein
   Projection.Image Projection.Spatial Projection.Algebra.
 Open Scope R_scope.
 

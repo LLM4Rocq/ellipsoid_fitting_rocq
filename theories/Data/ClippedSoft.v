@@ -15,10 +15,10 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral measurable_realfun.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
-  Analysis.CoordinateContinuityDefinitions
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
-  Matrix.OperatorDefinitions PaperMainDefinitions Spectral.Transport
-  Gordon.Lipschitz Data.Clipped Soft.Lipschitz.
+  Analysis.CoordinateContinuityDefinitions Gaussian.Iterated.Definitions
+  GaussianProbabilityProductDefinitions Matrix.OperatorDefinitions
+  PaperMainDefinitions Spectral.Transport Gordon.Lipschitz Data.Clipped
+  Soft.Lipschitz.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Import ListNotations.

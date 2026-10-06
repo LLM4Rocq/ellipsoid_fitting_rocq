@@ -18,10 +18,10 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions GaussianProbabilityProductDefinitions
+  Gaussian.Iterated.Definitions GaussianProbabilityProductDefinitions
   Goe.Definitions Matrix.OperatorDefinitions PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.HeadFeature Geometry.HeadWidth
-  Spectral.Transport Gaussian.FeatureCoordinates Gordon.Width
+  Spectral.Transport Gaussian.Symmetric.Coordinates Gordon.Width
   Cone.GaussianCoordinatesSpheres Spectral.OperatorTransport
   Soft.PublicFeatures Soft.FeatureMargin.
 Import GRing.Theory Num.Theory Order.TTheory.

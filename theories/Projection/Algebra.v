@@ -1,7 +1,7 @@
 (* Finite contraction algebra behind the quadratic/Gaussian interpolation. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Analysis.FiniteSumAlgebra Gaussian.CovarianceLinearImages Projection.Stein.
+  Analysis.FiniteSumAlgebra Gaussian.Covariance.LinearImages Projection.Stein.
 Open Scope R_scope.
 
 Definition paper_main_projection_gram d (A B : nat -> nat -> R) xs :=

@@ -7,7 +7,7 @@
    paper_main_pairing S U (Parseval and the matrix roundtrip), the Euclidean
    norm of the code is paper_main_frobenius S, and the Gaussian linear form
    on the code at xs is <Zp(xs), S> for the isotropic Gaussian Zp of
-   Gaussian.SymmetricLawPublic.
+   Gaussian.Symmetric.PublicLaw.
 
    For a nonempty set A of symmetric matrices of Frobenius norm 1,
    paper_main_cone_code_set n A is the set of nat -> R vectors whose first
@@ -24,11 +24,12 @@ From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   Matrix.Definitions Matrix.EntriesAndLinearMaps Matrix.Trace
   Tensor.Definitions Goe.Definitions Goe.MatrixBasis
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Geometry.HeadWidth
   Spectral.Transport Gordon.ProcessCovariance Gordon.Scalar Gordon.Bilinear
-  Gordon.SetWidth Gaussian.Norm Gaussian.FeatureCoordinates
-  Gaussian.SymmetricLaw Gaussian.SymmetricLawPublic.
+  Gordon.SetWidth Gaussian.Lipschitz.EuclideanNorm
+  Gaussian.Symmetric.Coordinates Gaussian.Symmetric.Law
+  Gaussian.Symmetric.PublicLaw.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.

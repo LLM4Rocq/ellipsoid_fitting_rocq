@@ -9,7 +9,7 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.EntriesAndLinearMaps Matrix.OperatorDefinitions Tensor.Definitions
   Quadratic.Definitions Gibbs.NestedGradientDefinitions
   Gibbs.MatrixThirdDerivativeDefinitions Chaos.SecondOrderDefinitions
-  Matrix.SymmetricBasisDefinitions Gaussian.VectorDefinitions Goe.Definitions
+  Matrix.SymmetricBasisDefinitions Gaussian.Vector.Definitions Goe.Definitions
   Joint.Definitions Quadratic.TimeStein Goe.GibbsStein.
 Import GRing.Theory Num.Theory.
 Import ListNotations.

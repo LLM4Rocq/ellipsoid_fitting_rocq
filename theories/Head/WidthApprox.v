@@ -12,7 +12,7 @@
      matrix, bounds on the diagonal and off-diagonal pairings and on the
      residuals <W_k, P>, and a Loewner bound on the head data Gram matrix).
    - paper_main_residual_joint_good: outside the joint residual event of
-     Gaussian.ResidualJoint, every residual |<W_i, P(z)>| is at
+     Gaussian.Sample.ResidualJoint, every residual |<W_i, P(z)>| is at
      most r. *)
 From Stdlib Require Import Reals List Lia.
 From HB Require Import structures.
@@ -25,9 +25,9 @@ From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.HeadFrobenius Geometry.HeadCorrection
   Geometry.HeadCoefficients Geometry.HeadFeature Geometry.HeadSpectral
-  Geometry.HeadWidth Gaussian.ResidualJoint
-  GaussianProbabilityProductDefinitions Gaussian.FeatureCoordinates
-  Gaussian.SymmetricLawPublic Cone.ApproxSelectorResidual.
+  Geometry.HeadWidth Gaussian.Sample.ResidualJoint
+  GaussianProbabilityProductDefinitions Gaussian.Symmetric.Coordinates
+  Gaussian.Symmetric.PublicLaw Cone.ApproxSelectorResidual.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 Local Open Scope classical_set_scope.

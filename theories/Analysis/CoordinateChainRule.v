@@ -10,9 +10,9 @@
 From Stdlib Require Import Reals List Lia Lra.
 From EllipsoidFitting Require Import Analysis.CalculusBridge.
 From EllipsoidFitting Require Import Soft.Definitions
-  Analysis.CoordinateContinuityDefinitions Gaussian.CoordinateTuples
+  Analysis.CoordinateContinuityDefinitions Gaussian.Coordinate.Tuples
   Analysis.CoordinatePermutationDefinitions Analysis.CoordinatePermutations
-  Gaussian.CoordinateDerivativeDefinitions Analysis.FiniteSumAlgebra.
+  Gaussian.Coordinate.DerivativeDefinitions Analysis.FiniteSumAlgebra.
 Import ListNotations.
 Open Scope R_scope.
 

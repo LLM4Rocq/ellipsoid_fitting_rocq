@@ -25,10 +25,10 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun l
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   GaussianProbabilityProductDefinitions Analysis.ContinuousTupleMeasurability
   PaperMainDefinitions Geometry.Psd Geometry.Homogeneous Spectral.Transport
-  Spectral.Duality Gaussian.FeatureCoordinates Gaussian.PublicFeature
-  Cone.GaussianCoordinates Head.SmallBallNet Head.SmallBallPZ
-  Head.SmallBallUniform Projected.BulkEscape Projected.BulkComplement
-  Projected.BulkConditional.
+  Spectral.Duality Gaussian.Symmetric.Coordinates
+  Gaussian.Symmetric.PublicFeature Cone.GaussianCoordinates Head.SmallBallNet
+  Head.SmallBallPZ Head.SmallBallUniform Projected.BulkEscape
+  Projected.BulkComplement Projected.BulkConditional.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.

@@ -18,11 +18,11 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct cardin
 From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
-  Gaussian.CovarianceDefinitions GaussianProbabilityProductDefinitions
+  Gaussian.Covariance.Definitions GaussianProbabilityProductDefinitions
   Analysis.ContinuousTupleMeasurability PaperMainDefinitions Spectral.Duality
   Gordon.SetWidth Projected.BulkEscape Gordon.ProcessCovariance
-  Gaussian.FeatureCoordinates Spectral.SymmetricDiagonalization Gordon.Escape
-  Projected.BulkLaw.
+  Gaussian.Symmetric.Coordinates Spectral.SymmetricDiagonalization
+  Gordon.Escape Projected.BulkLaw.
 From EllipsoidFitting Require Import Analysis.RealsBridge.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.

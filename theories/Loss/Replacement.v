@@ -1,9 +1,9 @@
 (* Repeated row replacement with a bound uniform over finite priors. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From EllipsoidFitting Require Import Analysis.CalculusBridge Soft.Definitions
-  Gaussian.IteratedExpectationDefinitions Gaussian.IteratedExpectation
+  Gaussian.Iterated.Definitions Gaussian.Iterated.Expectation
   Analysis.CoordinateContinuityDefinitions Analysis.CoordinateTopology
-  Gaussian.CoordinatePolynomialContinuity Data.FeatureMomentsCoordinates
+  Gaussian.Coordinate.PolynomialContinuity Data.FeatureMomentsCoordinates
   Radius.ExponentialMoments Loss.Array Loss.SoftCost Loss.BlockComparison.
 Open Scope R_scope.
 

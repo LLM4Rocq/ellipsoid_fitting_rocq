@@ -1,7 +1,7 @@
 (* Dimension-independent input bounds for finite Gaussian min-max values. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import Soft.Definitions Soft.Extrema
-  Gaussian.CovarianceDefinitions Analysis.FiniteSumAlgebra
+  Gaussian.Covariance.Definitions Analysis.FiniteSumAlgebra
   Gordon.ProcessCovariance Gordon.Processes Gordon.Scalar.
 Import ListNotations.
 Open Scope R_scope.

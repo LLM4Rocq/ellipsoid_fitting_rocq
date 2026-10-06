@@ -6,7 +6,7 @@ From mathcomp Require Import boolp classical_sets reals Rstruct.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
 From EllipsoidFitting Require Import PaperMainDefinitions Geometry.Psd
   Geometry.Homogeneous Geometry.HeadFrobenius Geometry.HeadCoefficients
-  Cone.ConditionOperator DiagonalBlock.Trace.
+  Cone.ConditionOperator Feature.DiagonalTrace.
 Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope ring_scope.
 

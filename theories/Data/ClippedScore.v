@@ -35,9 +35,9 @@ From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
   Geometry.Homogeneous Geometry.Separation Geometry.HeadFrobenius
   Geometry.HeadCorrection Geometry.HeadCoefficients Geometry.HeadFeature
   Spectral.Transport Spectral.Duality Gordon.ProcessCovariance Gordon.Lipschitz
-  Gaussian.FeatureCoordinates Spectral.SymmetricBilinear Cone.ConditionOperator
-  Data.FeatureMomentsCoordinates Data.FeatureMoments Data.HeadOperator
-  Spectral.OperatorTransport.
+  Gaussian.Symmetric.Coordinates Spectral.SymmetricBilinear
+  Cone.ConditionOperator Data.FeatureMomentsCoordinates Data.FeatureMoments
+  Data.HeadOperator Spectral.OperatorTransport.
 Import GRing.Theory Num.Theory Order.TTheory.
 Open Scope R_scope.
 

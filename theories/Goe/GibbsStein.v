@@ -9,10 +9,10 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Matrix.EntriesAndLinearMaps Matrix.Trace Gibbs.NestedGradientDefinitions
   Gibbs.MatrixNestedGradient Matrix.OperatorDefinitions
   Chaos.SecondOrderDefinitions Matrix.SymmetricBasisDefinitions
-  Matrix.FrobeniusNorm Gaussian.VectorDefinitions Goe.Definitions
+  Matrix.FrobeniusNorm Gaussian.Vector.Definitions Goe.Definitions
   Goe.IndexPairs Goe.MatrixBasis Gibbs.AffineGradientStein
-  Gibbs.AffineGradientRegularity Gaussian.VectorDomain Gaussian.VectorLinearity
-  Gaussian.VectorFiniteSums.
+  Gibbs.AffineGradientRegularity Gaussian.Vector.Domain
+  Gaussian.Vector.Linearity Gaussian.Vector.FiniteSums.
 Import GRing.Theory Num.Theory.
 Import ListNotations.
 Open Scope R_scope.
