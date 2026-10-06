@@ -1,5 +1,11 @@
-(* Variance control for Euclidean-Lipschitz Gaussian tests, derived from
-   the actual exponential moment bound. This is an input to cone widths. *)
+(* Variance of Euclidean-Lipschitz Gaussian tests. The variance of F under
+   the iterated Gaussian expectation (paper_main_gaussian_variance) is
+   nonnegative, equals E[F^2] - (E F)^2 (paper_main_gaussian_variance_identity),
+   and is at most L^2 when F is L-Lipschitz for the Euclidean distance
+   (paper_main_gaussian_lipschitz_variance): read on row vectors through
+   GaussianLawBridge, this is the Gaussian Poincare inequality
+   gauss_poincare_lipschitz of the library. paper_main_variance_derivative_nonnegative
+   is the monotonicity of a function with a nonnegative derivative. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinateWeightDefinitions
@@ -27,50 +33,6 @@ destruct (MVT_gen f 0 x df) as [c [Hc He]].
   pose proof (Hsg c ltac:(lra)); nra.
 Qed.
 
-Lemma paper_main_variance_cosh_quadratic x :
-  2 + x ^ 2 <= exp x + exp (-x).
-Proof.
-assert (H0 : forall u, 2 <= exp u + exp (-u)).
-{ intros u; pose proof (exp_ineq1_le u); pose proof (exp_ineq1_le (-u)); lra. }
-assert (H1 : forall u, 0 <= u -> 0 <= exp u - exp (-u) - 2*u).
-{ intros u Hu.
-  pose proof (paper_main_variance_derivative_nonnegative
-    (fun t => exp t - exp (-t) - 2*t)
-    (fun t => exp t + exp (-t) - 2) u Hu) as H.
-  assert (HD : forall t, @is_derive R R^o R^o t 1
-    (fun t => exp t - exp (-t) - 2*t) (exp t + exp (-t) - 2)).
-  { intros t; auto_derive; try lra; simpl; ring. }
-  specialize (H HD ltac:(intros t _; pose proof (H0 t); lra)).
-  simpl in H; rewrite Ropp_0 exp_0 in H; lra. }
-assert (H2 : forall u, 0 <= u -> 2 + u^2 <= exp u + exp (-u)).
-{ intros u Hu.
-  pose proof (paper_main_variance_derivative_nonnegative
-    (fun t => exp t + exp (-t) - 2 - t^2)
-    (fun t => exp t - exp (-t) - 2*t) u Hu) as H.
-  assert (HD : forall t, @is_derive R R^o R^o t 1
-    (fun t => exp t + exp (-t) - 2 - t^2) (exp t - exp (-t) - 2*t)).
-  { intros t; auto_derive; try lra; simpl; ring. }
-  specialize (H HD H1); simpl in H; rewrite Ropp_0 exp_0 in H; lra. }
-destruct (Rle_dec 0 x) as [Hx|Hx]; [exact (H2 x Hx)|].
-pose proof (H2 (-x) ltac:(lra)) as H; rewrite Ropp_involutive in H; nra.
-Qed.
-
-Theorem paper_main_gaussian_lipschitz_square_law d F L :
-  0 <= L ->
-  (forall xs ys, List.length xs = d -> List.length ys = d ->
-    Rabs (F xs - F ys) <= L * paper_main_gordon_distance d xs ys) ->
-  (gaussian_product_law d).-integrable setT (fun x => (F (tval x) * F (tval x))%:E) /\
-  (\int[gaussian_product_law d]_x (F (tval x) * F (tval x))%:E =
-    (gaussian_iterated_expectation d (fun xs => F xs * F xs))%:E)%E.
-Proof.
-move=> HL Hlip.
-have HC := paper_main_gaussian_lipschitz_continuous d F L HL Hlip.
-have HB := paper_main_gaussian_lipschitz_polynomial_bound d F L HL Hlip.
-apply: (paper_main_gaussian_law_transport d _ _ 4).
-- exact: (finite_joint_continuous_mult d F F HC HC).
-- exact: (finite_polynomial_bound_mult d _ _ 2 2 F F HB HB).
-Qed.
-
 Definition paper_main_gaussian_variance d (F : list R -> R) : R :=
   gaussian_iterated_expectation d
     (fun xs => (F xs - gaussian_iterated_expectation d F) *
@@ -85,92 +47,6 @@ Proof.
 intros Hlip xs ys Hx Hy.
 replace ((F xs - c) - (F ys - c)) with (F xs - F ys) by ring.
 exact (Hlip xs ys Hx Hy).
-Qed.
-
-Theorem paper_main_gaussian_variance_exponential_bound d F L t :
-  0 <= L ->
-  (forall xs ys, List.length xs = d -> List.length ys = d ->
-    Rabs (F xs - F ys) <= L * paper_main_gordon_distance d xs ys) ->
-  0 <= t ->
-  2 + t ^ 2 * paper_main_gaussian_variance d F <= 2 * exp (t ^ 2 * L ^ 2 / 2).
-Proof.
-move=> HL Hlip Ht.
-pose G := fun xs => F xs - gaussian_iterated_expectation d F.
-have HGlip := paper_main_gaussian_lipschitz_center d F L (gaussian_iterated_expectation d F) Hlip.
-have [HIS HES] := paper_main_gaussian_lipschitz_square_law d G L HL HGlip.
-have [HIC HEC] := paper_main_gaussian_law_transport d (fun _ => 2) _ 0
-  (finite_joint_continuous_constant d 2) (finite_polynomial_bound_constant d 2).
-rewrite (proj2 (gaussian_iterated_constant d 2)) in HEC.
-have HIP := paper_main_gaussian_lipschitz_mgf_integrable d F L t HL Hlip Ht.
-have HBP := paper_main_gaussian_lipschitz_centered_mgf d F L t HL Hlip Ht.
-have HlipN := paper_main_gaussian_lipschitz_neg d F L Hlip.
-have HIN := paper_main_gaussian_lipschitz_mgf_integrable d (fun xs => -1 * F xs) L t HL HlipN Ht.
-have HBN := paper_main_gaussian_lipschitz_centered_mgf d (fun xs => -1 * F xs) L t HL HlipN Ht.
-have EN : (fun x : d.-tuple (measurableTypeR R) =>
-    (exp (t * (-1 * F (tval x) - gaussian_iterated_expectation d (fun xs => -1 * F xs))))%:E) =
-  (fun x => (exp (- (t * G (tval x))))%:E).
-{ apply: funext => x.
-  rewrite (paper_main_gaussian_lipschitz_neg_mean d F L HL Hlip).
-  apply f_equal; apply f_equal; unfold G; ring. }
-rewrite EN in HIN HBN.
-have HIT : (gaussian_product_law d).-integrable setT
-  (fun x => ((t ^ 2)%:E * (G (tval x) * G (tval x))%:E)%E).
-  exact: integrableZl HIS.
-have HIA := integrableD measurableT HIC HIT.
-have HIB := integrableD measurableT HIP HIN.
-have Hcmp : (\int[gaussian_product_law d]_x
-    (2%:E + (t ^ 2)%:E * (G (tval x) * G (tval x))%:E) <=
-  \int[gaussian_product_law d]_x
-    ((exp (t * G (tval x)))%:E + (exp (- (t * G (tval x))))%:E))%E.
-{ eapply (le_integral measurableT HIA HIB).
-  move=> x _; rewrite -EFinM -EFinD -EFinD lee_fin; apply/RleP.
-  pose proof (paper_main_variance_cosh_quadratic (t * G (tval x))) as H.
-  change (2 + t ^ 2 * (G (tval x) * G (tval x)) <=
-    exp (t * G (tval x)) + exp (- (t * G (tval x)))); nra. }
-rewrite (integralD measurableT HIC HIT) (integralD measurableT HIP HIN)
-  (integralZl measurableT HIS) HEC HES in Hcmp.
-have HB := leeD HBP HBN.
-have HT := le_trans Hcmp HB.
-move: HT; rewrite -EFinM -EFinD -EFinD lee_fin => /RleP H.
-change (2 + t ^ 2 * paper_main_gaussian_variance d F <=
-  exp (t ^ 2 * L ^ 2 / 2) + exp (t ^ 2 * L ^ 2 / 2)) in H; lra.
-Qed.
-
-Lemma paper_main_variance_exponential_slope V a :
-  (forall s, 0 < s -> 2 + s * V <= 2 * exp (s * a)) -> V <= 2 * a.
-Proof.
-intros HB; apply Rnot_lt_le; intros HV.
-assert (HD : derivable_pt_lim (fun s => exp (s * a)) 0 a).
-{ apply Reals_of_is_derive; auto_derive; simpl; rewrite ?Rmult_0_l ?exp_0; ring. }
-set (eps := (V - 2*a)/4).
-assert (Heps : 0 < eps) by (unfold eps; lra).
-destruct (HD eps Heps) as [delta Hdelta].
-set (h := delta / 2).
-assert (Hh : 0 < h) by (unfold h; pose proof (cond_pos delta); lra).
-assert (Hhd : Rabs h < delta).
-{ rewrite (Rabs_pos_eq _ (Rlt_le _ _ Hh)); unfold h; pose proof (cond_pos delta); lra. }
-pose proof (Hdelta h ltac:(lra) Hhd) as Hlim.
-rewrite Rplus_0_l Rmult_0_l exp_0 in Hlim.
-pose proof (Rle_abs ((exp (h*a)-1)/h - a)) as Hab.
-assert (Hq : (exp (h*a)-1)/h < a + eps) by lra.
-pose proof (Rmult_lt_compat_r h _ _ Hh Hq) as Hmul.
-replace ((exp (h*a)-1)/h*h) with (exp (h*a)-1) in Hmul by (field; lra).
-pose proof (HB h Hh); unfold eps in Hmul; nra.
-Qed.
-
-Theorem paper_main_gaussian_lipschitz_variance d F L :
-  0 <= L ->
-  (forall xs ys, List.length xs = d -> List.length ys = d ->
-    Rabs (F xs - F ys) <= L * paper_main_gordon_distance d xs ys) ->
-  paper_main_gaussian_variance d F <= L ^ 2.
-Proof.
-intros HL Hlip.
-replace (L ^ 2) with (2 * (L ^ 2 / 2)) by field.
-apply paper_main_variance_exponential_slope; intros s Hs.
-pose proof (paper_main_gaussian_variance_exponential_bound d F L (sqrt s)
-  HL Hlip (sqrt_pos s)) as H.
-rewrite (pow2_sqrt s (Rlt_le _ _ Hs)) in H.
-replace (s * (L ^ 2 / 2)) with (s * L ^ 2 / 2) by field; exact H.
 Qed.
 
 Lemma paper_main_gaussian_lipschitz_square_domain d F L :
@@ -226,3 +102,43 @@ pose proof (gaussian_iterated_monotone d (fun _ => 0) (fun xs => G xs * G xs)
   HI0 HIS ltac:(intros xs _; nra)) as H.
 rewrite HE0 in H; exact H.
 Qed.
+
+From HB Require Import structures.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+From mathcomp Require Import boolp classical_sets reals Rstruct.
+From mathcomp Require Import topology Rstruct_topology.
+From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral probability.
+From GaussianAnalysis Require Import measurable_matrix gauss euclidean gauss_concentration.
+From EllipsoidFitting Require Import GaussianLawBridge RealsBridge.
+
+Section lipschitz_variance.
+Local Notation RR := (R : realType).
+
+Theorem paper_main_gaussian_lipschitz_variance d F L :
+  0 <= L ->
+  (forall xs ys, List.length xs = d -> List.length ys = d ->
+    Rabs (F xs - F ys) <= L * paper_main_gordon_distance d xs ys) ->
+  paper_main_gaussian_variance d F <= L ^ 2.
+Proof.
+move=> HL Hlip; rewrite /paper_main_gaussian_variance.
+set m := gaussian_iterated_expectation d F.
+have HGlip := paper_main_gaussian_lipschitz_center d F L m Hlip.
+have HGC := paper_main_gaussian_lipschitz_continuous d _ L HL HGlip.
+have HGB := paper_main_gaussian_lipschitz_polynomial_bound d _ L HL HGlip.
+rewrite (proj2 (gaussian_iterated_expectation_gauss_poly _ _ _ _
+  (finite_joint_continuous_mult d _ _ HGC HGC)
+  (finite_polynomial_bound_mult d _ _ 2 2 _ _ HGB HGB))).
+have Em : m = (\int[gauss d]_x F (list_of_row x))%R.
+  exact: (proj2 (gaussian_iterated_expectation_gauss_poly _ _ _ _
+    (paper_main_gaussian_lipschitz_continuous d F L HL Hlip)
+    (paper_main_gaussian_lipschitz_polynomial_bound d F L HL Hlip))).
+pose G := fun x : 'rV[RR]_d => (F (list_of_row x) : RR).
+have GL (x y : 'rV[RR]_d) : (`|G x - G y| <= L * frobenius (x - y))%R.
+  have := Hlip (list_of_row x) (list_of_row y) (list_of_row_length x)
+    (list_of_row_length y).
+  by rewrite paper_main_gordon_distance_list_of_row RabsF => /RleP.
+have := gauss_poincare_lipschitz GL; rewrite -/G -Em RpowE => /RleP.
+by under eq_Rintegral do rewrite expr2.
+Qed.
+
+End lipschitz_variance.
