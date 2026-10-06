@@ -1,8 +1,8 @@
-(* Definitions of the draft challenge paper_main_results: the glossary of
-   the three main statements of the paper (arXiv 2608.10184v1, thm:main,
-   thm:conditioned and cor:alternative), and nothing else. Every definition
-   is concrete and is meant to be read by the reviewer; the README of the
-   challenge reads each one in the paper's language.
+(* The glossary of the three main statements of the paper (arXiv
+   2608.10184v1, thm:main, thm:conditioned and cor:alternative), and
+   nothing else. Every definition is concrete and is meant to be read by the
+   reviewer; the comment of MainStatement reads the statements in the
+   paper's language.
 
    Vocabulary. Stdlib's R is the real field, read through MathComp's
    ring_scope: + - * / are the field operations, <= and < the (boolean)
@@ -19,10 +19,9 @@
    2. Samples and points: n independent standard Gaussian points of R^d are
       one tuple of n*d independent standard normal coordinates under
       gaussian_product_law (n*d) of GaussianProbabilityProductDefinitions,
-      which is the law of n*d independent N(0,1) coordinates (a probability
-      measure on tuples, checked in challenge gaussian_probability_product
-      of the port). Point i is the block of d coordinates starting at index
-      i*d.
+      which is the law of n*d independent N(0,1) coordinates, a probability
+      measure on tuples. Point i is the block of d coordinates starting at
+      index i*d.
    3. The three events of the paper, as sets of samples: the fit event of
       (P), the well-conditioned fit event of thm:conditioned, and the
       balanced positive definite combination event eq:alt-cor-event.

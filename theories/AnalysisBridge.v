@@ -1,6 +1,8 @@
-(* AnalysisBridge: lemmas that connect Stdlib's real analysis, on which the
-   statements of theories/ are written, with MathComp-Analysis, on which the
-   ports of the Coquelicot proofs are written.
+(* AnalysisBridge: lemmas that connect Stdlib's real analysis
+   (derivable_pt_lim, continuity_pt, Rabs, Rpower.ln, ...) with
+   MathComp-Analysis (is_derive, continuous, limits along filters), so that
+   statements written with Stdlib's operations can be proved with
+   MathComp-Analysis.
 
    The carrier is Stdlib's R, made a realType by Rstruct and a topological
    and pseudometric space by Rstruct_topology. R is not a normedModType, its
@@ -14,22 +16,24 @@
      pow) so that field, ring, lra and nra apply to them; only the proofs
      touch MathComp's ring operations. Under this header a bare ln is
      MathComp's exp.ln, so Stdlib's logarithm is always written Rpower.ln.
-   - Lemma names follow Coquelicot where the statement is the counterpart of
-     a Coquelicot lemma (is_derive_plus, is_derive_exp, is_derive_inv,
-     is_derive_comp, MVT_gen, MVT_cor4, continuous_mult, ...), with
-     MathComp's argument order is_derive x 1 f l. Names that would clash
+   - The lemmas on derivatives are named after the operation they treat
+     (is_derive_plus, is_derive_exp, is_derive_inv, is_derive_comp, ...) and
+     use MathComp's argument order is_derive x 1 f l. Names that would clash
      with a MathComp lemma get an R (is_derive_id_R, continuous_Rln, ...).
    - The lemmas suffixed _Reals convert between the two libraries. The
      lemmas cvg_Reals_* and nbhs_Reals unfold MathComp's limits and
      neighbourhoods into epsilon-delta statements.
-   - The tactic auto_derive replaces Coquelicot's auto_derive on goals
-     is_derive, derivable, derivable_pt_lim and derivable_pt; see the
-     comment above its definition.
+   - The tactic auto_derive proves goals is_derive, derivable,
+     derivable_pt_lim and derivable_pt; see the comment above its
+     definition.
 
    This module re-exports the libraries below, so that a proof module can
-   begin with From EllipsoidFitting Require Import AnalysisBridge. followed by its own
-   Open Scope lines. It contains no definition, no Admitted and no axiom;
-   its assumptions are the seven axioms listed in analysis/README.md. *)
+   begin with From EllipsoidFitting Require Import AnalysisBridge. followed
+   by its own Open Scope lines. It contains lemmas, instances and tactics
+   only, and no axiom. Stdlib defines Rpower.ln through ln_exists, whose
+   proof depends on the axiom classic of Stdlib.Logic.Classical_Prop, so the
+   statements that mention Rpower.ln (is_derive_ln, is_derive_ln_comp,
+   continuous_Rln) depend on it too. *)
 
 From Stdlib Require Export Reals Lra.
 From HB Require Export structures.
@@ -305,19 +309,19 @@ Proof. by move=> x0; exact: is_derive_continuous (is_derive_Rinv x x0). Qed.
 Lemma continuous_Rpow (n : nat) : continuous (fun y : R => y ^ n).
 Proof. by move=> x; exact: is_derive_continuous (is_derive_Rpow n x). Qed.
 
-(* ---- a replacement for Coquelicot's auto_derive ----
+(* ---- the tactic auto_derive ----
 
    On a goal @is_derive R R^o R^o x 1 (fun y => e y) l the tactic applies
    is_derive_eq, derives e by the combinators above (sum, difference,
    product, quotient, opposite, inverse, exp, Rpower.ln, sqrt, pow, Rsqr,
    constants, the identity, and hypotheses is_derive x 1 f df found by
    eassumption), and leaves the side conditions (0 < g x, g x <> 0), then the
-   equation computed derivative = l, stated at type R. The usual script is
-   therefore unchanged: auto_derive; try lra. field; lra.
+   equation computed derivative = l, stated at type R. A typical script is
+   auto_derive; try lra. followed by field; lra. for that equation.
    On derivable f x 1 it proves the goal outright when the chain closes; on
    derivable_pt_lim f x l and derivable_pt f x it first converts to the
    MathComp form. A function under a definition (gaussian_kernel) must be
-   unfolded first, as with Coquelicot. *)
+   unfolded first. *)
 
 Ltac auto_derive_leaf :=
   first [ eassumption
@@ -501,10 +505,7 @@ Lemma continuous_id (x : R) : {for x, continuous (fun y : R => y)}.
 Proof. exact: cvg_id. Qed.
 
 
-(* ---- Coquelicot's Rcomplements lemmas that theories/ uses and Stdlib 9.0
-   lacks (Rdiv_lt_0_compat and ln_pow are in Stdlib). Coquelicot's ln_div
-   is renamed Rln_div, because MathComp's exp exports a ln_div about its
-   own ln. ---- *)
+(* ---- division and absolute value ---- *)
 
 Lemma Rdiv_le_0_compat (r1 r2 : R) : 0 <= r1 -> 0 < r2 -> 0 <= r1 / r2.
 Proof.
@@ -579,11 +580,8 @@ case: (Rle_or_lt a b) => ab Hd Hc.
   by rewrite Heq; ring.
 Qed.
 
-(* ---- integrability of continuous functions on a segment ---- *)
-
-(* ---- fundamental theorem of calculus ---- *)
-
-(* Coquelicot's MVT_cor4: the mean value theorem on a ball around a. *)
+(* The mean value theorem on a ball around a, with an intermediate point c
+   no farther from a than b is. *)
 Lemma MVT_cor4 (f df : R -> R) (a eps : R) :
   (forall c, Rabs (c - a) <= eps -> @is_derive R R^o R^o c 1 f (df c)) ->
   forall b, Rabs (b - a) <= eps ->

@@ -2,13 +2,15 @@ From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions MatrixDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/MatrixGibbsDefinitions.v from Coquelicot to
-   MathComp-Analysis. The original used nothing from Coquelicot directly:
-   its only Coquelicot content came through matrix n and trace_pair of
-   MatrixDefinitions, whose port keeps the same names and arguments. So the
-   import of Coquelicot is dropped and nothing else changes. MathComp is not
-   imported here, so the arithmetic, including the minus sign of - beta, and
-   the ln and exp inside soft_max and gibbs_average are Stdlib's, as before. *)
+(* Soft maxima of scores affine in a matrix A, and Gibbs averages of their
+   derivatives. matrix_affine_scores n offset coeff A y s is
+   offset y s + trace_pair n (coeff y s) A, matrix_inner_values is their
+   soft maximum over s in S, and matrix_inner_derivative is the Gibbs
+   average over s of trace_pair n (coeff y s) U; for gamma > 0 and nonempty
+   S, it is the derivative of matrix_inner_values at A in the direction U
+   (matrix_inner_frechet in MatrixGibbs). matrix_nested_derivative averages
+   these derivatives under the law of matrix_inner_values over Y at inverse
+   temperature - beta. The arithmetic, ln and exp are Stdlib's. *)
 
 Definition matrix_affine_scores (n : nat) (offset : nat -> nat -> R)
     (coeff : nat -> nat -> matrix n) (A : matrix n) (y s : nat) : R :=

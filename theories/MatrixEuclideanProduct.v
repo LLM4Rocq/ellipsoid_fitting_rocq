@@ -8,42 +8,47 @@ From mathcomp Require Import Rstruct_topology.
 Import GRing.Theory Num.Theory.
 Local Open Scope R_scope.
 
-(* Copying the Lmodule structure of U * V onto euclidean_product U V makes HB
-   declare canonical projections that duplicate those of U * V. Rocq ignores
-   the duplicates and warns once per projection; the warning is silenced in
-   this file only. *)
-Local Set Warnings "-redundant-canonical-projection".
-
 (* The product of two normed modules with the Euclidean product norm.
 
-   MathComp-Analysis puts the max norm on U * V. Coquelicot's
-   prod_NormedModule has the norm sqrt (norm (fst x) ^ 2 + norm (snd x) ^ 2),
-   and MatrixDefinitions nests that product, so that a matrix carries the
-   Frobenius norm and a vector the Euclidean norm. To keep that norm,
-   euclidean_product U V is a type copy of U * V. It takes the Zmodule and
-   Lmodule structures of the product, which are componentwise, and receives
-   its norm through the factory Lmodule_isNormed. Its topology and uniform
-   structure are then the ones that the norm defines.
+   MathComp-Analysis puts the max norm on U * V. euclidean_product U V is a
+   type copy of U * V with the norm sqrt (`|x.1| ^ 2 + `|x.2| ^ 2).
+   MatrixDefinitions nests this product, so that a vector carries the
+   Euclidean norm and a matrix the Frobenius norm. euclidean_product U V
+   takes the Zmodule and Lmodule structures of U * V, which are
+   componentwise, and receives its norm through the factory
+   Lmodule_isNormed. Its topology and uniform structure are then the ones
+   that the norm defines.
 
-   Coquelicot's ball on a product is the conjunction of the two component
-   balls, with norm_factor sqrt 2 times the larger factor of the components.
    The ball of euclidean_product U V is the norm ball
-   ball x e y <-> `|x - y| < e. The uniform structure therefore differs from
-   Coquelicot's, while the neighbourhood filters, hence the topology, are the
-   same: euclidean_product_nbhsE below states that they coincide with the
-   neighbourhoods of MathComp's product topology on U * V.
+   ball x e y <-> `|x - y| < e, while MathComp's ball on U * V is the
+   conjunction of the two component balls. The two kinds of balls contain
+   each other up to a change of radius (euclidean_product_ball_components,
+   euclidean_product_ball_add), so they define the same neighbourhood
+   filters, hence the same topology: euclidean_product_nbhsE states that
+   the neighbourhoods of euclidean_product U V are those of the product
+   topology on U * V. The projections are therefore continuous, and so is
+   the pairing of two maps continuous at a point
+   (euclidean_product_fst_continuous, euclidean_product_snd_continuous,
+   euclidean_product_pair_continuous).
 
    A pair (a, b) written without a type annotation has type U * V. Where
    inference finds a norm for it, that norm is MathComp's max norm. Norm
    statements about pairs must name the type, as in
    `|(a, b) : euclidean_product U V|. *)
 
+(* Copying the Lmodule structure of U * V onto euclidean_product U V makes HB
+   declare canonical projections that duplicate those of U * V. Rocq ignores
+   the duplicates and warns once per projection; the warning is silenced in
+   this file only. *)
+Local Set Warnings "-redundant-canonical-projection".
+
 Definition euclidean_product (U V : normedModType R) : Type := (U * V)%type.
 
 HB.instance Definition _ (U V : normedModType R) :=
   GRing.Lmodule.on (euclidean_product U V).
 
-(* The same formula as Coquelicot's prod_norm, with Stdlib's sqrt and pow. *)
+(* The Euclidean norm of the pair of component norms, written with Stdlib's
+   sqrt and pow. *)
 Definition euclidean_product_norm {U V : normedModType R}
     (x : euclidean_product U V) : R :=
   sqrt (`|x.1|%R ^ 2 + `|x.2|%R ^ 2).
@@ -156,8 +161,7 @@ Proof.
 Qed.
 
 (* A norm ball gives the two component balls of the same radius, and
-   component balls of radii e1 and e2 give a norm ball of radius e1 + e2.
-   These replace Coquelicot's definition of the product ball. *)
+   component balls of radii e1 and e2 give a norm ball of radius e1 + e2. *)
 Lemma euclidean_product_ball_components {x} {e : R} {y} :
   ball x e y -> ball x.1 e y.1 /\ ball x.2 e y.2.
 Proof.

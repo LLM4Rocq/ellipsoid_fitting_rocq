@@ -2,8 +2,20 @@ From Stdlib Require Import Reals List.
 Import ListNotations.
 Open Scope R_scope.
 
+(* Sums, maxima and soft maxima of a family f : nat -> R over a list I of
+   indices. finite_sum f I and finite_max f I are the sum and the maximum of
+   the f i, i in I (both 0 when I is empty), and finite_min is the minimum.
+   soft_max gamma f I is the soft maximum at inverse temperature gamma,
+   ln (finite_sum (fun i => exp (gamma * f i)) I) / gamma, and soft_min is
+   the corresponding soft minimum. finite_minimax H Y S is the minimum over
+   y in Y of the maximum over s in S of H y s, and soft_minimax is its soft
+   version. squared_norm y I, euclidean_norm y I and cubic_mass y I are the
+   sum of the y i ^ 2, its square root, and the sum of the |y i| ^ 3. *)
+
 (* Finite indexed families may contain repeated indices. Their cardinality
-   in the logarithmic error is the number of entries, including repeats. *)
+   in the logarithmic error ln (length I) / gamma of the soft maximum
+   (soft_max_bounds in SoftExtrema) is the number of entries, including
+   repeats. *)
 Fixpoint finite_sum (f : nat -> R) (I : list nat) : R :=
   match I with [] => 0 | i :: rest => f i + finite_sum f rest end.
 

@@ -1,25 +1,9 @@
-(* AnalysisBridge2: additions to AnalysisBridge, which is frozen because
-   other modules import it. This module imports and re-exports
-   AnalysisBridge, so a client can replace
-   From EllipsoidFitting Require Import AnalysisBridge. by
-   From EllipsoidFitting Require Import AnalysisBridge2. and get both.
-
-   It corrects one sentence of the header comment of AnalysisBridge and
-   redefines the tactic auto_derive with two more cases. It adds no
-   lemma, no definition, no notation and no axiom.
-
-   Assumptions. The header of AnalysisBridge says that its assumptions are
-   the seven axioms of analysis/README.md. That is true of 70 of its 74
-   statements. The four statements about Rpower.ln (the instance
-   is_derive_ln and the lemmas is_derive_ln_comp, continuous_Rln and
-   Rln_div) also rest on Stdlib.Logic.Classical_Prop.classic, the eighth
-   axiom that README.md names: Stdlib defines Rpower.ln through ln_exists,
-   whose proof uses classic (Print Assumptions Rpower.ln shows it), so every
-   statement that mentions Rpower.ln carries it, whatever its proof. No
-   proof of either module invokes classic itself.
-
-   The tactic auto_derive defined here shadows the one of AnalysisBridge for
-   a client that imports this module. It differs in two ways.
+(* AnalysisBridge2: AnalysisBridge with a stronger tactic auto_derive.
+   This module re-exports AnalysisBridge and adds no lemma, no definition,
+   no notation and no axiom. It redefines the tactics auto_derive_leaf,
+   auto_derive_rule, auto_derive_chain and auto_derive, which shadow those
+   of AnalysisBridge in a module that imports AnalysisBridge2. The new
+   auto_derive handles two more cases.
    - A hypothesis is used through eapply, so a universally quantified
      hypothesis (forall t, Rabs (t - a) <= rho -> is_derive t 1 f (df t))
      closes a leaf, leaving its premise as a side goal, and so does a

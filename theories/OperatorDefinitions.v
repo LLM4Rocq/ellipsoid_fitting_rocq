@@ -7,22 +7,19 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Import MatrixDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/OperatorDefinitions.v from Coquelicot to MathComp-Analysis.
+(* Vectors, the action of a matrix on a vector, and the operator norm.
 
-   Coquelicot's NormedModule R_AbsRing becomes normedModType R, its
-   R_NormedModule becomes R^o, and its norm becomes MathComp's norm
-   `|x|%R. As in the port of MatrixDefinitions, the tuples nest
-   euclidean_product, so the norm of a vector is still the Euclidean norm
-   sqrt (x_0 ^ 2 + ... + x_n ^ 2). The comparison with 1 in
-   matrix_unit_image is Stdlib's <= and 1, as before.
-
-   Coquelicot's real (Lub_Rbar E) becomes MathComp's sup E, the supremum of
-   a set of reals (mathcomp.reals.reals.sup). The two agree on every set E.
-   If E is nonempty and bounded above, both are its least upper bound. If E
-   is empty, Lub_Rbar E is m_infty; if E is unbounded above, it is p_infty;
-   real sends both to 0, and sup E is 0 in both cases (sup_out). So
-   matrix_operator_norm has the same value as the original on every
-   matrix. OperatorDefinitionsAux states the bridge to Stdlib's is_lub. *)
+   vector n is tuple_NormedModule R^o n of MatrixDefinitions, the tuples of
+   S n reals, whose norm `|x|%R is the Euclidean norm
+   sqrt (x_0 ^ 2 + ... + x_n ^ 2).
+   matrix_action n A x is the vector A x, with coordinates the sums over j
+   of matrix_entry n A i j * vector_entry n x j. matrix_unit_image n A is
+   the set of the norms of the A x with `|x| <= 1 (Stdlib's <= and 1), and
+   matrix_operator_norm n A is its supremum, MathComp's sup
+   (mathcomp.reals.reals.sup). For a set of reals that is nonempty and
+   bounded above, sup is the least upper bound, in the sense of Stdlib's
+   is_lub (operator_sup_is_lub in OperatorDefinitionsAux); for any other
+   set it is 0 (sup_out). *)
 
 Definition vector_NormedModule (n : nat) : normedModType R :=
   tuple_NormedModule R^o n.
@@ -37,6 +34,7 @@ Definition matrix_action (n : nat) (A : matrix n) (x : vector n) : vector n :=
 Definition matrix_unit_image (n : nat) (A : matrix n) (r : R) : Prop :=
   exists x : vector n, `|x|%R <= 1 /\ r = `|matrix_action n A x|%R.
 
-(* The supremum is finite; OperatorBounds proves this before using it. *)
+(* OperatorBounds proves that matrix_unit_image n A is nonempty and bounded
+   above, so that this is its least upper bound (matrix_operator_norm_lub). *)
 Definition matrix_operator_norm (n : nat) (A : matrix n) : R :=
   sup (matrix_unit_image n A).

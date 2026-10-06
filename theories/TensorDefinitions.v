@@ -9,35 +9,20 @@ From EllipsoidFitting Require Import MatrixDefinitions OperatorDefinitions.
 Import ListNotations.
 Open Scope R_scope.
 
-(* Port of theories/TensorDefinitions.v from Coquelicot to MathComp-Analysis.
+(* Functions of three matrices written as sums of products of traces, and
+   their projective operator norm. A trace_atom n is a coefficient c with
+   three matrices A, B and C. Its value at U, V, W is
+   c * tr (A U) * tr (B V) * tr (C W), with tr (A U) = trace_pair n A U
+   (atom_value), and its cost is |c| times the product of the operator norms
+   of A, B and C (atom_cost). A list of atoms represents a function T of
+   three matrices (tensor_represents) when the matrices of its atoms are
+   symmetric and T U V W is the sum of the values of the atoms whenever U,
+   V and W are symmetric. projective_operator_norm T is the infimum of the
+   costs of the representations of T.
 
-   Everything except the last definition keeps the text of the original, with
-   two changes of notation.
-
-   1. Order on indices. With ssreflect loaded, (i <= n)%nat means ssrnat's
-      boolean leq. The original means Stdlib's Peano order le, so
-      symmetric_matrix writes (i <= n)%coq_nat, which is ssrnat's notation
-      for Stdlib's le. This is the convention of the port of
-      MatrixCoordinates. The meaning is unchanged.
-
-   2. The arithmetic, Rabs, the lists and In are Stdlib's, as before.
-      matrix_operator_norm, matrix_entry and trace_pair come from the ports of
-      OperatorDefinitions and MatrixDefinitions, which keep their values.
-
-   The last definition changes vocabulary. Coquelicot's extended reals Rbar
-   become MathComp's \bar R, and Coquelicot's Glb_Rbar E, the greatest lower
-   bound in Rbar of a set E of reals, becomes MathComp's
-   ereal_inf [set c%:E | c in E], the infimum in \bar R of the image of E
-   under the embedding EFin. Both are the greatest lower bound of E in the
-   complete lattice of extended reals: +oo when E is empty, -oo when E is not
-   bounded below, and the infimum of E otherwise. So projective_operator_norm
-   has the same value as the original on every T. TensorDefinitionsAux proves
-   the two properties of Coquelicot's Glb_Rbar_correct for it.
-
-   Downstream, Coquelicot's names translate as follows:
-   Finite r becomes r%:E, p_infty and m_infty become +oo and -oo,
-   Rbar_le x y becomes (x <= y)%E, and real x becomes fine x. Both real and
-   fine send the two infinite values to 0. *)
+   Index bounds are written (i <= n)%coq_nat, Stdlib's le, since with
+   ssreflect loaded (i <= n)%nat is ssrnat's boolean leq. The arithmetic,
+   Rabs, the lists and In are Stdlib's. *)
 
 Definition symmetric_matrix (n : nat) (A : matrix n) : Prop :=
   forall i j, (i <= n)%coq_nat -> (j <= n)%coq_nat ->
@@ -89,8 +74,13 @@ Definition tensor_cost_set {n} (T : matrix n -> matrix n -> matrix n -> R)
     (c : R) : Prop :=
   exists atoms, tensor_represents T atoms /\ c = tensor_cost atoms.
 
-(* The extended value is useful even before representability has been proved.
-   TensorBounds proves finiteness for every explicitly represented tensor. *)
+(* The infimum is taken in the extended reals \bar R, as ereal_inf of the
+   image of the set of costs under EFin, so that it is defined before a
+   representation of T is known; it is +oo when T has none.
+   TensorDefinitionsAux proves that it is the greatest lower bound of the
+   costs (projective_operator_norm_lower_bound,
+   projective_operator_norm_greatest), and TensorBounds that it is finite
+   when T has a representation (projective_operator_norm_finite). *)
 Definition projective_operator_norm {n}
     (T : matrix n -> matrix n -> matrix n -> R) : \bar R :=
   ereal_inf [set c%:E | c in tensor_cost_set T]%classic.

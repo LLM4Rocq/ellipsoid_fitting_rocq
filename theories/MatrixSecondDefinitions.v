@@ -2,14 +2,17 @@ From Stdlib Require Import Reals List.
 From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions MatrixDefinitions MatrixGibbsDefinitions.
 Open Scope R_scope.
 
-(* Port of theories/MatrixSecondDefinitions.v from Coquelicot to
-   MathComp-Analysis. The original used nothing from Coquelicot directly: its
-   only Coquelicot content came through matrix n and trace_pair of
-   MatrixDefinitions, whose port keeps the same names and arguments, and
-   through the definitions of MatrixGibbsDefinitions, which are unchanged. So
-   the import of Coquelicot is dropped and nothing else changes. MathComp is
-   not imported here, so the arithmetic, including the product gamma * _, the
-   difference and the minus sign of - beta, is Stdlib's, as before. *)
+(* The derivative of matrix_nested_derivative (MatrixGibbsDefinitions) in a
+   second direction. matrix_inner_covariance is the covariance, under the
+   inner Gibbs law over s in S, of trace_pair n (coeff y s) U and
+   trace_pair n (coeff y s) V. matrix_nested_second_derivative is gamma
+   times the outer average of these covariances minus beta times the outer
+   covariance of the inner derivatives in the directions U and V. For
+   beta, gamma > 0 and nonempty Y and S, it is the derivative at A, in the
+   direction V, of the map
+   M |-> matrix_nested_derivative n beta gamma offset coeff Y S M U
+   (matrix_nested_derivative_frechet in MatrixSecond). The arithmetic is
+   Stdlib's. *)
 
 Definition matrix_inner_covariance (n : nat) (gamma : R)
     (offset : nat -> nat -> R) (coeff : nat -> nat -> matrix n)

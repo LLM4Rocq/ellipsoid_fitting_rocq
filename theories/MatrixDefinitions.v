@@ -6,30 +6,28 @@ From mathcomp Require Import Rstruct_topology.
 From EllipsoidFitting Require Export MatrixEuclideanProduct.
 Open Scope R_scope.
 
-(* Port of theories/MatrixDefinitions.v from Coquelicot to MathComp-Analysis.
+(* Tuples and square matrices of reals, as nested pairs.
 
-   Coquelicot's NormedModule R_AbsRing becomes normedModType R, and its
-   R_NormedModule becomes R^o. Coquelicot's prod_NormedModule becomes
-   euclidean_product of MatrixEuclideanProduct, which keeps Coquelicot's
-   product norm sqrt (norm (fst x) ^ 2 + norm (snd x) ^ 2) instead of
-   MathComp's max norm. A vector therefore still carries the Euclidean norm
-   and a matrix the Frobenius norm. Coquelicot's zero, plus and scal become
-   0, + and *: of MathComp, which are componentwise on pairs as before.
+   tuple_NormedModule V n nests euclidean_product of MatrixEuclideanProduct,
+   so its norm is sqrt (`|x_0| ^ 2 + ... + `|x_n| ^ 2), not MathComp's max
+   norm: a tuple of reals (V = R^o, the normed module view of R) carries the
+   Euclidean norm. matrix n is a tuple of S n rows, each a tuple of S n
+   reals, so it carries the Frobenius norm. The balls of these types are
+   norm balls, and their topology is the product topology
+   (euclidean_product_nbhsE).
 
-   One thing changes: the ball. Coquelicot's ball on a product is the
-   conjunction of the component balls, while the ball of euclidean_product is
-   the norm ball, ball x e y <-> `|x - y| < e. The uniform structure is
-   therefore not Coquelicot's. The neighbourhood filters, and so the
-   topology, are the same, as euclidean_product_nbhsE states. Statements
-   about norms keep their meaning, and so do statements about continuity and
-   derivatives.
+   tuple_entry V n i x is the coordinate i of x, and 0 when i > n;
+   tuple_build V n f is the tuple of the f i, i <= n. coordinate_sum n f is
+   f 0 + ... + f n. matrix_entry n A i j is the entry in row i and column j.
+   The zero, sum and scaling of matrices are MathComp's 0, + and *:, which
+   are componentwise. matrix_trace n A is the trace of A, and
+   trace_pair n B H is the trace of the product B H.
 
-   The definitions below keep the names, arguments and nested-pair
-   representation of the original. A pair written for a tuple needs its type,
-   as in (a, b) : tuple_NormedModule V 1, to get this norm and not the max
-   norm of V * V. *)
+   A pair written for a tuple needs its type, as in
+   (a, b) : tuple_NormedModule V 1, to get this norm and not the max norm of
+   V * V. *)
 
-(* A tuple indexed by n has S n coordinates.  Keeping dimensions positive
+(* A tuple indexed by n has S n coordinates. Keeping dimensions positive
    avoids introducing an artificial coordinate into a zero-dimensional space. *)
 Fixpoint tuple_NormedModule (V : normedModType R) (n : nat) :
     normedModType R :=
