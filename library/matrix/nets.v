@@ -1,7 +1,7 @@
 From HB Require Import structures.
-From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix sesquilinear.
-From mathcomp Require Import archimedean boolp classical_sets reals sequences exp.
-From mathcomp Require Import ring_tactic field_tactic.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+From mathcomp Require Import sesquilinear archimedean boolp classical_sets.
+From mathcomp Require Import reals sequences exp ring_tactic field_tactic.
 From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 
 (**md**************************************************************************)
@@ -76,7 +76,8 @@ Proof.
 move=> /andP[e0 e1] AN Ab; have e1' : 0 < 1 - eps by rewrite subr_gt0.
 have : opnorm A <= b + opnorm A * eps.
   apply: opnorm_le => x /AN[y yN xy].
-  rewrite -[x](subrK y) mulmxDr addrC (le_trans (frobeniusD _ _)) // lerD ?Ab //.
+  rewrite -[x](subrK y) mulmxDr addrC (le_trans (frobeniusD _ _)) //.
+  rewrite lerD ?Ab //.
   by rewrite (le_trans (frobenius_mulmx_opnorm _ _)) // ler_wpM2l ?opnorm_ge0.
 by rewrite ler_pdivlMr // mulrBr mulr1 lerBlDr.
 Qed.
@@ -166,7 +167,8 @@ set z := (frobenius x)^-1 *: x.
 have z1 : frobenius z <= 1.
   by rewrite frobeniusZ ger0_norm ?invr_ge0 ?frobenius_ge0 // mulVf ?gt_eqF.
 have := Ac z z1; rewrite /z -scalemxAr mxdotZl mxdotZr mulrA normrM.
-rewrite ger0_norm ?mulr_ge0 ?invr_ge0 ?frobenius_ge0 // -invfM -expr2 frobenius_sqr.
+rewrite ger0_norm ?mulr_ge0 ?invr_ge0 ?frobenius_ge0 //.
+rewrite -invfM -expr2 frobenius_sqr.
 by rewrite mulrC ler_pdivrMr ?mxdot_gt0 // mulrC.
 Qed.
 
@@ -181,7 +183,8 @@ Proof.
 move=> Asym e0 e1 VN Vb Ab.
 have e1' : 0 < 1 - 2 * eps by rewrite subr_gt0.
 have b0 : 0 <= b.
-  by have [v vV _] := VN 0 (unit_ball0 n); exact: le_trans (normr_ge0 _) (Ab v vV).
+  have [v vV _] := VN 0 (unit_ball0 n).
+  exact: le_trans (normr_ge0 _) (Ab v vV).
 have : opnorm A <= b + opnorm A * (2 * eps).
   apply/opnorm_symP => //; first by rewrite addr_ge0 ?mulr_ge0 ?opnorm_ge0.
   apply: form_unit_ball_le => x x1; have [v vV xv] := VN x x1.
@@ -400,7 +403,7 @@ Qed.
 
 (* Every set in the ball of radius r has an eps-net of at most
    (2 e (1 + 2 r / eps))^n of its own points. *)
-Theorem net_exists n (S : set 'cV[R]_n) (r eps : R) : 0 <= r -> 0 < eps ->
+Lemma net_exists n (S : set 'cV[R]_n) (r eps : R) : 0 <= r -> 0 < eps ->
   (forall x, S x -> frobenius x <= r) ->
   exists N : seq 'cV[R]_n, [/\ forall y, y \in N -> S y, is_net S N eps &
     (size N)%:R <= (2 * expR 1 * (1 + 2 * r / eps)) ^+ n].
@@ -448,8 +451,8 @@ Corollary unit_ball_net n (eps : R) : 0 < eps ->
     is_net (@unit_ball R n) N eps &
     (size N)%:R <= (2 * expR 1 * (1 + 2 / eps)) ^+ n].
 Proof.
-move=> e0.
-have [N [NS SN Nk]] := @net_exists n (@unit_ball R n) 1 eps ler01 e0 (fun x => id).
+move=> e0; have [N [NS SN Nk]] :=
+  @net_exists n (@unit_ball R n) 1 eps ler01 e0 (fun x => id).
 by exists N; split => //; rewrite mulr1 in Nk.
 Qed.
 

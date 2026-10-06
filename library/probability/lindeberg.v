@@ -71,7 +71,8 @@ by rewrite eq_sym (negbTE (neq_lift _ _)) !tnthS.
 Qed.
 
 Lemma tuple_set_consS n (t s : T) (ts : n.-tuple T) (i : 'I_n) :
-  tuple_set [tuple of t :: ts] (lift ord0 i) s = [tuple of t :: tuple_set ts i s].
+  tuple_set [tuple of t :: ts] (lift ord0 i) s =
+    [tuple of t :: tuple_set ts i s].
 Proof.
 apply: eq_from_tnth => j; rewrite tnth_mktuple.
 case: (unliftP ord0 j) => [k ->|->].
@@ -105,7 +106,8 @@ rewrite (_ : _ \o _ = fun t => if j == i then t else tnth x j).
 by case: (j == i) => //; exact: measurable_cst.
 Qed.
 
-Lemma expectation_tuple_prod0 (mu : nat -> probability T R) (F : 0.-tuple T -> R) :
+Lemma expectation_tuple_prod0 (mu : nat -> probability T R)
+    (F : 0.-tuple T -> R) :
   measurable_fun setT F -> 'E_(tuple_prod mu 0)[F] = (F [tuple])%:E.
 Proof.
 move=> mF; rewrite unlock /= integral_dirac ?diracT ?mul1e //.
@@ -149,7 +151,8 @@ Lemma EFin_Rintegral_bounded (F : U -> R) (C : R) :
   measurable_fun setT F -> (forall x, `|F x| <= C) ->
   (\int[P]_x F x)%:E = (\int[P]_x (F x)%:E)%E.
 Proof.
-by move=> mF FC; rewrite fineK // integrable_fin_num // (bounded_integrable P mF FC).
+move=> mF FC; rewrite fineK // integrable_fin_num //.
+exact: (bounded_integrable P mF FC).
 Qed.
 
 Lemma Rintegral_bounded (F : U -> R) (C : R) :
@@ -179,21 +182,23 @@ Qed.
 Section lindeberg_replacement.
 Context d (T : measurableType d) (R : realType).
 
-
-
 Lemma measurable_tuple_cons_l n (t : T) :
   measurable_fun setT (fun ts : n.-tuple T => tuple_cons (t, ts)).
-Proof. exact: (measurable_cons (measurable_cst t) (@measurable_id _ _ setT)). Qed.
+Proof.
+exact: (measurable_cons (measurable_cst t) (@measurable_id _ _ setT)).
+Qed.
 
 Lemma measurable_tuple_cons_r n (ts : n.-tuple T) :
   measurable_fun setT (fun t : T => tuple_cons (t, ts)).
-Proof. exact: (measurable_cons (@measurable_id _ _ setT) (measurable_cst ts)). Qed.
+Proof.
+exact: (measurable_cons (@measurable_id _ _ setT) (measurable_cst ts)).
+Qed.
 
 Lemma Rintegral_tuple_prodS (mu : nat -> probability T R) n
     (F : n.+1.-tuple T -> R) (C : R) :
   measurable_fun setT F -> (forall x, `|F x| <= C) ->
-  \int[tuple_prod mu n.+1]_x F x =
-    \int[mu 0%N]_t \int[tuple_prod (fun i => mu i.+1) n]_ts F (tuple_cons (t, ts)).
+  \int[tuple_prod mu n.+1]_x F x = \int[mu 0%N]_t
+    \int[tuple_prod (fun i => mu i.+1) n]_ts F (tuple_cons (t, ts)).
 Proof.
 move=> mF FC; have := expectation_tuple_prodS mu mF FC; rewrite unlock => E.
 rewrite /Rintegral E; congr fine; apply: eq_integral => t _.
@@ -204,8 +209,8 @@ Qed.
 Lemma Rintegral_tuple_prodS' (mu : nat -> probability T R) n
     (F : n.+1.-tuple T -> R) (C : R) :
   measurable_fun setT F -> (forall x, `|F x| <= C) ->
-  \int[tuple_prod mu n.+1]_x F x =
-    \int[tuple_prod (fun i => mu i.+1) n]_ts \int[mu 0%N]_t F (tuple_cons (t, ts)).
+  \int[tuple_prod mu n.+1]_x F x = \int[tuple_prod (fun i => mu i.+1) n]_ts
+    \int[mu 0%N]_t F (tuple_cons (t, ts)).
 Proof.
 move=> mF FC; have := expectation_tuple_prodS' mu mF FC; rewrite unlock => E.
 rewrite /Rintegral E; congr fine; apply: eq_integral => ts _.
@@ -213,19 +218,23 @@ rewrite -(EFin_Rintegral_bounded _ _ (C := C)) //.
 by apply: (measurableT_comp mF); exact: measurable_tuple_cons_r.
 Qed.
 
-Lemma Rintegral_tuple_prod0 (mu : nat -> probability T R) (F : 0.-tuple T -> R) :
+Lemma Rintegral_tuple_prod0 (mu : nat -> probability T R)
+    (F : 0.-tuple T -> R) :
   measurable_fun setT F -> \int[tuple_prod mu 0]_x F x = F [tuple].
 Proof.
-by move=> mF; have := expectation_tuple_prod0 mu mF; rewrite unlock /Rintegral => ->.
+move=> mF; have := expectation_tuple_prod0 mu mF.
+by rewrite unlock /Rintegral => ->.
 Qed.
 
 (* Lindeberg's replacement principle. *)
-Theorem lindeberg_replacement n (mu nu : nat -> probability T R)
+Lemma lindeberg_replacement n (mu nu : nat -> probability T R)
     (F : n.-tuple T -> R) (C : R) (B : nat -> R) :
   measurable_fun setT F -> (forall x, `|F x| <= C) ->
   (forall (i : 'I_n) (x : n.-tuple T),
-    `|\int[mu i]_t F (tuple_set x i t) - \int[nu i]_t F (tuple_set x i t)| <= B i) ->
-  `|\int[tuple_prod mu n]_x F x - \int[tuple_prod nu n]_x F x| <= \sum_(i < n) B i.
+    `|\int[mu i]_t F (tuple_set x i t) - \int[nu i]_t F (tuple_set x i t)|
+      <= B i) ->
+  `|\int[tuple_prod mu n]_x F x - \int[tuple_prod nu n]_x F x|
+    <= \sum_(i < n) B i.
 Proof.
 elim: n mu nu F B => [|n IH] mu nu F B mF FC HB.
   by rewrite !Rintegral_tuple_prod0 // subrr normr0 big_ord0.
@@ -249,11 +258,14 @@ apply: le_trans (ler_distD
   (\int[tuple_prod mu' n]_ts \int[nu 0%N]_t F (tuple_cons (t, ts))) _ _) _.
 rewrite big_ord_recl lerD //.
   (* Replacing the first coordinate costs at most B 0. *)
-  have mG : measurable_fun setT (fun p : n.-tuple T * T => F (tuple_cons (p.2, p.1))).
-    by apply: (measurableT_comp mF); exact: (measurable_cons measurable_snd measurable_fst).
-  have mI (P : probability T R) :
-      measurable_fun setT (fun ts : n.-tuple T => \int[P]_t F (tuple_cons (t, ts))).
-    exact: (measurable_partial_Rintegral (tuple_prod mu' n) P mG (fun p => FC _)).
+  have mG : measurable_fun setT
+      (fun p : n.-tuple T * T => F (tuple_cons (p.2, p.1))).
+    apply: (measurableT_comp mF).
+    exact: (measurable_cons measurable_snd measurable_fst).
+  have mI (P : probability T R) : measurable_fun setT
+      (fun ts : n.-tuple T => \int[P]_t F (tuple_cons (t, ts))).
+    exact: (measurable_partial_Rintegral (tuple_prod mu' n) P mG
+      (fun p => FC _)).
   have bI (P : probability T R) ts : `|\int[P]_t F (tuple_cons (t, ts))| <= C.
     apply: Rintegral_bounded => //.
     by apply: (measurableT_comp mF); exact: measurable_tuple_cons_r.
@@ -262,14 +274,16 @@ rewrite big_ord_recl lerD //.
   have := HB ord0 [tuple of t0 :: ts].
   have E t : tuple_set [tuple of t0 :: ts] ord0 t = tuple_cons (t, ts).
     by rewrite tuple_set_cons0.
-  by under eq_Rintegral do rewrite E; under [X in _ - X]eq_Rintegral do rewrite E.
+  under eq_Rintegral do rewrite E.
+  by under [X in _ - X]eq_Rintegral do rewrite E.
 (* Replacing the other coordinates, for each value of the first one. *)
 have mG : measurable_fun setT (fun p : T * n.-tuple T => F (tuple_cons p)).
   by apply: (measurableT_comp mF); exact: measurable_tuple_cons.
 have mI (P : probability (n.-tuple T) R) :
     measurable_fun setT (fun t : T => \int[P]_ts F (tuple_cons (t, ts))).
   exact: (measurable_partial_Rintegral (mu 0%N) P mG (fun p => FC _)).
-have bI (P : probability (n.-tuple T) R) t : `|\int[P]_ts F (tuple_cons (t, ts))| <= C.
+have bI (P : probability (n.-tuple T) R) t :
+    `|\int[P]_ts F (tuple_cons (t, ts))| <= C.
   apply: Rintegral_bounded => //.
   by apply: (measurableT_comp mF); exact: measurable_tuple_cons_l.
 rewrite Eb Ec -RintegralB //; try exact: (bounded_integrable _ (mI _) (bI _)).
@@ -279,9 +293,11 @@ apply: (IH mu' nu' (fun ts => F (tuple_cons (t, ts))) (fun i => B i.+1)).
 - by apply: (measurableT_comp mF); exact: measurable_tuple_cons_l.
 - by move=> x; exact: FC.
 move=> i x; have := HB (lift ord0 i) [tuple of t :: x].
-have E s : tuple_set [tuple of t :: x] (lift ord0 i) s = tuple_cons (t, tuple_set x i s).
+have E s : tuple_set [tuple of t :: x] (lift ord0 i) s =
+    tuple_cons (t, tuple_set x i s).
   by rewrite tuple_set_consS.
-by under eq_Rintegral do rewrite E; under [X in _ - X]eq_Rintegral do rewrite E.
+under eq_Rintegral do rewrite E.
+by under [X in _ - X]eq_Rintegral do rewrite E.
 Qed.
 
 End lindeberg_replacement.

@@ -40,7 +40,8 @@ Context d (T : measurableType d) (R : realType) (P : probability T R).
 Lemma integrable_sqr_Lfun2 (X : T -> R) : measurable_fun setT X ->
   P.-integrable setT (EFin \o (fun x => X x ^+ 2)) -> X \in Lfun P 2%:E.
 Proof.
-move=> mX /integrableP[_ iX2]; rewrite inE; apply/andP; split; first by rewrite inE.
+move=> mX /integrableP[_ iX2]; rewrite inE; apply/andP; split.
+  by rewrite inE.
 rewrite inE /= /finite_norm unlock /Lnorm; apply: poweR_lty.
 apply: le_lt_trans iX2; rewrite le_eqVlt; apply/orP; left; apply/eqP.
 by apply: eq_integral => x _ /=; rewrite normrX powR_mulrn.
@@ -61,7 +62,8 @@ apply: integrable_sqr_Lfun2.
   exact: measurable_funX.
 have := Lfun_integrable (ler1n R 4) X4.
 congr (_.-integrable _ _); apply/funext => x /=.
-by rewrite exprfctE -exprM powR_mulrn ?normr_ge0 // -normrX ger0_norm ?exprn_even_ge0.
+rewrite exprfctE -exprM powR_mulrn ?normr_ge0 //.
+by rewrite -normrX ger0_norm ?exprn_even_ge0.
 Qed.
 
 Lemma expectation_sqr_le (X : T -> R) : X \in Lfun P 2%:E ->
@@ -82,7 +84,7 @@ move=> th0 s0; have [thz|zth] := leP theta z; rewrite ?mulr1n ?mulr0n.
 have := sqr_ge0 (s * z); nra.
 Qed.
 
-Theorem paley_zygmund (X : T -> R) (theta : R) :
+Lemma paley_zygmund (X : T -> R) (theta : R) :
   X \in Lfun P 2%:E -> 0 <= theta -> (theta%:E < 'E_P[X])%E ->
   (((fine 'E_P[X] - theta) ^+ 2 / fine 'E_P[X ^+ 2])%:E <=
     P [set x | (theta <= X x)%R])%E.
@@ -129,7 +131,7 @@ have -> : (m - theta) ^+ 2 / M = 2 * s * m - (2 * s * theta + s ^+ 2 * M).
 by rewrite lerBlDl.
 Qed.
 
-Theorem paley_zygmund_sqr (X : T -> R) (t : R) :
+Lemma paley_zygmund_sqr (X : T -> R) (t : R) :
   X \in Lfun P 4%:E -> 0 <= t < 1 -> (0 < 'E_P[X ^+ 2])%E ->
   (((1 - t) ^+ 2 * fine 'E_P[X ^+ 2] ^+ 2 / fine 'E_P[X ^+ 4])%:E <=
     P [set x | (t * fine 'E_P[X ^+ 2] <= X x ^+ 2)%R])%E.

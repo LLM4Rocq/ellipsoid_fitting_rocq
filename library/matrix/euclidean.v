@@ -148,7 +148,9 @@ Variable R : realDomainType.
 Implicit Types m n : nat.
 
 Lemma mxdot_ge0 m n (A : 'M[R]_(m, n)) : 0 <= mxdot A A.
-Proof. by apply: sumr_ge0 => i _; apply: sumr_ge0 => j _; rewrite -expr2 sqr_ge0. Qed.
+Proof.
+by apply: sumr_ge0 => i _; apply: sumr_ge0 => j _; rewrite -expr2 sqr_ge0.
+Qed.
 
 Lemma mxdot_eq0 m n (A : 'M[R]_(m, n)) : (mxdot A A == 0) = (A == 0).
 Proof.
@@ -180,7 +182,8 @@ Qed.
 Lemma sum_cauchy_schwarz n (a b : 'I_n -> R) :
   (\sum_i a i * b i) ^+ 2 <= (\sum_i a i * a i) * (\sum_i b i * b i).
 Proof.
-have dotE (c e : 'I_n -> R) : mxdot (\row_j c j) (\row_j e j) = \sum_j c j * e j.
+have dotE (c e : 'I_n -> R) :
+    mxdot (\row_j c j) (\row_j e j) = \sum_j c j * e j.
   by rewrite /mxdot big_ord1; apply: eq_bigr => j _; rewrite !mxE.
 by have := mxdot_cauchy_schwarz (\row_j a j) (\row_j b j); rewrite !dotE.
 Qed.
@@ -215,7 +218,8 @@ Proof. by rewrite sqrtr_gt0 mxdot_gt0. Qed.
 Lemma frobenius0 m n : frobenius (0 : 'M[R]_(m, n)) = 0.
 Proof. by rewrite /frobenius mxdot0l sqrtr0. Qed.
 
-Lemma frobeniusZ m n a (A : 'M[R]_(m, n)) : frobenius (a *: A) = `|a| * frobenius A.
+Lemma frobeniusZ m n a (A : 'M[R]_(m, n)) :
+  frobenius (a *: A) = `|a| * frobenius A.
 Proof.
 by rewrite /frobenius mxdotZl mxdotZr mulrA -expr2 sqrtrM ?sqr_ge0 // sqrtr_sqr.
 Qed.
@@ -239,7 +243,8 @@ rewrite -ler_sqr ?nnegrE ?mulr_ge0 ?frobenius_ge0 // exprMn !frobenius_sqr.
 by rewrite real_normK ?num_real // mxdot_cauchy_schwarz.
 Qed.
 
-Lemma ler_mxdot m n (A B : 'M[R]_(m, n)) : mxdot A B <= frobenius A * frobenius B.
+Lemma ler_mxdot m n (A B : 'M[R]_(m, n)) :
+  mxdot A B <= frobenius A * frobenius B.
 Proof. exact: le_trans (ler_norm _) (mxdot_le A B). Qed.
 
 Lemma frobeniusD m n (A B : 'M[R]_(m, n)) :
@@ -257,7 +262,8 @@ Proof. by rewrite -(frobeniusN B) frobeniusD. Qed.
 Lemma ler_frobeniusB m n (A B : 'M[R]_(m, n)) :
   `|frobenius A - frobenius B| <= frobenius (A - B).
 Proof.
-have le_sub (X Y : 'M[R]_(m, n)) : frobenius X - frobenius Y <= frobenius (X - Y).
+have le_sub (X Y : 'M[R]_(m, n)) :
+    frobenius X - frobenius Y <= frobenius (X - Y).
   by rewrite lerBlDr -{1}(subrK Y X) frobeniusD.
 rewrite ler_norml le_sub andbT lerNl opprB.
 by rewrite -[frobenius (A - B)]frobeniusN opprB le_sub.

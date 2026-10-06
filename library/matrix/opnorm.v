@@ -1,6 +1,7 @@
 From HB Require Import structures.
-From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix sesquilinear.
-From mathcomp Require Import boolp classical_sets reals.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+From mathcomp Require Import sesquilinear boolp classical_sets reals topology.
+From mathcomp Require Import normedtype.
 From GaussianAnalysis.matrix Require Import euclidean real_spectral.
 
 (**md**************************************************************************)
@@ -16,7 +17,10 @@ From GaussianAnalysis.matrix Require Import euclidean real_spectral.
 (* largest absolute value of an eigenvalue (opnorm_spectral). For a           *)
 (* symmetric matrix and an even exponent p > 0, tr (A ^+ p) <= t ^+ p, or     *)
 (* mxdot x (A ^+ p *m x) <= t ^+ p * mxdot x x for every x, gives             *)
-(* opnorm A <= t (opnorm_le_trace_exp, opnorm_le_form_exp).                   *)
+(* opnorm A <= t (opnorm_le_trace_exp, opnorm_le_form_exp). The operator norm *)
+(* lies between the norm mx_norm of MathComp-Analysis and the Frobenius norm: *)
+(* mx_norm A <= opnorm A <= frobenius A (mx_norm_le_opnorm,                   *)
+(* opnorm_le_frobenius).                                                      *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*   opnorm A == the operator norm of A, the supremum of frobenius (A *m x)   *)
@@ -51,7 +55,9 @@ Qed.
 
 Lemma opnorm_ub m n (A : 'M[R]_(m, n)) (x : 'cV[R]_n) :
   frobenius x <= 1 -> frobenius (A *m x) <= opnorm A.
-Proof. by move=> x1; apply: (ub_le_sup (proj2 (opnorm_has_sup A))); exists x. Qed.
+Proof.
+by move=> x1; apply: (ub_le_sup (proj2 (opnorm_has_sup A))); exists x.
+Qed.
 
 Lemma opnorm_le m n (A : 'M[R]_(m, n)) (b : R) :
   (forall x : 'cV[R]_n, frobenius x <= 1 -> frobenius (A *m x) <= b) ->
@@ -63,7 +69,8 @@ Qed.
 
 Lemma opnorm_ge0 m n (A : 'M[R]_(m, n)) : 0 <= opnorm A.
 Proof.
-by have := @opnorm_ub _ _ A 0; rewrite frobenius0 mulmx0 frobenius0 ler01; apply.
+have := @opnorm_ub _ _ A 0.
+by rewrite frobenius0 mulmx0 frobenius0 ler01; apply.
 Qed.
 
 Lemma opnorm_le_frobenius m n (A : 'M[R]_(m, n)) : opnorm A <= frobenius A.
@@ -80,16 +87,19 @@ have xp : 0 < frobenius x by rewrite frobenius_gt0.
 have x1 : frobenius ((frobenius x)^-1 *: x) <= 1.
   by rewrite frobeniusZ ger0_norm ?invr_ge0 ?frobenius_ge0 // mulVf ?gt_eqF.
 have := opnorm_ub A x1.
-by rewrite -scalemxAr frobeniusZ ger0_norm ?invr_ge0 ?frobenius_ge0 // mulrC ler_pdivrMr.
+rewrite -scalemxAr frobeniusZ ger0_norm ?invr_ge0 ?frobenius_ge0 //.
+by rewrite mulrC ler_pdivrMr.
 Qed.
 
 Lemma opnorm_leP m n (A : 'M[R]_(m, n)) (b : R) : 0 <= b ->
-  (forall x : 'cV[R]_n, frobenius (A *m x) <= b * frobenius x) <-> opnorm A <= b.
+  (forall x : 'cV[R]_n, frobenius (A *m x) <= b * frobenius x) <->
+  opnorm A <= b.
 Proof.
 move=> b0; split=> [Ab|Ab x].
   apply: opnorm_le => x x1; apply: le_trans (Ab x) _.
   by rewrite -[leRHS]mulr1 ler_wpM2l.
-by apply: le_trans (frobenius_mulmx_opnorm A x) _; rewrite ler_wpM2r ?frobenius_ge0.
+apply: le_trans (frobenius_mulmx_opnorm A x) _.
+by rewrite ler_wpM2r ?frobenius_ge0.
 Qed.
 
 Lemma mxdot_col m n (A B : 'M[R]_(m, n)) :
@@ -105,7 +115,8 @@ Proof.
 rewrite -ler_sqr ?nnegrE ?mulr_ge0 ?frobenius_ge0 ?opnorm_ge0 // exprMn.
 rewrite !frobenius_sqr !mxdot_col mulr_sumr; apply: ler_sum => k _.
 have -> : col k (A *m X) = A *m col k X by rewrite !colE mulmxA.
-rewrite -!frobenius_sqr -exprMn ler_sqr ?nnegrE ?mulr_ge0 ?frobenius_ge0 ?opnorm_ge0 //.
+rewrite -!frobenius_sqr -exprMn.
+rewrite ler_sqr ?nnegrE ?mulr_ge0 ?frobenius_ge0 ?opnorm_ge0 //.
 exact: frobenius_mulmx_opnorm.
 Qed.
 
@@ -123,7 +134,8 @@ have le_scale c (B : 'M[R]_(m, n)) : opnorm (c *: B) <= `|c| * opnorm B.
   exact: frobenius_mulmx_opnorm.
 have [->|a0] := eqVneq a 0; first by rewrite scale0r opnorm0 normr0 mul0r.
 apply/le_anti; rewrite le_scale /=.
-have := le_scale a^-1 (a *: A); rewrite scalerA mulVf // scale1r normrV ?unitfE //.
+have := le_scale a^-1 (a *: A).
+rewrite scalerA mulVf // scale1r normrV ?unitfE //.
 by rewrite ler_pdivlMl ?normr_gt0.
 Qed.
 
@@ -152,6 +164,23 @@ rewrite (le_trans (mxdot_le _ _)) // [opnorm A * _]mulrC -mulrA.
 by rewrite ler_wpM2l ?frobenius_ge0 ?frobenius_mulmx_opnorm.
 Qed.
 
+Lemma mxdot_delta_opnorm m n (A : 'M[R]_(m, n)) i j :
+  `|A i j| <= opnorm A * frobenius (delta_mx i 0 : 'cV[R]_m) *
+    frobenius (delta_mx j 0 : 'cV[R]_n).
+Proof.
+have := mxdot_opnorm A (delta_mx i 0) (delta_mx j 0).
+by rewrite -colE mxdotC mxdot_delta mxE.
+Qed.
+
+Lemma mx_norm_le_opnorm m n (A : 'M[R]_(m, n)) : mx_norm A <= opnorm A.
+Proof.
+rewrite mx_normrE; apply/bigmax_leP; split; first exact: opnorm_ge0.
+move=> [i j] _ /=.
+have d1 k (l : 'I_k) : frobenius (delta_mx l 0 : 'cV[R]_k) = 1.
+  by rewrite /frobenius mxdot_delta mxE !eqxx sqrtr1.
+by have := mxdot_delta_opnorm A i j; rewrite !d1 !mulr1.
+Qed.
+
 Lemma opnorm_bilinearP m n (A : 'M[R]_(m, n)) (b : R) : 0 <= b ->
   (forall (y : 'cV[R]_m) (x : 'cV[R]_n),
     `|mxdot y (A *m x)| <= b * frobenius y * frobenius x) <->
@@ -161,7 +190,8 @@ move=> b0; split=> [Ab|Ab y x]; last first.
   by apply: le_trans (mxdot_opnorm _ _ _) _; rewrite !ler_wpM2r ?frobenius_ge0.
 apply/opnorm_leP => // x; have := Ab (A *m x) x.
 rewrite -frobenius_sqr ger0_norm ?sqr_ge0 // expr2.
-have [->|Ax0] := eqVneq (frobenius (A *m x)) 0; first by rewrite mulr_ge0 ?frobenius_ge0.
+have [->|Ax0] := eqVneq (frobenius (A *m x)) 0.
+  by rewrite mulr_ge0 ?frobenius_ge0.
 by rewrite [b * _]mulrC -mulrA ler_pM2l // lt_def Ax0 frobenius_ge0.
 Qed.
 
@@ -252,7 +282,8 @@ Qed.
 Lemma opnorm_le_trace_exp n (A : 'M[R]_n) p (t : R) : A \is symmetricmx ->
   ~~ odd p -> (0 < p)%N -> 0 <= t -> \tr (A ^+ p) <= t ^+ p -> opnorm A <= t.
 Proof.
-move=> Asym ep p0 t0 At; have := le_trans (opnorm_exp_le_trace_even Asym ep p0) At.
+move=> Asym ep p0 t0 At.
+have := le_trans (opnorm_exp_le_trace_even Asym ep p0) At.
 by rewrite ler_pXn2r ?nnegrE ?opnorm_ge0.
 Qed.
 
