@@ -7,9 +7,10 @@
    e <= n, and gaussian_iterated_block_rotation, for e + d coordinates).
    The rotated function keeps both properties
    (gaussian_block_rotation_continuous,
-   gaussian_block_rotation_polynomial_bound). The proof rotates one
-   coordinate at a time (block_rotation_step), moving the first coordinate
-   to the last place with gaussian_iterated_move_last. *)
+   gaussian_block_rotation_polynomial_bound). The invariance is an instance
+   of gaussian_iterated_block_rotation_gauss of Gaussian.LawBridge: both
+   expectations are integrals against the standard Gaussian measure, which
+   is invariant under permutations of the coordinates. *)
 
 From Stdlib Require Import Reals List Permutation Lia Lra Psatz.
 From EllipsoidFitting Require Import GaussianDefinitions
@@ -18,7 +19,8 @@ From EllipsoidFitting Require Import GaussianDefinitions
   Analysis.CoordinatePermutationDefinitions.
 From EllipsoidFitting Require Import Gaussian.IteratedExpectation
   Analysis.CoordinatePermutations Analysis.CoordinatePermutationContinuity
-  Gaussian.PermutationWeights Gaussian.CoordinateMoveLast.
+  Gaussian.PermutationWeights.
+From EllipsoidFitting Require Gaussian.LawBridge.
 Import ListNotations.
 Open Scope R_scope.
 
@@ -69,33 +71,15 @@ Proof.
   apply finite_polynomial_bound_permutation; intros xs HL; apply block_rotation_permutation.
 Qed.
 
-Lemma block_rotation_step e (xs : list R) : (e < length xs)%nat ->
-  skipn (S e) xs ++ firstn (S e) xs =
-    skipn e (move_coordinate_last 0 xs) ++ firstn e (move_coordinate_last 0 xs).
-Proof.
-  destruct xs as [|x xs]; simpl; [lia|].
-  intro He.
-  rewrite skipn_app, firstn_app.
-  replace (e - length xs)%nat with 0%nat by lia.
-  simpl; rewrite app_nil_r; rewrite <- app_assoc; reflexivity.
-Qed.
-
 Lemma gaussian_iterated_block_rotation_bounded n e F C p :
   (e <= n)%nat -> finite_joint_continuous n F -> finite_polynomial_bound n C p F ->
   gaussian_iterated_expectation n F =
     gaussian_iterated_expectation n (fun xs => F (skipn e xs ++ firstn e xs)).
 Proof.
-  revert n F C; induction e as [|e IH]; intros n F C He HC HB.
-  - apply gaussian_iterated_expectation_ext; intros xs Hxs; simpl; now rewrite app_nil_r.
-  - transitivity (gaussian_iterated_expectation n (fun xs => F (skipn e xs ++ firstn e xs))).
-    + apply (IH n F C); [lia|exact HC|exact HB].
-    + transitivity (gaussian_iterated_expectation n (fun xs =>
-        F (skipn e (move_coordinate_last 0 xs) ++ firstn e (move_coordinate_last 0 xs)))).
-      * apply (gaussian_iterated_move_last n 0 (fun xs => F (skipn e xs ++ firstn e xs)) C p); [lia| |].
-        -- apply finite_joint_continuous_block_rotation; exact HC.
-        -- apply finite_polynomial_bound_block_rotation; exact HB.
-      * apply gaussian_iterated_expectation_ext; intros xs Hxs.
-        rewrite <- block_rotation_step by lia; reflexivity.
+  intros He HC HB.
+  exact (Gaussian.LawBridge.gaussian_iterated_block_rotation_gauss n e F C p C p
+    He HC HB (finite_joint_continuous_block_rotation n e F HC)
+    (finite_polynomial_bound_block_rotation n e C p F HB)).
 Qed.
 
 Theorem gaussian_block_rotation_continuous d e F :

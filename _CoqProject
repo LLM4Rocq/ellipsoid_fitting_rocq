@@ -11,6 +11,7 @@ library/gaussian/gauss.v
 library/gaussian/gauss_ibp.v
 library/gaussian/gauss_moments.v
 library/gaussian/partial_derivative.v
+library/gaussian/parameter_integral.v
 library/gaussian/gauss_interpolation.v
 library/matrix/euclidean.v
 library/matrix/real_spectral.v
@@ -132,14 +133,14 @@ theories/Gaussian/ClippingTransfer.v
 theories/Gaussian/ConditionWidth.v
 theories/Gaussian/ConditionWidthBound.v
 theories/Gaussian/ConditionalException.v
-theories/Gaussian/CoordinateCutoffMarginal.v
 theories/Gaussian/CoordinateDerivativeDefinitions.v
 theories/Gaussian/CoordinateDerivatives.v
 theories/Gaussian/CoordinateMarginals.v
-theories/Gaussian/CoordinateMoveLast.v
+theories/Gaussian/CoordinateCutoffMarginal.v
 theories/Gaussian/CoordinatePolynomialContinuity.v
 theories/Gaussian/CoordinatePolynomialDomain.v
 theories/Gaussian/CoordinateStein.v
+theories/Gaussian/CoordinateMoveLast.v
 theories/Gaussian/CoordinateSuffixAlgebra.v
 theories/Gaussian/CoordinateSuffixRegularity.v
 theories/Gaussian/CoordinateSwap.v

@@ -106,7 +106,7 @@ generated`), whose code cannot change. The other modules print none.
   `PaperMainConditionedLimit.v`) and two more modules are at the top; the
   others are in 36 folders by topic (`Gaussian`, `Gordon`, `Matrix`, `Head`,
   ...), and `theories/A/B.v` is the module `EllipsoidFitting.A.B`.
-- `library/`: the library `GaussianAnalysis`, 25 files of general results
+- `library/`: the library `GaussianAnalysis`, 26 files of general results
   on Gaussian measures, Gaussian comparison and concentration, real
   matrices and probability, over an arbitrary `R : realType`. The proof
   uses it at Stdlib's `R`: `Gaussian/LawBridge` identifies the library's
@@ -185,12 +185,16 @@ done, and the second is done in part.
 2. The proof of the paper uses these results at Stdlib's `R` in its
    modules on the comparison inequalities, the spectral theorem, the
    operator norms, the nets, the Paley-Zygmund inequality and the Lindeberg
-   method, and in three modules on the Gaussian measure
-   (`Gaussian/CoordinateStein`, `Gaussian/CoordinateSwap`,
+   method, and, through `Gaussian/LawBridge`, in its modules on the
+   iterated Gaussian expectation: the coordinate Stein identities, the
+   exchange and the rotation of coordinates, the integrability at every
+   level of a continuous function of polynomial growth and the continuity
+   of its marginals (`Gaussian/CoordinateStein`, `Gaussian/CoordinateSwap`,
+   `Gaussian/BlockRotation`, `Gaussian/CoordinateMarginals`,
    `Gaussian/QuadraticMGF`). What it no longer needed is deleted:
    `theories/` had 632 modules and 102,415 lines at the tag `phase1`, and
-   has 605 modules and 88,947 lines now. The library has 25 files and
-   10,822 lines.
+   has 605 modules and 89,109 lines now. The library has 26 files and
+   11,097 lines.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -199,25 +203,25 @@ What remains:
 - No human has reviewed the statements of the library yet. The table of
   main results in `library/README.md` is the place to start; the most
   general results are candidates for MathComp-Analysis.
-- About 230 modules of `theories/`, those on the Gaussian measure, real
+- About 215 modules of `theories/`, those on the Gaussian measure, real
   analysis and matrix norms, still prove general facts in the special form
   that the paper needs, with lists of coordinates and Stdlib's `R`,
   although the library now states them in general: the Gaussian integral
   on the line and Stein's identity (`Gaussian/Kernel`, `Gaussian/Mass`,
   `Gaussian/Moments`, `Gaussian/SteinIdentity` and eight more modules),
-  the iterated expectation with its Fubini and permutation facts
-  (`Gaussian/IteratedExpectation`, `Gaussian/CoordinateMarginals`,
-  `Gaussian/BlockExchange` and eleven more), the interpolation between two
-  covariances (`Gaussian/CovarianceDefinitions` and five more; the
-  `Projection` modules use it to compare quadratic Gaussian features with
-  their Gaussian replacement, which the library does not state in that
-  form), matrix norms (`Matrix/OperatorNorm`, `Matrix/FrobeniusNorm` and
-  six more), real analysis for functions of lists
-  (`Analysis/RectangleFubini`, `Analysis/ParameterIntegrals` and eight
-  more), and the machinery of the paper's Gibbs laws, soft min-max and
-  cumulants. The first two groups are corollaries of `Gaussian/LawBridge`
-  and can be re-proved from the library as the Stein identities of
-  `Gaussian/CoordinateStein` were.
+  the interpolation between two covariances
+  (`Gaussian/CovarianceDefinitions` and five more; the `Projection`
+  modules use it to compare quadratic Gaussian features with their
+  Gaussian replacement, which the library does not state in that form),
+  matrix norms (`Matrix/OperatorNorm`, `Matrix/FrobeniusNorm` and six
+  more), real analysis for functions of lists (`Analysis/RectangleFubini`,
+  `Analysis/ParameterIntegrals` and eight more), and the machinery of the
+  paper's Gibbs laws, soft min-max and cumulants. The first group follows
+  from the one-dimensional results of the library and can be re-proved from
+  them as the modules on the iterated expectation were. The facts about the
+  iterated expectation that carry no continuity hypothesis (its linearity,
+  monotonicity and the identities between its levels) are proved from its
+  recursive definition and have no counterpart in the library.
 
 The statement keeps its meaning throughout: `make check` checks after each
 step that its code and the code of its definitions are unchanged.
