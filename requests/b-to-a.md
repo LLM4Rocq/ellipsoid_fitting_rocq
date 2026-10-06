@@ -1,21 +1,5 @@
 # Requests from lane B to lane A
 
-## 6. Remove four unused lane B modules
-
-Please delete these modules and their lines in `_CoqProject`:
-
-```
-theories/PaperMainGaussianExponentialCovariance.v
-theories/PaperMainGaussianBoundedMGF.v
-theories/PaperMainGaussianMGFBound.v
-theories/PaperMainGaussianCovarianceCoupling.v
-```
-
-None of their declarations was used by the main theorem. The first three
-are now empty: they served only a weighted covariance bound of
-`PaperMainGaussianSmoothCovariance`, which is removed. No module requires
-the fourth any more.
-
 ## 7. One lemma from `finite_sum` to `\sum`
 
 Five modules prove the same lemma, under five names:
