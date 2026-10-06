@@ -1,77 +1,20 @@
-(* Sign symmetry of the standard Gaussian. On a symmetric segment, the
-   reflection substitution of MathComp (integration_by_substitution_oppr)
-   and the evenness of the kernel give the reflected cutoff integral; the
-   cutoff limits then give E g(-z) = E g(z) for continuous g whose
-   Gaussian integrals exist. The iterated form E_d[F(-xs)] = E_d[F(xs)]
-   for continuous, polynomially bounded F follows by induction through the
-   last marginal. *)
+(* Sign symmetry of the standard Gaussian: E_d [F (- xs)] = E_d [F xs] for
+   F continuous with a polynomial bound
+   (paper_main_gaussian_iterated_reflect). Read on row vectors through
+   GaussianLawBridge, - xs is list_of_row (- x), and gauss d is invariant
+   under x |-> - x (integral_gauss_opp of the library). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets reals Rstruct.
 From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
-From mathcomp Require Import realfun derive ftc.
-From EllipsoidFitting Require Import AnalysisBridge2 AnalysisIntegralDefinitions GaussianDefinitions
-  GaussianKernel GaussianMass GaussianCutoffDefinitions GaussianCutoff ImproperCutoff
-  GaussianFubiniLebesgue GaussianCoordinateDefinitions GaussianCoordinateTopology
-  GaussianCoordinateWeightDefinitions GaussianProductDefinitions GaussianProduct
-  GaussianLastDefinitions GaussianLastIntegration GaussianCoordinateMarginals
-  GaussianPermutationContinuity.
+From EllipsoidFitting Require Import AnalysisBridge2 GaussianCoordinateDefinitions
+  GaussianCoordinateTopology GaussianCoordinateWeightDefinitions GaussianProductDefinitions
+  GaussianProduct GaussianPermutationContinuity.
 Import ListNotations GRing.Theory Num.Theory.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
-
-Lemma paper_main_gaussian_segment_reflect (g : R -> R) (A : R) :
-  0 <= A -> continuous g ->
-  Rintegral lebesgue_measure `[- A, A] (fun x => g (- x) * gaussian_kernel x) =
-  Rintegral lebesgue_measure `[- A, A] (fun x => g x * gaussian_kernel x).
-Proof.
-move=> HA Hg.
-have HGc : continuous (fun x => g x * gaussian_kernel x).
-  move=> x; apply: continuousM; [exact: Hg|exact: gaussian_kernel_continuous].
-have Hab : (- A <= A)%R by apply/RleP; change (- A <= A); lra.
-have H := @integration_by_substitution_oppr R (fun x => g x * gaussian_kernel x)
-  (- A) A Hab (continuous_subspaceT HGc).
-rewrite opprK in H.
-rewrite /Rintegral H.
-congr fine; apply: eq_integral => x _ /=.
-by rewrite gaussian_kernel_even.
-Qed.
-
-Lemma paper_main_gaussian_cutoff_reflect (g : R -> R) (A : R) :
-  0 <= A -> continuous g ->
-  gaussian_cutoff_integral (fun x => g (- x)) A = gaussian_cutoff_integral g A.
-Proof.
-move=> HA Hg; rewrite /gaussian_cutoff_integral.
-rewrite (fubini_oriented_symmetric _ _ HA) (fubini_oriented_symmetric _ _ HA).
-exact: paper_main_gaussian_segment_reflect.
-Qed.
-
-Lemma paper_main_gaussian_integral_reflect (g : R -> R) :
-  continuous g -> gaussian_integral_exists g ->
-  gaussian_integral_exists (fun x => g (- x)) ->
-  gaussian_integral (fun x => g (- x)) = gaussian_integral g.
-Proof.
-move=> Hg Hi Hi'.
-have L1 := gaussian_cutoff_integral_limit _ Hi'.
-have L2 := gaussian_cutoff_integral_limit _ Hi.
-have L3 : (gaussian_cutoff_integral g A @[A --> +oo%R] -->
-    gaussian_integral (fun x => g (- x)))%classic.
-  apply: (cvg_trans _ L1); apply: near_eq_cvg.
-  exists 0%R; split; [exact: num_real|] => A /RltP HA /=.
-  by rewrite (paper_main_gaussian_cutoff_reflect g A (Rlt_le _ _ HA) Hg).
-exact: (@cvg_unique _ (@Rhausdorff _) _ _ _ _ L3 L2).
-Qed.
-
-Theorem paper_main_gaussian_expectation_reflect (g : R -> R) :
-  continuous g -> gaussian_integral_exists g ->
-  gaussian_integral_exists (fun x => g (- x)) ->
-  gaussian_expectation (fun x => g (- x)) = gaussian_expectation g.
-Proof.
-move=> Hg Hi Hi'; rewrite /gaussian_expectation.
-by rewrite (paper_main_gaussian_integral_reflect g Hg Hi Hi').
-Qed.
 
 (* Negation of a coordinate list. *)
 
@@ -115,32 +58,40 @@ apply: (finite_joint_continuous_list_map d d (List.map Ropp) F) => //.
 - by move=> e xs ys _ _ H; exact: paper_main_gaussian_neg_forall2.
 Qed.
 
+From mathcomp Require Import matrix.
+From GaussianAnalysis Require Import measurable_matrix gauss escape.
+From EllipsoidFitting Require Import GaussianLawBridge.
+
+Section iterated_reflect.
+Local Notation RR := (R : realType).
+
+Lemma paper_main_gaussian_list_of_row_opp d (x : 'rV[RR]_d) :
+  List.map Ropp (list_of_row x) = list_of_row (- x)%R.
+Proof.
+apply: (List.nth_ext _ _ 0 0).
+  by rewrite List.length_map !list_of_row_length.
+move=> i; rewrite List.length_map list_of_row_length => /ssrnat.ltP id.
+have Hi : (i < List.length (List.map Ropp (list_of_row x)))%coq_nat.
+  by rewrite List.length_map list_of_row_length; apply/ssrnat.ltP.
+rewrite (List.nth_indep _ 0 (- 0) Hi).
+have -> : i = Ordinal id by [].
+by rewrite List.map_nth !list_of_row_nth mxE.
+Qed.
+
 (* The iterated sign symmetry. *)
 Theorem paper_main_gaussian_iterated_reflect d F C p :
   finite_joint_continuous d F -> finite_polynomial_bound d C p F ->
   gaussian_iterated_expectation d (fun xs => F (List.map Ropp xs)) =
     gaussian_iterated_expectation d F.
 Proof.
-elim: d F C p => [|d IH] F C p HF HB; first by [].
-rewrite (gaussian_iterated_last_expectation d (fun xs => F (List.map Ropp xs))).
-rewrite (gaussian_iterated_last_expectation d F).
-transitivity (gaussian_iterated_expectation d
-  (fun xs => gaussian_last_marginal F (List.map Ropp xs))).
-- apply: gaussian_iterated_expectation_ext => xs Hxs.
-  rewrite /gaussian_last_marginal.
-  have Hlen : List.length (List.map Ropp xs) = d by rewrite paper_main_gaussian_neg_length.
-  have Hcont : continuous (fun u => F (List.map Ropp xs ++ [u])%list).
-    by move=> t; exact: (finite_joint_continuous_last_section d F _ HF Hlen t).
-  have [Hi _] := gaussian_last_section_admissible d F C p _ HF HB Hlen.
-  have [Hi' _] := gaussian_last_section_admissible d (fun ys => F (List.map Ropp ys)) C p xs
-    (paper_main_gaussian_neg_continuous (S d) F HF)
-    (paper_main_gaussian_neg_polynomial_bound (S d) C p F HB) Hxs.
-  have Heq : (fun t => F (List.map Ropp (xs ++ [t])%list)) =
-      (fun t => (fun u => F (List.map Ropp xs ++ [u])%list) (- t)).
-    by apply: funext => t; rewrite List.map_app.
-  rewrite Heq; rewrite Heq in Hi'.
-  exact: (paper_main_gaussian_expectation_reflect _ Hcont Hi Hi').
-- exact: (IH (gaussian_last_marginal F) (C * gaussian_coordinate_weight_moment p) p
-    (gaussian_last_marginal_continuous d F C p HF HB)
-    (gaussian_last_marginal_polynomial_bound d F C p HF HB)).
+move=> HF HB.
+have HFn := paper_main_gaussian_neg_continuous d F HF.
+have HBn := paper_main_gaussian_neg_polynomial_bound d C p F HB.
+rewrite (proj2 (gaussian_iterated_expectation_gauss_poly _ _ _ _ HFn HBn)).
+have [iF ->] := gaussian_iterated_expectation_gauss_poly _ _ _ _ HF HB.
+under eq_Rintegral do rewrite paper_main_gaussian_list_of_row_opp.
+rewrite /Rintegral; congr fine.
+exact: (integral_gauss_opp iF).
 Qed.
+
+End iterated_reflect.

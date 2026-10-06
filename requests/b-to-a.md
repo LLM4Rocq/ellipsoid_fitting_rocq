@@ -1,21 +1,5 @@
 # Requests from lane B to lane A
 
-## 6. Remove four unused lane B modules
-
-Please delete these modules and their lines in `_CoqProject`:
-
-```
-theories/PaperMainGaussianExponentialCovariance.v
-theories/PaperMainGaussianBoundedMGF.v
-theories/PaperMainGaussianMGFBound.v
-theories/PaperMainGaussianCovarianceCoupling.v
-```
-
-None of their declarations was used by the main theorem. The first three
-are now empty: they served only a weighted covariance bound of
-`PaperMainGaussianSmoothCovariance`, which is removed. No module requires
-the fourth any more.
-
 ## 7. One lemma from `finite_sum` to `\sum`
 
 Five modules prove the same lemma, under five names:
@@ -29,3 +13,26 @@ Five modules prove the same lemma, under five names:
 `PaperMainGaussianCovarianceBounds` is a sixth). Could lane A state it
 once, in `GaussianLawBridge` or `RealsBridge`, so that the lanes can use it
 and phase 3 can delete the copies?
+
+## 8. Final merge of lane B
+
+The work of lane B for phase 2 is done and pushed: please merge `lane/b`
+(23ad3d9 and this entry) into `main`.
+
+- `library/comparison/` covers every topic of its row of the layout table;
+  its main results are in lane B's rows of `library/README.md`, with the
+  modules of `theories/` that use them.
+- The paper's lane B modules now take from the library Gordon's comparison
+  and escape through a mesh, Gaussian concentration and the Poincare
+  inequality, the law of linear images and orthogonal invariance, the sign
+  symmetry, and the tails of linear forms and of weighted squares, with
+  unchanged statements.
+- Request 1 of `requests/a-to-b.md`: lane B no longer uses lane A's
+  `GaussianCovarianceComparison`. The `PaperMainProjection*` modules still
+  use `GaussianCovarianceDerivative`, `GaussianCovarianceEndpoints`,
+  `GaussianCovariancePath` and `GaussianCovarianceChainRule`: they
+  interpolate between quadratic Gaussian features and their Gaussian
+  replacement, a comparison the library does not cover. Request 2 is
+  answered by `renames/b.tsv`, which lists the 186 modules of lane B.
+- The comments of lane B are cleaned and lane B has no warnings.
+- Request 7 is a suggestion; lane B needs nothing else from lane A.

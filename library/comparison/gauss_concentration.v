@@ -24,6 +24,10 @@ From GaussianAnalysis.comparison Require Import gauss_smoothing.
 (* u) and P(F x <= E[F] - u) are at most expR (- u^2 / (2 L^2))               *)
 (* (gauss_concentration_upper_tail, gauss_concentration_lower_tail), and P(|F *)
 (* x - E[F]| >= u) is at most twice that (gauss_concentration_abs_tail).      *)
+(* The variance of F x is at most L^2: this is the Gaussian Poincare          *)
+(* inequality for Lipschitz functions (gauss_poincare_lipschitz), from the    *)
+(* bound on E[expR (t (F x - E[F]))] at t and - t, with                       *)
+(* cosh y >= 1 + y^2 / 2 (expR_cosh_ge), as t -> 0.                           *)
 (*                                                                            *)
 (* The proof follows Herbst. Let F be bounded, of class C^1, with gradient of *)
 (* Euclidean norm at most L, and let t >= 0. Let y be an independent copy of  *)
@@ -1047,3 +1051,164 @@ exact: gauss_concentration_lower_tail.
 Qed.
 
 End gauss_concentration_tails.
+
+(* Two inequalities for the exponential, by monotonicity:
+   2 y <= expR y - expR (- y) for y >= 0, and 2 + x^2 <= expR x + expR (- x),
+   that is cosh x >= 1 + x^2 / 2. *)
+Section expR_cosh.
+Context {R : realType}.
+
+Lemma is_derive_expRN (z : R) : is_derive z 1 (fun z : R => expR (- z)) (- expR (- z)).
+Proof.
+have dneg : is_derive z 1 (fun z : R => - z) (-1) by apply: is_deriveN; exact: is_derive_id.
+have := @is_derive1_comp R expR (fun z : R => - z) z _ _ (is_derive_expR (- z)) dneg.
+by rewrite mulrN1.
+Qed.
+
+Lemma expR_sinh_ge (y : R) : 0 <= y -> 2 * y <= expR y - expR (- y).
+Proof.
+move=> y0.
+pose h (z : R) := expR z - expR (- z) - 2 * z.
+have dh (z : R) : is_derive z 1 h (expR z + expR (- z) - 2).
+  have d2 : is_derive z (1 : R) (fun z : R => 2 * z) 2.
+    by have := is_deriveZ 2 (is_derive_id z 1); rewrite scaler1.
+  have := is_deriveB (is_deriveB (is_derive_expR z) (is_derive_expRN z)) d2.
+  by rewrite opprK.
+have dv (x : R) : derivable h x 1 by case: (dh x).
+have hc : continuous h.
+  by move=> x; apply: differentiable_continuous; apply/derivable1_diffP; exact: dv.
+have hd x : x \in `]0, +oo[ -> 0 <= h^`() x.
+  move=> _; rewrite derive1E (@derive_val _ _ _ _ _ _ _ (dh x)) subr_ge0.
+  by have := expR_ge1Dx x; have := expR_ge1Dx (- x); lra.
+have := @ger0_derive1_ndecry R h 0 (fun x _ => dv x) hd (continuous_subspaceT hc) 0 y
+  (lexx 0) y0.
+by rewrite /h oppr0 expR0 subrr mulr0 subr0 subr_ge0.
+Qed.
+
+Lemma expR_cosh_ge (x : R) : 2 + x ^+ 2 <= expR x + expR (- x).
+Proof.
+wlog x0 : x / 0 <= x.
+  move=> H; have [x0|x0] := leP 0 x; first exact: H.
+  have := H (- x); rewrite opprK sqrrN [expR x + _]addrC; apply.
+  by rewrite oppr_ge0 ltW.
+pose g (z : R) := expR z + expR (- z) - 2 - z ^+ 2.
+have dg (z : R) : is_derive z 1 g (expR z - expR (- z) - 2 * z).
+  have dz2 : is_derive z (1 : R) (fun z : R => z ^+ 2) (2 * z).
+    have := is_deriveM (is_derive_id z (1 : R)) (is_derive_id z (1 : R)).
+    by rewrite /GRing.scale /= !mulr1 -mulr2n mulr_natl.
+  have dc : is_derive z (1 : R) (fun _ : R => (2 : R)) 0 by exact: is_derive_cst.
+  have := is_deriveB (is_deriveB (is_deriveD (is_derive_expR z) (is_derive_expRN z)) dc) dz2.
+  by rewrite subr0.
+have dv (z : R) : derivable g z 1 by case: (dg z).
+have gc : continuous g.
+  by move=> z; apply: differentiable_continuous; apply/derivable1_diffP; exact: dv.
+have g0x : g 0 <= g x.
+  apply: (@ger0_derive1_ndecry R g 0 (fun z _ => dv z) _ (continuous_subspaceT gc) 0 x
+    (lexx 0) x0).
+  move=> z; rewrite in_itv/= andbT => z0.
+  by rewrite derive1E (@derive_val _ _ _ _ _ _ _ (dg z)) subr_ge0 expR_sinh_ge// ltW.
+by move: g0x; rewrite /g oppr0 expR0 expr0n/=; lra.
+Qed.
+
+End expR_cosh.
+
+(* The Gaussian Poincare inequality for Lipschitz functions: the variance of
+   F x is at most L^2. For t > 0, cosh (t Y) >= 1 + t^2 Y^2 / 2 with
+   Y = F x - E[F], and gauss_concentration bounds E[expR (t Y)] and
+   E[expR (- t Y)]; so E[Y^2] <= L^2 expR (t^2 L^2 / 2), and t -> 0. *)
+Section gauss_poincare.
+Context {R : realType} {n : nat}.
+Variables (F : 'rV[R]_n -> R) (L : R).
+Hypothesis FL : forall x y, `|F x - F y| <= L * frobenius (x - y).
+
+Theorem gauss_poincare_lipschitz :
+  \int[gauss n]_x (F x - \int[gauss n]_y F y) ^+ 2 <= L ^+ 2.
+Proof.
+set mu := \int[gauss n]_y F y.
+have mF : measurable_fun [set: 'rV[R]_n] F :=
+  continuous_measurable_mx (lipschitz_frobenius_continuous FL).
+have mY2 : measurable_fun [set: 'rV[R]_n] (fun x => (F x - mu) ^+ 2).
+  by apply: measurable_funX; exact: measurable_funB.
+set a := `|F 0| + `|mu|; set b := `|L| * (1 * n)%:R.
+have a0 : 0 <= a by rewrite addr_ge0.
+have b0 : 0 <= b by rewrite mulr_ge0.
+have Yb x : `|F x - mu| <= a + b * `|x|.
+  have h1 := lipschitz_frobenius_bound FL x.
+  have h3 : `|L| * frobenius x <= `|L| * ((1 * n)%:R * `|x|).
+    by rewrite ler_wpM2l// frobenius_le_mx_norm.
+  by rewrite (le_trans (ler_normB _ _))// /a /b -mulrA; lra.
+have iY2 : (gauss n).-integrable [set: 'rV[R]_n] (EFin \o (fun x => (F x - mu) ^+ 2)).
+  apply: (integrable_gauss_poly mY2 (C := 2 * (a ^+ 2 + b ^+ 2)) (k := 2)) => x.
+  have := Yb x; have := normr_ge0 (F x - mu); have := normr_ge0 x.
+  rewrite normrX; set z := `|F x - mu|; set w := `|x| => w0 z0 zb.
+  have h1 : z ^+ 2 <= (a + b * w) ^+ 2.
+    by rewrite ler_sqr ?nnegrE ?addr_ge0 ?mulr_ge0.
+  have h2 := sqr_ge0 (a - b * w).
+  have h3 : 0 <= a ^+ 2 * w ^+ 2 by rewrite mulr_ge0 ?sqr_ge0.
+  have h4 := sqr_ge0 b.
+  nra.
+have iE (c : R) := integrable_gauss_concentration FL c.
+have bE (c : R) : \int[gauss n]_x expR (c * (F x - mu)) <= expR (c ^+ 2 * L ^+ 2 / 2).
+  rewrite -[X in _ <= X]/(fine (expR (c ^+ 2 * L ^+ 2 / 2))%:E).
+  apply: fine_le => //; first exact: (integrable_fin_num _ (iE c)).
+  exact: gauss_concentration FL c.
+have key t : 0 < t ->
+    \int[gauss n]_x (F x - mu) ^+ 2 <= L ^+ 2 * expR (t ^+ 2 * L ^+ 2 / 2).
+  move=> t0; set s := t ^+ 2 * L ^+ 2 / 2.
+  have pt x : 2 + t ^+ 2 * (F x - mu) ^+ 2 <=
+      expR (t * (F x - mu)) + expR (- t * (F x - mu)).
+    by have := expR_cosh_ge (t * (F x - mu)); rewrite exprMn mulNr.
+  have i2 : (gauss n).-integrable [set: 'rV[R]_n]
+      (EFin \o (fun x => 2 + t ^+ 2 * (F x - mu) ^+ 2)).
+    have := integrableD measurableT (finite_measure_integrable_cst (gauss n) 2 measurableT)
+      (integrableZl measurableT (t ^+ 2) iY2).
+    by apply: eq_integrable => // x _; rewrite /= EFinD EFinM.
+  have iC : (gauss n).-integrable [set: 'rV[R]_n]
+      (EFin \o (fun x => expR (t * (F x - mu)) + expR (- t * (F x - mu)))).
+    have := integrableD measurableT (iE t) (iE (- t)).
+    by apply: eq_integrable => // x _; rewrite /= EFinD.
+  have e1 : \int[gauss n]_x (2 + t ^+ 2 * (F x - mu) ^+ 2) =
+      2 + t ^+ 2 * \int[gauss n]_x (F x - mu) ^+ 2.
+    rewrite RintegralD//.
+    - exact: finite_measure_integrable_cst.
+    - have := integrableZl measurableT (t ^+ 2) iY2.
+      by apply: eq_integrable => // x _; rewrite /= EFinM.
+    - by rewrite Rintegral_cst// [X in fine X]probability_setT mulr1 RintegralZl.
+  have e2 : \int[gauss n]_x (expR (t * (F x - mu)) + expR (- t * (F x - mu))) =
+      \int[gauss n]_x expR (t * (F x - mu)) + \int[gauss n]_x expR (- t * (F x - mu)).
+    by rewrite RintegralD//; exact: iE.
+  have := le_Rintegral measurableT i2 iC (fun x _ => pt x).
+  rewrite e1 e2 => h.
+  have := le_trans h (lerD (bE t) (bE (- t))); rewrite sqrrN -/s => {}h.
+  have es : expR s - 1 <= s * expR s.
+    have := expR_ge1Dx (- s); rewrite -(ler_pM2r (expR_gt0 s)) mulrDl mul1r.
+    by rewrite mulNr -expRD addNr expR0; lra.
+  have s0 : 0 <= s by rewrite /s mulr_ge0// mulr_ge0// sqr_ge0.
+  have t2 : 0 < t ^+ 2 by rewrite exprn_gt0.
+  rewrite -(ler_pM2l t2).
+  have -> : t ^+ 2 * (L ^+ 2 * expR s) = 2 * (s * expR s) by rewrite /s; field.
+  lra.
+set V := \int[gauss n]_x (F x - mu) ^+ 2.
+apply/ler_addgt0Pr => e e0.
+have [L0|L0] := eqVneq (L ^+ 2) 0.
+  have := key 1 ltr01; rewrite L0 mul0r => h.
+  by rewrite add0r (le_trans h)// ltW.
+have L2 : 0 < L ^+ 2 by rewrite lt_neqAle eq_sym L0 sqr_ge0.
+set u := e / (L ^+ 2 + e).
+have Le : 0 < L ^+ 2 + e by rewrite addr_gt0.
+have u0 : 0 < u by rewrite divr_gt0.
+pose t := Num.sqrt (2 * u / L ^+ 2).
+have t0 : 0 < t by rewrite sqrtr_gt0 divr_gt0// mulr_gt0.
+have tu : t ^+ 2 * L ^+ 2 / 2 = u.
+  rewrite /t sqr_sqrtr; last by rewrite divfK// mulrC mulKf.
+  by apply: divr_ge0; [apply: mulr_ge0 => //; exact: ltW|exact: ltW].
+have := key t t0; rewrite tu => h.
+have eu : expR u * (1 - u) <= 1.
+  by have := expR_ge1Dx (- u); rewrite -(ler_pM2l (expR_gt0 u)) -expRD subrr expR0.
+have Lne : L ^+ 2 + e != 0 by rewrite gt_eqF.
+have e1u : 1 - u = L ^+ 2 / (L ^+ 2 + e) by rewrite /u; field.
+rewrite e1u mulrA ler_pdivrMr// mul1r in eu.
+by rewrite (le_trans h)// mulrC.
+Qed.
+
+End gauss_poincare.
