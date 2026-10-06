@@ -23,7 +23,7 @@ From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum ma
 From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology ereal measure lebesgue_measure.
 From mathcomp Require Import lebesgue_integral measurable_realfun probability.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianProbabilityProductContinuity
+From EllipsoidFitting Require Import AnalysisBridge GaussianProbabilityProductContinuity
   SoftDefinitions PaperMainGeometryPsd GaussianProbabilityProductDefinitions PaperMainDefinitions
   PaperMainGeometryHeadCorrection PaperMainGeometryHeadFeature PaperMainGeometryHeadWidth
   PaperMainHeadTailSupportSplit PaperMainHeadSelectionLaw PaperMainHeadSectionWidthLaw

@@ -11,7 +11,7 @@
      sum_k dcoef t a k * coef t b k = (1/2) ((P P^T)_ab - (Q Q^T)_ab),
    the identity that turns the Stein terms into the covariance difference. *)
 From Stdlib Require Import Reals List Lia Lra FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCovarianceDefinitions
   GaussianCovarianceSums GaussianCovarianceLinear.
 Import ListNotations.

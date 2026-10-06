@@ -7,7 +7,7 @@
    makes df the derivative of f at a (quadratic_remainder_derivative). *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 Open Scope R_scope.
 
 Lemma local_second_derivative_remainder (f df ddf : R -> R) a rho C :

@@ -7,7 +7,7 @@
    gauss_poincare_lipschitz of the library. paper_main_variance_derivative_nonnegative
    is the monotonicity of a function with a nonnegative derivative. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinateWeightDefinitions
   GaussianCoordinatePolynomialContinuity GaussianCoordinateWeights
   GaussianCoordinateSteinDomains GaussianProductDefinitions GaussianProduct

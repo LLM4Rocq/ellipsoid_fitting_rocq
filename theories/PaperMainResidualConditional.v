@@ -17,7 +17,7 @@
      section, whose mean is the joint probability. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
-From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions PaperMainAsymptotics
+From EllipsoidFitting Require Import AnalysisBridge PaperMainDefinitions PaperMainAsymptotics
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity
   PaperMainClippingLimits PaperMainResidualRates PaperMainGaussianConditionalException
   PaperMainGaussianResidualJoint PaperMainConeConditionOperator PaperMainGeometryPsd

@@ -7,7 +7,7 @@
    continuity hypothesis on g is not used. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import RectangleFubini GaussianFubiniLebesgue.
 From EllipsoidFitting Require Import GaussianMass ImproperBounds.

@@ -12,7 +12,7 @@
    - paper_main_loss_conditional_suffix_comparison: the same with the
      prefix fixed and the suffix integrated. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianProductDefinitions GaussianProduct
+From EllipsoidFitting Require Import AnalysisBridge GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions GaussianLastDefinitions
   GaussianLastIntegration GaussianBlockExchange PaperMainDataFeatureMomentsCoordinates
   PaperMainLossRowIncrement.

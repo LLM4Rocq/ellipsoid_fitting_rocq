@@ -15,7 +15,7 @@
      2 eta + C eps S. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianProductDefinitions GaussianProduct
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity
   PaperMainDataFeatureMomentsCoordinates PaperMainDataFeatureMoments
   PaperMainDefinitions PaperMainGeometryHomogeneous PaperMainConeConditionOperator

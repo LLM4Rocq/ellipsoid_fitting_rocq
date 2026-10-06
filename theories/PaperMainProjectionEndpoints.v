@@ -1,6 +1,6 @@
 (* Continuity through the endpoints for bounded smooth nonlinear features. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianProductDefinitions GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions
   GaussianCoordinateWeights GaussianCovarianceDefinitions GaussianCovarianceEndpoints
   GaussianExpectationContinuity GaussianCoordinatePolynomialContinuity

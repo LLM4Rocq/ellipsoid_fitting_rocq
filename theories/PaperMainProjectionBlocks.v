@@ -1,6 +1,6 @@
 (* Disjoint blocks for independent quadratic and Gaussian coordinates. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianCovarianceLinear PaperMainProjectionStein PaperMainProjectionAlgebra.
 Open Scope R_scope.
 

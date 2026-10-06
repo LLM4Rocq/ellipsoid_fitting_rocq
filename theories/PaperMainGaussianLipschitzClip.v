@@ -6,7 +6,7 @@
    test is itself jointly continuous. This prepares smoothing; it is not a
    concentration statement. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateBasics GaussianCoordinateWeightDefinitions
   GaussianCovarianceSums PaperMainGaussianSmoothCalculus PaperMainGordonLipschitz.

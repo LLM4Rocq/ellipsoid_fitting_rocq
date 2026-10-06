@@ -21,7 +21,7 @@
      paper_main_loss_row_polynomial_comparison. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianProductDefinitions GaussianProduct
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianProductDefinitions GaussianProduct
   GaussianExpectationContinuity GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity
   PaperMainDataFeatureMomentsCoordinates PaperMainDataFeatureMoments
   PaperMainDefinitions PaperMainGeometryHomogeneous PaperMainConeConditionOperator

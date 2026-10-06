@@ -11,11 +11,11 @@
    GaussianCovariancePath applies them to the interpolation path
    sqrt t X + sqrt (1 - t) Y and its endpoints, written as linear images.
 
-   This module loads MathComp through AnalysisBridge2, so List.nth, List.map,
+   This module loads MathComp through AnalysisBridge, so List.nth, List.map,
    List.seq and %coq_nat are written explicitly; the arithmetic on R is
    Stdlib's, with R_scope opened last. *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateBasics GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity
   GaussianCoordinateWeightDefinitions GaussianCoordinateWeights

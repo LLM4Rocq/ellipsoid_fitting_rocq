@@ -19,7 +19,7 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct cardin
 From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun lebesgue_integral.
 From mathcomp Require Import probability numfun.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianCovarianceDefinitions GaussianCovarianceLinear
   GaussianCoordinateDefinitions GaussianCoordinatePolynomialContinuity GaussianFiniteSums
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity

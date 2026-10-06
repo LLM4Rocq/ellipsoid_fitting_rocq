@@ -8,7 +8,7 @@
    the negative reals). The arithmetic in every statement is Stdlib's. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates OperatorDefinitions
   SoftDefinitions MatrixGibbsDefinitions GoeDefinitions GaussianProductDefinitions
   GaussianVectorDefinitions GaussianCoordinateDefinitions

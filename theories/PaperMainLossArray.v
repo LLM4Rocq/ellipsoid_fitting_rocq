@@ -12,7 +12,7 @@
      |soft_min beta f I| + N, so it satisfies pmdf_regular (continuity and
      a polynomial bound). *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions SoftExtrema
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions SoftExtrema
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity
   GaussianPermutationContinuity GaussianBlockPermutation PaperMainDataFeatureMomentsCoordinates
   PaperMainGaussianSmoothCalculus PaperMainGordonContinuity PaperMainSoftLipschitz.

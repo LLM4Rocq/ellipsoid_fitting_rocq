@@ -19,7 +19,7 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianProbabilityProductDefinitions
+From EllipsoidFitting Require Import AnalysisBridge GaussianProbabilityProductDefinitions
   GaussianProbabilityProductContinuity Definitions HeadTail SoftDefinitions
   PaperMainDefinitions PaperMainGeometryPsd PaperMainGeometryHeadCoefficients
   PaperMainGeometryHeadCorrection PaperMainGeometryHeadFeature

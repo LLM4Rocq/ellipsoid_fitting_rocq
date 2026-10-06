@@ -12,7 +12,7 @@
    paper_main_loss_factor_smooth applies this to the loss factor with
    C = 1 + 10 beta + 16 beta^2 (paper_main_loss_factor_constant). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftExtrema PaperMainTranslatedLoss
+From EllipsoidFitting Require Import AnalysisBridge SoftExtrema PaperMainTranslatedLoss
   GaussianCoordinateDefinitions GaussianCoordinateDerivativeDefinitions
   GaussianCoordinatePermutationDefinitions GaussianCoordinatePermutations
   GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity

@@ -11,7 +11,7 @@
    paper_main_gaussian_orthogonal_coordinate_comp differentiates phi (F xs)
    along one coordinate. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions GaussianCoordinateWeights
   GaussianCoordinateDerivativeDefinitions GaussianCoordinatePermutationDefinitions
   GaussianCoordinatePermutations GaussianCoordinateTopology

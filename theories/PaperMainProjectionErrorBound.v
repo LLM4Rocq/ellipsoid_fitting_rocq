@@ -1,6 +1,6 @@
 (* A dimension-independent Hessian error bound from the actual quadratic moments. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianProductDefinitions GaussianProduct GaussianFiniteSums
   PaperMainDataFeatureMomentsCoordinates PaperMainGaussianSmoothCovariance
   PaperMainGaussianSmoothCalculus PaperMainProjectionStein PaperMainProjectionRegular

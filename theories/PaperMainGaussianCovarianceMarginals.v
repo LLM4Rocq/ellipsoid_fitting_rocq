@@ -6,7 +6,7 @@
    (paper_main_gaussian_standard_covariance_expectation, from
    paper_main_covariance_equal_expectation). *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions
   GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions
   GaussianCoordinateDerivativeDefinitions

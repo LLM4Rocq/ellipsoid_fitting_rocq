@@ -1,6 +1,6 @@
 (* Repeated row replacement with a bound uniform over finite priors. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianProductDefinitions GaussianProduct
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity
   PaperMainDataFeatureMomentsCoordinates MaximumRadiusMoments
   PaperMainLossArray PaperMainLossSoftCost PaperMainLossBlockComparison.

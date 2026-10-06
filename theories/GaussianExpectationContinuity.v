@@ -18,7 +18,7 @@
    |b - a| < delta. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import GaussianProductDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateWeightDefinitions.

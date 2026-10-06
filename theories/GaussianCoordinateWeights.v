@@ -16,7 +16,7 @@
    because %nat would give ssrnat's leq, ltn, addn and muln. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions GaussianMass
   GaussianExpectation GaussianMoments GaussianIntegration GaussianProductDefinitions
   GaussianProduct GaussianCoordinateWeightDefinitions.

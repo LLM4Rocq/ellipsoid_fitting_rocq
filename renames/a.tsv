@@ -1,7 +1,6 @@
 AffineGaussianGibbs	Gibbs/AffineGradientStein
 AffineGaussianRegular	Gibbs/AffineGradientRegularity
 AnalysisBridge	Analysis/CalculusBridge
-AnalysisBridge2	Analysis/CalculusBridge
 BlockAlongContinuity	Soft/BlockPathContinuity
 BlockBasis	Matrix/BlockBasis
 BlockOperatorDefinitions	Matrix/BlockInjection

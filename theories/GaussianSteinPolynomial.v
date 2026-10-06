@@ -11,7 +11,7 @@
    absolute integrability of the term with the highest derivative. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import GaussianKernel GaussianStein GaussianDecay.
 Local Open Scope classical_set_scope.

@@ -13,7 +13,7 @@
       the same expectation; the conditional increment lies in [-c, c] and
       has zero mean. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianDefinitions GaussianProductDefinitions
+From EllipsoidFitting Require Import AnalysisBridge GaussianDefinitions GaussianProductDefinitions
   GaussianProduct GaussianLastDefinitions GaussianLastIntegration
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinateWeightDefinitions
   GaussianCoordinateWeights GaussianCoordinateMarginals GaussianCoordinateSuffixAlgebra

@@ -321,10 +321,21 @@ Proof. by move=> x; exact: is_derive_continuous (is_derive_Rpow n x). Qed.
    On derivable f x 1 it proves the goal outright when the chain closes; on
    derivable_pt_lim f x l and derivable_pt f x it first converts to the
    MathComp form. A function under a definition (gaussian_kernel) must be
-   unfolded first. *)
+   unfolded first.
+   Two more features:
+   - A hypothesis is used through eapply, so a universally quantified
+     hypothesis (forall t, Rabs (t - a) <= rho -> is_derive t 1 f (df t))
+     closes a leaf, leaving its premise as a side goal, and so does a
+     Stdlib hypothesis derivable_pt_lim f x df.
+   - A composite fun y => h (g y) whose head h is not one of the known
+     functions is split by the chain rule is_derive_comp, so that a
+     hypothesis about h at the point g x can close the inner goal. A bare
+     fun y => h y is left to the leaves. *)
 
 Ltac auto_derive_leaf :=
   first [ eassumption
+        | match goal with H : _ |- _ => eapply H end
+        | eapply is_derive_of_Reals; eassumption
         | eapply is_derive_id_R
         | eapply is_derive_const
         | eapply is_derive_exp
@@ -357,6 +368,8 @@ Ltac auto_derive_rule :=
   | |- is_derive _ _ (fun y => Rpower.ln _) _ => eapply is_derive_ln_comp
   | |- is_derive _ _ (fun y => sqrt _) _ => eapply is_derive_sqrt
   | |- is_derive _ _ (fun y => pow _ _) _ => eapply is_derive_pow
+  | |- is_derive _ _ (fun y => _ y) _ => fail
+  | |- is_derive _ _ (fun y => ?h _) _ => eapply is_derive_comp
   end.
 
 Ltac auto_derive_chain := repeat first [ auto_derive_leaf | auto_derive_rule ].

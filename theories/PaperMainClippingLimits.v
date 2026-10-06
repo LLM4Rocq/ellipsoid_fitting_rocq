@@ -14,7 +14,7 @@
      standard Gaussian points of R^d has absolute value at least d^(1/4)
      tends to 0, by the union bound paper_main_data_coordinate_tail. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions PaperMainAsymptotics
+From EllipsoidFitting Require Import AnalysisBridge PaperMainDefinitions PaperMainAsymptotics
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity
   PaperMainDataSampleTail PaperMainClippingRates.
 Import GRing.Theory Num.Theory Order.TTheory.

@@ -16,11 +16,11 @@
    WeightedComparison, applied to - phi, gives phi(0) <= phi(1), that is
    E f(Y) <= E f(X) by the endpoint identities.
 
-   This module loads MathComp through AnalysisBridge2; %coq_nat marks
+   This module loads MathComp through AnalysisBridge; %coq_nat marks
    Stdlib's order on nat, and the arithmetic on R is Stdlib's, with
    R_scope opened last. *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions
   GaussianCoordinateDerivativeDefinitions GaussianFiniteSums WeightedComparison

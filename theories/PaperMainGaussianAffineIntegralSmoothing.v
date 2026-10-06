@@ -2,7 +2,7 @@
    smoothing of every bounded Euclidean-Lipschitz test is a bounded C2 test
    with the same squared-gradient bound. No approximation premise remains. *)
 From Stdlib Require Import Reals List Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianDefinitions
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianDefinitions
   GaussianCoordinateDefinitions GaussianCoordinateDerivativeDefinitions
   GaussianProductDefinitions PaperMainGaussianSmoothCalculus
   PaperMainGaussianSmoothCovariance PaperMainGordonLipschitz

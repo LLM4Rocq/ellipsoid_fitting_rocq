@@ -4,7 +4,7 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets reals Rstruct.
 From mathcomp Require Import ring_tactic arithmetic_tactic.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums PaperMainMatrixDuality
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums PaperMainMatrixDuality
   PaperMainDefinitions PaperMainGeometryPsd PaperMainGeometryHomogeneous PaperMainGeometryHeadFrobenius
   PaperMainGeometryHeadCorrection PaperMainFeatureGramBlocks PaperMainFeatureForwardBound
   PaperMainLossEmpirical PaperMainTranslatedLoss.

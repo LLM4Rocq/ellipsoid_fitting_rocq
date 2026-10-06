@@ -9,7 +9,7 @@
    law of Gaussian vectors with a given covariance (gauss_law.v of the
    library). *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions
   GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions
   GaussianCoordinateDerivativeDefinitions GaussianCoordinateSteinDomains

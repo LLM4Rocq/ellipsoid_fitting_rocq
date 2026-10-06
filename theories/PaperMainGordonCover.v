@@ -1,6 +1,6 @@
 (* A finite-coordinate cover, obtained from compact real intervals. *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From mathcomp Require Import finmap.
 Import ListNotations.
 Local Open Scope classical_set_scope.

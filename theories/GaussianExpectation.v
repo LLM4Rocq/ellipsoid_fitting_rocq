@@ -10,7 +10,7 @@
    follows from gaussian_integral_exists f. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import GaussianKernel GaussianMass GaussianFubiniLebesgue.
 Local Open Scope classical_set_scope.

@@ -13,7 +13,7 @@
      below d, satisfies it with the bound (4 C)^(length J), where
      C = paper_main_loss_factor_constant beta. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianCoordinateDefinitions
+From EllipsoidFitting Require Import AnalysisBridge GaussianCoordinateDefinitions
   GaussianCoordinateDerivativeDefinitions GaussianCoordinateTopology
   GaussianCoordinatePolynomialContinuity PaperMainGaussianSmoothCalculus
   PaperMainGaussianSmoothCovariance PaperMainLossSmoothFactor.

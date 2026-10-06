@@ -9,7 +9,7 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets reals Rstruct.
 From mathcomp Require Import topology normedtype Rstruct_topology sequences.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianCoordinateDefinitions
+From EllipsoidFitting Require Import AnalysisBridge GaussianCoordinateDefinitions
   GaussianCoordinateTopology GaussianCoordinateWeightDefinitions GaussianProductDefinitions
   GaussianProduct GaussianPermutationContinuity.
 Import ListNotations GRing.Theory Num.Theory.

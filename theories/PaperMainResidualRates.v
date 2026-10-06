@@ -10,7 +10,7 @@
      exponential factor in the tail bound of
      paper_main_cone_selector_conditional. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions PaperMainAsymptotics
+From EllipsoidFitting Require Import AnalysisBridge PaperMainDefinitions PaperMainAsymptotics
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity PaperMainClippingLimits PaperMainClippingRates.
 Import GRing.Theory Num.Theory Order.TTheory.
 Open Scope R_scope.

@@ -1,7 +1,7 @@
 (* Sharp variance and mean control for the Euclidean Gaussian norm, used
    in the escape side of Gaussian comparison. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianProductDefinitions GaussianProduct
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions GaussianCovarianceSums
   MaximumRadiusComparison PaperMainGordonLipschitz PaperMainGaussianNorm
   PaperMainGaussianLipschitzVariance.

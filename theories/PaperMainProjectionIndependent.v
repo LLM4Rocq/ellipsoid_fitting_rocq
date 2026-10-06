@@ -1,6 +1,6 @@
 (* Transport the comparison to two independent Gaussian coordinate blocks. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianProductDefinitions GaussianProduct GaussianLastDefinitions GaussianLastIntegration
   GaussianCovarianceLinear GaussianCovarianceEndpoints PaperMainGaussianSmoothCovariance
   PaperMainProjectionStein PaperMainProjectionImage PaperMainProjectionAlgebra

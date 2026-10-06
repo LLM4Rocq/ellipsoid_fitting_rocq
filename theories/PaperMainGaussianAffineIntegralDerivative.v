@@ -1,7 +1,7 @@
 (* Local domination for differentiating bounded Gaussian convolutions.
    The density coordinate is (y-t)/eps and the neighborhood radius is eps. *)
 From Stdlib Require Import Reals Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2 AnalysisIntegralDefinitions
+From EllipsoidFitting Require Import AnalysisBridge AnalysisIntegralDefinitions
   GaussianDefinitions GaussianKernel GaussianFubiniLebesgue GaussianAdmissible
   GaussianExpectation PaperMainGaussianAffineIntegralStdlib.
 Local Open Scope classical_set_scope.

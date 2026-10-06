@@ -14,7 +14,7 @@
    Lipschitz bound paper_main_loss_joint_risk_lipschitz. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   PaperMainDefinitions PaperMainGeometryHomogeneous PaperMainGeometryHeadFrobenius PaperMainFeatureGramBlocks
   PaperMainFeatureLossControl PaperMainGaussianFeatureCoordinates PaperMainGordonEntropy PaperMainGordonEntropyMargin
   PaperMainLossJointNet PaperMainLossJointTransfer PaperMainLossEntropyBudget.

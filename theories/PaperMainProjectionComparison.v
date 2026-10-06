@@ -1,6 +1,6 @@
 (* Fixed-dimensional smooth comparison for orthogonal quadratic and Gaussian features. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianProductDefinitions GaussianProduct
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianProductDefinitions GaussianProduct
   GaussianCoordinateWeightDefinitions GaussianCoordinateWeights WeightedComparison
   GaussianCovarianceSums GaussianCovarianceLinear PaperMainDataFeatureMomentsCoordinates
   PaperMainGaussianSmoothCovariance PaperMainProjectionStein PaperMainProjectionRegular

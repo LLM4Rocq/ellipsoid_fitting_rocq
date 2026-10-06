@@ -1,6 +1,6 @@
 (* Coordinate calculus for bounded smooth Gaussian tests. *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2
+From EllipsoidFitting Require Import AnalysisBridge
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions
   GaussianCoordinateDerivativeDefinitions GaussianCoordinatePermutationDefinitions
   GaussianCoordinatePermutations GaussianCovarianceLinear.

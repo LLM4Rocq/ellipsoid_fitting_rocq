@@ -1,6 +1,6 @@
 (* First Gaussian integration by parts for a centered quadratic entry. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums GaussianFiniteSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums GaussianFiniteSums
   GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinateWeightDefinitions GaussianCoordinateWeights
   GaussianCoordinateDerivativeDefinitions GaussianCoordinatePermutationDefinitions

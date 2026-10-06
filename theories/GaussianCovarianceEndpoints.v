@@ -20,7 +20,7 @@
    gaussian_iterated_expectation_continuous_modulus_within, with this
    bound as modulus. *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions GaussianProduct
   GaussianLastDefinitions GaussianLastIntegration GaussianCoordinateDefinitions
   GaussianCoordinateWeightDefinitions GaussianCoordinateWeights

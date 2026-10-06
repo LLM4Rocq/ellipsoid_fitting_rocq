@@ -13,7 +13,7 @@
    includes the absolute integrability of the integrand. *)
 
 From Stdlib Require Import Reals Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianKernel GaussianDecay GaussianStein
   GaussianSteinPolynomial.

@@ -10,7 +10,7 @@
    (fubini_segment_le_whole_line). *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import RectangleFubini GaussianFubiniLebesgue.
 Local Open Scope classical_set_scope.

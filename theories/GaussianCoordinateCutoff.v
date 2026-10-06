@@ -10,7 +10,7 @@
    binder as x : R, so that Rocq does not infer a MathComp carrier for x. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianKernel GaussianMass GaussianExpectation
   GaussianCutoffDefinitions ImproperBounds ImproperCutoff GaussianCutoff GaussianRectangle.

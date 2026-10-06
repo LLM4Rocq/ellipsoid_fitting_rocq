@@ -1,5 +1,5 @@
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import GaussianCoordinateDefinitions GaussianCoordinateBasics
   GaussianCoordinateTopology.
 Import ListNotations.

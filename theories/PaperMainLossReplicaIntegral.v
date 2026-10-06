@@ -10,7 +10,7 @@
      G js differ by at most B for every js, so do the expectations of
      their replica averages. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianProductDefinitions GaussianProduct GaussianFiniteSums GibbsDefinitions GibbsWeights
   PaperMainLossReplica.
 Open Scope R_scope.

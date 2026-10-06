@@ -16,7 +16,7 @@
    GaussianKernel). The arithmetic in every statement is Stdlib's. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import GaussianKernel GaussianMass.
 From mathcomp Require Import measurable_realfun.

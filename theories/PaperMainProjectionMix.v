@@ -1,6 +1,6 @@
 (* Actual square-root interpolation of two polynomial feature families. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianProductDefinitions GaussianCoordinateDefinitions
+From EllipsoidFitting Require Import AnalysisBridge GaussianProductDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateWeightDefinitions GaussianCoordinateWeights GaussianCoordinatePolynomialContinuity
   GaussianCovariancePath JointDefinitions PaperMainGaussianSmoothCovariance PaperMainProjectionPath.
 Open Scope R_scope.

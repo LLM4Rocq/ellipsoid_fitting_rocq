@@ -17,7 +17,7 @@
    integrable there (gaussian_list_domain_polynomial). *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import GaussianProductDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateWeightDefinitions JointDefinitions ScalarParameterCalculus.
 From EllipsoidFitting Require Import GaussianProduct GaussianCoordinateMarginals

@@ -1,7 +1,7 @@
 (* Internal finite nets for bounded symmetric matrices together with a scalar offset. *)
 From Stdlib Require Import Reals List Lia Lra Psatz Epsilon.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   PaperMainDefinitions PaperMainGeometryHomogeneous PaperMainGeometryHeadFrobenius
   PaperMainGaussianFeatureCoordinates PaperMainGordonProcessCovariance
   PaperMainGordonNets PaperMainGordonEntropy PaperMainLossBallNet PaperMainHeadSmallBallNet.

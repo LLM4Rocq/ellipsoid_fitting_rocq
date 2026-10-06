@@ -12,7 +12,7 @@
    - paper_main_loss_lipschitz: l is 4-Lipschitz, by the mean value
      theorem. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftExtrema PaperMainClippingRates.
+From EllipsoidFitting Require Import AnalysisBridge SoftExtrema PaperMainClippingRates.
 Open Scope R_scope.
 
 Definition paper_main_loss (t : R) := 1-exp(-t^2).

@@ -8,7 +8,7 @@
    finite_coordinate_derivative_comp is the same rule for a coordinate
    section of a composite g (Lam zs). *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateBasics GaussianCoordinatePermutationDefinitions
   GaussianCoordinatePermutations GaussianCoordinateDerivativeDefinitions

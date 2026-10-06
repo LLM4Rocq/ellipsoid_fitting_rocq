@@ -19,7 +19,7 @@
    df x * gaussian_kernel x is not absolutely integrable. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import RectangleFubini GaussianFubiniLebesgue.
 From mathcomp Require Import measurable_realfun.

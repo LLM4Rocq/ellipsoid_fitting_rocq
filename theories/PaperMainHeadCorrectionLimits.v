@@ -5,7 +5,7 @@
    - paper_main_head_width_error_large: for E >= 0 and eps > 0, every large
      d satisfies 2 (E / s(d)^7) d + 1 + 1 / d^2 <= eps d. *)
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions
+From EllipsoidFitting Require Import AnalysisBridge PaperMainDefinitions
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity
   PaperMainHeadCorrectionScale PaperMainResidualRates.
 Import GRing.Theory Num.Theory Order.TTheory.

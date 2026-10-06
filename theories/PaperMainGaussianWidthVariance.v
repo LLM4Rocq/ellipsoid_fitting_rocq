@@ -3,7 +3,7 @@
    spherical support can be negative. These analytic inequalities will be
    applied to the actual PSD support and its proved projection identity. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianProductDefinitions GaussianProduct
+From EllipsoidFitting Require Import AnalysisBridge GaussianProductDefinitions GaussianProduct
   PaperMainGordonLipschitz PaperMainGaussianLipschitzClip
   PaperMainGaussianLipschitzApproximation PaperMainGaussianLipschitzVariance.
 Open Scope R_scope.

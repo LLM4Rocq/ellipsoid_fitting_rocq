@@ -1,6 +1,6 @@
 (* Cauchy-Schwarz and a bounded-test estimate for concrete Gaussian integrals. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianProductDefinitions GaussianProduct.
+From EllipsoidFitting Require Import AnalysisBridge GaussianProductDefinitions GaussianProduct.
 Open Scope R_scope.
 
 Lemma paper_main_projection_discriminant A B x : 0<=A -> 0<=B ->

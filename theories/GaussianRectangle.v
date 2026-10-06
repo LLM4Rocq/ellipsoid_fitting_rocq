@@ -17,7 +17,7 @@
    and the integrals over the line are Lebesgue integrals. *)
 
 From Stdlib Require Import Reals Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianCutoffDefinitions GaussianKernel
   GaussianMass GaussianExpectation ImproperBounds ImproperDomination ImproperCutoff

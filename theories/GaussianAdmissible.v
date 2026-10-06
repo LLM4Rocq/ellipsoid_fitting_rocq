@@ -15,7 +15,7 @@
    ssreflect loaded p+p would be ssrnat's addn. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianKernel GaussianMass GaussianMoments
   GaussianSteinPolynomial ImproperBounds ImproperDomination.

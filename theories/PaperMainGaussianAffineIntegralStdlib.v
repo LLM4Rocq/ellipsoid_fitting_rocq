@@ -1,7 +1,7 @@
 (* Affine substitution in the whole-line integral interface, followed by the
    Gaussian inverse-density formula. Arithmetic is Stdlib R. *)
 From Stdlib Require Import Reals Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2 AnalysisIntegralDefinitions
+From EllipsoidFitting Require Import AnalysisBridge AnalysisIntegralDefinitions
   GaussianDefinitions GaussianKernel GaussianFubiniLebesgue
   PaperMainGaussianAffineIntegral.
 Local Open Scope classical_set_scope.

@@ -18,7 +18,7 @@
      over growing segments (improper_cutoff_subset_le). *)
 
 From Stdlib Require Import Reals Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import RectangleFubini GaussianFubiniLebesgue.
 From EllipsoidFitting Require Import ImproperBounds.

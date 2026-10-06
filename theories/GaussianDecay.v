@@ -16,7 +16,7 @@
    The arithmetic in every statement is Stdlib's. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz Classical_Prop.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianKernel.
 Open Scope R_scope.
 

@@ -34,7 +34,6 @@ library/comparison/gauss_law.v
 theories/AffineGaussianGibbs.v
 theories/AffineGaussianRegular.v
 theories/AnalysisBridge.v
-theories/AnalysisBridge2.v
 theories/AnalysisIntegralDefinitions.v
 theories/BlockAlongContinuity.v
 theories/BlockBasis.v

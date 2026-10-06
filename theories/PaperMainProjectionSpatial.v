@@ -1,6 +1,6 @@
 (* Spatial chain rules and actual Stein identities for mixed quadratic features. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianCovarianceLinear GaussianProductDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateWeightDefinitions GaussianCoordinateDerivativeDefinitions
   PaperMainDataFeatureMomentsCoordinates PaperMainGaussianSmoothCalculus

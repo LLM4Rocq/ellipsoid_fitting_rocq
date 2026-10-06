@@ -1,5 +1,5 @@
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import MatrixDefinitions MatrixCoordinates MatrixTrace OperatorDefinitions
   SoftDefinitions MatrixGibbsDefinitions MatrixSecondDefinitions MatrixGibbs
   GradientDefinitions MatrixGradient MatrixHessian QuadraticCalculus GoeDefinitions

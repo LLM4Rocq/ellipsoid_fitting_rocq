@@ -7,7 +7,7 @@
    rule its derivative there is the squared gradient norm, while the
    Lipschitz bound limits that derivative by L times the gradient norm. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateBasics GaussianCoordinatePermutationDefinitions
   GaussianCoordinateDerivativeDefinitions GaussianCovarianceSums

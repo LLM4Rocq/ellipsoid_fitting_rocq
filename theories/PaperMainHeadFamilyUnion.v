@@ -11,7 +11,7 @@
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianProbabilityProductDefinitions
+From EllipsoidFitting Require Import AnalysisBridge GaussianProbabilityProductDefinitions
   GaussianProbabilityProductContinuity PaperMainDefinitions PaperMainGaussianUnion
   PaperMainHeadFamilyCount PaperMainHeadDataRates PaperMainClippingLimits.
 Import GRing.Theory Num.Theory Order.TTheory ListNotations.

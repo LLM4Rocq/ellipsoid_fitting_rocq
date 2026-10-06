@@ -14,7 +14,7 @@
      points satisfy |<W_i, W_j>| <= 64 ln d + 9 <= 73 ln d. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import matrix.
-From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions
+From EllipsoidFitting Require Import AnalysisBridge PaperMainDefinitions
   PaperMainGeometryPsd PaperMainGeometryHeadFeature
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity
   PaperMainDataSampleTail PaperMainClippingRates PaperMainClippingLimits.

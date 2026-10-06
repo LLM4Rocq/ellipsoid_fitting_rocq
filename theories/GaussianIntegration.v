@@ -10,7 +10,7 @@
    Lebesgue integrability of x |-> f x * gaussian_kernel x over the line. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions.
 From EllipsoidFitting Require Import GaussianDefinitions GaussianKernel GaussianMass
   GaussianDecay GaussianStein GaussianSteinPolynomial GaussianMoments

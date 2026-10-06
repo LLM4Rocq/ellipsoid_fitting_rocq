@@ -1,7 +1,7 @@
 (* Exact coefficient and GOE-covariance bridges for matrices 'M[R]_(S n). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums GaussianCovarianceLinear
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums GaussianCovarianceLinear
   MatrixDefinitions TensorDefinitions PaperMainDefinitions PaperMainGeometryPsd
   PaperMainGeometryHomogeneous PaperMainMatrixTransport PaperMainMatrixDuality
   PaperMainGaussianFeatureCoordinates PaperMainGordonProcessCovariance

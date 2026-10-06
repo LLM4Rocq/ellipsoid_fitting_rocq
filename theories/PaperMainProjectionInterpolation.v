@@ -1,6 +1,6 @@
 (* Actual differentiation of a quadratic/Gaussian interpolation, with its error. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianCovarianceLinear GaussianProductDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateWeightDefinitions GaussianCoordinateWeights JointDefinitions
   PaperMainDataFeatureMomentsCoordinates PaperMainGaussianSmoothCovariance

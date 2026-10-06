@@ -21,7 +21,7 @@
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions SoftExtrema
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions SoftExtrema
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions GaussianCoordinateWeights
   GaussianCoordinateDerivativeDefinitions GaussianCoordinateTopology
   GaussianCoordinatePolynomialContinuity GaussianFiniteSums

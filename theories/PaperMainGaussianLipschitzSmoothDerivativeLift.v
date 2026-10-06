@@ -12,7 +12,7 @@
    coordinate a becomes E_1[z |-> h (t + eps z)] with h bounded and
    Lipschitz, and the one-dimensional formula applies. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianDefinitions GaussianCoordinateDefinitions
   GaussianCoordinateWeightDefinitions GaussianProductDefinitions GaussianProduct
   GaussianCoordinateSteinDomains GaussianCoordinateWeights

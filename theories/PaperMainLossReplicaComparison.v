@@ -20,7 +20,7 @@
      expectation commutes with the replica average. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianCovarianceLinear GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinatePolynomialContinuity
   PaperMainDataFeatureMomentsCoordinates PaperMainDataFeatureMoments

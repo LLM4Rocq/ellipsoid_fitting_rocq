@@ -1,6 +1,6 @@
 (* Joint continuity of the finite Gibbs functions used in Gaussian comparison. *)
 From Stdlib Require Import Reals List Lra.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GibbsDefinitions
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GibbsDefinitions
   GibbsWeights GibbsDerivatives GaussianCoordinateDefinitions GaussianCoordinateBasics
   GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity GaussianFiniteSums
   PaperMainGordonCovariance PaperMainGordonCalculus.

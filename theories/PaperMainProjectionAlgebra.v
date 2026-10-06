@@ -1,6 +1,6 @@
 (* Finite contraction algebra behind the quadratic/Gaussian interpolation. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianCovarianceLinear PaperMainProjectionStein.
 Open Scope R_scope.
 

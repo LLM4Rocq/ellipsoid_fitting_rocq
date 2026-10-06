@@ -1,7 +1,7 @@
 (* Reuse the quadratic-feature moments for nat-indexed projections. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianProductDefinitions GaussianProduct PaperMainDefinitions PaperMainGeometryPsd PaperMainMatrixDuality
   PaperMainDataFeatureMomentsCoordinates PaperMainDataFeatureMoments
   PaperMainProjectionStein PaperMainProjectionRegular.

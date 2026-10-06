@@ -1,7 +1,7 @@
 (* Vanishing failure probability for the Gaussian radius event when the
    number of observations is at most quadratic in the dimension. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 PaperMainDefinitions PaperMainAsymptotics
+From EllipsoidFitting Require Import AnalysisBridge PaperMainDefinitions PaperMainAsymptotics
   GaussianProbabilityProductDefinitions GaussianProbabilityProductContinuity PaperMainGaussianDataRadius.
 Import GRing.Theory Num.Theory Order.TTheory.
 Open Scope R_scope.

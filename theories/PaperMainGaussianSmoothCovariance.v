@@ -4,7 +4,7 @@
    derivatives D2F a b, that all three are jointly continuous, and that they
    satisfy the polynomial bound finite_polynomial_bound d C r. *)
 From Stdlib Require Import Reals List.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions
   GaussianCoordinateDerivativeDefinitions.
 Open Scope R_scope.

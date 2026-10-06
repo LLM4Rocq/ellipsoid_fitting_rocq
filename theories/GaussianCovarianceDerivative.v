@@ -21,7 +21,7 @@
    (gc_velocity_expectation). MathComp is loaded, so %coq_nat marks
    Stdlib's arithmetic on nat. *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateTopology
   GaussianCoordinatePolynomialContinuity GaussianCoordinateWeightDefinitions

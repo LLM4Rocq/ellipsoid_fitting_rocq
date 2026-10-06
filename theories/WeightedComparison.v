@@ -8,7 +8,7 @@
    a limit within a domain in epsilon-delta form. *)
 
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 Local Open Scope classical_set_scope.
 Open Scope R_scope.
 

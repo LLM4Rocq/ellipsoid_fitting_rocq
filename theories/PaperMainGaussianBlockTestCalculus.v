@@ -1,6 +1,6 @@
 (* First and second coordinate blocks for smooth Gaussian product tests. *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2
+From EllipsoidFitting Require Import AnalysisBridge
   GaussianCoordinateDefinitions GaussianCoordinateBasics GaussianCoordinateTopology
   GaussianCoordinatePermutationDefinitions GaussianCoordinatePermutations
   GaussianCoordinateDerivativeDefinitions GaussianCovarianceSums.

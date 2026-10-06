@@ -12,7 +12,7 @@
    are linear images of the coordinates (GaussianCovariancePath), and
    GaussianCovarianceLinear bounds such compositions. *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import SoftDefinitions GaussianProductDefinitions
   GaussianCoordinateDefinitions GaussianCoordinateWeightDefinitions
   GaussianCoordinateSteinDomains GaussianCovarianceDefinitions

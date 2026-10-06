@@ -1,7 +1,7 @@
 (* Coordinate derivatives of the actual soft min-max of a finite score array.
    J assigns each score a coordinate; injectivity is not needed here. *)
 From Stdlib Require Import Reals List Lia Lra.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GibbsDefinitions GibbsWeights
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GibbsDefinitions GibbsWeights
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity
   GaussianCoordinatePermutationDefinitions GaussianCoordinatePermutations
   GaussianCoordinateDerivativeDefinitions PaperMainGordonCovariance

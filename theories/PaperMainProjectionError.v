@@ -1,6 +1,6 @@
 (* An actual Gaussian expectation identity for the interpolation error. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   GaussianProductDefinitions GaussianProduct GaussianCovarianceLinear GaussianFiniteSums
   PaperMainGaussianSmoothCovariance PaperMainProjectionStein PaperMainProjectionImage
   PaperMainProjectionSpatial PaperMainProjectionAlgebra.

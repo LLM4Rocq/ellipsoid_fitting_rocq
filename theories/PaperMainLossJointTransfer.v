@@ -10,7 +10,7 @@
      and (B, c) differ by at most 4 L |A - B|_F + 4 |b - c|. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
-From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums
+From EllipsoidFitting Require Import AnalysisBridge SoftDefinitions GaussianCovarianceSums
   PaperMainDefinitions PaperMainGeometryHomogeneous PaperMainGeometryHeadFrobenius
   PaperMainGaussianFeatureCoordinates PaperMainGordonEntropy PaperMainLossEmpirical PaperMainLossJointNet.
 Open Scope R_scope.

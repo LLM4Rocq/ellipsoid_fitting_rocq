@@ -2,7 +2,7 @@
    the actual Gaussian law and its proved second moments. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import numfun.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianCoordinateDefinitions
+From EllipsoidFitting Require Import AnalysisBridge GaussianCoordinateDefinitions
   GaussianProductDefinitions GaussianProbabilityProductDefinitions
   GaussianProbabilityProductContinuity PaperMainGordonLipschitz
   PaperMainGaussianLipschitzApproximationLaw PaperMainGaussianLipschitzVariance.

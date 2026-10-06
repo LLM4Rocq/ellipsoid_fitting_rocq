@@ -16,7 +16,7 @@ From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix numfun.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure.
 From mathcomp Require Import lebesgue_measure lebesgue_integral measurable_realfun.
-From EllipsoidFitting Require Import AnalysisBridge2 GaussianProductDefinitions GaussianProbabilityProductDefinitions
+From EllipsoidFitting Require Import AnalysisBridge GaussianProductDefinitions GaussianProbabilityProductDefinitions
   GaussianProbabilityProductContinuity PaperMainDefinitions PaperMainGeometryHomogeneous PaperMainGeometryHeadFrobenius
   PaperMainGaussianFeatureCoordinates PaperMainGaussianSymmetricLawPublic
   PaperMainGaussianConditionWidth PaperMainGaussianNorm PaperMainGaussianNormConcentration

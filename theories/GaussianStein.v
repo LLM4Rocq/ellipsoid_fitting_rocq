@@ -15,7 +15,7 @@
      is integrable on the line. *)
 
 From Stdlib Require Import Reals Lia Lra Psatz Classical_Prop.
-From EllipsoidFitting Require Import AnalysisBridge2.
+From EllipsoidFitting Require Import AnalysisBridge.
 From EllipsoidFitting Require Import AnalysisIntegralDefinitions GaussianDefinitions.
 From EllipsoidFitting Require Import GaussianKernel.
 From EllipsoidFitting Require Import RectangleFubini GaussianFubiniLebesgue.
