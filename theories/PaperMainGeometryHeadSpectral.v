@@ -13,8 +13,7 @@
    lm I <= P <= lp I of paper_main_head_correction_bounds for
    lm = (kappa_0 sqrt d)^-1 and lp = kappa_0 / sqrt d.
    paper_main_head_correction_bounds_cone is that combination: the
-   hypothesis on P is the paper's P in K_(kappa_0) with |P|_F = 1. Nothing
-   from the paper is assumed. *)
+   hypothesis on P is the paper's P in K_(kappa_0) with |P|_F = 1. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

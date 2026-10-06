@@ -1,9 +1,7 @@
 (* Values of a continuous function at a cluster point, and continuity of
    the coordinate polynomials on 'rV[R]_N: the second part of the compactness
    toolkit for the measurability proofs of the events of paper_main_results.
-   Internal proof module of the MathComp-Analysis port, written on
-   30 September 2026 by a Claude Code session (Fable 5.1). Nothing here is
-   reviewed or accepted. It builds on PaperMainMeasurabilityBox.
+   It builds on PaperMainMeasurabilityBox.
 
    For g continuous at the cluster point p of a sequence u: if
    g (u k) <= c + a/(k+1) for all k then g p <= c; if c - a/(k+1) <= g (u k)

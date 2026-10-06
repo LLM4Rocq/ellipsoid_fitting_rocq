@@ -1,9 +1,9 @@
-(* Bounded smooth tests under the exact public Gaussian product law.
+(* Bounded smooth tests under the exact Gaussian product law.
    A continuous test with a polynomial bound is a measurable and
-   integrable random variable for gaussian_product_law d, and its public
-   expectation is the iterated Gaussian expectation. For a bounded C2
-   test with squared gradient norm at most L^2, the centered exponential
-   moment of the checked iterated bound transfers to the public law. *)
+   integrable random variable for gaussian_product_law d, and its
+   expectation under that law is the iterated Gaussian expectation. For a
+   bounded C2 test with squared gradient norm at most L^2, the centered
+   exponential moment of the iterated bound transfers to the product law. *)
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.

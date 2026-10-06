@@ -2,7 +2,7 @@
    nets. Let K = paper_main_head_cone_sphere kappa in 'M[R]_(S n), 1 <= kappa.
    - Net family (paper_main_cone_net_family). For eps > 0 there are a finite
      family B t, t < s, s > 0, of members of K such that every P in K has
-     some t with |P - B t|_F <= eps. The net comes from the checked
+     some t with |P - B t|_F <= eps. The net comes from
      paper_main_gordon_finite_net_exists applied to the coordinate image of K
      (PaperMainConeGaussianCoordinates, whose dot product is the Frobenius
      pairing); each net point is turned back into a member of K by a fixed
@@ -10,12 +10,12 @@
      matrices, not a measurable choice.
    - Selector (paper_main_cone_selector B s Z): the first maximizer of
      <Z, B t> over t < s (PaperMainFiniteSupportSelector). It lies in K, so it
-     is symmetric, has Frobenius norm 1 and satisfies the public bilinear
-     bound paper_main_cone_opnorm_le with kappa / sqrt d, and
+     is symmetric, has Frobenius norm 1 and satisfies the bilinear bound
+     paper_main_cone_opnorm_le with kappa / sqrt d, and
        support(Z, K) - eps |Z|_F <= <Z, P(Z)> <= support(Z, K),
      where support(Z, K) = paper_main_head_support Z K.
    - Gaussian version (paper_main_cone_selector_gaussian). For the actual
-     public symmetric Gaussian matrix Z(xs) of PaperMainGaussianSymmetricLawPublic,
+     symmetric Gaussian matrix Z(xs) of PaperMainGaussianSymmetricLawPublic,
      the entries of x |-> P(Z(tval x)) are measurable, since the entries of Z
      are 1-Lipschitz in the coordinates. No measurable maximum or selector
      premise is used. *)

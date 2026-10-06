@@ -1,4 +1,4 @@
-(* Exact coefficient and GOE-covariance bridges for the public matrices. *)
+(* Exact coefficient and GOE-covariance bridges for matrices 'M[R]_(S n). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums GaussianCovarianceLinear

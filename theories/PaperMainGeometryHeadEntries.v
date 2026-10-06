@@ -11,7 +11,7 @@
    of PaperMainGeometryHeadFeature.
 
    paper_main_head_correction_bounds assembles the deterministic core of
-   the whole lemma on the public features W_i = (x_i x_i^T - I) / sqrt d.
+   the whole lemma on the features W_i = (x_i x_i^T - I) / sqrt d.
    Its inputs are the data-event quantities, all hypotheses: the lower
    edge of the full feature Gram matrix (coercivity with mu > 0), the
    diagonal and off-diagonal Gram entry bounds q0 > 0 and q1, the residual
@@ -21,8 +21,7 @@
    lp + delta <= kappa (lm - delta), the exact correction a = Q^-1 r of every
    injective head s gives eq:PJ-close and the support transfer behind
    eq:width-transfer. In the paper these inputs come from cor:feature-sat,
-   lem:data, eq:sparse-norms and eq:Rd, which are not proved here. Nothing
-   from the paper is assumed. *)
+   lem:data, eq:sparse-norms and eq:Rd, which are not proved here. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -105,8 +104,7 @@ Qed.
 
 End Entries.
 
-(* The deterministic core of lem:head-correction-bounds on the public
-   features. *)
+(* The deterministic core of lem:head-correction-bounds on the features. *)
 Theorem paper_main_head_correction_bounds n d m (x : paper_main_sample n d)
     (s : 'I_m -> 'I_n) (P Z : 'M[R]_d)
     (mu q0 q1 Rd lam eta A_1 A_inf delta lm lp kappa : R) :

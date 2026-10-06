@@ -1,6 +1,10 @@
 (* Gaussian concentration for every Euclidean-Lipschitz test on length-d
-   lists, under the exact public Gaussian product law. The proof uses the
-   actual clipped Gaussian smoothings and their proved convergence. *)
+   lists, under the exact Gaussian product law. The centered exponential
+   moment bound is gauss_concentration of the library: the test read on the
+   coordinates of a row vector is Lipschitz for the Euclidean norm
+   (paper_main_gordon_distance_list_of_row), and GaussianLawBridge carries
+   the iterated expectation and the product law over to gauss d. The tails
+   follow by Chernoff's bound. *)
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval.

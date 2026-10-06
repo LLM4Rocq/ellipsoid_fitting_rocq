@@ -13,8 +13,7 @@
    sphere support is at most -1 (paper_main_psd_sphere_support_neg_identity):
    a unit PSD S has Tr S >= 1, since <S, S> <= (Tr S)^2 from
    S_ij^2 <= S_ii S_jj. So the width of the PSD unit sphere is not
-   pointwise |P|_F; only its positive part is. Nothing from the paper is
-   assumed. *)
+   pointwise |P|_F; only its positive part is. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix interval.

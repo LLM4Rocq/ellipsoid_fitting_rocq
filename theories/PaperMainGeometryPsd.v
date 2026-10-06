@@ -1,19 +1,16 @@
 (* Deterministic geometry for the main results of the paper, part 1: the
    Frobenius pairing and the basic facts about positive semidefinite
-   matrices, over the public definitions of PaperMainDefinitions (the
-   MathComp column vectors 'cV[R]_d and matrices 'M[R]_d of the true
-   dimension d, paper_main_quadratic_form, paper_main_symmetric,
-   paper_main_psd, paper_main_pd).
+   matrices, over the definitions of PaperMainDefinitions (the MathComp
+   column vectors 'cV[R]_d and matrices 'M[R]_d of the true dimension d,
+   paper_main_quadratic_form, paper_main_symmetric, paper_main_psd,
+   paper_main_pd).
 
    - paper_main_pairing S M = sum_{ij} S_{ij} M_{ij}, the paper's <S, M>.
    - The quadratic form is the 1 x 1 matrix product v^T S v; symmetry is
      S^T = S; <S, x x^T> = x^T S x; the pairing is linear in its second
      argument on weighted sums.
    - For S >= 0 and v^T S v = 0, S v = 0 (the discriminant argument on
-     t |-> (v + t w)^T S (v + t w) >= 0).
-
-   Internal proof workstream (analysis/reports/PROGRESS-main-geometry.md);
-   not part of any contract. No Axiom, Parameter or Admitted. *)
+     t |-> (v + t w)^T S (v + t w) >= 0). *)
 
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.

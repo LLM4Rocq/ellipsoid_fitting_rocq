@@ -14,10 +14,7 @@
      continuous constraints), contained in the box (its entries are
      bounded by 1 through the Cauchy-Schwarz inequality of part 2), hence
      compact; for d > 0 it is nonempty.
-   - Every continuous real function on it attains its minimum there.
-
-   Internal proof workstream (analysis/reports/PROGRESS-main-geometry.md);
-   not part of any contract. No Axiom, Parameter or Admitted. *)
+   - Every continuous real function on it attains its minimum there. *)
 
 From Stdlib Require Import Reals List.
 From HB Require Import structures.

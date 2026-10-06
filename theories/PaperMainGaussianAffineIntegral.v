@@ -1,5 +1,5 @@
 (* Positive affine change of variables for whole-line Lebesgue integrals.
-   This specializes the checked MathComp-Analysis FTC substitution theorem. *)
+   This specializes the MathComp-Analysis FTC substitution theorem. *)
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets functions reals.

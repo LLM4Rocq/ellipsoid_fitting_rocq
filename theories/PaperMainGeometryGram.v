@@ -9,10 +9,7 @@
    diagonal entry is 0, and every zero diagonal entry of S stays zero. The
    number of nonzero diagonal entries decreases, and a matrix >= 0 with a
    zero diagonal is 0. No spectral theorem and no square root of matrices
-   is needed; MathComp's spectral theory is over closed fields only.
-
-   Internal proof workstream (analysis/reports/PROGRESS-main-geometry.md);
-   not part of any contract. No Axiom, Parameter or Admitted. *)
+   is needed; MathComp's spectral theory is over closed fields only. *)
 
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.

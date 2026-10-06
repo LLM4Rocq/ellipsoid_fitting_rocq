@@ -1,8 +1,5 @@
 (* Measurability of paper_main_fit_event, the first conjunct of the first
-   clause of paper_main_results. Internal proof module of the
-   MathComp-Analysis port, written on 30 September 2026 by a Claude Code
-   session (Fable 5.1). Nothing here is reviewed or accepted; the statement
-   and the glossary are not edited.
+   clause of paper_main_results.
 
    The fit event {x | exists S >= 0 with x_i^T S x_i = d for all i} is the
    union over m of the levels

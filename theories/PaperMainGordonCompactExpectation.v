@@ -1,13 +1,6 @@
-(* Gordon's expectation bound for the genuine set-index min-max. For N > 0
-   and a nonempty set T of unit vectors of R^M,
-     w(T) - E ||g_N|| <= E minmax_T(A),
-   where w(T) is the Gaussian width of T (a genuine supremum), g_N is a
-   standard Gaussian vector of R^N, and A is an N x M standard Gaussian
-   matrix. The exact Gaussian norm mean is kept; the sqrt N form follows.
-   The proof uses the checked finite comparison through a new exact-mean
-   helper, finite nets inside T and inside the unit sphere, and the
-   Frobenius bound for the bilinear error; it needs no compactness of T and
-   assumes no attained extremum. *)
+(* If a - eps * c <= b for every eps > 0, with c >= 0, then a <= b
+   (paper_main_gordon_le_of_forall_eps): the limit step of the net
+   arguments of Gordon's escape bound. *)
 From Stdlib Require Import Reals List Lia Lra Psatz FunctionalExtensionality Epsilon.
 From EllipsoidFitting Require Import SoftDefinitions SoftExtrema GaussianProductDefinitions GaussianProduct
   GaussianCoordinateDefinitions GaussianCoordinateTopology GaussianCoordinatePolynomialContinuity

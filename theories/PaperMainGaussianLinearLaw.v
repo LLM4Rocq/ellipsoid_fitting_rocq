@@ -1,4 +1,4 @@
-(* Linear Gaussian moments and tails under the exact public product law. *)
+(* Linear Gaussian moments and tails under the exact product law. *)
 From Stdlib Require Import Reals List Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.

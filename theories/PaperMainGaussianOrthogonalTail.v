@@ -1,5 +1,5 @@
 (* Tails of a weighted centered Gaussian square after a loading with
-   orthonormal rows, under the original public law gaussian_product_law d.
+   orthonormal rows, under the original law gaussian_product_law d.
    Write O x = gaussian_covariance_image d d O x and
    Q d a xs = sum_(i < d) a_i (x_i^2 - 1), with coefficients of either sign.
    The map x |-> Q d a (O x) is continuous, so its level sets are
@@ -19,8 +19,7 @@
      P[u <= |Q(O x)|] <= 2 exp (- u^2 / (4 v + 4 L u)),
    and for 0 < s, 0 < v the threshold forms with 2 sqrt (v s) + 2 L s and
    failure exp (- s), 2 exp (- s). When every coefficient vanishes (in
-   particular d = 0) the events are empty for u > 0. No rotation law,
-   spectral decomposition or diagonalization is assumed. *)
+   particular d = 0) the events are empty for u > 0. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval.

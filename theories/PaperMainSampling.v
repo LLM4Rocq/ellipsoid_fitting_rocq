@@ -1,4 +1,4 @@
-(* Internal deletion-of-observations lemmas for the exact public law. *)
+(* Internal deletion-of-observations lemmas for the exact product law. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

@@ -2,8 +2,8 @@
 
    Z_data (PaperMainHybridFiniteArray) is the entropy-shifted normalized
    finite soft minimum of continuous row losses with values in [0, 1] on N
-   full data rows (g, y) of r + (mi + 1) coordinates. The A25 tails apply
-   with row oscillation 1/N:
+   full data rows (g, y) of r + (mi + 1) coordinates. The soft-minimum tails
+   of PaperMainLossConcentrationSoftMin apply with row oscillation 1/N:
      P (Z_data <= E Z_data - t) <= exp (- N t^2 / 2),
    and the same for the upper tail. With the mean bound of
    PaperMainHybridFiniteMean this gives, for t > 0, the measurable event
@@ -29,7 +29,7 @@ Import GRing.Theory Num.Theory Order.TTheory.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
 
-(* 1. The A25 tails for Z_data on full data rows. *)
+(* 1. The soft-minimum tails for Z_data on full data rows. *)
 
 Theorem paper_main_hybrid_finite_data_lower_tail N r mi beta (I : list nat) Hs bs
     (Bs : nat -> 'M[R]_(S mi)) (t : R) :

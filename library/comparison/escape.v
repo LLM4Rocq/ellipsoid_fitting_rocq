@@ -344,6 +344,80 @@ Qed.
 
 End bilinear_process.
 
+Section bilinear_processT.
+Context {R : realType} {N M k l : nat}.
+Variables (zs : 'I_k.+1 -> 'cV[R]_N) (vs : 'I_l.+1 -> 'cV[R]_M).
+Local Notation idx := (@mxvec_index k.+1 l.+1).
+
+(* The process (u, t) |-> zs u ^T *m vec_mx a *m vs t, with the minimum over
+   the left factor, and its auxiliary process. *)
+Definition bilT_mx : 'M[R]_(N * M, k.+1 * l.+1) :=
+  \matrix_(r, c) (zs (unvec c).1 (unvec r).1 0 * vs (unvec c).2 (unvec r).2 0).
+
+Definition auxT_mx : 'M[R]_(N + M, k.+1 * l.+1) :=
+  col_mx (\matrix_(i, c) zs (unvec c).1 i 0) (\matrix_(j, c) vs (unvec c).2 j 0).
+
+Lemma bilT_mxE (a : 'rV[R]_(N * M)) u t :
+  vec_mx (a *m bilT_mx) u t = mxdot (zs u) (vec_mx a *m vs t).
+Proof.
+rewrite mxE !mxE sum_mxvec_index /mxdot; apply: eq_bigr => i _.
+rewrite big_ord1 !mxE mulr_sumr; apply: eq_bigr => j _.
+by rewrite !mxE !unvecK /=; ring.
+Qed.
+
+Lemma auxT_mxE (z : 'rV[R]_(N + M)) u t :
+  vec_mx (z *m auxT_mx) u t =
+  mxdot (lsubmx z)^T (zs u) + mxdot (rsubmx z)^T (vs t).
+Proof.
+rewrite -[z]hsubmxK /auxT_mx mul_row_col row_mxKl row_mxKr mxE !mxE /mxdot.
+by congr (_ + _); apply: eq_bigr => i _; rewrite big_ord1 !mxE unvecK.
+Qed.
+
+Lemma bilT_cov u t v s :
+  (bilT_mx^T *m bilT_mx) (idx u t) (idx v s) =
+  mxdot (zs u) (zs v) * mxdot (vs t) (vs s).
+Proof.
+rewrite mxE sum_mxvec_index /mxdot mulr_suml; apply: eq_bigr => i _.
+rewrite !big_ord1 mulr_sumr; apply: eq_bigr => j _.
+by rewrite !mxE !unvecK /= big_ord1; ring.
+Qed.
+
+Lemma auxT_cov u t v s :
+  (auxT_mx^T *m auxT_mx) (idx u t) (idx v s) =
+  mxdot (zs u) (zs v) + mxdot (vs t) (vs s).
+Proof.
+rewrite /auxT_mx tr_col_mx mul_row_col mxE !mxE /mxdot.
+congr (_ + _); apply: eq_bigr => i _; rewrite big_ord1 !mxE !unvecK //.
+Qed.
+
+Hypothesis zs1 : forall u, frobenius (zs u) = 1.
+Hypothesis vs1 : forall t, frobenius (vs t) = 1.
+
+Let dot1 n (x y : 'cV[R]_n) : frobenius x = 1 -> frobenius y = 1 ->
+  mxdot x y <= 1.
+Proof. by move=> x1 y1; rewrite (le_trans (ler_mxdot x y))// x1 y1 mulr1. Qed.
+
+Let sq1 n (x : 'cV[R]_n) : frobenius x = 1 -> mxdot x x = 1.
+Proof. by move=> x1; rewrite -frobenius_sqr x1 expr1n. Qed.
+
+Lemma incr_var_bilT_auxT u t v s :
+  incr_var auxT_mx (idx u t) (idx v s) - incr_var bilT_mx (idx u t) (idx v s) =
+  2 * (1 - mxdot (zs u) (zs v)) * (1 - mxdot (vs t) (vs s)).
+Proof. by rewrite /incr_var !auxT_cov !bilT_cov !sq1//; ring. Qed.
+
+(* Gordon's comparison of the two processes, with the minimum over u. *)
+Lemma auxT_bilT_minmax :
+  (\int[gauss (N + M)]_z (minmax (vec_mx (z *m auxT_mx)))%:E <=
+   \int[gauss (N * M)]_a (minmax (vec_mx (a *m bilT_mx)))%:E)%E.
+Proof.
+apply: gordon.
+  by move=> u t s; rewrite -subr_le0 incr_var_bilT_auxT sq1// subrr mulr0 mul0r.
+move=> u v t s _; rewrite -subr_ge0 incr_var_bilT_auxT.
+by rewrite !mulr_ge0// subr_ge0; exact: dot1.
+Qed.
+
+End bilinear_processT.
+
 Section width_escape.
 Context {R : realType} {M : nat}.
 Variable T : set 'cV[R]_M.

@@ -12,10 +12,10 @@
    satisfies <Z, Pt> >= <Z, P> - 2 eta |Z|_F, then
    sup_(section) <Z, S> >= sup_(K_(kappa_0) \cap S_F) <Z, R> - 2 eta |Z|_F.
    With paper_main_head_correction_bounds_cone this is eq:width-transfer on
-   the public features with error 2 eta |Z|_F, for every injective head.
+   the features with error 2 eta |Z|_F, for every injective head.
    The existence of a (measurable) maximizer P and the data-event
-   hypotheses of the capstone are not proved here. Nothing from the paper
-   is assumed. *)
+   hypotheses of paper_main_head_correction_bounds_cone are not proved
+   here. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

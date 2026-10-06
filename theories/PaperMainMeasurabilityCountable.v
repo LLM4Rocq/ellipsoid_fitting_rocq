@@ -1,7 +1,5 @@
 (* Countable unions of measurable sets of samples and rational approximation,
-   for the measurability conjuncts of paper_main_results. Internal proof
-   module of the MathComp-Analysis port, written on 30 September 2026 by a
-   Claude Code session (Fable 5.1). Nothing here is reviewed or accepted.
+   for the measurability conjuncts of paper_main_results.
 
    Unions over a countable type (countable_bigcupT_measurable of
    MathComp-Analysis with countableP for a countType) and intersections over

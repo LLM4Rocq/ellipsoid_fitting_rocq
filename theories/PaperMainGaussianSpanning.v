@@ -1,5 +1,5 @@
-(* Almost-sure spanning for the exact Gaussian sample law of the public
-   statements. The first d points provide a square submatrix when d <= n. *)
+(* Almost-sure spanning for the exact Gaussian sample law of the statement.
+   The first d points provide a square submatrix when d <= n. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum poly matrix.

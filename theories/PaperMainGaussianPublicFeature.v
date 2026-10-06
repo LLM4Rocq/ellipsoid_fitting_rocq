@@ -1,4 +1,4 @@
-(* The Gaussian feature estimate on the public true-dimensional matrices. *)
+(* The Gaussian feature estimate on the true-dimensional matrices. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix normedtype.
 From mathcomp Require Import boolp classical_sets reals Rstruct ereal measure lebesgue_measure.

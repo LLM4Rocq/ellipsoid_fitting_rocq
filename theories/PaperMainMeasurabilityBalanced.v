@@ -1,8 +1,5 @@
 (* Measurability of paper_main_balanced_pd_event, the first conjunct of the
-   third clause of paper_main_results. Internal proof module of the
-   MathComp-Analysis port, written on 1 October 2026 by a Claude Code
-   session (Fable 5.1). Nothing here is reviewed or accepted; the statement
-   and the glossary are not edited.
+   third clause of paper_main_results.
 
    The event {x | exists y with sum y = 0 and sum_i y_i x_i x_i^T positive
    definite} is the union over rational weights r with sum 0 and over k of

@@ -1,4 +1,4 @@
-(* The public head features and the explicit form of the head correction,
+(* The head features and the explicit form of the head correction,
    with its Loewner slack (manuscript lem:head-correction-bounds: the
    residuals r_i above the lemma, eq:EJ-formula and eq:EJ-op, lines
    1024-1035).
@@ -19,7 +19,7 @@
    hypotheses: in the paper they come from the data event (eq:sparse-norms,
    eq:aJ-l1, eq:aJ-linf), which is not proved here. For d = 0 every feature
    is 0 (paper_main_head_feature_dim0), and the other results hold without
-   a dimension hypothesis. Nothing from the paper is assumed. *)
+   a dimension hypothesis. *)
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -199,9 +199,9 @@ split.
   have := Hbound v; rewrite ler_norml => /andP [_ H]; lra.
 Qed.
 
-(* The deterministic eq:PJ-close on the public features: exact correction,
-   unit norm, the public kernel equations x_(s k)^T Pt x_(s k) = Tr Pt,
-   closeness, support transfer and the bounded-condition form. *)
+(* The deterministic eq:PJ-close on the features: exact correction, unit
+   norm, the kernel equations x_(s k)^T Pt x_(s k) = Tr Pt, closeness,
+   support transfer and the bounded-condition form. *)
 Theorem paper_main_head_feature_close m (s : 'I_m -> 'I_n) (P Z : 'M[R]_d)
     (a : 'cV[R]_m) (eta lm lp kappa A_inf A_1 lam delta : R) :
   paper_main_head_gram (fun k => paper_main_head_feature x (s k)) *m a =

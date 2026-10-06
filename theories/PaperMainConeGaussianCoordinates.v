@@ -1,15 +1,15 @@
-(* Coordinates of public symmetric matrices and the Gordon width of a set
-   of public unit matrices. A public matrix S : 'M[R]_(S n) is encoded by
-   its coefficients in the orthonormal basis goe_basis:
+(* Coordinates of symmetric matrices and the Gordon width of a set of unit
+   matrices. A matrix S : 'M[R]_(S n) is encoded by its coefficients in the
+   orthonormal basis goe_basis:
      paper_main_cone_code n S k =
        trace_pair n (goe_basis n k) (paper_main_matrix_from_public n S).
    For symmetric S and U, the Gordon dot of the codes is
    paper_main_pairing S U (Parseval and the matrix roundtrip), the Euclidean
    norm of the code is paper_main_frobenius S, and the Gaussian linear form
-   on the code at xs is <Zp(xs), S> for the public isotropic Gaussian Zp of
+   on the code at xs is <Zp(xs), S> for the isotropic Gaussian Zp of
    PaperMainGaussianSymmetricLawPublic.
 
-   For a nonempty set A of symmetric public matrices of Frobenius norm 1,
+   For a nonempty set A of symmetric matrices of Frobenius norm 1,
    paper_main_cone_code_set n A is the set of nat -> R vectors whose first
    D coordinates are the code of a member. It is a nonempty set of unit
    vectors for paper_main_gordon_dot D. At every list xs of length D its
@@ -40,7 +40,7 @@ Definition paper_main_cone_code_set n (A : set 'M[R]_(S n)) : (nat -> R) -> Prop
   fun u => exists S, A S /\
     forall k, (k < paper_main_symmetric_dimension n)%coq_nat -> u k = paper_main_cone_code n S k.
 
-(* The code of a symmetric public matrix. *)
+(* The code of a symmetric matrix. *)
 
 Lemma paper_main_cone_code_basis n (S : 'M[R]_(S n)) k :
   paper_main_symmetric S ->
@@ -115,7 +115,7 @@ have HkD : (k < paper_main_symmetric_dimension n)%coq_nat by lia.
 by rewrite (paper_main_symmetric_gaussian_coordinate n xs k HkD) Rmult_comm.
 Qed.
 
-(* The coordinate set of a set of public unit matrices. *)
+(* The coordinate set of a set of unit matrices. *)
 
 Lemma paper_main_cone_code_set_agree n u (S : 'M[R]_(S n)) xs :
   (forall k, (k < paper_main_symmetric_dimension n)%coq_nat -> u k = paper_main_cone_code n S k) ->

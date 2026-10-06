@@ -1,6 +1,6 @@
 (* Finite covariance algebra for Gordon's Gaussian min-max comparison.
    The score, weights and curvature are the already differentiated Gibbs
-   functions. No Gaussian comparison or concentration theorem is assumed. *)
+   functions. *)
 From Stdlib Require Import Reals List Lra FunctionalExtensionality.
 From EllipsoidFitting Require Import SoftDefinitions GibbsDefinitions GibbsWeights
   GibbsMomentBounds Cubic.

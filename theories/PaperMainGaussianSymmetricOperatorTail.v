@@ -1,4 +1,4 @@
-(* A measurable exceptional set for the actual public isotropic symmetric
+(* A measurable exceptional set for the actual isotropic symmetric
    Gaussian operator bound. The constants are deliberately coarse and fixed:
    outside a set of probability at most 2 exp(-10d), the bilinear operator
    norm is at most 20 sqrt(d), where d=n+1. *)

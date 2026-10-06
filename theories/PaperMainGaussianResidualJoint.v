@@ -1,6 +1,6 @@
 (* Residual tails when the matrix is chosen from independent Gaussian
    coordinates. Let z be D Gaussian coordinates and x an N-point data sample
-   of R^d, under the public joint law gaussian_product_law (D + N d), split
+   of R^d, under the joint law gaussian_product_law (D + N d), split
    by paper_main_split_coordinates D (N d). Let P(z) : 'M[R]_d have
    measurable entries and let H be a measurable bad event for z. The joint
    residual event

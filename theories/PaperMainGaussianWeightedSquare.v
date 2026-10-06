@@ -7,7 +7,7 @@
    - Exact finite product: if every 1 - 2 t a_i > 0, then exp(t Q) is
      iterated-integrable and absolutely integrable, and
      E_d exp(t Q) = prod_(i < d) exp(-t a_i) / sqrt(1 - 2 t a_i)
-     (gaussian_separable_product_integral; no independence is assumed).
+     (gaussian_separable_product_integral).
    - Scalar inequality: -ln(1-u) - u <= u^2/(2(1-|u|)) for |u| < 1. The
      positive side is gaussian_log_remainder_bound; the negative side
      follows from ln(1+w) >= w - w^2/2 for w >= 0, proved here from the

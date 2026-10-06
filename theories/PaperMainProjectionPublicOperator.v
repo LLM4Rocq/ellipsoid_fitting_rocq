@@ -1,4 +1,4 @@
-(* The public bilinear operator bound implies the coefficient action bound. *)
+(* The bilinear operator bound implies the coefficient action bound. *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix Rstruct normedtype.
 From EllipsoidFitting Require Import AnalysisBridge2 SoftDefinitions GaussianCovarianceSums

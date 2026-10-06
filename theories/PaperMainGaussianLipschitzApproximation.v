@@ -394,7 +394,7 @@ replace (eps * paper_main_gaussian_level n * / eps) with (paper_main_gaussian_le
 exact Hcl.
 Qed.
 
-(* CONDITIONAL on the one-dimensional interface at width 1/(n+1). *)
+(* Conditional on the one-dimensional interface at width 1/(n+1). *)
 
 Theorem paper_main_gaussian_approximant_smooth_test_conditional d F L n :
   paper_main_gaussian_shift_derivative_interface (paper_main_gaussian_width n) ->

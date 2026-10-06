@@ -9,8 +9,8 @@
      split d + (N - 1) d: row 0 is a function of the first d coordinates
      (paper_main_take_coordinates_law) and row i + 1 is row i of the last
      (N - 1) d coordinates (paper_main_drop_coordinates_law). The moment
-     transport of G7 concerns regular functions, not indicators, so the event
-     law is proved here from the exact coordinate laws.
+     transport concerns regular functions, not indicators, so the event law
+     is proved here from the exact coordinate laws.
    - Finite union (paper_main_gaussian_residual_union), with the union
      bound of PaperMainGaussianUnion: the event "exists i < N, r <= |<W_i, P>|"
      is measurable and has probability at most N q when every one-point
@@ -18,8 +18,8 @@
    - For d = S n, symmetric P with paper_main_pairing P P = 1, 0 <= kappa and
      paper_main_cone_opnorm_le P (kappa / sqrt d), and r > 0:
        P[r <= |<W_i, P>|] <= 2 exp (- d r^2 / (4 + 4 kappa r)),
-       P[exists i < N, r <= |<W_i, P>|] <= N 2 exp (- d r^2 / (4 + 4 kappa r)).
-   No Hanson-Wright or row law is assumed. *)
+       P[exists i < N, r <= |<W_i, P>|]
+         <= N 2 exp (- d r^2 / (4 + 4 kappa r)). *)
 From Stdlib Require Import Reals List Lia Lra Psatz.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval matrix.
