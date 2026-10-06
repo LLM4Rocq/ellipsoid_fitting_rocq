@@ -99,6 +99,61 @@ Qed.
 
 End rmax.
 
+Section coord_calculus.
+Context {R : realType} {n : nat}.
+Implicit Types z : 'rV[R]_n.
+
+Lemma delta_shiftE z j i (h : R) :
+  (h *: delta_mx 0 j + z) 0 i = z 0 i + h * (i == j)%:R.
+Proof. by rewrite !mxE eqxx /= addrC. Qed.
+
+(* A real affine function of h has derivative its slope. *)
+Lemma is_derive_affine (c d h : R) : is_derive h 1 (fun h : R => c + d * h) d.
+Proof.
+have hd := is_deriveD (is_derive_cst c h 1) (is_deriveZ d (is_derive_id h 1)).
+have -> : (fun h : R => c + d * h) = cst c + d \*: id.
+  by apply/funext => x; rewrite !fctE /GRing.scale.
+by apply: (is_derive_eq hd); rewrite /GRing.scale /= add0r mulr1.
+Qed.
+
+Lemma is_derive_expR_coord (b : R) z i j :
+  is_derive z (delta_mx 0 j) (fun z => expR (b * z 0 i))
+    (b * (i == j)%:R * expR (b * z 0 i)).
+Proof.
+apply: (is_derive_transfer
+  (G := fun h : R => expR (b * z 0 i + b * (i == j)%:R * h)) (b := 0) (w := 1)).
+  move=> h; rewrite delta_shiftE.
+  by rewrite addr0 -[h%:A]/(h * 1) mulr1; congr expR; ring.
+have := @is_derive1_comp R expR (fun h => b * z 0 i + b * (i == j)%:R * h) 0 _ _
+  (is_derive_expR _) (is_derive_affine _ _ _).
+by move=> h; apply: (is_derive_eq h); rewrite mulr0 addr0 mulrC.
+Qed.
+
+(* The chain rule for a real function of a function of 'rV[R]_n. *)
+Lemma is_derive_lift (F : 'rV[R]_n -> R) (g : R -> R) z (v : 'rV[R]_n)
+    (d dg : R) :
+  is_derive z v F d -> is_derive (F z) 1 g dg -> is_derive z v (g \o F) (dg * d).
+Proof.
+move=> Fd gd.
+have phid : is_derive (0 : R) 1 (fun h : R => F (h *: v + z)) d.
+  apply: (is_derive_transfer (G := F) (b := z) (w := v)) => // h.
+  by rewrite addr0 -[h%:A]/(h * 1) mulr1.
+apply: (is_derive_transfer (G := g \o (fun h : R => F (h *: v + z))) (b := 0) (w := 1)).
+  by move=> h /=; rewrite addr0 -[h%:A]/(h * 1) mulr1.
+have e : F (0 *: v + z) = F z by rewrite scale0r add0r.
+by apply: is_derive1_comp; rewrite /= e.
+Qed.
+
+Lemma continuous_expR_coord (b : R) i :
+  continuous (fun z : 'rV[R]_n => expR (b * z 0 i)).
+Proof.
+move=> z; apply: continuous_comp; last exact: continuous_expR.
+apply: (cvgM (cvg_cst _)); [apply: nbhs_filter|apply: nbhs_filter|].
+exact: coord_continuous.
+Qed.
+
+End coord_calculus.
+
 Section lse.
 Context {R : realType} {k : nat}.
 Variable b : R.
@@ -138,51 +193,10 @@ rewrite /lse (le_trans (ler_wpM2l bi hl))//.
 by rewrite mulrDr mulrA mulVf ?gt_eqF// mul1r mulrC.
 Qed.
 
-Lemma delta_shiftE z j i (h : R) :
-  (h *: delta_mx 0 j + z) 0 i = z 0 i + h * (i == j)%:R.
-Proof. by rewrite !mxE eqxx /= addrC. Qed.
-
-(* A real affine function of h has derivative its slope. *)
-Lemma is_derive_affine (c d h : R) : is_derive h 1 (fun h : R => c + d * h) d.
-Proof.
-have hd := is_deriveD (is_derive_cst c h 1) (is_deriveZ d (is_derive_id h 1)).
-have -> : (fun h : R => c + d * h) = cst c + d \*: id.
-  by apply/funext => x; rewrite !fctE /GRing.scale.
-by apply: (is_derive_eq hd); rewrite /GRing.scale /= add0r mulr1.
-Qed.
-
-Lemma is_derive_expR_coord z i j :
-  is_derive z (delta_mx 0 j) (fun z => expR (b * z 0 i))
-    (b * (i == j)%:R * expR (b * z 0 i)).
-Proof.
-apply: (is_derive_transfer
-  (G := fun h : R => expR (b * z 0 i + b * (i == j)%:R * h)) (b := 0) (w := 1)).
-  move=> h; rewrite delta_shiftE.
-  by rewrite addr0 -[h%:A]/(h * 1) mulr1; congr expR; ring.
-have := @is_derive1_comp R expR (fun h => b * z 0 i + b * (i == j)%:R * h) 0 _ _
-  (is_derive_expR _) (is_derive_affine _ _ _).
-by move=> h; apply: (is_derive_eq h); rewrite mulr0 addr0 mulrC.
-Qed.
-
-(* The chain rule for a real function of a function of 'rV[R]_k.+1. *)
-Lemma is_derive_lift (F : 'rV[R]_k.+1 -> R) (g : R -> R) z (v : 'rV[R]_k.+1)
-    (d dg : R) :
-  is_derive z v F d -> is_derive (F z) 1 g dg -> is_derive z v (g \o F) (dg * d).
-Proof.
-move=> Fd gd.
-have phid : is_derive (0 : R) 1 (fun h : R => F (h *: v + z)) d.
-  apply: (is_derive_transfer (G := F) (b := z) (w := v)) => // h.
-  by rewrite addr0 -[h%:A]/(h * 1) mulr1.
-apply: (is_derive_transfer (G := g \o (fun h : R => F (h *: v + z))) (b := 0) (w := 1)).
-  by move=> h /=; rewrite addr0 -[h%:A]/(h * 1) mulr1.
-have e : F (0 *: v + z) = F z by rewrite scale0r add0r.
-by apply: is_derive1_comp; rewrite /= e.
-Qed.
-
 Lemma is_derive_lse_sum z j :
   is_derive z (delta_mx 0 j) (fun z => \sum_i expR (b * z 0 i)) (b * expR (b * z 0 j)).
 Proof.
-have h := is_derive_sum (fun i => is_derive_expR_coord z i j).
+have h := is_derive_sum (fun i => is_derive_expR_coord b z i j).
 have -> : (fun z => \sum_i expR (b * z 0 i)) = \sum_i (fun z => expR (b * z 0 i)).
   by apply/funext => w; rewrite fct_sumE.
 apply: (is_derive_eq h); rewrite (bigD1 j)//= eqxx mulr1 big1 ?addr0// => i /negPf ->.
@@ -206,16 +220,9 @@ Proof.
 have s1 : \sum_i expR (b * z 0 i) != 0 by rewrite gt_eqF// lse_sum_gt0.
 have hid : is_derive (\sum_i expR (b * z 0 i)) 1 (@id R) 1 := is_derive_id _ _.
 have hinv := is_derive_lift (is_derive_lse_sum z l) (is_deriveV s1 hid).
-have h := is_deriveM (is_derive_expR_coord z j l) hinv.
+have h := is_deriveM (is_derive_expR_coord b z j l) hinv.
 apply: (is_derive_eq h); rewrite /softmax /GRing.scale /= mulr1.
 by field.
-Qed.
-
-Lemma continuous_expR_coord i : continuous (fun z : 'rV[R]_k.+1 => expR (b * z 0 i)).
-Proof.
-move=> z; apply: continuous_comp; last exact: continuous_expR.
-apply: (cvgM (cvg_cst _)); [apply: nbhs_filter|apply: nbhs_filter|].
-exact: coord_continuous.
 Qed.
 
 Lemma continuous_softmax j : continuous (softmax ^~ j).
