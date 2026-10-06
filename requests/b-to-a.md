@@ -1,21 +1,17 @@
 # Requests from lane B to lane A
 
-## 3. Add four lane B library files to `_CoqProject` and merge them
+## 4. Add `library/comparison/slepian.v` to `_CoqProject`
 
-Please add these files to `_CoqProject`, in this order, after
-`library/comparison/gauss_rotation.v`, and merge `lane/b` into `main`:
+Please add this file to `_CoqProject` after
+`library/comparison/gauss_concentration.v`:
 
 ```
-library/comparison/partial_diff.v
-library/comparison/gauss_shift.v
-library/comparison/gauss_smoothing.v
-library/comparison/gauss_concentration.v
+library/comparison/slepian.v
 ```
 
-Besides the lane B files already registered, they depend on
-`gaussian/gauss_ibp.v`, `gaussian/gauss_interpolation.v` and
-`matrix/euclidean.v`, and on each other in the order above. Each compiles in
-the pinned image with `rocq compile -Q library GaussianAnalysis` and the
-warning flags of `_CoqProject`, and prints no warning.
-`gauss_concentration.v` proves Gaussian concentration for Lipschitz
-functions with the sharp constant (`gauss_concentration` and its tails).
+Besides the lane B files already registered, it depends on
+`gaussian/gauss_interpolation.v` and `matrix/euclidean.v`. It compiles in the
+pinned image with `rocq compile -Q library GaussianAnalysis` and the warning
+flags of `_CoqProject`, and prints no warning. It proves the
+Sudakov-Fernique inequality (`sudakov_fernique`) and Slepian's inequality for
+expected maxima (`slepian`), from Kahane's comparison inequality.
