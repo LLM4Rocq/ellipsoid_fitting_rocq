@@ -59,7 +59,8 @@ Local Notation RR := (R : realType).
 
 (* 1. The point of a tuple of coordinates. *)
 
-Definition tuple_point {d : nat} (t : d.-tuple (measurableTypeR R)) : 'cV[R]_d :=
+Definition tuple_point {d : nat} (t : d.-tuple (measurableTypeR R)) :
+    'cV[R]_d :=
   \col_(j < d) tnth t j.
 
 (* 2. The law of the quadratic feature of a point with independent
@@ -110,5 +111,6 @@ HB.instance Definition _ (kappa : R) d :=
   isMeasurableFun.Build _ _ _ _ (gaussian_feature_vec kappa d)
     (measurable_gaussian_feature_vec kappa d).
 
-Definition gaussian_feature_law (kappa : R) d : probability 'rV[RR]_(d * d) RR :=
+Definition gaussian_feature_law (kappa : R) d :
+    probability 'rV[RR]_(d * d) RR :=
   distribution (gauss (d * d)) (gaussian_feature_vec kappa d).
