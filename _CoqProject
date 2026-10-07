@@ -13,6 +13,7 @@ library/gaussian/gauss_moments.v
 library/gaussian/partial_derivative.v
 library/gaussian/parameter_integral.v
 library/gaussian/gauss_interpolation.v
+library/gaussian/lebesgue_rV.v
 library/matrix/euclidean.v
 library/matrix/real_spectral.v
 library/matrix/whitening.v
@@ -32,9 +33,13 @@ library/comparison/slepian.v
 library/comparison/gordon.v
 library/comparison/escape.v
 library/comparison/gauss_law.v
+library/comparison/ornstein_uhlenbeck.v
+library/comparison/brascamp_lieb.v
 library/fourier/charfun.v
 library/fourier/esseen.v
 library/fourier/gauss_factor.v
+library/fourier/charfun_rV.v
+library/fourier/small_ball.v
 
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
