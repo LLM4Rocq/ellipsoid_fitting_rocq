@@ -114,10 +114,8 @@ generated`), whose code cannot change. The other modules print none.
   Fourier analysis of anti-concentration: characteristic functions of laws
   on the line and on row vectors, written without complex numbers, Levy
   concentration functions and Esseen's inequality, the Brascamp-Lieb
-  inequality in Lebesgue form from its Gaussian form, the vector
-  small-ball estimate of Koehler and Sohn, and the Fourier inversion
-  theorem. The Gaussian form of Brascamp-Lieb is not proved yet: the
-  Lebesgue form and the small-ball estimate take it as a hypothesis. The
+  inequality in Gaussian and Lebesgue form, the vector small-ball
+  estimate of Koehler and Sohn, and the Fourier inversion theorem. The
   proof of the paper uses the library at Stdlib's `R`:
   `Gaussian/Law/LibraryBridge` identifies the library's Gaussian measure
   with the product law of the statement,
@@ -212,7 +210,7 @@ done, and the second is done in part.
    `Gaussian/Iterated/BlockRotation`, `Gaussian/Iterated/PolynomialGrowth`).
    What it no longer needed is deleted: `theories/` had 632 modules and
    102,415 lines at the tag `phase1`, and has 588 modules and 86,410 lines
-   now. The library has 37 files and 19,574 lines.
+   now. The library has 37 files and 21,005 lines.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 

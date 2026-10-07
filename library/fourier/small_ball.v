@@ -13,6 +13,7 @@ From GaussianAnalysis.gaussian Require Import measurable_matrix gauss.
 From GaussianAnalysis.gaussian Require Import lebesgue_rV.
 From GaussianAnalysis.matrix Require Import euclidean real_spectral whitening.
 From GaussianAnalysis.comparison Require Import normal_linear.
+From GaussianAnalysis.comparison Require Import brascamp_lieb_lebesgue.
 From GaussianAnalysis.probability Require Import lindeberg.
 From GaussianAnalysis.fourier Require Import charfun esseen gauss_factor.
 From GaussianAnalysis.fourier Require Import charfun_rV.
@@ -62,11 +63,11 @@ From GaussianAnalysis.fourier Require Import charfun_rV.
 (* max (2, sqrt (8 e / pi) C), for laws that satisfy the bound above for      *)
 (* all 0 < r <= s <= 1/2 (Lemma 3.5 of the paper).                            *)
 (*                                                                            *)
-(* Status. The Brascamp-Lieb inequality (comparison/brascamp_lieb.v) is not   *)
-(* in the library yet: until it is proved, the section small_ball takes its   *)
-(* statement as the hypothesis brascamp_lieb, and every result of that        *)
-(* section is proved from it. The bound of Lemma 3.5 and its first half       *)
-(* are gauss_factor_exists and conc_fun_truncated_exists of                   *)
+(* Sources. The Brascamp-Lieb inequality is brascamp_lieb of                  *)
+(* comparison/brascamp_lieb_lebesgue.v, which derives it from the Gaussian    *)
+(* form for bounded functions, gauss_brascamp_lieb_bounded of                 *)
+(* comparison/brascamp_lieb.v. The bound of Lemma 3.5 and its first half are  *)
+(* gauss_factor_exists and conc_fun_truncated_exists of                       *)
 (* fourier/gauss_factor.v, and the whitening matrix is whitening_exists of    *)
 (* matrix/whitening.v.                                                        *)
 (******************************************************************************)
@@ -405,16 +406,6 @@ End whitening_reduction.
 
 Section small_ball.
 Context {R : realType}.
-
-(* The Brascamp-Lieb inequality in Lebesgue form, as stated in the header
-   of comparison/brascamp_lieb.v, until it is proved there. *)
-Hypothesis brascamp_lieb : forall m n (u : 'I_n -> 'rV[R]_m) (c : 'I_n -> R)
-    (F : 'I_n -> R -> \bar R),
-  (forall i, mxdot (u i) (u i) = 1) -> (forall i, 0 < c i) ->
-  \sum_i c i *: ((u i)^T *m u i) = 1%:M ->
-  (forall i, measurable_fun [set: R] (F i)) -> (forall i t, 0 <= F i t)%E ->
-  (\int[lebesgue_rV m]_x \prod_i F i (mxdot x (u i)) `^ c i <=
-   \prod_i (\int[lebesgue_measure]_t F i t) `^ c i)%E.
 
 (* The Brascamp-Lieb inequality with nonnegative weights: the unit vectors
    are only required where the weight is positive. *)
