@@ -42,6 +42,12 @@ library/comparison/gauss_law.v
 library/comparison/ornstein_uhlenbeck.v
 library/comparison/brascamp_lieb.v
 library/comparison/brascamp_lieb_lebesgue.v
+library/convex/self_concordant.v
+library/convex/least_squares.v
+library/convex/logdet_barrier.v
+library/convex/minimizers.v
+library/convex/barrier_removal.v
+library/convex/barrier_lindeberg.v
 library/fourier/charfun.v
 library/fourier/esseen.v
 library/fourier/gauss_factor.v
@@ -642,4 +648,6 @@ extension/UniversalityDefinitions.v
 extension/UniversalityStatement.v
 extension/Gaussian/Cones.v
 extension/Gaussian/Threshold.v
+extension/Unsat/LeastSquares.v
+extension/Unsat/Regularized.v
 extension/Unsat/Ridge.v
