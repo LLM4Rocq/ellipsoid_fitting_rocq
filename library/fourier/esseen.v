@@ -660,37 +660,45 @@ apply: ge0_le_integral => //.
 Qed.
 
 (* The second moment of X - X' is at most 4 v. *)
-Lemma sym_second_moment (v : R) :
-  (\int[mu]_x ((x ^+ 2)%R)%:E <= v%:E)%E ->
+(* E[(X - X')^2] <= 4 E[(X - a)^2] for every a. *)
+Lemma sym_second_moment_center (a v : R) :
+  (\int[mu]_x ((((x : R) - a) ^+ 2)%R)%:E <= v%:E)%E ->
   (\int[PP]_p (((p.1 - p.2) ^+ 2)%R)%:E <= (4 * v)%:E)%E.
 Proof.
 move=> mu2.
 have m1 : measurable_fun [set: measurableTypeR R * measurableTypeR R]
-    (fun p => (((p.1 : R) ^+ 2)%R)%:E).
-  apply/measurable_EFinP; apply: measurable_funX.
-  exact: measurableT_comp (@measurable_idR R) measurable_fst.
+    (fun p => ((((p.1 : R) - a) ^+ 2)%R)%:E).
+  apply/measurable_EFinP; apply: measurable_funX; apply: measurable_funB.
+    exact: measurableT_comp (@measurable_idR R) measurable_fst.
+  exact: measurable_cst.
 have m2 : measurable_fun [set: measurableTypeR R * measurableTypeR R]
-    (fun p => (((p.2 : R) ^+ 2)%R)%:E).
-  apply/measurable_EFinP; apply: measurable_funX.
-  exact: measurableT_comp (@measurable_idR R) measurable_snd.
-have mx2 : measurable_fun [set: measurableTypeR R] (fun x => ((x ^+ 2)%R)%:E).
-  by apply/measurable_EFinP; apply: measurable_funX; exact: measurable_idR.
-have E1 : (\int[PP]_p (((p.1 : R) ^+ 2)%R)%:E = \int[mu]_x ((x ^+ 2)%R)%:E)%E.
+    (fun p => ((((p.2 : R) - a) ^+ 2)%R)%:E).
+  apply/measurable_EFinP; apply: measurable_funX; apply: measurable_funB.
+    exact: measurableT_comp (@measurable_idR R) measurable_snd.
+  exact: measurable_cst.
+have mx2 : measurable_fun [set: measurableTypeR R]
+    (fun x => ((((x : R) - a) ^+ 2)%R)%:E).
+  apply/measurable_EFinP; apply: measurable_funX; apply: measurable_funB.
+    exact: measurable_idR.
+  exact: measurable_cst.
+have E1 : (\int[PP]_p ((((p.1 : R) - a) ^+ 2)%R)%:E =
+    \int[mu]_x ((((x : R) - a) ^+ 2)%R)%:E)%E.
   rewrite fubini_tonelli1//=; first by move=> p; rewrite lee_fin sqr_ge0.
   apply: eq_integral => x _; rewrite /fubini_F /= integral_cst//.
   by rewrite [X in (_ * X)%E]probability_setT mule1.
-have E2 : (\int[PP]_p (((p.2 : R) ^+ 2)%R)%:E = \int[mu]_x ((x ^+ 2)%R)%:E)%E.
+have E2 : (\int[PP]_p ((((p.2 : R) - a) ^+ 2)%R)%:E =
+    \int[mu]_x ((((x : R) - a) ^+ 2)%R)%:E)%E.
   rewrite fubini_tonelli1//=; first by move=> p; rewrite lee_fin sqr_ge0.
   rewrite /fubini_F /= integral_cst//= [X in (_ * X)%E]probability_setT mule1.
   by [].
-apply: (@le_trans _ _ (\int[PP]_p (2%:E * (((p.1 : R) ^+ 2)%R)%:E +
-    2%:E * (((p.2 : R) ^+ 2)%R)%:E))%E).
+apply: (@le_trans _ _ (\int[PP]_p (2%:E * ((((p.1 : R) - a) ^+ 2)%R)%:E +
+    2%:E * ((((p.2 : R) - a) ^+ 2)%R)%:E))%E).
   apply: ge0_le_integral => //.
   - by move=> p _; rewrite lee_fin sqr_ge0.
   - apply/measurable_EFinP; apply: measurable_funX; exact: mdiff.
   - by apply: emeasurable_funD; apply: emeasurable_funM.
   - move=> p _; rewrite -!EFinM -EFinD lee_fin.
-    by have := sqr_ge0 ((p.1 : R) + p.2); nra.
+    by have := sqr_ge0 ((p.1 : R) - a + ((p.2 : R) - a)); nra.
 rewrite ge0_integralD//.
 - by move=> p _; rewrite mule_ge0// lee_fin sqr_ge0.
 - exact: emeasurable_funM.
@@ -702,6 +710,14 @@ rewrite E1 E2.
 apply: (@le_trans _ _ (2%:E * v%:E + 2%:E * v%:E)%E).
   by apply: leeD; apply: lee_wpmul2l => //; rewrite lee_fin.
 by rewrite -!EFinM -EFinD lee_fin; lra.
+Qed.
+
+Lemma sym_second_moment (v : R) :
+  (\int[mu]_x ((x ^+ 2)%R)%:E <= v%:E)%E ->
+  (\int[PP]_p (((p.1 - p.2) ^+ 2)%R)%:E <= (4 * v)%:E)%E.
+Proof.
+move=> mu2; apply: (@sym_second_moment_center 0).
+by under eq_integral do rewrite subr0.
 Qed.
 
 (* Markov's inequality for X - X'. *)

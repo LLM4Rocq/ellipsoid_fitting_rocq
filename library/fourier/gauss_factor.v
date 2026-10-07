@@ -22,7 +22,9 @@ From GaussianAnalysis.fourier Require Import charfun esseen.
 (*   \int |cf mu u|^(1/r^2) exp (- s^2 u^2 / (2 r^2)) du <= r C,              *)
 (*   C = 16 pi^3 sqrt pi e^(1/8) (1 + sqrt (4 v / eps)) / (lambda sqrt eps)   *)
 (* (gauss_factor_le; gauss_factor_scaled_le after the substitution u = r t;   *)
-(* gauss_factor_exists with the constant uniform in mu). With                 *)
+(* gauss_factor_exists with the constant uniform in mu). The same holds with  *)
+(* E[(X - a)^2] <= v for any a, the variance when a is the mean               *)
+(* (gauss_factor_center_le, gauss_factor_center_exists). With                 *)
 (* N = floor (1 / (2 r^2)), |cf mu u|^(1/r^2) <= |cf mu u|^(2 N), the         *)
 (* characteristic function of the sum S of N independent copies of the        *)
 (* symmetrized law (cf_re_sum_sym). The Gaussian Fubini identity              *)
@@ -32,9 +34,14 @@ From GaussianAnalysis.fourier Require Import charfun esseen.
 (* for X of law nu (gauss_weight_conc_fun), and the concentration of sums     *)
 (* of esseen.v, Q(S, 1) <= C' / sqrt N <= 2 C' r, conclude.                   *)
 (*                                                                            *)
-(* The first half of the same lemma: a law with mean 0, variance 1 and        *)
-(* E[X^2 1_{|X| <= M}] >= 1/2 has Q(mu, 1/8) <= 1 - min (7 / (16 M^2), 1/100) *)
-(* (conc_fun_truncated, conc_fun_truncated_exists).                           *)
+(* The first half of the same lemma, for any truncation level c: a law with   *)
+(* mean 0, variance 1 and E[X^2 1_{|X| <= M}] >= c has, for every L > 0,      *)
+(*   Q(mu, L) <= 1 - min ((c - 4 L^2) / M^2, L^2 / (2 L^2 + 1))               *)
+(* (conc_fun_truncated_level, conc_fun_truncated_level_exists). For c = 1/2   *)
+(* and L = 1/8 this gives the paper's Q(mu, 1/8) <= 1 - min (7 / (16 M^2),    *)
+(* 1/100) (conc_fun_truncated, conc_fun_truncated_exists). The length must    *)
+(* depend on c: if c < 1/256, a law with mass close to 1 at +-1/16 and a      *)
+(* small mass far away has Q(mu, 1/8) close to 1.                             *)
 (*                                                                            *)
 (* Laws on the line are probabilities on measurableTypeR R, as in charfun.v.  *)
 (*                                                                            *)
@@ -106,15 +113,16 @@ Proof. by []. Qed.
 
 End laws.
 
-(* The first half of Lemma 3.5 of Koehler and Sohn: a law of mean 0 and
-   variance 1 with E[X^2 1_{|X| <= M}] >= 1/2 puts mass at most
-   1 - min (7 / (16 M^2), 1/100) on every interval of length 1/8. *)
+(* The first half of Lemma 3.5 of Koehler and Sohn, for any truncation
+   level c: a law of mean 0 and variance 1 with E[X^2 1_{|X| <= M}] >= c puts
+   mass at most 1 - min ((c - 4 L^2) / M^2, L^2 / (2 L^2 + 1)) on every
+   interval of length L > 0. *)
 Section truncated_moment.
-Context {R : realType} (mu : probability (measurableTypeR R) R) (M : R).
+Context {R : realType} (mu : probability (measurableTypeR R) R) (M c : R).
 Hypothesis M0 : 0 < M.
 Hypothesis mean0 : (\int[mu]_x (x : R)%:E = 0)%E.
 Hypothesis var1 : (\int[mu]_x (((x : R) ^+ 2)%R)%:E = 1)%E.
-Hypothesis trunc : ((2^-1)%:E <=
+Hypothesis trunc : (c%:E <=
   \int[mu]_x (((x : R) ^+ 2 * \1_[set y : R | `|y| <= M] x)%R)%:E)%E.
 
 Local Notation S := [set y : R | `|y| <= M].
@@ -208,16 +216,18 @@ rewrite RI//; apply/EFin_inj; rewrite EFinB -!prob_fine//.
 exact: probability_setC.
 Qed.
 
-(* If an interval I lies in [-1/4, 1/4], mu misses it with probability at
-   least 7 / (16 M^2). *)
-Let case_small (I : set (measurableTypeR R)) : measurable I ->
-  (forall x, I x -> `|x : R| <= 4^-1) -> 7 / (16 * M ^+ 2) <= 1 - fine (mu I).
+(* If an interval I lies in [-2 L, 2 L], mu misses it with probability at
+   least (c - 4 L^2) / M^2. *)
+Let case_small (I : set (measurableTypeR R)) (L : R) : measurable I ->
+  (forall x, I x -> `|x : R| <= 2 * L) ->
+  (c - 4 * L ^+ 2) / M ^+ 2 <= 1 - fine (mu I).
 Proof.
 move=> mI hI; have mnI : measurable (~` I) by exact: measurableC.
 have mnS : measurable (~` S) by exact: measurableC.
 have dl := dl_eq mI.
+have hL : 0 <= 4 * L ^+ 2 by rewrite mulr_ge0// sqr_ge0.
 have pw x : (x : R) ^+ 2 <=
-    16^-1 + M ^+ 2 * \1_(~` I) x + (x : R) ^+ 2 * \1_(~` S) x.
+    4 * L ^+ 2 + M ^+ 2 * \1_(~` I) x + (x : R) ^+ 2 * \1_(~` S) x.
   rewrite !indicE; case: (x \in ~` S) / boolP => xS.
     by rewrite /= mulr1 lerDr addr_ge0// mulr_ge0// ?sqr_ge0//; case: (_ \in _).
   move: xS; rewrite in_setC negbK => /set_mem xS.
@@ -233,26 +243,26 @@ have split x : (x : R) ^+ 2 =
     (x : R) ^+ 2 * \1_S x + (x : R) ^+ 2 * \1_(~` S) x.
   rewrite -mulrDr !indicE in_setC.
   by case: (x \in S); rewrite /= ?addr0 ?add0r mulr1.
-have iC : mu.-integrable [set: _] (EFin \o cst (16^-1 : R)).
+have iC : mu.-integrable [set: _] (EFin \o cst (4 * L ^+ 2 : R)).
   exact: finite_measure_integrable_cst.
 have iMI : mu.-integrable [set: _] (EFin \o (fun x => M ^+ 2 * \1_(~` I) x)).
   have := integrableZl measurableT (M ^+ 2) (iI mnI).
   by apply: eq_integrable => // x _; rewrite /= EFinM.
 have iCMI : mu.-integrable [set: _]
-    (EFin \o (fun x => 16^-1 + M ^+ 2 * \1_(~` I) x)).
+    (EFin \o (fun x => 4 * L ^+ 2 + M ^+ 2 * \1_(~` I) x)).
   have := integrableD measurableT iC iMI.
   by apply: eq_integrable => // x _; rewrite /= EFinD.
 have iall : mu.-integrable [set: _] (EFin \o (fun x =>
-    16^-1 + M ^+ 2 * \1_(~` I) x + (x : R) ^+ 2 * \1_(~` S) x)).
+    4 * L ^+ 2 + M ^+ 2 * \1_(~` I) x + (x : R) ^+ 2 * \1_(~` S) x)).
   have := integrableD measurableT iCMI (ix2A mnS).
   by apply: eq_integrable => // x _; rewrite /= EFinD.
 have h1 : \int[mu]_x ((x : R) ^+ 2) <= \int[mu]_x
-    (16^-1 + M ^+ 2 * \1_(~` I) x + (x : R) ^+ 2 * \1_(~` S) x).
+    (4 * L ^+ 2 + M ^+ 2 * \1_(~` I) x + (x : R) ^+ 2 * \1_(~` S) x).
   exact: (le_Rintegral measurableT ix2 iall (fun x _ => pw x)).
 rewrite Ex2 (@RintegralD _ _ _ mu setT
-  (fun x => 16^-1 + M ^+ 2 * \1_(~` I) x)
+  (fun x => 4 * L ^+ 2 + M ^+ 2 * \1_(~` I) x)
   (fun x => (x : R) ^+ 2 * \1_(~` S) x) measurableT iCMI (ix2A mnS)) in h1.
-rewrite (@RintegralD _ _ _ mu setT (cst 16^-1)
+rewrite (@RintegralD _ _ _ mu setT (cst (4 * L ^+ 2))
   (fun x => M ^+ 2 * \1_(~` I) x) measurableT iC iMI) in h1.
 rewrite Rintegral_cst//= in h1.
 rewrite [X in _ * fine X]probability_setT /= mulr1 in h1.
@@ -266,30 +276,30 @@ have h2 : \int[mu]_x ((x : R) ^+ 2 * \1_(~` S) x) =
     (fun x => (x : R) ^+ 2 * \1_(~` S) x) measurableT (ix2A mS)
     (ix2A mnS)) Ex2 in e.
   by rewrite e; lra.
-have h3 : 2^-1 <= \int[mu]_x ((x : R) ^+ 2 * \1_S x).
+have h3 : c <= \int[mu]_x ((x : R) ^+ 2 * \1_S x).
   have fin : (\int[mu]_x ((x : R) ^+ 2 * \1_S x)%:E)%E \is a fin_num.
     by have := integrable_fin_num measurableT (ix2A mS).
   by rewrite -lee_fin /Rintegral fineK.
-rewrite ler_pdivrMr ?mulr_gt0 ?exprn_gt0//.
+rewrite ler_pdivrMr ?exprn_gt0//.
 by rewrite h2 in h1; lra.
 Qed.
 
-(* If sg x >= 1/8 on I, with sg = 1 or sg = -1, then mu misses I with
-   probability at least 1/100, because E[X] = 0 and E[X^2] = 1. *)
-Let case_far (I : set (measurableTypeR R)) (sg : R) : measurable I ->
-  sg ^+ 2 = 1 -> (forall x, I x -> 8^-1 <= sg * x) ->
-  100^-1 <= 1 - fine (mu I).
+(* If sg x >= L on I, with sg = 1 or sg = -1, then mu misses I with
+   probability at least L^2 / (2 L^2 + 1), because E[X] = 0 and E[X^2] = 1. *)
+Let case_far (I : set (measurableTypeR R)) (sg L : R) : measurable I ->
+  0 < L -> sg ^+ 2 = 1 -> (forall x, I x -> L <= sg * x) ->
+  L ^+ 2 / (2 * L ^+ 2 + 1) <= 1 - fine (mu I).
 Proof.
-move=> mI sg1 hI; have mnI : measurable (~` I) by exact: measurableC.
+move=> mI L0 sg1 hI; have mnI : measurable (~` I) by exact: measurableC.
 have dlE := dl_eq mI.
 have nsg : `|sg| = 1.
   apply/eqP; rewrite -(@eqrXn2 _ 2 _ _ erefl (normr_ge0 sg) ler01) expr1n.
   by rewrite real_normK ?num_real// sg1.
-have i8 : mu.-integrable [set: _] (EFin \o (fun x => 8^-1 * \1_I x)).
-  have := integrableZl measurableT 8^-1 (iI mI).
+have i8 : mu.-integrable [set: _] (EFin \o (fun x => L * \1_I x)).
+  have := integrableZl measurableT L (iI mI).
   by apply: eq_integrable => // x _; rewrite /= EFinM.
-have low : 8^-1 * fine (mu I) <= \int[mu]_x (sg * x * \1_I x).
-  rewrite -RI// -(RintegralZl 8^-1 measurableT (iI mI)).
+have low : L * fine (mu I) <= \int[mu]_x (sg * x * \1_I x).
+  rewrite -RI// -(RintegralZl L measurableT (iI mI)).
   apply: (le_Rintegral measurableT i8 (ixA mI sg1)) => x _.
   rewrite indicE; case: (x \in I) / boolP => xI; last by rewrite /= !mulr0.
   by rewrite /= !mulr1; apply: hI; exact: set_mem.
@@ -306,10 +316,17 @@ have sum0 : \int[mu]_x (sg * x * \1_I x) +
   have E1 : \int[mu]_x (sg * (x : R)) = sg * \int[mu]_x (x : R).
     exact: (RintegralZl sg measurableT ix).
   by rewrite E1 Ex mulr0.
+(* |x| <= L / 2 x^2 + 1 / (2 L) *)
+have key (y : R) : y <= L / 2 * y ^+ 2 + (2 * L)^-1.
+  have Ln0 : L != 0 by rewrite gt_eqF.
+  have -> : L / 2 * y ^+ 2 + (2 * L)^-1 = y + L / 2 * (y - L^-1) ^+ 2.
+    by field.
+  rewrite lerDl; apply: mulr_ge0; last exact: sqr_ge0.
+  by rewrite divr_ge0// ltW.
 have i20 : mu.-integrable [set: _]
-    (EFin \o (fun x => 20^-1 * (x : R) ^+ 2 + 5 * \1_(~` I) x)).
-  have i1 := integrableZl measurableT 20^-1 ix2.
-  have i2 := integrableZl measurableT 5 (iI mnI).
+    (EFin \o (fun x => L / 2 * (x : R) ^+ 2 + (2 * L)^-1 * \1_(~` I) x)).
+  have i1 := integrableZl measurableT (L / 2) ix2.
+  have i2 := integrableZl measurableT (2 * L)^-1 (iI mnI).
   have := integrableD measurableT i1 i2.
   by apply: eq_integrable => // x _; rewrite /= EFinD !EFinM.
 have iN : mu.-integrable [set: _]
@@ -317,52 +334,90 @@ have iN : mu.-integrable [set: _]
   have := integrableZl measurableT (-1) (ixA mnI sg1).
   by apply: eq_integrable => // x _; rewrite /= -EFinM mulN1r.
 have up : - (\int[mu]_x (sg * x * \1_(~` I) x)) <=
-    20^-1 + 5 * (1 - fine (mu I)).
+    L / 2 + (2 * L)^-1 * (1 - fine (mu I)).
   have NE : \int[mu]_x (- (sg * x * \1_(~` I) x)) =
       - \int[mu]_x (sg * x * \1_(~` I) x).
     exact: (RintegralN (ixA mnI sg1)).
   rewrite -NE.
   apply: le_trans (le_Rintegral measurableT iN i20 _) _.
     move=> x _; rewrite indicE; case: (x \in ~` I) => /=; last first.
-      by rewrite !mulr0 oppr0 addr0 mulr_ge0// sqr_ge0.
+      rewrite !mulr0 oppr0 addr0; apply: mulr_ge0; last exact: sqr_ge0.
+      by rewrite divr_ge0// ltW.
     rewrite !mulr1; apply: le_trans (ler_norm _) _.
     rewrite normrN normrM nsg mul1r -real_normK ?num_real//.
-    by have := sqr_ge0 (`|x : R| - 10); nra.
-  rewrite (@RintegralD _ _ _ mu setT (fun x => 20^-1 * (x : R) ^+ 2)
-    (fun x => 5 * \1_(~` I) x) measurableT _ _).
-  - have := integrableZl measurableT 20^-1 ix2.
+  rewrite (@RintegralD _ _ _ mu setT (fun x => L / 2 * (x : R) ^+ 2)
+    (fun x => (2 * L)^-1 * \1_(~` I) x) measurableT _ _).
+  - have := integrableZl measurableT (L / 2) ix2.
     by apply: eq_integrable => // x _; rewrite /= EFinM.
-  - have := integrableZl measurableT 5 (iI mnI).
+  - have := integrableZl measurableT (2 * L)^-1 (iI mnI).
     by apply: eq_integrable => // x _; rewrite /= EFinM.
-  have E1 : \int[mu]_x (20^-1 * (x : R) ^+ 2) =
-      20^-1 * \int[mu]_x ((x : R) ^+ 2).
-    exact: (RintegralZl 20^-1 measurableT ix2).
-  by rewrite E1 Ex2 (RintegralZl 5 measurableT (iI mnI)) dlE mulr1.
+  have E1 : \int[mu]_x (L / 2 * (x : R) ^+ 2) =
+      L / 2 * \int[mu]_x ((x : R) ^+ 2).
+    exact: (RintegralZl (L / 2) measurableT ix2).
+  by rewrite E1 Ex2 (RintegralZl (2 * L)^-1 measurableT (iI mnI)) dlE mulr1.
+have h : L * fine (mu I) <= L / 2 + (2 * L)^-1 * (1 - fine (mu I)) by lra.
+set p := fine (mu I) in h *.
+have Ln0 : L != 0 by rewrite gt_eqF.
+have h2 : 2 * L ^+ 2 * p <= L ^+ 2 + (1 - p).
+  have := ler_wpM2l (_ : 0 <= 2 * L) h.
+  have -> : 2 * L * (L * p) = 2 * L ^+ 2 * p by ring.
+  have -> : 2 * L * (L / 2 + (2 * L)^-1 * (1 - p)) = L ^+ 2 + (1 - p).
+    by field.
+  by apply; rewrite mulr_ge0// ltW.
+have d0 : 0 < 2 * L ^+ 2 + 1 by have := sqr_ge0 L; lra.
+rewrite ler_pdivrMr//.
 lra.
 Qed.
 
-Lemma conc_fun_truncated :
-  conc_fun mu 8^-1 <= 1 - minr (7 / (16 * M ^+ 2)) 100^-1.
+Lemma conc_fun_truncated_level (L : R) : 0 < L ->
+  conc_fun mu L <=
+  1 - minr ((c - 4 * L ^+ 2) / M ^+ 2) (L ^+ 2 / (2 * L ^+ 2 + 1)).
 Proof.
-apply: conc_fun_le => a.
-set I := `[a, (a + 8^-1)%R]%classic.
+move=> L0; apply: conc_fun_le => a.
+set I := `[a, (a + L)%R]%classic.
 have mI : measurable I by exact: measurable_itv.
 rewrite (prob_fine mI) lee_fin.
-suff : minr (7 / (16 * M ^+ 2)) 100^-1 <= 1 - fine (mu I) by lra.
-have [ha|ha] := ltP (8^-1) a.
-  rewrite ge_min; apply/orP; right; apply: (@case_far I 1) => //.
+suff : minr ((c - 4 * L ^+ 2) / M ^+ 2) (L ^+ 2 / (2 * L ^+ 2 + 1)) <=
+    1 - fine (mu I) by lra.
+have [ha|ha] := ltP L a.
+  rewrite ge_min; apply/orP; right; apply: (@case_far I 1 L) => //.
     by rewrite expr1n.
   by move=> x; rewrite /I /= in_itv /= mul1r => /andP[h _]; lra.
-have [hb|hb] := ltP a (- 4^-1).
-  rewrite ge_min; apply/orP; right; apply: (@case_far I (-1)) => //.
+have [hb|hb] := ltP a (- (2 * L)).
+  rewrite ge_min; apply/orP; right; apply: (@case_far I (-1) L) => //.
     by rewrite sqrrN expr1n.
   by move=> x; rewrite /I /= in_itv /= mulN1r => /andP[_ h]; lra.
-rewrite ge_min; apply/orP; left; apply: case_small => // x.
+rewrite ge_min; apply/orP; left; apply: (@case_small I L) => // x.
 rewrite /I /= in_itv /= => /andP[h1 h2].
 by rewrite ler_norml; apply/andP; split; lra.
 Qed.
 
 End truncated_moment.
+
+(* The first half of Lemma 3.5 as stated in the paper: level 1/2 and
+   intervals of length 1/8. *)
+Section truncated_moment_half.
+Context {R : realType} (mu : probability (measurableTypeR R) R) (M : R).
+Hypothesis M0 : 0 < M.
+Hypothesis mean0 : (\int[mu]_x (x : R)%:E = 0)%E.
+Hypothesis var1 : (\int[mu]_x (((x : R) ^+ 2)%R)%:E = 1)%E.
+Hypothesis trunc : ((2^-1)%:E <=
+  \int[mu]_x (((x : R) ^+ 2 * \1_[set y : R | `|y| <= M] x)%R)%:E)%E.
+
+Lemma conc_fun_truncated :
+  conc_fun mu 8^-1 <= 1 - minr (7 / (16 * M ^+ 2)) 100^-1.
+Proof.
+have L0 : 0 < 8^-1 :> R by rewrite invr_gt0 ltr0n.
+apply: le_trans (conc_fun_truncated_level M0 mean0 var1 trunc L0) _.
+have Mn0 : M != 0 by rewrite gt_eqF.
+have -> : (2^-1 - 4 * 8^-1 ^+ 2) / M ^+ 2 = 7 / (16 * M ^+ 2) :> R.
+  by field.
+have -> : 8^-1 ^+ 2 / (2 * 8^-1 ^+ 2 + 1) = 66^-1 :> R by field.
+rewrite lerD2l lerN2 le_min !ge_min lexx /=.
+by apply/orP; right; lra.
+Qed.
+
+End truncated_moment_half.
 
 (* The Gaussian weight exp (- y^2 / 2), of integral sqrt (2 pi). *)
 Section gauss_weight.
@@ -707,6 +762,21 @@ rewrite (@ge0_integral_distribution _ _ _ _ _ (mu \x mu)%E sym_diff _ m2 h0).
 exact: (sym_second_moment mu2).
 Qed.
 
+(* E[(X - X')^2] <= 4 E[(X - a)^2] for every a. *)
+Lemma sym_law_second_moment_center mu (a v : R) :
+  (\int[mu]_x ((((x : R) - a) ^+ 2)%R)%:E <= v%:E)%E ->
+  (\int[sym_law mu]_x (((x : R) ^+ 2)%R)%:E <= (4 * v)%:E)%E.
+Proof.
+move=> mu2.
+have m2 : measurable_fun [set: measurableTypeR R]
+    (fun y : measurableTypeR R => (((y : R) ^+ 2)%R)%:E).
+  by apply/measurable_EFinP; apply: measurable_funX; exact: measurable_idR.
+have h0 (y : measurableTypeR R) : (0 <= (((y : R) ^+ 2)%R)%:E)%E.
+  by rewrite lee_fin sqr_ge0.
+rewrite (@ge0_integral_distribution _ _ _ _ _ (mu \x mu)%E sym_diff _ m2 h0).
+exact: (sym_second_moment_center mu2).
+Qed.
+
 (* A complex product of real numbers is real. *)
 Lemma cmul_real_big (I : Type) (r : seq I) (P : pred I) (F : I -> R) :
   \big[cmul/(1, 0)]_(i <- r | P i) (F i, 0) = (\prod_(i <- r | P i) F i, 0).
@@ -766,13 +836,13 @@ by apply: measurable_funM => //; exact: measurable_funX.
 Qed.
 
 (* Lemma 3.5 of Koehler and Sohn: for a law mu on the line with
-   E[X^2] <= v and Q(mu, lambda) <= 1 - eps, and for 0 < r <= 1/2 and
-   r <= s, \int |cf mu u|^(1/r^2) exp (- s^2 u^2 / (2 r^2)) du <= r C, with C
-   depending only on v, lambda and eps. *)
-Theorem gauss_factor_le (mu : probability (measurableTypeR R) R)
-    (v lambda eps r s : R) :
+   E[(X - a)^2] <= v for some a and Q(mu, lambda) <= 1 - eps, and for
+   0 < r <= 1/2 and r <= s, \int |cf mu u|^(1/r^2) exp (- s^2 u^2 / (2 r^2)) du
+   <= r C, with C depending only on v, lambda and eps. *)
+Theorem gauss_factor_center_le (mu : probability (measurableTypeR R) R)
+    (a v lambda eps r s : R) :
   0 < v -> 0 < lambda -> 0 < eps ->
-  (\int[mu]_x (((x : R) ^+ 2)%R)%:E <= v%:E)%E ->
+  (\int[mu]_x ((((x : R) - a) ^+ 2)%R)%:E <= v%:E)%E ->
   conc_fun mu lambda <= 1 - eps ->
   0 < r -> r <= 2^-1 -> r <= s ->
   (\int[leb]_u (cf_norm mu u `^ (r ^- 2) *
@@ -802,7 +872,7 @@ have QS : conc_fun S 1 <= 2 * pi ^+ 2 * Num.sqrt pi *
     (1 + Num.sqrt (4 * v / eps)) / (lambda * Num.sqrt (eps * N%:R)).
   apply: (@conc_fun_sum R (fun=> sym_law mu) N S (4 * v) lambda eps 1) => //.
   - by rewrite mulr_gt0.
-  - by move=> k _; exact: sym_law_second_moment.
+  - by move=> k _; exact: (sym_law_second_moment_center mu2).
   - by move=> k _; exact: le_trans (conc_fun_sym_law mu lambda) Q.
 have ES := gauss_weight_conc_fun S.
 have FS := Rintegral_cf_re_gauss_weight S.
@@ -905,6 +975,22 @@ have fin : (\int[leb]_u (cf_norm mu u `^ (r ^- 2) *
 by rewrite -(fineK fin) lee_fin -ler_pdivrMl.
 Qed.
 
+(* The case a = 0: E[X^2] <= v. *)
+Theorem gauss_factor_le (mu : probability (measurableTypeR R) R)
+    (v lambda eps r s : R) :
+  0 < v -> 0 < lambda -> 0 < eps ->
+  (\int[mu]_x (((x : R) ^+ 2)%R)%:E <= v%:E)%E ->
+  conc_fun mu lambda <= 1 - eps ->
+  0 < r -> r <= 2^-1 -> r <= s ->
+  (\int[leb]_u (cf_norm mu u `^ (r ^- 2) *
+     expR (- s ^+ 2 * u ^+ 2 / (2 * r ^+ 2)))%:E <=
+   (r * gauss_factor_const v lambda eps)%:E)%E.
+Proof.
+move=> v0 l0 e0 mu2 Q r0 r12 rs.
+apply: (@gauss_factor_center_le mu 0 v lambda eps r s) => //.
+by under eq_integral do rewrite subr0.
+Qed.
+
 (* The same bound after the substitution u = r t:
    \int |cf mu (r t)|^(1/r^2) exp (- s^2 t^2 / 2) dt <= C. *)
 Corollary gauss_factor_scaled_le (mu : probability (measurableTypeR R) R)
@@ -954,6 +1040,24 @@ move=> mu r s mu2 Q /andP[r0 rs] s12.
 exact: (gauss_factor_le v0 l0 e0 mu2 Q r0 (le_trans rs s12) rs).
 Qed.
 
+(* The same with a centered second moment, E[(X - a)^2] <= v for some a: the
+   variance when a is the mean. *)
+Corollary gauss_factor_center_exists (v lambda eps : R) :
+  0 < v -> 0 < lambda -> 0 < eps ->
+  exists2 C : R, 0 < C &
+  forall (mu : probability (measurableTypeR R) R) (a r s : R),
+    (\int[mu]_x ((((x : R) - a) ^+ 2)%R)%:E <= v%:E)%E ->
+    conc_fun mu lambda <= 1 - eps ->
+    0 < r <= s -> s <= 2^-1 ->
+    (\int[leb]_u (cf_norm mu u `^ (r ^- 2) *
+       expR (- s ^+ 2 * u ^+ 2 / (2 * r ^+ 2)))%:E <= (r * C)%:E)%E.
+Proof.
+move=> v0 l0 e0; exists (gauss_factor_const v lambda eps).
+  exact: gauss_factor_const_gt0.
+move=> mu a r s mu2 Q /andP[r0 rs] s12.
+exact: (gauss_factor_center_le v0 l0 e0 mu2 Q r0 (le_trans rs s12) rs).
+Qed.
+
 End gauss_factor_bound.
 
 (* The first half of Lemma 3.5 with a constant uniform in the law. *)
@@ -970,4 +1074,26 @@ move=> M0; exists (minr (7 / (16 * M ^+ 2)) 100^-1).
   have c0 : 0 < 7 / (16 * M ^+ 2) by rewrite divr_gt0// mulr_gt0// exprn_gt0.
   by rewrite lt_min c0 invr_gt0 ltr0n.
 by move=> mu m0 v1 t; exact: conc_fun_truncated.
+Qed.
+
+(* The same for any truncation level c, on intervals of any length L with
+   4 L^2 < c (for instance L = sqrt c / 4). *)
+Corollary conc_fun_truncated_level_exists {R : realType} (M c L : R) :
+  0 < M -> 0 < L -> 4 * L ^+ 2 < c ->
+  exists2 k : R, 0 < k &
+  forall mu : probability (measurableTypeR R) R,
+    (\int[mu]_x (x : R)%:E = 0)%E ->
+    (\int[mu]_x (((x : R) ^+ 2)%R)%:E = 1)%E ->
+    (c%:E <=
+      \int[mu]_x (((x : R) ^+ 2 * \1_[set y : R | `|y| <= M] x)%R)%:E)%E ->
+    conc_fun mu L <= 1 - k.
+Proof.
+move=> M0 L0 Lc.
+exists (minr ((c - 4 * L ^+ 2) / M ^+ 2) (L ^+ 2 / (2 * L ^+ 2 + 1))).
+  have k1 : 0 < (c - 4 * L ^+ 2) / M ^+ 2.
+    by rewrite divr_gt0 ?subr_gt0// exprn_gt0.
+  have d0 : 0 < 2 * L ^+ 2 + 1 by have := sqr_ge0 L; lra.
+  have k2 : 0 < L ^+ 2 / (2 * L ^+ 2 + 1) by rewrite divr_gt0// exprn_gt0.
+  by rewrite lt_min k1 k2.
+by move=> mu m0 v1 t; exact: (conc_fun_truncated_level M0 m0 v1 t L0).
 Qed.
