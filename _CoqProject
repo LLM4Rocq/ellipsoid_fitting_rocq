@@ -16,6 +16,7 @@ library/gaussian/gauss_interpolation.v
 library/gaussian/lebesgue_rV.v
 library/matrix/euclidean.v
 library/matrix/real_spectral.v
+library/matrix/whitening.v
 library/matrix/opnorm.v
 library/matrix/nets.v
 library/probability/moments.v
