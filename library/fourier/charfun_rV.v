@@ -12,7 +12,7 @@ From mathcomp Require Import normal_distribution.
 From GaussianAnalysis.gaussian Require Import measurable_matrix normal_integral.
 From GaussianAnalysis.gaussian Require Import gauss gauss_ibp.
 From GaussianAnalysis.gaussian Require Import parameter_integral.
-From GaussianAnalysis.gaussian Require Import lebesgue_rV.
+From GaussianAnalysis.gaussian Require Import gauss_moments lebesgue_rV.
 From GaussianAnalysis.matrix Require Import euclidean.
 From GaussianAnalysis.comparison Require Import normal_linear gauss_linear.
 From GaussianAnalysis.probability Require Import lindeberg.
@@ -29,7 +29,8 @@ From GaussianAnalysis.fourier Require Import charfun.
 (* is exp (- |theta|^2 / 2) (cf_rV_gauss). The law of the sum of independent  *)
 (* vectors has the complex product of their characteristic functions          *)
 (* (cf_rV_add), and the law of \sum_k x_k w_k, for independent real x_k, has  *)
-(* the complex product of those of the x_k at <w_k, theta> (cf_rV_tuple_prod).*)
+(* the complex product of those of the x_k at <w_k, theta>                    *)
+(* (cf_rV_tuple_prod).                                                        *)
 (*                                                                            *)
 (* Gaussian regularization, as in the method of Ball and Nazarov: for Y of    *)
 (* law nu and an independent G of law gauss m,                                *)
@@ -39,7 +40,9 @@ From GaussianAnalysis.fourier Require Import charfun.
 (* (cf_rV_regularization_le), and P(Y + s G in B) is at most (2 pi)^-m times  *)
 (* that integral times the Lebesgue measure of B (prod_gauss_le_cf_rV). No    *)
 (* Fourier inversion is needed. The law of y + s G has the density           *)
-(* w |-> s^-m gauss_pdf ((w - y) / s) (ge0_integral_gauss_affine).            *)
+(* w |-> s^-m gauss_pdf ((w - y) / s) (ge0_integral_gauss_affine). Letting s  *)
+(* tend to 0: if |cf nu| is integrable, a closed ball has probability at most *)
+(* (2 pi)^-m (\int |cf nu|) times its Lebesgue measure (ball_le_cf_rV).       *)
 (*                                                                            *)
 (* Here <x, theta> = mxdot x theta and |x|^2 = mxdot x x.                     *)
 (*                                                                            *)
@@ -640,3 +643,258 @@ exact: lexx.
 Qed.
 
 End gauss_regularization.
+
+Section ball_cf_rV.
+Context {R : realType} {m : nat}.
+
+Let measurable_mxdot_self :
+  measurable_fun [set: 'rV[R]_m] (fun x => mxdot x x).
+Proof.
+apply: measurable_sum => i; apply: measurable_sum => j.
+by apply: measurable_funM; exact: measurable_mxentry.
+Qed.
+
+Lemma measurable_ball_rV (z : 'rV[R]_m) (r : R) :
+  measurable [set y : 'rV[R]_m | frobenius (y - z) <= r].
+Proof.
+have [r0|r0] := leP 0 r; last first.
+  rewrite (_ : [set _ | _] = set0)// predeqE => y; split => // /= yr.
+  by have := frobenius_ge0 (y - z); lra.
+have mD : measurable_fun [set: 'rV[R]_m] (fun y => mxdot (y - z) (y - z)).
+  have -> : (fun y => mxdot (y - z) (y - z)) =
+      (fun x => mxdot x x) \o (fun y => (y - z)%R) by [].
+  apply: measurableT_comp; first exact: measurable_mxdot_self.
+  by apply: measurable_addmx; [exact: measurable_id|exact: measurable_cst].
+have -> : [set y : 'rV[R]_m | frobenius (y - z) <= r] =
+    (fun y => mxdot (y - z) (y - z)) @^-1` `]-oo, r ^+ 2]%classic.
+  apply/seteqP; split => y /=; rewrite in_itv /= -frobenius_sqr;
+    by rewrite ler_sqr ?nnegrE ?frobenius_ge0.
+by rewrite -[X in measurable X]setTI; apply: mD => //; exact: measurable_itv.
+Qed.
+
+(* Scaling the radius of a ball by a > 0 multiplies its measure by a^m. *)
+Lemma lebesgue_rV_ball_scale (z : 'rV[R]_m) (r a : R) : 0 <= r -> 0 < a ->
+  lebesgue_rV m [set y | frobenius (y - z) <= a * r] =
+  ((a ^+ m)%:E * lebesgue_rV m [set y | (frobenius (y - z) <= r)%R])%E.
+Proof.
+move=> r0 a0; have an0 : a != 0 by rewrite gt_eqF.
+have mB0 (rho : R) : measurable [set y : 'rV[R]_m | frobenius y <= rho].
+  rewrite (_ : [set y | _] = [set y : 'rV[R]_m | frobenius (y - 0) <= rho]).
+    by apply/seteqP; split => y /=; rewrite subr0.
+  exact: measurable_ball_rV.
+have shift (rho : R) : lebesgue_rV m [set y | frobenius (y - z) <= rho] =
+    lebesgue_rV m [set y | frobenius y <= rho].
+  rewrite -(lebesgue_rV_shift (- z) (mB0 rho)).
+  by congr (lebesgue_rV m _); apply/seteqP; split => y.
+rewrite !shift.
+have -> : [set y : 'rV[R]_m | frobenius y <= r] =
+    (fun x => a *: x) @^-1` [set y | frobenius y <= a * r].
+  apply/seteqP; split => y /=; rewrite frobeniusZ gtr0_norm//;
+    by rewrite ler_pM2l.
+rewrite (lebesgue_rV_scale an0 (mB0 (a * r))) muleA -EFinM.
+by rewrite gtr0_norm// mulfV ?mul1e// expf_neq0.
+Qed.
+
+
+Lemma integral_gauss_mxdot_self :
+  (\int[@gauss R m]_g (mxdot g g)%:E = m%:R%:E)%E.
+Proof.
+have mc (j : 'I_m) : measurable_fun [set: 'rV[R]_m]
+    (fun g : 'rV[R]_m => (g 0 j * g 0 j)%:E).
+  by apply/measurable_EFinP; apply: measurable_funM;
+    exact: measurable_mxentry.
+transitivity (\int[@gauss R m]_g (\sum_(j < m) (g 0 j * g 0 j)%:E))%E.
+  by apply: eq_integral => g _; rewrite /mxdot big_ord1 sumEFin.
+rewrite ge0_integral_sum.
+- exact: measurableT.
+- by move=> j; exact: mc.
+- by move=> j g _; rewrite lee_fin -expr2 sqr_ge0.
+under eq_bigr do rewrite gauss_cov eqxx.
+by rewrite sumEFin sumr_const card_ord.
+Qed.
+
+(* Markov's inequality for |G|^2, G of law gauss m. *)
+Lemma gauss_frobenius_ge (t : R) : 0 < t ->
+  ((1 - m%:R / t ^+ 2)%:E <=
+   @gauss R m [set g : 'rV[R]_m | (frobenius g <= t)%R])%E.
+Proof.
+move=> t0; have t20 : 0 < t ^+ 2 by rewrite exprn_gt0.
+set A := [set g : 'rV[R]_m | t ^+ 2 <= mxdot g g].
+have mA : measurable A.
+  rewrite (_ : A = (fun g => mxdot g g) @^-1` `[t ^+ 2, +oo[%classic).
+    by apply/seteqP; split => g; rewrite /A /= in_itv /= andbT.
+  rewrite -[X in measurable X]setTI.
+  by apply: measurable_mxdot_self => //; exact: measurable_itv.
+have hA : ((t ^+ 2)%:E * gauss m A <= m%:R%:E)%E.
+  rewrite -integral_gauss_mxdot_self.
+  have -> : gauss m A = (\int[gauss m]_g (\1_A g)%:E)%E.
+    by rewrite integral_indic// setIT.
+  rewrite -ge0_integralZl_EFin.
+  - exact: measurableT.
+  - by move=> g _; rewrite lee_fin indicE.
+  - exact/measurable_EFinP/measurable_indic.
+  - exact: ltW.
+  apply: ge0_le_integral.
+  - exact: measurableT.
+  - move=> g _; rewrite -EFinM lee_fin mulr_ge0 ?indicE//.
+    exact: ltW.
+  - apply: emeasurable_funM; first exact: measurable_cst.
+    exact/measurable_EFinP/measurable_indic.
+  - by apply/measurable_EFinP; exact: measurable_mxdot_self.
+  move=> g _; rewrite -EFinM lee_fin indicE.
+  have [gA|gA] := boolP (g \in A).
+    by rewrite mulr1; move: gA; rewrite inE.
+  by rewrite mulr0 mxdot_ge0.
+have [a aE] : exists a : R, gauss m A = a%:E.
+  exists (fine (gauss m A)); rewrite fineK// ge0_fin_numE//.
+  by apply: le_lt_trans (probability_le1 _ mA) _; rewrite ltry.
+have a_le : a <= m%:R / t ^+ 2.
+  by move: hA; rewrite aE -EFinM lee_fin -ler_pdivlMl// mulrC.
+apply: (@le_trans _ _ (gauss m (~` A))).
+  by rewrite probability_setC// aE -EFinB lee_fin lerD2l lerN2.
+apply: le_measure.
+- by rewrite inE; exact: measurableC.
+- rewrite inE (_ : [set g | _] = [set g : 'rV[R]_m | frobenius (g - 0) <= t]).
+    by apply/seteqP; split => g /=; rewrite subr0.
+  exact: measurable_ball_rV.
+move=> g /= nA.
+have gt : mxdot g g < t ^+ 2 by rewrite ltNge; apply/negP.
+have t0' : 0 <= t by exact: ltW.
+rewrite -ler_sqr ?nnegrE ?frobenius_ge0// frobenius_sqr.
+exact: (ltW gt).
+Qed.
+
+
+Let pow1D_le (e : R) n : 0 <= e -> e <= 1 ->
+  (1 + e) ^+ n <= 1 + e * (n%:R * 2 ^+ n).
+Proof.
+move=> e0 e1; elim: n => [|n IH]; first by rewrite expr0 mul0r mulr0 addr0.
+have P1 : 1 <= 2 ^+ n :> R by rewrite exprn_ege1// ler1n.
+have n0 : 0 <= n%:R :> R by rewrite ler0n.
+rewrite exprS (le_trans (ler_wpM2l (addr_ge0 ler01 e0) IH))//.
+have h1 : 0 <= e * (n%:R * 2 ^+ n) * (1 - e).
+  by rewrite !mulr_ge0// ?exprn_ge0// subr_ge0.
+have h2 : 0 <= e * (2 * 2 ^+ n - 1) by rewrite mulr_ge0//; lra.
+rewrite -natr1 exprS; nra.
+Qed.
+
+Let le_of_le_mul (x c : R) n : 0 <= x -> 0 <= c ->
+  (forall e, 0 < e -> e <= 2^-1 -> x * (1 - e) <= c * (1 + e) ^+ n) ->
+  x <= c.
+Proof.
+move=> x0 c0 H; apply/ler_addgt0Pr => eta eta0.
+pose M : R := n%:R * 2 ^+ n.
+have M0 : 0 <= M by rewrite mulr_ge0// ?ler0n// exprn_ge0.
+have D0 : 0 < c * M + x + 1 by rewrite ltr_wpDl// addr_ge0// mulr_ge0.
+pose e := Num.min 2^-1 (eta / (c * M + x + 1)).
+have e0 : 0 < e by rewrite lt_min invr_gt0 ltr0n divr_gt0.
+have e2 : e <= 2^-1 by rewrite ge_min lexx.
+have e1 : e <= 1 by apply: le_trans e2 _; rewrite invf_le1// ler1n.
+have ee : e <= eta / (c * M + x + 1) by rewrite ge_min lexx orbT.
+have eeta : e * (c * M + x) <= eta.
+  apply: (le_trans (ler_wpM2r (addr_ge0 (mulr_ge0 c0 M0) x0) ee)).
+  rewrite mulrAC ler_pdivrMr// [X in _ <= X]mulrDr mulr1 lerDl.
+  exact: ltW.
+have := H e e0 e2.
+have := pow1D_le n (ltW e0) e1.
+rewrite -/M => hP h; have := ler_wpM2l c0 hP; nra.
+Qed.
+
+(* If |cf nu| is integrable, a closed ball has probability at most
+   (2 pi)^-m (\int |cf nu|) times its Lebesgue measure. *)
+Lemma ball_le_cf_rV (nu : probability 'rV[R]_m R) (z : 'rV[R]_m) (r : R) :
+  0 < r ->
+  (\int[lebesgue_rV m]_th (cf_rV_norm nu th)%:E < +oo)%E ->
+  (nu [set y | (frobenius (y - z) <= r)%R] <=
+   ((2 * pi) ^- m)%:E * \int[lebesgue_rV m]_th (cf_rV_norm nu th)%:E *
+   lebesgue_rV m [set y | (frobenius (y - z) <= r)%R])%E.
+Proof.
+move=> r0 Kfin.
+set B := [set y | _]; set K := (\int[lebesgue_rV m]_th _)%E.
+have mB : measurable B := measurable_ball_rV z r.
+have K0 : (0 <= K)%E.
+  by apply: integral_ge0 => th _; rewrite lee_fin cf_rV_norm_ge0.
+have [k Kk] : exists k : R, K = k%:E.
+  by exists (fine K); rewrite fineK// ge0_fin_numE.
+have Lfin : (lebesgue_rV m B < +oo)%E.
+  exact: le_lt_trans (lebesgue_rV_ball_le z r0) (ltry _).
+have [l Ll] : exists l : R, lebesgue_rV m B = l%:E.
+  by exists (fine (lebesgue_rV m B)); rewrite fineK// ge0_fin_numE.
+have [x Px] : exists x : R, nu B = x%:E.
+  exists (fine (nu B)); rewrite fineK// ge0_fin_numE//.
+  by apply: le_lt_trans (probability_le1 _ mB) _; rewrite ltry.
+have k0 : 0 <= k by rewrite -lee_fin -Kk.
+have l0 : 0 <= l by rewrite -lee_fin -Ll measure_ge0.
+have x0 : 0 <= x by rewrite -lee_fin -Px measure_ge0.
+rewrite Kk Ll Px -!EFinM lee_fin.
+apply: (le_of_le_mul (n := m)) => //; first by rewrite !mulr_ge0// invr_ge0
+  exprn_ge0// mulr_ge0// pi_ge0.
+move=> e e0 e2.
+have e1 : e <= 1 by apply: le_trans e2 _; rewrite invf_le1// ler1n.
+pose t : R := Num.sqrt (m.+1%:R / e).
+have t0 : 0 < t by rewrite sqrtr_gt0 divr_gt0// ltr0n.
+have t2 : t ^+ 2 = m.+1%:R / e by rewrite sqr_sqrtr// divr_ge0// ?ler0n ltW.
+pose s : R := e * r / t.
+have s0 : 0 < s by rewrite divr_gt0// mulr_gt0.
+pose S := [set g : 'rV[R]_m | frobenius g <= t].
+have mS : measurable S.
+  rewrite /S (_ : [set g | _] = [set g : 'rV[R]_m | frobenius (g - 0) <= t]).
+    by apply/seteqP; split => g /=; rewrite subr0.
+  exact: measurable_ball_rV.
+pose B' := [set y : 'rV[R]_m | frobenius (y - z) <= (1 + e) * r].
+have mB' : measurable B' := measurable_ball_rV z ((1 + e) * r).
+pose E := [set p : 'rV[R]_m * 'rV[R]_m | B' (p.1 + s *: p.2)].
+have mE : measurable E.
+  have mF : measurable_fun [set: 'rV[R]_m * 'rV[R]_m]
+      (fun p : 'rV[R]_m * 'rV[R]_m => p.1 + s *: p.2).
+    apply: measurable_addmx; first exact: measurable_fst.
+    apply: measurable_scalemx; first exact: measurable_cst.
+    exact: measurable_snd.
+  by rewrite -[X in measurable X]setTI; exact: (mF measurableT B' mB').
+have h1 : (x%:E * gauss m S = (nu \x gauss m) (B `*` S))%E.
+  rewrite product_measure1E//; apply: (congr1 (fun X => X * gauss m S)%E).
+  by rewrite -Px.
+have h2 : ((nu \x gauss m) (B `*` S) <= (nu \x gauss m) E)%E.
+  apply: le_measure; rewrite ?inE//; first exact: measurableX.
+  move=> [y g] [/= yB gS]; rewrite /E /B' /=.
+  have -> : y + s *: g - z = (y - z) + s *: g by rewrite addrAC.
+  apply: (le_trans (frobeniusD _ _)).
+  rewrite frobeniusZ gtr0_norm// mulrDl mul1r; apply: lerD; first exact: yB.
+  apply: (le_trans (ler_wpM2l (ltW s0) gS)).
+  by rewrite /s divfK// lt0r_neq0.
+have h3 := prod_gauss_le_cf_rV nu s0 mB'.
+have mxx : measurable_fun [set: 'rV[R]_m] (fun th => mxdot th th).
+  exact: measurable_mxdot_self.
+have h4 : (\int[lebesgue_rV m]_th
+    (expR (- s ^+ 2 * mxdot th th / 2) * cf_rV_norm nu th)%:E <= K)%E.
+  apply: ge0_le_integral.
+  - exact: measurableT.
+  - by move=> th _; rewrite lee_fin mulr_ge0 ?expR_ge0 ?cf_rV_norm_ge0.
+  - apply/measurable_EFinP; apply: measurable_funM.
+      apply: measurableT_comp; first exact: measurable_expR.
+      apply: measurable_funM; last exact: measurable_cst.
+      by apply: measurable_funM; [exact: measurable_cst|exact: mxx].
+    exact: measurable_cf_rV_norm.
+  - by apply/measurable_EFinP; exact: measurable_cf_rV_norm.
+  move=> th _; rewrite lee_fin ler_piMl ?cf_rV_norm_ge0//.
+  rewrite -[X in _ <= X]expR0 ler_expR !mulNr oppr_le0.
+  by rewrite divr_ge0// mulr_ge0 ?sqr_ge0// mxdot_ge0.
+have h5 : lebesgue_rV m B' = (((1 + e) ^+ m)%:E * lebesgue_rV m B)%E.
+  by apply: lebesgue_rV_ball_scale; [exact: ltW|rewrite ltr_wpDr// ltW].
+have h6 : ((1 - e)%:E <= gauss m S)%E.
+  apply: le_trans (gauss_frobenius_ge t0).
+  rewrite lee_fin lerD2l lerN2 t2 invf_div mulrA ler_pdivrMr ?ltr0n//.
+  by rewrite mulrC ler_pM2l// ler_nat leqnSn.
+have key : (x%:E * (1 - e)%:E <=
+    ((2 * pi) ^- m)%:E * K * (((1 + e) ^+ m)%:E * l%:E))%E.
+  apply: (le_trans (lee_wpmul2l _ h6)); first by rewrite lee_fin.
+  rewrite h1; apply: (le_trans h2); apply: (le_trans h3).
+  rewrite h5 -Ll; apply: lee_wpmul2r.
+    by rewrite mule_ge0// lee_fin exprn_ge0// addr_ge0// ltW.
+  apply: lee_wpmul2l; last exact: h4.
+  by rewrite lee_fin invr_ge0 exprn_ge0// mulr_ge0// pi_ge0.
+move: key; rewrite Kk -!EFinM lee_fin [((1 + e) ^+ m * l)%R]mulrC mulrA.
+by [].
+Qed.
+
+End ball_cf_rV.
