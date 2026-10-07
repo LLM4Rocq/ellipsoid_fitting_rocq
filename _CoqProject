@@ -35,6 +35,7 @@ library/comparison/escape.v
 library/comparison/gauss_law.v
 library/comparison/ornstein_uhlenbeck.v
 library/comparison/brascamp_lieb.v
+library/comparison/brascamp_lieb_lebesgue.v
 library/fourier/charfun.v
 library/fourier/esseen.v
 library/fourier/gauss_factor.v
