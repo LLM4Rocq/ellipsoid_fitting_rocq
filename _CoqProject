@@ -32,6 +32,7 @@ library/comparison/slepian.v
 library/comparison/gordon.v
 library/comparison/escape.v
 library/comparison/gauss_law.v
+library/comparison/brascamp_lieb.v
 library/fourier/charfun.v
 library/fourier/charfun_rV.v
 
