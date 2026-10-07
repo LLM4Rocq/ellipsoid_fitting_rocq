@@ -30,12 +30,18 @@ From mathcomp Require Import lebesgue_integral probability ftc charge.
 (* - ge0_integral_semicircle_prob, integrable_semicircle_prob,                *)
 (*   integral_semicircle_prob: integrating against semicircle_prob r is       *)
 (*   integrating against Lebesgue measure with the density, for nonnegative   *)
-(*   or integrable functions.                                                 *)
+(*   or integrable functions; semicircle_integrable_eq,                       *)
+(*   semicircle_integral_eq: the same for a function g that agrees with f     *)
+(*   where the density is positive.                                           *)
 (* - semicircle_prob_sym: for r != 0 the law is invariant under x |-> -x.     *)
-(* - For r != 0: integrable_semicircle_continuous (every continuous function  *)
-(*   is integrable), Rintegral_semicircle (its integral is the integral of    *)
-(*   f times the density over [-|r|, |r|]), semicircle_prob_gt0 (every        *)
-(*   half-line ]b, +oo[ with b < |r| has positive measure).                   *)
+(* - For r != 0: integrable_semicircle_continuous,                            *)
+(*   integrable_semicircle_pdfM (every continuous function f is integrable,   *)
+(*   and so is f times the density), Rintegral_semicircle (its integral is    *)
+(*   the integral of f times the density over [-|r|, |r|]),                   *)
+(*   semicircle_prob_gt0 (every half-line ]b, +oo[ with b < |r| has positive  *)
+(*   measure), semicircle_restrict (if f times the density is integrable,     *)
+(*   some measurable g that is f or 0 at each point has g times the density   *)
+(*   equal to f times the density: f restricted to ]-|r|, |r|[).              *)
 (* - semicircle_momentS: E X^(k+2) = (k + 1) r^2 / (k + 4) E X^k, by          *)
 (*   integration by parts against (r^2 - x^2)^(3/2); semicircle_moment0,      *)
 (*   semicircle_moment1, semicircle_moment2, semicircle_moment_odd: E 1 = 1,  *)
@@ -395,6 +401,23 @@ congr (_ - _)%E; rewrite ge0_integral_semicircle_prob//.
   by rewrite muleC maxe_pMr// mule0 muleN muleC.
 Qed.
 
+Lemma semicircle_integrable_eq (f g : R -> R) : measurable_fun [set: R] g ->
+  (forall x, g x * semicircle_pdf r x = f x * semicircle_pdf r x) ->
+  mu.-integrable [set: R] (fun x => (f x * semicircle_pdf r x)%:E) ->
+  P.-integrable [set: R] (EFin \o g).
+Proof.
+move=> mg gf fi; apply/integrable_semicircle_prob; first exact/measurable_EFinP.
+by move: fi; apply: eq_integrable => // x _; rewrite /= -EFinM gf.
+Qed.
+
+Lemma semicircle_integral_eq (f g : R -> R) : P.-integrable [set: R] (EFin \o g) ->
+  (forall x, g x * semicircle_pdf r x = f x * semicircle_pdf r x) ->
+  \int[P]_x g x = \int[mu]_x (f x * semicircle_pdf r x).
+Proof.
+move=> gi gf; rewrite /Rintegral integral_semicircle_prob//; congr fine.
+by apply: eq_integral => x _; rewrite /= -EFinM gf.
+Qed.
+
 Lemma semicircle_prob_sym (A : set (measurableTypeR R)) : r != 0 ->
   measurable A -> P ((fun x => - x) @^-1` A) = P A.
 Proof.
@@ -454,6 +477,16 @@ apply: (proj1 (@integrable_mkcond _ _ _ mu `[- a, a]
 apply: continuous_compact_integrable; first exact: segment_compact.
 apply: continuous_subspaceT => x; apply: cvgM; first exact: cf.
 exact: continuous_semicircle_pdf.
+Qed.
+
+Lemma integrable_semicircle_pdfM (f : R -> R) : continuous f ->
+  mu.-integrable [set: R] (fun x => (f x * semicircle_pdf r x)%:E).
+Proof.
+move=> cf; have fi := integrable_semicircle_continuous cf.
+have mf : measurable_fun [set: R] (EFin \o f).
+  by apply/measurable_EFinP; exact: continuous_measurable_fun.
+have := (integrable_semicircle_prob r mf).1 fi.
+by apply: eq_integrable => // x _; rewrite /= EFinM.
 Qed.
 
 Lemma Rintegral_semicircle (f : R -> R) : P.-integrable [set: R] (EFin \o f) ->
@@ -684,6 +717,40 @@ apply: (@lt_le_trans _ _ (\int[mu]_(x in `[u, v]) (semicircle_pdf r x)%:E)%E).
 apply: ge0_subset_integral => //.
 - exact: measurable_funTS.
 - by move=> x _; rewrite lee_fin semicircle_pdf_ge0.
+Qed.
+
+Lemma semicircle_restrict (f : R -> R) :
+  mu.-integrable [set: R] (fun x => (f x * semicircle_pdf r x)%:E) ->
+  exists g : R -> R, [/\ measurable_fun [set: R] g,
+    forall x, g x * semicircle_pdf r x = f x * semicircle_pdf r x &
+    forall x, g x = 0 \/ g x = f x].
+Proof.
+move=> fi; pose J := `]- a, a[%classic : set R.
+have mJ : measurable J by exact: measurable_itv.
+have pJ x : J x -> 0 < semicircle_pdf r x.
+  rewrite /J /= in_itv /= -ltr_norml => xa; rewrite semicircle_pdfE// ra.
+  rewrite mulr_gt0 ?divr_gt0 ?mulr_gt0 ?pi_gt0 ?exprn_gt0// sqrtr_gt0 subr_gt0.
+  by rewrite -[x ^+ 2]real_normK ?num_real// ltr_pXn2r// ?nnegrE ?normr_ge0.
+have pO x : ~ J x -> semicircle_pdf r x = 0.
+  move=> xI; apply: semicircle_pdf_out => //; rewrite ra.
+  rewrite -[x ^+ 2]real_normK ?num_real// ler_pXn2r// ?nnegrE ?normr_ge0//.
+  rewrite leNgt; apply/negP => xa; apply: xI.
+  by rewrite /J /= in_itv /= -ltr_norml.
+pose F x := f x * semicircle_pdf r x.
+have mF : measurable_fun [set: R] F.
+  by apply/measurable_EFinP; exact: measurable_int fi.
+exists ((fun x => F x / semicircle_pdf r x) \_ J); split.
+- apply/(measurable_restrictT (fun x => F x / semicircle_pdf r x) mJ).
+  apply: measurable_funM; first exact: measurable_funS mF.
+  apply: open_continuous_measurable_fun; first exact: interval_open.
+  move=> x; rewrite inE => xI; apply: continuousV; first by rewrite gt_eqF ?pJ.
+  exact: continuous_semicircle_pdf.
+- move=> x; rewrite patchE; case: ifPn => [|xI].
+    by rewrite inE => xI; rewrite /F mulfK// gt_eqF ?pJ.
+  have xJ : ~ J x by move=> h; move: xI; rewrite (mem_set h).
+  by rewrite (pO x xJ) !mulr0.
+- move=> x; rewrite patchE; case: ifPn => [|_]; last by left.
+  by rewrite inE => xI; right; rewrite /F mulfK// gt_eqF ?pJ.
 Qed.
 
 End semicircle_support.
