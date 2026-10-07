@@ -14,7 +14,8 @@ From GaussianAnalysis.gaussian Require Import lebesgue_rV.
 From GaussianAnalysis.matrix Require Import euclidean real_spectral.
 From GaussianAnalysis.comparison Require Import normal_linear.
 From GaussianAnalysis.probability Require Import lindeberg.
-From GaussianAnalysis.fourier Require Import charfun esseen charfun_rV.
+From GaussianAnalysis.fourier Require Import charfun esseen gauss_factor.
+From GaussianAnalysis.fourier Require Import charfun_rV.
 
 (**md**************************************************************************)
 (* # The vector small-ball estimate                                           *)
@@ -58,13 +59,13 @@ From GaussianAnalysis.fourier Require Import charfun esseen charfun_rV.
 (* max (2, sqrt (8 e / pi) C), for laws that satisfy the bound above for      *)
 (* all 0 < r <= s <= 1/2 (Lemma 3.5 of the paper).                            *)
 (*                                                                            *)
-(* Status. Four results used here are not in the library yet: the             *)
-(* Brascamp-Lieb inequality (comparison/brascamp_lieb.v), the bound of        *)
-(* Lemma 3.5 and its first half, Q(mu, 1/8) <= 1 - c(M), and the existence    *)
+(* Status. Two results used here are not in the library yet: the              *)
+(* Brascamp-Lieb inequality (comparison/brascamp_lieb.v) and the existence    *)
 (* of the whitening matrix. Until they are proved, the section small_ball     *)
-(* takes their statements as the hypotheses brascamp_lieb, cf_power_bound,    *)
-(* conc_fun_moments and whitening, and every result of that section is        *)
-(* proved from them.                                                          *)
+(* takes their statements as the hypotheses brascamp_lieb and whitening,      *)
+(* and every result of that section is proved from them. The bound of         *)
+(* Lemma 3.5 and its first half are gauss_factor_exists and                   *)
+(* conc_fun_truncated_exists of fourier/gauss_factor.v.                       *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -412,27 +413,6 @@ Hypothesis brascamp_lieb : forall m n (u : 'I_n -> 'rV[R]_m) (c : 'I_n -> R)
   (\int[lebesgue_rV m]_x \prod_i F i (mxdot x (u i)) `^ c i <=
    \prod_i (\int[lebesgue_measure]_t F i t) `^ c i)%E.
 
-(* The bound of Lemma 3.5 of Koehler and Sohn, until it is in the
-   library. *)
-Hypothesis cf_power_bound : forall v lambda eps : R,
-  0 < v -> 0 < lambda -> 0 < eps ->
-  exists2 C : R, 0 < C &
-  forall (mu : probability (measurableTypeR R) R) (r s : R),
-    (\int[mu]_x ((x ^+ 2)%R)%:E <= v%:E)%E ->
-    conc_fun mu lambda <= 1 - eps ->
-    0 < r <= s -> s <= 2^-1 ->
-    (\int[lebesgue_measure]_u
-       (cf_norm mu u `^ (r ^- 2) *
-        expR (- s ^+ 2 * u ^+ 2 / (2 * r ^+ 2)))%:E <= (r * C)%:E)%E.
-
-(* The first half of Lemma 3.5, until it is in the library. *)
-Hypothesis conc_fun_moments : forall M : R, 0 < M ->
-  exists2 c : R, 0 < c &
-  forall mu : probability (measurableTypeR R) R,
-    (\int[mu]_x x%:E = 0)%E -> (\int[mu]_x ((x ^+ 2)%R)%:E = 1)%E ->
-    ((2^-1)%:E <= \int[mu]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E)%E ->
-    conc_fun mu (8^-1) <= 1 - c.
-
 (* A whitening matrix, until it is in the library. *)
 Hypothesis whitening : forall m (S : 'M[R]_m), S \is symmetricmx ->
   (forall x : 'rV[R]_m, mxdot x x <= mxdot (x *m S) x) ->
@@ -702,7 +682,8 @@ Theorem vector_small_ball (v lambda eps : R) :
        (frobenius (\sum_(k < n) tnth x k *: w k - z) <=
         eta * Num.sqrt m%:R)%R] <= ((C * eta) ^+ m)%:E)%E.
 Proof.
-move=> v0 l0 e0; have [C C0 hC] := @cf_power_bound v lambda eps v0 l0 e0.
+move=> v0 l0 e0.
+have [C C0 hC] := @gauss_factor_exists R v lambda eps v0 l0 e0.
 exists (maxr 2 (Num.sqrt (8 * expR 1 / pi) * C)).
   by rewrite lt_max ltr0n.
 move=> m n mu w z rho eta hv hl hS rho0 wrho hK.
@@ -740,7 +721,7 @@ Theorem vector_small_ball_moments (M : R) : 0 < M ->
        (frobenius (\sum_(k < n) tnth x k *: w k - z) <=
         eta * Num.sqrt m%:R)%R] <= ((C * eta) ^+ m)%:E)%E.
 Proof.
-move=> M0; have [c c0 hc] := @conc_fun_moments M M0.
+move=> M0; have [c c0 hc] := @conc_fun_truncated_exists R M M0.
 have l0 : 0 < 8^-1 :> R by rewrite invr_gt0 ltr0n.
 have [C C0 hC] := @vector_small_ball 1 (8^-1) c ltr01 l0 c0.
 exists C => // m n mu w z rho eta h0 h1 h2 hS rho0 wrho hK.
