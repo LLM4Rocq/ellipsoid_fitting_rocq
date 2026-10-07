@@ -107,7 +107,8 @@ have mGi := mG _ mu i F mF F0.
 rewrite [RHS]ge0_integral_tuple_prodS // [LHS]ge0_integral_tuple_prodS //.
 case: (unliftP ord0 i) => [j ->|->].
   apply: eq_integral => t0 _.
-  have mF' : measurable_fun [set: n.-tuple T] (fun ts => F (tuple_cons (t0, ts))).
+  have mF' : measurable_fun [set: n.-tuple T]
+      (fun ts => F (tuple_cons (t0, ts))).
     exact: measurableT_comp mF (measurable_tuple_cons_l t0).
   rewrite (IH (fun k => mu k.+1) j _ mF' (fun _ => F0 _)).
   apply: eq_integral => ts _; rewrite lift0.
@@ -157,13 +158,17 @@ Lemma ae_integrable_tuple_set (mu : nat -> probability T R) n (i : 'I_n)
   (tuple_prod mu n).-integrable [set: n.-tuple T] F ->
   {ae tuple_prod mu n, forall x,
     (mu i).-integrable [set: T] (fun t => F (tuple_set x i t))}.
-Proof. by move=> Fi; exact: ae_integrable1 (integrable_tuple_prod_set_pair i Fi). Qed.
+Proof.
+by move=> Fi; exact: ae_integrable1 (integrable_tuple_prod_set_pair i Fi).
+Qed.
 
 Lemma measurable_integral_tuple_set (mu : nat -> probability T R) n (i : 'I_n)
     (F : n.-tuple T -> \bar R) :
   (tuple_prod mu n).-integrable [set: n.-tuple T] F ->
   measurable_fun [set: n.-tuple T] (fun x => \int[mu i]_t F (tuple_set x i t)).
-Proof. by move=> Fi; exact: measurable_fubini_F (integrable_tuple_prod_set_pair i Fi). Qed.
+Proof.
+by move=> Fi; exact: measurable_fubini_F (integrable_tuple_prod_set_pair i Fi).
+Qed.
 
 (* Fubini at one coordinate, for integrable functions. *)
 Lemma integral_tuple_prod_set (mu : nat -> probability T R) n (i : 'I_n)
@@ -248,7 +253,9 @@ Qed.
 (* The variance is at most the second moment about any point. *)
 Lemma variance_le_sqr_dev (X : U -> R) (c : R) : measurable_fun setT X ->
   'V_P[X] <= \int[P]_x ((X x - c) ^+ 2)%:E.
-Proof. by move=> mX; rewrite (sqr_dev_variance c mX) leeDl // lee_fin sqr_ge0. Qed.
+Proof.
+by move=> mX; rewrite (sqr_dev_variance c mX) leeDl // lee_fin sqr_ge0.
+Qed.
 
 Lemma sqr_fine_expectation_le (X : U -> R) : measurable_fun setT X ->
   ((fine 'E_P[X]) ^+ 2)%:E <= \int[P]_x ((X x) ^+ 2)%:E.
@@ -470,7 +477,8 @@ Theorem efron_stein_integrable (mu : nat -> probability T R) n
     (F : n.-tuple T -> R) :
   (tuple_prod mu n).-integrable setT (EFin \o F) ->
   'V_(tuple_prod mu n)[F] <=
-    \sum_(i < n) \int[tuple_prod mu n]_x 'V_(mu i)[fun t => F (tuple_set x i t)].
+    \sum_(i < n) \int[tuple_prod mu n]_x
+      'V_(mu i)[fun t => F (tuple_set x i t)].
 Proof.
 elim: n mu F => [|n IH] mu F iF.
   have -> : F = cst (F [tuple]) by apply/funext => x; rewrite (tuple0 x).
@@ -489,8 +497,9 @@ rewrite big_ord_recl; apply: leeD.
   rewrite [X in _ <= X]ge0_integral_tuple_prodS.
   - exact: measurable_variance_tuple_set.
   - by move=> x; exact: variance_ge0.
-  have W0E t ts : 'V_(mu ord0)[fun s => F (tuple_set (tuple_cons (t, ts)) ord0 s)]
-      = 'V_(mu 0%N)[fun s => F (tuple_cons (s, ts))].
+  have W0E t ts :
+      'V_(mu ord0)[fun s => F (tuple_set (tuple_cons (t, ts)) ord0 s)] =
+      'V_(mu 0%N)[fun s => F (tuple_cons (s, ts))].
     by apply: congr1; apply/funext => s; rewrite /tuple_cons /= tuple_set_cons0.
   under [X in _ <= X]eq_integral do under eq_integral do rewrite W0E.
   set C := \int[tuple_prod (fun i : nat => mu i.+1) n]_x
@@ -500,19 +509,22 @@ rewrite big_ord_recl; apply: leeD.
 (* The other coordinates, by the induction hypothesis for almost every
    value of the coordinate 0. *)
 have WjE t ts (j : 'I_n) :
-    'V_(mu (lift ord0 j))[fun s => F (tuple_set (tuple_cons (t, ts)) (lift ord0 j) s)]
-    = 'V_(mu j.+1)[fun s => F (tuple_cons (t, tuple_set ts j s))].
+    'V_(mu (lift ord0 j))
+      [fun s => F (tuple_set (tuple_cons (t, ts)) (lift ord0 j) s)] =
+    'V_(mu j.+1)[fun s => F (tuple_cons (t, tuple_set ts j s))].
   rewrite lift0; apply: congr1; apply/funext => s.
   by rewrite /tuple_cons /= tuple_set_consS.
 have mWc (j : 'I_n) : measurable_fun setT (fun p : T * n.-tuple T =>
     'V_(mu j.+1)[fun s => F (tuple_cons (p.1, tuple_set p.2 j s))]).
   apply: (eq_measurable_fun (fun p =>
-    'V_(mu (lift ord0 j))[fun s => F (tuple_set (tuple_cons p) (lift ord0 j) s)])).
+    'V_(mu (lift ord0 j))
+      [fun s => F (tuple_set (tuple_cons p) (lift ord0 j) s)])).
     by move=> [t ts] _; exact: WjE.
   exact: measurableT_comp (measurable_variance_tuple_set mu (lift ord0 j) mF)
     (@measurable_tuple_cons _ T n).
 rewrite (_ : (\sum_(j < n) _)%R = \int[mu 0%N]_t (\sum_(j < n)
-    (\int[Q]_ts 'V_(mu j.+1)[fun s => F (tuple_cons (t, tuple_set ts j s))])%E)%R);
+    (\int[Q]_ts
+      'V_(mu j.+1)[fun s => F (tuple_cons (t, tuple_set ts j s))])%E)%R);
   last first.
   apply: ae_ge0_le_integral => //.
   - by move=> t _; exact: variance_ge0.
@@ -521,12 +533,14 @@ rewrite (_ : (\sum_(j < n) _)%R = \int[mu 0%N]_t (\sum_(j < n)
   - move=> t _; apply: sume_ge0 => j _; apply: integral_ge0 => ts _.
     exact: variance_ge0.
   - apply: emeasurable_sum => j.
-    exact: (measurable_fun_fubini_tonelli_F _ (mWc j) (fun p => variance_ge0 _ _)).
+    exact: (measurable_fun_fubini_tonelli_F _ (mWc j)
+      (fun p => variance_ge0 _ _)).
   apply: filterS (ae_integrable1 iFc) => t it _.
   exact: (IH (fun i => mu i.+1) (fun ts => F (tuple_cons (t, ts))) it).
 rewrite ge0_integral_sum //.
 - move=> j.
-  exact: (measurable_fun_fubini_tonelli_F _ (mWc j) (fun p => variance_ge0 _ _)).
+  exact: (measurable_fun_fubini_tonelli_F _ (mWc j)
+    (fun p => variance_ge0 _ _)).
 - by move=> j t _; apply: integral_ge0 => ts _; exact: variance_ge0.
 apply: eq_bigr => j _; rewrite ge0_integral_tuple_prodS.
 - exact: measurable_variance_tuple_set.
@@ -538,7 +552,8 @@ Qed.
 Theorem efron_stein (mu : nat -> probability T R) n (F : n.-tuple T -> R) :
   F \in Lfun (tuple_prod mu n) 2%:E ->
   'V_(tuple_prod mu n)[F] <=
-    \sum_(i < n) \int[tuple_prod mu n]_x 'V_(mu i)[fun t => F (tuple_set x i t)].
+    \sum_(i < n) \int[tuple_prod mu n]_x
+      'V_(mu i)[fun t => F (tuple_set x i t)].
 Proof.
 move=> F2; apply: efron_stein_integrable; apply/Lfun1_integrable.
 exact: (Lfun_subset12 (fin_num_measure (tuple_prod mu n) _ measurableT) F2).
@@ -565,7 +580,8 @@ transitivity (\int[tuple_prod mu n]_x
     ('V_(mu i)[fun t => F (tuple_set x i t)] *+ 2)).
   apply: eq_integral => x _.
   under eq_integral do under eq_integral do rewrite tuple_set_set.
-  exact: (variance_resample (mu i) (measurableT_comp mF (measurable_tuple_set x i))).
+  exact: (variance_resample (mu i)
+    (measurableT_comp mF (measurable_tuple_set x i))).
 under eq_integral do rewrite mule2n.
 have mV := measurable_variance_tuple_set mu i mF.
 by rewrite ge0_integralD // ?mule2n // => x _; exact: variance_ge0.
