@@ -28,7 +28,10 @@ From GaussianAnalysis.fourier Require Import charfun_rV.
 (* lambda and eps when E[x_k^2] <= v and conc_fun mu_k lambda <= 1 - eps;     *)
 (* in the form of Koehler and Sohn (arXiv 2608.27372, Proposition 2.4),       *)
 (* for laws of mean zero and variance one with E[x^2 1_{|x| <= M}] >= 1/2,    *)
-(* it depends only on M (vector_small_ball_moments). The proof is             *)
+(* it depends only on M (vector_small_ball_moments). The level 1/2 may be     *)
+(* any c > 0 (vector_small_ball_moments_level), and E[x_k^2] <= v may be      *)
+(* replaced by E[(x_k - a_k)^2] <= v for any centers a_k, the means for       *)
+(* instance (vector_small_ball_variance). The proof is                        *)
 (* Fourier-analytic, after Ball and Nazarov, and Rudelson and Vershynin:      *)
 (*                                                                            *)
 (* - Frames. If sum_k w_k^T w_k = I_m, then |theta|^2 = sum_k <theta, w_k>^2  *)
@@ -725,6 +728,76 @@ apply: hC.
 - exact: rho0.
 - exact: wrho.
 - exact: hK.
+Qed.
+
+(* The vector small-ball estimate for laws of mean zero and variance one
+   with E[x^2 1_{|x| <= M}] >= c, for any level c > 0. *)
+Theorem vector_small_ball_moments_level (M c : R) : 0 < M -> 0 < c ->
+  exists2 C : R, 0 < C &
+  forall m n (mu : nat -> probability (measurableTypeR R) R)
+      (w : nat -> 'rV[R]_m) (z : 'rV[R]_m) (rho eta : R),
+    (forall k, (k < n)%N -> (\int[mu k]_x x%:E = 0)%E) ->
+    (forall k, (k < n)%N -> (\int[mu k]_x ((x ^+ 2)%R)%:E = 1)%E) ->
+    (forall k, (k < n)%N -> (c%:E <=
+       \int[mu k]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E)%E) ->
+    (forall x : 'rV[R]_m, mxdot x x <= \sum_(k < n) mxdot x (w k) ^+ 2) ->
+    0 < rho -> (forall k, (k < n)%N -> frobenius (w k) <= rho) ->
+    C * rho <= eta ->
+    (tuple_prod mu n [set x |
+       (frobenius (\sum_(k < n) tnth x k *: w k - z) <=
+        eta * Num.sqrt m%:R)%R] <= ((C * eta) ^+ m)%:E)%E.
+Proof.
+move=> M0 c0.
+pose L := Num.sqrt c / 4.
+have L0 : 0 < L by rewrite divr_gt0// sqrtr_gt0.
+have Lc : 4 * L ^+ 2 < c.
+  rewrite /L expr_div_n sqr_sqrtr ?ltW//.
+  have -> : 4 * (c / 4 ^+ 2) = c / 4 :> R by field.
+  lra.
+have [k k0 hk] := conc_fun_truncated_level_exists M0 L0 Lc.
+have [C C0 hC] := @vector_small_ball 1 L k ltr01 L0 k0.
+exists C => // m n mu w z rho eta h0 h1 h2 hS rho0 wrho hK.
+apply: (hC m n mu w z rho eta) => //.
+- by move=> k' kn; rewrite (h1 k' kn).
+- by move=> k' kn; exact: (hk (mu k') (h0 k' kn) (h1 k' kn) (h2 k' kn)).
+Qed.
+
+(* The vector small-ball estimate under E[(x - a_k)^2] <= v, for instance
+   the variance when a_k is the mean of mu k. *)
+Theorem vector_small_ball_variance (v lambda eps : R) :
+  0 < v -> 0 < lambda -> 0 < eps ->
+  exists2 C : R, 0 < C &
+  forall m n (mu : nat -> probability (measurableTypeR R) R) (a : nat -> R)
+      (w : nat -> 'rV[R]_m) (z : 'rV[R]_m) (rho eta : R),
+    (forall k, (k < n)%N ->
+       (\int[mu k]_x (((x - a k) ^+ 2)%R)%:E <= v%:E)%E) ->
+    (forall k, (k < n)%N -> conc_fun (mu k) lambda <= 1 - eps) ->
+    (forall x : 'rV[R]_m, mxdot x x <= \sum_(k < n) mxdot x (w k) ^+ 2) ->
+    0 < rho -> (forall k, (k < n)%N -> frobenius (w k) <= rho) ->
+    C * rho <= eta ->
+    (tuple_prod mu n [set x |
+       (frobenius (\sum_(k < n) tnth x k *: w k - z) <=
+        eta * Num.sqrt m%:R)%R] <= ((C * eta) ^+ m)%:E)%E.
+Proof.
+move=> v0 l0 e0.
+have [C C0 hC] := @gauss_factor_center_exists R v lambda eps v0 l0 e0.
+exists (maxr 2 (Num.sqrt (8 * expR 1 / pi) * C)).
+  by rewrite lt_max ltr0n.
+move=> m n mu a w z rho eta hv hl hS rho0 wrho hK.
+pose S := \sum_(k < n) (w k)^T *m w k.
+have Ssym : S \is symmetricmx.
+  apply/symmetricmxP; rewrite /S linear_sum /=; apply: eq_bigr => k _.
+  by rewrite trmx_mul trmxK.
+have SI (x : 'rV[R]_m) : mxdot x x <= mxdot (x *m S) x.
+  have -> : mxdot (x *m S) x = \sum_(k < n) mxdot x (w k) ^+ 2.
+    rewrite /S mulmx_sumr mxdot_suml; apply: eq_bigr => k _.
+    by rewrite mulmx_outer_rV mxdotZl mxdotC expr2.
+  exact: hS.
+have [W [hW cW]] := whitening_exists Ssym SI.
+apply: (@vector_small_ball_fourier m mu n w W z rho eta C hW cW rho0 wrho
+  C0 _ hK).
+move=> k r s kn hr hs.
+exact: (hC (mu k) (a k) r s (hv k kn) (hl k kn) hr hs).
 Qed.
 
 End small_ball.
