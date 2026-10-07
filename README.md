@@ -108,11 +108,19 @@ generated`), whose code cannot change. The other modules print none.
   ...), and `theories/A/B.v` is the module `EllipsoidFitting.A.B`. The
   14 subfolders of `Gaussian/` divide its modules further:
   `theories/Gaussian/C/D.v` is the module `EllipsoidFitting.Gaussian.C.D`.
-- `library/`: the library `GaussianAnalysis`, 26 files of general results
+- `library/`: the library `GaussianAnalysis`, 37 files of general results
   on Gaussian measures, Gaussian comparison and concentration, real
-  matrices and probability, over an arbitrary `R : realType`. The proof
-  uses it at Stdlib's `R`: `Gaussian/Law/LibraryBridge` identifies the library's
-  Gaussian measure with the product law of the statement,
+  matrices and probability, over an arbitrary `R : realType`, and the
+  Fourier analysis of anti-concentration: characteristic functions of laws
+  on the line and on row vectors, written without complex numbers, Levy
+  concentration functions and Esseen's inequality, the Brascamp-Lieb
+  inequality in Lebesgue form from its Gaussian form, the vector
+  small-ball estimate of Koehler and Sohn, and the Fourier inversion
+  theorem. The Gaussian form of Brascamp-Lieb is not proved yet: the
+  Lebesgue form and the small-ball estimate take it as a hypothesis. The
+  proof of the paper uses the library at Stdlib's `R`:
+  `Gaussian/Law/LibraryBridge` identifies the library's Gaussian measure
+  with the product law of the statement,
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
   and 20 other modules of `theories/` require library files directly.
   `library/README.md` gives its conventions, its main results and their
@@ -204,7 +212,7 @@ done, and the second is done in part.
    `Gaussian/Iterated/BlockRotation`, `Gaussian/Iterated/PolynomialGrowth`).
    What it no longer needed is deleted: `theories/` had 632 modules and
    102,415 lines at the tag `phase1`, and has 588 modules and 86,410 lines
-   now. The library has 26 files and 11,097 lines.
+   now. The library has 37 files and 19,574 lines.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
