@@ -13,23 +13,20 @@ From GaussianAnalysis.gaussian Require Import measurable_matrix normal_integral.
 From GaussianAnalysis.gaussian Require Import gauss lebesgue_rV.
 From GaussianAnalysis.matrix Require Import euclidean.
 From GaussianAnalysis.probability Require Import lindeberg.
-From GaussianAnalysis.comparison Require Import gauss_linear.
+From GaussianAnalysis.comparison Require Import gauss_linear brascamp_lieb.
 
 (**md**************************************************************************)
 (* # The Brascamp-Lieb inequality: from bounded functions to [0, +oo]         *)
 (*                                                                            *)
 (* Let u_1, ..., u_n be unit vectors of 'rV[R]_m and c_1, ..., c_n positive   *)
-(* weights such that sum_i c_i u_i^T u_i is the identity matrix. Then         *)
-(* sum_i c_i <x, u_i>^2 = |x|^2 for every x (weighted_frame_mxdot) and        *)
-(* sum_i c_i = m (weighted_frame_trace).                                      *)
-(*                                                                            *)
-(* The section extension assumes the Gaussian form of the Brascamp-Lieb       *)
-(* inequality for measurable f_i with values in [delta, K], 0 < delta:        *)
+(* weights such that sum_i c_i u_i^T u_i is the identity matrix. The Gaussian *)
+(* form of the Brascamp-Lieb inequality for measurable f_i with values in     *)
+(* [delta, K], 0 < delta,                                                     *)
 (*                                                                            *)
 (*   int prod_i f_i(<x, u_i>)^{c_i} dgauss_m(x)                               *)
-(*     <= prod_i (int f_i d(normal_prob 0 1))^{c_i}                           *)
+(*     <= prod_i (int f_i d(normal_prob 0 1))^{c_i},                          *)
 (*                                                                            *)
-(* (gauss_brascamp_lieb_bounded, proved in brascamp_lieb.v), and derives:     *)
+(* is gauss_brascamp_lieb_bounded of brascamp_lieb.v. This file derives:      *)
 (* - the same for measurable f_i with values in [0, K]                        *)
 (*   (gauss_brascamp_lieb_ge0): apply it to f_i + 1/(k+1), and let k -> oo;   *)
 (*   the right side converges since a^c is continuous on [0, +oo) for c > 0;  *)
@@ -44,13 +41,11 @@ From GaussianAnalysis.comparison Require Import gauss_linear.
 (*                                                                            *)
 (*   from the Gaussian form for f_i(t) = F_i(t) sqrt (2 pi) exp (t^2 / 2):    *)
 (*   the integral of f_i against the standard normal law is the Lebesgue      *)
-(*   integral of F_i, and by the two frame identities                         *)
+(*   integral of F_i, and since sum_i c_i <x, u_i>^2 = |x|^2 and              *)
+(*   sum_i c_i = m (tight_frame_mxdot_sqr, tight_frame_sum),                  *)
 (*   prod_i (sqrt (2 pi) exp (<x, u_i>^2 / 2))^{c_i} = (2 pi)^{m/2}           *)
 (*   exp (|x|^2 / 2) is the inverse of the density gauss_pdf of gauss m       *)
 (*   with respect to lebesgue_rV m.                                           *)
-(*                                                                            *)
-(* The hypothesis is replaced by the theorem of brascamp_lieb.v once it is    *)
-(* proved there.                                                              *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -62,43 +57,9 @@ Import numFieldTopology.Exports numFieldNormedType.Exports.
 Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
 
-Section weighted_frame.
-Context {R : realType} (m n : nat) (u : 'I_n -> 'rV[R]_m) (c : 'I_n -> R).
-Hypothesis frame : \sum_i c i *: ((u i)^T *m u i) = 1%:M.
-
-Lemma weighted_frame_mxdot (x : 'rV[R]_m) :
-  mxdot x x = \sum_i c i * mxdot x (u i) ^+ 2.
-Proof.
-transitivity (mxdot x (x *m 1%:M)); first by rewrite mulmx1.
-rewrite -frame mulmx_sumr mxdot_sumr; apply: eq_bigr => i _.
-rewrite -scalemxAr mulmxA [x *m (u i)^T]mx11_scalar mul_scalar_mx -mxdot_rowE.
-by rewrite !mxdotZr expr2.
-Qed.
-
-Lemma weighted_frame_trace :
-  (forall i, mxdot (u i) (u i) = 1) -> \sum_i c i = m%:R.
-Proof.
-move=> hu; transitivity (\tr (1%:M : 'M[R]_m)); last exact: mxtrace1.
-rewrite -frame raddf_sum; apply: eq_bigr => i _ /=.
-by rewrite mxtraceZ mxtrace_mulC -mxdot_trace hu mulr1.
-Qed.
-
-End weighted_frame.
-
 Section extension.
 Context {R : realType}.
 Local Notation N := (@normal_prob R 0 1).
-
-(* The Gaussian form of the Brascamp-Lieb inequality for functions with
-   values in [delta, K], 0 < delta, as it is proved in brascamp_lieb.v. *)
-Hypothesis gauss_brascamp_lieb_bounded : forall m n (u : 'I_n -> 'rV[R]_m)
-    (c : 'I_n -> R) (f : 'I_n -> R -> R) (delta K : R),
-  (forall i, mxdot (u i) (u i) = 1) -> (forall i, 0 < c i) ->
-  \sum_i c i *: ((u i)^T *m u i) = 1%:M -> 0 < delta -> delta <= K ->
-  (forall i, measurable_fun [set: R] (f i)) ->
-  (forall i y, delta <= f i y <= K) ->
-  \int[gauss m]_x (\prod_i (f i (mxdot x (u i))) `^ (c i)) <=
-  \prod_i (\int[normal_prob 0 1]_y f i y) `^ (c i).
 
 Let powR_sum (x : R) I (r : seq I) (P : pred I) (a : I -> R) : 0 < x ->
   x `^ (\sum_(i <- r | P i) a i) = \prod_(i <- r | P i) x `^ a i.
@@ -458,11 +419,11 @@ have gc t (a : R) : g t `^ a =
   by rewrite -expRM [_ * a]mulrC.
 have rid x : \prod_i g (mxdot x (u i)) `^ c i = (gauss_pdf x)^-1.
   rewrite (eq_bigr _ (fun i _ => gc (mxdot x (u i)) (c i))) big_split /=.
-  rewrite -powR_sum// -expR_sum (weighted_frame_trace hframe hu).
+  rewrite -powR_sum// -expR_sum (tight_frame_sum hu hframe).
   rewrite powR_mulrn ?sqrtr_ge0//.
   rewrite /gauss_pdf invfM invrK -expRN mulNr opprK.
   congr (_ * expR _).
-  rewrite (weighted_frame_mxdot hframe x) mulr_suml.
+  rewrite -(tight_frame_mxdot_sqr hframe x) mulr_suml.
   by apply: eq_bigr => i _; rewrite mulrA.
 have pw x : (\prod_i F i (mxdot x (u i)) `^ c i * ((gauss_pdf x)^-1)%R%:E =
     \prod_i f i (mxdot x (u i)) `^ c i)%E.
