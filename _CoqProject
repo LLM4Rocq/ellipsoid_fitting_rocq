@@ -33,6 +33,7 @@ library/comparison/escape.v
 library/comparison/gauss_law.v
 library/fourier/charfun.v
 library/fourier/esseen.v
+library/fourier/gauss_factor.v
 
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
