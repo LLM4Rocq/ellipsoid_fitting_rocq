@@ -66,6 +66,12 @@ From GaussianAnalysis Require Import euclidean real_spectral.
 (*   D B(z)[y - z] <= theta.                                                  *)
 (* - sc_barrier_contraction (Lemma 2.10): for x0, x in D and 0 < eps < 1,     *)
 (*   B ((1 - eps) x + eps x0) <= B x0 + theta ln (1 / eps).                   *)
+(* - line_derive3: if B agrees on the line through z along h with a function  *)
+(*   of one variable with three derivatives, these are the derivatives of B   *)
+(*   along h at the points of the line in D; with lin_form_vec and            *)
+(*   bilin_form_mx (a linear form is mxdot g h and a bilinear form is         *)
+(*   h M h^T), this reduces the conditions of sc_function to facts in one     *)
+(*   variable (convex/logdet_barrier.v).                                      *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -564,6 +570,62 @@ apply: DeriveDef; first by rewrite /derivable E.
 by rewrite /derive E.
 Qed.
 
+(* Conversely, a derivative of t |-> f (a + t h) is a derivative of f along
+   h. *)
+Lemma is_derive_line_inv f a h (t d : R) :
+  is_derive t 1 (fun s => f (a + s *: h)) d -> is_derive (a + t *: h) h f d.
+Proof.
+move=> [df dv].
+have E : (fun s : R => s^-1 *: (((fun s => f (a + s *: h)) \o shift t) (s *: 1)
+           - f (a + t *: h))) =
+         (fun s : R => s^-1 *: ((f \o shift (a + t *: h)) (s *: h)
+           - f (a + t *: h))).
+  apply/funext => s /=; congr (_ *: (f _ - _)).
+  by rewrite [s *: 1]mulr1 scalerDl addrCA addrC.
+move: df dv; rewrite /derivable /derive E => df dv.
+exact: DeriveDef.
+Qed.
+
+(* A linear form on row vectors is the inner product with the row of its
+   values on the basis, and a bilinear form is h M h^T for the matrix of its
+   values on the basis. *)
+Lemma lin_form_vec k (L : 'rV[R]_k -> R) :
+  (forall (c : R) (u v : 'rV[R]_k), L (c *: u + v) = c * L u + L v) ->
+  forall u, L u = mxdot (\row_j L (delta_mx 0 j)) u.
+Proof.
+move=> Llin u.
+have L0 : L 0 = 0 by have := Llin 1 0 0; rewrite scale1r addr0 mul1r => h; lra.
+have LZ c v : L (c *: v) = c * L v.
+  by have := Llin c v 0; rewrite !addr0 L0 addr0.
+have LD v w : L (v + w) = L v + L w.
+  by have := Llin 1 v w; rewrite scale1r mul1r.
+have Lsum (F : 'I_k -> 'rV[R]_k) : L (\sum_j F j) = \sum_j L (F j).
+  by elim/big_rec2: _ => // j y1 y2 _ <-; rewrite LD.
+rewrite {1}(row_sum_delta u) Lsum /mxdot big_ord1.
+by apply: eq_bigr => j _; rewrite LZ mxE mulrC.
+Qed.
+
+Lemma bilin_form_mx k (Q : 'rV[R]_k -> 'rV[R]_k -> R) :
+  (forall (c : R) (u v w : 'rV[R]_k), Q (c *: u + v) w = c * Q u w + Q v w) ->
+  (forall (c : R) (u v w : 'rV[R]_k), Q w (c *: u + v) = c * Q w u + Q w v) ->
+  forall u,
+    Q u u = mxdot u (u *m \matrix_(i, j) Q (delta_mx 0 i) (delta_mx 0 j)).
+Proof.
+move=> Q1 Q2 u.
+have L1 : forall (c : R) (v w : 'rV[R]_k), Q (c *: v + w) u = c * Q v u + Q w u.
+  by move=> c v w; exact: Q1.
+rewrite (lin_form_vec L1) /mxdot !big_ord1.
+have L2 (j : 'I_k) : forall (c : R) (v w : 'rV[R]_k),
+    Q (delta_mx 0 j) (c *: v + w) = c * Q (delta_mx 0 j) v + Q (delta_mx 0 j) w.
+  by move=> c v w; exact: Q2.
+under eq_bigr => j _ do rewrite mxE (lin_form_vec (L2 j)) /mxdot big_ord1.
+under [RHS]eq_bigr => j _ do rewrite mxE.
+under eq_bigr => j _ do rewrite mulr_suml.
+under [RHS]eq_bigr => j _ do rewrite mulr_sumr.
+rewrite [RHS]exchange_big /=.
+by apply: eq_bigr => j _; apply: eq_bigr => i _; rewrite !mxE; ring.
+Qed.
+
 End line.
 
 Section sc_line.
@@ -599,6 +661,44 @@ move=> t te; apply: De; first exact: memvZ.
 rewrite normrZ; apply: (le_lt_trans _ (_ : `|t| * (`|h| + 1) < e0)).
   by rewrite ler_wpM2l // lerDl.
 by rewrite -ltr_pdivlMr.
+Qed.
+
+(* The directional derivatives of a function that agrees on D, along a line,
+   with a function of one variable with three derivatives. *)
+Lemma line_derive3 z h (phi phi1 phi2 phi3 : R -> R) : h \in V ->
+  (forall t, D (z + t *: h) -> B (z + t *: h) = phi t) ->
+  (forall t, D (z + t *: h) -> [/\ is_derive t 1 phi (phi1 t),
+     is_derive t 1 phi1 (phi2 t) & is_derive t 1 phi2 (phi3 t)]) ->
+  forall t, D (z + t *: h) ->
+  [/\ is_derive (z + t *: h) h B (phi1 t),
+      is_derive (z + t *: h) h ('D_h B) (phi2 t) &
+      is_derive (z + t *: h) h ('D_h ('D_h B)) (phi3 t)].
+Proof.
+move=> hV hB hd.
+have near_D t : D (z + t *: h) -> \forall s \near t, D (z + s *: h).
+  move=> Dt; have [e e0 De] := rel_open_convex_line Dt hV.
+  apply/nbhs_normP; exists e => // s /= ts.
+  have -> : z + s *: h = z + t *: h + (s - t) *: h.
+    by rewrite -addrA -scalerDl addrCA subrr addr0.
+  by apply: De; rewrite distrC.
+have stepA t : D (z + t *: h) -> is_derive (z + t *: h) h B (phi1 t).
+  move=> Dt; apply: is_derive_line_inv.
+  have [d1 _ _] := hd t Dt.
+  apply: (near_eq_is_derive _ d1).
+  near=> s; rewrite hB //; near: s; exact: near_D Dt.
+have stepB t : D (z + t *: h) -> is_derive (z + t *: h) h ('D_h B) (phi2 t).
+  move=> Dt; apply: is_derive_line_inv.
+  have [_ d2 _] := hd t Dt.
+  apply: (near_eq_is_derive _ d2).
+  near=> s; have Ds : D (z + s *: h) by near: s; exact: near_D Dt.
+  by have [_ ->] := stepA s Ds.
+move=> t Dt; split; [exact: stepA | exact: stepB |].
+apply: is_derive_line_inv.
+have [_ _ d3] := hd t Dt.
+apply: (near_eq_is_derive _ d3).
+near=> s; have Ds : D (z + s *: h) by near: s; exact: near_D Dt.
+by have [_ ->] := stepB s Ds.
+Unshelve. all: by end_near.
 Qed.
 
 Hypothesis scB : sc_function V D B.
