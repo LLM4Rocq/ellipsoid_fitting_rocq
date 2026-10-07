@@ -9,6 +9,8 @@ From mathcomp Require Import lebesgue_measure numfun measurable_realfun.
 From mathcomp Require Import lebesgue_integral probability.
 From GaussianAnalysis.probability Require Import lindeberg.
 From GaussianAnalysis.gaussian Require Import parameter_integral gauss.
+From GaussianAnalysis.gaussian Require Import normal_integral gauss_ibp.
+From GaussianAnalysis.comparison Require Import normal_linear gauss_smoothing.
 
 (**md**************************************************************************)
 (* # Characteristic functions of laws on the real line                        *)
@@ -18,9 +20,17 @@ From GaussianAnalysis.gaussian Require Import parameter_integral gauss.
 (* and its imaginary part cf_im mu. A pair z : R * R stands for the complex   *)
 (* number z.1 + i z.2: cmul is the complex product and cmod the modulus.      *)
 (*                                                                            *)
-(* A law nu on R is the image of a probability P on T under a measurable      *)
-(* g : T -> R when P (g @^-1` A) = nu A for every measurable A; then          *)
-(* cf_re nu t is the integral of cos (t * g x) against P (cf_re_image).       *)
+(* Laws on the real line are probabilities on measurableTypeR R, the type on  *)
+(* which MathComp-Analysis defines Lebesgue measure and normal_prob. A law nu *)
+(* is the image of a probability P on T under a measurable g : T -> R when    *)
+(* P (g @^-1` A) = nu A for every measurable A; then cf_re nu t is the        *)
+(* integral of cos (t * g x) against P (cf_image). Independent variables are  *)
+(* described by product measures (P1 \x P2, tuple_prod).                      *)
+(*                                                                            *)
+(* The characteristic function of normal_prob m s is                          *)
+(* exp (- s^2 t^2 / 2) (cos (m t), sin (m t)) (cf_normal): for the standard   *)
+(* law, differentiation under the integral and Stein's identity (normal_ibp)  *)
+(* give the differential equation y' = - t y.                                 *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*      cmul z w == the complex product of the pairs z and w                  *)
@@ -93,6 +103,12 @@ End complex_pair.
 
 Section measurable_trigo.
 Context {R : realType}.
+
+(* The identity of the real line, from the type measurableTypeR R on which
+   MathComp-Analysis defines Lebesgue measure and normal_prob, to R. *)
+Lemma measurable_idR :
+  measurable_fun [set: measurableTypeR R] (fun x : measurableTypeR R => x : R).
+Proof. exact: measurable_id. Qed.
 
 Lemma measurable_cos : measurable_fun [set: R] cos.
 Proof. apply: continuous_measurable_fun; exact: continuous_cos. Qed.
@@ -169,7 +185,7 @@ End measurable_trigo.
 
 Section charfun.
 Context {R : realType}.
-Implicit Types (mu : probability R R) (t : R).
+Implicit Types (mu : probability (measurableTypeR R) R) (t : R).
 
 Definition cf_re mu t := \int[mu]_x cos (t * x).
 
@@ -230,7 +246,7 @@ Qed.
 Lemma cf_norm_le1 mu t : cf_norm mu t <= 1.
 Proof.
 set c := cf_re mu t; set s := cf_im mu t.
-have mid := @measurable_id _ R setT.
+have mid := @measurable_idR R.
 have E : c ^+ 2 + s ^+ 2 = \int[mu]_x (c * cos (t * x) + s * sin (t * x)).
   by rewrite Rintegral_cos_sin -?expr2//; exact: measurable_funM.
 have le : c ^+ 2 + s ^+ 2 <= cf_norm mu t.
@@ -291,19 +307,22 @@ End charfun.
    computed under P. *)
 Section charfun_image.
 Context {R : realType} d (T : measurableType d) (P : probability T R).
-Variables (nu : probability R R) (g : T -> R).
+Variables (nu : probability (measurableTypeR R) R) (g : T -> R).
 Hypothesis mg : measurable_fun [set: T] g.
-Hypothesis gnu : forall A, measurable A -> P (g @^-1` A) = nu A.
+Hypothesis gnu : forall A : set (measurableTypeR R), measurable A ->
+  P (g @^-1` A) = nu A.
 
 Lemma cf_re_image t : cf_re nu t = \int[P]_x cos (t * g x).
 Proof.
-rewrite /cf_re /Rintegral -(integral_image mg gnu)//.
+rewrite /cf_re /Rintegral
+  -(@integral_image _ _ T (measurableTypeR R) R P nu g mg gnu)//.
 exact: integrable_cos_mul.
 Qed.
 
 Lemma cf_im_image t : cf_im nu t = \int[P]_x sin (t * g x).
 Proof.
-rewrite /cf_im /Rintegral -(integral_image mg gnu)//.
+rewrite /cf_im /Rintegral
+  -(@integral_image _ _ T (measurableTypeR R) R P nu g mg gnu)//.
 exact: integrable_sin_mul.
 Qed.
 
@@ -315,17 +334,19 @@ End charfun_image.
 
 Section charfun_affine.
 Context {R : realType}.
-Implicit Types (mu nu : probability R R) (a b t : R).
+Implicit Types (mu nu : probability (measurableTypeR R) R) (a b t : R).
 
 (* The law of a X + b: its characteristic function at t is
    exp (i b t) times that of X at a t. *)
 Lemma cf_affine mu nu a b :
-    (forall A, measurable A -> mu ((fun x => a * x + b) @^-1` A) = nu A) ->
+    (forall A : set (measurableTypeR R), measurable A ->
+      mu ((fun x => a * x + b) @^-1` A) = nu A) ->
   forall t, cf nu t = cmul (cos (b * t), sin (b * t)) (cf mu (a * t)).
 Proof.
-move=> numu t; have ma : measurable_fun [set: R] (fun x => a * x + b).
+move=> numu t.
+have ma : measurable_fun [set: measurableTypeR R] (fun x => a * x + b).
   by apply: measurable_funD => //; exact: measurable_funM.
-have mat : measurable_fun [set: R] (fun x => a * t * x).
+have mat : measurable_fun [set: measurableTypeR R] (fun x => a * t * x).
   exact: measurable_funM.
 rewrite (cf_image ma numu) /cf /cf_re /cf_im cmulE; congr pair.
   transitivity (\int[mu]_x (cos (b * t) * cos (a * t * x) +
@@ -341,7 +362,8 @@ by rewrite Rintegral_cos_sin// addrC.
 Qed.
 
 Lemma cf_norm_affine mu nu a b :
-    (forall A, measurable A -> mu ((fun x => a * x + b) @^-1` A) = nu A) ->
+    (forall A : set (measurableTypeR R), measurable A ->
+      mu ((fun x => a * x + b) @^-1` A) = nu A) ->
   forall t, cf_norm nu t = cf_norm mu (a * t).
 Proof.
 move=> numu t; rewrite !cf_normE (cf_affine numu) cmodM.
@@ -426,11 +448,13 @@ Qed.
 
 Lemma cf_prod d1 d2 (T1 : measurableType d1) (T2 : measurableType d2)
     (P1 : probability T1 R) (P2 : probability T2 R) (g1 : T1 -> R)
-    (g2 : T2 -> R) (nu1 nu2 nu : probability R R) :
+    (g2 : T2 -> R) (nu1 nu2 nu : probability (measurableTypeR R) R) :
     measurable_fun [set: T1] g1 -> measurable_fun [set: T2] g2 ->
-    (forall A, measurable A -> P1 (g1 @^-1` A) = nu1 A) ->
-    (forall A, measurable A -> P2 (g2 @^-1` A) = nu2 A) ->
-    (forall A, measurable A ->
+    (forall A : set (measurableTypeR R), measurable A ->
+      P1 (g1 @^-1` A) = nu1 A) ->
+    (forall A : set (measurableTypeR R), measurable A ->
+      P2 (g2 @^-1` A) = nu2 A) ->
+    (forall A : set (measurableTypeR R), measurable A ->
       (P1 \x P2)%E ((fun p => g1 p.1 + g2 p.2)%R @^-1` A) = nu A) ->
   forall t, cf nu t = cmul (cf nu1 t) (cf nu2 t).
 Proof.
@@ -443,11 +467,13 @@ Qed.
 
 Lemma cf_norm_prod d1 d2 (T1 : measurableType d1) (T2 : measurableType d2)
     (P1 : probability T1 R) (P2 : probability T2 R) (g1 : T1 -> R)
-    (g2 : T2 -> R) (nu1 nu2 nu : probability R R) :
+    (g2 : T2 -> R) (nu1 nu2 nu : probability (measurableTypeR R) R) :
     measurable_fun [set: T1] g1 -> measurable_fun [set: T2] g2 ->
-    (forall A, measurable A -> P1 (g1 @^-1` A) = nu1 A) ->
-    (forall A, measurable A -> P2 (g2 @^-1` A) = nu2 A) ->
-    (forall A, measurable A ->
+    (forall A : set (measurableTypeR R), measurable A ->
+      P1 (g1 @^-1` A) = nu1 A) ->
+    (forall A : set (measurableTypeR R), measurable A ->
+      P2 (g2 @^-1` A) = nu2 A) ->
+    (forall A : set (measurableTypeR R), measurable A ->
       (P1 \x P2)%E ((fun p => g1 p.1 + g2 p.2)%R @^-1` A) = nu A) ->
   forall t, (cf_norm nu t = cf_norm nu1 t * cf_norm nu2 t)%R.
 Proof.
@@ -459,16 +485,18 @@ End charfun_independent.
 
 Section charfun_tuple_prod.
 Context {R : realType}.
-Implicit Types (mu : nat -> probability R R) (a : nat -> R).
+Implicit Types (mu : nat -> probability (measurableTypeR R) R) (a : nat -> R).
 
 Lemma measurable_tuple_lincomb n a :
-  measurable_fun [set: n.-tuple R] (fun x => \sum_(k < n) a k * tnth x k).
+  measurable_fun [set: n.-tuple (measurableTypeR R)]
+    (fun x => \sum_(k < n) a k * tnth x k).
 Proof.
 apply: measurable_sum => k; apply: measurable_funM => //.
 exact: measurable_tnth.
 Qed.
 
-Let tuple_lincomb_cons n a (s : R) (ts : n.-tuple R) :
+Let tuple_lincomb_cons n a (s : measurableTypeR R)
+    (ts : n.-tuple (measurableTypeR R)) :
   \sum_(k < n.+1) a k * tnth (tuple_cons (s, ts)) k =
   a 0%N * s + \sum_(k < n) a k.+1 * tnth ts k.
 Proof.
@@ -485,23 +513,23 @@ Lemma cf_tuple_prod_integral mu n a t :
   \big[cmul/(1, 0)]_(k < n) cf (mu k) (a k * t).
 Proof.
 elim: n mu a => [|n IH] mu a.
-  have mc : measurable_fun [set: 0.-tuple R]
+  have mc : measurable_fun [set: 0.-tuple (measurableTypeR R)]
       (fun x => cos (t * \sum_(k < 0) a k * tnth x k)).
     exact: (measurable_cos_mul t (@measurable_tuple_lincomb 0 a)).
-  have ms : measurable_fun [set: 0.-tuple R]
+  have ms : measurable_fun [set: 0.-tuple (measurableTypeR R)]
       (fun x => sin (t * \sum_(k < 0) a k * tnth x k)).
     exact: (measurable_sin_mul t (@measurable_tuple_lincomb 0 a)).
   rewrite (Rintegral_tuple_prod0 mu mc) (Rintegral_tuple_prod0 mu ms).
   by rewrite !big_ord0 mulr0 cos0 sin0.
-have mc : measurable_fun [set: n.+1.-tuple R]
+have mc : measurable_fun [set: n.+1.-tuple (measurableTypeR R)]
     (fun x => cos (t * \sum_(k < n.+1) a k * tnth x k)).
   exact: (measurable_cos_mul t (@measurable_tuple_lincomb n.+1 a)).
-have ms : measurable_fun [set: n.+1.-tuple R]
+have ms : measurable_fun [set: n.+1.-tuple (measurableTypeR R)]
     (fun x => sin (t * \sum_(k < n.+1) a k * tnth x k)).
   exact: (measurable_sin_mul t (@measurable_tuple_lincomb n.+1 a)).
 rewrite (Rintegral_tuple_prodS mu mc (fun x => cos_max _)).
 rewrite (Rintegral_tuple_prodS mu ms (fun x => sin_max _)).
-have ma0 : measurable_fun [set: R] (fun s => a 0%N * s).
+have ma0 : measurable_fun [set: measurableTypeR R] (fun s => a 0%N * s).
   exact: measurable_funM.
 have ma' := @measurable_tuple_lincomb n (fun i => a i.+1).
 transitivity (cmul
@@ -519,8 +547,8 @@ rewrite big_ord_recl; congr cmul.
 exact: (IH (fun i => mu i.+1) (fun i => a i.+1)).
 Qed.
 
-Lemma cf_tuple_prod mu n a (nu : probability R R) :
-    (forall A, measurable A ->
+Lemma cf_tuple_prod mu n a (nu : probability (measurableTypeR R) R) :
+    (forall A : set (measurableTypeR R), measurable A ->
       tuple_prod mu n ((fun x => \sum_(k < n) a k * tnth x k) @^-1` A) =
       nu A) ->
   forall t, cf nu t = \big[cmul/(1, 0)]_(k < n) cf (mu k) (a k * t).
@@ -529,8 +557,8 @@ move=> numu t; rewrite (cf_image (@measurable_tuple_lincomb n a) numu).
 exact: cf_tuple_prod_integral.
 Qed.
 
-Lemma cf_norm_tuple_prod mu n a (nu : probability R R) :
-    (forall A, measurable A ->
+Lemma cf_norm_tuple_prod mu n a (nu : probability (measurableTypeR R) R) :
+    (forall A : set (measurableTypeR R), measurable A ->
       tuple_prod mu n ((fun x => \sum_(k < n) a k * tnth x k) @^-1` A) =
       nu A) ->
   forall t, cf_norm nu t = \prod_(k < n) cf_norm (mu k) (a k * t).
@@ -540,34 +568,35 @@ End charfun_tuple_prod.
 
 Section charfun_symmetrization.
 Context {R : realType}.
-Implicit Types (mu nu : probability R R).
+Implicit Types (mu nu : probability (measurableTypeR R) R).
 
 (* The law of X - X', for independent X and X' of law mu, has the real
    characteristic function |cf mu|^2. *)
 Lemma cf_sym mu nu :
-    (forall A : set R, measurable A ->
-      (mu \x mu)%E ((fun p => p.1 - p.2) @^-1` A) = nu A) ->
+    (forall A : set (measurableTypeR R), measurable A ->
+      (mu \x mu)%E ((fun p => p.1 - p.2 : R) @^-1` A) = nu A) ->
   forall t, cf nu t = (cf_norm mu t ^+ 2, 0).
 Proof.
 move=> numu t.
-have mg : measurable_fun [set: R * R] (fun p : R * R => p.1 - p.2).
+have mg : measurable_fun [set: measurableTypeR R * measurableTypeR R]
+    (fun p => p.1 - p.2 : R).
   by apply: measurable_funB; [exact: measurable_fst|exact: measurable_snd].
-have mN : measurable_fun [set: R] (fun y : R => - y).
+have mN : measurable_fun [set: measurableTypeR R] (fun y => - y : R).
   exact: measurable_funN.
 have E1 : \int[mu]_y cos (t * - y) = cf_re mu t.
   by apply: eq_Rintegral => y _; rewrite mulrN cosN.
 have E2 : \int[mu]_y sin (t * - y) = - cf_im mu t.
   rewrite /cf_im -RintegralN; first exact: integrable_sin_mul.
   by apply: eq_Rintegral => y _; rewrite mulrN sinN.
-have := cf_prod_integral mu mu (@measurable_id _ R setT) mN t.
+have := cf_prod_integral mu mu (@measurable_idR R) mN t.
 rewrite /= E1 E2 => E; rewrite (cf_image mg numu) E cmulE.
 rewrite /cf_norm sqr_sqrtr ?addr_ge0 ?sqr_ge0//.
 by congr pair; rewrite /cf_re /cf_im; ring.
 Qed.
 
 Lemma cf_norm_sym mu nu :
-    (forall A : set R, measurable A ->
-      (mu \x mu)%E ((fun p => p.1 - p.2) @^-1` A) = nu A) ->
+    (forall A : set (measurableTypeR R), measurable A ->
+      (mu \x mu)%E ((fun p => p.1 - p.2 : R) @^-1` A) = nu A) ->
   forall t, cf_norm nu t = cf_norm mu t ^+ 2.
 Proof.
 move=> numu t; rewrite cf_normE (cf_sym numu) /cmod /= expr0n addr0.
@@ -575,3 +604,222 @@ by rewrite sqrtr_sqr ger0_norm// exprn_ge0// cf_norm_ge0.
 Qed.
 
 End charfun_symmetrization.
+
+Section charfun_normal.
+Context {R : realType}.
+Local Notation N := (@normal_prob R 0 1).
+
+Let is_derive_mull (k x : R) : is_derive x 1 (fun s : R => k * s) k.
+Proof.
+apply: (is_derive_eq (is_deriveZ k (is_derive_id x 1))).
+by rewrite /GRing.scale /= mulr1.
+Qed.
+
+Let is_derive_cos_mul (t x : R) :
+  is_derive x 1 (fun s => cos (t * s)) (- (t * sin (t * x))).
+Proof.
+have := @is_derive1_comp R cos (fun s => t * s) x _ _
+  (is_derive_cos (t * x)) (is_derive_mull t x).
+by move=> H; apply: (is_derive_eq H); rewrite mulrC mulrN.
+Qed.
+
+Let is_derive_sin_mul (t x : R) :
+  is_derive x 1 (fun s => sin (t * s)) (t * cos (t * x)).
+Proof.
+have := @is_derive1_comp R sin (fun s => t * s) x _ _
+  (is_derive_sin (t * x)) (is_derive_mull t x).
+by move=> H; apply: (is_derive_eq H); rewrite mulrC.
+Qed.
+
+Let is_derive_mulr (k x : R) : is_derive x 1 (fun s : R => s * k) k.
+Proof.
+have -> : (fun s : R => s * k) = (fun s => k * s).
+  by apply/funext => s; rewrite mulrC.
+exact: is_derive_mull.
+Qed.
+
+Let is_derive_cos_mulr (x t : R) :
+  is_derive t 1 (fun s => cos (s * x)) (- (x * sin (t * x))).
+Proof.
+have := @is_derive1_comp R cos (fun s => s * x) t _ _
+  (is_derive_cos (t * x)) (is_derive_mulr x t).
+by move=> H; apply: (is_derive_eq H); rewrite mulrC mulrN.
+Qed.
+
+Let is_derive_sin_mulr (x t : R) :
+  is_derive t 1 (fun s => sin (s * x)) (x * cos (t * x)).
+Proof.
+have := @is_derive1_comp R sin (fun s => s * x) t _ _
+  (is_derive_sin (t * x)) (is_derive_mulr x t).
+by move=> H; apply: (is_derive_eq H); rewrite mulrC.
+Qed.
+
+Let integrable_normal_abs :
+  N.-integrable [set: R] (EFin \o (fun x : R => `|x|)).
+Proof.
+have := @integrable_normal_exprn R 1.
+by apply: eq_integrable => // x _; rewrite /= expr1.
+Qed.
+
+Let integrable_normal_mul_bounded (f : R -> R) :
+  measurable_fun [set: R] f -> (forall x, `|f x| <= 1) ->
+  N.-integrable [set: R] (EFin \o (fun x => x * f x)).
+Proof.
+move=> mf f1; apply: (le_integrable measurableT _ _ integrable_normal_abs).
+  by apply/measurable_EFinP; apply: measurable_funM.
+move=> x _; rewrite /comp !abse_EFin lee_fin normrM normr_id.
+by have := f1 x; have := normr_ge0 x; nra.
+Qed.
+
+Let itv_t (t : R) : t \in `]t - 1, t + 1[.
+Proof. by rewrite in_itv /=; apply/andP; split; lra. Qed.
+
+Let derive_cf_re_normal (t : R) :
+  is_derive t 1 (cf_re N) (\int[N]_x (- (x * sin (t * x)))).
+Proof.
+apply: (@is_derive_Rintegral R _ (measurableTypeR R) N (fun s x => cos (s * x))
+  (fun s x => - (x * sin (s * x))) (fun x => `|x|) (t - 1) (t + 1) t).
+- exact: itv_t.
+- by move=> s _; exact: (integrable_cos_mul N s (@measurable_idR R)).
+- by move=> s y _; exact: is_derive_cos_mulr.
+- by move=> y; exact: normr_ge0.
+- exact: integrable_normal_abs.
+- move=> s y _; rewrite normrN normrM.
+  by have := sin_max (s * y); have := normr_ge0 y; nra.
+Qed.
+
+Let derive_cf_im_normal (t : R) :
+  is_derive t 1 (cf_im N) (\int[N]_x (x * cos (t * x))).
+Proof.
+apply: (@is_derive_Rintegral R _ (measurableTypeR R) N (fun s x => sin (s * x))
+  (fun s x => x * cos (s * x)) (fun x => `|x|) (t - 1) (t + 1) t).
+- exact: itv_t.
+- by move=> s _; exact: (integrable_sin_mul N s (@measurable_idR R)).
+- by move=> s y _; exact: is_derive_sin_mulr.
+- by move=> y; exact: normr_ge0.
+- exact: integrable_normal_abs.
+- move=> s y _; rewrite normrM.
+  by have := cos_max (s * y); have := normr_ge0 y; nra.
+Qed.
+
+(* Stein's identity gives E[x sin (t x)] = t E[cos (t x)] and
+   E[x cos (t x)] = - t E[sin (t x)]. *)
+Let continuous_mul_cos (t : R) : continuous (fun x : R => t * cos (t * x)).
+Proof.
+move=> x; apply: (@continuous_comp _ _ _ (fun x => cos (t * x)) ( *%R t)).
+  apply: (@continuous_comp _ _ _ ( *%R t) cos); first exact: mulrl_continuous.
+  exact: continuous_cos.
+exact: mulrl_continuous.
+Qed.
+
+Let continuous_mul_sin (t : R) : continuous (fun x : R => - (t * sin (t * x))).
+Proof.
+move=> x; apply: (@continuous_comp _ _ _ (fun x => sin (t * x))
+  (fun y => - (t * y))).
+  apply: (@continuous_comp _ _ _ ( *%R t) sin); first exact: mulrl_continuous.
+  exact: continuous_sin.
+apply: (@continuous_comp _ _ _ ( *%R t) -%R); first exact: mulrl_continuous.
+exact: opp_continuous.
+Qed.
+
+Let normal_x_sin (t : R) : \int[N]_x (x * sin (t * x)) = t * cf_re N t.
+Proof.
+have b1 x : `|sin (t * x)| <= (1 + `|t|) * (1 + `|x| ^+ 0).
+  by rewrite expr0; have := sin_max (t * x); have := normr_ge0 t; nra.
+have b2 x : `|t * cos (t * x)| <= (1 + `|t|) * (1 + `|x| ^+ 0).
+  rewrite expr0 normrM; have := cos_max (t * x).
+  by have := normr_ge0 t; nra.
+have H := @normal_ibp R (fun x => sin (t * x)) (fun x => t * cos (t * x))
+  (1 + `|t|) 0 (@is_derive_sin_mul t) (@continuous_mul_cos t) b1 b2.
+rewrite /Rintegral H -/(Rintegral _ _ _) RintegralZl//.
+exact: (integrable_cos_mul N t (@measurable_idR R)).
+Qed.
+
+Let normal_x_cos (t : R) : \int[N]_x (x * cos (t * x)) = - t * cf_im N t.
+Proof.
+have b1 x : `|cos (t * x)| <= (1 + `|t|) * (1 + `|x| ^+ 0).
+  by rewrite expr0; have := cos_max (t * x); have := normr_ge0 t; nra.
+have b2 x : `|- (t * sin (t * x))| <= (1 + `|t|) * (1 + `|x| ^+ 0).
+  rewrite expr0 normrN normrM; have := sin_max (t * x).
+  by have := normr_ge0 t; nra.
+have H := @normal_ibp R (fun x => cos (t * x)) (fun x => - (t * sin (t * x)))
+  (1 + `|t|) 0 (@is_derive_cos_mul t) (@continuous_mul_sin t) b1 b2.
+rewrite /Rintegral H -/(Rintegral _ _ _).
+under eq_Rintegral do rewrite -mulNr.
+rewrite RintegralZl//.
+exact: (integrable_sin_mul N t (@measurable_idR R)).
+Qed.
+
+(* A solution of y' = - t y is t |-> y 0 * expR (- t ^ 2 / 2). *)
+Let gauss_ode (y : R -> R) : (forall t : R, is_derive t 1 y (- t * y t)) ->
+  forall t : R, y t = y 0 * expR (- t ^+ 2 / 2).
+Proof.
+move=> dy t; pose e (s : R) := expR (s ^+ 2 / 2).
+have de (s : R) : is_derive s 1 e (s * e s).
+  have hsq : is_derive s 1 (@GRing.exp R ^~ 2) (2%:R *: s ^+ 1 *: 1).
+    by apply: DeriveDef; [exact: exprn_derivable|exact: exp_derive].
+  have dq : is_derive s 1 (fun z : R => z ^+ 2 / 2) s.
+    have -> : (fun z : R => z ^+ 2 / 2) = 2^-1 \*: (@GRing.exp R ^~ 2).
+      by apply/funext => z; rewrite /GRing.scale /= mulrC.
+    apply: (is_derive_eq (is_deriveZ 2^-1 hsq)).
+    by rewrite /GRing.scale /= expr1 mulr1 mulrA mulVf ?pnatr_eq0// mul1r.
+  have := @is_derive1_comp R expR (fun z => z ^+ 2 / 2) s _ _
+    (is_derive_expR (s ^+ 2 / 2)) dq.
+  by move=> H; apply: (is_derive_eq H); rewrite mulrC.
+pose h (s : R) := y s * e s.
+have dh (s : R) : is_derive s 1 h 0.
+  apply: (is_derive_eq (is_deriveM (dy s) (de s))).
+  by rewrite /GRing.scale /=; ring.
+have := is_derive_0_is_cst t 0 dh.
+rewrite /h /e expr0n /= mul0r expR0 mulr1 => <-.
+by rewrite -mulrA -expRD mulNr addrN expR0 mulr1.
+Qed.
+
+Lemma cf_re_normal01 (t : R) : cf_re N t = expR (- t ^+ 2 / 2).
+Proof.
+have d (s : R) : is_derive s 1 (cf_re N) (- s * cf_re N s).
+  apply: (is_derive_eq (derive_cf_re_normal s)).
+  have ixs := integrable_normal_mul_bounded
+    (measurable_sin_mul s (@measurable_idR R)) (fun x => sin_max _).
+  by rewrite (RintegralN ixs) normal_x_sin mulNr.
+by rewrite (gauss_ode d t) cf_re0 mul1r.
+Qed.
+
+Lemma cf_im_normal01 (t : R) : cf_im N t = 0.
+Proof.
+have d (s : R) : is_derive s 1 (cf_im N) (- s * cf_im N s).
+  by apply: (is_derive_eq (derive_cf_im_normal s)); exact: normal_x_cos.
+by rewrite (gauss_ode d t) cf_im0 mul0r.
+Qed.
+
+Lemma cf_normal (m s : R) : s != 0 -> forall t : R,
+  cf (normal_prob m s) t =
+  (expR (- (s * t) ^+ 2 / 2) * cos (m * t),
+   expR (- (s * t) ^+ 2 / 2) * sin (m * t)).
+Proof.
+move=> s0 t.
+have numu (A : set (measurableTypeR R)) : measurable A ->
+    N ((fun x => s * x + m) @^-1` A) = normal_prob m s A.
+  move=> mA; rewrite (normal_prob_affine 0 m s0 (oner_neq0 _) mA).
+  by rewrite mulr0 add0r mulr1.
+rewrite (cf_affine numu) /cf cf_re_normal01 cf_im_normal01 cmulE.
+by congr pair; ring.
+Qed.
+
+Lemma cf_norm_normal (m s : R) : s != 0 -> forall t : R,
+  cf_norm (normal_prob m s) t = expR (- (s * t) ^+ 2 / 2).
+Proof.
+move=> s0 t; rewrite cf_normE (cf_normal m s0 t) /cmod /=.
+rewrite !exprMn -mulrDr [cos _ ^+ 2 + _]cos2Dsin2 mulr1 sqrtr_sqr.
+by rewrite ger0_norm// expR_ge0.
+Qed.
+
+Lemma cf_re_normal (m s : R) : s != 0 -> forall t : R,
+  cf_re (normal_prob m s) t = expR (- (s * t) ^+ 2 / 2) * cos (m * t).
+Proof. by move=> s0 t; have := cf_normal m s0 t; rewrite /cf => -[]. Qed.
+
+Lemma cf_im_normal (m s : R) : s != 0 -> forall t : R,
+  cf_im (normal_prob m s) t = expR (- (s * t) ^+ 2 / 2) * sin (m * t).
+Proof. by move=> s0 t; have := cf_normal m s0 t; rewrite /cf => -[]. Qed.
+
+End charfun_normal.
