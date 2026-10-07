@@ -40,6 +40,8 @@ is the place to start.
 | `matrix/` | the spectral theorem for real symmetric matrices, operator and Frobenius norms, nets on spheres |
 | `probability/` | Paley-Zygmund and other moment inequalities, the Lindeberg replacement method |
 | `fourier/` | characteristic functions of laws on the line and on row vectors, written without complex numbers; Levy concentration functions, Esseen's inequality and the Kolmogorov-Rogozin inequality under a second moment condition; Gaussian regularization and the bound of probabilities by the integral of the characteristic function; the vector small-ball estimate of Koehler and Sohn; the Fourier inversion theorem |
+| `convex/` | planned in phase 5: self-concordant barriers and the log-determinant barrier, minimizers of strongly convex functions with a barrier, the Lindeberg replacement for barrier-regularized least squares, Moreau's decomposition for closed convex cones |
+| `random_matrix/` | planned in phase 5: the semicircle law of the GOE, its rotation invariance and uniform directions, the restricted isometry of matrices with independent subexponential columns |
 
 ## Main results
 
