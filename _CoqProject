@@ -1,5 +1,6 @@
 -Q library GaussianAnalysis
 -Q theories EllipsoidFitting
+-Q extension EllipsoidUniversality
 -arg -w -arg -notation-overridden
 -arg -w -arg -ambiguous-paths
 -arg -w -arg -notation-incompatible-prefix
@@ -631,3 +632,6 @@ theories/Unsat/Limit.v
 theories/Unsat/Orientation.v
 theories/Unsat/Rates.v
 theories/Unsat/SupercriticalParameters.v
+
+extension/UniversalityDefinitions.v
+extension/UniversalityStatement.v
