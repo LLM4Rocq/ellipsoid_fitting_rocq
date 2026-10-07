@@ -11,7 +11,7 @@ From mathcomp Require Import measurable_realfun lebesgue_integral probability.
 From mathcomp Require Import normal_distribution.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss.
 From GaussianAnalysis.gaussian Require Import lebesgue_rV.
-From GaussianAnalysis.matrix Require Import euclidean real_spectral.
+From GaussianAnalysis.matrix Require Import euclidean real_spectral whitening.
 From GaussianAnalysis.comparison Require Import normal_linear.
 From GaussianAnalysis.probability Require Import lindeberg.
 From GaussianAnalysis.fourier Require Import charfun esseen gauss_factor.
@@ -59,13 +59,13 @@ From GaussianAnalysis.fourier Require Import charfun_rV.
 (* max (2, sqrt (8 e / pi) C), for laws that satisfy the bound above for      *)
 (* all 0 < r <= s <= 1/2 (Lemma 3.5 of the paper).                            *)
 (*                                                                            *)
-(* Status. Two results used here are not in the library yet: the              *)
-(* Brascamp-Lieb inequality (comparison/brascamp_lieb.v) and the existence    *)
-(* of the whitening matrix. Until they are proved, the section small_ball     *)
-(* takes their statements as the hypotheses brascamp_lieb and whitening,      *)
-(* and every result of that section is proved from them. The bound of         *)
-(* Lemma 3.5 and its first half are gauss_factor_exists and                   *)
-(* conc_fun_truncated_exists of fourier/gauss_factor.v.                       *)
+(* Status. The Brascamp-Lieb inequality (comparison/brascamp_lieb.v) is not   *)
+(* in the library yet: until it is proved, the section small_ball takes its   *)
+(* statement as the hypothesis brascamp_lieb, and every result of that        *)
+(* section is proved from it. The bound of Lemma 3.5 and its first half       *)
+(* are gauss_factor_exists and conc_fun_truncated_exists of                   *)
+(* fourier/gauss_factor.v, and the whitening matrix is whitening_exists of    *)
+(* matrix/whitening.v.                                                        *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -413,13 +413,6 @@ Hypothesis brascamp_lieb : forall m n (u : 'I_n -> 'rV[R]_m) (c : 'I_n -> R)
   (\int[lebesgue_rV m]_x \prod_i F i (mxdot x (u i)) `^ c i <=
    \prod_i (\int[lebesgue_measure]_t F i t) `^ c i)%E.
 
-(* A whitening matrix, until it is in the library. *)
-Hypothesis whitening : forall m (S : 'M[R]_m), S \is symmetricmx ->
-  (forall x : 'rV[R]_m, mxdot x x <= mxdot (x *m S) x) ->
-  exists W : 'M[R]_m,
-    W *m S *m W^T = 1%:M /\
-    forall x : 'rV[R]_m, frobenius (x *m W) <= frobenius x.
-
 (* The Brascamp-Lieb inequality with nonnegative weights: the unit vectors
    are only required where the weight is positive. *)
 Lemma brascamp_lieb_ge0 m n (u : 'I_n -> 'rV[R]_m) (c : 'I_n -> R)
@@ -696,7 +689,7 @@ have SI (x : 'rV[R]_m) : mxdot x x <= mxdot (x *m S) x.
     rewrite /S mulmx_sumr mxdot_suml; apply: eq_bigr => k _.
     by rewrite mulmx_outer_rV mxdotZl mxdotC expr2.
   exact: hS.
-have [W [hW cW]] := @whitening m S Ssym SI.
+have [W [hW cW]] := whitening_exists Ssym SI.
 apply: (@vector_small_ball_fourier m mu n w W z rho eta C hW cW rho0 wrho
   C0 _ hK).
 move=> k r s kn hr hs.
