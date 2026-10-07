@@ -279,6 +279,11 @@ Definition semicircle_prob {R : realType} (r : R) :
     set (measurableTypeR R) -> \bar R :=
   fun V => (\int[lebesgue_measure]_(x in V) (semicircle_pdf r x)%:E)%E.
 
+(* HB declares canonical projections that the structures of the measure
+   already provide; the warning says so. The setting lasts until the end of
+   this file and is not exported. *)
+Set Warnings "-redundant-canonical-projection".
+
 Section semicircle_probability.
 Context {R : realType} (r : R).
 Local Notation mu := (@lebesgue_measure R).
