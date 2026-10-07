@@ -41,6 +41,7 @@ library/fourier/esseen.v
 library/fourier/gauss_factor.v
 library/fourier/charfun_rV.v
 library/fourier/small_ball.v
+library/fourier/inversion.v
 
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
