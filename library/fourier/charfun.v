@@ -605,17 +605,24 @@ Qed.
 
 End charfun_symmetrization.
 
-Section charfun_normal.
+Section trig_derive.
 Context {R : realType}.
-Local Notation N := (@normal_prob R 0 1).
 
-Let is_derive_mull (k x : R) : is_derive x 1 (fun s : R => k * s) k.
+Lemma is_derive_mull (k x : R) : is_derive x 1 (fun s : R => k * s) k.
 Proof.
 apply: (is_derive_eq (is_deriveZ k (is_derive_id x 1))).
 by rewrite /GRing.scale /= mulr1.
 Qed.
 
-Let is_derive_cos_mul (t x : R) :
+Lemma is_derive_mulr (k x : R) : is_derive x 1 (fun s : R => s * k) k.
+Proof.
+have -> : (fun s : R => s * k) = (fun s => k * s).
+  by apply/funext => s; rewrite mulrC.
+exact: is_derive_mull.
+Qed.
+
+(* Derivatives of s |-> cos (t s), sin (t s), cos (s z) and sin (s z). *)
+Lemma is_derive_cos_mul (t x : R) :
   is_derive x 1 (fun s => cos (t * s)) (- (t * sin (t * x))).
 Proof.
 have := @is_derive1_comp R cos (fun s => t * s) x _ _
@@ -623,7 +630,7 @@ have := @is_derive1_comp R cos (fun s => t * s) x _ _
 by move=> H; apply: (is_derive_eq H); rewrite mulrC mulrN.
 Qed.
 
-Let is_derive_sin_mul (t x : R) :
+Lemma is_derive_sin_mul (t x : R) :
   is_derive x 1 (fun s => sin (t * s)) (t * cos (t * x)).
 Proof.
 have := @is_derive1_comp R sin (fun s => t * s) x _ _
@@ -631,28 +638,27 @@ have := @is_derive1_comp R sin (fun s => t * s) x _ _
 by move=> H; apply: (is_derive_eq H); rewrite mulrC.
 Qed.
 
-Let is_derive_mulr (k x : R) : is_derive x 1 (fun s : R => s * k) k.
+Lemma is_derive_cos_mulr (z t : R) :
+  is_derive t 1 (fun s => cos (s * z)) (- (z * sin (t * z))).
 Proof.
-have -> : (fun s : R => s * k) = (fun s => k * s).
-  by apply/funext => s; rewrite mulrC.
-exact: is_derive_mull.
-Qed.
-
-Let is_derive_cos_mulr (x t : R) :
-  is_derive t 1 (fun s => cos (s * x)) (- (x * sin (t * x))).
-Proof.
-have := @is_derive1_comp R cos (fun s => s * x) t _ _
-  (is_derive_cos (t * x)) (is_derive_mulr x t).
+have := @is_derive1_comp R cos (fun s => s * z) t _ _
+  (is_derive_cos (t * z)) (is_derive_mulr z t).
 by move=> H; apply: (is_derive_eq H); rewrite mulrC mulrN.
 Qed.
 
-Let is_derive_sin_mulr (x t : R) :
-  is_derive t 1 (fun s => sin (s * x)) (x * cos (t * x)).
+Lemma is_derive_sin_mulr (z t : R) :
+  is_derive t 1 (fun s => sin (s * z)) (z * cos (t * z)).
 Proof.
-have := @is_derive1_comp R sin (fun s => s * x) t _ _
-  (is_derive_sin (t * x)) (is_derive_mulr x t).
+have := @is_derive1_comp R sin (fun s => s * z) t _ _
+  (is_derive_sin (t * z)) (is_derive_mulr z t).
 by move=> H; apply: (is_derive_eq H); rewrite mulrC.
 Qed.
+
+End trig_derive.
+
+Section charfun_normal.
+Context {R : realType}.
+Local Notation N := (@normal_prob R 0 1).
 
 Let integrable_normal_abs :
   N.-integrable [set: R] (EFin \o (fun x : R => `|x|)).
@@ -730,7 +736,7 @@ have b2 x : `|t * cos (t * x)| <= (1 + `|t|) * (1 + `|x| ^+ 0).
   rewrite expr0 normrM; have := cos_max (t * x).
   by have := normr_ge0 t; nra.
 have H := @normal_ibp R (fun x => sin (t * x)) (fun x => t * cos (t * x))
-  (1 + `|t|) 0 (@is_derive_sin_mul t) (@continuous_mul_cos t) b1 b2.
+  (1 + `|t|) 0 (is_derive_sin_mul t) (@continuous_mul_cos t) b1 b2.
 rewrite /Rintegral H -/(Rintegral _ _ _) RintegralZl//.
 exact: (integrable_cos_mul N t (@measurable_idR R)).
 Qed.
@@ -743,7 +749,7 @@ have b2 x : `|- (t * sin (t * x))| <= (1 + `|t|) * (1 + `|x| ^+ 0).
   rewrite expr0 normrN normrM; have := sin_max (t * x).
   by have := normr_ge0 t; nra.
 have H := @normal_ibp R (fun x => cos (t * x)) (fun x => - (t * sin (t * x)))
-  (1 + `|t|) 0 (@is_derive_cos_mul t) (@continuous_mul_sin t) b1 b2.
+  (1 + `|t|) 0 (is_derive_cos_mul t) (@continuous_mul_sin t) b1 b2.
 rewrite /Rintegral H -/(Rintegral _ _ _).
 under eq_Rintegral do rewrite -mulNr.
 rewrite RintegralZl//.
