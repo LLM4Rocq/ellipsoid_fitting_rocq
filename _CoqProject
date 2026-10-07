@@ -31,6 +31,7 @@ library/comparison/slepian.v
 library/comparison/gordon.v
 library/comparison/escape.v
 library/comparison/gauss_law.v
+library/fourier/charfun.v
 
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
