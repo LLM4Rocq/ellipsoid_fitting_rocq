@@ -37,6 +37,7 @@ library/comparison/brascamp_lieb.v
 library/fourier/charfun.v
 library/fourier/esseen.v
 library/fourier/charfun_rV.v
+library/fourier/small_ball.v
 
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
