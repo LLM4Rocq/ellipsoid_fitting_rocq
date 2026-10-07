@@ -36,6 +36,7 @@ library/comparison/ornstein_uhlenbeck.v
 library/comparison/brascamp_lieb.v
 library/fourier/charfun.v
 library/fourier/esseen.v
+library/fourier/gauss_factor.v
 library/fourier/charfun_rV.v
 library/fourier/small_ball.v
 
