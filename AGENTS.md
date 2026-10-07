@@ -133,8 +133,8 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 3 below are done (`main` 3998195). The current work is
-phase 4, described after them.
+Phases 1 to 4 below are done (`main` d3bb5fb, tag `phase4`). The current
+work is phase 5, described after phase 4.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -503,6 +503,206 @@ next file, or helps the lane on the longest chain through `requests/`.
 Phase 4 is done when `vector_small_ball` and its corollary are proved on
 `main`, `make check` passes, the README rows are in, and `main` is tagged
 `phase4`.
+
+## Phase 5. The universality theorem
+
+Phases 1 to 4 are done (`main` d3bb5fb, tag `phase4`). Phase 5 proves
+`universality_statement` of `extension/UniversalityStatement.v`: Theorem
+1.2 of Koehler and Sohn (arXiv 2608.27372; on the VM
+`/srv/ellipsoid-fitting/papers/2608.27372/arxiv_v1.tex`), both phases,
+every fourth moment `kappa > 1`. The feasibility study
+`extension/README.md` (branch `extension/feasibility`, merged in step 0) is
+the reference: its section (b) maps every component of the paper's proof,
+with the paper's line numbers, to what exists, to new general library and
+to new paper-specific work, and its section (e) explains the statement.
+This section fixes the stages, the owners, the order and the rules. The
+vector small-ball estimate (item S5 of the study) is done: phase 4.
+
+### Step 0, before any proof
+
+1. **The statement.** The user reviews `extension/UniversalityDefinitions.v`
+   and `extension/UniversalityStatement.v` against the paper, with the ten
+   choices of section (e) of the study (the mode of the limit, the family
+   of laws, the subgaussian norm, the threshold, the cutoffs as suprema,
+   the fit of value 1, the condition number, the error, the positivity of
+   `e*`, the numerals). Once accepted, the two files are frozen like the
+   eight files of the first theorem: their code does not change, only
+   agent 1 edits their comments, and if a proof seems to require a change,
+   stop and ask the user.
+2. **The rules.** Agent 1 merges `extension/feasibility` into `main` and,
+   with the user's permission given for this step only, changes the
+   checked files: `scripts/check_sources.py` scans `extension/` as it scans
+   `theories/` and `library/`, and checks the two statement files against
+   the merge commit as a second baseline; `scripts/stale_citations.py`
+   reads `extension/` too; the `Makefile` gets the pattern rule
+   `extension/%.vo`; `README.md` and the ownership table of this file get
+   the new directories. `check/Assumptions.v` is not touched; the axioms of
+   the final theorem get their own `check/UniversalityAssumptions.v` and
+   expected list at the end of stage 3.
+3. **The directories and the servers.** Agent 1 creates every new
+   directory of the tables below, each with the header of its first file,
+   and pushes `main`; the user then reconnects the three Rocq servers
+   (`/mcp`), which bind the load path when they start.
+
+### The three stages
+
+| Stage | Theorem | What it proves |
+|---|---|---|
+| 1 | `universality_unsat_fourth_moment_three` | the first conjunct of Theorem 1.2 (ii) at `kappa = 3`: no positive semidefinite fit above `1/4`, for every family of coordinate laws of fourth moment 3 (the study's milestone 1, re-scoped, by the paper's barrier route) |
+| 2 | `universality_gaussian_model`, `universality_unsat` | Proposition 1.4 (the Gaussian model, both parts), then the second conjunct of `universality_statement` for every `kappa`: no fit above the threshold, and the error tends to `e*(alpha, kappa) > 0` (Theorems 1.2 (ii) and 1.7) |
+| 3 | `universality_sat`, `universality_theorem` | the first conjunct, Theorem 1.2 (i): a well-conditioned positive definite fit below the threshold, by the approximate fit and the small-residual interpolation (Theorem 1.9); then `universality_theorem : universality_statement` in `extension/UniversalityTheorem.v` |
+
+Each stage ends with a merged `main`, `make check`, a tag (`stage1`,
+`stage2`, `phase5`), and the user's review of the stage theorem and of the
+new rows of the table of main results of `library/README.md`. Stage 1 is
+the paper's architecture end to end on the simplest case; it reuses from
+the formal Gaussian proof only the GOE gap at head dimension zero and the
+measurability of the fit event, and nothing from `Orientation/`,
+`Hybrid/`, `Loss/` or `Projection/`, which the study shows cannot carry
+non-Gaussian data.
+
+### Components, owners and order
+
+Item numbers are those of section (b) of the study, where each has its
+paper lines, its reusable pieces and its estimate. Library files are
+general, over `R : realType`, in the library's conventions; the
+paper-specific files live in `extension/` under the root
+`EllipsoidUniversality`, at Stdlib's `R` like `theories/`, and use the
+library through the bridge modules of `theories/Analysis/` and
+`theories/Gaussian/Law/LibraryBridge`. File names are proposals; each
+lane fixes them in its stage plan (below). Lines are the study's
+estimates, plus or minus fifty percent.
+
+**Stage 1.** The Lindeberg argument with a barrier, the threshold at
+`kappa = 3`, and the assembly.
+
+| Item | Content | Lane | Files | Lines |
+|---|---|---|---|---|
+| U3 | the subgaussian toolkit: the `psi_2` norm and its moment generating function, sums, squares are subexponential, Bernstein's inequality, concentration of the norm, the operator norm of a matrix with independent subgaussian entries | A | `library/probability/subgaussian.v`, `subgaussian_matrix.v` | 2,000 |
+| U2 | Efron-Stein for `tuple_prod`, the `L^p` recursion (p = 2, 4, 8), then the regularity of the quadratic features `W = (x x^T - I) / sqrt d` (Definition 2.5), at `kappa = 3` first | A | `library/probability/efron_stein.v`; `extension/Features/Regular.v` | 2,400 |
+| U12 | the sample law as rows: the reshaping between the flat law on `(n d).-tuple` and `tuple_prod` of row laws, block marginals, independence of disjoint blocks, with the Gaussian twin for `gaussian_product_law` | A | `library/probability/tuple_rows.v`; `extension/Model/Rows.v` | 1,100 |
+| U11 | measurability of the events of the statement (the fit event is reused; the positive definite and conditioned fit events and the error event are new) | A | `extension/Model/Measurability.v` | 800 |
+| GOE bridge | from `paper_main_hybrid_gap_event` at head dimension 0 to `P(Gamma_{G,3} >= c_0) -> 1`: normalizations, the GOE row scaling, all rows kept, the identification of the formal GOE array with the paper's Gaussian features | A | `extension/Unsat/GoeBridge.v` | 1,500 |
+| U10 at 3 | the stage theorem from U9, the bridge and U12 | A | `extension/Unsat/FourthMomentThree.v` | 1,000 |
+| U4 | self-concordant barriers: Definition 2.7, the comparison along a segment (Lemma 2.15), the gradient bound (Lemma 2.10) | B | `library/convex/self_concordant.v` | 1,200 |
+| U5 | the log-determinant barrier on the trace slice of the positive definite cone and the two-sided barrier (Lemma 2.8), by the spectral theorem | B | `library/convex/logdet_barrier.v` | 1,300 |
+| U6 | the convex analysis the paper's Theorem 2.9 needs (minimizers of a strongly convex objective with a barrier on a relatively open bounded convex set, first-order conditions, Taylor's formula with the Bregman remainder), then Theorem 2.9 itself in the paper's abstract feature form: leave-one-out, the insertion formula, Propositions 2.14 and 2.16, Lemmas 4.1 and 4.2, the telescoping over rows from `lindeberg_replacement` generalized to integrable functionals with integrable per-row bounds, the variance bound by Efron-Stein | B | `library/convex/minimizers.v`, `library/convex/barrier_lindeberg.v` | 6,000 |
+| U7 | removing the barrier (Lemma 2.11) | B | `library/convex/barrier_removal.v` | 400 |
+| U9 | Corollary 2.13: the reference point, the choices of `gamma` and `beta_d`, the relations between the regularized and the unregularized values | B | `extension/Unsat/Regularized.v` | 1,200 |
+| U8 | removing the ridge (Lemma 2.12): symmetrization and Rademacher complexity, the small-ball method for pointwise separable classes, Lemma 4.3 by the nets of `matrix/nets.v` and a scalar Bernstein inequality | C | `library/probability/symmetrization.v`, `small_ball_method.v`; `extension/Unsat/Ridge.v` | 3,900 |
+| G5 | the scalar variational problem: Lemmas 5.7 and 5.8 for a general law with finite second moment, Lemma 5.9, Proposition 5.10, the semicircle facts (mass one, second moment `1/2`, the symmetry identities), hence the equality of the two definitions of `alpha*`, the identification of the cutoffs with the paper's unique solutions, and `universality_alpha_star 3 = 1/4` | C | `library/probability/variational.v`; `extension/Gaussian/Threshold.v` | 4,000 |
+| G1 | the cones `S^d_kappa`, the map `T_kappa`, the dual cones (Lemma 5.2) | C | `extension/Gaussian/Cones.v` | 800 |
+
+About 27,600 lines. Order: U3 and U4 first, they unblock everything;
+then U5 and U6 (lane B) in parallel with U2 and U12 (lane A) and U8 and G5
+(lane C); then U7, U9, the bridge, U10. The study's dependencies:
+U3 -> U2, U8; U4 -> U5, U6, U7; U5, U6, U7, U8 -> U9; U12 -> U6, U10;
+U9, the bridge, U12 -> U10.
+
+**Stage 2.** The Gaussian model, then the general unsatisfiable phase.
+
+| Item | Content | Lane | Files | Lines |
+|---|---|---|---|---|
+| G7 | Wigner's semicircle law for the GOE by the moment method (traces of powers, Catalan numbers), with the convergence of the second moments; a crude spectral-norm bound through `gauss_opnorm_tail`; von Neumann's trace inequality for symmetric matrices | A | `library/random_matrix/semicircle.v`, `goe.v`; `library/matrix/von_neumann.v` | 5,800 |
+| G6 | the second-moment identities of a uniform direction `g / |g|` from the rotation invariance of the GOE and of `gauss n`, replacing Haar averaging (Lemma 5.13) | A | `library/random_matrix/goe_rotation.v` | 1,500 |
+| U10 | Theorem 1.7 and the second conjunct of Theorem 1.2 (ii) for every `kappa`: Chebyshev on the variance bound of Theorem 2.9, Corollary 2.13 (ii), Proposition 1.4 (ii); U2 for general `kappa`; U11 for the error event | A | `extension/Unsat/Universality.v` | 1,500 |
+| G2 | Moreau's decomposition for a closed convex cone of `'rV[R]_N`: the projection onto a closed convex set, the polar cone | B | `library/convex/moreau.v` | 1,200 |
+| G3 | the convex Gaussian min-max theorem in probability form on compact convex sets, from `gordon` and `gauss_concentration`, with the minimax exchange | B | `library/comparison/cgmt.v` | 3,800 |
+| G9 | the well-conditioned Gaussian fit below the threshold (Lemma 5.17) | B | `extension/Gaussian/Subcritical.v` | 1,200 |
+| G4 | the Gaussian representation `A_{G,kappa}(R) = sqrt(2/d) A T_kappa R` (Lemmas 5.4 to 5.6), from `gauss_mulmx_law` and `paper_main_projected_law` | C | `extension/Gaussian/Representation.v` | 1,200 |
+| G8 | the shifted cone-projection limit (Proposition 5.15, Lemma 5.16) and Proposition 1.4; the measurability of the spectrum and the continuity of the positive part of a symmetric matrix | C | `library/matrix/spectral_continuity.v`; `extension/Gaussian/Limit.v` | 4,000 |
+
+About 20,200 lines. Order: G7 and G5 are the long items and start as
+soon as their lanes are free, G7 even during stage 1; then G2, G3, G4;
+then G6, G8, G9; then U10. Dependencies: G5 -> G7, G8, G9; G1, G2, G3 (i),
+G4, G6, G7 -> G8; G3 (ii), G6, G7 -> G9; U2, U9, G8 -> U10.
+
+**Stage 3.** The satisfiable phase.
+
+| Item | Content | Lane | Files | Lines |
+|---|---|---|---|---|
+| HW | the Hanson-Wright inequality for independent subgaussian coordinates (Lemma 3.2), with decoupling | A | `library/probability/hanson_wright.v` | 2,500 |
+| S1 | the approximate fit (Proposition 2.1) from Corollary 2.13 (i) with the two-sided barrier, Proposition 1.4 (i), the operator norm of the average of the features, the leave-one-out bound in `l_oo` | A | `extension/Sat/ApproximateFit.v` | 2,500 |
+| S11 | Theorem 1.2 (i) and `universality_theorem` | A | `extension/Sat/Universality.v`, `extension/UniversalityTheorem.v` | 800 |
+| S6 | covering the nuclear-norm ball by product balls (Lemma 3.10): Lebesgue measure on matrices from `lebesgue_rV`, the volumetric bound, Urysohn's inequality or another entropy bound with the constant `C^{mq}` | B | `library/matrix/covering.v` | 3,000 |
+| S8 | the one-stage small-ball bound (Lemma 3.14) from `vector_small_ball`, with conditioning on a block of coordinates of `tuple_prod` and the conditional independence of the other block | B | `library/probability/conditioning.v`; `extension/Sat/OneStage.v` | 2,200 |
+| S9 | the light-tail quotient-norm lower bound (Proposition 3.4): sequential block revealing, nets of light tails and sparse heads, the union bound | B | `extension/Sat/LightTail.v` | 2,500 |
+| S2 | the nuclear norm and its duality with `opnorm`, the range duality (Lemma 2.2) | C | `library/matrix/nuclear.v` | 1,500 |
+| S3 | the a priori estimates (Proposition 3.1): the restricted isometry estimate for matrices with subexponential columns (the cited ALPT theorem, or a self-contained substitute for the two uniform bounds), the subgaussian feature edge | C | `library/random_matrix/restricted_isometry.v`; `extension/Sat/Apriori.v` | 5,000 |
+| S4 | the sparse lower bound (Proposition 3.3) | C | `extension/Sat/SparseLower.v` | 600 |
+| S7 | the effective-rank bound (Lemma 3.12, Corollary 3.13) | C | `extension/Sat/EffectiveRank.v` | 800 |
+| S10 | Theorem 2.3 (the shelling argument) and Theorem 1.9 | C | `extension/Sat/Interpolation.v` | 1,200 |
+
+About 22,600 lines. Order: S3 first (it feeds S4, S7, S9), S2, S6 and HW
+in parallel; then S7, S8, S9, S10; S1 after G9; then S11. Dependencies:
+U3 -> S1, S3; U9, G9, HW -> S1; S3 -> S4, S7, S9; S6, S7, S8 -> S9;
+S2, S3, S4, S9 -> S10; S1, S10, G5 -> S11.
+
+**Across stages.** A lane that has no item left in the current stage
+takes its items of the next stage in order, without waiting. The four
+hard items, U6, G7, S3 and S6, start as early as their dependencies
+allow; the lane says in its first report on each what route it takes and
+what it has verified, and stops to ask when a cited theorem (ALPT,
+Urysohn) turns out to need more than the stage allows: a weaker
+self-contained substitute that suffices for the paper is preferred over a
+faithful formalization of the citation.
+
+### Rules for this phase
+
+- **Ownership.** `library/`: `gaussian/`, `probability/` and the new
+  `random_matrix/` to lane A; `comparison/` and the new `convex/` to lane
+  B; `matrix/` and `fourier/` to lane C; the file tables above override
+  this for single files. `extension/`: `Model/`, `Features/`, the files of
+  lane A in `Unsat/` and `Sat/` to lane A; `Unsat/Regularized.v` to lane B and
+  `Unsat/Ridge.v` to lane C; `Gaussian/` to lane C except
+  `Subcritical.v`; `Sat/` as in the table; the two statement files are
+  frozen; `UniversalityTheorem.v` is agent 1's. Each lane adds its own
+  files to `_CoqProject`, in the block of its directory.
+- **Stage plans.** In the first hours of each stage, each lane writes the
+  plan of its items: the file names, the statements of the main results
+  as comments in the file headers, and the interfaces it expects from the
+  other lanes, in `requests/` where needed; agent 1 merges these plans
+  to `main` at once, so that the interfaces are shared before the proofs.
+- **Branches and merges.** `lane/a`, `lane/b`, `lane/c`, continued from
+  `main`; agent 1 merges in `integration` at milestones (a component done
+  and used, or the end of a stage) and alone pushes `main` and the tags.
+  `requests/<lane>-to-<lane>.md` as before; agent 1 deletes `requests/`
+  at the end of the phase.
+- **Building.** The VM is shared: `JOBS=3`. A clone's first build after
+  the merge of `extension/feasibility` may recompile up to the 488 modules
+  downstream of the frozen definitions (about an hour); afterwards the
+  builds are incremental, and nothing in `theories/` depends on the new
+  files. Compile one file while iterating, with the Rocq server where it
+  helps (it attaches an `End` of a section and the `Let`s that follow to
+  the previous lemma: close sections with a lemma, not a `Let`);
+  `make check` before every commit.
+- **Statements.** Library results in the general form a probabilist or an
+  analyst would state, in the library's vocabulary; constants explicit
+  where that costs little; the paper's Gaussian specializations and its
+  ellipsoid-specific steps go to `extension/`, never to `library/`. The
+  user reviews the library rows and the stage theorem at the end of each
+  stage.
+- **Nothing changes** in `theories/`, in the ten frozen files, in
+  `check/` or in `scripts/` outside step 0 and the end of stage 3.
+- Commit messages say what was proved; no journals or progress files.
+
+### Estimates
+
+About 70,000 lines over the three stages, against 21,000 in the library
+today. Phase 4 produced 10,000 lines of new mathematics in a day with the
+three lanes; at that pace each stage is about a week, if the hard items
+behave: Theorem 2.9 with its convex analysis (U6), the semicircle law
+(G7), the a priori estimates (S3) and the covering bound (S6) are each the
+kind of result that can take several days or need a change of route.
+Count on two to four weeks of continuous work, with stage 1 as the first
+checkpoint after about a week. The weekly quotas of the accounts are the
+other limit: at phase 4's consumption, lane A's account reaches its
+weekly limit in about two days; lanes report when throttled, and the
+user decides on the accounts.
+
+Phase 5 is done when `universality_theorem` is proved on `main`, its
+axioms are among the expected ones, `make check` passes, the README rows
+cover every new file, and `main` is tagged `phase5`.
 
 ## Bridging Stdlib's `R` and the library
 
