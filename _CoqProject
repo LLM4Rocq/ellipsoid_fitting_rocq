@@ -13,6 +13,7 @@ library/gaussian/gauss_moments.v
 library/gaussian/partial_derivative.v
 library/gaussian/parameter_integral.v
 library/gaussian/gauss_interpolation.v
+library/gaussian/lebesgue_rV.v
 library/matrix/euclidean.v
 library/matrix/real_spectral.v
 library/matrix/opnorm.v
