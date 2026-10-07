@@ -20,8 +20,13 @@ library/matrix/real_spectral.v
 library/matrix/whitening.v
 library/matrix/opnorm.v
 library/matrix/nets.v
+library/matrix/random_opnorm.v
 library/probability/moments.v
 library/probability/lindeberg.v
+library/probability/semicircle_law.v
+library/probability/variational.v
+library/probability/symmetrization.v
+library/probability/small_ball_method.v
 library/comparison/normal_mgf.v
 library/comparison/chi_square.v
 library/comparison/normal_linear.v
@@ -635,3 +640,6 @@ theories/Unsat/SupercriticalParameters.v
 
 extension/UniversalityDefinitions.v
 extension/UniversalityStatement.v
+extension/Gaussian/Cones.v
+extension/Gaussian/Threshold.v
+extension/Unsat/Ridge.v
