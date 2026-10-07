@@ -4,13 +4,17 @@
 1. The frozen files are unchanged. The code of each file of FROZEN, with
    comments removed and whitespace collapsed, must equal its code at the
    commit named in check/frozen-baseline. Comments may change. The files
-   of EXACT must be byte-identical to that commit.
-2. No module of theories/ or library/ contains Admitted, Axiom, Parameter
-   or Conjecture outside comments.
-3. library/ is independent of the paper and of Stdlib's reals: no module
-   of library/ requires a module of EllipsoidFitting, Stdlib's real
-   analysis (Reals, Lra, Psatz, Rpower and the other R* modules) or
-   MathComp's bridge to them (Rstruct, Rstruct_topology).
+   of EXACT must be byte-identical to that commit. The code of each file
+   of EXTENSION_FROZEN, the statement of the universality theorem of
+   extension/ and its definitions, must equal its code at the commit
+   EXTENSION_BASELINE, the merge that brought them to main.
+2. No module of theories/, library/ or extension/ contains Admitted,
+   Axiom, Parameter or Conjecture outside comments.
+3. library/ is independent of the papers and of Stdlib's reals: no module
+   of library/ requires a module of EllipsoidFitting or
+   EllipsoidUniversality, Stdlib's real analysis (Reals, Lra, Psatz,
+   Rpower and the other R* modules) or MathComp's bridge to them (Rstruct,
+   Rstruct_topology).
 4. Given the output of check/Assumptions.v as argument, every axiom it
    prints is among those of check/assumptions.expected. Fewer is fine.
 
@@ -37,6 +41,12 @@ FROZEN = [
     "theories/AnalysisIntegralDefinitions.v",
 ]
 EXACT = ["check/Assumptions.v", "check/assumptions.expected"]
+EXTENSION_FROZEN = [
+    "extension/UniversalityDefinitions.v",
+    "extension/UniversalityStatement.v",
+]
+EXTENSION_BASELINE = "3c6afa103ccd56c7d98bc59cb253d5d40d13fda0"
+PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 ASSUMPTION = re.compile(
     r"(?:\A|(?<=\.))\s*(?:#\[[^\]]*\]\s*)?(?:Local\s+|Global\s+)?"
     r"(Admitted\s*\.|Axioms?\b|Parameters?\b|Conjecture\b)")
@@ -87,7 +97,11 @@ def main():
     for path in EXACT:
         if (ROOT / path).read_text() != at_baseline(commit, path):
             failures.append(f"{path}: differs from {commit[:12]}")
-    sources = sorted((ROOT / "theories").rglob("*.v")) + sorted((ROOT / "library").rglob("*.v"))
+    for path in EXTENSION_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(EXTENSION_BASELINE, path)):
+            failures.append(f"{path}: code differs from {EXTENSION_BASELINE[:12]}")
+    sources = [path for top in ("theories", "library", "extension")
+               for path in sorted((ROOT / top).rglob("*.v"))]
     for path in sources:
         for match in ASSUMPTION.finditer(strip_comments(path.read_text())):
             failures.append(f"{path.relative_to(ROOT)}: {match.group(1).strip()}")
@@ -97,8 +111,8 @@ def main():
             full = f"{root}.{name}" if root else name
             last = full.split(".")[-1]
             stdlib = root.startswith(("Stdlib", "Coq")) or not root
-            if "EllipsoidFitting" in full.split("."):
-                failures.append(f"{path.relative_to(ROOT)}: requires {full} of the paper")
+            if PAPERS & set(full.split(".")):
+                failures.append(f"{path.relative_to(ROOT)}: requires {full} of a paper")
             elif stdlib and (STDLIB_REALS.match(last) or "Reals" in full.split(".")):
                 failures.append(f"{path.relative_to(ROOT)}: requires Stdlib's {full}")
             elif last in MATHCOMP_BRIDGE:
@@ -116,8 +130,10 @@ def main():
     if failures:
         sys.exit(1)
     print(f"{len(FROZEN)} frozen files unchanged since {commit[:12]}; "
+          f"{len(EXTENSION_FROZEN)} frozen files of extension/ unchanged since "
+          f"{EXTENSION_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
-          f"{len(library)} library modules independent of the paper and of Stdlib's reals"
+          f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else ""))
 
 

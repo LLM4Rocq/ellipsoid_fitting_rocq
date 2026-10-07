@@ -77,11 +77,20 @@ If the work seems to require changing a frozen file, stop and ask the user.
 Each file belongs to one lane, and an agent edits only the files of its own
 lane.
 
-| Lane | Agent | Library directories | Modules of `theories/` | Size at the start |
-|---|---|---|---|---|
-| A | 1 | `library/gaussian/` | every module whose name does not start with `PaperMain`, except the frozen files | 253 modules, 41,600 lines |
-| B | 2 | `library/comparison/` | `PaperMain` followed by `Gaussian`, `Gordon`, `Geometry`, `Cone`, `Measurability`, `Projection`, `Projected`, `Hybrid`, `Polynomial`, `Sampling`, `Pinching` or `Feature` | 192 modules, 34,600 lines |
-| C | 3 | `library/matrix/`, `library/probability/` | every other `PaperMain` module, except the frozen files | 196 modules, 39,100 lines |
+| Lane | Agent | Library directories | Modules of `theories/` | Size at the start | Phase 5: `library/` and `extension/` |
+|---|---|---|---|---|---|
+| A | 1 | `library/gaussian/` | every module whose name does not start with `PaperMain`, except the frozen files | 253 modules, 41,600 lines | `library/gaussian/`, `library/probability/`, `library/random_matrix/`; `extension/Model/`, `extension/Features/`, its files in `extension/Unsat/` and `extension/Sat/` |
+| B | 2 | `library/comparison/` | `PaperMain` followed by `Gaussian`, `Gordon`, `Geometry`, `Cone`, `Measurability`, `Projection`, `Projected`, `Hybrid`, `Polynomial`, `Sampling`, `Pinching` or `Feature` | 192 modules, 34,600 lines | `library/comparison/`, `library/convex/`; `extension/Unsat/Regularized.v`, `extension/Gaussian/Subcritical.v`, its files in `extension/Sat/` |
+| C | 3 | `library/matrix/`, `library/probability/` | every other `PaperMain` module, except the frozen files | 196 modules, 39,100 lines | `library/matrix/`, `library/fourier/`; `extension/Gaussian/` except `Subcritical.v`, `extension/Unsat/Ridge.v`, its files in `extension/Sat/` |
+
+In phase 5 the last column applies, and the file tables of the section
+"Phase 5" override it for single files. `extension/` has the logical root
+`EllipsoidUniversality`. Its two statement files,
+`UniversalityDefinitions.v` and `UniversalityStatement.v`, are frozen like
+the eight frozen files of `theories/`: their code does not change
+(`scripts/check_sources.py` compares it with commit `3c6afa1`), only agent
+1 edits their comments, and if a proof seems to require a change, stop and
+ask the user. `extension/UniversalityTheorem.v` is agent 1's.
 
 No lane A module requires a lane B or C module: lane A is the base layer.
 Lanes B and C require lane A heavily (961 and 568 direct requires, on 104

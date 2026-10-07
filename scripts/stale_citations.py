@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""List the names that comments of theories/ and library/ cite but that
-nothing defines.
+"""List the names that comments of theories/, library/ and extension/ cite
+but that nothing defines.
 
 A comment that names a lemma, a definition or a module goes stale when the
 name is deleted or renamed. This script compares the identifiers that occur
 in the comments with the names that exist: the declarations and references
-recorded in the .glob files of a build of theories/ and library/, the
-declarations recorded in the .glob files of the installed libraries (found
-through `rocq -where` or `coqc -where`; the check is weaker without them),
-and the module names of theories/ and library/.
+recorded in the .glob files of a build of theories/, library/ and
+extension/, the declarations recorded in the .glob files of the installed
+libraries (found through `rocq -where` or `coqc -where`; the check is
+weaker without them), and the module names of theories/, library/ and
+extension/.
 
 An identifier counts as a citation when it looks like a Rocq name rather
 than a word of the prose: it contains two underscores or more, or it
@@ -106,7 +107,8 @@ def main():
     args = parser.parse_args()
 
     sources = sorted(list((ROOT / "theories").rglob("*.v")) +
-                     list((ROOT / "library").rglob("*.v")))
+                     list((ROOT / "library").rglob("*.v")) +
+                     list((ROOT / "extension").rglob("*.v")))
     known = set()
     for v in sources:
         g = v.with_suffix(".glob")

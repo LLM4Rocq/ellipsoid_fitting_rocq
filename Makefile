@@ -1,13 +1,14 @@
 # Build and check the proof of the main theorems.
 #
-#   make build    compile library/ and theories/ with JOBS parallel jobs
-#   make theories/Foo.vo, make library/dir/foo.vo
+#   make build    compile library/, theories/ and extension/ with JOBS
+#                 parallel jobs
+#   make theories/Foo.vo, make library/dir/foo.vo, make extension/Dir/Foo.vo
 #                 compile one module and what it requires, not what
 #                 depends on it: for iteration; it does not replace make check
 #   make check    build, then run scripts/check_sources.py: the axioms of the
 #                 main theorem are among those of check/assumptions.expected,
 #                 the frozen files are unchanged, and library/ depends neither
-#                 on the paper nor on Stdlib's reals; unless CITATIONS=no, it
+#                 on the papers nor on Stdlib's reals; unless CITATIONS=no, it
 #                 also runs scripts/stale_citations.py (see make citations)
 #   make citations
 #                 list the names that comments cite but that nothing defines
@@ -33,7 +34,7 @@ Makefile.rocq: _CoqProject
 build: Makefile.rocq
 	$(EXEC) $(MAKE) -f Makefile.rocq -j $(JOBS)
 
-theories/%.vo library/%.vo: Makefile.rocq FORCE
+theories/%.vo library/%.vo extension/%.vo: Makefile.rocq FORCE
 	$(EXEC) $(MAKE) -f Makefile.rocq -j $(JOBS) $@
 
 check: build

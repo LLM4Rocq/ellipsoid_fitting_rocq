@@ -23,6 +23,10 @@ growing with d.
 
 Each result also states that the events it measures are measurable.
 
+`extension/` states a second theorem, which nothing proves yet: Theorem 1.2
+of Koehler and Sohn, which extends the first result to points with
+independent subgaussian coordinates (see below).
+
 ## Status
 
 - **Proved.** The kernel accepts `ellipsoid_fitting_main : main_statement`
@@ -42,6 +46,20 @@ Each result also states that the events it measures are measurable.
   (`ClassicalDedekindReals.sig_forall_dec` and `sig_not_dec`).
   `check/assumptions.expected` gives their exact types. Nothing from the
   paper is assumed.
+- **A second statement, not yet proved.** `extension/` states Theorem 1.2
+  of Koehler and Sohn, *Universality and sharp thresholds for ellipsoid
+  fitting* ([arXiv:2608.27372v1](https://arxiv.org/abs/2608.27372v1)): for
+  points with independent coordinates of mean 0, variance 1, fourth moment
+  kappa > 1 and subgaussian norm at most K, the same phase transition at a
+  threshold alpha*(kappa), a well-conditioned positive definite fit below
+  it, and above it the limit e*(alpha, kappa) > 0 of the optimal squared
+  fitting error. The statement `universality_statement`
+  (`extension/UniversalityStatement.v`) and its definitions
+  (`extension/UniversalityDefinitions.v`) were reviewed against the paper
+  and accepted before any proof, and are frozen: `make check` checks that
+  their code is unchanged since commit `3c6afa1`, which added them to
+  `main`. Phase 5 of `AGENTS.md` is the plan of the proof, and
+  `extension/README.md` the feasibility study behind it.
 
 ## What to read
 
@@ -59,6 +77,13 @@ It consists of:
 
 The reals are Stdlib's `R`, used through MathComp's structures. Vectors and
 matrices are MathComp's.
+
+The statement of the universality theorem is
+`extension/UniversalityStatement.v`, with a comment that reads it. Its
+definitions, in `extension/UniversalityDefinitions.v`, reuse those of
+`theories/PaperMainDefinitions.v` that do not depend on the law of the
+points, and take the law of independent coordinates from the library
+(`tuple_prod`, `library/probability/lindeberg.v`).
 
 ## Building
 
@@ -108,6 +133,13 @@ generated`), whose code cannot change. The other modules print none.
   ...), and `theories/A/B.v` is the module `EllipsoidFitting.A.B`. The
   14 subfolders of `Gaussian/` divide its modules further:
   `theories/Gaussian/C/D.v` is the module `EllipsoidFitting.Gaussian.C.D`.
+- `extension/`: the universality theorem, under the logical root
+  `EllipsoidUniversality` and at Stdlib's `R` like `theories/`: its
+  statement and definitions, the feasibility study `extension/README.md`,
+  and the folders of its proof: `Model/` (the law of the sample and the
+  measurability of the events), `Features/` (the quadratic features of the
+  points), `Unsat/` (the unsatisfiable phase), `Gaussian/` (the Gaussian
+  model) and `Sat/` (the satisfiable phase).
 - `library/`: the library `GaussianAnalysis`, 37 files of general results
   on Gaussian measures, Gaussian comparison and concentration, real
   matrices and probability, over an arbitrary `R : realType`, and the
@@ -122,14 +154,17 @@ generated`), whose code cannot change. The other modules print none.
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
   and 20 other modules of `theories/` require library files directly.
   `library/README.md` gives its conventions, its main results and their
-  users.
+  users. Phase 5 adds the directories `convex/` and `random_matrix/`.
 - `check/Assumptions.v`: prints the axioms of the main theorem.
   `check/assumptions.expected` is the expected output.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
-  commit in `check/frozen-baseline` (comments may differ), and that no
-  module contains `Admitted`, `Axiom`, `Parameter` or `Conjecture`.
-  `make check` runs it.
+  commit in `check/frozen-baseline`, and the statement of the universality
+  theorem and its definitions the same code as at commit `3c6afa1`
+  (comments may differ); that no module of `theories/`, `library/` or
+  `extension/` contains `Admitted`, `Axiom`, `Parameter` or `Conjecture`;
+  and that no module of `library/` requires a module of `theories/` or
+  `extension/` or Stdlib's reals. `make check` runs it.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
 - `scripts/unused.py`: lists the declarations of `theories/` that the main
@@ -137,10 +172,10 @@ generated`), whose code cannot change. The other modules print none.
   them. Its docstring says how it decides. On the current tree it lists
   nothing.
 - `scripts/stale_citations.py`: lists the names that the comments of
-  `theories/` and `library/` cite but that no declaration defines, from
-  the `.glob` files of a build and of the installed libraries. `make
-  citations` runs it, and `make check` fails on a stale citation
-  (`CITATIONS=no` skips it).
+  `theories/`, `library/` and `extension/` cite but that no declaration
+  defines, from the `.glob` files of a build and of the installed
+  libraries. `make citations` runs it, and `make check` fails on a stale
+  citation (`CITATIONS=no` skips it).
 
 ## Where the proof comes from
 
@@ -237,3 +272,8 @@ What remains:
 
 The statement keeps its meaning throughout: `make check` checks after each
 step that its code and the code of its definitions are unchanged.
+
+Phase 5 of `AGENTS.md` plans the proof of the universality theorem of
+`extension/` in three stages: the unsatisfiable phase at fourth moment 3,
+then the Gaussian model and the unsatisfiable phase for every fourth
+moment, then the satisfiable phase. Its general results go to `library/`.
