@@ -88,7 +88,7 @@ From mathcomp Require Import numfun lebesgue_integral probability.
 From GaussianAnalysis Require Import euclidean real_spectral opnorm.
 From GaussianAnalysis Require Import least_squares.
 From GaussianAnalysis Require Import logdet_barrier gordon gauss_linear.
-From GaussianAnalysis Require Import measurable_matrix lindeberg symmetrization.
+From GaussianAnalysis Require Import measurable_matrix lindeberg symmetrization efron_stein.
 From GaussianAnalysis Require Import subgaussian random_opnorm small_ball_method.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality.Gaussian Require Import Cones.
@@ -807,7 +807,7 @@ have ES : \int[tuple_prod (fun=> mu) n]_x
     (n%:R * (kappa - 1))%:E.
   rewrite ge0_integral_sum//.
   under eq_bigr => k _ do
-    rewrite (ge0_integral_tuple_tnth (fun=> mu) k mg g0)
+    rewrite (ge0_integral_tuple_prod_coord (fun=> mu) k mg g0)
       (rf_identity_sqr _ _ _ _ _ rf d0).
   by rewrite sumEFin sumr_const card_ord mulr_natl.
 have EY : \int[tuple_prod (fun=> mu) n]_t (Y t)%:E = (kappa - 1)%:E.
