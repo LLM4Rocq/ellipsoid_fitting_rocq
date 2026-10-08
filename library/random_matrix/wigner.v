@@ -1,10 +1,13 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum poly matrix.
 From mathcomp Require Import boolp classical_sets reals ereal.
+From mathcomp Require Import topology normedtype sequences.
 From mathcomp Require Import measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability ring_tactic field_tactic.
+From mathcomp Require Import arithmetic_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss.
 From GaussianAnalysis.probability Require Import semicircle_law.
+From GaussianAnalysis.random_matrix Require Import goe.
 
 (**md**************************************************************************)
 (* # Wigner's semicircle law for the GOE                                      *)
@@ -31,6 +34,10 @@ From GaussianAnalysis.probability Require Import semicircle_law.
 (*   recursion of the Schwinger-Dyson equation of goe.v in the limit, m_(k+1) *)
 (*   = \sum_(r < k) m_r m_(k-1-r), from segner and the moment recursion and   *)
 (*   the odd moments of semicircle_law.v.                                     *)
+(* - goe_moment_cvg: for W = goe_mx a with a of law gauss (d * d), E tr W^k / *)
+(*   d tends to the k-th moment of semicircle_prob 2 as d tends to infinity,  *)
+(*   by induction on k with goe_tr_sd of goe.v, whose covariance terms tend   *)
+(*   to 0 (goe_tr_cov_cvg, from goe_tr_var_small and Rintegral_cov_le).       *)
 (*                                                                            *)
 (* Planned results (phase 5, stage 2; names come with the proofs):            *)
 (*                                                                            *)
@@ -50,6 +57,8 @@ Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
 Import Order.TTheory GRing.Theory Num.Theory.
+Import numFieldTopology.Exports numFieldNormedType.Exports.
+Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
 
 Section bernstein.
@@ -341,3 +350,100 @@ by rewrite (negbTE re).
 Qed.
 
 End semicircle_catalan.
+
+Section goe_moment_limit.
+Context {R : realType}.
+Local Notation m k := (\int[semicircle_prob (2 : R)]_x ((x : R) ^+ k)).
+
+Lemma cvg_nat_eps (u : nat -> R) (l : R) :
+  (forall eps : R, 0 < eps ->
+     exists D, forall d, (D <= d)%N -> `|l - u d| <= eps) ->
+  u @ \oo --> l.
+Proof.
+move=> h; apply/cvgrPdist_le => e e0; have [D hD] := h e e0.
+by exists D => // d /= Dd; exact: hD.
+Qed.
+
+Lemma cvg_sum_seq (I : Type) (s : seq I) (f : I -> nat -> R) (l : I -> R) :
+  (forall i, f i @ \oo --> l i) ->
+  (fun d => \sum_(i <- s) f i d) @ \oo --> \sum_(i <- s) l i.
+Proof.
+move=> h; elim: s => [|i s ih].
+  by under eq_fun do rewrite big_nil; rewrite big_nil; exact: cvg_cst.
+by under eq_fun do rewrite big_cons; rewrite big_cons; exact: cvgD.
+Qed.
+
+(* The covariances of the normalized traces tend to 0. *)
+Lemma goe_tr_cov_cvg r q :
+  (fun d => \int[@gauss R (d * d)]_a (goe_tr r a * goe_tr q a) -
+    \int[@gauss R (d * d)]_a goe_tr r a * \int[@gauss R (d * d)]_a goe_tr q a)
+  @ \oo --> 0.
+Proof.
+apply: cvg_nat_eps => e e0.
+have [D1 h1] := goe_tr_var_small (R := R) r e0.
+have [D2 h2] := goe_tr_var_small (R := R) q e0.
+exists (maxn D1 D2) => d; rewrite geq_max => /andP[d1 d2]; rewrite sub0r normrN.
+apply: le_trans (Rintegral_cov_le (@polyfun_goe_tr R d r)
+  (@polyfun_goe_tr R d q)) _.
+by have := h1 d d1; have := h2 d d2; lra.
+Qed.
+
+(* Wigner's moment limit: E tr W^k / d tends to the k-th moment of the
+   semicircle law of radius 2. *)
+Theorem goe_moment_cvg k :
+  (fun d => \int[@gauss R (d * d)]_a goe_tr k a) @ \oo --> m k.
+Proof.
+have r0 : (2 : R) != 0 by rewrite pnatr_eq0.
+elim/ltn_ind: k => k ih.
+case: k ih => [|[|k]] ih.
+- (* E t_0 = 1 for d >= 1 *)
+  rewrite (@semicircle_moment0 R 2); apply: cvg_nat_eps => e e0.
+  exists 1%N => d d1; have dn : d%:R != 0 :> R by rewrite pnatr_eq0 -lt0n.
+  have -> : \int[@gauss R (d * d)]_a goe_tr 0 a = 1.
+    under eq_Rintegral do rewrite /goe_tr expr0 mxtrace1 divff //.
+    rewrite Rintegral_cst // -[X in fine X]/(@gauss R (d * d) setT).
+    by rewrite probability_setT /= mulr1.
+  by rewrite subrr normr0 ltW.
+- (* E t_1 = 0 by the Schwinger-Dyson equation at k = 0 *)
+  have -> : \int[semicircle_prob (2 : R)]_x (x : R) ^+ 1 = 0.
+    exact: (semicircle_moment_odd r0 0).
+  have E1 d : \int[@gauss R (d * d)]_a goe_tr 1 a = 0.
+    under eq_Rintegral do rewrite /goe_tr mulrC.
+    rewrite Rintegral_polyfunZ.
+      exact: polyfun_trace (mx_polyfun_exp 1 (@mx_polyfun_goe R d)).
+    by rewrite (goe_schwinger_dyson d 0) big_ord0 mul0r addr0 !mulr0.
+  apply: cvg_nat_eps => e e0; exists 0%N => d _.
+  by rewrite E1 subrr normr0 ltW.
+(* E t_(k+2) = (k + 1) / d E t_k + \sum_(r <= k) E[t_r t_(k-r)] tends to
+   \sum_(r <= k) m_r m_(k-r) = m_(k+2) *)
+rewrite (semicircle_catalan k.+1) /=.
+have -> : (fun d => \int[@gauss R (d * d)]_a goe_tr k.+2 a) =
+    (fun d => k.+1%:R / d%:R * \int[@gauss R (d * d)]_a goe_tr k a +
+      \sum_(r < k.+1)
+        \int[@gauss R (d * d)]_a (goe_tr r a * goe_tr (k - r) a)).
+  by apply/funext => d; exact: goe_tr_sd.
+rewrite -[X in _ --> X]add0r; apply: cvgD.
+  rewrite -(mul0r (\int[semicircle_prob (2 : R)]_x (x : R) ^+ k)).
+  apply: cvgM; last by apply: ih; rewrite ltnS leqW.
+  apply: cvg_nat_eps => e e0.
+  exists (archimedean.Num.truncn (k.+1%:R / e)).+1 => d dk.
+  have hd : k.+1%:R / e < d%:R.
+    apply: lt_le_trans (archimedean.Num.Theory.truncnS_gt _) _.
+    by rewrite ler_nat.
+  have dR : 0 < d%:R :> R by apply: le_lt_trans hd; rewrite divr_ge0 // ltW.
+  rewrite sub0r normrN ger0_norm ?divr_ge0 ?ler0n // ler_pdivrMr //.
+  by rewrite mulrC -ler_pdivrMr // ltW.
+apply: cvg_sum_seq => r.
+have -> : (fun d => \int[@gauss R (d * d)]_a (goe_tr r a * goe_tr (k - r) a)) =
+    (fun d => (\int[@gauss R (d * d)]_a (goe_tr r a * goe_tr (k - r) a) -
+       \int[@gauss R (d * d)]_a goe_tr r a *
+       \int[@gauss R (d * d)]_a goe_tr (k - r) a) +
+      \int[@gauss R (d * d)]_a goe_tr r a *
+      \int[@gauss R (d * d)]_a goe_tr (k - r) a).
+  by apply/funext => d; rewrite subrK.
+rewrite -[X in _ --> X]add0r; apply: cvgD; first exact: goe_tr_cov_cvg.
+apply: cvgM; apply: ih; first by rewrite ltnS (leq_trans (ltnW (ltn_ord r))).
+by rewrite ltnS (leq_trans (leq_subr _ _)).
+Qed.
+
+End goe_moment_limit.
