@@ -50,6 +50,9 @@ library/convex/self_concordant.v
 library/convex/least_squares.v
 library/convex/logdet_barrier.v
 library/convex/minimizers.v
+library/convex/feature_moments.v
+library/convex/gauss_feature.v
+library/convex/ls_insertion.v
 library/convex/barrier_removal.v
 library/convex/barrier_lindeberg.v
 library/fourier/charfun.v

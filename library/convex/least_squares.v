@@ -21,6 +21,13 @@ From GaussianAnalysis Require Import measurable_matrix euclidean opnorm.
 (* ls_objective Z lambda beta theta b == F_Z(theta, b; beta), the average     *)
 (*                     (2 n)^-1 sum_i (b - <Z_i, theta>)^2 plus the ridge     *)
 (*                     term beta (lambda |theta|^2 + b^2)                     *)
+(* ls_loss Z P theta b == sum_(i in P) (b - <Z_i, theta>)^2                   *)
+(* ls_ridge Z P s lambda beta theta b == s ls_loss Z P theta b                *)
+(*                     + beta (lambda |theta|^2 + b^2)                        *)
+(* ls_barrier_objective Z P s lambda beta gamma B theta b ==                  *)
+(*                     ls_ridge Z P s lambda beta theta b + gamma B theta;    *)
+(*                     with P the indices other than i and s = (2 n)^-1, the  *)
+(*                     leave-one-out objective F^(i) of the paper             *)
 (* ls_barrier_value Z lambda beta D gamma B == Phi_Z(D, B; beta, gamma), the  *)
 (*                     infimum of F_Z(theta, b; beta) + gamma B theta over    *)
 (*                     theta in D and b real                                  *)
@@ -68,6 +75,18 @@ Definition ls_objective n (Z : n.-tuple 'rV[R]_N) (lambda beta : R)
     (theta : 'rV[R]_N) (b : R) : R :=
   (n%:R *+ 2)^-1 * \sum_(i < n) (b - mxdot (tnth Z i) theta) ^+ 2 +
   beta * (lambda * mxdot theta theta + b ^+ 2).
+
+Definition ls_loss n (Z : n.-tuple 'rV[R]_N) (P : pred 'I_n)
+    (theta : 'rV[R]_N) (b : R) : R :=
+  \sum_(i < n | P i) (b - mxdot (tnth Z i) theta) ^+ 2.
+
+Definition ls_ridge n (Z : n.-tuple 'rV[R]_N) (P : pred 'I_n)
+    (s lambda beta : R) (theta : 'rV[R]_N) (b : R) : R :=
+  s * ls_loss Z P theta b + beta * (lambda * mxdot theta theta + b ^+ 2).
+
+Definition ls_barrier_objective n (Z : n.-tuple 'rV[R]_N) (P : pred 'I_n)
+    (s lambda beta gamma : R) B (theta : 'rV[R]_N) (b : R) : R :=
+  ls_ridge Z P s lambda beta theta b + gamma * B theta.
 
 Definition ls_barrier_value n (Z : n.-tuple 'rV[R]_N) (lambda beta : R) D
     (gamma : R) B : R :=
