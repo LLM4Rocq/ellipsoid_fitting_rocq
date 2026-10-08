@@ -21,8 +21,10 @@
      with s = |x_i|^2, hence |W_i|_F^2 <= 5 d on norm_good n d 1.
    - adjoint_bound, the second display of Proposition 3.1: let the linear
      forms of one feature be subexponential with constant Chw K^2 / sqrt d
-     (the Hanson-Wright inequality, item HW of lane A, taken as the
-     hypothesis hw until it is proved), d > 0 and 1 <= n <= C0 d^2 with
+     (hypothesis hw; data_feature_hw proves it with Chw = 252 from the
+     Hanson-Wright inequality of lane A, data_feature_subexponential of
+     Features/Regular, and adjoint_bound_data is adjoint_bound without
+     it), d > 0 and 1 <= n <= C0 d^2 with
      C0 >= 1. Outside a measurable event of probability at most
      2 (log_4 m + 2) exp (- sqrt m) +
      2 n exp (- min (d / (576 K^4), d / (12 K^2))), m = min (n, d^2),
@@ -520,6 +522,48 @@ exists (unsat_features n d @^-1` Gf `&` norm_good n d 1); split.
 Qed.
 
 End adjoint_bound.
+
+(* The hypothesis hw holds with Chw = 252: the Hanson-Wright inequality of
+   lane A for the quadratic forms of the features
+   (data_feature_subexponential of Features/Regular). *)
+Lemma data_feature_hw (kappa K : R) (d : nat)
+    (nu : nat -> probability (measurableTypeR R) R) :
+  (forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j)) ->
+  (0 < d)%N -> forall y : 'rV[R]_(d * d), mxdot y y = 1%R ->
+  subexponential (data_feature_law nu d) (fun z => mxdot z y)
+    (252 * K ^+ 2 / Num.sqrt d%:R)%R.
+Proof.
+move=> hnu d0 y y1.
+have K0 : (0 < K)%R by have [] := hnu 0 d0.
+have fy : frobenius (vec_mx y : 'M[R]_d) = 1%R.
+  by rewrite /frobenius -mxdot_mxvec vec_mxK y1 sqrtr1.
+have := data_feature_subexponential kappa K d nu hnu (vec_mx y)
+  (252 * K ^+ 2)%R d0.
+rewrite vec_mxK fy mulr1 lexx => h; apply: h => //.
+by rewrite mulr_gt0 ?exprn_gt0 // ltr0n.
+Qed.
+
+(* adjoint_bound without the hypothesis hw. *)
+Theorem adjoint_bound_data (kappa K C0 : R) (n d : nat)
+    (nu : nat -> probability (measurableTypeR R) R) :
+  (forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j)) ->
+  (1 <= C0)%R -> (0 < d)%N -> (0 < n)%N -> (n%:R <= C0 * d%:R ^+ 2)%R ->
+  exists G : set (paper_main_sample n d), [/\ measurable G,
+    (universality_sample_law nu n d (~` G) <=
+      (2 * (trunc_log 4 (minn n (d * d))).+2%:R *
+         expR (- Num.sqrt (minn n (d * d))%:R) +
+       n%:R * (2 * expR (- Num.min (d%:R / (576 * K ^+ 4))
+                                   (d%:R / (12 * K ^+ 2)))))%:E)%E &
+    forall x, G x -> norm_good n d 1 x /\
+      forall z : 'rV[R]_n,
+      (frobenius (sample_adj x z) <=
+       adj_const K (252)%R C0 * Num.sqrt d%:R * frobenius z)%R].
+Proof.
+move=> hnu C01 d0 n0 nd.
+have c0 : (0 < 252 :> R)%R by rewrite ltr0n.
+exact: (adjoint_bound kappa K 252%R C0 n d nu hnu c0 C01
+  (data_feature_hw kappa K d nu hnu d0) d0 n0 nd).
+Qed.
 
 (* 5. Consequences: the nuclear norm of L_X^* z and the norm of L_X. *)
 
