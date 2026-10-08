@@ -23,6 +23,8 @@ library/matrix/nets.v
 library/matrix/random_opnorm.v
 library/matrix/covering.v
 library/matrix/von_neumann.v
+library/matrix/psd_part.v
+library/matrix/nuclear.v
 library/probability/moments.v
 library/probability/lindeberg.v
 library/probability/subgaussian.v
@@ -37,6 +39,7 @@ library/probability/conditioning.v
 library/random_matrix/goe.v
 library/random_matrix/goe_rotation.v
 library/random_matrix/wigner.v
+library/random_matrix/restricted_isometry.v
 library/comparison/normal_mgf.v
 library/comparison/chi_square.v
 library/comparison/normal_linear.v
@@ -669,6 +672,8 @@ extension/Features/Definitions.v
 extension/Features/Regular.v
 extension/Gaussian/Cones.v
 extension/Gaussian/Threshold.v
+extension/Gaussian/Representation.v
+extension/Gaussian/Limit.v
 extension/Unsat/LeastSquares.v
 extension/Unsat/Regularized.v
 extension/Unsat/Ridge.v
@@ -677,3 +682,7 @@ extension/Unsat/FourthMomentThree.v
 extension/Unsat/Universality.v
 extension/Sat/OneStage.v
 extension/Sat/LightTail.v
+extension/Sat/Apriori.v
+extension/Sat/SparseLower.v
+extension/Sat/EffectiveRank.v
+extension/Sat/Interpolation.v
