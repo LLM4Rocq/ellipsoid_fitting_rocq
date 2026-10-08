@@ -689,6 +689,7 @@ extension/Unsat/Universality.v
 extension/Sat/OneStage.v
 extension/Sat/LightTail.v
 extension/Sat/Apriori.v
+extension/Sat/AprioriSparse.v
 extension/Sat/SparseLower.v
 extension/Sat/EffectiveRank.v
 extension/Sat/Interpolation.v
