@@ -30,6 +30,7 @@ library/probability/moments.v
 library/probability/lindeberg.v
 library/probability/subgaussian.v
 library/probability/subgaussian_matrix.v
+library/probability/mixture.v
 library/probability/efron_stein.v
 library/probability/tuple_rows.v
 library/probability/semicircle_law.v

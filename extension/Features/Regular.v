@@ -79,6 +79,21 @@
      (data_feature_subexponential; data_feature_subexponential_frob with
      L = 252 K^2 |A|_F for A != 0).
 
+   - Component laws. The bounds above that do not involve kappa hold for
+     coordinates with laws as mixture_component_law K asks (mean 0,
+     variance 1 and E exp (x^2 / K^2) <= 2, MixtureDefinitions), the
+     components of the mixture theorem. The sections component_moments and
+     component_feature state them with the prefix component_:
+     component_feature_mean, component_feature_fourth,
+     component_feature_variance, component_feature_quad_subexponential and
+     component_feature_subexponential, and the lemmas they rest on, such as
+     component_lin_form_moment8, component_quad_form_mean,
+     component_quad_form_moment4, component_proj_feature_moment4,
+     component_feature_diff_moment4 and component_quad_stat_resample2. The
+     lemmas without the prefix are their corollaries for
+     universality_coordinate_law, by coordinate_law_component
+     (Mixture/Component).
+
    - gaussian_feature_regular: for kappa > 1 and d > 0,
      gaussian_feature_law kappa d is a regular feature with covariance
      unsat_cov kappa d and constants 3^(1/4) and
@@ -103,6 +118,8 @@ From GaussianAnalysis.matrix Require Import euclidean opnorm real_spectral.
 From GaussianAnalysis.convex Require Import least_squares gauss_feature.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
+From EllipsoidUniversality Require Import MixtureDefinitions.
+From EllipsoidUniversality.Mixture Require Import Component.
 From EllipsoidUniversality.Gaussian Require Import Cones.
 From EllipsoidUniversality.Unsat Require Import LeastSquares.
 From EllipsoidUniversality.Features Require Import Definitions.
@@ -544,19 +561,25 @@ Qed.
 
 End resample_integrals.
 
-Section product_moments.
+(* The moments of the coordinates and of the quadratic forms under the
+   product of component laws (mixture_component_law of MixtureDefinitions):
+   mean 0, variance 1 and subgaussian constant K, without assumption on the
+   fourth moment. product_moments below states the same for the coordinate
+   laws of the universality theorem, and adds the moments that involve
+   kappa. *)
+Section component_moments.
 Local Open Scope ereal_scope.
-Variables (kappa K : R) (d : nat).
+Variables (K : R) (d : nat).
 Variable nu : nat -> probability (measurableTypeR R) R.
 Hypothesis hnu :
-  forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j).
+  forall j, (j < d)%N -> mixture_component_law K (nu j).
 
 Local Notation P := (tuple_prod nu d).
 
-Lemma integrable_coord_pow (a : 'I_d) k :
+Lemma component_integrable_coord_pow (a : 'I_d) k :
   P.-integrable setT (fun t => ((tnth t a : R) ^+ k)%:E).
 Proof.
-have ia := @coordinate_law_integrable _ _ _ (hnu a (ltn_ord a)) k.
+have ia := @component_law_integrable _ _ (hnu a (ltn_ord a)) k.
 have mk : measurable_fun setT (fun s : measurableTypeR R => ((s : R) ^+ k)%:E).
   by apply/measurable_EFinP; exact: measurable_funX.
 apply/integrableP; split.
@@ -568,7 +591,7 @@ rewrite (ge0_integral_tuple_prod_coord nu a
 Qed.
 
 (* A function bounded by C (1 + sum_i x_i^p) is integrable. *)
-Lemma integrable_poly p (f : d.-tuple (measurableTypeR R) -> RR) (C : R) :
+Lemma component_integrable_poly p (f : d.-tuple (measurableTypeR R) -> RR) (C : R) :
   measurable_fun setT f ->
   (forall t, `|f t| <= C * (1 + \sum_(i < d) (tnth t i : R) ^+ p))%R ->
   P.-integrable setT (EFin \o f).
@@ -581,14 +604,14 @@ have ig : P.-integrable setT
   apply: integrableD => //; first exact: finite_measure_integrable_cst.
   under eq_fun do rewrite -sumEFin.
   apply: integrable_sum; first exact: measurableT.
-  by move=> i _; exact: integrable_coord_pow.
+  by move=> i _; exact: component_integrable_coord_pow.
 apply: le_integrable ig => //; first exact/measurable_EFinP.
 move=> t _; change (`|(f t)%:E| <=
   `|(C * (1 + \sum_(i < d) tnth t i ^+ p))%:E|).
 by rewrite !abse_EFin lee_fin; apply: le_trans (fC t) _; exact: ler_norm.
 Qed.
 
-Lemma coord_pow4_le (t : d.-tuple (measurableTypeR R)) (k : 'I_d) :
+Lemma component_coord_pow4_le (t : d.-tuple (measurableTypeR R)) (k : 'I_d) :
   ((tnth t k : R) ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R.
 Proof.
 have e4 (r : R) : (0 <= r ^+ 4)%R by rewrite (_ : 4 = 2 * 2)%N // exprM sqr_ge0.
@@ -599,7 +622,7 @@ lra.
 Qed.
 
 (* A product of four factors, each a coordinate or 1. *)
-Lemma prod4_le (t : d.-tuple (measurableTypeR R)) (y1 y2 y3 y4 : R) :
+Lemma component_prod4_le (t : d.-tuple (measurableTypeR R)) (y1 y2 y3 y4 : R) :
   (y1 ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R ->
   (y2 ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R ->
   (y3 ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R ->
@@ -611,7 +634,7 @@ by apply: le_trans (amgm4 y1 y2 y3 y4) _; lra.
 Qed.
 
 (* A power of the coordinate a and a function of the other coordinates. *)
-Lemma coord_extract (a : 'I_d) k (H : d.-tuple (measurableTypeR R) -> RR) :
+Lemma component_coord_extract (a : 'I_d) k (H : d.-tuple (measurableTypeR R) -> RR) :
   measurable_fun setT H ->
   (forall t, `|H t| <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R ->
   (forall t s, H (tuple_set t a s) = H t) ->
@@ -620,36 +643,36 @@ Lemma coord_extract (a : 'I_d) k (H : d.-tuple (measurableTypeR R) -> RR) :
 Proof.
 move=> mH Hb Hind.
 have iH : P.-integrable setT (EFin \o H).
-  by apply: (integrable_poly 4 _ 1) => // t; rewrite mul1r.
-have ik := @coordinate_law_integrable _ _ _ (hnu a (ltn_ord a)) k.
+  by apply: (component_integrable_poly 4 _ 1) => // t; rewrite mul1r.
+have ik := @component_law_integrable _ _ (hnu a (ltn_ord a)) k.
 by have [_ ->] := integral_tuple_prod_coordM
   (f := fun s : measurableTypeR R => ((s : R) ^+ k)%R) ik iH Hind.
 Qed.
 
-Lemma one_pow4_le (t : d.-tuple (measurableTypeR R)) :
+Lemma component_one_pow4_le (t : d.-tuple (measurableTypeR R)) :
   ((1 : R) ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R.
 Proof.
 rewrite expr1n lerDl sumr_ge0 // => i _.
 by rewrite (_ : 4 = 2 * 2)%N // exprM sqr_ge0.
 Qed.
 
-Lemma coord_abs_le (t : d.-tuple (measurableTypeR R)) (k : 'I_d) :
+Lemma component_coord_abs_le (t : d.-tuple (measurableTypeR R)) (k : 'I_d) :
   (`|(tnth t k : R)| <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R.
 Proof.
-have one4 := one_pow4_le t.
-have := @prod4_le t (tnth t k) 1 1 1 (coord_pow4_le t k) one4 one4 one4.
+have one4 := component_one_pow4_le t.
+have := @component_prod4_le t (tnth t k) 1 1 1 (component_coord_pow4_le t k) one4 one4 one4.
 by rewrite !mulr1.
 Qed.
 
-Lemma moment1 (a : 'I_d) : \int[P]_t ((tnth t a : R))%:E = 0.
+Lemma component_moment1 (a : 'I_d) : \int[P]_t ((tnth t a : R))%:E = 0.
 Proof.
 rewrite (integral_tuple_prod_coord nu a
   (f := fun s : measurableTypeR R => ((s : R))%:E)).
 - by apply/measurable_EFinP.
-- exact: (@coordinate_law_mean _ _ _ (hnu a (ltn_ord a))).
+- exact: (@component_law_mean _ _ (hnu a (ltn_ord a))).
 Qed.
 
-Lemma moment2 (a b : 'I_d) :
+Lemma component_moment2 (a b : 'I_d) :
   \int[P]_t ((tnth t a : R) * tnth t b)%:E = ((a == b)%:R)%:E.
 Proof.
 case: (eqVneq a b) => [<-|ab].
@@ -657,17 +680,430 @@ case: (eqVneq a b) => [<-|ab].
   rewrite (integral_tuple_prod_coord nu a
     (f := fun s : measurableTypeR R => ((s : R) ^+ 2)%:E)).
   - by apply/measurable_EFinP; exact: measurable_funX.
-  - by rewrite (@coordinate_law_second _ _ _ (hnu a (ltn_ord a))).
+  - by rewrite (@component_law_second _ _ (hnu a (ltn_ord a))).
 rewrite -[RHS](mule0 (\int[P]_t (tnth t b : R)%:E)) muleC.
-rewrite -(@coordinate_law_mean _ _ _ (hnu a (ltn_ord a))).
+rewrite -(@component_law_mean _ _ (hnu a (ltn_ord a))).
 have Hind (t : d.-tuple (measurableTypeR R)) s :
     (tnth (tuple_set t a s) b : RR) = tnth t b.
   by rewrite tnth_tuple_set_neq // eq_sym.
-have := coord_extract a 1 (fun t => (tnth t b : RR)) (measurable_tnth b)
-  (fun t => coord_abs_le t b) Hind.
+have := component_coord_extract a 1 (fun t => (tnth t b : RR)) (measurable_tnth b)
+  (fun t => component_coord_abs_le t b) Hind.
 under eq_integral do rewrite expr1.
 by under [X in _ = X * _]eq_integral do rewrite expr1.
 Qed.
+
+Lemma component_integral_sum_ord (f : 'I_d -> d.-tuple (measurableTypeR R) -> R) :
+  (forall i, P.-integrable setT (fun t => (f i t)%:E)) ->
+  \int[P]_t (\sum_(i < d) f i t)%:E = \sum_(i < d) \int[P]_t (f i t)%:E.
+Proof.
+move=> fi; under eq_integral do rewrite -sumEFin.
+by rewrite integral_sum.
+Qed.
+
+Lemma component_integrable_sum_ord (f : 'I_d -> d.-tuple (measurableTypeR R) -> R) :
+  (forall i, P.-integrable setT (fun t => (f i t)%:E)) ->
+  P.-integrable setT (fun t => (\sum_(i < d) f i t)%:E).
+Proof.
+move=> fi; under eq_fun do rewrite -sumEFin.
+by apply: integrable_sum => // i _.
+Qed.
+
+Lemma component_integrable_x2 (a b : 'I_d) :
+  P.-integrable setT (fun t => ((tnth t a : R) * tnth t b)%:E).
+Proof.
+apply: (component_integrable_poly 4 (fun t => ((tnth t a : RR) * (tnth t b : RR))%R) 1).
+  by apply: measurable_funM; exact: measurable_tnth.
+move=> t; rewrite mul1r.
+have := @component_prod4_le t _ _ _ _ (component_coord_pow4_le t a) (component_coord_pow4_le t b)
+  (component_one_pow4_le t) (component_one_pow4_le t).
+by rewrite !mulr1.
+Qed.
+
+Lemma component_integrable_x4 (a b c e : 'I_d) :
+  P.-integrable setT
+    (fun t => ((tnth t a : R) * tnth t b * tnth t c * tnth t e)%:E).
+Proof.
+apply: (component_integrable_poly 4 (fun t =>
+  ((tnth t a : RR) * (tnth t b : RR) * (tnth t c : RR) * (tnth t e : RR))%R) 1).
+  apply: measurable_funM; last exact: measurable_tnth.
+  apply: measurable_funM; last exact: measurable_tnth.
+  by apply: measurable_funM; exact: measurable_tnth.
+move=> t; rewrite mul1r.
+exact: (@component_prod4_le t _ _ _ _ (component_coord_pow4_le t a) (component_coord_pow4_le t b)
+  (component_coord_pow4_le t c) (component_coord_pow4_le t e)).
+Qed.
+
+Lemma component_integrable_quad_sum (A : 'M[R]_d) :
+  P.-integrable setT (fun t => (quad_sum A t)%:E).
+Proof.
+apply: component_integrable_sum_ord => a; apply: component_integrable_sum_ord => b.
+under eq_fun do rewrite EFinM.
+by apply: integrableZl => //; exact: component_integrable_x2.
+Qed.
+
+Lemma component_integrable_quad_sum2 (A B : 'M[R]_d) :
+  P.-integrable setT (fun t => (quad_sum A t * quad_sum B t)%:E).
+Proof.
+apply: (@eq_integrable _ _ _ P setT measurableT (fun t =>
+  (\sum_(a < d) \sum_(b < d) \sum_(c < d) \sum_(e < d)
+    (A a b * B c e) * ((tnth t a : R) * tnth t b * tnth t c * tnth t e))%:E)).
+  move=> t _; congr EFin.
+  rewrite /quad_sum mulr_suml; apply: eq_bigr => a _.
+  rewrite mulr_suml; apply: eq_bigr => b _.
+  rewrite mulr_sumr; apply: eq_bigr => c _.
+  by rewrite mulr_sumr; apply: eq_bigr => e _; ring.
+apply: component_integrable_sum_ord => a; apply: component_integrable_sum_ord => b.
+apply: component_integrable_sum_ord => c; apply: component_integrable_sum_ord => e.
+under eq_fun do rewrite EFinM.
+by apply: integrableZl => //; exact: component_integrable_x4.
+Qed.
+
+Lemma component_quad_sum_mean (A : 'M[R]_d) :
+  \int[P]_t (quad_sum A t)%:E = (\tr A)%:E.
+Proof.
+have iab a b : P.-integrable setT
+    (fun t => (A a b * ((tnth t a : R) * tnth t b))%:E).
+  under eq_fun do rewrite EFinM.
+  by apply: integrableZl => //; exact: component_integrable_x2.
+rewrite /quad_sum component_integral_sum_ord.
+  by move=> a; exact: component_integrable_sum_ord.
+rewrite /mxtrace -sumEFin; apply: eq_bigr => a _.
+rewrite component_integral_sum_ord //.
+transitivity (\sum_(b < d) (A a b * (a == b)%:R)%:E)%R.
+  apply: eq_bigr => b _; under eq_integral do rewrite EFinM.
+  rewrite integralZl //; first exact: component_integrable_x2.
+  by rewrite component_moment2 -EFinM.
+rewrite sumEFin (bigD1 a) //= eqxx mulr1 big1 ?addr0 // => b ba.
+by rewrite eq_sym (negbTE ba) mulr0.
+Qed.
+
+Lemma component_integrable_quad_form (A : 'M[R]_d) :
+  P.-integrable setT (fun t => (quad_form A t)%:E).
+Proof.
+under eq_fun do rewrite quad_formE EFinB.
+apply: integrableB => //; first exact: component_integrable_quad_sum.
+exact: finite_measure_integrable_cst.
+Qed.
+
+Lemma component_integrable_quad_form2 (A B : 'M[R]_d) :
+  P.-integrable setT (fun t => (quad_form A t * quad_form B t)%:E).
+Proof.
+apply: (@eq_integrable _ _ _ P setT measurableT (fun t =>
+  (quad_sum A t * quad_sum B t -
+   (\tr B * quad_sum A t + \tr A * quad_sum B t - \tr A * \tr B))%:E)).
+  by move=> t _; rewrite !quad_formE; congr EFin; ring.
+under eq_fun do rewrite EFinB.
+apply: integrableB => //; first exact: component_integrable_quad_sum2.
+under eq_fun do rewrite EFinB EFinD !EFinM.
+apply: integrableB => //; last exact: finite_measure_integrable_cst.
+by apply: integrableD => //; apply: integrableZl => //;
+  exact: component_integrable_quad_sum.
+Qed.
+
+(* Covariance matching: the covariance of the features is C_kappa. *)
+Lemma component_quad_form_mean (A : 'M[R]_d) : \int[P]_t (quad_form A t)%:E = 0.
+Proof.
+under eq_integral do rewrite quad_formE EFinB.
+rewrite integralB_EFin //.
+- exact: component_integrable_quad_sum.
+- exact: finite_measure_integrable_cst.
+rewrite component_quad_sum_mean integral_cst //.
+by rewrite [X in _ - _ * X]probability_setT mule1 subee.
+Qed.
+
+Lemma component_coord_moment8 (j : 'I_d) :
+  \int[nu j]_s ((s : R) ^+ 8)%:E <= (48 * K ^+ 8)%:E.
+Proof.
+have := @component_law_moment _ _ (hnu j (ltn_ord j)) 4.
+by rewrite /= -natrM.
+Qed.
+
+Lemma component_coord_tuple_moment8 (j : 'I_d) :
+  \int[P]_t ((tnth t j : R) ^+ 8)%:E <= (48 * K ^+ 8)%:E.
+Proof.
+rewrite (ge0_integral_tuple_prod_coord nu j
+  (f := fun s => ((s : R) ^+ 8)%:E)).
+- by apply/measurable_EFinP; exact: measurable_funX.
+- by move=> s; rewrite lee_fin exprn8_ge0.
+exact: component_coord_moment8.
+Qed.
+
+(* The eighth moment of a linear form, from Hoeffding's inequality
+   (probability/subgaussian.v): E <c, x>^8 <= 48 4^8 K^8 |c|^8. *)
+Lemma component_lin_form_moment8 (c : 'I_d -> R) :
+  \int[P]_t ((\sum_(b < d) c b * tnth t b) ^+ 8)%:E <=
+  (48 * 4 ^+ 8 * K ^+ 8 * (\sum_(b < d) c b ^+ 2) ^+ 4)%:E.
+Proof.
+have [S0|S0] := eqVneq (\sum_(b < d) c b ^+ 2)%R 0%R.
+  have c0 b : c b = 0%R.
+    apply/eqP; rewrite -sqrf_eq0; apply/eqP.
+    by move/psumr_eq0P : S0 => -> // b' _; exact: sqr_ge0.
+  rewrite integral0_eq.
+    by move=> t _; rewrite big1 ?expr0n // => b _; rewrite c0 mul0r.
+  by rewrite S0 expr0n /= mulr0.
+have K0 : (0 < K)%R.
+  case: (pickP (fun b : 'I_d => true)) => [b _|h].
+    exact: (@component_law_K _ _ (hnu b (ltn_ord b))).
+  by move: S0; rewrite big1 ?eqxx // => b _; move: (h b).
+pose a := ord_fun c.
+have aE (b : 'I_d) : a b = c b := ord_funE _ c b.
+have Spos : (0 < \sum_(b < d) c b ^+ 2)%R.
+  by rewrite lt_def S0 /=; apply: sumr_ge0 => b _; exact: sqr_ge0.
+have S0' : (0 < \sum_(j < d) a j ^+ 2 * K ^+ 2)%R.
+  under eq_bigr do rewrite aE.
+  by rewrite -mulr_suml mulr_gt0 // exprn_gt0.
+have sg : forall j, (j < d)%N -> subgaussian (nu j) (fun x : R => x) K.
+  by move=> j jd; exact: (@component_law_subgaussian _ _ (hnu j jd)).
+have m0 : forall j, (j < d)%N -> (\int[nu j]_t (fun x : R => x) t)%R = 0%R.
+  move=> j jd; rewrite /Rintegral.
+  by rewrite (@component_law_mean _ _ (hnu j jd)).
+have := subgaussian_moment 4 (subgaussian_sum (mu := nu) (n := d)
+  (f := fun=> fun x : measurableTypeR R => (x : R)) (K := fun=> K) (a := a)
+  sg m0 S0') => h.
+under eq_integral do under eq_bigr do rewrite -aE.
+apply: le_trans h _; rewrite lee_fin.
+under eq_bigr do rewrite aE.
+rewrite -mulr_suml exprMn (exprM (Num.sqrt _) 2 4) sqr_sqrtr.
+  by rewrite mulr_ge0 ?sqr_ge0 // sumr_ge0 // => b _; exact: sqr_ge0.
+rewrite (_ : 4`! = 24)%N // (_ : 2 * 4 = 8)%N //.
+by rewrite le_eqVlt; apply/orP; left; apply/eqP; ring.
+Qed.
+
+Lemma component_integrable_quad_form_pow4 (A : 'M[R]_d) :
+  P.-integrable setT (fun t => (quad_form A t ^+ 4)%:E).
+Proof.
+apply: (component_integrable_poly 8 (fun t => quad_form A t ^+ 4 : RR)%R
+  (8 * (d * d)%:R ^+ 2 * mxdot A A ^+ 2)%R).
+  by apply: measurable_funX; exact: measurable_quad_form.
+move=> t; rewrite ger0_norm ?exprn4_ge0 //; exact: quad_form_pow4_le.
+Qed.
+
+Lemma component_quad_form_pow4_fin (A : 'M[R]_d) :
+  \int[P]_t (quad_form A t ^+ 4)%:E < +oo.
+Proof.
+have /integrableP[_ h] := component_integrable_quad_form_pow4 A.
+apply: le_lt_trans h; rewrite le_eqVlt; apply/orP; left; apply/eqP.
+by apply: eq_integral => t _; rewrite gee0_abs // lee_fin exprn4_ge0.
+Qed.
+
+(* The fourth moment of the difference after resampling the coordinate i:
+   E (Q_A (x) - Q_A (x^(i)))^4 <= (2^16 K^4 r_i)^2, where r_i is the
+   squared norm of the row and the column i of A. *)
+Lemma component_quad_form_resample4 (A : 'M[R]_d) (i : 'I_d) :
+  \int[P]_t \int[nu i]_s
+    ((quad_form A t - quad_form A (tuple_set t i s)) ^+ 4)%:E <=
+  ((2 ^+ 16 * K ^+ 4 * \sum_(b < d) (A i b ^+ 2 + A b i ^+ 2)) ^+ 2)%:E.
+Proof.
+set r := (\sum_(b < d) _)%R.
+have r0 : (0 <= r)%R by apply: sumr_ge0 => b _; rewrite addr_ge0 ?sqr_ge0.
+have K0 : (0 < K)%R := @component_law_K _ _ (hnu i (ltn_ord i)).
+pose G (p : d.-tuple (measurableTypeR R) * measurableTypeR R) :=
+  ((quad_form A p.1 - quad_form A (tuple_set p.1 i p.2)) ^+ 4)%:E.
+have mG : measurable_fun setT G.
+  apply/measurable_EFinP; apply: measurable_funX; apply: measurable_funB.
+    exact: measurableT_comp (measurable_quad_form d A) measurable_fst.
+  exact: measurableT_comp (measurable_quad_form d A)
+    (measurable_tuple_set_pair i).
+have G0 p : 0 <= G p by rewrite lee_fin exprn4_ge0.
+rewrite (resample_prod d nu i G mG G0).
+have [rz|rp] := eqVneq r 0%R.
+  have A0 b : (A i b = 0 /\ A b i = 0)%R.
+    have h : (A i b ^+ 2 + A b i ^+ 2 = 0)%R.
+      apply: (psumr_eq0P _ rz) => // b' _.
+      by rewrite addr_ge0 ?sqr_ge0.
+    move/eqP: h; rewrite paddr_eq0 ?sqr_ge0 // !sqrf_eq0.
+    by move=> /andP[/eqP-> /eqP->].
+  rewrite integral0_eq; last by rewrite lee_fin sqr_ge0.
+  move=> p _; rewrite /G quad_form_set (proj1 (A0 i)).
+  rewrite big1 ?mul0r ?subr0 ?mulr0 ?expr0n // => b _.
+  by rewrite (proj1 (A0 b)) (proj2 (A0 b)) addr0 mul0r.
+have rpos : (0 < r)%R by rewrite lt_def rp r0.
+set c := fun b : 'I_d => (A i b + A b i)%R.
+set C1 : R := ((2 ^+ 6 + 2^-1) * r ^+ 2 * 2 ^+ 7)%R.
+set C2 : R := (2 ^+ 6 / r ^+ 2)%R.
+have C10 : (0 <= C1)%R by rewrite /C1 !mulr_ge0 ?addr_ge0 ?exprn_ge0 ?sqr_ge0.
+have C20 : (0 <= C2)%R by rewrite /C2 divr_ge0 ?exprn_ge0 ?sqr_ge0.
+pose l (t : d.-tuple (measurableTypeR R)) := (\sum_(b < d) c b * tnth t b)%R.
+have ml : measurable_fun setT
+    (fun t : d.-tuple (measurableTypeR R) => l t : RR).
+  apply: measurable_sum => b; apply: measurable_funM => //.
+  exact: measurable_tnth.
+have mx8 : measurable_fun setT
+    (fun t : d.-tuple (measurableTypeR R) => ((tnth t i : RR) ^+ 8)%:E).
+  by apply/measurable_EFinP; apply: measurable_funX; exact: measurable_tnth.
+have ms8 : measurable_fun setT
+    (fun s : measurableTypeR R => ((s : RR) ^+ 8)%:E).
+  by apply/measurable_EFinP; exact: measurable_funX.
+have ml8 : measurable_fun setT
+    (fun t : d.-tuple (measurableTypeR R) => ((l t : RR) ^+ 8)%:E).
+  by apply/measurable_EFinP; exact: measurable_funX.
+apply: (@le_trans _ _ (\int[P \x nu i]_p
+    ((C1%:E * ((tnth p.1 i : R) ^+ 8)%:E + C1%:E * ((p.2 : R) ^+ 8)%:E) +
+     C2%:E * ((l p.1) ^+ 8)%:E))).
+  apply: ge0_le_integral => //.
+    apply: emeasurable_funD; first apply: emeasurable_funD.
+    - by apply: measurable_funeM; exact: measurableT_comp mx8 measurable_fst.
+    - by apply: measurable_funeM; exact: measurableT_comp ms8 measurable_snd.
+    - by apply: measurable_funeM; exact: measurableT_comp ml8 measurable_fst.
+  move=> p _; rewrite /G -!EFinM -!EFinD lee_fin quad_form_set.
+  have ar : (A i i ^+ 2 <= r)%R.
+    rewrite /r (bigD1 i) //= -addrA lerDl addr_ge0 ?sqr_ge0 //.
+    by apply: sumr_ge0 => b _; rewrite addr_ge0 ?sqr_ge0.
+  have h2 := resample4_le r (tnth p.1 i - p.2)%R (l p.1) (A i i) rpos ar.
+  have h1 := pow8_sub_le (tnth p.1 i) p.2.
+  have e : (\sum_(b < d) (A i b + A b i) * tnth p.1 b)%R = l p.1 by [].
+  rewrite e; apply: le_trans h2 _.
+  rewrite /C1 /C2; have h3 : (0 <= r ^+ 2)%R := sqr_ge0 _.
+  nra.
+clear mG G0 ml G.
+rewrite ge0_integralD //.
+- by move=> p _; rewrite adde_ge0 // mule_ge0 ?lee_fin ?exprn8_ge0.
+- apply: emeasurable_funD.
+  + by apply: measurable_funeM; exact: measurableT_comp mx8 measurable_fst.
+  + by apply: measurable_funeM; exact: measurableT_comp ms8 measurable_snd.
+- by move=> p _; rewrite mule_ge0 ?lee_fin ?exprn8_ge0.
+- by apply: measurable_funeM; exact: measurableT_comp ml8 measurable_fst.
+rewrite ge0_integralD //.
+- by move=> p _; rewrite mule_ge0 ?lee_fin ?exprn8_ge0.
+- by apply: measurable_funeM; exact: measurableT_comp mx8 measurable_fst.
+- by move=> p _; rewrite mule_ge0 ?lee_fin ?exprn8_ge0.
+- by apply: measurable_funeM; exact: measurableT_comp ms8 measurable_snd.
+rewrite ge0_integralZl_EFin //.
+- by move=> p _; rewrite lee_fin exprn8_ge0.
+- exact: measurableT_comp mx8 measurable_fst.
+rewrite ge0_integralZl_EFin //.
+- by move=> p _; rewrite lee_fin exprn8_ge0.
+- exact: measurableT_comp ms8 measurable_snd.
+rewrite ge0_integralZl_EFin //.
+- by move=> p _; rewrite lee_fin exprn8_ge0.
+- exact: measurableT_comp ml8 measurable_fst.
+have e80 (y : R) : 0 <= (y ^+ 8)%:E by rewrite lee_fin exprn8_ge0.
+rewrite (resample_fst d nu i _ mx8); first by move=> t; exact: e80.
+rewrite (resample_snd d nu i _ ms8); first by move=> s; exact: e80.
+rewrite (resample_fst d nu i _ ml8); first by move=> t; exact: e80.
+clear mx8 ms8 ml8.
+have B1 := component_coord_tuple_moment8 i.
+have B2 := component_coord_moment8 i.
+have B3 := component_lin_form_moment8 c.
+have hc : (\sum_(b < d) c b ^+ 2 <= 2 * r)%R.
+  rewrite /r mulr_sumr; apply: ler_sum => b _; rewrite /c.
+  by have := sqr_ge0 (A i b - A b i); nra.
+have hc4 : ((\sum_(b < d) c b ^+ 2) ^+ 4 <= (2 * r) ^+ 4)%R.
+  rewrite ler_pXn2r // nnegrE ?mulr_ge0 //.
+  by apply: sumr_ge0 => b _; exact: sqr_ge0.
+have C1' : 0 <= C1%:E by rewrite lee_fin.
+have C2' : 0 <= C2%:E by rewrite lee_fin.
+apply: le_trans (leeD (leeD (lee_wpmul2l C1' B1) (lee_wpmul2l C1' B2))
+  (lee_wpmul2l C2' B3)) _.
+rewrite -!EFinM -!EFinD lee_fin.
+have K8 : (0 <= K ^+ 8)%R by rewrite exprn_ge0 // ltW.
+have step : (C2 * (48 * 4 ^+ 8 * K ^+ 8 * (\sum_(b < d) c b ^+ 2) ^+ 4) <=
+    C2 * (48 * 4 ^+ 8 * K ^+ 8 * (2 * r) ^+ 4))%R.
+  by rewrite ler_wpM2l // ler_wpM2l // mulr_ge0.
+apply: le_trans (lerD (lexx _) step) _.
+have e : (C2 * (48 * 4 ^+ 8 * K ^+ 8 * (2 * r) ^+ 4) =
+    2 ^+ 6 * 48 * 4 ^+ 8 * 16 * (r ^+ 2 * K ^+ 8))%R.
+  by rewrite /C2; field; rewrite expf_neq0.
+have rK : (0 <= r ^+ 2 * K ^+ 8)%R by rewrite mulr_ge0 ?sqr_ge0.
+have e2 : ((2 ^+ 16 * K ^+ 4 * r) ^+ 2 = 2 ^+ 32 * (r ^+ 2 * K ^+ 8))%R.
+  by ring.
+rewrite e /C1 e2; lra.
+Qed.
+
+(* The fourth moment of the quadratic form, by the moment bound of
+   Efron-Stein (probability/efron_stein.v):
+   E (x^T A x - tr A)^4 <= 9 2^33 K^8 |A|_F^4. *)
+Lemma component_quad_form_moment4 (A : 'M[R]_d) :
+  \int[P]_t (quad_form A t ^+ 4)%:E <=
+  (9 * 2 ^+ 33 * K ^+ 8 * mxdot A A ^+ 2)%:E.
+Proof.
+pose r (k : 'I_d) := (\sum_(b < d) (A k b ^+ 2 + A b k ^+ 2))%R.
+pose D := ord_fun (fun k => 2 ^+ 16 * K ^+ 4 * r k)%R.
+have DE (k : 'I_d) : D k = (2 ^+ 16 * K ^+ 4 * r k)%R by exact: ord_funE.
+have D0 j : (0 <= D j)%R.
+  apply: sumr_ge0 => k _; apply: mulr_ge0.
+    by apply: mulr_ge0; [exact: exprn_ge0 | exact: exprn4_ge0].
+  by rewrite /r /=; apply: sumr_ge0 => b _; rewrite addr_ge0 ?sqr_ge0.
+have HD (k : 'I_d) : \int[P]_x \int[nu k]_s
+    ((quad_form A x - quad_form A (tuple_set x k s)) ^+ 4)%:E <=
+    ((D k) ^+ 2)%:E.
+  by rewrite DE; exact: component_quad_form_resample4.
+have := efron_stein_fourth (measurable_quad_form d A) (component_quad_form_pow4_fin A)
+  D0 HD.
+rewrite component_quad_form_mean /= => h.
+have -> : \int[P]_t (quad_form A t ^+ 4)%:E =
+    \int[P]_x ((quad_form A x - 0) ^+ 4)%:E.
+  by apply: eq_integral => x _; rewrite subr0.
+apply: le_trans h _; rewrite lee_fin.
+under eq_bigr do rewrite DE.
+have Sr : (\sum_(k < d) r k = 2 * mxdot A A)%R.
+  rewrite /r /=; under eq_bigr do rewrite big_split /=.
+  rewrite big_split /= [X in (_ + X)%R]exchange_big /= mulrDl mul1r /mxdot.
+  by under [in RHS]eq_bigr do under eq_bigr do rewrite -expr2.
+rewrite -mulr_sumr Sr.
+by rewrite le_eqVlt; apply/orP; left; apply/eqP; field.
+Qed.
+
+End component_moments.
+
+Section product_moments.
+Local Open Scope ereal_scope.
+Variables (kappa K : R) (d : nat).
+Variable nu : nat -> probability (measurableTypeR R) R.
+Hypothesis hnu :
+  forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j).
+Let hnuc : forall j, (j < d)%N -> mixture_component_law K (nu j) :=
+  fun j jd => coordinate_law_component kappa K (nu j) (hnu j jd).
+
+Local Notation P := (tuple_prod nu d).
+
+Lemma integrable_coord_pow (a : 'I_d) k :
+  P.-integrable setT (fun t => ((tnth t a : R) ^+ k)%:E).
+Proof. first [exact: (component_integrable_coord_pow K d nu hnuc) | exact: component_integrable_coord_pow]. Qed.
+
+(* A function bounded by C (1 + sum_i x_i^p) is integrable. *)
+Lemma integrable_poly p (f : d.-tuple (measurableTypeR R) -> RR) (C : R) :
+  measurable_fun setT f ->
+  (forall t, `|f t| <= C * (1 + \sum_(i < d) (tnth t i : R) ^+ p))%R ->
+  P.-integrable setT (EFin \o f).
+Proof. first [exact: (component_integrable_poly K d nu hnuc) | exact: component_integrable_poly]. Qed.
+
+Lemma coord_pow4_le (t : d.-tuple (measurableTypeR R)) (k : 'I_d) :
+  ((tnth t k : R) ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R.
+Proof. first [exact: (component_coord_pow4_le K d nu hnuc) | exact: component_coord_pow4_le]. Qed.
+
+(* A product of four factors, each a coordinate or 1. *)
+Lemma prod4_le (t : d.-tuple (measurableTypeR R)) (y1 y2 y3 y4 : R) :
+  (y1 ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R ->
+  (y2 ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R ->
+  (y3 ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R ->
+  (y4 ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R ->
+  (`|y1 * y2 * y3 * y4| <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R.
+Proof. first [exact: (component_prod4_le K d nu hnuc) | exact: component_prod4_le]. Qed.
+
+(* A power of the coordinate a and a function of the other coordinates. *)
+Lemma coord_extract (a : 'I_d) k (H : d.-tuple (measurableTypeR R) -> RR) :
+  measurable_fun setT H ->
+  (forall t, `|H t| <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R ->
+  (forall t s, H (tuple_set t a s) = H t) ->
+  \int[P]_t (((tnth t a : R) ^+ k) * H t)%:E =
+  \int[nu a]_s ((s : R) ^+ k)%:E * \int[P]_t (H t)%:E.
+Proof. first [exact: (component_coord_extract K d nu hnuc) | exact: component_coord_extract]. Qed.
+
+Lemma one_pow4_le (t : d.-tuple (measurableTypeR R)) :
+  ((1 : R) ^+ 4 <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R.
+Proof. first [exact: (component_one_pow4_le K d nu hnuc) | exact: component_one_pow4_le]. Qed.
+
+Lemma coord_abs_le (t : d.-tuple (measurableTypeR R)) (k : 'I_d) :
+  (`|(tnth t k : R)| <= 1 + \sum_(i < d) (tnth t i : R) ^+ 4)%R.
+Proof. first [exact: (component_coord_abs_le K d nu hnuc) | exact: component_coord_abs_le]. Qed.
+
+Lemma moment1 (a : 'I_d) : \int[P]_t ((tnth t a : R))%:E = 0.
+Proof. first [exact: (component_moment1 K d nu hnuc) | exact: component_moment1]. Qed.
+
+Lemma moment2 (a b : 'I_d) :
+  \int[P]_t ((tnth t a : R) * tnth t b)%:E = ((a == b)%:R)%:E.
+Proof. first [exact: (component_moment2 K d nu hnuc) | exact: component_moment2]. Qed.
 
 Lemma moment4 (a b c e : 'I_d) :
   \int[P]_t ((tnth t a : R) * tnth t b * tnth t c * tnth t e)%:E =
@@ -778,87 +1214,33 @@ Qed.
 Lemma integral_sum_ord (f : 'I_d -> d.-tuple (measurableTypeR R) -> R) :
   (forall i, P.-integrable setT (fun t => (f i t)%:E)) ->
   \int[P]_t (\sum_(i < d) f i t)%:E = \sum_(i < d) \int[P]_t (f i t)%:E.
-Proof.
-move=> fi; under eq_integral do rewrite -sumEFin.
-by rewrite integral_sum.
-Qed.
+Proof. first [exact: (component_integral_sum_ord K d nu hnuc) | exact: component_integral_sum_ord]. Qed.
 
 Lemma integrable_sum_ord (f : 'I_d -> d.-tuple (measurableTypeR R) -> R) :
   (forall i, P.-integrable setT (fun t => (f i t)%:E)) ->
   P.-integrable setT (fun t => (\sum_(i < d) f i t)%:E).
-Proof.
-move=> fi; under eq_fun do rewrite -sumEFin.
-by apply: integrable_sum => // i _.
-Qed.
+Proof. first [exact: (component_integrable_sum_ord K d nu hnuc) | exact: component_integrable_sum_ord]. Qed.
 
 Lemma integrable_x2 (a b : 'I_d) :
   P.-integrable setT (fun t => ((tnth t a : R) * tnth t b)%:E).
-Proof.
-apply: (integrable_poly 4 (fun t => ((tnth t a : RR) * (tnth t b : RR))%R) 1).
-  by apply: measurable_funM; exact: measurable_tnth.
-move=> t; rewrite mul1r.
-have := @prod4_le t _ _ _ _ (coord_pow4_le t a) (coord_pow4_le t b)
-  (one_pow4_le t) (one_pow4_le t).
-by rewrite !mulr1.
-Qed.
+Proof. first [exact: (component_integrable_x2 K d nu hnuc) | exact: component_integrable_x2]. Qed.
 
 Lemma integrable_x4 (a b c e : 'I_d) :
   P.-integrable setT
     (fun t => ((tnth t a : R) * tnth t b * tnth t c * tnth t e)%:E).
-Proof.
-apply: (integrable_poly 4 (fun t =>
-  ((tnth t a : RR) * (tnth t b : RR) * (tnth t c : RR) * (tnth t e : RR))%R) 1).
-  apply: measurable_funM; last exact: measurable_tnth.
-  apply: measurable_funM; last exact: measurable_tnth.
-  by apply: measurable_funM; exact: measurable_tnth.
-move=> t; rewrite mul1r.
-exact: (@prod4_le t _ _ _ _ (coord_pow4_le t a) (coord_pow4_le t b)
-  (coord_pow4_le t c) (coord_pow4_le t e)).
-Qed.
+Proof. first [exact: (component_integrable_x4 K d nu hnuc) | exact: component_integrable_x4]. Qed.
 
 Lemma integrable_quad_sum (A : 'M[R]_d) :
   P.-integrable setT (fun t => (quad_sum A t)%:E).
-Proof.
-apply: integrable_sum_ord => a; apply: integrable_sum_ord => b.
-under eq_fun do rewrite EFinM.
-by apply: integrableZl => //; exact: integrable_x2.
-Qed.
+Proof. first [exact: (component_integrable_quad_sum K d nu hnuc) | exact: component_integrable_quad_sum]. Qed.
 
 Lemma integrable_quad_sum2 (A B : 'M[R]_d) :
   P.-integrable setT (fun t => (quad_sum A t * quad_sum B t)%:E).
-Proof.
-apply: (@eq_integrable _ _ _ P setT measurableT (fun t =>
-  (\sum_(a < d) \sum_(b < d) \sum_(c < d) \sum_(e < d)
-    (A a b * B c e) * ((tnth t a : R) * tnth t b * tnth t c * tnth t e))%:E)).
-  move=> t _; congr EFin.
-  rewrite /quad_sum mulr_suml; apply: eq_bigr => a _.
-  rewrite mulr_suml; apply: eq_bigr => b _.
-  rewrite mulr_sumr; apply: eq_bigr => c _.
-  by rewrite mulr_sumr; apply: eq_bigr => e _; ring.
-apply: integrable_sum_ord => a; apply: integrable_sum_ord => b.
-apply: integrable_sum_ord => c; apply: integrable_sum_ord => e.
-under eq_fun do rewrite EFinM.
-by apply: integrableZl => //; exact: integrable_x4.
-Qed.
+Proof. first [exact: (component_integrable_quad_sum2 K d nu hnuc) | exact: component_integrable_quad_sum2]. Qed.
 
 Lemma quad_sum_mean (A : 'M[R]_d) :
   \int[P]_t (quad_sum A t)%:E = (\tr A)%:E.
-Proof.
-have iab a b : P.-integrable setT
-    (fun t => (A a b * ((tnth t a : R) * tnth t b))%:E).
-  under eq_fun do rewrite EFinM.
-  by apply: integrableZl => //; exact: integrable_x2.
-rewrite /quad_sum integral_sum_ord.
-  by move=> a; exact: integrable_sum_ord.
-rewrite /mxtrace -sumEFin; apply: eq_bigr => a _.
-rewrite integral_sum_ord //.
-transitivity (\sum_(b < d) (A a b * (a == b)%:R)%:E)%R.
-  apply: eq_bigr => b _; under eq_integral do rewrite EFinM.
-  rewrite integralZl //; first exact: integrable_x2.
-  by rewrite moment2 -EFinM.
-rewrite sumEFin (bigD1 a) //= eqxx mulr1 big1 ?addr0 // => b ba.
-by rewrite eq_sym (negbTE ba) mulr0.
-Qed.
+Proof. first [exact: (component_quad_sum_mean K d nu hnuc) | exact: component_quad_sum_mean]. Qed.
 
 Lemma quad_sum_cov (A B : 'M[R]_d) :
   \int[P]_t (quad_sum A t * quad_sum B t)%:E =
@@ -919,37 +1301,15 @@ Qed.
 
 Lemma integrable_quad_form (A : 'M[R]_d) :
   P.-integrable setT (fun t => (quad_form A t)%:E).
-Proof.
-under eq_fun do rewrite quad_formE EFinB.
-apply: integrableB => //; first exact: integrable_quad_sum.
-exact: finite_measure_integrable_cst.
-Qed.
+Proof. first [exact: (component_integrable_quad_form K d nu hnuc) | exact: component_integrable_quad_form]. Qed.
 
 Lemma integrable_quad_form2 (A B : 'M[R]_d) :
   P.-integrable setT (fun t => (quad_form A t * quad_form B t)%:E).
-Proof.
-apply: (@eq_integrable _ _ _ P setT measurableT (fun t =>
-  (quad_sum A t * quad_sum B t -
-   (\tr B * quad_sum A t + \tr A * quad_sum B t - \tr A * \tr B))%:E)).
-  by move=> t _; rewrite !quad_formE; congr EFin; ring.
-under eq_fun do rewrite EFinB.
-apply: integrableB => //; first exact: integrable_quad_sum2.
-under eq_fun do rewrite EFinB EFinD !EFinM.
-apply: integrableB => //; last exact: finite_measure_integrable_cst.
-by apply: integrableD => //; apply: integrableZl => //;
-  exact: integrable_quad_sum.
-Qed.
+Proof. first [exact: (component_integrable_quad_form2 K d nu hnuc) | exact: component_integrable_quad_form2]. Qed.
 
 (* Covariance matching: the covariance of the features is C_kappa. *)
 Lemma quad_form_mean (A : 'M[R]_d) : \int[P]_t (quad_form A t)%:E = 0.
-Proof.
-under eq_integral do rewrite quad_formE EFinB.
-rewrite integralB_EFin //.
-- exact: integrable_quad_sum.
-- exact: finite_measure_integrable_cst.
-rewrite quad_sum_mean integral_cst //.
-by rewrite [X in _ - _ * X]probability_setT mule1 subee.
-Qed.
+Proof. first [exact: (component_quad_form_mean K d nu hnuc) | exact: component_quad_form_mean]. Qed.
 
 Lemma quad_form_cov (A B : 'M[R]_d) :
   \int[P]_t (quad_form A t * quad_form B t)%:E =
@@ -984,78 +1344,26 @@ Qed.
 
 Lemma coord_moment8 (j : 'I_d) :
   \int[nu j]_s ((s : R) ^+ 8)%:E <= (48 * K ^+ 8)%:E.
-Proof.
-have := @coordinate_law_moment _ _ _ (hnu j (ltn_ord j)) 4.
-by rewrite /= -natrM.
-Qed.
+Proof. first [exact: (component_coord_moment8 K d nu hnuc) | exact: component_coord_moment8]. Qed.
 
 Lemma coord_tuple_moment8 (j : 'I_d) :
   \int[P]_t ((tnth t j : R) ^+ 8)%:E <= (48 * K ^+ 8)%:E.
-Proof.
-rewrite (ge0_integral_tuple_prod_coord nu j
-  (f := fun s => ((s : R) ^+ 8)%:E)).
-- by apply/measurable_EFinP; exact: measurable_funX.
-- by move=> s; rewrite lee_fin exprn8_ge0.
-exact: coord_moment8.
-Qed.
+Proof. first [exact: (component_coord_tuple_moment8 K d nu hnuc) | exact: component_coord_tuple_moment8]. Qed.
 
 (* The eighth moment of a linear form, from Hoeffding's inequality
    (probability/subgaussian.v): E <c, x>^8 <= 48 4^8 K^8 |c|^8. *)
 Lemma lin_form_moment8 (c : 'I_d -> R) :
   \int[P]_t ((\sum_(b < d) c b * tnth t b) ^+ 8)%:E <=
   (48 * 4 ^+ 8 * K ^+ 8 * (\sum_(b < d) c b ^+ 2) ^+ 4)%:E.
-Proof.
-have [S0|S0] := eqVneq (\sum_(b < d) c b ^+ 2)%R 0%R.
-  have c0 b : c b = 0%R.
-    apply/eqP; rewrite -sqrf_eq0; apply/eqP.
-    by move/psumr_eq0P : S0 => -> // b' _; exact: sqr_ge0.
-  rewrite integral0_eq.
-    by move=> t _; rewrite big1 ?expr0n // => b _; rewrite c0 mul0r.
-  by rewrite S0 expr0n /= mulr0.
-have K0 : (0 < K)%R.
-  case: (pickP (fun b : 'I_d => true)) => [b _|h].
-    exact: (@coordinate_law_K _ _ _ (hnu b (ltn_ord b))).
-  by move: S0; rewrite big1 ?eqxx // => b _; move: (h b).
-pose a := ord_fun c.
-have aE (b : 'I_d) : a b = c b := ord_funE _ c b.
-have Spos : (0 < \sum_(b < d) c b ^+ 2)%R.
-  by rewrite lt_def S0 /=; apply: sumr_ge0 => b _; exact: sqr_ge0.
-have S0' : (0 < \sum_(j < d) a j ^+ 2 * K ^+ 2)%R.
-  under eq_bigr do rewrite aE.
-  by rewrite -mulr_suml mulr_gt0 // exprn_gt0.
-have sg : forall j, (j < d)%N -> subgaussian (nu j) (fun x : R => x) K.
-  by move=> j jd; exact: (@coordinate_law_subgaussian _ _ _ (hnu j jd)).
-have m0 : forall j, (j < d)%N -> (\int[nu j]_t (fun x : R => x) t)%R = 0%R.
-  move=> j jd; rewrite /Rintegral.
-  by rewrite (@coordinate_law_mean _ _ _ (hnu j jd)).
-have := subgaussian_moment 4 (subgaussian_sum (mu := nu) (n := d)
-  (f := fun=> fun x : measurableTypeR R => (x : R)) (K := fun=> K) (a := a)
-  sg m0 S0') => h.
-under eq_integral do under eq_bigr do rewrite -aE.
-apply: le_trans h _; rewrite lee_fin.
-under eq_bigr do rewrite aE.
-rewrite -mulr_suml exprMn (exprM (Num.sqrt _) 2 4) sqr_sqrtr.
-  by rewrite mulr_ge0 ?sqr_ge0 // sumr_ge0 // => b _; exact: sqr_ge0.
-rewrite (_ : 4`! = 24)%N // (_ : 2 * 4 = 8)%N //.
-by rewrite le_eqVlt; apply/orP; left; apply/eqP; ring.
-Qed.
+Proof. first [exact: (component_lin_form_moment8 K d nu hnuc) | exact: component_lin_form_moment8]. Qed.
 
 Lemma integrable_quad_form_pow4 (A : 'M[R]_d) :
   P.-integrable setT (fun t => (quad_form A t ^+ 4)%:E).
-Proof.
-apply: (integrable_poly 8 (fun t => quad_form A t ^+ 4 : RR)%R
-  (8 * (d * d)%:R ^+ 2 * mxdot A A ^+ 2)%R).
-  by apply: measurable_funX; exact: measurable_quad_form.
-move=> t; rewrite ger0_norm ?exprn4_ge0 //; exact: quad_form_pow4_le.
-Qed.
+Proof. first [exact: (component_integrable_quad_form_pow4 K d nu hnuc) | exact: component_integrable_quad_form_pow4]. Qed.
 
 Lemma quad_form_pow4_fin (A : 'M[R]_d) :
   \int[P]_t (quad_form A t ^+ 4)%:E < +oo.
-Proof.
-have /integrableP[_ h] := integrable_quad_form_pow4 A.
-apply: le_lt_trans h; rewrite le_eqVlt; apply/orP; left; apply/eqP.
-by apply: eq_integral => t _; rewrite gee0_abs // lee_fin exprn4_ge0.
-Qed.
+Proof. first [exact: (component_quad_form_pow4_fin K d nu hnuc) | exact: component_quad_form_pow4_fin]. Qed.
 
 (* The fourth moment of the difference after resampling the coordinate i:
    E (Q_A (x) - Q_A (x^(i)))^4 <= (2^16 K^4 r_i)^2, where r_i is the
@@ -1064,122 +1372,7 @@ Lemma quad_form_resample4 (A : 'M[R]_d) (i : 'I_d) :
   \int[P]_t \int[nu i]_s
     ((quad_form A t - quad_form A (tuple_set t i s)) ^+ 4)%:E <=
   ((2 ^+ 16 * K ^+ 4 * \sum_(b < d) (A i b ^+ 2 + A b i ^+ 2)) ^+ 2)%:E.
-Proof.
-set r := (\sum_(b < d) _)%R.
-have r0 : (0 <= r)%R by apply: sumr_ge0 => b _; rewrite addr_ge0 ?sqr_ge0.
-have K0 : (0 < K)%R := @coordinate_law_K _ _ _ (hnu i (ltn_ord i)).
-pose G (p : d.-tuple (measurableTypeR R) * measurableTypeR R) :=
-  ((quad_form A p.1 - quad_form A (tuple_set p.1 i p.2)) ^+ 4)%:E.
-have mG : measurable_fun setT G.
-  apply/measurable_EFinP; apply: measurable_funX; apply: measurable_funB.
-    exact: measurableT_comp (measurable_quad_form d A) measurable_fst.
-  exact: measurableT_comp (measurable_quad_form d A)
-    (measurable_tuple_set_pair i).
-have G0 p : 0 <= G p by rewrite lee_fin exprn4_ge0.
-rewrite (resample_prod d nu i G mG G0).
-have [rz|rp] := eqVneq r 0%R.
-  have A0 b : (A i b = 0 /\ A b i = 0)%R.
-    have h : (A i b ^+ 2 + A b i ^+ 2 = 0)%R.
-      apply: (psumr_eq0P _ rz) => // b' _.
-      by rewrite addr_ge0 ?sqr_ge0.
-    move/eqP: h; rewrite paddr_eq0 ?sqr_ge0 // !sqrf_eq0.
-    by move=> /andP[/eqP-> /eqP->].
-  rewrite integral0_eq; last by rewrite lee_fin sqr_ge0.
-  move=> p _; rewrite /G quad_form_set (proj1 (A0 i)).
-  rewrite big1 ?mul0r ?subr0 ?mulr0 ?expr0n // => b _.
-  by rewrite (proj1 (A0 b)) (proj2 (A0 b)) addr0 mul0r.
-have rpos : (0 < r)%R by rewrite lt_def rp r0.
-set c := fun b : 'I_d => (A i b + A b i)%R.
-set C1 : R := ((2 ^+ 6 + 2^-1) * r ^+ 2 * 2 ^+ 7)%R.
-set C2 : R := (2 ^+ 6 / r ^+ 2)%R.
-have C10 : (0 <= C1)%R by rewrite /C1 !mulr_ge0 ?addr_ge0 ?exprn_ge0 ?sqr_ge0.
-have C20 : (0 <= C2)%R by rewrite /C2 divr_ge0 ?exprn_ge0 ?sqr_ge0.
-pose l (t : d.-tuple (measurableTypeR R)) := (\sum_(b < d) c b * tnth t b)%R.
-have ml : measurable_fun setT
-    (fun t : d.-tuple (measurableTypeR R) => l t : RR).
-  apply: measurable_sum => b; apply: measurable_funM => //.
-  exact: measurable_tnth.
-have mx8 : measurable_fun setT
-    (fun t : d.-tuple (measurableTypeR R) => ((tnth t i : RR) ^+ 8)%:E).
-  by apply/measurable_EFinP; apply: measurable_funX; exact: measurable_tnth.
-have ms8 : measurable_fun setT
-    (fun s : measurableTypeR R => ((s : RR) ^+ 8)%:E).
-  by apply/measurable_EFinP; exact: measurable_funX.
-have ml8 : measurable_fun setT
-    (fun t : d.-tuple (measurableTypeR R) => ((l t : RR) ^+ 8)%:E).
-  by apply/measurable_EFinP; exact: measurable_funX.
-apply: (@le_trans _ _ (\int[P \x nu i]_p
-    ((C1%:E * ((tnth p.1 i : R) ^+ 8)%:E + C1%:E * ((p.2 : R) ^+ 8)%:E) +
-     C2%:E * ((l p.1) ^+ 8)%:E))).
-  apply: ge0_le_integral => //.
-    apply: emeasurable_funD; first apply: emeasurable_funD.
-    - by apply: measurable_funeM; exact: measurableT_comp mx8 measurable_fst.
-    - by apply: measurable_funeM; exact: measurableT_comp ms8 measurable_snd.
-    - by apply: measurable_funeM; exact: measurableT_comp ml8 measurable_fst.
-  move=> p _; rewrite /G -!EFinM -!EFinD lee_fin quad_form_set.
-  have ar : (A i i ^+ 2 <= r)%R.
-    rewrite /r (bigD1 i) //= -addrA lerDl addr_ge0 ?sqr_ge0 //.
-    by apply: sumr_ge0 => b _; rewrite addr_ge0 ?sqr_ge0.
-  have h2 := resample4_le r (tnth p.1 i - p.2)%R (l p.1) (A i i) rpos ar.
-  have h1 := pow8_sub_le (tnth p.1 i) p.2.
-  have e : (\sum_(b < d) (A i b + A b i) * tnth p.1 b)%R = l p.1 by [].
-  rewrite e; apply: le_trans h2 _.
-  rewrite /C1 /C2; have h3 : (0 <= r ^+ 2)%R := sqr_ge0 _.
-  nra.
-clear mG G0 ml G.
-rewrite ge0_integralD //.
-- by move=> p _; rewrite adde_ge0 // mule_ge0 ?lee_fin ?exprn8_ge0.
-- apply: emeasurable_funD.
-  + by apply: measurable_funeM; exact: measurableT_comp mx8 measurable_fst.
-  + by apply: measurable_funeM; exact: measurableT_comp ms8 measurable_snd.
-- by move=> p _; rewrite mule_ge0 ?lee_fin ?exprn8_ge0.
-- by apply: measurable_funeM; exact: measurableT_comp ml8 measurable_fst.
-rewrite ge0_integralD //.
-- by move=> p _; rewrite mule_ge0 ?lee_fin ?exprn8_ge0.
-- by apply: measurable_funeM; exact: measurableT_comp mx8 measurable_fst.
-- by move=> p _; rewrite mule_ge0 ?lee_fin ?exprn8_ge0.
-- by apply: measurable_funeM; exact: measurableT_comp ms8 measurable_snd.
-rewrite ge0_integralZl_EFin //.
-- by move=> p _; rewrite lee_fin exprn8_ge0.
-- exact: measurableT_comp mx8 measurable_fst.
-rewrite ge0_integralZl_EFin //.
-- by move=> p _; rewrite lee_fin exprn8_ge0.
-- exact: measurableT_comp ms8 measurable_snd.
-rewrite ge0_integralZl_EFin //.
-- by move=> p _; rewrite lee_fin exprn8_ge0.
-- exact: measurableT_comp ml8 measurable_fst.
-have e80 (y : R) : 0 <= (y ^+ 8)%:E by rewrite lee_fin exprn8_ge0.
-rewrite (resample_fst d nu i _ mx8); first by move=> t; exact: e80.
-rewrite (resample_snd d nu i _ ms8); first by move=> s; exact: e80.
-rewrite (resample_fst d nu i _ ml8); first by move=> t; exact: e80.
-clear mx8 ms8 ml8.
-have B1 := coord_tuple_moment8 i.
-have B2 := coord_moment8 i.
-have B3 := lin_form_moment8 c.
-have hc : (\sum_(b < d) c b ^+ 2 <= 2 * r)%R.
-  rewrite /r mulr_sumr; apply: ler_sum => b _; rewrite /c.
-  by have := sqr_ge0 (A i b - A b i); nra.
-have hc4 : ((\sum_(b < d) c b ^+ 2) ^+ 4 <= (2 * r) ^+ 4)%R.
-  rewrite ler_pXn2r // nnegrE ?mulr_ge0 //.
-  by apply: sumr_ge0 => b _; exact: sqr_ge0.
-have C1' : 0 <= C1%:E by rewrite lee_fin.
-have C2' : 0 <= C2%:E by rewrite lee_fin.
-apply: le_trans (leeD (leeD (lee_wpmul2l C1' B1) (lee_wpmul2l C1' B2))
-  (lee_wpmul2l C2' B3)) _.
-rewrite -!EFinM -!EFinD lee_fin.
-have K8 : (0 <= K ^+ 8)%R by rewrite exprn_ge0 // ltW.
-have step : (C2 * (48 * 4 ^+ 8 * K ^+ 8 * (\sum_(b < d) c b ^+ 2) ^+ 4) <=
-    C2 * (48 * 4 ^+ 8 * K ^+ 8 * (2 * r) ^+ 4))%R.
-  by rewrite ler_wpM2l // ler_wpM2l // mulr_ge0.
-apply: le_trans (lerD (lexx _) step) _.
-have e : (C2 * (48 * 4 ^+ 8 * K ^+ 8 * (2 * r) ^+ 4) =
-    2 ^+ 6 * 48 * 4 ^+ 8 * 16 * (r ^+ 2 * K ^+ 8))%R.
-  by rewrite /C2; field; rewrite expf_neq0.
-have rK : (0 <= r ^+ 2 * K ^+ 8)%R by rewrite mulr_ge0 ?sqr_ge0.
-have e2 : ((2 ^+ 16 * K ^+ 4 * r) ^+ 2 = 2 ^+ 32 * (r ^+ 2 * K ^+ 8))%R.
-  by ring.
-rewrite e /C1 e2; lra.
-Qed.
+Proof. first [exact: (component_quad_form_resample4 K d nu hnuc) | exact: component_quad_form_resample4]. Qed.
 
 (* The fourth moment of the quadratic form, by the moment bound of
    Efron-Stein (probability/efron_stein.v):
@@ -1187,33 +1380,7 @@ Qed.
 Lemma quad_form_moment4 (A : 'M[R]_d) :
   \int[P]_t (quad_form A t ^+ 4)%:E <=
   (9 * 2 ^+ 33 * K ^+ 8 * mxdot A A ^+ 2)%:E.
-Proof.
-pose r (k : 'I_d) := (\sum_(b < d) (A k b ^+ 2 + A b k ^+ 2))%R.
-pose D := ord_fun (fun k => 2 ^+ 16 * K ^+ 4 * r k)%R.
-have DE (k : 'I_d) : D k = (2 ^+ 16 * K ^+ 4 * r k)%R by exact: ord_funE.
-have D0 j : (0 <= D j)%R.
-  apply: sumr_ge0 => k _; apply: mulr_ge0.
-    by apply: mulr_ge0; [exact: exprn_ge0 | exact: exprn4_ge0].
-  by rewrite /r /=; apply: sumr_ge0 => b _; rewrite addr_ge0 ?sqr_ge0.
-have HD (k : 'I_d) : \int[P]_x \int[nu k]_s
-    ((quad_form A x - quad_form A (tuple_set x k s)) ^+ 4)%:E <=
-    ((D k) ^+ 2)%:E.
-  by rewrite DE; exact: quad_form_resample4.
-have := efron_stein_fourth (measurable_quad_form d A) (quad_form_pow4_fin A)
-  D0 HD.
-rewrite quad_form_mean /= => h.
-have -> : \int[P]_t (quad_form A t ^+ 4)%:E =
-    \int[P]_x ((quad_form A x - 0) ^+ 4)%:E.
-  by apply: eq_integral => x _; rewrite subr0.
-apply: le_trans h _; rewrite lee_fin.
-under eq_bigr do rewrite DE.
-have Sr : (\sum_(k < d) r k = 2 * mxdot A A)%R.
-  rewrite /r /=; under eq_bigr do rewrite big_split /=.
-  rewrite big_split /= [X in (_ + X)%R]exchange_big /= mulrDl mul1r /mxdot.
-  by under [in RHS]eq_bigr do under eq_bigr do rewrite -expr2.
-rewrite -mulr_sumr Sr.
-by rewrite le_eqVlt; apply/orP; left; apply/eqP; field.
-Qed.
+Proof. first [exact: (component_quad_form_moment4 K d nu hnuc) | exact: component_quad_form_moment4]. Qed.
 
 End product_moments.
 
@@ -1966,16 +2133,21 @@ rewrite -(gaussian_feature_mx_cov kappa d k1') S0 mulmx0 opnorm0.
 by apply/negP; rewrite -ltNge divr_gt0 ?ltr0n // subr_gt0.
 Qed.
 
-Section data_feature.
+(* The quadratic features of a product of component laws: their mean, and
+   the bounds on their moments and their subexponential constants, which do
+   not involve the fourth moment of the coordinates. data_feature below
+   states the same for the coordinate laws of the universality theorem, and
+   adds the covariance, which involves kappa, and Proposition 2.6. *)
+Section component_feature.
 Local Open Scope ereal_scope.
-Variables (kappa K : R) (d : nat).
+Variables (K : R) (d : nat).
 Variable nu : nat -> probability (measurableTypeR R) R.
 Hypothesis hnu :
-  forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j).
+  forall j, (j < d)%N -> mixture_component_law K (nu j).
 Local Notation P := (tuple_prod nu d).
 Local Notation mu := (data_feature_law nu d).
 
-Lemma data_feature_expectation (f : 'rV[RR]_(d * d) -> RR) :
+Lemma component_feature_expectation (f : 'rV[RR]_(d * d) -> RR) :
   measurable_fun setT f ->
   'E_mu[f] = \int[P]_t (f (data_feature_map d t))%:E.
 Proof.
@@ -1983,51 +2155,33 @@ move=> mf; rewrite unlock /data_feature_law.
 by rewrite integral_distribution_measurable //; exact/measurable_EFinP.
 Qed.
 
-Lemma data_feature_dotE (th : 'rV[R]_(d * d)) t :
+Lemma component_feature_dotE (th : 'rV[R]_(d * d)) t :
   mxdot (data_feature_map d t) th =
   ((Num.sqrt d%:R)^-1 * quad_form (vec_mx th) t)%R.
 Proof. by rewrite -data_feature_dot vec_mxK. Qed.
 
 (* Covariance matching: E <W, theta> = 0 and
    E <W, theta> <W, theta'> = theta C_kappa theta'^T. *)
-Lemma data_feature_mean (th : 'rV[R]_(d * d)) :
+Lemma component_feature_mean (th : 'rV[R]_(d * d)) :
   'E_mu[fun z => mxdot z th] = 0.
 Proof.
-rewrite (data_feature_expectation (fun z => mxdot z th : RR)
+rewrite (component_feature_expectation (fun z => mxdot z th : RR)
   (measurable_mxdotl _ th)).
-under eq_integral do rewrite data_feature_dotE EFinM.
+under eq_integral do rewrite component_feature_dotE EFinM.
 rewrite (integralZl measurableT
-  (integrable_quad_form _ _ _ _ hnu (vec_mx th))).
-by rewrite (quad_form_mean _ _ _ _ hnu) mule0.
-Qed.
-
-Lemma data_feature_cov (th th' : 'rV[R]_(d * d)) :
-  'E_mu[fun z => (mxdot z th * mxdot z th')%R] =
-  (mxdot (th *m unsat_cov kappa d) th')%:E.
-Proof.
-have mf : measurable_fun setT
-    (fun z : 'rV[RR]_(d * d) => (mxdot z th * mxdot z th')%R : RR).
-  by apply: measurable_funM; exact: measurable_mxdotl.
-rewrite (data_feature_expectation _ mf).
-transitivity (\int[P]_t ((d%:R^-1)%:E *
-    (quad_form (vec_mx th) t * quad_form (vec_mx th') t)%:E)).
-  apply: eq_integral => t _; rewrite !data_feature_dotE -EFinM; congr EFin.
-  by rewrite mulrACA sqrt_inv_sqr.
-rewrite (integralZl measurableT
-  (integrable_quad_form2 _ _ _ _ hnu (vec_mx th) (vec_mx th'))).
-rewrite (quad_form_cov _ _ _ _ hnu) -EFinM unsat_covE /unsat_cov_form.
-by rewrite !RmultE !RplusE ?RminusE.
+  (component_integrable_quad_form _ _ _ hnu (vec_mx th))).
+by rewrite (component_quad_form_mean _ _ _ hnu) mule0.
 Qed.
 
 (* (F1) for the features: E <W, theta>^4 <= 9 2^33 K^8 |theta|^4 / d^2. *)
-Lemma feature_dot_moment4 (th : 'rV[R]_(d * d)) :
+Lemma component_feature_dot_moment4 (th : 'rV[R]_(d * d)) :
   \int[P]_t (mxdot (data_feature_map d t) th ^+ 4)%:E <=
   (9 * 2 ^+ 33 * K ^+ 8 / d%:R ^+ 2 * mxdot th th ^+ 2)%:E.
 Proof.
 set c : R := (d%:R ^- 2)%R.
 have -> : \int[P]_t (mxdot (data_feature_map d t) th ^+ 4)%:E =
     \int[P]_t (c%:E * (quad_form (vec_mx th) t ^+ 4)%:E).
-  apply: eq_integral => t _; rewrite data_feature_dotE -EFinM; congr EFin.
+  apply: eq_integral => t _; rewrite component_feature_dotE -EFinM; congr EFin.
   rewrite exprMn (_ : 4 = 2 * 2)%N // exprM [in X in (X * _)%R]expr2.
   have h : ((Num.sqrt d%:R)^-1 ^+ 2 = d%:R^-1 :> R)%R.
     by rewrite expr2 sqrt_inv_sqr.
@@ -2037,30 +2191,30 @@ rewrite ge0_integralZl_EFin //.
 - by move=> t _; rewrite lee_fin exprn4_ge0.
 - by apply/measurable_EFinP; apply: measurable_funX;
     exact: measurable_quad_form.
-apply: le_trans (lee_wpmul2l k0 (quad_form_moment4 _ _ _ _ hnu _)) _.
+apply: le_trans (lee_wpmul2l k0 (component_quad_form_moment4 _ _ _ hnu _)) _.
 rewrite -EFinM lee_fin.
 have -> : mxdot (vec_mx th) (vec_mx th) = mxdot th th.
   by rewrite -mxdot_mxvec !vec_mxK.
 by rewrite /c le_eqVlt; apply/orP; left; apply/eqP; ring.
 Qed.
 
-Lemma data_feature_fourth (th : 'rV[R]_(d * d)) :
+Lemma component_feature_fourth (th : 'rV[R]_(d * d)) :
   'E_mu[fun z => (mxdot z th ^+ 4)%R] <=
   (9 * 2 ^+ 33 * K ^+ 8 / d%:R ^+ 2 * mxdot th th ^+ 2)%:E.
 Proof.
 have mf : measurable_fun setT
     (fun z : 'rV[RR]_(d * d) => (mxdot z th ^+ 4)%R : RR).
   by apply: measurable_funX; exact: measurable_mxdotl.
-by rewrite (data_feature_expectation _ mf); exact: feature_dot_moment4.
+by rewrite (component_feature_expectation _ mf); exact: component_feature_dot_moment4.
 Qed.
 
 (* The same with a square: E <W, theta>^4 <= (2^19 K^4 |theta|^2 / d)^2. *)
-Lemma feature_dot_moment4_sqr (th : 'rV[R]_(d * d)) :
+Lemma component_feature_dot_moment4_sqr (th : 'rV[R]_(d * d)) :
   \int[P]_t ((mxdot (data_feature_map d t) th ^+ 2) ^+ 2)%:E <=
   ((2 ^+ 19 * K ^+ 4 / d%:R * mxdot th th) ^+ 2)%:E.
 Proof.
 under eq_integral do rewrite -exprM.
-apply: le_trans (feature_dot_moment4 th) _; rewrite lee_fin.
+apply: le_trans (component_feature_dot_moment4 th) _; rewrite lee_fin.
 have K8 : (0 <= K ^+ 8)%R := exprn8_ge0 K.
 have A : (0 <= mxdot th th ^+ 2 / d%:R ^+ 2)%R.
   by rewrite divr_ge0 ?sqr_ge0 ?exprn_ge0.
@@ -2074,10 +2228,9 @@ rewrite e1 e2; apply: ler_wpM2r; first exact: mulr_ge0 K8 A.
 lra.
 Qed.
 
-
 (* The fourth moment of the part of W M in the row and the column j:
    E |rc_j (W M)|^4 <= (2^19 K^4 rc_weight j M / d)^2. *)
-Lemma proj_feature_moment4 (M : 'M[R]_(d * d)) (j : 'I_d) :
+Lemma component_proj_feature_moment4 (M : 'M[R]_(d * d)) (j : 'I_d) :
   \int[P]_t (mxdot (rc_proj j (vec_mx (data_feature_map d t *m M)))
                    (rc_proj j (vec_mx (data_feature_map d t *m M))) ^+ 2)%:E
   <= ((2 ^+ 19 * K ^+ 4 / d%:R * rc_weight j M) ^+ 2)%:E.
@@ -2099,20 +2252,20 @@ apply: (integral_sum_sqr_le _ _ P _
   by apply: mulr_ge0; [exact: exprn_ge0 | exact: exprn4_ge0].
 move=> p; rewrite /S; case: (_ || _).
   under eq_integral do rewrite mul1r.
-  by rewrite mul1r; exact: feature_dot_moment4_sqr.
+  by rewrite mul1r; exact: component_feature_dot_moment4_sqr.
 under eq_integral do rewrite mul0r expr0n.
 by rewrite integral0 mul0r mulr0 expr0n.
 Qed.
 
 (* E |W - W^(j)|_F^4 <= 2^20 K^8, x^(j) the point x with its coordinate j
    resampled. *)
-Lemma feature_diff_moment4 (j : 'I_d) :
+Lemma component_feature_diff_moment4 (j : 'I_d) :
   \int[P \x nu j]_p
     (mxdot (data_feature_map d p.1 - data_feature_map d (tuple_set p.1 j p.2))
            (data_feature_map d p.1 - data_feature_map d (tuple_set p.1 j p.2))
      ^+ 2)%:E <= (2 ^+ 20 * K ^+ 8)%:E.
 Proof.
-have K0 : (0 < K)%R := @coordinate_law_K _ _ _ (hnu j (ltn_ord j)).
+have K0 : (0 < K)%R := @component_law_K _ _ (hnu j (ltn_ord j)).
 have d1 : (1 <= d%:R :> R)%R by rewrite ler1n (leq_ltn_trans (leq0n j)).
 set C1 : R := (54 * 2 ^+ 7)%R; set C2 : R := (36 / d%:R)%R.
 have C10 : (0 <= C1)%R by rewrite /C1 mulr_ge0 // exprn_ge0.
@@ -2173,8 +2326,8 @@ rewrite (resample_fst d nu j _ mx8); first by move=> t; exact: e80.
 rewrite (resample_snd d nu j _ ms8); first by move=> s; exact: e80.
 rewrite (resample_fst d nu j _ mS8); first by move=> t; exact: S80.
 clear mD mz mx8 ms8 mS8.
-have B1 := coord_tuple_moment8 _ _ _ _ hnu j.
-have B2 := coord_moment8 _ _ _ _ hnu j.
+have B1 := component_coord_tuple_moment8 _ _ _ hnu j.
+have B2 := component_coord_moment8 _ _ _ hnu j.
 have B3 : \int[P]_t ((\sum_(b < d) (tnth t b : R) ^+ 8)%R)%:E <=
     (d%:R * (48 * K ^+ 8))%:E.
   under eq_integral do rewrite -sumEFin.
@@ -2182,7 +2335,7 @@ have B3 : \int[P]_t ((\sum_(b < d) (tnth t b : R) ^+ 8)%R)%:E <=
   - move=> b; apply/measurable_EFinP; apply: measurable_funX.
     exact: measurable_tnth.
   apply: (@le_trans _ _ (\sum_(k < d) (48 * K ^+ 8)%:E)).
-    by apply: lee_sum => k _; exact: (coord_tuple_moment8 _ _ _ _ hnu k).
+    by apply: lee_sum => k _; exact: (component_coord_tuple_moment8 _ _ _ hnu k).
   rewrite sumEFin sumr_const card_ord lee_fin [X in (_ <= X)%R]mulr_natl.
   exact: lexx.
 have C1' : 0 <= C1%:E by rewrite lee_fin.
@@ -2200,14 +2353,14 @@ Qed.
 (* Resampling the coordinate j changes F (x) = z T z^T, z the feature of x,
    by at most 2^30 K^8 (rc_weight j T + rc_weight j T^T) / d in mean
    square. *)
-Lemma quad_stat_resample2 (T : 'M[R]_(d * d)) (j : 'I_d) :
+Lemma component_quad_stat_resample2 (T : 'M[R]_(d * d)) (j : 'I_d) :
   \int[P]_t \int[nu j]_s
     ((mxdot (data_feature_map d t) (data_feature_map d t *m T) -
       mxdot (data_feature_map d (tuple_set t j s))
             (data_feature_map d (tuple_set t j s) *m T)) ^+ 2)%:E <=
   (2 ^+ 30 * K ^+ 8 / d%:R * (rc_weight j T + rc_weight j T^T))%:E.
 Proof.
-have K0 : (0 < K)%R := @coordinate_law_K _ _ _ (hnu j (ltn_ord j)).
+have K0 : (0 < K)%R := @component_law_K _ _ (hnu j (ltn_ord j)).
 have K4 : (0 <= K ^+ 4)%R := exprn4_ge0 K.
 have K8 : (0 <= K ^+ 8)%R := exprn8_ge0 K.
 have dinv : (0 <= d%:R^-1 :> R)%R by rewrite invr_ge0 ler0n.
@@ -2278,19 +2431,19 @@ clear mG G0 G mq mz mz1 mz2.
 have D2m : \int[P \x nu j]_p ((D2 p) ^+ 2)%:E <= ((2 ^+ 10 * K ^+ 4) ^+ 2)%:E.
   rewrite (_ : (2 ^+ 10 * K ^+ 4) ^+ 2 = 2 ^+ 20 * K ^+ 8)%R.
     by rewrite exprMn -!exprM.
-  exact: feature_diff_moment4.
+  exact: component_feature_diff_moment4.
 have R1m : \int[P \x nu j]_p ((R1 p.1) ^+ 2)%:E <=
     ((2 ^+ 19 * K ^+ 4 / d%:R * rc_weight j T) ^+ 2)%:E.
   rewrite (resample_fst d nu j (fun t => ((R1 t) ^+ 2)%:E)).
   - by apply/measurable_EFinP; apply: measurable_funX; exact: mR.
   - by move=> t; rewrite lee_fin sqr_ge0.
-  exact: proj_feature_moment4.
+  exact: component_proj_feature_moment4.
 have R2m : \int[P \x nu j]_p ((R2 (tuple_set p.1 j p.2)) ^+ 2)%:E <=
     ((2 ^+ 19 * K ^+ 4 / d%:R * rc_weight j T^T) ^+ 2)%:E.
   rewrite (resample_set d nu j (fun t => ((R2 t) ^+ 2)%:E)).
   - by apply/measurable_EFinP; apply: measurable_funX; exact: mR.
   - by move=> t; rewrite lee_fin sqr_ge0.
-  exact: proj_feature_moment4.
+  exact: component_proj_feature_moment4.
 have c10 := rc_weight_ge0 d j T; have c20 := rc_weight_ge0 d j T^T.
 have a0 : (0 <= 2 ^+ 10 * K ^+ 4)%R by rewrite mulr_ge0 // exprn_ge0.
 have b0 (c : R) : (0 <= c)%R -> (0 <= 2 ^+ 19 * K ^+ 4 / d%:R * c)%R.
@@ -2320,11 +2473,11 @@ rewrite -!EFinM -EFinD lee_fin le_eqVlt; apply/orP; left; apply/eqP.
 by ring.
 Qed.
 
-Lemma integrable_quad_stat (T : 'M[R]_(d * d)) :
+Lemma component_integrable_quad_stat (T : 'M[R]_(d * d)) :
   P.-integrable setT (fun t =>
     (mxdot (data_feature_map d t) (data_feature_map d t *m T))%:E).
 Proof.
-apply: (integrable_poly _ _ _ _ hnu 4 (fun t =>
+apply: (component_integrable_poly _ _ _ hnu 4 (fun t =>
   mxdot (data_feature_map d t) (data_feature_map d t *m T) : RR)
   (frobenius T * (4 * d%:R))%R).
   exact: measurable_quad_stat.
@@ -2333,7 +2486,7 @@ by apply: ler_wpM2l; [exact: frobenius_ge0 | exact: feature_norm_le].
 Qed.
 
 (* (F2) for the features: Var (z T z^T) <= 2^31 K^8 |T|_F^2 / d. *)
-Lemma data_feature_variance (T : 'M[R]_(d * d)) :
+Lemma component_feature_variance (T : 'M[R]_(d * d)) :
   'V_mu[fun z => mxdot z (z *m T)] <= (2 ^+ 31 * K ^+ 8 / d%:R * mxdot T T)%:E.
 Proof.
 have mF : measurable_fun setT
@@ -2341,10 +2494,10 @@ have mF : measurable_fun setT
   apply: measurable_mxdot_fun; first exact: measurable_id.
   by apply: measurable_mulmx; [exact: measurable_id | exact: measurable_cst].
 rewrite /data_feature_law (variance_distribution _ _ mF).
-apply: le_trans (efron_stein_resample (integrable_quad_stat T)) _.
+apply: le_trans (efron_stein_resample (component_integrable_quad_stat T)) _.
 have h0 : (0 : \bar R) <= (2^-1)%:E by rewrite lee_fin invr_ge0.
 apply: (le_trans (lee_wpmul2l h0 _)).
-  by apply: lee_sum => j _; exact: quad_stat_resample2.
+  by apply: lee_sum => j _; exact: component_quad_stat_resample2.
 rewrite /= sumEFin -EFinM lee_fin -mulr_sumr big_split /=.
 have K8 : (0 <= K ^+ 8)%R := exprn8_ge0 K.
 have c0 : (0 <= 2 ^+ 30 * K ^+ 8 / d%:R)%R.
@@ -2355,6 +2508,227 @@ apply: le_trans (ler_wpM2l _ (ler_wpM2l c0 S)) _; first by rewrite invr_ge0.
 rewrite le_eqVlt; apply/orP; left; apply/eqP.
 by set u := (d%:R^-1)%R; clearbody u; field.
 Qed.
+
+(* For |v| <= 1, the quadratic form z |-> <z, mxvec (v^T v)> of the
+   features, ((v x)^2 - |v|^2) / sqrt d, is subexponential with constant
+   48 K^2 / sqrt d. Corollary 2.13 (ii) takes it as hypothesis on the
+   features (uni_subexp_data of Unsat/Universality, fmt_subexp_data of
+   Unsat/FourthMomentThree). *)
+Lemma component_feature_quad_subexponential (v : 'rV[R]_d) :
+  (0 < d)%N -> (mxdot v v <= 1)%R ->
+  subexponential mu (fun z => mxdot z (mxvec (v^T *m v)) : RR)
+    (48 * K ^+ 2 / Num.sqrt d%:R)%R.
+Proof.
+move=> d0 v1; rewrite /data_feature_law.
+apply/subexponential_distribution; first exact: measurable_mxdotl.
+have K0 : (0 < K)%R := @component_law_K _ _ (hnu 0 d0).
+have sd : (0 < Num.sqrt d%:R :> R)%R by rewrite sqrtr_gt0 ltr0n.
+set X := fun t : d.-tuple (measurableTypeR R) =>
+  (\sum_(b < d) v ord0 b * tnth t b)%R.
+have -> : (mxdot (n:=d * d))^~ (mxvec (v^T *m v)) \o data_feature_map d =
+    (fun t => (X t ^+ 2 - mxdot v v) / Num.sqrt d%:R)%R.
+  apply/boolp.funext => t /=; rewrite data_feature_dot quad_formE.
+  by rewrite quad_sum_outer trace_outer mulrC.
+have mX : measurable_fun setT
+    (fun t : d.-tuple (measurableTypeR R) => X t : RR).
+  apply: measurable_sum => b; apply: measurable_funM => //.
+  exact: measurable_tnth.
+have [v0|v0] := eqVneq (mxdot v v) 0%R.
+  have vb (b : 'I_d) : (v ord0 b = 0)%R.
+    have := mxdot_entry v ord0 b; rewrite v0 => h.
+    by apply/eqP; rewrite -sqrf_eq0 eq_le h sqr_ge0.
+  have X0 t : X t = 0%R by rewrite /X big1 // => b _; rewrite vb mul0r.
+  split; first by rewrite divr_gt0 // mulr_gt0 // exprn_gt0.
+    apply: measurable_funM => //; apply: measurable_funB => //.
+    exact: measurable_funX.
+  under eq_integral do
+    rewrite X0 expr0n /= v0 subrr mul0r normr0 mul0r expR0.
+  by rewrite integral_cst // [X in _ * X]probability_setT mule1 lee_fin ler1n.
+pose a := ord_fun (fun b : 'I_d => v ord0 b).
+have aE (b : 'I_d) : a b = v ord0 b := ord_funE _ _ b.
+have Sv : (\sum_(j < d) v ord0 j ^+ 2 = mxdot v v)%R.
+  by rewrite /mxdot big_ord1; apply: eq_bigr => j _; rewrite expr2.
+have S0' : (0 < \sum_(j < d) a j ^+ 2 * K ^+ 2)%R.
+  under eq_bigr do rewrite aE.
+  rewrite -mulr_suml Sv mulr_gt0 ?exprn_gt0 //.
+  by rewrite lt_def v0 mxdot_ge0.
+have sg : forall j, (j < d)%N ->
+    subgaussian (nu j) (fun x : measurableTypeR R => (x : R)) K.
+  by move=> j jd; exact: (@component_law_subgaussian _ _ (hnu j jd)).
+have m0 : forall j, (j < d)%N ->
+    (\int[nu j]_t (fun x : measurableTypeR R => (x : R)) t)%R = 0%R.
+  move=> j jd; rewrite /Rintegral.
+  by rewrite (@component_law_mean _ _ (hnu j jd)).
+have sX := subgaussian_sum (mu := nu) (n := d)
+  (f := fun=> fun x : measurableTypeR R => (x : R)) (K := fun=> K) (a := a)
+  sg m0 S0'.
+have eX : (fun x : d.-tuple (measurableTypeR R) =>
+    (\sum_(i < d) a i * tnth x i)%R) = X.
+  by apply/boolp.funext => t; rewrite /X; apply: eq_bigr => i _; rewrite aE.
+rewrite eX in sX.
+have sC := subexponential_center (subexponential_sqr sX).
+have EX2 : (\int[P]_s (X s ^+ 2))%R = mxdot v v.
+  rewrite /Rintegral.
+  under eq_integral do rewrite /X -quad_sum_outer.
+  by rewrite (component_quad_sum_mean _ _ _ hnu) /= trace_outer.
+rewrite EX2 in sC.
+apply: subexponential_le (subexponential_scale _ _ _ _ _ _ sd sC) _.
+apply: ler_wpM2r; first by rewrite invr_ge0 ltW.
+under eq_bigr do rewrite aE.
+have m0' : (0 <= mxdot v v * K ^+ 2)%R.
+  by rewrite mulr_ge0 ?mxdot_ge0 ?sqr_ge0.
+rewrite -mulr_suml Sv exprMn (sqr_sqrtr m0').
+have K2 : (0 <= K ^+ 2)%R := sqr_ge0 K.
+by have := ler_wpM2r K2 v1; nra.
+Qed.
+
+(* Every quadratic form of the features, by the Hanson-Wright inequality
+   (probability/hanson_wright.v): <W, A> = (x^T A x - tr A) / sqrt d is
+   subexponential with constant L / sqrt d for every L >= 252 K^2 |A|_F
+   (used by data_feature_hw of Sat/Apriori and sat_subexp of
+   Sat/ApproximateFit). *)
+Lemma component_feature_subexponential (A : 'M[R]_d) (L : R) :
+  (0 < d)%N -> (0 < L)%R -> (252 * K ^+ 2 * frobenius A <= L)%R ->
+  subexponential mu (fun z => mxdot z (mxvec A) : RR) (L / Num.sqrt d%:R)%R.
+Proof.
+move=> d0 L0 hL; rewrite /data_feature_law.
+apply/subexponential_distribution; first exact: measurable_mxdotl.
+have sd : (0 < Num.sqrt d%:R :> R)%R by rewrite sqrtr_gt0 ltr0n.
+have sg : forall j, (j < d)%N ->
+    subgaussian (nu j) (fun x : measurableTypeR R => (x : R)) K.
+  by move=> j jd; exact: (@component_law_subgaussian _ _ (hnu j jd)).
+have m0 : forall j, (j < d)%N ->
+    (\int[nu j]_t (fun x : measurableTypeR R => (x : R)) t)%R = 0%R.
+  move=> j jd; rewrite /Rintegral.
+  by rewrite (@component_law_mean _ _ (hnu j jd)).
+have hw := @hanson_wright_subexponential _ _ RR nu d
+  (fun=> fun x : measurableTypeR R => (x : R)) K sg m0 A L L0 hL.
+have hc : hw_center nu (fun=> fun x : measurableTypeR R => (x : R)) A = \tr A.
+  rewrite /hw_center /mxtrace; apply: eq_bigr => i _.
+  rewrite /hw_sqmean /Rintegral (@component_law_second _ _ (hnu i (ltn_ord i))).
+  by rewrite /= mulr1.
+rewrite hc in hw.
+have e : (fun z => mxdot z (mxvec A) : RR) \o data_feature_map d =
+    (fun t => (hw_quad (fun=> fun x : measurableTypeR R => (x : R)) A t -
+       \tr A) / Num.sqrt d%:R)%R.
+  by apply/boolp.funext => t /=; rewrite data_feature_dot quad_formE mulrC.
+by rewrite e; exact: subexponential_scale.
+Qed.
+
+(* The same with the constant 252 K^2 |A|_F / sqrt d itself, for
+   A != 0. *)
+Lemma component_feature_subexponential_frob (A : 'M[R]_d) :
+  (0 < d)%N -> (A != 0)%R ->
+  subexponential mu (fun z => mxdot z (mxvec A) : RR)
+    (252 * K ^+ 2 * frobenius A / Num.sqrt d%:R)%R.
+Proof.
+move=> d0 A0; have K0 : (0 < K)%R := @component_law_K _ _ (hnu 0 d0).
+apply: component_feature_subexponential => //.
+by rewrite !mulr_gt0 ?exprn_gt0 ?frobenius_gt0 // ltr0n.
+Qed.
+
+End component_feature.
+
+Section data_feature.
+Local Open Scope ereal_scope.
+Variables (kappa K : R) (d : nat).
+Variable nu : nat -> probability (measurableTypeR R) R.
+Hypothesis hnu :
+  forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j).
+Let hnuc : forall j, (j < d)%N -> mixture_component_law K (nu j) :=
+  fun j jd => coordinate_law_component kappa K (nu j) (hnu j jd).
+Local Notation P := (tuple_prod nu d).
+Local Notation mu := (data_feature_law nu d).
+
+Lemma data_feature_expectation (f : 'rV[RR]_(d * d) -> RR) :
+  measurable_fun setT f ->
+  'E_mu[f] = \int[P]_t (f (data_feature_map d t))%:E.
+Proof. first [exact: (component_feature_expectation K d nu hnuc) | exact: component_feature_expectation]. Qed.
+
+Lemma data_feature_dotE (th : 'rV[R]_(d * d)) t :
+  mxdot (data_feature_map d t) th =
+  ((Num.sqrt d%:R)^-1 * quad_form (vec_mx th) t)%R.
+Proof. first [exact: (component_feature_dotE K d nu hnuc) | exact: component_feature_dotE]. Qed.
+
+(* Covariance matching: E <W, theta> = 0 and
+   E <W, theta> <W, theta'> = theta C_kappa theta'^T. *)
+Lemma data_feature_mean (th : 'rV[R]_(d * d)) :
+  'E_mu[fun z => mxdot z th] = 0.
+Proof. first [exact: (component_feature_mean K d nu hnuc) | exact: component_feature_mean]. Qed.
+
+Lemma data_feature_cov (th th' : 'rV[R]_(d * d)) :
+  'E_mu[fun z => (mxdot z th * mxdot z th')%R] =
+  (mxdot (th *m unsat_cov kappa d) th')%:E.
+Proof.
+have mf : measurable_fun setT
+    (fun z : 'rV[RR]_(d * d) => (mxdot z th * mxdot z th')%R : RR).
+  by apply: measurable_funM; exact: measurable_mxdotl.
+rewrite (data_feature_expectation _ mf).
+transitivity (\int[P]_t ((d%:R^-1)%:E *
+    (quad_form (vec_mx th) t * quad_form (vec_mx th') t)%:E)).
+  apply: eq_integral => t _; rewrite !data_feature_dotE -EFinM; congr EFin.
+  by rewrite mulrACA sqrt_inv_sqr.
+rewrite (integralZl measurableT
+  (integrable_quad_form2 _ _ _ _ hnu (vec_mx th) (vec_mx th'))).
+rewrite (quad_form_cov _ _ _ _ hnu) -EFinM unsat_covE /unsat_cov_form.
+by rewrite !RmultE !RplusE ?RminusE.
+Qed.
+
+(* (F1) for the features: E <W, theta>^4 <= 9 2^33 K^8 |theta|^4 / d^2. *)
+Lemma feature_dot_moment4 (th : 'rV[R]_(d * d)) :
+  \int[P]_t (mxdot (data_feature_map d t) th ^+ 4)%:E <=
+  (9 * 2 ^+ 33 * K ^+ 8 / d%:R ^+ 2 * mxdot th th ^+ 2)%:E.
+Proof. first [exact: (component_feature_dot_moment4 K d nu hnuc) | exact: component_feature_dot_moment4]. Qed.
+
+Lemma data_feature_fourth (th : 'rV[R]_(d * d)) :
+  'E_mu[fun z => (mxdot z th ^+ 4)%R] <=
+  (9 * 2 ^+ 33 * K ^+ 8 / d%:R ^+ 2 * mxdot th th ^+ 2)%:E.
+Proof. first [exact: (component_feature_fourth K d nu hnuc) | exact: component_feature_fourth]. Qed.
+
+(* The same with a square: E <W, theta>^4 <= (2^19 K^4 |theta|^2 / d)^2. *)
+Lemma feature_dot_moment4_sqr (th : 'rV[R]_(d * d)) :
+  \int[P]_t ((mxdot (data_feature_map d t) th ^+ 2) ^+ 2)%:E <=
+  ((2 ^+ 19 * K ^+ 4 / d%:R * mxdot th th) ^+ 2)%:E.
+Proof. first [exact: (component_feature_dot_moment4_sqr K d nu hnuc) | exact: component_feature_dot_moment4_sqr]. Qed.
+
+
+(* The fourth moment of the part of W M in the row and the column j:
+   E |rc_j (W M)|^4 <= (2^19 K^4 rc_weight j M / d)^2. *)
+Lemma proj_feature_moment4 (M : 'M[R]_(d * d)) (j : 'I_d) :
+  \int[P]_t (mxdot (rc_proj j (vec_mx (data_feature_map d t *m M)))
+                   (rc_proj j (vec_mx (data_feature_map d t *m M))) ^+ 2)%:E
+  <= ((2 ^+ 19 * K ^+ 4 / d%:R * rc_weight j M) ^+ 2)%:E.
+Proof. first [exact: (component_proj_feature_moment4 K d nu hnuc) | exact: component_proj_feature_moment4]. Qed.
+
+(* E |W - W^(j)|_F^4 <= 2^20 K^8, x^(j) the point x with its coordinate j
+   resampled. *)
+Lemma feature_diff_moment4 (j : 'I_d) :
+  \int[P \x nu j]_p
+    (mxdot (data_feature_map d p.1 - data_feature_map d (tuple_set p.1 j p.2))
+           (data_feature_map d p.1 - data_feature_map d (tuple_set p.1 j p.2))
+     ^+ 2)%:E <= (2 ^+ 20 * K ^+ 8)%:E.
+Proof. first [exact: (component_feature_diff_moment4 K d nu hnuc) | exact: component_feature_diff_moment4]. Qed.
+
+(* Resampling the coordinate j changes F (x) = z T z^T, z the feature of x,
+   by at most 2^30 K^8 (rc_weight j T + rc_weight j T^T) / d in mean
+   square. *)
+Lemma quad_stat_resample2 (T : 'M[R]_(d * d)) (j : 'I_d) :
+  \int[P]_t \int[nu j]_s
+    ((mxdot (data_feature_map d t) (data_feature_map d t *m T) -
+      mxdot (data_feature_map d (tuple_set t j s))
+            (data_feature_map d (tuple_set t j s) *m T)) ^+ 2)%:E <=
+  (2 ^+ 30 * K ^+ 8 / d%:R * (rc_weight j T + rc_weight j T^T))%:E.
+Proof. first [exact: (component_quad_stat_resample2 K d nu hnuc) | exact: component_quad_stat_resample2]. Qed.
+
+Lemma integrable_quad_stat (T : 'M[R]_(d * d)) :
+  P.-integrable setT (fun t =>
+    (mxdot (data_feature_map d t) (data_feature_map d t *m T))%:E).
+Proof. first [exact: (component_integrable_quad_stat K d nu hnuc) | exact: component_integrable_quad_stat]. Qed.
+
+(* (F2) for the features: Var (z T z^T) <= 2^31 K^8 |T|_F^2 / d. *)
+Lemma data_feature_variance (T : 'M[R]_(d * d)) :
+  'V_mu[fun z => mxdot z (z *m T)] <= (2 ^+ 31 * K ^+ 8 / d%:R * mxdot T T)%:E.
+Proof. first [exact: (component_feature_variance K d nu hnuc) | exact: component_feature_variance]. Qed.
 
 (* Proposition 2.6: for kappa > 1, the law of the quadratic features is a
    regular feature with covariance C_kappa, K_feat = 2^10 K^2 /
@@ -2417,69 +2791,7 @@ Lemma data_feature_quad_subexponential (v : 'rV[R]_d) :
   (0 < d)%N -> (mxdot v v <= 1)%R ->
   subexponential mu (fun z => mxdot z (mxvec (v^T *m v)) : RR)
     (48 * K ^+ 2 / Num.sqrt d%:R)%R.
-Proof.
-move=> d0 v1; rewrite /data_feature_law.
-apply/subexponential_distribution; first exact: measurable_mxdotl.
-have K0 : (0 < K)%R := @coordinate_law_K _ _ _ (hnu 0 d0).
-have sd : (0 < Num.sqrt d%:R :> R)%R by rewrite sqrtr_gt0 ltr0n.
-set X := fun t : d.-tuple (measurableTypeR R) =>
-  (\sum_(b < d) v ord0 b * tnth t b)%R.
-have -> : (mxdot (n:=d * d))^~ (mxvec (v^T *m v)) \o data_feature_map d =
-    (fun t => (X t ^+ 2 - mxdot v v) / Num.sqrt d%:R)%R.
-  apply/boolp.funext => t /=; rewrite data_feature_dot quad_formE.
-  by rewrite quad_sum_outer trace_outer mulrC.
-have mX : measurable_fun setT
-    (fun t : d.-tuple (measurableTypeR R) => X t : RR).
-  apply: measurable_sum => b; apply: measurable_funM => //.
-  exact: measurable_tnth.
-have [v0|v0] := eqVneq (mxdot v v) 0%R.
-  have vb (b : 'I_d) : (v ord0 b = 0)%R.
-    have := mxdot_entry v ord0 b; rewrite v0 => h.
-    by apply/eqP; rewrite -sqrf_eq0 eq_le h sqr_ge0.
-  have X0 t : X t = 0%R by rewrite /X big1 // => b _; rewrite vb mul0r.
-  split; first by rewrite divr_gt0 // mulr_gt0 // exprn_gt0.
-    apply: measurable_funM => //; apply: measurable_funB => //.
-    exact: measurable_funX.
-  under eq_integral do
-    rewrite X0 expr0n /= v0 subrr mul0r normr0 mul0r expR0.
-  by rewrite integral_cst // [X in _ * X]probability_setT mule1 lee_fin ler1n.
-pose a := ord_fun (fun b : 'I_d => v ord0 b).
-have aE (b : 'I_d) : a b = v ord0 b := ord_funE _ _ b.
-have Sv : (\sum_(j < d) v ord0 j ^+ 2 = mxdot v v)%R.
-  by rewrite /mxdot big_ord1; apply: eq_bigr => j _; rewrite expr2.
-have S0' : (0 < \sum_(j < d) a j ^+ 2 * K ^+ 2)%R.
-  under eq_bigr do rewrite aE.
-  rewrite -mulr_suml Sv mulr_gt0 ?exprn_gt0 //.
-  by rewrite lt_def v0 mxdot_ge0.
-have sg : forall j, (j < d)%N ->
-    subgaussian (nu j) (fun x : measurableTypeR R => (x : R)) K.
-  by move=> j jd; exact: (@coordinate_law_subgaussian _ _ _ (hnu j jd)).
-have m0 : forall j, (j < d)%N ->
-    (\int[nu j]_t (fun x : measurableTypeR R => (x : R)) t)%R = 0%R.
-  move=> j jd; rewrite /Rintegral.
-  by rewrite (@coordinate_law_mean _ _ _ (hnu j jd)).
-have sX := subgaussian_sum (mu := nu) (n := d)
-  (f := fun=> fun x : measurableTypeR R => (x : R)) (K := fun=> K) (a := a)
-  sg m0 S0'.
-have eX : (fun x : d.-tuple (measurableTypeR R) =>
-    (\sum_(i < d) a i * tnth x i)%R) = X.
-  by apply/boolp.funext => t; rewrite /X; apply: eq_bigr => i _; rewrite aE.
-rewrite eX in sX.
-have sC := subexponential_center (subexponential_sqr sX).
-have EX2 : (\int[P]_s (X s ^+ 2))%R = mxdot v v.
-  rewrite /Rintegral.
-  under eq_integral do rewrite /X -quad_sum_outer.
-  by rewrite (quad_sum_mean _ _ _ _ hnu) /= trace_outer.
-rewrite EX2 in sC.
-apply: subexponential_le (subexponential_scale _ _ _ _ _ _ sd sC) _.
-apply: ler_wpM2r; first by rewrite invr_ge0 ltW.
-under eq_bigr do rewrite aE.
-have m0' : (0 <= mxdot v v * K ^+ 2)%R.
-  by rewrite mulr_ge0 ?mxdot_ge0 ?sqr_ge0.
-rewrite -mulr_suml Sv exprMn (sqr_sqrtr m0').
-have K2 : (0 <= K ^+ 2)%R := sqr_ge0 K.
-by have := ler_wpM2r K2 v1; nra.
-Qed.
+Proof. first [exact: (component_feature_quad_subexponential K d nu hnuc) | exact: component_feature_quad_subexponential]. Qed.
 
 (* Every quadratic form of the features, by the Hanson-Wright inequality
    (probability/hanson_wright.v): <W, A> = (x^T A x - tr A) / sqrt d is
@@ -2489,30 +2801,7 @@ Qed.
 Lemma data_feature_subexponential (A : 'M[R]_d) (L : R) :
   (0 < d)%N -> (0 < L)%R -> (252 * K ^+ 2 * frobenius A <= L)%R ->
   subexponential mu (fun z => mxdot z (mxvec A) : RR) (L / Num.sqrt d%:R)%R.
-Proof.
-move=> d0 L0 hL; rewrite /data_feature_law.
-apply/subexponential_distribution; first exact: measurable_mxdotl.
-have sd : (0 < Num.sqrt d%:R :> R)%R by rewrite sqrtr_gt0 ltr0n.
-have sg : forall j, (j < d)%N ->
-    subgaussian (nu j) (fun x : measurableTypeR R => (x : R)) K.
-  by move=> j jd; exact: (@coordinate_law_subgaussian _ _ _ (hnu j jd)).
-have m0 : forall j, (j < d)%N ->
-    (\int[nu j]_t (fun x : measurableTypeR R => (x : R)) t)%R = 0%R.
-  move=> j jd; rewrite /Rintegral.
-  by rewrite (@coordinate_law_mean _ _ _ (hnu j jd)).
-have hw := @hanson_wright_subexponential _ _ RR nu d
-  (fun=> fun x : measurableTypeR R => (x : R)) K sg m0 A L L0 hL.
-have hc : hw_center nu (fun=> fun x : measurableTypeR R => (x : R)) A = \tr A.
-  rewrite /hw_center /mxtrace; apply: eq_bigr => i _.
-  rewrite /hw_sqmean /Rintegral (@coordinate_law_second _ _ _ (hnu i (ltn_ord i))).
-  by rewrite /= mulr1.
-rewrite hc in hw.
-have e : (fun z => mxdot z (mxvec A) : RR) \o data_feature_map d =
-    (fun t => (hw_quad (fun=> fun x : measurableTypeR R => (x : R)) A t -
-       \tr A) / Num.sqrt d%:R)%R.
-  by apply/boolp.funext => t /=; rewrite data_feature_dot quad_formE mulrC.
-by rewrite e; exact: subexponential_scale.
-Qed.
+Proof. first [exact: (component_feature_subexponential K d nu hnuc) | exact: component_feature_subexponential]. Qed.
 
 (* The same with the constant 252 K^2 |A|_F / sqrt d itself, for
    A != 0. *)
@@ -2520,11 +2809,7 @@ Lemma data_feature_subexponential_frob (A : 'M[R]_d) :
   (0 < d)%N -> (A != 0)%R ->
   subexponential mu (fun z => mxdot z (mxvec A) : RR)
     (252 * K ^+ 2 * frobenius A / Num.sqrt d%:R)%R.
-Proof.
-move=> d0 A0; have K0 : (0 < K)%R := @coordinate_law_K _ _ _ (hnu 0 d0).
-apply: data_feature_subexponential => //.
-by rewrite !mulr_gt0 ?exprn_gt0 ?frobenius_gt0 // ltr0n.
-Qed.
+Proof. first [exact: (component_feature_subexponential_frob K d nu hnuc) | exact: component_feature_subexponential_frob]. Qed.
 
 (* The same for the Gaussian feature: constant 4 sqrt (kappa + 1) / sqrt d
    (uni_subexp_gauss of Unsat/Universality, fmt_subexp_gauss of
