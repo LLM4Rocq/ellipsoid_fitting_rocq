@@ -42,9 +42,8 @@
       of goe_unsat_value_lower and the center c d of the Gaussian
       features (unsat_center of Unsat/Regularized). The concentration of
       both laws around c d (fmt_concentration) is Corollary 2.13 (ii)
-      (unsat_value_concentration_law of Unsat/Regularized) with the
-      hypotheses of 3; the cost of removing the ridge, which it assumes,
-      is bounded by Lemma 2.12 (unsat_ridge_removal of Unsat/Ridge). *)
+      (unsat_value_concentration_law of Unsat/Regularized, which removes
+      the ridge by Lemma 2.12) with the hypotheses of 3. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval matrix.
@@ -63,7 +62,7 @@ From EllipsoidFitting Require Import Geometry.Psd Geometry.Homogeneous
   Geometry.HeadSpectral Geometry.HeadCorrection.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality.Unsat Require Import LeastSquares Regularized.
-From EllipsoidUniversality.Unsat Require Import Ridge GoeBridge.
+From EllipsoidUniversality.Unsat Require Import GoeBridge.
 From EllipsoidUniversality.Gaussian Require Import Threshold.
 From EllipsoidUniversality.Features Require Import Definitions Regular.
 From EllipsoidUniversality.Model Require Import Rows.
@@ -431,15 +430,8 @@ Proof.
 by rewrite /fmt_L0 lt_max; apply/orP; right; rewrite mulr_gt0 // sqrtr_gt0.
 Qed.
 
-Lemma unsat_beta_ge0 d : 0 <= unsat_beta d.
-Proof.
-rewrite /unsat_beta invr_ge0; case: d => [|d]; first by rewrite ln0 // mul0r.
-by rewrite mulr_ge0 ?sqrtr_ge0 // ln_ge0 // ler1n.
-Qed.
-
-(* Corollary 2.13 (ii) (unsat_value_concentration_law of Unsat/Regularized)
-   for features with the constants of 3, the cost of removing the ridge
-   being bounded by Lemma 2.12 (unsat_ridge_removal of Unsat/Ridge): the
+(* Corollary 2.13 (ii) (unsat_value_concentration_law of Unsat/Regularized,
+   which applies Lemma 2.12) for features with the constants of 3: the
    values concentrate around the center of the Gaussian features. *)
 Lemma fmt_concentration (K alpha : R) (n : nat -> nat)
     (rho : forall d, probability 'rV[RR]_(d * d) RR) :
@@ -455,16 +447,12 @@ Lemma fmt_concentration (K alpha : R) (n : nat -> nat)
          unsat_center 3%:R (n d) d (gaussian_feature_law 3%:R d)
            (unsat_beta d) (unsat_gamma d)|]) 0.
 Proof.
-move=> a0 hn hreg hsub eps eps0.
+move=> a0 hn hreg hsub.
 have k3 : 1 < 3%:R :> RR by rewrite ltr1n.
-have [Cr Cr0 hrr] := unsat_ridge_removal alpha 3%:R (fmt_K K) (fmt_L0 K) a0 k3
-  (fmt_K_gt0 K) (fmt_L0_gt0 K).
-apply: (unsat_value_concentration_law 3%:R alpha (fmt_K K) (fmt_C0 K) Cr n
-  rho (fun d => gaussian_feature_law 3%:R d) (fmt_tau K) k3 a0 (fmt_C0_ge0 K)
-  (ltW Cr0) hn hreg (fmt_regular_gauss K) (fmt_tau_ge0 K) (fmt_tau_le K) _
-  eps eps0).
-apply: (hrr n rho (fmt_tau K) unsat_beta) => //; last exact: unsat_beta_ge0.
-by move=> d c; apply: measurable_unsat_gap; exact: unsat_beta_ge0.
+exact: (unsat_value_concentration_law 3%:R alpha (fmt_K K) (fmt_C0 K)
+  (fmt_L0 K) n rho (gaussian_feature_law 3%:R) (fmt_tau K) k3 a0
+  (fmt_K_gt0 K) (fmt_C0_ge0 K) (fmt_L0_gt0 K) hn hreg (fmt_regular_gauss K)
+  hsub (fmt_tau_ge0 K) (fmt_tau_le K)).
 Qed.
 
 (* The theorem of stage 1: for every family of coordinate laws of fourth

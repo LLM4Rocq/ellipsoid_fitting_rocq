@@ -35,10 +35,17 @@
      n >= alpha d^2 / 2 and tau d <= C0 (ln d)^-3, and 36 <= n gamma: every
      term is a power of w, by (ln d)^10 <= 10! d (rate_bounds, over any
      realType).
-   - unsat_value_concentration_law: if moreover removing the ridge costs at
-     most Cr beta ln d with probability tending to one (Lemma 2.12,
-     Ridge.v), then for every eps > 0 the probability that unsat_value is
-     farther than eps from c d tends to 0, under mu d and under nu d.
+   - unsat_value_concentration_ridge: if moreover removing the ridge costs
+     at most Cr beta ln d with probability tending to one, then for every
+     eps > 0 the probability that unsat_value is farther than eps from c d
+     tends to 0, under mu d and under nu d.
+   - unsat_value_concentration_law, Corollary 2.13 (ii): the same without
+     that hypothesis, the ridge being removed by Lemma 2.12
+     (unsat_ridge_removal, Ridge.v), for a law whose quadratic forms
+     z |-> <z, vec (v^T v)>, |v| <= 1, are subexponential with constant
+     L0 / sqrt d for d >= 1.
+   - unsat_value_concentration: the same for two such laws, in the form
+     the stage theorem uses: both values concentrate around one sequence.
 
    The paper takes gamma = d^(-4/3) (ln d)^(-2/3) and
    beta = (q_d / ln d)^(1/3); the choices above keep the exponents
@@ -59,6 +66,7 @@ From GaussianAnalysis Require Import self_concordant least_squares.
 From GaussianAnalysis Require Import logdet_barrier feature_moments.
 From GaussianAnalysis Require Import lindeberg barrier_lindeberg.
 From GaussianAnalysis Require Import barrier_removal ridge_comparison.
+From GaussianAnalysis Require Import subgaussian.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality.Unsat Require Import LeastSquares Ridge.
@@ -751,7 +759,7 @@ End unsat_rates.
 
 Section unsat_limit.
 
-Lemma unsat_value_concentration_law (kappa alpha K C0 Cr : R)
+Lemma unsat_value_concentration_ridge (kappa alpha K C0 Cr : R)
     (n : nat -> nat) (rho nu : forall d, probability 'rV[RR]_(d * d) RR)
     (tau : nat -> R) :
   1 < kappa -> 0 < alpha -> 0 <= C0 -> 0 <= Cr ->
@@ -878,6 +886,81 @@ have hA : (tuple_prod (fun=> rho d) (n d) [set Z |
 rewrite [e]splitr EFinD.
 apply: lee_ltD => //.
 by rewrite ge0_fin_numE ?measure_ge0 // (le_lt_trans hA) ?ltry.
+Qed.
+
+Lemma unsat_beta_ge0 d : 0 <= unsat_beta d.
+Proof.
+rewrite /unsat_beta invr_ge0; have [->|d0] := posnP d.
+  by rewrite ln0 ?mul0r.
+have ln0 : 0 <= ln (d%:R : R) by rewrite ln_ge0 // ler1n.
+by rewrite mulr_ge0 // sqrtr_ge0.
+Qed.
+
+(* Corollary 2.13 (ii): Lemma 2.12 (unsat_ridge_removal, Ridge.v) removes
+   the ridge, so the unregularized least squares value of features of law
+   rho d concentrates around the center c d computed from nu d. *)
+Theorem unsat_value_concentration_law (kappa alpha K C0 L0 : R)
+    (n : nat -> nat) (rho nu : forall d, probability 'rV[RR]_(d * d) RR)
+    (tau : nat -> R) :
+  1 < kappa -> 0 < alpha -> 0 < K -> 0 <= C0 -> 0 < L0 ->
+  universality_density_tends_to n alpha ->
+  (forall d, (0 < d)%N ->
+     regular_feature K (tau d) (unsat_cov kappa d) (rho d)) ->
+  (forall d, (0 < d)%N ->
+     regular_feature K (tau d) (unsat_cov kappa d) (nu d)) ->
+  (forall d (v : 'rV[RR]_d), (0 < d)%N -> mxdot v v <= 1 ->
+     subexponential (rho d) (fun z => mxdot z (mxvec (v^T *m v)))
+       (L0 / Num.sqrt d%:R)) ->
+  (forall d, 0 <= tau d) ->
+  (exists D, forall d, (D <= d)%N -> tau d <= C0 / ln d%:R ^+ 3) ->
+  forall eps : R, 0 < eps ->
+    paper_main_tends_to (fun d => tuple_prod (fun=> rho d) (n d)
+      [set Z | eps < `|unsat_value (n d) d Z -
+         unsat_center kappa (n d) d (nu d) (unsat_beta d) (unsat_gamma d)|])
+      0.
+Proof.
+move=> k1 a0 K0 C00 L00 hdens hrho hnu srho tau0 htau.
+have [C C0' hC] := unsat_ridge_removal alpha kappa K L0 a0 k1 K0 L00.
+have mgap d c : measurable [set Z : (n d).-tuple 'rV[RR]_(d * d) |
+    c < unsat_ridge_value kappa (n d) d (unsat_beta d) Z -
+    unsat_value (n d) d Z].
+  exact: measurable_unsat_gap (unsat_beta_ge0 d).
+apply: (unsat_value_concentration_ridge kappa alpha K C0 C n rho nu tau) => //.
+  exact: ltW.
+by apply: (hC n rho tau unsat_beta) => // d; exact: unsat_beta_ge0.
+Qed.
+
+(* Corollary 2.13 (ii) for two laws: the values concentrate around the same
+   sequence c d. *)
+Theorem unsat_value_concentration (kappa alpha K C0 L0 : R) :
+  1 < kappa -> 0 < alpha -> 0 < K -> 0 <= C0 -> 0 < L0 ->
+  forall (n : nat -> nat) (mu nu : forall d, probability 'rV[RR]_(d * d) RR)
+         (tau : nat -> R),
+  universality_density_tends_to n alpha ->
+  (forall d, (0 < d)%N ->
+     regular_feature K (tau d) (unsat_cov kappa d) (mu d)) ->
+  (forall d, (0 < d)%N ->
+     regular_feature K (tau d) (unsat_cov kappa d) (nu d)) ->
+  (forall d (v : 'rV[RR]_d), (0 < d)%N -> mxdot v v <= 1 ->
+     subexponential (mu d) (fun z => mxdot z (mxvec (v^T *m v)))
+       (L0 / Num.sqrt d%:R)) ->
+  (forall d (v : 'rV[RR]_d), (0 < d)%N -> mxdot v v <= 1 ->
+     subexponential (nu d) (fun z => mxdot z (mxvec (v^T *m v)))
+       (L0 / Num.sqrt d%:R)) ->
+  (forall d, 0 <= tau d) ->
+  (exists D, forall d, (D <= d)%N -> tau d <= C0 / ln d%:R ^+ 3) ->
+  exists c : nat -> R, forall eps : R, 0 < eps ->
+    paper_main_tends_to (fun d => tuple_prod (fun=> mu d) (n d)
+      [set Z | eps < `|unsat_value (n d) d Z - c d|]) 0 /\
+    paper_main_tends_to (fun d => tuple_prod (fun=> nu d) (n d)
+      [set Z | eps < `|unsat_value (n d) d Z - c d|]) 0.
+Proof.
+move=> k1 a0 K0 C00 L00 n mu nu tau hdens hmu hnu smu snu tau0 htau.
+exists (fun d =>
+  unsat_center kappa (n d) d (nu d) (unsat_beta d) (unsat_gamma d)).
+move=> eps eps0; split.
+  by apply: (unsat_value_concentration_law kappa alpha K C0 L0 n mu nu tau).
+by apply: (unsat_value_concentration_law kappa alpha K C0 L0 n nu nu tau).
 Qed.
 
 End unsat_limit.
