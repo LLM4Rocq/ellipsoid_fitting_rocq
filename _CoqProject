@@ -54,6 +54,7 @@ library/comparison/escape.v
 library/comparison/cgmt.v
 library/comparison/sudakov.v
 library/comparison/gauss_law.v
+library/comparison/gauss_matrix_law.v
 library/comparison/ornstein_uhlenbeck.v
 library/comparison/brascamp_lieb.v
 library/comparison/brascamp_lieb_lebesgue.v
@@ -674,6 +675,7 @@ extension/Gaussian/Cones.v
 extension/Gaussian/Threshold.v
 extension/Gaussian/Representation.v
 extension/Gaussian/Limit.v
+extension/Gaussian/Subcritical.v
 extension/Unsat/LeastSquares.v
 extension/Unsat/Regularized.v
 extension/Unsat/Ridge.v

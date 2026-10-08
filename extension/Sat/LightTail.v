@@ -3,7 +3,8 @@
    3610-3805 of arxiv_v1.tex): the light-tail quotient-norm lower bound.
    Item S9 of stage 3 of phase 5 (lane B). The parts that do not depend on
    other items are proved, over any realType: everything up to the union
-   bound. The asymptotic count and the final statement come next.
+   bound and its asymptotic count. The final statement, with Corollary 3.13
+   and Proposition 3.1 (iii) of lane C as inputs, comes next.
 
    Statement. Let x_1, ..., x_n be the points of a sample whose coordinates
    are independent with laws universality_coordinate_law kappa K0, and let
@@ -89,12 +90,19 @@
      set of probability at most
      (n + 1)^m H^m T^n prod_l (2 C gam)^(k_l q_l), with
      H = 2 e (1 + 16 r sqrt (m + 1) / (gam sqrt d)) and
-     T = 2 e (1 + 8 C1 / gam). *)
+     T = 2 e (1 + 8 C1 / gam);
+   - light_gamma, light_count, the count: for alpha < a, there is gam with
+     2 C gam <= 1 such that, for every C0 > 0 and every large d, the bound
+     of light_union is at most expR (- d) when n <= ((alpha + a) / 2) d^2,
+     m <= C0 d ln d, r <= d and sum_l k_l q_l >= a (d - L)^2; with
+     k_l >= (1 - eps) p_l, blk_p_ge and blk_q_ge give the last condition
+     for a = (1 - eps) (L - 1) / (2 L), which exceeds alpha for L large and
+     eps small when alpha < 1/2. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
-From mathcomp Require Import sesquilinear interval.
+From mathcomp Require Import sesquilinear interval archimedean.
 From mathcomp Require Import boolp classical_sets cardinality reals Rstruct.
 From mathcomp Require Import topology normedtype sequences exp.
 From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
@@ -1137,3 +1145,256 @@ exists U; split.
 Qed.
 
 End light_union.
+
+Section light_count.
+Context {RT : realType}.
+
+Lemma pow_expR (y : RT) (N : nat) : 0 < y -> y ^+ N = expR (N%:R * ln y).
+Proof. by move=> y0; rewrite expRM_natl lnK // posrE. Qed.
+
+(* The choice of gamma: 2 C gam <= 1 and the coefficient of d^2 in the
+   exponent of the union bound is at most -2. *)
+Lemma light_gamma (alpha a C C1 : RT) : 0 < alpha -> alpha < a -> 0 < C ->
+  0 < C1 -> exists gam : RT, [/\ 0 < gam, gam <= 1, gam <= C1,
+    2 * C * gam <= 1 &
+    2 <= a * (- ln (2 * C * gam)) -
+      ((alpha + a) / 2) * ln (2 * expR 1 * (1 + 8 * C1 / gam))].
+Proof.
+move=> a0 aa C0 C10.
+have a0' : 0 < a by apply: lt_trans aa.
+pose b := (alpha + a) / 2.
+pose K' := a * ln (2 * C) + b * ln (18 * expR 1 * C1).
+pose Q := 2 * (2 + `|K'|) / (a - alpha).
+pose gam := Num.min (Num.min 1 C1) (Num.min (2 * C)^-1 (expR (- Q))).
+have C2 : 0 < 2 * C by rewrite mulr_gt0.
+have g0 : 0 < gam.
+  by rewrite !lt_min ltr01 C10 invr_gt0 C2 expR_gt0.
+have g1 : gam <= 1 by rewrite !ge_min lexx.
+have gC1 : gam <= C1 by rewrite !ge_min lexx orbT.
+have g2 : gam <= (2 * C)^-1 by rewrite !ge_min lexx !orbT.
+have gQ : gam <= expR (- Q) by rewrite !ge_min lexx !orbT.
+have b0 : 0 <= b by rewrite /b divr_ge0 // addr_ge0 // ltW.
+have ab : a - b = (a - alpha) / 2 by rewrite /b; field.
+have lng : Q <= - ln gam.
+  rewrite lerNr -[- Q]expRK ler_ln ?posrE ?expR_gt0 //.
+exists gam; split => //.
+  apply: (le_trans (ler_wpM2l (ltW C2) g2)).
+  by rewrite mulfV ?(gt_eqF C2).
+have e1 : ln (2 * C * gam) = ln (2 * C) + ln gam by rewrite lnM ?posrE.
+have T1 : 2 * expR 1 * (1 + 8 * C1 / gam) <= 18 * expR 1 * C1 / gam.
+  have : 1 <= C1 / gam by rewrite ler_pdivlMr // mul1r.
+  have := expR_gt0 (1 : RT); move=> e0 h.
+  have -> : 18 * expR 1 * C1 / gam = 2 * expR 1 * (9 * (C1 / gam)) by ring.
+  by apply: ler_wpM2l; rewrite ?mulr_ge0 ?(ltW e0) //; lra.
+have e0 := expR_gt0 (1 : RT).
+have pT : 0 < 2 * expR 1 * (1 + 8 * C1 / gam).
+  by rewrite !mulr_gt0 // addr_gt0 // divr_gt0 // mulr_gt0.
+have p18 : 0 < 18 * expR 1 * C1 by rewrite !mulr_gt0.
+have pq : 0 < 18 * expR 1 * C1 / gam by rewrite divr_gt0.
+have lnT : ln (2 * expR 1 * (1 + 8 * C1 / gam)) <=
+    ln (18 * expR 1 * C1) - ln gam.
+  by rewrite -ln_div ?posrE // ler_ln ?posrE.
+have aa' : a - alpha != 0 by rewrite subr_eq0 (gt_eqF aa).
+have aQ : (a - alpha) / 2 * Q = 2 + `|K'| by rewrite /Q; field.
+rewrite e1.
+have := ler_wpM2l b0 lnT.
+have h2' : 0 <= (a - alpha) / 2 by rewrite divr_ge0 // ltW // subr_gt0.
+have := ler_wpM2l h2' lng.
+rewrite aQ => h1 h2.
+have := ler_norm K'; rewrite /K' => hK.
+rewrite /b in h2 hK *.
+nra.
+Qed.
+
+(* The bound of light_union is at most expR (- d) for every large d, when
+   n <= ((alpha + a) / 2) d^2, m <= C0 d ln d, r <= d and the exponent
+   sum_l k_l q_l is at least a (d - L)^2, for gam as in light_gamma. *)
+Lemma light_count (alpha a C C1 gam C0 : RT) (L : nat) :
+  0 < alpha -> alpha < a -> a <= 1 / 2 -> 0 < C -> 0 < C1 -> 0 < gam ->
+  2 * C * gam <= 1 ->
+  2 <= a * (- ln (2 * C * gam)) -
+    ((alpha + a) / 2) * ln (2 * expR 1 * (1 + 8 * C1 / gam)) ->
+  0 < C0 ->
+  exists D : nat, forall (d n m : nat) (r : RT) (k : nat -> nat),
+    (D <= d)%N -> n%:R <= (alpha + a) / 2 * d%:R ^+ 2 ->
+    m%:R <= C0 * d%:R * ln d%:R -> 0 <= r -> r <= d%:R ->
+    a * (d%:R - L%:R) ^+ 2 <= (\sum_(l < L.-1) k l * blk_q L d l)%N%:R ->
+    (n.+1)%:R ^+ m *
+    (2 * expR 1 * (1 + 16 * r * Num.sqrt (m.+1)%:R /
+       (gam * Num.sqrt d%:R))) ^+ m *
+    (2 * expR 1 * (1 + 8 * C1 / gam)) ^+ n *
+    \prod_(l < L.-1) (C * (2 * gam)) ^+ (k l * blk_q L d l) <=
+    expR (- d%:R).
+Proof.
+move=> al0 aa a12 C0' C10 g0 g2 hg C00.
+have a0 : 0 < a by apply: lt_trans aa.
+set b := (alpha + a) / 2.
+set Lam := - ln (2 * C * gam).
+set T := 2 * expR 1 * (1 + 8 * C1 / gam).
+have e0 := expR_gt0 (1 : RT).
+have e2 : 2 <= expR 1 :> RT by have := expR_ge1Dx (1 : RT); lra.
+have T1 : 1 <= T.
+  have : 0 <= 8 * C1 / gam.
+    by apply: divr_ge0; [apply: mulr_ge0; [exact: ler0n|exact: ltW]|exact: ltW].
+  by rewrite /T; nra.
+have lnT0 : 0 <= ln T := ln_ge0 T1.
+have Cg0 : 0 < 2 * C * gam by rewrite !mulr_gt0.
+have Lam0 : 0 <= Lam by rewrite /Lam oppr_ge0 ln_le0.
+have b0 : 0 <= b by rewrite /b divr_ge0 // addr_ge0 // ltW.
+have b1 : b <= 1 / 2 by rewrite /b; lra.
+pose cH := 2 * expR 1 * (1 + 16 * Num.sqrt (C0 + 1) / gam).
+have cH1 : 1 <= cH.
+  have : 0 <= 16 * Num.sqrt (C0 + 1) / gam.
+    apply: divr_ge0; last exact: ltW.
+    by apply: mulr_ge0; [exact: ler0n|exact: sqrtr_ge0].
+  by rewrite /cH; nra.
+have lncH0 : 0 <= ln cH := ln_ge0 cH1.
+pose c2 := 4 * C0 * (1 + ln cH) + 64 * C0.
+have c20 : 0 <= c2.
+  have h4 : 0 <= 4 * C0 by apply: mulr_ge0; [exact: ler0n|exact: ltW].
+  have h64 : 0 <= 64 * C0 by apply: mulr_ge0; [exact: ler0n|exact: ltW].
+  by rewrite /c2; apply: addr_ge0 => //; apply: mulr_ge0 => //; lra.
+pose X := 4 * c2 ^+ 2 + 2 * (2 * a * L%:R * Lam + 1) + 1.
+exists (truncn X).+1 => d n m r k dD hn hm r0 rd hN.
+set x := d%:R.
+have xX : X < x.
+  apply: lt_le_trans (truncnS_gt X) _; rewrite /x ler_nat; exact: dD.
+have X1 : 1 <= X.
+  have : 0 <= 2 * a * L%:R * Lam by rewrite !mulr_ge0 ?ler0n // ltW.
+  by rewrite /X; have := sqr_ge0 c2; lra.
+have x1 : 1 <= x by apply: le_trans (ltW xX).
+have x0 : 0 < x by apply: lt_le_trans x1.
+set lam := ln x.
+have lam0 : 0 <= lam := ln_ge0 x1.
+have lamx : lam <= x := ltW (ln_sublinear x0).
+set y := Num.sqrt (Num.sqrt x).
+have sx1 : 1 <= Num.sqrt x by rewrite -sqrtr1 ler_wsqrtr.
+have y1 : 1 <= y by rewrite /y -sqrtr1 ler_wsqrtr.
+have y0 : 0 < y by apply: lt_le_trans y1.
+have yy : y ^+ 2 = Num.sqrt x by rewrite /y sqr_sqrtr // sqrtr_ge0.
+have sxsx : Num.sqrt x ^+ 2 = x by rewrite sqr_sqrtr // ltW.
+have y4 : y ^+ 4 = x by rewrite (_ : 4 = 2 * 2)%N // exprM yy sxsx.
+have lamy : lam <= 4 * y.
+  rewrite /lam -y4 lnXn // [4 * y]mulr_natl lerMn2r; apply/orP; right.
+  exact: ltW (ln_sublinear y0).
+have ysx : y <= Num.sqrt x by rewrite -yy; nra.
+have sxx : Num.sqrt x <= x by rewrite -{2}sxsx; nra.
+(* the first factor *)
+have n1 : 0 < (n.+1)%:R :> RT := ltr0Sn _ _.
+have hn1 : (n.+1)%:R <= 2 * x ^+ 2.
+  rewrite -addn1 natrD; have : 1 <= x ^+ 2 by nra.
+  by have := hn; rewrite -/b; nra.
+have ln2 : ln 2 <= 1 :> RT.
+  by rewrite -[X in _ <= X](expRK 1) ler_ln ?posrE ?expR_gt0.
+have lnn : ln (n.+1)%:R <= 1 + 2 * lam.
+  have h : ln (n.+1)%:R <= ln (2 * x ^+ 2).
+    by rewrite ler_ln ?posrE // mulr_gt0 // exprn_gt0.
+  apply: le_trans h _; rewrite lnM ?posrE ?exprn_gt0 // lnXn // -/lam.
+  by rewrite mulr2n; lra.
+(* the second factor *)
+set H := 2 * expR 1 * (1 + 16 * r * Num.sqrt (m.+1)%:R / (gam * Num.sqrt x)).
+set sC := Num.sqrt (C0 + 1).
+have sC0 : 0 <= sC := sqrtr_ge0 _.
+have sm0 : 0 <= Num.sqrt (m.+1)%:R := sqrtr_ge0 _.
+have q0 : 0 <= 16 * r * Num.sqrt (m.+1)%:R / (gam * Num.sqrt x).
+  apply: divr_ge0; last by apply: mulr_ge0; [exact: ltW|exact: sqrtr_ge0].
+  by apply: mulr_ge0 => //; apply: mulr_ge0 => //; exact: ler0n.
+have H1 : 1 <= H by rewrite /H; nra.
+have m1 : (m.+1)%:R <= (C0 + 1) * x ^+ 2.
+  rewrite -addn1 natrD.
+  have : C0 * x * lam <= C0 * x * x.
+    by apply: ler_wpM2l => //; apply: mulr_ge0; [exact: ltW|exact: ltW].
+  have : 1 <= x ^+ 2 by nra.
+  by have := hm; rewrite -/x -/lam; nra.
+have sm : Num.sqrt (m.+1)%:R <= sC * x.
+  apply: le_trans (ler_wsqrtr m1) _.
+  have hs : Num.sqrt (x ^+ 2) = x by rewrite sqrtr_sqr ger0_norm // ltW.
+  have hc : 0 <= C0 + 1 by have := C00; lra.
+  by rewrite (sqrtrM _ hc) hs.
+have g0' : gam != 0 by rewrite gt_eqF.
+have sx0' : Num.sqrt x != 0 by rewrite gt_eqF // sqrtr_gt0.
+have qb : 16 * r * Num.sqrt (m.+1)%:R / (gam * Num.sqrt x) <=
+    16 * sC / gam * x ^+ 2.
+  have gx : 0 < gam * Num.sqrt x by rewrite mulr_gt0 // sqrtr_gt0.
+  rewrite ler_pdivrMr //.
+  have -> : 16 * sC / gam * x ^+ 2 * (gam * Num.sqrt x) =
+      16 * (sC * x ^+ 2 * Num.sqrt x) by field.
+  have h1 : r * Num.sqrt (m.+1)%:R <= x * (sC * x).
+    by apply: ler_pM.
+  have h2 : sC * x ^+ 2 <= sC * x ^+ 2 * Num.sqrt x.
+    by rewrite ler_peMr // mulr_ge0 // exprn_ge0 // ltW.
+  have hAB : r * Num.sqrt (m.+1)%:R <= sC * x ^+ 2 * Num.sqrt x.
+    by apply: le_trans h1 _; rewrite mulrCA -expr2.
+  rewrite -mulrA; lra.
+have Hx : H <= cH * x ^+ 2.
+  have hq : 1 + 16 * r * Num.sqrt (m.+1)%:R / (gam * Num.sqrt x) <=
+      (1 + 16 * sC / gam) * x ^+ 2.
+    have : 1 <= x ^+ 2 by nra.
+    by rewrite mulrDl mul1r; lra.
+  have e2' : 0 <= 2 * expR 1 :> RT by lra.
+  apply: le_trans (ler_wpM2l e2' hq) _.
+  by rewrite /cH -/sC mulrA.
+have H0 : 0 < H by apply: lt_le_trans H1.
+have lnH : ln H <= ln cH + 2 * lam.
+  have h : ln H <= ln (cH * x ^+ 2).
+    by rewrite ler_ln ?posrE // mulr_gt0 ?exprn_gt0 // (lt_le_trans ltr01).
+  apply: le_trans h _; rewrite lnM ?posrE ?exprn_gt0 ?(lt_le_trans ltr01) //.
+  by rewrite lnXn // -/lam mulr2n; lra.
+(* the third and fourth factors *)
+have T0 : 0 < T by apply: lt_le_trans T1.
+set N := (\sum_(l < L.-1) k l * blk_q L d l)%N.
+have e4 : \prod_(l < L.-1) (C * (2 * gam)) ^+ (k l * blk_q L d l) =
+    (2 * C * gam) ^+ N.
+  by rewrite (_ : C * (2 * gam) = 2 * C * gam) ?prodrXr //; ring.
+rewrite e4 (pow_expR _ n1) (pow_expR _ H0) (pow_expR _ T0) (pow_expR _ Cg0).
+rewrite -!expRD ler_expR.
+have E1 : m%:R * ln (n.+1)%:R <= m%:R * (1 + 2 * lam).
+  by apply: ler_wpM2l => //; exact: ler0n.
+have E2 : m%:R * ln H <= m%:R * (ln cH + 2 * lam).
+  by apply: ler_wpM2l => //; exact: ler0n.
+have E3 : n%:R * ln T <= b * x ^+ 2 * ln T.
+  by apply: ler_wpM2r.
+have E4 : N%:R * ln (2 * C * gam) <= - (a * (x - L%:R) ^+ 2 * Lam).
+  rewrite -[ln _]opprK -/Lam mulrN lerN2; apply: ler_wpM2r => //.
+have lamsx : lam <= 4 * Num.sqrt x by lra.
+have lam2 : lam * lam <= 16 * Num.sqrt x by rewrite -yy; nra.
+have F1 : m%:R * (1 + 2 * lam) + m%:R * (ln cH + 2 * lam) <=
+    c2 * (x * Num.sqrt x).
+  have hm' : m%:R * (1 + ln cH + 4 * lam) <=
+      C0 * x * lam * (1 + ln cH + 4 * lam).
+    by apply: ler_wpM2r; [lra|rewrite -/x -/lam].
+  have p1 : 0 <= C0 * x * (1 + ln cH).
+    by apply: mulr_ge0; [apply: mulr_ge0; apply: ltW|lra].
+  have l1 : C0 * x * (1 + ln cH) * lam <=
+      C0 * x * (1 + ln cH) * (4 * Num.sqrt x) by exact: ler_wpM2l.
+  have p2 : 0 <= 4 * C0 * x by apply: mulr_ge0; [lra|exact: ltW].
+  have l2 : 4 * C0 * x * (lam * lam) <= 4 * C0 * x * (16 * Num.sqrt x).
+    exact: ler_wpM2l.
+  rewrite /c2; nra.
+have F2 : b * x ^+ 2 * ln T - a * (x - L%:R) ^+ 2 * Lam <=
+    - 2 * x ^+ 2 + 2 * a * L%:R * Lam * x.
+  have pL : 0 <= a * L%:R ^+ 2 * Lam.
+    by apply: mulr_ge0 => //; apply: mulr_ge0; [exact: ltW|exact: exprn_ge0].
+  have px : 0 <= x ^+ 2 := exprn_ge0 _ (ltW x0).
+  have hg' : 2 <= a * Lam - b * ln T by move: hg; rewrite -/b -/Lam -/T.
+  nra.
+have pa : 0 <= 2 * a * L%:R * Lam.
+  by apply: mulr_ge0 => //; apply: mulr_ge0; [lra|exact: ler0n].
+have c2s : 2 * c2 <= Num.sqrt x.
+  have h : (2 * c2) ^+ 2 <= x by rewrite /X in xX; nra.
+  have h2c : 0 <= 2 * c2 by lra.
+  by rewrite -(ger0_norm h2c) -sqrtr_sqr ler_wsqrtr.
+have sxsx' : Num.sqrt x * Num.sqrt x = x by rewrite -expr2 sxsx.
+have F3 : c2 * (x * Num.sqrt x) <= x ^+ 2 / 2.
+  have p3 : 0 <= x * Num.sqrt x.
+    by apply: mulr_ge0; [exact: ltW|exact: sqrtr_ge0].
+  nra.
+have F4 : 2 * a * L%:R * Lam * x + x <= x ^+ 2 / 2.
+  have h : 2 * (2 * a * L%:R * Lam + 1) <= x.
+    by rewrite /X in xX; have := sqr_ge0 c2; nra.
+  nra.
+have px : 0 <= x ^+ 2 := exprn_ge0 _ (ltW x0).
+lra.
+Qed.
+
+End light_count.
