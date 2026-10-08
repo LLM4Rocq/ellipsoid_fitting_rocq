@@ -14,8 +14,8 @@
      h + 3/7 = 5 (7 t^2 - 3)^2 / 56 and 1 - h = 5 (1 - t^2)(1 + 7 t^2) / 8,
      t = x / sqrt 3.
    - For -1 <= a <= 7/3, the law lam_a with density
-     (1 + a h(x)) 1_(|x| <= sqrt 3) against mu (density_prob of
-     library/probability/density_law.v, item L1; the density is
+     (1 + a h(x)) 1_(|x| <= sqrt 3) against mu (the laws given by a density
+     of item L1, a new module of library/probability/; this density is
      nonnegative everywhere): a probability, of mean 0, variance 1 and
      fourth moment 9/5 + 8 a / 35, with values in [-sqrt 3, sqrt 3], hence
      a component law with constant 3 (mixture_component_law 3 of
