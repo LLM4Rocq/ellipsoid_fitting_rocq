@@ -1,12 +1,15 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum poly matrix.
-From mathcomp Require Import boolp classical_sets reals ereal.
-From mathcomp Require Import topology normedtype sequences.
+From mathcomp Require Import boolp classical_sets functions interval reals ereal.
+From mathcomp Require Import topology normedtype sequences derive realfun.
 From mathcomp Require Import measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability ring_tactic field_tactic.
 From mathcomp Require Import arithmetic_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss.
 From GaussianAnalysis.probability Require Import semicircle_law.
+From GaussianAnalysis.gaussian Require Import gauss_interpolation.
+From GaussianAnalysis.comparison Require Import gauss_concentration.
+From GaussianAnalysis.matrix Require Import von_neumann.
 From GaussianAnalysis.random_matrix Require Import goe.
 
 (**md**************************************************************************)
@@ -446,4 +449,99 @@ apply: cvgM; apply: ih; first by rewrite ltnS (leq_trans (ltnW (ltn_ord r))).
 by rewrite ltnS (leq_trans (leq_subr _ _)).
 Qed.
 
+(* The moments of the eigenvalues clipped to [-3, 3] have the same limits. *)
+Lemma goe_clip_cvg j :
+  (fun d => \int[@gauss R (d * d)]_a goe_clip j a) @ \oo --> m j.
+Proof.
+(* E (t_j - goe_clip j) tends to 0 since its square is at most
+   E (t_j - goe_clip j)^2 *)
+have herr : (fun d => \int[@gauss R (d * d)]_a (goe_tr j a - goe_clip j a))
+    @ \oo --> 0.
+  apply: cvg_nat_eps => e e0.
+  have e2 : 0 < e ^+ 2 by rewrite exprn_gt0.
+  have [D hD] := goe_clip_err2_small (R := R) j e2.
+  exists D => d dD; rewrite sub0r normrN.
+  have hs := Rintegral_sqr_le (polyfunB (@polyfun_goe_tr R d j)
+    (@polyfun_goe_clip R d j)).
+  have h2 := le_trans hs (hD d dD).
+  rewrite -real_normK ?num_real // in h2.
+  have := normr_ge0 (\int[@gauss R (d * d)]_a (goe_tr j a - goe_clip j a)).
+  by nra.
+have -> : (fun d => \int[@gauss R (d * d)]_a goe_clip j a) =
+    (fun d => \int[@gauss R (d * d)]_a goe_tr j a -
+      \int[@gauss R (d * d)]_a (goe_tr j a - goe_clip j a)).
+  apply/funext => d; rewrite [X in _ = _ - X]Rintegral_polyfunD.
+  - exact: polyfun_goe_tr.
+  - under eq_fun do rewrite -mulN1r.
+    by apply: polyfunM; [exact: polyfun_cst | exact: polyfun_goe_clip].
+  have -> : \int[@gauss R (d * d)]_x - goe_clip j x =
+      - \int[@gauss R (d * d)]_x goe_clip j x.
+    under eq_Rintegral do rewrite -mulN1r.
+    by rewrite Rintegral_polyfunZ ?mulN1r //; exact: polyfun_goe_clip.
+  by rewrite opprD addrA subrr add0r opprK.
+rewrite -[X in _ --> X]subr0; apply: cvgB => //; exact: goe_moment_cvg.
+Qed.
+
 End goe_moment_limit.
+
+Section wigner.
+Context {R : realType}.
+Local Notation sigma := (semicircle_prob (2 : R)).
+Local Notation m k := (\int[sigma]_x ((x : R) ^+ k)).
+
+(* The empirical mean (1 / d) \sum_i f (lambda_i) of f over the spectrum of
+   W = goe_mx a. *)
+Definition goe_stat d (f : R -> R) (a : 'rV[R]_(d * d)) : R :=
+  (\sum_i f (spec (goe_mx a) 0 i)) / d%:R.
+
+Lemma goe_stat_poly_clip d (p : {poly R}) (a : 'rV[R]_(d * d)) :
+  goe_stat (fun x => p.[clip 3 x]) a =
+  \sum_(j < size p) p`_j * goe_clip j a.
+Proof.
+rewrite /goe_stat /goe_clip; under eq_bigr do rewrite horner_coef.
+rewrite exchange_big mulr_suml; apply: eq_bigr => j _.
+by rewrite -mulr_sumr mulrA.
+Qed.
+
+Lemma integrable_semicircle_poly (p : {poly R}) :
+  sigma.-integrable [set: R] (EFin \o horner p).
+Proof.
+apply: integrable_semicircle_continuous; first by rewrite pnatr_eq0.
+exact: continuous_horner.
+Qed.
+
+Lemma semicircle_poly (p : {poly R}) :
+  \int[sigma]_x p.[x] = \sum_(j < size p) p`_j * m j.
+Proof.
+have r0 : (2 : R) != 0 by rewrite pnatr_eq0.
+under eq_Rintegral do rewrite horner_coef.
+rewrite Rintegral_sum //.
+  move=> j; apply: integrable_semicircle_continuous => // x.
+  apply: (@continuousM _ _ (cst p`_j) (fun x : R => x ^+ j)).
+    exact: cst_continuous.
+  exact: exprn_continuous.
+apply: eq_bigr => j _; rewrite RintegralZl //.
+apply: integrable_semicircle_continuous => //; exact: exprn_continuous.
+Qed.
+
+Lemma continuous_clip (c : R) : continuous (clip c).
+Proof.
+move=> x; apply/cvgrPdist_le => e e0; near=> y.
+by apply: le_trans (clip_lipschitz _ _ _) _; near: y; exact: cvgr_dist_le.
+Unshelve. all: by end_near. Qed.
+
+(* The semicircle law of radius 2 lives on [-2, 2]: clipping at 3 does not
+   change its integrals. *)
+Lemma semicircle_clip (h : R -> R) : continuous h ->
+  \int[sigma]_x h (clip 3 x) = \int[sigma]_x h x.
+Proof.
+have r0 : (2 : R) != 0 by rewrite pnatr_eq0.
+move=> ch; rewrite (Rintegral_semicircle r0).
+  apply: integrable_semicircle_continuous => //.
+  by move=> x; apply: continuous_comp; [exact: continuous_clip | exact: ch].
+rewrite (Rintegral_semicircle r0); first exact: integrable_semicircle_continuous.
+apply: eq_Rintegral => x; rewrite inE /= in_itv /= => /andP[x2 x2'].
+rewrite clip_id // ler_norml; rewrite ger0_norm // in x2 x2'; lra.
+Qed.
+
+End wigner.

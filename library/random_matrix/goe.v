@@ -423,6 +423,31 @@ rewrite -[X in fine X]/(@gauss R m setT) probability_setT /= mulr1.
 by rewrite lerDl sqr_ge0.
 Qed.
 
+(* (E X)^2 <= E X^2. *)
+Lemma Rintegral_sqr_le (X : 'rV[R]_m -> R) : polyfun X ->
+  (\int[gauss m]_x X x) ^+ 2 <= \int[gauss m]_x X x ^+ 2.
+Proof.
+move=> hX; set e := \int[gauss m]_y X y.
+have pXe : polyfun (fun x => X x - e) by apply: polyfunB => //; exact: polyfun_cst.
+have pS : polyfun (fun x => (X x - e) ^+ 2).
+  by under eq_fun do rewrite expr2; exact: polyfunM.
+have i0 : \int[gauss m]_x (X x - e) = 0.
+  rewrite Rintegral_polyfunD; [exact: hX | exact: polyfun_cst |].
+  rewrite Rintegral_cst // -[X in fine X]/(@gauss R m setT) probability_setT.
+  by rewrite /= mulr1 subrr.
+have -> : \int[gauss m]_x X x ^+ 2 =
+    \int[gauss m]_x ((X x - e) ^+ 2 + (2 * e * (X x - e) + e ^+ 2)).
+  by apply: eq_Rintegral => x _; ring.
+rewrite Rintegral_polyfunD; first exact: pS.
+  apply: polyfunD; last exact: polyfun_cst.
+  by apply: polyfunM => //; exact: polyfun_cst.
+rewrite Rintegral_polyfunD; [by apply: polyfunM => //; exact: polyfun_cst |
+  exact: polyfun_cst |].
+rewrite Rintegral_polyfunZ // i0 mulr0 add0r Rintegral_cst //.
+rewrite -[X in fine X]/(@gauss R m setT) probability_setT /= mulr1.
+by rewrite lerDr; apply: Rintegral_ge0 => x _; exact: sqr_ge0.
+Qed.
+
 (* |Cov (X, Y)| <= (Var X + Var Y) / 2. *)
 Lemma Rintegral_cov_le (X Y : 'rV[R]_m -> R) : polyfun X -> polyfun Y ->
   `|\int[gauss m]_x (X x * Y x) -
@@ -865,6 +890,52 @@ apply: le_trans (goe_clip_bound k a) _.
 by rewrite ler_peMr ?exprn_ge0 // lerDl.
 Qed.
 
+(* E (t_k - goe_clip k)^2 <= 4 (2 k)! exp (2 sqrt 2 (2 u + 1)
+   + (2 u + 1)^2 / d - 6 u) for every u >= 0. *)
+Lemma goe_clip_err2 k (u : R) : (0 < d)%N -> 0 <= u ->
+  \int[gauss (d * d)]_a (goe_tr k a - goe_clip k a) ^+ 2 <=
+  4 * (k.*2)`!%:R *
+    expR (2 * Num.sqrt 2 * (2 * u + 1) + (2 * u + 1) ^+ 2 / d%:R - 6 * u).
+Proof.
+move=> d0 u0.
+have pt := polyfun_goe_tr k; have pS := polyfun_goe_clip k.
+have ptS : polyfun (fun a => (goe_tr k a - goe_clip k a) ^+ 2).
+  by under eq_fun do rewrite expr2; apply: polyfunM; exact: polyfunB.
+have hpt a : (goe_tr k a - goe_clip k a) ^+ 2 <=
+    4 * (k.*2)`!%:R * expR (- (6 * u)) * expR ((2 * u + 1) * opnorm (goe_mx a)).
+  have w0 := opnorm_ge0 (goe_mx a); set w := opnorm (goe_mx a).
+  have e := goe_clip_err k a u0; rewrite -/w in e.
+  apply: le_trans (_ : (2 * w ^+ k * expR (u * (w - 3))) ^+ 2 <= _).
+    rewrite -real_normK ?num_real // lerXn2r // ?nnegrE ?normr_ge0 //.
+    by rewrite mulr_ge0 ?expR_ge0 // mulr_ge0 ?exprn_ge0.
+  rewrite !exprMn -exprM -expRM_natr.
+  have hw := exprn_le_fact_expR (k * 2) w0; rewrite mulnC mul2n in hw.
+  apply: le_trans (_ : 2 ^+ 2 * ((k.*2)`!%:R * expR w) *
+      expR (u * (w - 3) * 2%:R) <= _).
+    apply: ler_wpM2r; first exact: expR_ge0.
+    by apply: ler_wpM2l; [exact: exprn_ge0 | rewrite muln2; exact: hw].
+  rewrite le_eqVlt; apply/orP; left; apply/eqP.
+  rewrite (_ : 2 ^+ 2 = 4 :> R); first by rewrite expr2 -natrM.
+  by rewrite -!mulrA -!expRD; congr (_ * (_ * expR _)); ring.
+have iE : (gauss (d * d)).-integrable [set: 'rV[R]_(d * d)]
+    (EFin \o (fun a => 4 * (k.*2)`!%:R * expR (- (6 * u)) *
+      expR ((2 * u + 1) * opnorm (goe_mx a)))).
+  rewrite (_ : _ \o _ = (fun a => (4 * (k.*2)`!%:R * expR (- (6 * u)))%:E *
+    (expR ((2 * u + 1) * opnorm (goe_mx a)))%:E)%E); first by apply/funext => a.
+  exact: integrableZl (integrable_goe_opnorm_expR _ _).
+apply: le_trans (_ : \int[gauss (d * d)]_a (4 * (k.*2)`!%:R *
+    expR (- (6 * u)) * expR ((2 * u + 1) * opnorm (goe_mx a))) <= _).
+  by apply: le_Rintegral => //; exact: integrable_polyfun.
+rewrite RintegralZl //; first exact: integrable_goe_opnorm_expR.
+have u1 : 0 <= 2 * u + 1 by rewrite addr_ge0 // mulr_ge0.
+have hm := @goe_opnorm_mgf R d (2 * u + 1) d0 u1.
+apply: le_trans (_ : 4 * (k.*2)`!%:R * expR (- (6 * u)) *
+    expR (2 * Num.sqrt 2 * (2 * u + 1) + (2 * u + 1) ^+ 2 / d%:R) <= _).
+  by apply: ler_wpM2l => //; rewrite mulr_ge0 ?expR_ge0 // mulr_ge0 // ler0n.
+rewrite le_eqVlt; apply/orP; left; apply/eqP.
+by rewrite [in RHS]expRD; ring.
+Qed.
+
 (* Var t_k <= 2 L^2 + 8 (2 k)! exp (2 sqrt 2 (2 u + 1) + (2 u + 1)^2 / d - 6 u)
    for every u >= 0, with L = sqrt 2 k 3^(k-1) / d the Lipschitz constant of
    the clipped statistic: Var t_k <= E (t_k - E S)^2 <= 2 E (t_k - S)^2
@@ -1110,6 +1181,44 @@ have h1 : (2 * u + 1) ^+ 2 < d1%:R.
 have hq : (2 * u + 1) ^+ 2 / d1%:R <= 1.
   by rewrite ler_pdivrMr // mul1r ltW.
 rewrite -/K; apply: le_trans (_ : K * expR (ln (eps / (2 * K))) <= _).
+  rewrite ler_pM2l // ler_expR; apply: le_trans hu.
+  by rewrite /c /C1; lra.
+rewrite lnK ?posrE // le_eqVlt; apply/orP; left; apply/eqP.
+have Kn : K != 0 by rewrite gt_eqF.
+by clearbody K; field.
+Qed.
+
+(* E (t_k - goe_clip k)^2 tends to 0. *)
+Lemma goe_clip_err2_small k (eps : R) : 0 < eps -> exists D : nat, forall d1,
+  (D <= d1)%N ->
+  \int[gauss (d1 * d1)]_a (goe_tr k a - goe_clip k a) ^+ 2 <= eps.
+Proof.
+move=> e0.
+set K : R := 4 * (k.*2)`!%:R.
+have K0 : 0 < K by rewrite mulr_gt0 // ltr0n fact_gt0.
+set c : R := 6 - 4 * Num.sqrt 2.
+have c0 : 0 < c.
+  have s2 : Num.sqrt 2 < 3 / 2 :> R.
+    rewrite -(@ltr_pXn2r _ 2) ?nnegrE ?sqrtr_ge0 ?divr_ge0 // sqr_sqrtr //.
+    by rewrite expr_div_n; lra.
+  by rewrite /c; lra.
+set C1 : R := 2 * Num.sqrt 2 + 1.
+have eK : 0 < eps / K by rewrite divr_gt0.
+set u : R := Num.max 0 ((C1 - ln (eps / K)) / c).
+have u0 : 0 <= u by rewrite le_max lexx.
+have hu : - (c * u) + C1 <= ln (eps / K).
+  have : (C1 - ln (eps / K)) / c <= u by rewrite le_max lexx orbT.
+  by rewrite ler_pdivrMr // => h; rewrite mulrC; lra.
+exists (archimedean.Num.truncn ((2 * u + 1) ^+ 2)).+1 => d1 dD.
+have d0 : (0 < d1)%N by apply: leq_trans dD.
+have dR : 0 < d1%:R :> R by rewrite ltr0n.
+apply: le_trans (@goe_clip_err2 R d1 k u d0 u0) _.
+have h1 : (2 * u + 1) ^+ 2 < d1%:R.
+  apply: lt_le_trans (archimedean.Num.Theory.truncnS_gt _) _.
+  by rewrite ler_nat.
+have hq : (2 * u + 1) ^+ 2 / d1%:R <= 1.
+  by rewrite ler_pdivrMr // mul1r ltW.
+rewrite -/K; apply: le_trans (_ : K * expR (ln (eps / K)) <= _).
   rewrite ler_pM2l // ler_expR; apply: le_trans hu.
   by rewrite /c /C1; lra.
 rewrite lnK ?posrE // le_eqVlt; apply/orP; left; apply/eqP.
