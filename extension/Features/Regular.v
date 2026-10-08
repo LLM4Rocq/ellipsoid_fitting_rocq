@@ -92,7 +92,15 @@
      component_feature_diff_moment4 and component_quad_stat_resample2. The
      lemmas without the prefix are their corollaries for
      universality_coordinate_law, by coordinate_law_component
-     (Mixture/Component).
+     (Mixture/Component). The covariance is stated for coordinates with
+     different fourth moments kap j: component_moment4,
+     component_quad_form_cov (E Q_A Q_B = <A, B> + <A, B^T> +
+     sum_a (kap a - 3) A_aa B_aa) and component_feature_cov
+     (E <W, theta> <W, theta'> = theta (coord_cov kap d) theta'^T, where
+     coord_covE says that coord_cov kap d is the matrix of the form
+     coord_cov_form, and coord_cov_const that coord_cov (fun=> kappa) d is
+     unsat_cov kappa d); moment4, quad_form_cov and data_feature_cov are
+     their corollaries for kap = kappa.
 
    - gaussian_feature_regular: for kappa > 1 and d > 0,
      gaussian_feature_law kappa d is a regular feature with covariance
@@ -313,6 +321,67 @@ rewrite exchange_big /=; apply: eq_bigr => p _.
 rewrite unsat_cov_formC (vec_mx_sum _ _ th') unsat_cov_form_suml mulr_sumr.
 by apply: eq_bigr => q _; rewrite unsat_cov_formC mxE; ring.
 Qed.
+
+(* The covariance form of the features of a point whose coordinate j has
+   fourth moment kap j; unsat_cov_form kappa d is the case of the constant
+   kap = kappa (coord_cov_const). *)
+Definition coord_cov_form (kap : nat -> R) d (A B : 'M[R]_d) : RR :=
+  d%:R^-1 * (mxdot A B + mxdot A B^T +
+             \sum_(j < d) (kap j - 3) * (A j j * B j j)).
+
+(* Its matrix in the mxvec coordinates. *)
+Definition coord_cov (kap : nat -> R) d : 'M[R]_(d * d) :=
+  \matrix_(p, q)
+    coord_cov_form kap d (vec_mx (delta_mx 0 p : 'rV[R]_(d * d)))
+                         (vec_mx (delta_mx 0 q : 'rV[R]_(d * d))).
+
+Lemma coord_cov_formC (kap : nat -> R) d (A B : 'M[R]_d) :
+  coord_cov_form kap d A B = coord_cov_form kap d B A.
+Proof.
+rewrite /coord_cov_form mxdotC; congr (_ * (_ + _ + _)).
+  by rewrite -(mxdot_trmx A B^T) trmxK mxdotC.
+by apply: eq_bigr => j _; rewrite (mulrC (A j j)).
+Qed.
+
+Lemma coord_cov_form_dot (kap : nat -> R) d (A B : 'M[R]_d) :
+  coord_cov_form kap d A B =
+  mxdot A (d%:R^-1 *: (B + B^T + diag_mx (\row_j ((kap j - 3) * B j j)))).
+Proof.
+rewrite /coord_cov_form mxdotZr !mxdotDr.
+congr (_ * (_ + _ + _)); apply: eq_bigr => i _.
+rewrite (bigD1 i) //= big1 ?addr0.
+  by move=> j ji; rewrite !mxE eq_sym (negbTE ji) mulr0n mulr0.
+by rewrite !mxE eqxx mulr1n; ring.
+Qed.
+
+Lemma coord_cov_form_suml (kap : nat -> R) d I (r : seq I) (c : I -> R)
+    (M : I -> 'M[R]_d) (B : 'M[R]_d) :
+  coord_cov_form kap d (\sum_(k <- r) c k *: M k) B =
+  \sum_(k <- r) c k * coord_cov_form kap d (M k) B.
+Proof.
+rewrite coord_cov_form_dot mxdot_suml; apply: eq_bigr => k _.
+by rewrite mxdotZl coord_cov_form_dot.
+Qed.
+
+(* The matrix coord_cov kap d represents the form coord_cov_form. *)
+Lemma coord_covE (kap : nat -> R) d (th th' : 'rV[R]_(d * d)) :
+  mxdot (th *m coord_cov kap d) th' =
+  coord_cov_form kap d (vec_mx th) (vec_mx th').
+Proof.
+rewrite (vec_mx_sum _ _ th) coord_cov_form_suml /mxdot big_ord1.
+under eq_bigr do rewrite mxE big_distrl /=.
+rewrite exchange_big /=; apply: eq_bigr => p _.
+rewrite coord_cov_formC (vec_mx_sum _ _ th') coord_cov_form_suml mulr_sumr.
+by apply: eq_bigr => q _; rewrite coord_cov_formC mxE; ring.
+Qed.
+
+Lemma coord_cov_const (kappa : R) d : coord_cov (fun=> kappa) d = unsat_cov kappa d.
+Proof.
+apply/matrixP => p q; rewrite !mxE /coord_cov_form /unsat_cov_form.
+rewrite !RmultE !RplusE ?RminusE; congr (_ * (_ + _ + _)).
+by rewrite mulr_sumr.
+Qed.
+
 
 (* The matrix x x^T - I of a point t, so that
    quad_form A t = <A, quad_mx t>. *)
@@ -1044,6 +1113,205 @@ rewrite -mulr_sumr Sr.
 by rewrite le_eqVlt; apply/orP; left; apply/eqP; field.
 Qed.
 
+(* The coordinates may have different fourth moments: kap j for the
+   coordinate j. *)
+Variable kap : nat -> R.
+Hypothesis hkap :
+  forall j, (j < d)%N -> \int[nu j]_x ((x : R) ^+ 4)%:E = (kap j)%:E.
+
+Lemma component_moment4 (a b c e : 'I_d) :
+  \int[P]_t ((tnth t a : R) * tnth t b * tnth t c * tnth t e)%:E =
+  ((a == b)%:R * (c == e)%:R + (a == c)%:R * (b == e)%:R +
+   (a == e)%:R * (b == c)%:R +
+   (kap a - 3) * (((a == b) && (a == c)) && (a == e))%:R)%:E.
+Proof.
+have one4 := component_one_pow4_le; have c4 := component_coord_pow4_le.
+have h2 := @component_law_second _ _ (hnu a (ltn_ord a)).
+have h4 := hkap a (ltn_ord a).
+have ind (k : 'I_d) (t : d.-tuple (measurableTypeR R)) s :
+    k != a -> (tnth (tuple_set t a s) k : R) = tnth t k.
+  by move=> ka; rewrite tnth_tuple_set_neq.
+(* x_a^k times one, two or three coordinates other than a *)
+have ext1 k (k1 : 'I_d) : k1 != a ->
+    \int[P]_t (((tnth t a : R) ^+ k) * tnth t k1)%:E =
+    \int[nu a]_s ((s : R) ^+ k)%:E * \int[P]_t ((tnth t k1 : R))%:E.
+  move=> k1a.
+  apply: (component_coord_extract a k (fun t => (tnth t k1 : RR))) => //.
+  - exact: measurable_tnth.
+  - by move=> t; exact: component_coord_abs_le.
+  - by move=> t s /=; rewrite ind.
+have ext2 k (k1 k2 : 'I_d) : k1 != a -> k2 != a ->
+    \int[P]_t (((tnth t a : R) ^+ k) * (tnth t k1 * tnth t k2))%:E =
+    \int[nu a]_s ((s : R) ^+ k)%:E *
+      \int[P]_t ((tnth t k1 : R) * tnth t k2)%:E.
+  move=> k1a k2a.
+  refine (component_coord_extract a k
+    (fun t => ((tnth t k1 : RR) * (tnth t k2 : RR))%R) _ _ _).
+  - by apply: measurable_funM; exact: measurable_tnth.
+  - move=> t; have := @component_prod4_le t _ _ _ _ (c4 t k1) (c4 t k2) (one4 t)
+      (one4 t).
+    by rewrite !mulr1.
+  - by move=> t s /=; rewrite !ind.
+have ext3 (k1 k2 k3 : 'I_d) : k1 != a -> k2 != a -> k3 != a ->
+    \int[P]_t (((tnth t a : R) ^+ 1) *
+      (tnth t k1 * tnth t k2 * tnth t k3))%:E =
+    \int[nu a]_s ((s : R) ^+ 1)%:E *
+      \int[P]_t ((tnth t k1 : R) * tnth t k2 * tnth t k3)%:E.
+  move=> k1a k2a k3a.
+  refine (component_coord_extract a 1 (fun t =>
+    ((tnth t k1 : RR) * (tnth t k2 : RR) * (tnth t k3 : RR))%R) _ _ _).
+  - apply: measurable_funM; last exact: measurable_tnth.
+    by apply: measurable_funM; exact: measurable_tnth.
+  - move=> t; have := @component_prod4_le t _ _ _ _ (c4 t k1) (c4 t k2) (c4 t k3)
+      (one4 t).
+    by rewrite !mulr1.
+  - by move=> t s /=; rewrite !ind.
+have m1 : \int[nu a]_s ((s : R) ^+ 1)%:E = 0.
+  under eq_integral do rewrite expr1.
+  exact: (@component_law_mean _ _ (hnu a (ltn_ord a))).
+have [<-|ab] := eqVneq a b; have [<-|ac] := eqVneq a c;
+  have [<-|ae] := eqVneq a e; rewrite ?eqxx /=.
+- (* a = b = c = e *)
+  transitivity (\int[P]_t ((tnth t a : R) ^+ 4)%:E).
+    by apply: eq_integral => t _; congr EFin; ring.
+  rewrite (integral_tuple_prod_coord nu a
+    (f := fun s : measurableTypeR R => ((s : R) ^+ 4)%:E)).
+  + by apply/measurable_EFinP; exact: measurable_funX.
+  + by rewrite h4; congr EFin; ring.
+- (* a = b = c, e <> a *)
+  have ea : e != a by rewrite eq_sym.
+  transitivity (\int[P]_t ((tnth t a : R) ^+ 3 * tnth t e)%:E).
+    by apply: eq_integral => t _; congr EFin; ring.
+  by rewrite (ext1 3%N e ea) component_moment1 mule0; congr EFin; ring.
+- (* a = b = e, c <> a *)
+  have ca : c != a by rewrite eq_sym.
+  transitivity (\int[P]_t ((tnth t a : R) ^+ 3 * tnth t c)%:E).
+    by apply: eq_integral => t _; congr EFin; ring.
+  rewrite (ext1 3%N c ca) component_moment1 mule0 (negbTE ca).
+  by rewrite /= !(mulr0, mul0r, addr0, mulr0n).
+- (* a = b, c <> a, e <> a *)
+  have ca : c != a by rewrite eq_sym.
+  have ea : e != a by rewrite eq_sym.
+  transitivity (\int[P]_t ((tnth t a : R) ^+ 2 * (tnth t c * tnth t e))%:E).
+    by apply: eq_integral => t _; congr EFin; ring.
+  by rewrite (ext2 2%N c e ca ea) h2 mul1e component_moment2; congr EFin; ring.
+- (* a = c = e, b <> a *)
+  have ba : b != a by rewrite eq_sym.
+  transitivity (\int[P]_t ((tnth t a : R) ^+ 3 * tnth t b)%:E).
+    by apply: eq_integral => t _; congr EFin; ring.
+  rewrite (ext1 3%N b ba) component_moment1 mule0 (negbTE ba).
+  by rewrite /= !(mulr0, mul0r, addr0, mulr0n).
+- (* a = c, b <> a, e <> a *)
+  have ba : b != a by rewrite eq_sym.
+  have ea : e != a by rewrite eq_sym.
+  transitivity (\int[P]_t ((tnth t a : R) ^+ 2 * (tnth t b * tnth t e))%:E).
+    by apply: eq_integral => t _; congr EFin; ring.
+  rewrite (ext2 2%N b e ba ea) h2 mul1e component_moment2 (negbTE ba).
+  by congr EFin; ring.
+- (* a = e, b <> a, c <> a *)
+  have ba : b != a by rewrite eq_sym.
+  have ca : c != a by rewrite eq_sym.
+  transitivity (\int[P]_t ((tnth t a : R) ^+ 2 * (tnth t b * tnth t c))%:E).
+    by apply: eq_integral => t _; congr EFin; ring.
+  by rewrite (ext2 2%N b c ba ca) h2 mul1e component_moment2; congr EFin; ring.
+- (* b, c, e <> a *)
+  have ba : b != a by rewrite eq_sym.
+  have ca : c != a by rewrite eq_sym.
+  have ea : e != a by rewrite eq_sym.
+  transitivity (\int[P]_t ((tnth t a : R) ^+ 1 *
+    (tnth t b * tnth t c * tnth t e))%:E).
+    by apply: eq_integral => t _; congr EFin; ring.
+  rewrite (ext3 b c e ba ca ea) m1 mul0e.
+  by rewrite /= !(mulr0, mul0r, addr0, mulr0n).
+Qed.
+
+Lemma component_quad_sum_cov (A B : 'M[R]_d) :
+  \int[P]_t (quad_sum A t * quad_sum B t)%:E =
+  (\tr A * \tr B + mxdot A B + mxdot A B^T +
+   \sum_(a < d) (kap a - 3) * (A a a * B a a))%:E.
+Proof.
+pose X t (a b c e : 'I_d) :=
+  ((tnth t a : R) * tnth t b * tnth t c * tnth t e)%R.
+have it a b c e : P.-integrable setT
+    (fun t => ((A a b * B c e) * X t a b c e)%:E).
+  under eq_fun do rewrite EFinM.
+  by apply: integrableZl => //; exact: component_integrable_x4.
+transitivity (\int[P]_t (\sum_(a < d) \sum_(b < d) \sum_(c < d) \sum_(e < d)
+    (A a b * B c e) * X t a b c e)%:E).
+  apply: eq_integral => t _; congr EFin.
+  rewrite /quad_sum mulr_suml; apply: eq_bigr => a _.
+  rewrite mulr_suml; apply: eq_bigr => b _.
+  rewrite mulr_sumr; apply: eq_bigr => c _.
+  by rewrite mulr_sumr; apply: eq_bigr => e _; rewrite /X; ring.
+have i3 a b c : P.-integrable setT
+    (fun t => (\sum_(e < d) (A a b * B c e) * X t a b c e)%:E).
+  exact: component_integrable_sum_ord.
+have i2 a b : P.-integrable setT (fun t =>
+    (\sum_(c < d) \sum_(e < d) (A a b * B c e) * X t a b c e)%:E).
+  exact: component_integrable_sum_ord.
+have i1 a : P.-integrable setT (fun t => (\sum_(b < d) \sum_(c < d)
+    \sum_(e < d) (A a b * B c e) * X t a b c e)%:E).
+  exact: component_integrable_sum_ord.
+rewrite component_integral_sum_ord //.
+transitivity (\sum_(a < d) (\sum_(b < d) \sum_(c < d) \sum_(e < d)
+  A a b * B c e * ((a == b)%:R * (c == e)%:R + (a == c)%:R * (b == e)%:R +
+  (a == e)%:R * (b == c)%:R +
+  (kap a - 3) * (((a == b) && (a == c)) && (a == e))%:R))%:E)%R.
+  apply: eq_bigr => a _.
+  rewrite component_integral_sum_ord // -sumEFin; apply: eq_bigr => b _.
+  rewrite component_integral_sum_ord // -sumEFin; apply: eq_bigr => c _.
+  rewrite component_integral_sum_ord // -sumEFin; apply: eq_bigr => e _.
+  under eq_integral do rewrite EFinM.
+  rewrite integralZl //; first exact: component_integrable_x4.
+  by rewrite component_moment4 -EFinM.
+rewrite sumEFin; congr EFin.
+transitivity (\sum_(a < d) \sum_(b < d) A a b * ((a == b)%:R * \tr B +
+  B a b + B b a + (kap a - 3) * (a == b)%:R * B a a))%R.
+  apply: eq_bigr => a _; apply: eq_bigr => b _.
+  rewrite -moment4_sum mulr_sumr; apply: eq_bigr => c _.
+  by rewrite mulr_sumr; apply: eq_bigr => e _; ring.
+transitivity (\sum_(a < d) \sum_(b < d)
+  ((A a b * \tr B + (kap a - 3) * A a b * B a a) * (a == b)%:R +
+   A a b * B a b + A a b * B b a))%R.
+  by apply: eq_bigr => a _; apply: eq_bigr => b _; ring.
+under eq_bigr => a _ do rewrite !big_split /= sum_delta.
+rewrite !big_split /= /mxdot /mxtrace -mulr_suml.
+under [X in (_ + X + _ + _)%R = _]eq_bigr do rewrite -mulrA.
+under [X in _ = (_ + _ + X + _)%R]eq_bigr do under eq_bigr do rewrite mxE.
+ring.
+Qed.
+
+Lemma component_quad_form_cov (A B : 'M[R]_d) :
+  \int[P]_t (quad_form A t * quad_form B t)%:E =
+  (mxdot A B + mxdot A B^T + \sum_(a < d) (kap a - 3) * (A a a * B a a))%:E.
+Proof.
+have iA := component_integrable_quad_sum A; have iB := component_integrable_quad_sum B.
+have iAB := component_integrable_quad_sum2 A B.
+have iL : P.-integrable setT (fun t =>
+    (\tr B * quad_sum A t + \tr A * quad_sum B t - \tr A * \tr B)%:E).
+  under eq_fun do rewrite EFinB EFinD !EFinM.
+  apply: integrableB => //; last exact: finite_measure_integrable_cst.
+  by apply: integrableD => //; apply: integrableZl.
+transitivity (\int[P]_t ((quad_sum A t * quad_sum B t)%:E -
+    (\tr B * quad_sum A t + \tr A * quad_sum B t - \tr A * \tr B)%:E)).
+  apply: eq_integral => t _.
+  by rewrite -EFinB !quad_formE; congr EFin; ring.
+rewrite integralB_EFin // component_quad_sum_cov.
+have -> : \int[P]_x
+    (\tr B * quad_sum A x + \tr A * quad_sum B x - \tr A * \tr B)%:E =
+    (\tr A * \tr B)%:E.
+  under eq_integral do rewrite EFinB EFinD !EFinM.
+  rewrite integralB //.
+  - by apply: integrableD => //; apply: integrableZl.
+  - by rewrite -EFinM; exact: finite_measure_integrable_cst.
+  rewrite integralD //; try by apply: integrableZl.
+  rewrite (integralZl measurableT iA) (integralZl measurableT iB).
+  rewrite !component_quad_sum_mean integral_cst //.
+  rewrite [X in _ - _ * X]probability_setT mule1 -!EFinM -EFinD.
+  by congr EFin; ring.
+by rewrite -EFinB; congr EFin; ring.
+Qed.
+
 End component_moments.
 
 Section product_moments.
@@ -1054,6 +1322,8 @@ Hypothesis hnu :
   forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j).
 Let hnuc : forall j, (j < d)%N -> mixture_component_law K (nu j) :=
   fun j jd => coordinate_law_component kappa K (nu j) (hnu j jd).
+Let hkapc : forall j, (j < d)%N -> \int[nu j]_x ((x : R) ^+ 4)%:E = kappa%:E :=
+  fun j jd => @coordinate_law_fourth _ _ _ (hnu j jd).
 
 Local Notation P := (tuple_prod nu d).
 
@@ -1110,106 +1380,7 @@ Lemma moment4 (a b c e : 'I_d) :
   ((a == b)%:R * (c == e)%:R + (a == c)%:R * (b == e)%:R +
    (a == e)%:R * (b == c)%:R +
    (kappa - 3) * (((a == b) && (a == c)) && (a == e))%:R)%:E.
-Proof.
-have one4 := one_pow4_le; have c4 := coord_pow4_le.
-have h2 := @coordinate_law_second _ _ _ (hnu a (ltn_ord a)).
-have h4 := @coordinate_law_fourth _ _ _ (hnu a (ltn_ord a)).
-have ind (k : 'I_d) (t : d.-tuple (measurableTypeR R)) s :
-    k != a -> (tnth (tuple_set t a s) k : R) = tnth t k.
-  by move=> ka; rewrite tnth_tuple_set_neq.
-(* x_a^k times one, two or three coordinates other than a *)
-have ext1 k (k1 : 'I_d) : k1 != a ->
-    \int[P]_t (((tnth t a : R) ^+ k) * tnth t k1)%:E =
-    \int[nu a]_s ((s : R) ^+ k)%:E * \int[P]_t ((tnth t k1 : R))%:E.
-  move=> k1a.
-  apply: (coord_extract a k (fun t => (tnth t k1 : RR))) => //.
-  - exact: measurable_tnth.
-  - by move=> t; exact: coord_abs_le.
-  - by move=> t s /=; rewrite ind.
-have ext2 k (k1 k2 : 'I_d) : k1 != a -> k2 != a ->
-    \int[P]_t (((tnth t a : R) ^+ k) * (tnth t k1 * tnth t k2))%:E =
-    \int[nu a]_s ((s : R) ^+ k)%:E *
-      \int[P]_t ((tnth t k1 : R) * tnth t k2)%:E.
-  move=> k1a k2a.
-  refine (coord_extract a k
-    (fun t => ((tnth t k1 : RR) * (tnth t k2 : RR))%R) _ _ _).
-  - by apply: measurable_funM; exact: measurable_tnth.
-  - move=> t; have := @prod4_le t _ _ _ _ (c4 t k1) (c4 t k2) (one4 t)
-      (one4 t).
-    by rewrite !mulr1.
-  - by move=> t s /=; rewrite !ind.
-have ext3 (k1 k2 k3 : 'I_d) : k1 != a -> k2 != a -> k3 != a ->
-    \int[P]_t (((tnth t a : R) ^+ 1) *
-      (tnth t k1 * tnth t k2 * tnth t k3))%:E =
-    \int[nu a]_s ((s : R) ^+ 1)%:E *
-      \int[P]_t ((tnth t k1 : R) * tnth t k2 * tnth t k3)%:E.
-  move=> k1a k2a k3a.
-  refine (coord_extract a 1 (fun t =>
-    ((tnth t k1 : RR) * (tnth t k2 : RR) * (tnth t k3 : RR))%R) _ _ _).
-  - apply: measurable_funM; last exact: measurable_tnth.
-    by apply: measurable_funM; exact: measurable_tnth.
-  - move=> t; have := @prod4_le t _ _ _ _ (c4 t k1) (c4 t k2) (c4 t k3)
-      (one4 t).
-    by rewrite !mulr1.
-  - by move=> t s /=; rewrite !ind.
-have m1 : \int[nu a]_s ((s : R) ^+ 1)%:E = 0.
-  under eq_integral do rewrite expr1.
-  exact: (@coordinate_law_mean _ _ _ (hnu a (ltn_ord a))).
-have [<-|ab] := eqVneq a b; have [<-|ac] := eqVneq a c;
-  have [<-|ae] := eqVneq a e; rewrite ?eqxx /=.
-- (* a = b = c = e *)
-  transitivity (\int[P]_t ((tnth t a : R) ^+ 4)%:E).
-    by apply: eq_integral => t _; congr EFin; ring.
-  rewrite (integral_tuple_prod_coord nu a
-    (f := fun s : measurableTypeR R => ((s : R) ^+ 4)%:E)).
-  + by apply/measurable_EFinP; exact: measurable_funX.
-  + by rewrite h4; congr EFin; ring.
-- (* a = b = c, e <> a *)
-  have ea : e != a by rewrite eq_sym.
-  transitivity (\int[P]_t ((tnth t a : R) ^+ 3 * tnth t e)%:E).
-    by apply: eq_integral => t _; congr EFin; ring.
-  by rewrite (ext1 3%N e ea) moment1 mule0; congr EFin; ring.
-- (* a = b = e, c <> a *)
-  have ca : c != a by rewrite eq_sym.
-  transitivity (\int[P]_t ((tnth t a : R) ^+ 3 * tnth t c)%:E).
-    by apply: eq_integral => t _; congr EFin; ring.
-  rewrite (ext1 3%N c ca) moment1 mule0 (negbTE ca).
-  by rewrite /= !(mulr0, mul0r, addr0, mulr0n).
-- (* a = b, c <> a, e <> a *)
-  have ca : c != a by rewrite eq_sym.
-  have ea : e != a by rewrite eq_sym.
-  transitivity (\int[P]_t ((tnth t a : R) ^+ 2 * (tnth t c * tnth t e))%:E).
-    by apply: eq_integral => t _; congr EFin; ring.
-  by rewrite (ext2 2%N c e ca ea) h2 mul1e moment2; congr EFin; ring.
-- (* a = c = e, b <> a *)
-  have ba : b != a by rewrite eq_sym.
-  transitivity (\int[P]_t ((tnth t a : R) ^+ 3 * tnth t b)%:E).
-    by apply: eq_integral => t _; congr EFin; ring.
-  rewrite (ext1 3%N b ba) moment1 mule0 (negbTE ba).
-  by rewrite /= !(mulr0, mul0r, addr0, mulr0n).
-- (* a = c, b <> a, e <> a *)
-  have ba : b != a by rewrite eq_sym.
-  have ea : e != a by rewrite eq_sym.
-  transitivity (\int[P]_t ((tnth t a : R) ^+ 2 * (tnth t b * tnth t e))%:E).
-    by apply: eq_integral => t _; congr EFin; ring.
-  rewrite (ext2 2%N b e ba ea) h2 mul1e moment2 (negbTE ba).
-  by congr EFin; ring.
-- (* a = e, b <> a, c <> a *)
-  have ba : b != a by rewrite eq_sym.
-  have ca : c != a by rewrite eq_sym.
-  transitivity (\int[P]_t ((tnth t a : R) ^+ 2 * (tnth t b * tnth t c))%:E).
-    by apply: eq_integral => t _; congr EFin; ring.
-  by rewrite (ext2 2%N b c ba ca) h2 mul1e moment2; congr EFin; ring.
-- (* b, c, e <> a *)
-  have ba : b != a by rewrite eq_sym.
-  have ca : c != a by rewrite eq_sym.
-  have ea : e != a by rewrite eq_sym.
-  transitivity (\int[P]_t ((tnth t a : R) ^+ 1 *
-    (tnth t b * tnth t c * tnth t e))%:E).
-    by apply: eq_integral => t _; congr EFin; ring.
-  rewrite (ext3 b c e ba ca ea) m1 mul0e.
-  by rewrite /= !(mulr0, mul0r, addr0, mulr0n).
-Qed.
+Proof. exact: (component_moment4 K d nu hnuc (fun=> kappa) hkapc a b c e). Qed.
 
 Lemma integral_sum_ord (f : 'I_d -> d.-tuple (measurableTypeR R) -> R) :
   (forall i, P.-integrable setT (fun t => (f i t)%:E)) ->
@@ -1247,56 +1418,7 @@ Lemma quad_sum_cov (A B : 'M[R]_d) :
   (\tr A * \tr B + mxdot A B + mxdot A B^T +
    (kappa - 3) * \sum_(a < d) A a a * B a a)%:E.
 Proof.
-pose X t (a b c e : 'I_d) :=
-  ((tnth t a : R) * tnth t b * tnth t c * tnth t e)%R.
-have it a b c e : P.-integrable setT
-    (fun t => ((A a b * B c e) * X t a b c e)%:E).
-  under eq_fun do rewrite EFinM.
-  by apply: integrableZl => //; exact: integrable_x4.
-transitivity (\int[P]_t (\sum_(a < d) \sum_(b < d) \sum_(c < d) \sum_(e < d)
-    (A a b * B c e) * X t a b c e)%:E).
-  apply: eq_integral => t _; congr EFin.
-  rewrite /quad_sum mulr_suml; apply: eq_bigr => a _.
-  rewrite mulr_suml; apply: eq_bigr => b _.
-  rewrite mulr_sumr; apply: eq_bigr => c _.
-  by rewrite mulr_sumr; apply: eq_bigr => e _; rewrite /X; ring.
-have i3 a b c : P.-integrable setT
-    (fun t => (\sum_(e < d) (A a b * B c e) * X t a b c e)%:E).
-  exact: integrable_sum_ord.
-have i2 a b : P.-integrable setT (fun t =>
-    (\sum_(c < d) \sum_(e < d) (A a b * B c e) * X t a b c e)%:E).
-  exact: integrable_sum_ord.
-have i1 a : P.-integrable setT (fun t => (\sum_(b < d) \sum_(c < d)
-    \sum_(e < d) (A a b * B c e) * X t a b c e)%:E).
-  exact: integrable_sum_ord.
-rewrite integral_sum_ord //.
-transitivity (\sum_(a < d) (\sum_(b < d) \sum_(c < d) \sum_(e < d)
-  A a b * B c e * ((a == b)%:R * (c == e)%:R + (a == c)%:R * (b == e)%:R +
-  (a == e)%:R * (b == c)%:R +
-  (kappa - 3) * (((a == b) && (a == c)) && (a == e))%:R))%:E)%R.
-  apply: eq_bigr => a _.
-  rewrite integral_sum_ord // -sumEFin; apply: eq_bigr => b _.
-  rewrite integral_sum_ord // -sumEFin; apply: eq_bigr => c _.
-  rewrite integral_sum_ord // -sumEFin; apply: eq_bigr => e _.
-  under eq_integral do rewrite EFinM.
-  rewrite integralZl //; first exact: integrable_x4.
-  by rewrite moment4 -EFinM.
-rewrite sumEFin; congr EFin.
-transitivity (\sum_(a < d) \sum_(b < d) A a b * ((a == b)%:R * \tr B +
-  B a b + B b a + (kappa - 3) * (a == b)%:R * B a a))%R.
-  apply: eq_bigr => a _; apply: eq_bigr => b _.
-  rewrite -moment4_sum mulr_sumr; apply: eq_bigr => c _.
-  by rewrite mulr_sumr; apply: eq_bigr => e _; ring.
-transitivity (\sum_(a < d) \sum_(b < d)
-  ((A a b * \tr B + (kappa - 3) * A a b * B a a) * (a == b)%:R +
-   A a b * B a b + A a b * B b a))%R.
-  by apply: eq_bigr => a _; apply: eq_bigr => b _; ring.
-under eq_bigr => a _ do rewrite !big_split /= sum_delta.
-rewrite !big_split /= /mxdot /mxtrace -mulr_suml.
-under [X in (_ + X + _ + _)%R = _]eq_bigr do rewrite -mulrA.
-rewrite -mulr_sumr.
-under [X in _ = (_ + _ + X + _)%R]eq_bigr do under eq_bigr do rewrite mxE.
-ring.
+by rewrite (component_quad_sum_cov K d nu hnuc (fun=> kappa) hkapc) [((kappa - 3) * _)%R]mulr_sumr.
 Qed.
 
 Lemma integrable_quad_form (A : 'M[R]_d) :
@@ -1315,31 +1437,7 @@ Lemma quad_form_cov (A B : 'M[R]_d) :
   \int[P]_t (quad_form A t * quad_form B t)%:E =
   (mxdot A B + mxdot A B^T + (kappa - 3) * \sum_(a < d) A a a * B a a)%:E.
 Proof.
-have iA := integrable_quad_sum A; have iB := integrable_quad_sum B.
-have iAB := integrable_quad_sum2 A B.
-have iL : P.-integrable setT (fun t =>
-    (\tr B * quad_sum A t + \tr A * quad_sum B t - \tr A * \tr B)%:E).
-  under eq_fun do rewrite EFinB EFinD !EFinM.
-  apply: integrableB => //; last exact: finite_measure_integrable_cst.
-  by apply: integrableD => //; apply: integrableZl.
-transitivity (\int[P]_t ((quad_sum A t * quad_sum B t)%:E -
-    (\tr B * quad_sum A t + \tr A * quad_sum B t - \tr A * \tr B)%:E)).
-  apply: eq_integral => t _.
-  by rewrite -EFinB !quad_formE; congr EFin; ring.
-rewrite integralB_EFin // quad_sum_cov.
-have -> : \int[P]_x
-    (\tr B * quad_sum A x + \tr A * quad_sum B x - \tr A * \tr B)%:E =
-    (\tr A * \tr B)%:E.
-  under eq_integral do rewrite EFinB EFinD !EFinM.
-  rewrite integralB //.
-  - by apply: integrableD => //; apply: integrableZl.
-  - by rewrite -EFinM; exact: finite_measure_integrable_cst.
-  rewrite integralD //; try by apply: integrableZl.
-  rewrite (integralZl measurableT iA) (integralZl measurableT iB).
-  rewrite !quad_sum_mean integral_cst //.
-  rewrite [X in _ - _ * X]probability_setT mule1 -!EFinM -EFinD.
-  by congr EFin; ring.
-by rewrite -EFinB; congr EFin; ring.
+by rewrite (component_quad_form_cov K d nu hnuc (fun=> kappa) hkapc) [((kappa - 3) * _)%R]mulr_sumr.
 Qed.
 
 Lemma coord_moment8 (j : 'I_d) :
@@ -2627,6 +2725,29 @@ apply: component_feature_subexponential => //.
 by rewrite !mulr_gt0 ?exprn_gt0 ?frobenius_gt0 // ltr0n.
 Qed.
 
+(* The coordinates may have different fourth moments: kap j for the
+   coordinate j. The features have the covariance matrix coord_cov kap d. *)
+Variable kap : nat -> R.
+Hypothesis hkap :
+  forall j, (j < d)%N -> \int[nu j]_x ((x : R) ^+ 4)%:E = (kap j)%:E.
+
+Lemma component_feature_cov (th th' : 'rV[R]_(d * d)) :
+  'E_mu[fun z => (mxdot z th * mxdot z th')%R] =
+  (mxdot (th *m coord_cov kap d) th')%:E.
+Proof.
+have mf : measurable_fun setT
+    (fun z : 'rV[RR]_(d * d) => (mxdot z th * mxdot z th')%R : RR).
+  by apply: measurable_funM; exact: measurable_mxdotl.
+rewrite (component_feature_expectation _ mf).
+transitivity (\int[P]_t ((d%:R^-1)%:E *
+    (quad_form (vec_mx th) t * quad_form (vec_mx th') t)%:E)).
+  apply: eq_integral => t _; rewrite !component_feature_dotE -EFinM; congr EFin.
+  by rewrite mulrACA sqrt_inv_sqr.
+rewrite (integralZl measurableT
+  (component_integrable_quad_form2 _ _ _ hnu (vec_mx th) (vec_mx th'))).
+by rewrite (component_quad_form_cov _ _ _ hnu _ hkap) -EFinM coord_covE.
+Qed.
+
 End component_feature.
 
 Section data_feature.
@@ -2637,6 +2758,8 @@ Hypothesis hnu :
   forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j).
 Let hnuc : forall j, (j < d)%N -> mixture_component_law K (nu j) :=
   fun j jd => coordinate_law_component kappa K (nu j) (hnu j jd).
+Let hkapc : forall j, (j < d)%N -> \int[nu j]_x ((x : R) ^+ 4)%:E = kappa%:E :=
+  fun j jd => @coordinate_law_fourth _ _ _ (hnu j jd).
 Local Notation P := (tuple_prod nu d).
 Local Notation mu := (data_feature_law nu d).
 
@@ -2660,18 +2783,7 @@ Lemma data_feature_cov (th th' : 'rV[R]_(d * d)) :
   'E_mu[fun z => (mxdot z th * mxdot z th')%R] =
   (mxdot (th *m unsat_cov kappa d) th')%:E.
 Proof.
-have mf : measurable_fun setT
-    (fun z : 'rV[RR]_(d * d) => (mxdot z th * mxdot z th')%R : RR).
-  by apply: measurable_funM; exact: measurable_mxdotl.
-rewrite (data_feature_expectation _ mf).
-transitivity (\int[P]_t ((d%:R^-1)%:E *
-    (quad_form (vec_mx th) t * quad_form (vec_mx th') t)%:E)).
-  apply: eq_integral => t _; rewrite !data_feature_dotE -EFinM; congr EFin.
-  by rewrite mulrACA sqrt_inv_sqr.
-rewrite (integralZl measurableT
-  (integrable_quad_form2 _ _ _ _ hnu (vec_mx th) (vec_mx th'))).
-rewrite (quad_form_cov _ _ _ _ hnu) -EFinM unsat_covE /unsat_cov_form.
-by rewrite !RmultE !RplusE ?RminusE.
+by rewrite (component_feature_cov K d nu hnuc (fun=> kappa) hkapc) coord_cov_const.
 Qed.
 
 (* (F1) for the features: E <W, theta>^4 <= 9 2^33 K^8 |theta|^4 / d^2. *)
