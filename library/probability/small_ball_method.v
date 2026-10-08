@@ -8,7 +8,7 @@ From mathcomp Require Import measure lebesgue_measure measurable_realfun numfun.
 From mathcomp Require Import lebesgue_integral hoelder probability.
 From GaussianAnalysis.matrix Require Import euclidean.
 From GaussianAnalysis.probability Require Import lindeberg moments.
-From GaussianAnalysis.probability Require Import symmetrization.
+From GaussianAnalysis.probability Require Import symmetrization efron_stein.
 
 (**md**************************************************************************)
 (* # The small-ball method                                                    *)
@@ -52,6 +52,11 @@ From GaussianAnalysis.probability Require Import symmetrization.
 (*   (mxdot_form_lipschitz, mxdot_form_outer). Removing the ridge (Lemma      *)
 (*   2.12) uses it with the features augmented by a constant coordinate       *)
 (*   for the bias.                                                            *)
+(* - Moments of affine images, used for the affine forms of Lemma 2.12:       *)
+(*   integrable_pow4 (a finite fourth moment makes X and X^2 integrable),     *)
+(*   integral_affine_sqr, E (X - b)^2 = E X^2 - 2 b E X + b^2,                *)
+(*   integral_affine_pow4_le, E (X - b)^4 <= 8 (E X^4 + b^4), and             *)
+(*   markov_ge0, P(Y > B) <= E Y / B for Y >= 0 and B > 0.                    *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*                    ramp u x == min 1 (max 0 (|x| / u - 1))                 *)
@@ -678,3 +683,138 @@ by rewrite ltr_norml => /andP[_]; have := gj j; lra.
 Qed.
 
 End small_ball_linear.
+
+Section affine_moments.
+Context d (T : measurableType d) (R : realType) (P : probability T R).
+Local Open Scope ereal_scope.
+
+(* A finite fourth moment gives integrable first and second powers. *)
+Lemma integrable_pow4 (X : T -> R) : measurable_fun [set: T] X ->
+  \int[P]_t (X t ^+ 4)%:E < +oo ->
+  P.-integrable [set: T] (EFin \o X) /\
+  P.-integrable [set: T] (EFin \o (fun t => X t ^+ 2)%R).
+Proof.
+move=> mX X4.
+have mX4 : measurable_fun [set: T] (fun t => X t ^+ 4)%R.
+  exact: measurable_funX.
+have i4 : P.-integrable [set: T] (EFin \o (fun t => X t ^+ 4)%R).
+  apply/integrableP; split; first exact/measurable_EFinP.
+  under eq_integral do rewrite /= ger0_norm ?exprn_even_ge0//.
+  exact: X4.
+have i14 : P.-integrable [set: T] (EFin \o (fun t => 1 + X t ^+ 4)%R).
+  have -> : EFin \o (fun t => 1 + X t ^+ 4)%R =
+      (fun t => 1%:E) \+ (EFin \o (fun t => X t ^+ 4)%R).
+    by apply/funext => t; rewrite /= EFinD.
+  by apply: integrableD => //; exact: finite_measure_integrable_cst.
+split.
+  apply: (le_integrable _ _ _ i14) => //; first exact/measurable_EFinP.
+  move=> t _ /=; rewrite !lee_fin.
+  rewrite [X in (_ <= X)%R]ger0_norm ?addr_ge0 ?exprn_even_ge0//.
+  have a0 := normr_ge0 (X t).
+  rewrite -[(X t ^+ 4)%R](@ger0_norm _ (X t ^+ 4)%R) ?exprn_even_ge0//.
+  rewrite normrX; have := sqr_ge0 (`|X t| ^+ 2 - 2^-1)%R.
+  by have := sqr_ge0 (`|X t| - 2^-1)%R; nra.
+apply: (le_integrable _ _ _ i14) => //.
+  by apply/measurable_EFinP; exact: measurable_funX.
+move=> t _ /=; rewrite !lee_fin !ger0_norm ?addr_ge0 ?exprn_even_ge0//.
+by have := sqr_ge0 (X t ^+ 2 - 2^-1)%R; nra.
+Qed.
+
+Lemma integral_affine_sqr (X : T -> R) (b : R) :
+  P.-integrable [set: T] (EFin \o X) ->
+  P.-integrable [set: T] (EFin \o (fun t => X t ^+ 2)%R) ->
+  \int[P]_t ((X t - b) ^+ 2)%:E =
+  \int[P]_t (X t ^+ 2)%:E - (2 * b)%:E * \int[P]_t (X t)%:E + (b ^+ 2)%:E.
+Proof.
+move=> i1 i2.
+have i3 : P.-integrable [set: T] (EFin \o (fun t => - (2 * b) * X t)%R).
+  have -> : EFin \o (fun t => - (2 * b) * X t)%R =
+      (fun t => (- (2 * b))%:E * (EFin \o X) t).
+    by apply/funext => t; rewrite /= EFinM.
+  exact: integrableZl.
+have i4 : P.-integrable [set: T] (fun=> (b ^+ 2)%:E).
+  exact: finite_measure_integrable_cst.
+have -> : (fun t => ((X t - b) ^+ 2)%:E) =
+    (EFin \o (fun t => X t ^+ 2)%R) \+ (EFin \o (fun t => - (2 * b) * X t)%R)
+    \+ (fun=> (b ^+ 2)%:E).
+  by apply/funext => t; rewrite /= -!EFinD; congr EFin; ring.
+rewrite integralD//; first exact: (integrableD _ i2 i3).
+rewrite integralD// integral_cst//.
+rewrite [X in _ * X]probability_setT mule1.
+have -> : \int[P]_t (EFin \o (fun t => - (2 * b) * X t)%R) t =
+    (- (2 * b))%:E * \int[P]_t (X t)%:E.
+  by rewrite -integralZl//; apply: eq_integral => t _; rewrite /= EFinM.
+by rewrite EFinN mulNe.
+Qed.
+
+Lemma integral_affine_pow4_le (X : T -> R) (b : R) :
+  measurable_fun [set: T] X ->
+  \int[P]_t ((X t - b) ^+ 4)%:E <=
+  8%:E * (\int[P]_t (X t ^+ 4)%:E + (b ^+ 4)%:E).
+Proof.
+move=> mX.
+have e4 (x : R) : (x ^+ 4 = (x ^+ 2) ^+ 2)%R by rewrite -exprM.
+have p4 (x : R) : (0 <= x ^+ 4)%R by rewrite e4 sqr_ge0.
+have pw t : ((X t - b) ^+ 4 <= 8 * X t ^+ 4 + 8 * b ^+ 4)%R.
+  have h1 : ((X t - b) ^+ 2 <= 2 * (X t ^+ 2 + b ^+ 2))%R.
+    by have := sqr_ge0 (X t + b); nra.
+  have h0 := sqr_ge0 (X t - b).
+  have h2 : ((X t - b) ^+ 4 <= (2 * (X t ^+ 2 + b ^+ 2)) ^+ 2)%R.
+    by rewrite e4 ler_sqr ?nnegrE// mulr_ge0// addr_ge0// sqr_ge0.
+  by apply: le_trans h2 _; have := sqr_ge0 (X t ^+ 2 - b ^+ 2); nra.
+have mX4 : measurable_fun [set: T] (fun t => X t ^+ 4)%R.
+  exact: measurable_funX.
+apply: (@le_trans _ _ (\int[P]_t ((8 * X t ^+ 4 + 8 * b ^+ 4)%R)%:E)).
+  apply: ge0_le_integral => //.
+  - by move=> t _; rewrite lee_fin p4.
+  - apply/measurable_EFinP; apply: measurable_funX.
+    by apply: measurable_funB => //; exact: measurable_cst.
+  - apply/measurable_EFinP; apply: measurable_funD; last exact: measurable_cst.
+    by apply: measurable_funM => //; exact: measurable_cst.
+  - by move=> t _; rewrite lee_fin.
+under eq_integral do rewrite EFinD.
+rewrite ge0_integralD//.
+- by move=> t _; rewrite lee_fin mulr_ge0.
+- by apply/measurable_EFinP; apply: measurable_funM.
+- by move=> t _; rewrite lee_fin mulr_ge0.
+- under eq_integral do rewrite EFinM.
+  rewrite ge0_integralZl_EFin//; first last.
+  + rewrite integral_cst//.
+    rewrite [X in _ + _ * X <= _]probability_setT mule1.
+    have h40 : 0 <= \int[P]_t (X t ^+ 4)%:E.
+      by apply: integral_ge0 => t _; rewrite lee_fin.
+    by rewrite [X in _ <= X]ge0_muleDr ?lee_fin.
+  + exact/measurable_EFinP.
+  + by move=> t _; rewrite lee_fin.
+Qed.
+
+(* Markov's inequality. *)
+Lemma markov_ge0 (Y : T -> R) (B : R) : measurable_fun [set: T] Y ->
+  (forall t, 0 <= Y t)%R -> (0 < B)%R ->
+  P [set t | (B < Y t)%R] <= (B^-1)%:E * \int[P]_t (Y t)%:E.
+Proof.
+move=> mY Y0 B0.
+set A := [set t | (B < Y t)%R].
+have mA : measurable A.
+  rewrite -[X in measurable X]setTI.
+  exact: (measurable_fun_ltr (measurable_cst B) mY measurableT).
+have h : B%:E * P A <= \int[P]_t (Y t)%:E.
+  rewrite -[X in _ * P X]setIT -integral_indic//.
+  rewrite -ge0_integralZl_EFin//; first last.
+  - apply: ge0_le_integral => //.
+    + by move=> t _; rewrite -EFinM lee_fin mulr_ge0 ?indicE// ltW.
+    + apply: emeasurable_funM; first exact: measurable_cst.
+      exact/measurable_EFinP/measurable_indic.
+    + exact/measurable_EFinP.
+    + move=> t _; rewrite -EFinM lee_fin indicE.
+      case: (t \in A) / boolP => tA; last by rewrite mulr0 Y0.
+      by rewrite mulr1 ltW//; move: tA; rewrite inE.
+  - exact: ltW.
+  - exact/measurable_EFinP/measurable_indic.
+have Bi : (0 <= B^-1)%R by rewrite invr_ge0 ltW.
+have Bi' : 0 <= (B^-1)%:E by rewrite lee_fin.
+have := lee_wpmul2l Bi' h.
+by rewrite muleA -EFinM mulVf ?gt_eqF// mul1e.
+Qed.
+
+End affine_moments.

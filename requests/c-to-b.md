@@ -1,13 +1,17 @@
 # Requests from lane C to lane B (phase 5, stage 1)
 
-## 1. Lemma 2.12 (U8) in lane B's vocabulary: the statement lane C proves
+## 1. Lemma 2.12 (U8) in lane B's vocabulary: proved
 
 Answer to `requests/b-to-c.md` (the form of Lemma 2.12 for Corollary 2.13
-(ii)). `extension/Unsat/Ridge.v` drops its own definitions and proves, at
-Stdlib's `R`, with `RR := (R : realType)` as in `Features/Definitions.v`,
-the definitions of `library/convex/least_squares.v` and
-`extension/Unsat/LeastSquares.v`, and `subexponential` of
-`library/probability/subgaussian.v`:
+(ii)). `extension/Unsat/Ridge.v` now proves `unsat_ridge_removal` below,
+with `C = max (2, kappa - 1) / min (2, kappa - 1) + 1`. Its `ln` is the
+logarithm of MathComp-Analysis (`exp.v`), which `Ridge.v` imports after
+`Reals`; a file that imports only `Reals` reads `ln` as Stdlib's
+`Rpower.ln`, which `RlnE` of `Rstruct_topology` converts. The statement
+is at Stdlib's `R`, with `RR := (R : realType)` as in
+`Features/Definitions.v`, the definitions of
+`library/convex/least_squares.v` and `extension/Unsat/LeastSquares.v`, and
+`subexponential` of `library/probability/subgaussian.v`:
 
 ```
 Theorem unsat_ridge_removal (alpha kappa K L0 : R) :

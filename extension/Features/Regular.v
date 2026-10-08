@@ -54,11 +54,33 @@
      (E <W, A>^4 <= 9 2^33 K^8 feature_cov kappa A A^2 /
      min (2, kappa - 1)^2).
 
-   Planned (phase 5, stage 1): the Gaussian feature. The covariance matrix
-   of gaussian_feature_law kappa d is unsat_cov kappa d, so it is a regular
-   feature with that covariance and constants 3^(1/4) and
-   sqrt 2 opnorm (unsat_cov kappa d), by the Gaussian case of
-   convex/barrier_lindeberg.v. *)
+   - The Gaussian feature: gaussian_feature kappa A (Gaussian/Cones) is
+     c (G + (s - 1) diag G) with G = (A + A^T) / 2, c = sqrt (2 / d) and
+     s = sqrt ((kappa - 1) / 2) (gaussian_featureE). For kappa >= 1,
+     <gaussian_feature kappa A, gaussian_feature kappa B> =
+     unsat_cov_form kappa d A B (mxdot_gaussian_feature); the matrix
+     S = gaussian_feature_mx kappa d of g |-> mxvec (gaussian_feature kappa
+     (vec_mx g)) (gaussian_feature_mxE) is symmetric and satisfies
+     S^T S = unsat_cov kappa d (gaussian_feature_mx_cov), so
+     gaussian_feature_law kappa d, the law of g *m S under gauss (d * d),
+     has covariance C_kappa.
+
+   - Subexponential quadratic forms, for Unsat/Ridge (Lemma 2.12): for
+     |v| <= 1 and d > 0, z |-> <z, mxvec (v^T v)> is subexponential with
+     constant 48 K^2 / sqrt d under data_feature_law nu d
+     (data_feature_quad_subexponential: it is ((v x)^2 - |v|^2) / sqrt d,
+     with v x subgaussian by Hoeffding's inequality), and with constant
+     4 sqrt (kappa + 1) / sqrt d under gaussian_feature_law kappa d
+     (gaussian_feature_quad_subexponential: a Gaussian linear form <g, a>
+     is subexponential with constant 4 |a|, gauss_mxdot_subexponential, and
+     |a|^2 = C_kappa (v^T v, v^T v) <= (kappa + 1) / d, unsat_cov_form_le).
+
+   - gaussian_feature_regular: for kappa > 1 and d > 0,
+     gaussian_feature_law kappa d is a regular feature with covariance
+     unsat_cov kappa d and constants 3^(1/4) and
+     sqrt 2 opnorm (unsat_cov kappa d), from (2.10) of the paper
+     (gauss_regular_feature, convex/gauss_feature.v) and
+     gaussian_feature_mx_cov. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -66,13 +88,15 @@ From mathcomp Require Import boolp classical_sets reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun.
 From mathcomp Require Import numfun lebesgue_integral probability.
+From mathcomp Require Import normedtype sequences exp.
 From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
 From mathcomp Require Import sesquilinear.
-From GaussianAnalysis.gaussian Require Import measurable_matrix.
+From GaussianAnalysis.gaussian Require Import measurable_matrix gauss.
+From GaussianAnalysis.comparison Require Import gauss_linear.
 From GaussianAnalysis.probability Require Import lindeberg subgaussian.
 From GaussianAnalysis.probability Require Import efron_stein.
 From GaussianAnalysis.matrix Require Import euclidean opnorm real_spectral.
-From GaussianAnalysis.convex Require Import least_squares.
+From GaussianAnalysis.convex Require Import least_squares gauss_feature.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality.Gaussian Require Import Cones.
@@ -1640,6 +1664,304 @@ Qed.
 
 End sum_l2.
 
+(* The covariance of the Gaussian feature: gaussian_feature kappa (Cones)
+   is c (G + (s - 1) diag G) with G = (A + A^T) / 2, c = sqrt (2 / d) and
+   s = sqrt ((kappa - 1) / 2). *)
+Lemma mxdot_diag_part d (A B : 'M[R]_d) :
+  mxdot A (diag_part B) = \sum_i A i i * B i i.
+Proof.
+apply: eq_bigr => i _; rewrite (bigD1 i) //= big1 ?addr0.
+  by move=> j ji; rewrite mxE eq_sym (negbTE ji) mulr0.
+by rewrite mxE eqxx.
+Qed.
+
+Lemma mxdot_goe_part d (A B : 'M[R]_d) :
+  mxdot (goe_part A) B = (2%:R)^-1 * (mxdot A B + mxdot A B^T).
+Proof.
+rewrite /goe_part mxdotZl mxdotDl; congr (_ * (_ + _)).
+by rewrite -[X in mxdot _ X]trmxK mxdot_trmx.
+Qed.
+
+Lemma goe_part_diag d (A : 'M[R]_d) (i : 'I_d) : goe_part A i i = A i i.
+Proof. by rewrite !mxE; field. Qed.
+
+Lemma gaussian_featureE (kappa : R) d (A : 'M[R]_d) :
+  gaussian_feature kappa A = Num.sqrt (2%:R / d%:R) *:
+    (goe_part A + (Num.sqrt ((kappa - 1) / 2%:R) - 1) *:
+      diag_part (goe_part A)).
+Proof.
+rewrite /gaussian_feature /cone_map; congr (_ *: _).
+by rewrite scalerBl scale1r addrA addrAC.
+Qed.
+
+Lemma gaussian_feature_entry (kappa : R) d (A : 'M[R]_d) (i j : 'I_d) :
+  gaussian_feature kappa A i j = Num.sqrt (2%:R / d%:R) *
+    ((2%:R)^-1 * (A i j + A j i) +
+     (Num.sqrt ((kappa - 1) / 2%:R) - 1) * ((i == j)%:R * A i i)).
+Proof.
+rewrite gaussian_featureE !mxE; congr (_ * (_ + _ * _)).
+by case: eqP => [->|ij]; [rewrite mul1r; field | rewrite mul0r].
+Qed.
+
+Lemma gaussian_feature_sym (kappa : R) d (A : 'M[R]_d) :
+  (gaussian_feature kappa A)^T = gaussian_feature kappa A.
+Proof.
+apply/matrixP => i j; rewrite mxE !gaussian_feature_entry.
+case: (eqVneq i j) => [->//|ij].
+by rewrite /=; ring.
+Qed.
+
+(* <gaussian_feature A, B> is symmetric in A and B. *)
+Lemma mxdot_gaussian_featurel (kappa : R) d (A B : 'M[R]_d) :
+  mxdot (gaussian_feature kappa A) B = Num.sqrt (2%:R / d%:R) *
+    ((2%:R)^-1 * (mxdot A B + mxdot A B^T) +
+     (Num.sqrt ((kappa - 1) / 2%:R) - 1) * \sum_i A i i * B i i).
+Proof.
+rewrite gaussian_featureE mxdotZl mxdotDl mxdotZl.
+rewrite mxdotDl mxdotZl [mxdot (diag_part _) _]mxdotC mxdot_diag_part.
+rewrite -[X in mxdot A^T X]trmxK mxdot_trmx.
+congr (_ * (_ + _ * _)).
+by apply: eq_bigr => i _; rewrite goe_part_diag mulrC.
+Qed.
+
+Lemma mxdot_gaussian_featureC (kappa : R) d (A B : 'M[R]_d) :
+  mxdot (gaussian_feature kappa A) B = mxdot A (gaussian_feature kappa B).
+Proof.
+rewrite [RHS]mxdotC !mxdot_gaussian_featurel; congr (_ * (_ * _ + _ * _)).
+  rewrite [mxdot B A]mxdotC; congr (_ + _).
+  by rewrite -[RHS]mxdot_trmx trmxK mxdotC.
+by apply: eq_bigr => i _; rewrite mulrC.
+Qed.
+
+Lemma mxdot_gaussian_feature (kappa : R) d (A B : 'M[R]_d) : 1 <= kappa ->
+  mxdot (gaussian_feature kappa A) (gaussian_feature kappa B) =
+  unsat_cov_form kappa d A B.
+Proof.
+move=> k1.
+have gs := gaussian_feature_sym kappa d B.
+have gd (i : 'I_d) : gaussian_feature kappa B i i =
+    Num.sqrt (2%:R / d%:R) * Num.sqrt ((kappa - 1) / 2%:R) * B i i.
+  by rewrite gaussian_feature_entry eqxx mul1r; field.
+rewrite mxdot_gaussian_featurel gs.
+have -> : (2%:R)^-1 * (mxdot A (gaussian_feature kappa B) +
+    mxdot A (gaussian_feature kappa B)) = mxdot A (gaussian_feature kappa B).
+  by field.
+rewrite -mxdot_gaussian_featureC mxdot_gaussian_featurel.
+have -> : \sum_i A i i * gaussian_feature kappa B i i =
+    Num.sqrt (2%:R / d%:R) * Num.sqrt ((kappa - 1) / 2%:R) *
+    \sum_i A i i * B i i.
+  by rewrite mulr_sumr; apply: eq_bigr => i _; rewrite gd; ring.
+rewrite /unsat_cov_form !RmultE !RplusE ?RminusE.
+set c := Num.sqrt (2%:R / d%:R); set s := Num.sqrt ((kappa - 1) / 2%:R).
+have c2 : c ^+ 2 = 2%:R / d%:R by rewrite sqr_sqrtr // divr_ge0 ?ler0n.
+have s2 : s ^+ 2 = (kappa - 1) / 2%:R.
+  by rewrite sqr_sqrtr // divr_ge0 ?subr_ge0 ?ler0n.
+move: c2 s2; clearbody c s => c2 s2.
+set S := \sum_i _; set X := mxdot A B + _.
+have -> : c * (c * (2%:R^-1 * X + (s - 1) * S) + (s - 1) * (c * s * S)) =
+    c ^+ 2 * (2%:R^-1 * X + (s ^+ 2 - 1) * S) by ring.
+rewrite c2 s2.
+by clearbody S X; set u := (d%:R^-1)%R; clearbody u; field.
+Qed.
+
+(* The matrix of the Gaussian feature is symmetric, its covariance matrix
+   S^T S is unsat_cov kappa d, and g *m S is the mxvec of the Gaussian
+   feature of vec_mx g. *)
+Lemma gaussian_featureD (kappa : R) d (A B : 'M[R]_d) :
+  gaussian_feature kappa (A + B) =
+  gaussian_feature kappa A + gaussian_feature kappa B.
+Proof.
+apply/matrixP => i j; rewrite [RHS]mxE !gaussian_feature_entry !mxE.
+by ring.
+Qed.
+
+Lemma gaussian_featureZ (kappa : R) d a (A : 'M[R]_d) :
+  gaussian_feature kappa (a *: A) = a *: gaussian_feature kappa A.
+Proof.
+apply/matrixP => i j; rewrite [RHS]mxE !gaussian_feature_entry !mxE.
+by ring.
+Qed.
+
+Lemma gaussian_feature0 (kappa : R) d :
+  gaussian_feature kappa (0 : 'M[R]_d) = 0.
+Proof.
+by apply/matrixP => i j; rewrite gaussian_feature_entry !mxE; ring.
+Qed.
+
+Lemma gaussian_feature_mxE (kappa : R) d (g : 'rV[R]_(d * d)) :
+  g *m gaussian_feature_mx kappa d =
+  mxvec (gaussian_feature kappa (vec_mx g)).
+Proof.
+apply/rowP => q; rewrite mxE (vec_mx_sum _ _ g).
+have -> : gaussian_feature kappa
+    (\sum_(p < d * d) g 0 p *: vec_mx (delta_mx 0 p)) =
+    \sum_(p < d * d) g 0 p *: gaussian_feature kappa (vec_mx (delta_mx 0 p)).
+  elim/big_rec2: _ => [|p A B _ <-]; first exact: gaussian_feature0.
+  by rewrite gaussian_featureD gaussian_featureZ.
+rewrite linear_sum summxE; apply: eq_bigr => p _.
+by rewrite linearZ !mxE.
+Qed.
+
+Lemma gaussian_feature_mx_entry (kappa : R) d (p q : 'I_(d * d)) :
+  gaussian_feature_mx kappa d p q =
+  mxdot (gaussian_feature kappa (vec_mx (delta_mx 0 p)))
+        (vec_mx (delta_mx 0 q : 'rV[R]_(d * d))).
+Proof.
+rewrite mxE -mxdot_mxvec vec_mxK.
+by rewrite (mxdot_delta (mxvec (gaussian_feature kappa _)) 0 q).
+Qed.
+
+Lemma gaussian_feature_mx_symE (kappa : R) d (p q : 'I_(d * d)) :
+  gaussian_feature_mx kappa d p q = gaussian_feature_mx kappa d q p.
+Proof.
+by rewrite !gaussian_feature_mx_entry mxdot_gaussian_featureC mxdotC.
+Qed.
+
+Lemma gaussian_feature_mx_cov (kappa : R) d : 1 <= kappa ->
+  (gaussian_feature_mx kappa d)^T *m gaussian_feature_mx kappa d =
+  unsat_cov kappa d.
+Proof.
+move=> k1; apply/matrixP => p q.
+rewrite [RHS]mxE -(mxdot_gaussian_feature _ d _ _ k1) -mxdot_mxvec.
+rewrite -!gaussian_feature_mxE /mxdot big_ord1 mxE; apply: eq_bigr => r _.
+rewrite -!rowE [in LHS]mxE (gaussian_feature_mx_symE _ _ r p).
+by rewrite (gaussian_feature_mx_symE _ _ r q) !mxE.
+Qed.
+
+Section subexponential_facts.
+Local Open Scope ereal_scope.
+Context dT (T : measurableType dT) (Q : probability T RR).
+
+(* The subexponential constant can be increased, and scales. *)
+Lemma subexponential_le (Y : T -> RR) (L L' : R) :
+  subexponential Q Y L -> (L <= L')%R -> subexponential Q Y L'.
+Proof.
+case=> L0 mY h LL'; have L'0 : (0 < L')%R by exact: lt_le_trans LL'.
+split => //; apply: le_trans h; apply: ge0_le_integral => //.
+- apply/measurable_EFinP; apply: measurableT_comp => //.
+  by apply: measurable_funM => //; exact: measurableT_comp.
+- apply/measurable_EFinP; apply: measurableT_comp => //.
+  by apply: measurable_funM => //; exact: measurableT_comp.
+move=> t _; rewrite lee_fin ler_expR ler_wpM2l //.
+by rewrite lef_pV2.
+Qed.
+
+Lemma subexponential_scale (Y : T -> RR) (L c : R) : (0 < c)%R ->
+  subexponential Q Y L -> subexponential Q (fun t => Y t / c)%R (L / c).
+Proof.
+move=> c0 [L0 mY h]; split; first by rewrite divr_gt0.
+  by apply: measurable_funM => //; exact: measurable_cst.
+apply: le_trans h; rewrite le_eqVlt; apply/orP; left; apply/eqP.
+apply: eq_integral => t _.
+have cn : (c != 0)%R by rewrite gt_eqF.
+have Ln : (L != 0)%R by rewrite gt_eqF.
+have e : (`|Y t / c| / (L / c) = `|Y t| / L)%R.
+  have c1 : (0 <= c^-1)%R by rewrite invr_ge0 ltW.
+  by rewrite normrM (ger0_norm c1); field.
+by rewrite e.
+Qed.
+
+Lemma subexponential_distribution dW (W : measurableType dW)
+    (X : {mfun T >-> W}) (f : W -> RR) (L : R) : measurable_fun setT f ->
+  subexponential (distribution Q X) f L <-> subexponential Q (f \o X) L.
+Proof.
+move=> mf; have me : measurable_fun setT (fun w => (expR (`|f w| / L))%:E).
+  apply/measurable_EFinP; apply: measurableT_comp => //.
+  by apply: measurable_funM => //; exact: measurableT_comp.
+rewrite /subexponential integral_distribution_measurable //.
+split => -[L0 _ h]; split => //.
+exact: measurableT_comp mf (measurable_funPT X).
+Qed.
+
+End subexponential_facts.
+
+Lemma quad_sum_outer d (v : 'rV[R]_d) (t : d.-tuple (measurableTypeR R)) :
+  quad_sum (v^T *m v) t = (\sum_(b < d) v 0 b * tnth t b) ^+ 2.
+Proof.
+rewrite /quad_sum expr2 mulr_suml; apply: eq_bigr => a _.
+rewrite mulr_sumr; apply: eq_bigr => b _.
+by rewrite !mxE big_ord1 !mxE; ring.
+Qed.
+
+Lemma trace_outer d (v : 'rV[R]_d) : \tr (v^T *m v) = mxdot v v.
+Proof.
+rewrite /mxtrace /mxdot big_ord1; apply: eq_bigr => a _.
+by rewrite !mxE big_ord1 !mxE.
+Qed.
+
+(* C_kappa (V, V) <= (kappa + 1) |V|_F^2 / d for V symmetric. *)
+Lemma unsat_cov_form_le (kappa : R) d (V : 'M[R]_d) : 1 <= kappa ->
+  V \is symmetricmx ->
+  unsat_cov_form kappa d V V <= (kappa + 1) / d%:R * mxdot V V.
+Proof.
+move=> k1 /symmetricmxP VT; rewrite /unsat_cov_form VT.
+rewrite !RmultE !RplusE ?RminusE.
+set S := \sum_(j < d) V j j * V j j.
+have S0 : 0 <= S by apply: sumr_ge0 => j _; rewrite -expr2 sqr_ge0.
+have SV : S <= mxdot V V.
+  rewrite /S /mxdot; apply: ler_sum => i _.
+  rewrite (bigD1 i) //= lerDl; apply: sumr_ge0 => j _.
+  by rewrite -expr2 sqr_ge0.
+have V0 : 0 <= mxdot V V := mxdot_ge0 V.
+rewrite mulrC [X in _ <= X]mulrAC; apply: ler_wpM2r.
+  by rewrite invr_ge0 ler0n.
+have [k3|k3] := lerP 3 kappa.
+  have h : (kappa - 3) * S <= (kappa - 3) * mxdot V V.
+    by rewrite ler_wpM2l // subr_ge0.
+  nra.
+have h : 0 <= (3 - kappa) * S by rewrite mulr_ge0 // subr_ge0 ltW.
+nra.
+Qed.
+
+(* The constant 1 is subgaussian with constant 2: e^(1/4) <= 2. *)
+Lemma subgaussian_one dT (T : measurableType dT) (Q : probability T RR) :
+  subgaussian Q (fun=> 1%R) 2.
+Proof.
+split => //.
+rewrite (@integral_cst _ _ _ Q _ measurableT (expR (1 ^+ 2 / 2 ^+ 2))%:E).
+rewrite [X in (_ * X)%E]probability_setT mule1 lee_fin expr1n.
+have h1 := @expR_le_quad RR (1 / 2 ^+ 2).
+have q0 : (0 <= 1 / 2 ^+ 2 :> RR)%R by rewrite divr_ge0 ?exprn_ge0.
+rewrite ger0_norm // in h1.
+have h2 := @expR_gt0 RR (1 / 2 ^+ 2).
+by move: h1 h2; clear; set e := expR _ => h1 h2; lra.
+Qed.
+
+(* A Gaussian linear form <g, a> is subexponential with constant 4 |a|. *)
+Lemma gauss_mxdot_subexponential n (a : 'rV[R]_n) : a != 0 ->
+  subexponential (gauss n) (fun g => mxdot g a : RR) (4 * frobenius a).
+Proof.
+move=> a0; have fa : 0 < frobenius a by rewrite frobenius_gt0.
+have sY : subgaussian (gauss n) (fun g => mxdot g a : RR) (2 * frobenius a).
+  apply: (subgaussian_of_mgf (s := frobenius a / Num.sqrt 2)).
+  - exact: measurable_mxdot.
+  - by rewrite mulr_gt0.
+  - rewrite expr_div_n (@sqr_sqrtr _ 2) // exprMn frobenius_sqr.
+    by have := mxdot_ge0 a; lra.
+  move=> l; rewrite integral_gauss_expR_mxdot lee_fin ler_expR.
+  rewrite expr_div_n (@sqr_sqrtr _ 2) //.
+  by rewrite le_eqVlt; apply/orP; left; apply/eqP; field.
+have := subexponential_mul sY (subgaussian_one _ _ (gauss n)).
+have -> : (fun t : 'rV[R]_n => mxdot t a * 1)%R = (fun g => mxdot g a : RR).
+  by apply/boolp.funext => g; rewrite mulr1.
+by move=> h; apply: (subexponential_le _ _ _ _ _ _ h); lra.
+Qed.
+
+(* The Gaussian twin of Proposition 2.6: for kappa > 1 and d > 0, the law
+   of the Gaussian feature is a regular feature with covariance C_kappa, by
+   (2.10) (gauss_regular_feature) and gaussian_feature_mx_cov. *)
+Theorem gaussian_feature_regular (kappa : R) d : 1 < kappa -> (0 < d)%N ->
+  regular_feature (3 `^ (1 / 4)) (Num.sqrt 2 * opnorm (unsat_cov kappa d))
+    (unsat_cov kappa d) (gaussian_feature_law kappa d).
+Proof.
+move=> k1 d0; have k1' : 1 <= kappa by exact: ltW.
+rewrite -(gaussian_feature_mx_cov kappa d k1').
+apply: gauss_regular_feature => //.
+apply/eqP => S0; have := unsat_cov_opnorm_ge kappa d d0.
+rewrite -(gaussian_feature_mx_cov kappa d k1') S0 mulmx0 opnorm0.
+by apply/negP; rewrite -ltNge divr_gt0 ?ltr0n // subr_gt0.
+Qed.
+
 Section data_feature.
 Local Open Scope ereal_scope.
 Variables (kappa K : R) (d : nat).
@@ -2080,6 +2402,124 @@ move=> T _; apply: le_trans (data_feature_variance T) _.
 rewrite sqr_sqrtr ?frobenius_sqr //.
 apply: divr_ge0; last exact: ler0n.
 by apply: mulr_ge0; [exact: exprn_ge0 | exact: exprn8_ge0].
+Qed.
+
+(* For |v| <= 1, the quadratic form z |-> <z, mxvec (v^T v)> of the
+   features, ((v x)^2 - |v|^2) / sqrt d, is subexponential with constant
+   48 K^2 / sqrt d (requests/c-to-a.md, item 1). *)
+Lemma data_feature_quad_subexponential (v : 'rV[R]_d) :
+  (0 < d)%N -> (mxdot v v <= 1)%R ->
+  subexponential mu (fun z => mxdot z (mxvec (v^T *m v)) : RR)
+    (48 * K ^+ 2 / Num.sqrt d%:R)%R.
+Proof.
+move=> d0 v1; rewrite /data_feature_law.
+apply/subexponential_distribution; first exact: measurable_mxdotl.
+have K0 : (0 < K)%R := @coordinate_law_K _ _ _ (hnu 0 d0).
+have sd : (0 < Num.sqrt d%:R :> R)%R by rewrite sqrtr_gt0 ltr0n.
+set X := fun t : d.-tuple (measurableTypeR R) =>
+  (\sum_(b < d) v ord0 b * tnth t b)%R.
+have -> : (mxdot (n:=d * d))^~ (mxvec (v^T *m v)) \o data_feature_map d =
+    (fun t => (X t ^+ 2 - mxdot v v) / Num.sqrt d%:R)%R.
+  apply/boolp.funext => t /=; rewrite data_feature_dot quad_formE.
+  by rewrite quad_sum_outer trace_outer mulrC.
+have mX : measurable_fun setT
+    (fun t : d.-tuple (measurableTypeR R) => X t : RR).
+  apply: measurable_sum => b; apply: measurable_funM => //.
+  exact: measurable_tnth.
+have [v0|v0] := eqVneq (mxdot v v) 0%R.
+  have vb (b : 'I_d) : (v ord0 b = 0)%R.
+    have := mxdot_entry v ord0 b; rewrite v0 => h.
+    by apply/eqP; rewrite -sqrf_eq0 eq_le h sqr_ge0.
+  have X0 t : X t = 0%R by rewrite /X big1 // => b _; rewrite vb mul0r.
+  split; first by rewrite divr_gt0 // mulr_gt0 // exprn_gt0.
+    apply: measurable_funM => //; apply: measurable_funB => //.
+    exact: measurable_funX.
+  under eq_integral do
+    rewrite X0 expr0n /= v0 subrr mul0r normr0 mul0r expR0.
+  by rewrite integral_cst // [X in _ * X]probability_setT mule1 lee_fin ler1n.
+pose a := ord_fun (fun b : 'I_d => v ord0 b).
+have aE (b : 'I_d) : a b = v ord0 b := ord_funE _ _ b.
+have Sv : (\sum_(j < d) v ord0 j ^+ 2 = mxdot v v)%R.
+  by rewrite /mxdot big_ord1; apply: eq_bigr => j _; rewrite expr2.
+have S0' : (0 < \sum_(j < d) a j ^+ 2 * K ^+ 2)%R.
+  under eq_bigr do rewrite aE.
+  rewrite -mulr_suml Sv mulr_gt0 ?exprn_gt0 //.
+  by rewrite lt_def v0 mxdot_ge0.
+have sg : forall j, (j < d)%N ->
+    subgaussian (nu j) (fun x : measurableTypeR R => (x : R)) K.
+  by move=> j jd; exact: (@coordinate_law_subgaussian _ _ _ (hnu j jd)).
+have m0 : forall j, (j < d)%N ->
+    (\int[nu j]_t (fun x : measurableTypeR R => (x : R)) t)%R = 0%R.
+  move=> j jd; rewrite /Rintegral.
+  by rewrite (@coordinate_law_mean _ _ _ (hnu j jd)).
+have sX := subgaussian_sum (mu := nu) (n := d)
+  (f := fun=> fun x : measurableTypeR R => (x : R)) (K := fun=> K) (a := a)
+  sg m0 S0'.
+have eX : (fun x : d.-tuple (measurableTypeR R) =>
+    (\sum_(i < d) a i * tnth x i)%R) = X.
+  by apply/boolp.funext => t; rewrite /X; apply: eq_bigr => i _; rewrite aE.
+rewrite eX in sX.
+have sC := subexponential_center (subexponential_sqr sX).
+have EX2 : (\int[P]_s (X s ^+ 2))%R = mxdot v v.
+  rewrite /Rintegral.
+  under eq_integral do rewrite /X -quad_sum_outer.
+  by rewrite (quad_sum_mean _ _ _ _ hnu) /= trace_outer.
+rewrite EX2 in sC.
+apply: subexponential_le (subexponential_scale _ _ _ _ _ _ sd sC) _.
+apply: ler_wpM2r; first by rewrite invr_ge0 ltW.
+under eq_bigr do rewrite aE.
+have m0' : (0 <= mxdot v v * K ^+ 2)%R.
+  by rewrite mulr_ge0 ?mxdot_ge0 ?sqr_ge0.
+rewrite -mulr_suml Sv exprMn (sqr_sqrtr m0').
+have K2 : (0 <= K ^+ 2)%R := sqr_ge0 K.
+by have := ler_wpM2r K2 v1; nra.
+Qed.
+
+(* The same for the Gaussian feature: constant 4 sqrt (kappa + 1) / sqrt d
+   (requests/c-to-a.md, item 2). *)
+Lemma gaussian_feature_quad_subexponential (v : 'rV[R]_d) :
+  (1 <= kappa)%R -> (0 < d)%N -> (mxdot v v <= 1)%R ->
+  subexponential (gaussian_feature_law kappa d)
+    (fun z => mxdot z (mxvec (v^T *m v)) : RR)
+    (4 * Num.sqrt (kappa + 1) / Num.sqrt d%:R)%R.
+Proof.
+move=> k1 d0 v1; rewrite /gaussian_feature_law.
+apply/subexponential_distribution; first exact: measurable_mxdotl.
+set S := gaussian_feature_mx kappa d; set th := mxvec (v^T *m v).
+set a := th *m S^T.
+have -> : (mxdot (n:=d * d))^~ th \o gaussian_feature_vec kappa d =
+    (fun g => mxdot g a).
+  by apply/boolp.funext => g /=; rewrite /gaussian_feature_vec mxdot_mulmxr.
+have sd : (0 < Num.sqrt d%:R :> R)%R by rewrite sqrtr_gt0 ltr0n.
+have k0 : (0 < kappa + 1)%R by apply: lt_le_trans (_ : 0 < 1)%R _ => //; lra.
+have Vs : v^T *m v \is symmetricmx.
+  by apply/symmetricmxP; rewrite trmx_mul trmxK.
+have VV : (mxdot (v^T *m v) (v^T *m v) <= 1)%R.
+  have -> : (mxdot (v^T *m v) (v^T *m v) = mxdot v v ^+ 2)%R.
+    rewrite /mxdot big_ord1 expr2 mulr_suml; apply: eq_bigr => i _.
+    rewrite mulr_sumr; apply: eq_bigr => j _; rewrite !mxE !big_ord1 !mxE.
+    by ring.
+  by rewrite expr_le1 // mxdot_ge0.
+have a2 : (mxdot a a <= (kappa + 1) / d%:R)%R.
+  have -> : mxdot a a = unsat_cov_form kappa d (v^T *m v) (v^T *m v).
+    rewrite /a mxdot_mulmxr trmxK -mulmxA (gaussian_feature_mx_cov _ _ k1).
+    by rewrite mxdotC unsat_covE /th mxvecK.
+  apply: le_trans (unsat_cov_form_le _ _ _ k1 Vs) _.
+  rewrite -[X in (_ <= X)%R]mulr1; apply: ler_wpM2l => //.
+  by rewrite divr_ge0 ?ler0n // ltW.
+have L0 : (0 < 4 * Num.sqrt (kappa + 1) / Num.sqrt d%:R)%R.
+  by rewrite divr_gt0 // mulr_gt0 // sqrtr_gt0.
+have [a0|a0] := eqVneq a 0%R.
+  split => //; first exact: measurable_mxdot.
+  under eq_integral do rewrite a0 mxdot0r normr0 mul0r expR0.
+  by rewrite integral_cst // [X in _ * X]probability_setT mule1 lee_fin ler1n.
+apply: (subexponential_le _ _ _ _ _ _ (gauss_mxdot_subexponential _ _ a0)).
+rewrite -mulrA; apply: ler_wpM2l => //.
+have -> : (Num.sqrt (kappa + 1) / Num.sqrt d%:R =
+    Num.sqrt ((kappa + 1) / d%:R))%R.
+  by rewrite sqrtrM ?sqrtrV ?ler0n // ltW.
+rewrite /frobenius ler_sqrt //.
+by rewrite divr_ge0 ?ler0n // ltW.
 Qed.
 
 (* Lane C's forms (Unsat/Ridge): E <W, A> <W, B> = feature_cov kappa A B
