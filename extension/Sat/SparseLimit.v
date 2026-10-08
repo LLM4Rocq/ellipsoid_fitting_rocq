@@ -38,7 +38,9 @@
      sparse_points_bound_flat with m = floor (C0 d ln d); its probability
      is at most 12 / sqrt m + 2 (alpha + 1) / d^2 + 2 exp (- d). D does not
      depend on the laws. sparse_lower_limit is the case of
-     universality_sample_law with coordinate laws. *)
+     universality_sample_law with coordinate laws, and
+     sparse_lower_limit_flat the case of any flat family of component
+     laws (flat_feature_hw and flat_feature_mean of Sat/Apriori). *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -794,4 +796,25 @@ exists (maxn D 1) => d; rewrite geq_max => /andP[dD d0].
 exact: (hD d dD _ (sample_law_component kappa K (n d) d (nu d) (hnu d))
   (sample_law_feature_hw kappa K (n d) d (nu d) (hnu d) d0)
   (sample_law_feature_mean kappa K (n d) d (nu d) (hnu d))).
+Qed.
+
+(* Proposition 3.3 with probability tending to one for flat families of
+   component laws; D does not depend on the laws. *)
+Theorem sparse_lower_limit_flat (K alpha C0 : R) (n : nat -> nat) :
+  0 < K -> 0 < alpha -> universality_density_tends_to n alpha -> 0 < C0 ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  forall lam : nat -> probability (measurableTypeR R) R,
+    (forall k, (k < n d * d)%N -> mixture_component_law K (lam k)) ->
+  exists E : set (paper_main_sample (n d) d), [/\ measurable E,
+    (tuple_prod lam (n d * d) E <= eps%:E)%E &
+    forall x, ~ E x -> forall h : 'rV[R]_(n d),
+      #|supp h|%:R <= C0 * d%:R * lnR d%:R ->
+      (\sum_i `|h 0 i|) * Num.sqrt d%:R <=
+      rate_CS K C0 * lnR d%:R ^+ 4 * nuclear (sample_adj x h)].
+Proof.
+move=> K0 a0 hn C00 eps e0.
+have [D hD] := sparse_lower_limit_features K alpha C0 n K0 a0 hn C00 eps e0.
+exists (maxn D 1) => d; rewrite geq_max => /andP[dD d0] lam hlam.
+exact: (hD d dD lam hlam (flat_feature_hw K (n d) d lam hlam d0)
+  (flat_feature_mean K (n d) d lam hlam)).
 Qed.

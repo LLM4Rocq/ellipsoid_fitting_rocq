@@ -711,3 +711,4 @@ extension/UniversalityTheorem.v
 extension/Mixture/Component.v
 extension/Mixture/Flat.v
 extension/Paired/Uniform.v
+extension/Paired/Law.v

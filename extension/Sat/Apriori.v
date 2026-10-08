@@ -54,7 +54,11 @@
      hw (Chw = 252) and cen; the threshold D comes before the laws. The
      failure probability is at most 12 / sqrt (min (n, d^2)) +
      12 (alpha + 1) / (c^3 d) (trunc_log_expR_le, sqr_expR_le).
-     adjoint_bound_limit is the case of universality_sample_law.
+     adjoint_bound_limit is the case of universality_sample_law, and
+     adjoint_bound_limit_flat the case of any flat family of component
+     laws: for them hw and cen hold by flat_feature_hw and
+     flat_feature_mean, from the bounds of Features/Regular for component
+     laws.
 
    The first display of Proposition 3.1, on the Gram matrices Q_I and on
    |X_I| for small sets I, is in Sat/AprioriSparse. *)
@@ -669,6 +673,40 @@ move=> hnu i y _ _; rewrite flat_row_mod_feature.
 by have := data_feature_mean _ _ _ _ hnu y; rewrite /Rintegral unlock => ->.
 Qed.
 
+(* The hypotheses on the features of adjoint_bound_flat for flat families of
+   component laws, with Chw = 252: component_feature_subexponential and
+   component_feature_mean of Features/Regular. *)
+Lemma flat_feature_hw (K : R) (n d : nat)
+    (lam : nat -> probability (measurableTypeR R) R) :
+  (forall k, (k < n * d)%N -> mixture_component_law K (lam k)) ->
+  (0 < d)%N -> forall i (y : 'rV[R]_(d * d)), (i < n)%N -> mxdot y y = 1%R ->
+  subexponential (data_feature_law (flat_row lam d i) d)
+    (fun z => mxdot z y) (252 * K ^+ 2 / Num.sqrt d%:R)%R.
+Proof.
+move=> hlam d0 i y id y1.
+have hrow j : (j < d)%N -> mixture_component_law K (flat_row lam d i j).
+  exact: (flat_row_hyp _ _ _ _ hlam i j id).
+have K0 : (0 < K)%R := component_law_K _ _ (hrow 0%N d0).
+have fy : frobenius (vec_mx y : 'M[R]_d) = 1%R.
+  by rewrite /frobenius -mxdot_mxvec vec_mxK y1 sqrtr1.
+have := component_feature_subexponential K d _ hrow (vec_mx y)
+  (252 * K ^+ 2)%R d0.
+rewrite vec_mxK fy mulr1 lexx => h; apply: h => //.
+by rewrite mulr_gt0 ?exprn_gt0 // ltr0n.
+Qed.
+
+Lemma flat_feature_mean (K : R) (n d : nat)
+    (lam : nat -> probability (measurableTypeR R) R) :
+  (forall k, (k < n * d)%N -> mixture_component_law K (lam k)) ->
+  forall i (y : 'rV[R]_(d * d)), (i < n)%N -> mxdot y y = 1%R ->
+  (\int[data_feature_law (flat_row lam d i) d]_v mxdot v y = 0)%R.
+Proof.
+move=> hlam i y id _.
+have hrow j : (j < d)%N -> mixture_component_law K (flat_row lam d i j).
+  exact: (flat_row_hyp _ _ _ _ hlam i j id).
+by have := component_feature_mean _ _ _ hrow y; rewrite /Rintegral unlock => ->.
+Qed.
+
 (* 5. Consequences: the nuclear norm of L_X^* z and the norm of L_X. *)
 
 Section adjoint_consequences.
@@ -909,6 +947,32 @@ exists (maxn D 1) => d; rewrite geq_max => /andP[dD d0].
 apply: (hD d dD _ (sample_law_component kappa K (n d) d (nu d) (hnu d))).
 - exact: (sample_law_feature_hw _ _ _ _ _ (hnu d) d0).
 - exact: (sample_law_feature_mean _ _ _ _ _ (hnu d)).
+Qed.
+
+(* Proposition 3.1, second display, with probability tending to one, for
+   flat families of component laws: if n(d) / d^2 tends to alpha > 0, then
+   for every eps > 0 there is D such that for every d >= D and every flat
+   family of component laws with constant K, outside a measurable event of
+   probability at most eps, every point has | |x_i|^2 - d | < d and
+   |L_X^* z|_F <= C sqrt d |z| for every z, with
+   C = adj_const K 252 (alpha + 1). *)
+Theorem adjoint_bound_limit_flat (K alpha : R) (n : nat -> nat) :
+  (0 < alpha)%R -> universality_density_tends_to n alpha ->
+  forall eps : R, (0 < eps)%R -> exists D : nat, forall d, (D <= d)%N ->
+  forall lam : nat -> probability (measurableTypeR R) R,
+    (forall k, (k < n d * d)%N -> mixture_component_law K (lam k)) ->
+  exists E : set (paper_main_sample (n d) d), [/\ measurable E,
+    (tuple_prod lam (n d * d) E <= eps%:E)%E &
+    forall x, ~ E x -> norm_good (n d) d 1 x /\
+      forall z : 'rV[R]_(n d),
+      (frobenius (sample_adj x z) <=
+       adj_const K (252)%R (alpha + 1) * Num.sqrt d%:R * frobenius z)%R].
+Proof.
+move=> a0 hn eps e0.
+have [D hD] := adjoint_bound_limit_features K alpha n a0 hn eps e0.
+exists (maxn D 1) => d; rewrite geq_max => /andP[dD d0] lam hlam.
+exact: (hD d dD lam hlam (flat_feature_hw K (n d) d lam hlam d0)
+  (flat_feature_mean K (n d) d lam hlam)).
 Qed.
 
 End adjoint_limit.
