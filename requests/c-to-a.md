@@ -31,3 +31,11 @@ Lane B applies it to `data_feature_law nu d` and to
    with `L0` depending only on `kappa` (the form is a centered normal of
    variance `C_kappa(v^T v, v^T v) <= max (2, kappa - 1) / d`, and a
    centered normal of variance `s^2` is subexponential with constant `2 s`).
+   `Gaussian/Cones.v` (lane C) now proves the two facts this needs:
+   `gaussian_feature_pairing_law`, for `B` symmetric and nonzero the law of
+   `<gaussian_feature kappa (vec_mx x), B>` under `gauss (d * d)` is
+   `normal_prob 0 (Num.sqrt (feature_cov kappa B B))`, and
+   `feature_cov_coercive`, `min (2, kappa - 1) / d |A|_F^2 <=
+   feature_cov kappa A A <= max (2, kappa - 1) / d |A|_F^2` for every `A`.
+   The lower bound is the statement of `feature_cov_ge` of
+   `Features/Regular.v`; lane A may use either.

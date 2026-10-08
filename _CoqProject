@@ -22,6 +22,7 @@ library/matrix/opnorm.v
 library/matrix/nets.v
 library/matrix/random_opnorm.v
 library/matrix/covering.v
+library/matrix/von_neumann.v
 library/probability/moments.v
 library/probability/lindeberg.v
 library/probability/subgaussian.v
@@ -32,6 +33,9 @@ library/probability/semicircle_law.v
 library/probability/variational.v
 library/probability/symmetrization.v
 library/probability/small_ball_method.v
+library/random_matrix/goe.v
+library/random_matrix/goe_rotation.v
+library/random_matrix/wigner.v
 library/comparison/normal_mgf.v
 library/comparison/chi_square.v
 library/comparison/normal_linear.v
@@ -669,3 +673,4 @@ extension/Unsat/Regularized.v
 extension/Unsat/Ridge.v
 extension/Unsat/GoeBridge.v
 extension/Unsat/FourthMomentThree.v
+extension/Unsat/Universality.v
