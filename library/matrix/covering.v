@@ -40,18 +40,17 @@ From GaussianAnalysis.fourier Require Import small_ball.
 (* - product_covering (Lemma 3.10): with r = gam d, d > 0, c0 > 0 and         *)
 (*   c0 d <= m, q <= C0 d, at most exp ((96 C0 + 33) / c0^2) ^ (m q) of them. *)
 (* - matrix_small_ball, the covering step of Lemma 3.14 (lines 3498-3548):    *)
-(*   for independent coordinates y_(i q + j), i < n, j < q, and w_i in        *)
-(*   'rV_m, if every column sum sum_i y_(i q + j) w_i is within gam of any    *)
-(*   given vector with probability at most p, then colsum_mx w y + B is in    *)
-(*   a measurable K as above with probability at most                         *)
-(*   exp (48 (m + q) r / gam + 33) p^q: cover K, then use the independence    *)
-(*   of the columns.                                                          *)
+(*   for distinct coordinates y_(g i j), i < n, j < q, of a tuple y of        *)
+(*   independent coordinates, and w_i in 'rV_m, if every column sum           *)
+(*   sum_i y_(g i j) w_i is within gam of any given vector with probability   *)
+(*   at most p, then colsum_mx g w y + B is in a measurable K as above with   *)
+(*   probability at most exp (48 (m + q) r / gam + 33) p^q: cover K, then use *)
+(*   the independence of the columns.                                         *)
 (*                                                                            *)
 (* ```                                                                        *)
-(*      colmax A == max_j |A e_j|, the largest Euclidean norm of a column of  *)
-(*                  A, the norm of A from l^1 to l^2                          *)
-(* colsum_mx w y == the m x q matrix whose column j is sum_i y_(i q + j) w_i, *)
-(*                  for an (n q)-tuple y read as n rows of q coordinates      *)
+(*        colmax A == max_j |A e_j|, the largest Euclidean norm of a column   *)
+(*                    of A, the norm of A from l^1 to l^2                     *)
+(* colsum_mx g w y == the m x q matrix whose column j is sum_i y_(g i j) w_i  *)
 (* ```                                                                        *)
 (******************************************************************************)
 
@@ -380,25 +379,27 @@ End dual_ball_covering.
 Section matrix_small_ball.
 Context {R : realType} {m q : nat}.
 
-(* The m x q matrix whose column j is sum_i y_(i q + j) w_i, for an
-   (n q)-tuple y read as n rows of q coordinates. *)
-Definition colsum_mx n (w : nat -> 'rV[R]_m)
-    (y : (n * q).-tuple (measurableTypeR R)) : 'M[R]_(m, q) :=
-  \matrix_(a, j) \sum_(i < n) tnth y (row_index i j) * w i 0 a.
+(* The m x q matrix whose column j is sum_i y_(g i j) w_i, for an N-tuple y
+   and a layout g of n rows and q columns of its coordinates. *)
+Definition colsum_mx N n (g : 'I_n -> 'I_q -> 'I_N) (w : nat -> 'rV[R]_m)
+    (y : N.-tuple (measurableTypeR R)) : 'M[R]_(m, q) :=
+  \matrix_(a, j) \sum_(i < n) tnth y (g i j) * w i 0 a.
 
-Lemma colsum_mx_col n w (y : (n * q).-tuple (measurableTypeR R)) (j : 'I_q) :
-  (col j (colsum_mx w y))^T =
-  \sum_(i < n) tnth (tuple_pick (fun i => row_index i j) y) i *: w i.
+Lemma colsum_mx_col N n (g : 'I_n -> 'I_q -> 'I_N) w
+    (y : N.-tuple (measurableTypeR R)) (j : 'I_q) :
+  (col j (colsum_mx g w y))^T =
+  \sum_(i < n) tnth (tuple_pick (g^~ j) y) i *: w i.
 Proof.
 apply/rowP => a; rewrite !mxE summxE; apply: eq_bigr => i _.
 by rewrite !mxE tnth_mktuple.
 Qed.
 
-Lemma measurable_colsum_mx n w : measurable_fun setT (@colsum_mx n w).
+Lemma measurable_colsum_mx N n (g : 'I_n -> 'I_q -> 'I_N) w :
+  measurable_fun setT (colsum_mx g w).
 Proof.
 apply/measurable_fun_mxP => a j.
 rewrite (_ : (fun x => _) =
-    (fun y => \sum_(i < n) tnth y (row_index i j) * w i 0 a)).
+    (fun y => \sum_(i < n) tnth y (g i j) * w i 0 a)).
   by apply/funext => y; rewrite mxE.
 apply: measurable_sum => i; apply: measurable_funM => //.
 exact: measurable_tnth.
@@ -406,95 +407,99 @@ Qed.
 
 Local Open Scope ereal_scope.
 
-(* Small-ball probability of a random matrix with independent columns: if
-   the entries y_(i q + j) are independent and, for every column j, the sum
-   sum_i y_(i q + j) w_i is within gam of a given vector with probability at
-   most p, then the matrix colsum_mx n w y + B is in a set K with
-   <A, C> <= r opnorm C on K with probability at most N p^q, where
-   N = exp (48 (m + q) r / gam + 33) bounds the size of a covering of K by
-   products of column balls (dual_ball_covering). *)
-Theorem matrix_small_ball n (mu : nat -> probability (measurableTypeR R) R)
+(* Small-ball probability of a random matrix with independent columns. The
+   entries y_(g i j) are distinct coordinates of a tuple y of law
+   tuple_prod mu N. If, for every column j, the sum sum_i y_(g i j) w_i is
+   within gam of any given vector with probability at most p, then the
+   matrix colsum_mx g w y + B lies in a measurable set K with
+   <A, C> <= r opnorm C on K with probability at most
+   exp (48 (m + q) r / gam + 33) p^q: cover K by that many products of
+   column balls (dual_ball_covering) and use the independence of the
+   columns. *)
+Theorem matrix_small_ball N n (g : 'I_n -> 'I_q -> 'I_N)
+    (mu : nat -> probability (measurableTypeR R) R)
     (w : nat -> 'rV[R]_m) (B : 'M[R]_(m, q)) (K : set 'M[R]_(m, q))
     (r gam p : R) :
+  (forall i j i' j', g i j = g i' j' -> i = i' /\ j = j') ->
   (0 < m)%N -> (0 < q)%N -> (0 < r)%R -> (0 < gam)%R -> (0 <= p)%R ->
   measurable K ->
   (forall A, K A -> forall C, mxdot A C <= r * opnorm C)%R ->
-  (forall (j : 'I_q) (z : 'rV[R]_m),
-     tuple_prod (fun i => mu (i * q + j)%N) n
+  (forall (j : 'I_q) (nu : nat -> probability (measurableTypeR R) R),
+     (forall i : 'I_n, nu i = mu (g i j)) -> forall z : 'rV[R]_m,
+     tuple_prod nu n
        [set s | (frobenius (\sum_(i < n) tnth s i *: w i - z) <= gam)%R]
      <= p%:E) ->
-  tuple_prod mu (n * q) [set y | K (colsum_mx w y + B)%R] <=
+  tuple_prod mu N [set y | K (colsum_mx g w y + B)%R] <=
     (expR (48 * (m + q)%:R * r / gam + 33) * p ^+ q)%:E.
 Proof.
-move=> m0 q0 r0 gam0 p0 mK hK hcol.
-have [N [hN hcov]] := dual_ball_covering m0 q0 r0 gam0 hK.
-pose Y (y : (n * q).-tuple (measurableTypeR R)) := (colsum_mx w y + B)%R.
+move=> ginj m0 q0 r0 gam0 p0 mK hK hcol.
+have [Nc [hN hcov]] := dual_ball_covering m0 q0 r0 gam0 hK.
+pose Y (y : N.-tuple (measurableTypeR R)) := (colsum_mx g w y + B)%R.
 have mY : measurable_fun setT Y.
   apply: measurable_addmx; first exact: measurable_colsum_mx.
   exact: measurable_cst.
 pose oj (j : nat) : 'I_q := insubd (Ordinal q0) j.
 have ojK j : (j < q)%N -> oj j = j :> nat by move=> jq; rewrite /oj insubdK.
 pose z (c : 'M[R]_(m, q)) (j : nat) : 'rV[R]_m := (col (oj j) (c - B))^T.
-pose f (j : nat) (i : 'I_n) : 'I_(n * q) := row_index i (oj j).
+pose f (j : nat) (i : 'I_n) : 'I_N := g i (oj j).
 pose H c j := tuple_pick (f j) @^-1`
   [set s | (frobenius (\sum_(i < n) tnth s i *: w i - z c j) <= gam)%R].
 have mH c j : measurable (H c j).
   rewrite /H -[X in measurable X]setTI.
   apply: measurable_tuple_pick => //.
   exact: measurable_tuple_ball_rV.
-(* a matrix within gam of c in colmax has its columns in the sets H c j *)
+(* a matrix within gam of c for colmax has its columns in the sets H c j *)
 have key y c j : (colmax (Y y - c) <= gam)%R -> H c j y.
   move=> hc; rewrite /H /=.
   have -> : (\sum_(i < n) tnth (tuple_pick (f j) y) i *: w i - z c j =
       (col (oj j) (Y y - c))^T)%R.
-    rewrite -(colsum_mx_col w y (oj j)); apply/rowP => a; rewrite !mxE.
+    rewrite -(colsum_mx_col g w y (oj j)); apply/rowP => a; rewrite !mxE.
     by rewrite opprB addrA addrAC.
   rewrite frobenius_trmx; apply: le_trans hc; exact: colmax_col.
-have finj j : injective (f j).
-  move=> i i' /(congr1 (@nat_of_ord _)) /= /eqP.
-  by rewrite eqn_add2r eqn_pmul2r // => /eqP /val_inj.
-have hHj c j : tuple_prod mu (n * q) (H c j) <= p%:E.
-  rewrite /H (@tuple_prod_pick _ _ _ (n * q) n (f j) mu
-    (fun i => mu (i * q + oj j)%N) _ (finj j) (fun i => erefl)
-    (measurable_tuple_ball_rV _ _ _)).
-  exact: hcol.
+have finj j : injective (f j) by move=> i i' /ginj [].
+pose nuj (j : nat) (i : nat) : probability (measurableTypeR R) R :=
+  mu (oapp (fun i' : 'I_n => (f j i' : nat)) 0%N (insub i)).
+have nujE j (i : 'I_n) : nuj j i = mu (f j i) by rewrite /nuj valK.
+have hHj c j : tuple_prod mu N (H c j) <= p%:E.
+  rewrite /H (@tuple_prod_pick _ _ _ N n (f j) mu (nuj j) _ (finj j)
+    (nujE j) (measurable_tuple_ball_rV _ _ _)).
+  exact: (hcol (oj j) (nuj j) (nujE j)).
 (* the columns depend on disjoint sets of coordinates *)
-pose Sj (j : nat) : {pred 'I_(n * q)} :=
-  [pred k : 'I_(n * q) | (k %% q == j)%N].
-have hprod c : tuple_prod mu (n * q) (\bigcap_(j < q) H c j) <= (p ^+ q)%:E.
+pose Sj (j : nat) : {pred 'I_N} := [pred k : 'I_N | [exists i, k == f j i]].
+have hprod c : tuple_prod mu N (\bigcap_(j < q) H c j) <= (p ^+ q)%:E.
   have hdep j x y : (j < q)%N -> H c j (tuple_merge (Sj j) x y) = H c j x.
     move=> jq; rewrite /H /=.
     suff -> : tuple_pick (f j) (tuple_merge (Sj j) x y) = tuple_pick (f j) x.
       by [].
     apply: eq_from_tnth => i; rewrite !tnth_mktuple.
-    by rewrite inE /= modnMDl modn_small ?ojK ?eqxx.
+    by have -> : f j i \in Sj j by rewrite inE; apply/existsP; exists i.
   have hdisj j j' i : (j < q)%N -> (j' < q)%N -> j != j' -> i \in Sj j ->
       i \notin Sj j'.
-    move=> _ _ jj' /eqP ij; apply/negP => /eqP ij'.
-    by move/eqP: jj'; apply; rewrite -ij -ij'.
-  rewrite (@tuple_prod_indep_big _ _ _ (n * q) mu q Sj (H c)
+    move=> jq j'q jj'; rewrite !inE => /existsP [i1 /eqP ->].
+    apply/negP => /existsP [i2 /eqP /ginj [_ /(congr1 (@nat_of_ord _))]].
+    by rewrite !ojK // => jj; move/eqP: jj'; apply.
+  rewrite (@tuple_prod_indep_big _ _ _ N mu q Sj (H c)
     (fun j _ => mH c j) hdisj hdep).
   apply: le_trans (_ : \prod_(j < q) p%:E <= _).
     by apply: lee_prod_ge0 => j _ //; exact: hHj.
   by rewrite prodEFin prodr_const card_ord.
 (* the union bound over the centers of the covering *)
-pose G k := \bigcap_(j < q) H (nth 0%R N k) j.
+pose G k := \bigcap_(j < q) H (nth 0%R Nc k) j.
 have mG k : measurable (G k).
   by rewrite /G bigcap_mkord; apply: big_ind => //; exact: measurableI.
-pose E := [set y : (n * q).-tuple (measurableTypeR R) |
-  K (colsum_mx w y + B)%R].
+pose E := [set y : N.-tuple (measurableTypeR R) | K (colsum_mx g w y + B)%R].
 have mE : measurable E by have := mY measurableT K mK; rewrite setTI.
-have sub : E `<=` \big[setU/set0]_(k < size N) G k.
+have sub : E `<=` \big[setU/set0]_(k < size Nc) G k.
   move=> y hy; have [c cN hc] := hcov _ hy.
-  rewrite -bigcup_mkord; exists (index c N); first by rewrite /= index_mem.
+  rewrite -bigcup_mkord; exists (index c Nc); first by rewrite /= index_mem.
   by rewrite /G nth_index // => j /= jq; exact: key.
-have mU : measurable (\big[setU/set0]_(k < size N) G k).
+have mU : measurable (\big[setU/set0]_(k < size Nc) G k).
   by apply: big_ind => //; exact: measurableU.
 apply: le_trans (le_measure _ (mem_set mE) (mem_set mU) sub) _.
-have hU := le_mu_bigsetU (tuple_prod mu (n * q))
-  (fun k (_ : (k < size N)%N) => mG k).
+have hU := le_mu_bigsetU (tuple_prod mu N)
+  (fun k (_ : (k < size Nc)%N) => mG k).
 apply: le_trans hU _.
-apply: (@le_trans _ _ (\sum_(k < size N) (p ^+ q)%:E)%R).
+apply: (@le_trans _ _ (\sum_(k < size Nc) (p ^+ q)%:E)%R).
   by apply: lee_sum => k _; exact: hprod.
 rewrite sumEFin sumr_const card_ord lee_fin -[X in (X <= _)%R]mulr_natl.
 by rewrite ler_wpM2r // exprn_ge0.
