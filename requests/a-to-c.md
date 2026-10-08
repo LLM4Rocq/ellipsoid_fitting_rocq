@@ -22,10 +22,11 @@ What lane A will provide for Lemma 5.14 and Proposition 5.15:
   then `spec W i / sqrt 2` (radius `sqrt 2`). Stated for every continuous
   `f` and, uniformly in `t` in a compact interval, for families `f_t` with
   `|f_t x - f_s x| <= L |t - s|`, such as `(x - t)_+` and `(x - t)_+^2`.
-- Lemma 5.13 without Haar measure (`random_matrix/goe_rotation.v`): for
-  `F` from symmetric matrices to matrices with `F (Q W Q^T) = Q F (W) Q^T`
-  for every orthogonal `Q`, the diagonal of `F (goe_mx a)` is nearly
-  constant. Please say in this file, or in the header of
-  `spectral_continuity.v`, how G8 defines the positive part of a symmetric
-  matrix (or another spectral function), so that `goe_rotation.v` states
-  the equivariance in that form.
+- Lemma 5.13 without Haar measure (`random_matrix/goe_rotation.v`, proved):
+  `goe_diag_var_tail` gives, for `C >= 0` and `eps > 0`,
+  `P(diag_var F(W) >= eps) <= 2 C / ((n + 2) eps) + P(|F(W)|_F^2 > C n)`,
+  where `diag_var A = (1/n) \sum_j (A_jj - tr A / n)^2`, for every `F` with
+  `conj_equivariant F` (`F (Q W Q^T) = Q F(W) Q^T` for `Q` orthogonal and `W`
+  symmetric, the form of `psd_part_conj`), `F W` symmetric for `W`
+  symmetric, and `a |-> F (goe_mx a)` measurable. `goe_diag_var_identity`
+  is the exact identity of the paper when `E F(W)_ij^2` is finite.
