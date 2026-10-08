@@ -675,3 +675,4 @@ extension/Unsat/Ridge.v
 extension/Unsat/GoeBridge.v
 extension/Unsat/FourthMomentThree.v
 extension/Unsat/Universality.v
+extension/Sat/OneStage.v
