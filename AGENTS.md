@@ -33,7 +33,8 @@ The task has two parts.
    were produced from comments, fix the deprecation warnings, and at the end
    rename the remaining modules and group them in folders.
 
-Three agents share the work. Agent 1 coordinates.
+Three agents share the work. Agent 1 coordinates phases 1 to 5; in
+phase 6, agent 3 coordinates (section "Phase 6").
 
 ## The invariant
 
@@ -142,8 +143,8 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 4 below are done (`main` d3bb5fb, tag `phase4`). The current
-work is phase 5, described after phase 4.
+Phases 1 to 5 below are done (`main` 112d6a2, tag `phase5`). The current
+work is phase 6, described after phase 5.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -712,6 +713,123 @@ user decides on the accounts.
 Phase 5 is done when `universality_theorem` is proved on `main`, its
 axioms are among the expected ones, `make check` passes, the README rows
 cover every new file, and `main` is tagged `phase5`.
+
+## Phase 6. Exact fitting for finite mixtures of product laws
+
+Phases 1 to 5 are done (`main` 112d6a2, tag `phase5`). Phase 6 proves a
+theorem that is not in the literature checked so far: Theorem 1.2 of
+Koehler and Sohn, both phases, for i.i.d. points whose law is, at each
+dimension `d`, a finite mixture of product laws whose components have
+coordinates of mean 0, variance 1 and `psi_2` norm at most `K`, with a
+fixed unconditional fourth moment `kappa > 1` (assumptions (M1)-(M3));
+the number of components may grow with `d`. Its corollary is exact
+fitting for the paired law (pairs of coordinates with density
+`(1 + eps h(x) h(y)) / 12` on `[-sqrt 3, sqrt 3]^2`, `h` the rescaled
+Legendre polynomial `P_4`) for every `eps` in `[-1, 7/3]`.
+
+The sources, on the VM:
+
+- the mathematics: `/srv/ellipsoid-fitting/notes/mixture-product-universality.md`
+  (the general theorem and its proof), `paired-dependent-sat.md` (the
+  paired law), and the response to the first review,
+  `/srv/ellipsoid-fitting/reviews/paired-law-response.md`;
+- the plan: `/srv/ellipsoid-fitting/notes/paired-law-plan-v2.md`, written
+  by agent 3. Its section 4 is the plan of this phase: the four statement
+  files (4.1), the route (4.2), the items L1-L3 (library), X1-X8
+  (generalizations of modules of `extension/`) and P0-P3 (statements and
+  the paired law) (4.3), the order (4.6), the risks (4.7) and the
+  estimates (4.8: about 9,200 lines, untested). This section fixes the
+  roles and the rules; where they differ, this section wins.
+
+### Roles
+
+- **Agent 3 is the master of this phase**, by the user's decision. It
+  keeps the plan, assigns the items to the three lanes (its own
+  included, as it judges), and gives agents 1 and 2 their work directly
+  in their sessions (below). It writes the statement files (P0), freezes
+  them after the user's review, creates the new directories, merges the
+  lanes in the `integration` clone, and alone pushes `main` and tags.
+  Wherever the sections above give agent 1 a coordinating task (merging,
+  `main`, tags, the comments of frozen files, `Makefile`, `README.md`, the
+  rest of `library/README.md`), read "the master" in this phase.
+- **Agents 1 and 2** take their items from the master, work on `lane/a`
+  and `lane/b`, push only those branches, and merge `main` into them when
+  the master says. An item is reported by a commit message that says what
+  was proved; a question or a blocker goes to the master in
+  `requests/<lane>-to-c.md`, or in the pane when it is urgent.
+- **Ownership.** Files keep the owners of phase 5 (the last column of the
+  table "Ownership"); the master assigns `extension/Mixture/`,
+  `extension/Paired/` and any file the plan reassigns, and keeps the
+  current table of items, owners and states in
+  `/srv/ellipsoid-fitting/runtime/phase6/assignments.md` (outside the
+  repository). One file has one owner at a time.
+- **The coordinator.** Messages signed "Coordinator" come from the user's
+  supervising session on the user's machine. In this phase it assigns no
+  item; it verifies pushed commits, keeps GitHub in sync and relays the
+  user's decisions.
+
+**How the master gives work.** From its own shell on the VM:
+`tmux send-keys -t arthur -l "<message>"`, then
+`tmux send-keys -t arthur Enter` (agent 2's session is `marcol`). A
+message sent during a turn waits until the turn ends. Write the message so
+that it stands alone (the item, its files, the statements expected, the
+interfaces with other lanes), keep apostrophes out of double-quoted shell
+strings, and read the pane (`tmux capture-pane -p -t arthur`) to see that
+it arrived. Never type into a pane whose prompt holds text that the user
+typed. Never restart a session, run `/clear`, or change a model or an
+account: the user does that.
+
+### Step 0
+
+1. **The statements.** The master writes the four statement files of
+   section 4.1 of the plan (`extension/MixtureDefinitions.v`,
+   `MixtureStatement.v`, `PairedDefinitions.v`, `PairedStatement.v`),
+   compiles them, pushes `main`, and says so in its pane; the coordinator
+   asks the user to review them. Library items and generalizations that do
+   not depend on these files start at once.
+2. **The freeze.** Once the user accepts the statement files, the master
+   freezes them like the ten frozen files: their code does not change,
+   only the master edits their comments, and if a proof seems to require
+   a change, stop and ask the user. `scripts/check_sources.py` compares
+   them with the acceptance commit as a third baseline. When the theorems
+   exist, `check/MixtureAssumptions.v` and `check/PairedAssumptions.v`,
+   with their expected lists, are added on the pattern of
+   `check/UniversalityAssumptions.v`, and the `Makefile`'s `check` target
+   runs them. The user's launch of this phase permits these changes to
+   `scripts/` and `check/`, in step 0 and at the end of the phase, and no
+   other.
+3. **The directories and the servers.** The master creates
+   `extension/Mixture/` and `extension/Paired/`, each with the header of
+   its first file, and pushes `main`; the user then reconnects the three
+   Rocq servers (`/mcp`), which bind the load path when they start.
+
+### Rules for this phase
+
+- Nothing changes in `theories/`, in the ten frozen files of phases 1 to
+  5, or in `check/Assumptions.v`, `check/UniversalityAssumptions.v` and
+  their expected lists. `universality_theorem` keeps building at every
+  commit: a generalized lemma keeps its old statement as a corollary
+  under its old name, or its callers change in the same commit.
+- Library results are stated over `R : realType` in the library's
+  vocabulary; nothing in `library/` mentions mixtures of ellipsoid data,
+  Legendre polynomials or the uniform law on `[-sqrt 3, sqrt 3]`. The
+  general theorem lives in `extension/Mixture/`, the paired law in
+  `extension/Paired/`.
+- Every new file has the documentation header of the library's
+  conventions; each lane adds its rows to the table of main results of
+  `library/README.md` and its files to `_CoqProject`, in the block of
+  their directory; the master adds a section on the general theorem and
+  its corollary to `extension/README.md`.
+- Requests between lanes go through `requests/<lane>-to-<lane>.md`; the
+  master deletes `requests/` at the end of the phase.
+- The VM is shared: `JOBS=3`. Compile one file while iterating;
+  `make check` before every commit. Commit messages say what was proved;
+  no journals or progress files in the repository.
+
+Phase 6 is done when `mixture_theorem : mixture_theorem_statement` and
+`paired_theorem : paired_statement` are proved on `main`, their axioms
+are among the eight expected ones, `make check` passes, the README rows
+cover every new file, and `main` is tagged `phase6`.
 
 ## Bridging Stdlib's `R` and the library
 
