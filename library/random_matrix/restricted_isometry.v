@@ -5,7 +5,7 @@ From mathcomp Require Import boolp classical_sets functions reals.
 From mathcomp Require Import ereal topology normedtype sequences exp.
 From mathcomp Require Import measure lebesgue_measure measurable_realfun numfun.
 From mathcomp Require Import lebesgue_integral probability.
-From GaussianAnalysis.matrix Require Import euclidean nets.
+From GaussianAnalysis.matrix Require Import euclidean opnorm nets.
 From GaussianAnalysis.gaussian Require Import measurable_matrix.
 From GaussianAnalysis.probability Require Import lindeberg tuple_rows.
 From GaussianAnalysis.probability Require Import subgaussian conditioning.
@@ -18,7 +18,8 @@ From GaussianAnalysis.probability Require Import subgaussian conditioning.
 (* off-diagonal part of the Gram matrix of independent centered psi_1         *)
 (* vectors is small on sparse vectors. Koehler and Sohn (arXiv 2608.27372,    *)
 (* lines 2192-2221) cite it for the a priori estimates of their               *)
-(* Proposition 3.1.                                                           *)
+(* Proposition 3.1. With it, the norms of sparse combinations of independent  *)
+(* subgaussian vectors (their second a priori estimate).                      *)
 (*                                                                            *)
 (* Setting: x_1, ..., x_N in 'rV[R]_n are the coordinates of x of law         *)
 (* tuple_prod mu N, and every linear form <x_i, y>, |y| = 1, is centered and  *)
@@ -35,17 +36,35 @@ From GaussianAnalysis.probability Require Import subgaussian conditioning.
 (*   sparse_ball m == the m-sparse vectors of norm at most 1                  *)
 (*   rip_const m x == B_m^2 = sup over sparse_ball m of |gram_off x u u|      *)
 (*    rip_T beta K == 2100 K psi sqrt m (ln (e N / m) + ln (1 / beta))        *)
+(*    sqnorm_dev x == max_i | |x_i|^2 - 1 |                                   *)
+(*    sparse_emb w == the vector supported in F with coordinates w, for       *)
+(*                    w : 'cV_#|F| (in the order of enum_val)                 *)
+(* sparse_proj F z == the coordinates of z in F                               *)
+(* tuple_submx F x == the n x |F| matrix with columns x_i, i in F             *)
+(*    sphere_net k == a 1/4-net of the unit sphere of 'cV_k of size at most   *)
+(*                    (18 e)^k                                                *)
+(* sparse_norm_bound m s == 8 K sqrt (m (1 + ln (N / m)) + 6 (m + n) + s)     *)
 (* ```                                                                        *)
 (*                                                                            *)
-(* Main result:                                                               *)
+(* Main results:                                                              *)
 (* - restricted_isometry: for 1 <= m <= N, 0 < beta <= 1/2 and K >= 1, there  *)
 (*   is a measurable event G with P(not G) <= 2 (log_4 m + 2)                 *)
 (*   exp (- K sqrt m ln (e N / m)) on which                                   *)
 (*   B_m^2 <= 256 T^2 + 32 T C + 8 beta C^2, T = rip_T beta K and             *)
 (*   C = maxnorm x. Hence |u X|^2 - sum_i u_i^2 |x_i|^2 is at most this       *)
 (*   bound times |u|^2 for every m-sparse u (gram_off_rip).                   *)
+(* - sparse_isometry_dev: | |u X|^2 - |u|^2 | <= (B_m^2 + sqnorm_dev x) |u|^2 *)
+(*   for every m-sparse u, which bounds the restricted isometry constant.     *)
+(* - tuple_mx_blocks: if |u X| <= L |u| for every m-sparse u, then            *)
+(*   |u X| <= L sqrt (N %/ m + 1) |u| for every u (blocks of m indices).      *)
+(* - sparse_norm_subgaussian: if the linear forms of the x_i are centered and *)
+(*   subgaussian with constant K, then with probability at least              *)
+(*   1 - 2 exp (- s), |u X| <= sparse_norm_bound m s |u| for every m-sparse   *)
+(*   u: Hoeffding's inequality for a fixed pair (tuple_mx_dot_tail), nets of  *)
+(*   both unit spheres (tuple_submx_net) and a union bound over the supports. *)
 (*                                                                            *)
-(* The proof, after ALPT with value levels instead of sorted coordinates:     *)
+(* The proof of restricted_isometry, after ALPT with value levels instead of  *)
+(* sorted coordinates:                                                        *)
 (* - cross_tail: for a and b with disjoint supports, |a| <= 1 and             *)
 (*   |a_i| <= al, P(|<a X, b X>| > t |b X|) <= 2 exp (- min (t^2 / (64        *)
 (*   psi^2), t / (4 al psi))), by Bernstein's inequality conditionally on the *)
@@ -69,10 +88,6 @@ From GaussianAnalysis.probability Require Import subgaussian conditioning.
 (*   wconf k and xconf k of configurations, whose sizes are at most           *)
 (*   2 exp (2 H_k) with H_k = (4 m / 4^k) (9 + ln (N / m) - ln beta + 3 k)    *)
 (*   (ccount_le); tk_sum: the thresholds t k sum to at most rip_T beta K.     *)
-(*                                                                            *)
-(* Planned: the isometry constant delta_m of tuple_mx x / sqrt n from the     *)
-(* concentration of the norms |x_i|^2 / n, and the operator norm of the full  *)
-(* matrix when N <= C0 n, by cutting the rows into blocks of at most n.       *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -454,41 +469,44 @@ Section embedding.
 Variable F : {set 'I_N}.
 
 (* The coordinates of F, in the order of enum_val. *)
-Let emb (w : 'cV[R]_#|F|) : 'rV[R]_N := \sum_j w j 0 *: delta_mx 0 (enum_val j).
-Let proj (z : 'rV[R]_N) : 'cV[R]_#|F| := \col_j z 0 (enum_val j).
+Definition sparse_emb (w : 'cV[R]_#|F|) : 'rV[R]_N :=
+  \sum_j w j 0 *: delta_mx 0 (enum_val j).
+Definition sparse_proj (z : 'rV[R]_N) : 'cV[R]_#|F| := \col_j z 0 (enum_val j).
 
-Let embE w i : emb w 0 i = \sum_j w j 0 * (enum_val j == i)%:R.
+Lemma sparse_embE w i :
+  sparse_emb w 0 i = \sum_j w j 0 * (enum_val j == i)%:R.
 Proof.
-rewrite /emb summxE; apply: eq_bigr => j _.
+rewrite /sparse_emb summxE; apply: eq_bigr => j _.
 by rewrite !mxE eqxx /= eq_sym.
 Qed.
 
-Let emb_val w j : emb w 0 (enum_val j) = w j 0.
+Lemma sparse_emb_val w j : sparse_emb w 0 (enum_val j) = w j 0.
 Proof.
-rewrite embE (bigD1 j) //= eqxx mulr1 big1 ?addr0 // => k kj.
+rewrite sparse_embE (bigD1 j) //= eqxx mulr1 big1 ?addr0 // => k kj.
 by rewrite (inj_eq enum_val_inj) (negPf kj) mulr0.
 Qed.
 
-Let emb_out w i : i \notin F -> emb w 0 i = 0.
+Lemma sparse_emb_out w i : i \notin F -> sparse_emb w 0 i = 0.
 Proof.
-move=> iF; rewrite embE big1 // => j _.
+move=> iF; rewrite sparse_embE big1 // => j _.
 case: eqP => [ji|]; last by rewrite mulr0.
 by move: iF; rewrite -ji enum_valP.
 Qed.
 
-Let emb_dot w w' : mxdot (emb w) (emb w') = mxdot w w'.
+Lemma sparse_emb_dot w w' : mxdot (sparse_emb w) (sparse_emb w') = mxdot w w'.
 Proof.
-transitivity (\sum_(j < #|F|) emb w 0 (enum_val j) * emb w' 0 (enum_val j)).
+transitivity (\sum_(j < #|F|)
+  sparse_emb w 0 (enum_val j) * sparse_emb w' 0 (enum_val j)).
   rewrite /mxdot big_ord1 (bigID (mem F)) /= [X in _ + X]big1 ?addr0.
-    by move=> i iF; rewrite emb_out ?mul0r.
+    by move=> i iF; rewrite sparse_emb_out ?mul0r.
   by rewrite big_enum_val.
 rewrite /mxdot; apply: eq_bigr => j _.
-by rewrite big_ord1 !emb_val.
+by rewrite big_ord1 !sparse_emb_val.
 Qed.
 
-Lemma emb_proj z : supp z \subset F -> emb (proj z) = z.
+Lemma sparse_emb_proj z : supp z \subset F -> sparse_emb (sparse_proj z) = z.
 Proof.
-move=> sF; apply/rowP => i; rewrite embE.
+move=> sF; apply/rowP => i; rewrite sparse_embE.
 case: (boolP (i \in F)) => iF.
   rewrite (bigD1 (enum_rank_in iF i)) //= enum_rankK_in // eqxx mulr1.
   rewrite big1 ?addr0 ?mxE ?enum_rankK_in // => j ji.
@@ -502,14 +520,15 @@ rewrite big1 // => j _; case: eqP => [ji|]; last by rewrite mulr0.
 by move: iF; rewrite -ji enum_valP.
 Qed.
 
-Let embB w w' : emb (w - w') = emb w - emb w'.
+Lemma sparse_embB w w' : sparse_emb (w - w') = sparse_emb w - sparse_emb w'.
 Proof.
-rewrite /emb -sumrB; apply: eq_bigr => j _.
+rewrite /sparse_emb -sumrB; apply: eq_bigr => j _.
 by rewrite !mxE scalerBl.
 Qed.
 
-Let proj_dot z : supp z \subset F -> mxdot (proj z) (proj z) = mxdot z z.
-Proof. by move=> sF; rewrite -emb_dot emb_proj. Qed.
+Lemma sparse_proj_dot z : supp z \subset F ->
+  mxdot (sparse_proj z) (sparse_proj z) = mxdot z z.
+Proof. by move=> sF; rewrite -sparse_emb_dot sparse_emb_proj. Qed.
 
 (* A net of the sparse vectors supported in F, of size exponential in |F|. *)
 Lemma sparse_net (al eps : R) : 0 <= al -> 0 < eps ->
@@ -525,20 +544,22 @@ have SFr w : SF w -> frobenius w <= 1.
   by move=> [w1 _]; rewrite /frobenius -sqrtr1 ler_sqrt.
 have [M [MS SM Msize]] := net_exists ler01 e0 SFr.
 rewrite mulr1 in Msize.
-exists (map emb M); split.
+exists (map sparse_emb M); split.
 - move=> y /mapP [w wM ->]; have [w1 wal] := MS w wM; split.
   + apply/fintype.subsetP => i; rewrite inE; apply: contraR => iF.
-    by rewrite emb_out.
-  + by rewrite emb_dot.
-  + move=> i; case: (boolP (i \in F)) => iF; last by rewrite emb_out ?normr0.
-    by rewrite -(enum_rankK_in iF iF) emb_val.
+    by rewrite sparse_emb_out.
+  + by rewrite sparse_emb_dot.
+  + move=> i; case: (boolP (i \in F)) => iF;
+      last by rewrite sparse_emb_out ?normr0.
+    by rewrite -(enum_rankK_in iF iF) sparse_emb_val.
 - move=> z [sF z1 zal].
-  have Pz : SF (proj z).
-    split; first by rewrite proj_dot.
+  have Pz : SF (sparse_proj z).
+    split; first by rewrite sparse_proj_dot.
     by move=> j; rewrite mxE.
   have [w wM hw] := SM _ Pz.
-  exists (emb w); first exact: map_f.
-  rewrite -[z in z - _](emb_proj sF) -embB emb_dot -frobenius_sqr.
+  exists (sparse_emb w); first exact: map_f.
+  rewrite -[z in z - _](sparse_emb_proj sF) -sparse_embB sparse_emb_dot.
+  rewrite -frobenius_sqr.
   by rewrite lerXn2r // ?nnegrE ?frobenius_ge0 // ltW.
 - by rewrite size_map.
 Qed.
@@ -2189,3 +2210,338 @@ Qed.
 
 End restricted_isometry.
 
+Section sparse_consequences.
+Context {R : realType} (N n : nat) (x : N.-tuple 'rV[R]_n).
+
+(* The largest deviation of the squared norms |x_i|^2 from 1. *)
+Definition sqnorm_dev : R :=
+  \big[Num.max/0]_i `|mxdot (tnth x i) (tnth x i) - 1|.
+
+Lemma sqnorm_dev_ge0 : 0 <= sqnorm_dev.
+Proof.
+by rewrite /sqnorm_dev; elim/big_rec: _ => // i y _ y0; rewrite le_max y0 orbT.
+Qed.
+
+Lemma sqnorm_dev_ub i : `|mxdot (tnth x i) (tnth x i) - 1| <= sqnorm_dev.
+Proof. by rewrite /sqnorm_dev (bigD1 i) //= le_max lexx. Qed.
+
+(* The isometry defect on m-sparse vectors: the off-diagonal part is bounded
+   by rip_const and the diagonal part by sqnorm_dev. *)
+Lemma sparse_isometry_dev m (u : 'rV[R]_N) : (#|supp u| <= m)%N ->
+  `|mxdot (u *m tuple_mx x) (u *m tuple_mx x) - mxdot u u| <=
+  (rip_const m x + sqnorm_dev) * mxdot u u.
+Proof.
+move=> um.
+have uu : mxdot u u = \sum_i u 0 i * u 0 i by rewrite /mxdot big_ord1.
+have -> : mxdot (u *m tuple_mx x) (u *m tuple_mx x) - mxdot u u =
+    gram_off x u u +
+    \sum_i u 0 i * u 0 i * (mxdot (tnth x i) (tnth x i) - 1).
+  rewrite /gram_off uu.
+  under [X in _ = _ + X]eq_bigr do rewrite mulrBr mulr1.
+  by rewrite sumrB; ring.
+rewrite mulrDl; apply: le_trans (ler_normD _ _) _; apply: lerD.
+  exact: gram_off_rip.
+apply: le_trans (ler_norm_sum _ _ _) _.
+rewrite uu mulr_sumr; apply: ler_sum => i _.
+have u2 : 0 <= u 0 i * u 0 i by rewrite -expr2 sqr_ge0.
+by rewrite normrM (ger0_norm u2) mulrC ler_wpM2r // sqnorm_dev_ub.
+Qed.
+
+(* A bound on the m-sparse vectors extends to all vectors, by cutting the
+   coordinates into N %/ m + 1 blocks of at most m consecutive indices. *)
+Lemma tuple_mx_blocks m (L : R) : (0 < m)%N -> 0 <= L ->
+  (forall u : 'rV[R]_N, (#|supp u| <= m)%N ->
+    frobenius (u *m tuple_mx x) <= L * frobenius u) ->
+  forall u : 'rV[R]_N, frobenius (u *m tuple_mx x) <=
+    L * Num.sqrt (N %/ m).+1%:R * frobenius u.
+Proof.
+move=> m0 L0 hL u.
+set q := (N %/ m).+1.
+pose B (j : 'I_q) : {set 'I_N} := [set i : 'I_N | (i %/ m == j)%N]%SET.
+have Bsize j : (#|B j| <= m)%N.
+  have inj : {in B j &, injective (fun i : 'I_N => Ordinal (ltn_pmod i m0))}.
+    move=> i i'; rewrite !inE => /eqP hi /eqP hi' /(congr1 val) /= hmod.
+    by apply: val_inj; rewrite /= (divn_eq i m) (divn_eq i' m) hi hi' hmod.
+  rewrite -(card_in_imset inj); apply: leq_trans (max_card _) _.
+  by rewrite card_ord.
+have iq (i : 'I_N) : (i %/ m < q)%N.
+  by rewrite ltnS leq_div2r // ltnW.
+have uE : u = \sum_j restr (B j) u.
+  apply/rowP => i; rewrite summxE (bigD1 (Ordinal (iq i))) //=.
+  rewrite restrE inE eqxx big1 ?addr0 // => j ji.
+  rewrite restrE inE; case: eqP => // e; exfalso; move: ji.
+  by apply/negP; rewrite negbK; apply/eqP/val_inj; rewrite /= e.
+have dj j j' : j != j' -> disj (restr (B j) u) (restr (B j') u).
+  move=> jj i; rewrite !restrE !inE.
+  case: (boolP (i %/ m == j)%N) => [/eqP e|]; last by left.
+  right; case: eqP => // e'; exfalso; move: jj.
+  by apply/negP; rewrite negbK; apply/eqP/val_inj; rewrite /= -e'.
+have hs j : frobenius (restr (B j) u *m tuple_mx x) <=
+    L * frobenius (restr (B j) u).
+  apply: hL; rewrite supp_restr; apply: leq_trans (Bsize j).
+  by apply: subset_leq_card; exact: subsetIl.
+have tri (s : seq 'I_q) :
+    frobenius ((\sum_(j <- s) restr (B j) u) *m tuple_mx x) <=
+    \sum_(j <- s) frobenius (restr (B j) u *m tuple_mx x).
+  elim: s => [|j s IH]; first by rewrite !big_nil mul0mx frobenius0.
+  rewrite !big_cons mulmxDl; apply: le_trans (frobeniusD _ _) _.
+  by rewrite lerD2l.
+rewrite [in X in frobenius X]uE; apply: le_trans (tri _) _.
+apply: le_trans (_ : \sum_j L * frobenius (restr (B j) u) <= _).
+  by apply: ler_sum => j _; exact: hs.
+rewrite -mulr_sumr -mulrA ler_wpM2l //.
+(* Cauchy-Schwarz with the vector of ones *)
+pose a : 'rV[R]_q := \row_j frobenius (restr (B j) u).
+pose one : 'rV[R]_q := const_mx 1.
+have -> : \sum_j frobenius (restr (B j) u) = mxdot a one.
+  by rewrite /mxdot big_ord1; apply: eq_bigr => j _; rewrite !mxE mulr1.
+apply: le_trans (ler_norm _) _; apply: le_trans (mxdot_le _ _) _.
+have -> : frobenius one = Num.sqrt q%:R.
+  rewrite /frobenius /mxdot big_ord1.
+  under eq_bigr do rewrite !mxE mulr1.
+  by rewrite sumr_const card_ord.
+have -> : frobenius a = frobenius u.
+  rewrite /frobenius; congr Num.sqrt.
+  rewrite [in RHS]uE mxdot_sum_disj ?index_enum_uniq //.
+  rewrite [LHS]/mxdot big_ord1; apply: eq_bigr => j _.
+  by rewrite !mxE -frobenius_sqr expr2.
+by rewrite mulrC.
+Qed.
+
+End sparse_consequences.
+
+Section sphere_nets.
+Context {R : realType}.
+
+(* A 1/4-net of the unit sphere of 'cV[R]_k, of size at most (18 e)^k. *)
+Definition sphere_net_spec k (S : seq 'cV[R]_k) :=
+  [/\ forall y, y \in S -> frobenius y = 1,
+    is_net (@unit_sphere R k) S 4^-1 & (size S)%:R <= (18 * expR 1) ^+ k :> R].
+
+Definition sphere_net k : seq 'cV[R]_k := xget [::] (@sphere_net_spec k).
+
+Lemma sphere_netP k : sphere_net_spec (sphere_net k).
+Proof.
+apply: xgetPex.
+have e0 : (0 : R) < 4^-1 by rewrite invr_gt0.
+have Sr (y : 'cV[R]_k) : @unit_sphere R k y -> frobenius y <= 1.
+  by rewrite /unit_sphere /= => ->.
+have [S [S1 SN Ssize]] := net_exists (S := @unit_sphere R k) ler01 e0 Sr.
+exists S; split => //.
+have -> : 18 * expR 1 = 2 * expR 1 * (1 + 2 * 1 / 4^-1) :> R.
+  by rewrite invrK; ring.
+exact: Ssize.
+Qed.
+
+End sphere_nets.
+
+
+Section columns_of_subsets.
+Context {R : realType} (N n : nat).
+Implicit Types (F : {set 'I_N}) (x : N.-tuple 'rV[R]_n).
+
+(* The n x |F| matrix whose columns are the x_i, i in F, in the order of
+   enum_val. *)
+Definition tuple_submx (F : {set 'I_N}) (x : N.-tuple 'rV[R]_n) :
+    'M[R]_(n, #|F|) :=
+  \matrix_(j, k) (tnth x (enum_val k)) 0 j.
+
+Lemma tuple_submx_mul F x (w : 'cV[R]_#|F|) :
+  tuple_submx F x *m w = (sparse_emb w *m tuple_mx x)^T.
+Proof.
+apply/colP => j; rewrite !mxE.
+under eq_bigr do rewrite !mxE.
+under [RHS]eq_bigr do rewrite sparse_embE mulr_suml.
+rewrite exchange_big /=; apply: eq_bigr => k _.
+rewrite (bigD1 (enum_val k)) //= eqxx mulr1 big1 ?addr0.
+  by move=> i ik; rewrite eq_sym (negPf ik) mulr0 mul0r.
+by rewrite mxE mulrC.
+Qed.
+
+Lemma tuple_submx_proj F x (z : 'rV[R]_N) : supp z \subset F ->
+  tuple_submx F x *m sparse_proj F z = (z *m tuple_mx x)^T.
+Proof. by move=> sF; rewrite tuple_submx_mul sparse_emb_proj. Qed.
+
+(* Bilinear values on nets of the unit spheres bound the operator norm of
+   tuple_submx F x. *)
+Lemma tuple_submx_net F x (U : seq 'cV[R]_n) (V : seq 'cV[R]_#|F|) (t : R) :
+  0 <= t -> sphere_net_spec U -> sphere_net_spec V ->
+  (forall u w, u \in U -> w \in V ->
+     `|mxdot (sparse_emb w *m tuple_mx x) u^T| <= t) ->
+  opnorm (tuple_submx F x) <= 2 * t.
+Proof.
+move=> t0 [U1 UN _] [V1 VN _] h.
+have e0 : (0 : R) <= 4^-1 by rewrite invr_ge0.
+have e1 : 2 * 4^-1 < 1 :> R by lra.
+have h' (u : 'cV[R]_n) (w : 'cV[R]_#|F|) : u \in U -> w \in V ->
+    `|mxdot u (tuple_submx F x *m w)| <= t.
+  move=> uU wV; rewrite tuple_submx_mul -[u]trmxK mxdot_trmx mxdotC.
+  exact: h.
+have U1' u : u \in U -> frobenius u <= 1 by move=> /U1 ->.
+apply: le_trans (opnorm_net_sphere e0 e1 t0 UN U1' VN h') _.
+rewrite ler_pdivrMr; last by lra.
+nra.
+Qed.
+
+End columns_of_subsets.
+
+Section sparse_norm.
+Context {R : realType} (N n : nat) (mu : nat -> probability 'rV[R]_n R) (K : R).
+Hypothesis K0 : 0 < K.
+(* The vectors have centered subgaussian linear forms. *)
+Hypothesis sub : forall i (y : 'rV[R]_n), (i < N)%N -> mxdot y y = 1 ->
+  subgaussian (mu i) (fun v => mxdot v y) K.
+Hypothesis cen : forall i (y : 'rV[R]_n), (i < N)%N -> mxdot y y = 1 ->
+  \int[mu i]_v mxdot v y = 0.
+
+Let coef (a : 'rV[R]_N) (k : nat) : R :=
+  if insub k is Some i then a 0 i else 0.
+
+Let coefE (a : 'rV[R]_N) (i : 'I_N) : coef a i = a 0 i.
+Proof. by rewrite /coef valK. Qed.
+
+(* Hoeffding's inequality for <sum_i a_i x_i, y> with |a| = |y| = 1. *)
+Lemma tuple_mx_dot_tail (a : 'rV[R]_N) (y : 'rV[R]_n) (t : R) :
+  mxdot a a = 1 -> mxdot y y = 1 -> 0 <= t ->
+  (tuple_prod mu N [set x | (t <= `|mxdot (a *m tuple_mx x) y|)%R] <=
+   (2 * expR (- (t ^+ 2 / (16 * K ^+ 2))))%:E)%E.
+Proof.
+move=> a1 y1 t0.
+have e x : mxdot (a *m tuple_mx x) y =
+    \sum_(i < N) coef a i * (fun v => mxdot v y) (tnth x i).
+  rewrite tuple_mxE mxdot_suml; apply: eq_bigr => i _.
+  by rewrite mxdotZl coefE.
+have S0 : \sum_(i < N) coef a i ^+ 2 * K ^+ 2 = K ^+ 2.
+  rewrite -mulr_suml -[RHS]mul1r; congr (_ * _).
+  rewrite -a1 /mxdot big_ord1; apply: eq_bigr => i _.
+  by rewrite coefE expr2.
+have sg := @subgaussian_sum _ _ R mu N (fun _ v => mxdot v y) (fun=> K)
+  (coef a) (fun i iN => sub iN y1) (fun i iN => cen iN y1).
+have K2 : 0 < \sum_(i < N) coef a i ^+ 2 * K ^+ 2.
+  by rewrite S0 exprn_gt0.
+have {}sg := sg K2.
+rewrite S0 sqrtr_sqr ger0_norm ?ltW // in sg.
+have -> : [set x | (t <= `|mxdot (a *m tuple_mx x) y|)%R] =
+    [set x | (t <= `|\sum_(i < N) coef a i * mxdot (tnth x i) y|)%R].
+  by apply/seteqP; split => x /=; rewrite e.
+apply: le_trans (subgaussian_tail sg t0) _.
+by rewrite lee_fin exprMn (_ : (4 : R) ^+ 2 = 16) //; ring.
+Qed.
+
+(* The bound of sparse_norm_subgaussian. *)
+Definition sparse_norm_bound (m : nat) (s : R) : R :=
+  8 * K * Num.sqrt (m%:R * (1 + ln (N%:R / m%:R)) + 6 * (m + n)%:R + s).
+
+(* For independent x_1, ..., x_N with centered K-subgaussian linear forms,
+   with probability at least 1 - 2 exp (- s), every m-sparse u satisfies
+   |sum_i u_i x_i| <= 8 K sqrt (m (1 + ln (N / m)) + 6 (m + n) + s) |u|. *)
+Theorem sparse_norm_subgaussian (m : nat) (s : R) :
+  (0 < m)%N -> (m <= N)%N -> 0 <= s ->
+  exists G : set (N.-tuple 'rV[R]_n), [/\ measurable G,
+    (tuple_prod mu N (~` G) <= (2 * expR (- s))%:E)%E &
+    forall x, G x -> forall u : 'rV[R]_N, (#|supp u| <= m)%N ->
+      frobenius (u *m tuple_mx x) <= sparse_norm_bound m s * frobenius u].
+Proof.
+move=> m0 mN s0.
+have Nm : 1 <= N%:R / m%:R :> R.
+  by rewrite ler_pdivlMr ?ltr0n // mul1r ler_nat.
+have lnNm : 0 <= ln (N%:R / m%:R) :> R by rewrite ln_ge0.
+set H := m%:R * (1 + ln (N%:R / m%:R)) + 6 * (m + n)%:R + s.
+have H0 : 0 <= H by rewrite !addr_ge0 ?mulr_ge0 ?ler0n ?addr_ge0.
+set t := 4 * K * Num.sqrt H.
+have t0 : 0 <= t by rewrite !mulr_ge0 ?sqrtr_ge0 // ltW.
+(* the pairs (a, y) of the nets on which the bilinear values are tested *)
+pose U := @sphere_net R n.
+pose A := [seq sparse_emb w | F : {set 'I_N} <- sets_le N m,
+  w <- @sphere_net R #|F|].
+pose L := [seq (a, u^T) | a <- A, u <- U].
+pose ev (c : 'rV[R]_N * 'rV[R]_n) : set (N.-tuple 'rV[R]_n) :=
+  [set x | (t <= `|mxdot (c.1 *m tuple_mx x) c.2|)%R].
+have mev c : measurable (ev c).
+  rewrite /ev -[X in measurable X]setTI.
+  apply: measurable_fun_ler => //.
+  apply: measurableT_comp => //.
+  apply: measurable_mxdot_comb; last exact: measurable_cst.
+  exact: measurable_tuple_mx_comb.
+have Lunit c : c \in L -> mxdot c.1 c.1 = 1 /\ mxdot c.2 c.2 = 1.
+  move=> /allpairsP [[a u] [aA uU ->]] /=.
+  have [U1 _ _] := @sphere_netP R n.
+  split; last by rewrite mxdot_trmx -frobenius_sqr U1 ?expr1n.
+  move: aA => /= /allpairsPdep [F [w [_ wF ->]]].
+  have [V1 _ _] := @sphere_netP R #|F|.
+  by rewrite sparse_emb_dot -frobenius_sqr V1 ?expr1n.
+(* there are at most exp (H - s) pairs *)
+have e2 : 2 <= expR 1 :> R by apply: le_trans (expR_ge1Dx _); lra.
+have c18 : 18 * expR 1 <= expR 6 :> R.
+  have -> : (6 : R) = 6%:R * 1 by rewrite mulr1.
+  rewrite expRM_natl exprS [18 * _]mulrC ler_pM2l ?expR_gt0 //.
+  apply: le_trans (_ : 2 ^+ 5 <= _); first by rewrite -natrX ler_nat.
+  by rewrite lerXn2r ?nnegrE // (le_trans _ e2).
+have c18k k : (18 * expR 1) ^+ k <= expR (6 * k%:R) :> R.
+  by rewrite [6 * _]mulrC expRM_natl lerXn2r ?nnegrE ?expR_ge0.
+have sizeA : (size A)%:R <=
+    (expR 1 * N%:R / m%:R) ^+ m * (18 * expR 1) ^+ m :> R.
+  rewrite size_allpairs_dep sumnE big_map natr_sum.
+  apply: le_trans (_ : \sum_(F <- sets_le N m) (18 * expR 1) ^+ m <= _).
+    rewrite big_seq [leRHS]big_seq; apply: ler_sum => F.
+    rewrite mem_sets_le => Fm.
+    have [_ _ Vs] := @sphere_netP R #|F|.
+    by apply: le_trans Vs _; rewrite ler_eXn2l //; lra.
+  rewrite big_const_seq count_predT iter_addr addr0 -[_ *+ _]mulr_natl.
+  apply: ler_wpM2r; first by rewrite exprn_ge0 // mulr_ge0 // expR_ge0.
+  by rewrite /sets_le -cardE; exact: small_sets_le.
+have Nm0 : 0 < N%:R / m%:R :> R by apply: lt_le_trans Nm; rewrite ltr01.
+have eN : (expR 1 * N%:R / m%:R) ^+ m =
+    expR (m%:R * (1 + ln (N%:R / m%:R))) :> R.
+  by rewrite expRM_natl expRD lnK ?posrE // mulrA.
+have sizeL : (size L)%:R <= expR (H - s).
+  rewrite size_allpairs natrM.
+  have [_ _ Us] := @sphere_netP R n.
+  apply: le_trans (ler_pM (ler0n _ _) (ler0n _ _) sizeA Us) _.
+  rewrite eN -mulrA.
+  have h18 : (18 * expR 1) ^+ m * (18 * expR 1) ^+ n <=
+      expR (6 * m%:R) * expR (6 * n%:R) :> R.
+    by apply: ler_pM; rewrite ?exprn_ge0 ?mulr_ge0 ?expR_ge0 ?c18k.
+  apply: le_trans (ler_wpM2l (expR_ge0 _) h18) _.
+  rewrite -!expRD /H natrD.
+  have -> : m%:R * (1 + ln (N%:R / m%:R)) + (6 * m%:R + 6 * n%:R) =
+      m%:R * (1 + ln (N%:R / m%:R)) + 6 * (m%:R + n%:R) + s - s :> R.
+    by ring.
+  by [].
+pose bad := \big[setU/set0]_(c <- L) ev c.
+have mbad : measurable bad by apply: bigsetU_measurable => c _; exact: mev.
+exists (~` bad); split.
+- exact: measurableC.
+- (* the union bound with Hoeffding's inequality for each pair *)
+  rewrite setCK; apply: le_trans (measure_bigsetU_le _ _ mev) _.
+  have tH : t ^+ 2 / (16 * K ^+ 2) = H.
+    rewrite /t !exprMn sqr_sqrtr // (_ : (4 : R) ^+ 2 = 16);
+      first by rewrite expr2; lra.
+    by rewrite mulrC mulKf // mulf_neq0 // expf_neq0 // gt_eqF.
+  apply: le_trans (_ : (\sum_(c <- L) (2 * expR (- H))%:E <= _)%E).
+    rewrite big_seq [leRHS]big_seq; apply: lee_sum => c cL.
+    have [c1 c2] := Lunit c cL.
+    by rewrite -tH; exact: tuple_mx_dot_tail.
+  rewrite sumEFin lee_fin big_const_seq count_predT iter_addr addr0.
+  rewrite -[_ *+ _]mulr_natl mulrCA ler_pM2l //.
+  apply: le_trans (ler_wpM2r (expR_ge0 _) sizeL) _.
+  by rewrite -expRD (_ : H - s + - H = - s) //; ring.
+- (* on the good event, opnorm (tuple_submx F x) <= 2 t for every F *)
+  move=> x nb u um.
+  have good c : c \in L -> `|mxdot (c.1 *m tuple_mx x) c.2| <= t.
+    move=> cL; rewrite leNgt; apply/negP => h; apply: nb.
+    by apply: (bigsetU_mem cL); rewrite /ev /= ltW.
+  have FL : supp u \in sets_le N m by rewrite mem_sets_le.
+  have hop : opnorm (tuple_submx (supp u) x) <= 2 * t.
+    apply: (tuple_submx_net t0 (@sphere_netP R n) (@sphere_netP R #|supp u|)).
+    move=> u' w u'U wV; apply: (good (sparse_emb w, u'^T)).
+    by apply: allpairs_f => //; exact: allpairs_f_dep.
+  rewrite -frobenius_trmx -(tuple_submx_proj x (subxx (supp u))).
+  apply: le_trans (frobenius_mulmx_opnorm _ _) _.
+  have -> : frobenius (sparse_proj (supp u) u) = frobenius u.
+    by rewrite /frobenius sparse_proj_dot.
+  rewrite ler_wpM2r ?frobenius_ge0 //; apply: le_trans hop _.
+  by rewrite /sparse_norm_bound /t -/H mulrA (_ : 2 * (4 * K) = 8 * K) //; ring.
+Qed.
+
+End sparse_norm.
