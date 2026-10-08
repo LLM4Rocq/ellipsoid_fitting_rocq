@@ -36,6 +36,7 @@ library/probability/variational.v
 library/probability/symmetrization.v
 library/probability/small_ball_method.v
 library/probability/conditioning.v
+library/probability/hanson_wright.v
 library/random_matrix/goe.v
 library/random_matrix/goe_rotation.v
 library/random_matrix/wigner.v
@@ -674,8 +675,10 @@ extension/Features/Regular.v
 extension/Gaussian/Cones.v
 extension/Gaussian/Threshold.v
 extension/Gaussian/Representation.v
+extension/Gaussian/InProbability.v
 extension/Gaussian/Limit.v
 extension/Gaussian/Subcritical.v
+extension/Gaussian/FittingError.v
 extension/Unsat/LeastSquares.v
 extension/Unsat/Regularized.v
 extension/Unsat/Ridge.v
@@ -688,3 +691,4 @@ extension/Sat/Apriori.v
 extension/Sat/SparseLower.v
 extension/Sat/EffectiveRank.v
 extension/Sat/Interpolation.v
+extension/Sat/ApproximateFit.v

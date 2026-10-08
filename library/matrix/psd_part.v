@@ -1,5 +1,6 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+From mathcomp Require Import poly polydiv mxpoly.
 From mathcomp Require Import sesquilinear boolp classical_sets reals.
 From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.matrix Require Import euclidean real_spectral.
@@ -30,11 +31,20 @@ From GaussianAnalysis.matrix Require Import von_neumann.
 (* - psd_part_conj: psd_part (Q A Q^T) = Q (psd_part A) Q^T, Q orthogonal.    *)
 (* - psd_part_moreau: A = psd_part A - psd_part (- A) with                    *)
 (*   <psd_part A, psd_part (- A)> = 0.                                        *)
-(* - psd_part_nonexpansive: |psd_part A - psd_part B|_F <= |A - B|_F.         *)
+(* - psd_part_nonexpansive: |psd_part A - psd_part B|_F <= |A - B|_F;        *)
+(*   psd_partZ: psd_part (c A) = c psd_part A for c >= 0.                     *)
 (* - spec_shift_decomposition, trace_psd_part_shift and                       *)
 (*   frobenius_psd_part_shift: tr psd_part (A - w I) = sum_i (spec A i - w)_+ *)
 (*   and |psd_part (A - w I)|_F^2 = sum_i (spec A i - w)_+^2, with spec of    *)
-(*   matrix/von_neumann.v.                                                    *)
+(*   matrix/von_neumann.v; mxdot_psd_part_shift:                              *)
+(*   <A, psd_part (A - w I)> = sum_i spec A i (spec A i - w)_+.               *)
+(* - char_poly_conj_diag, spec_conj_diag: P^T diag(v) P has the               *)
+(*   characteristic polynomial prod_i (X - v_i), so its sorted spectrum is v  *)
+(*   when v is decreasing; spec_scale: spec (c A) = c spec A for c >= 0.      *)
+(* - spec_psd_ge0, sum_spec_trace: the eigenvalues of a positive              *)
+(*   semidefinite matrix are nonnegative; they sum to the trace.              *)
+(* - mxdot_spec_le: von Neumann's inequality for the Frobenius pairing,       *)
+(*   <A, B> <= sum_i spec A i spec B i for A and B symmetric.                 *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*        psdmx A == A is symmetric with x^T A x >= 0 for every x             *)
@@ -260,6 +270,21 @@ rewrite -(ler_pM2r fp) -expr2 frobenius_sqr.
 exact: le_trans key cs.
 Qed.
 
+(* The positive part is positively homogeneous. *)
+Lemma psd_partZ n (c : R) (A : 'M[R]_n) : 0 <= c -> A \is symmetricmx ->
+  psd_part (c *: A) = c *: psd_part A.
+Proof.
+move=> c0 As; have Po := sym_spectralmx_orthogonal A.
+have AE := sym_spectralE As.
+set P := sym_spectralmx A in Po AE *; set v := sym_spectral_diag A in AE *.
+have cAE : c *: A = P^T *m diag_mx (c *: v) *m P.
+  by rewrite {1}AE linearZ /= -scalemxAr -scalemxAl.
+rewrite (psd_partE Po cAE) /psd_part -/P -/v.
+have -> : pos_row (c *: v) = c *: pos_row v.
+  by apply/rowP => i; rewrite !mxE maxr_pMr ?mulr0.
+by rewrite linearZ /= -scalemxAr -scalemxAl.
+Qed.
+
 (* A - w I = P^T diag (spec A - w) P. *)
 Lemma spec_shift_decomposition n (A : 'M[R]_n) (w : R) : A \is symmetricmx ->
   exists2 P : 'M[R]_n, P \is orthogonalmx &
@@ -291,3 +316,115 @@ by apply: eq_bigr => i _; rewrite !mxE.
 Qed.
 
 End psd_part.
+
+(* The spectrum of conjugates of diagonal matrices. *)
+
+Section spec_conj.
+Variable R : realType.
+Implicit Types n : nat.
+
+(* The characteristic polynomial of P^T diag(v) P, P orthogonal. *)
+Lemma char_poly_conj_diag n (P : 'M[R]_n) (v : 'rV[R]_n) :
+  P \is orthogonalmx ->
+  char_poly (P^T *m diag_mx v *m P) = \prod_i ('X - (v 0 i)%:P).
+Proof.
+move=> Po; pose f := @polyC R.
+have PTP : P^T *m P = 1%:M.
+  by have := trmx_orthogonal P; rewrite Po => /orthogonalmxP; rewrite trmxK.
+have M1 : map_mx f P^T *m map_mx f P = 1%:M by rewrite -map_mxM PTP map_mx1.
+have cE : char_poly_mx (P^T *m diag_mx v *m P) =
+    map_mx f P^T *m char_poly_mx (diag_mx v) *m map_mx f P.
+  rewrite /char_poly_mx mulmxBr mulmxBl -!map_mxM.
+  rewrite (scalar_mxC 'X (map_mx f P^T)).
+  by rewrite -[_ *m map_mx f P]mulmxA M1 mulmx1.
+have D1 : \det (map_mx f P^T) * \det (map_mx f P) = 1.
+  by rewrite -det_mulmx M1 det1.
+rewrite /char_poly cE !det_mulmx mulrAC D1 mul1r.
+rewrite -/(char_poly (diag_mx v)) char_poly_trig ?diag_mx_is_trig //.
+by apply: eq_bigr => i _; rewrite mxE eqxx mulr1n.
+Qed.
+
+(* The spectrum of P^T diag(v) P is v when v is decreasing: the
+   characteristic polynomial determines the eigenvalues with their
+   multiplicities. *)
+Lemma spec_conj_diag n (P : 'M[R]_n) (v : 'rV[R]_n) : P \is orthogonalmx ->
+  (forall i j : 'I_n, (i <= j)%N -> v 0 j <= v 0 i) ->
+  spec (P^T *m diag_mx v *m P) = v.
+Proof.
+move=> Po vdecr; set A := P^T *m diag_mx v *m P.
+have Asym : A \is symmetricmx.
+  rewrite /A -{2}[P]trmxK symmetricmx_conj //.
+  by apply/symmetricmxP; rewrite tr_diag_mx.
+have AE := sym_spectralE Asym.
+have Qo := sym_spectralmx_orthogonal A.
+set Q := sym_spectralmx A in AE Qo; set D := sym_spectral_diag A in AE.
+have cp : \prod_(x <- [seq D 0 i | i <- enum 'I_n]) ('X - x%:P) =
+    \prod_(x <- [seq v 0 i | i <- enum 'I_n]) ('X - x%:P).
+  rewrite !big_map.
+  by rewrite -(char_poly_conj_diag D Qo) -(char_poly_conj_diag v Po) -AE.
+have pe := prod_XsubC_eq cp.
+have sv : sorted (fun x y : R => y <= x) [seq v 0 i | i <- enum 'I_n].
+  rewrite sorted_map; apply: (@sub_sorted _ (relpre val leq)).
+    by move=> i j /= ij; exact: vdecr.
+  by rewrite -sorted_map val_enum_ord iota_sorted.
+have ge_tr : transitive (fun x y : R => y <= x).
+  by move=> y x z yx zy; exact: le_trans zy yx.
+have ge_tot : total (fun x y : R => y <= x) by move=> x y; exact: le_total.
+have ge_anti : antisymmetric (fun x y : R => y <= x).
+  by move=> x y /andP[yx xy]; apply/eqP; rewrite eq_le xy yx.
+have sE : spec_seq A = [seq v 0 i | i <- enum 'I_n].
+  rewrite /spec_seq -/D (perm_sortP ge_tot ge_tr ge_anti _ _ pe).
+  exact: sorted_sort.
+apply/rowP => i; rewrite mxE sE (nth_map i) ?size_enum_ord //.
+by rewrite nth_ord_enum.
+Qed.
+
+Lemma spec_scale n (A : 'M[R]_n) (c : R) : A \is symmetricmx -> 0 <= c ->
+  spec (c *: A) = c *: spec A.
+Proof.
+move=> As c0; have [P Po AE] := spec_decomposition As.
+have -> : c *: A = P^T *m diag_mx (c *: spec A) *m P.
+  by rewrite {1}AE linearZ /= -scalemxAr -scalemxAl.
+apply: spec_conj_diag => // i j ij; rewrite !mxE.
+by apply: ler_wpM2l => //; have := spec_decr A ij; rewrite !mxE.
+Qed.
+
+Lemma spec_psd_ge0 n (A : 'M[R]_n) i : psdmx A -> 0 <= spec A 0 i.
+Proof.
+move=> [As Ap]; have [P Po AE] := spec_decomposition As.
+exact: (spectral_psd Po AE).1 Ap i.
+Qed.
+
+Lemma sum_spec_trace n (A : 'M[R]_n) : A \is symmetricmx ->
+  \sum_i spec A 0 i = \tr A.
+Proof.
+move=> As; have [P Po AE] := spec_decomposition As.
+by rewrite (spectral_trace Po AE).
+Qed.
+
+(* von Neumann's inequality for the Frobenius pairing. *)
+Lemma mxdot_spec_le n (A B : 'M[R]_n) :
+  A \is symmetricmx -> B \is symmetricmx ->
+  mxdot A B <= \sum_i spec A 0 i * spec B 0 i.
+Proof.
+move=> As Bs; rewrite mxdot_trace.
+have -> : B^T = B by apply/symmetricmxP.
+exact: von_neumann_trace.
+Qed.
+
+Lemma mxdot_psd_part_shift n (A : 'M[R]_n) (w : R) : A \is symmetricmx ->
+  mxdot A (psd_part (A - w%:M)) =
+  \sum_i spec A 0 i * Num.max (spec A 0 i - w) 0.
+Proof.
+move=> As; have [P Po AE] := spec_decomposition As.
+have E : A - w%:M = P^T *m diag_mx (spec A - const_mx w) *m P.
+  rewrite {1}AE linearB /= mulmxBr mulmxBl; congr (_ - _).
+  rewrite diag_const_mx mul_mx_scalar -scalemxAl.
+  have : P^T \is orthogonalmx by rewrite trmx_orthogonal.
+  by move/orthogonalmxP; rewrite trmxK => ->; rewrite scalemx1.
+rewrite (psd_partE Po E) {1}AE mxdot_orthogonalmxr //.
+rewrite mxdot_orthogonalmxl ?trmx_orthogonal // mxdot_diag.
+by apply: eq_bigr => i _; rewrite !mxE.
+Qed.
+
+End spec_conj.
