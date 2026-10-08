@@ -62,18 +62,8 @@
      - a (gauss is invariant, cvg_prob_gaussN) and the scalar identity
      universality_value_dual.
 
-   Still to come (names come with the proofs).
-   - Lemma 5.16: phihat_d -> zeta_{alpha,kappa} and Phi_d ->
-     (zeta_{alpha,kappa})_+ in probability, from Lemma 5.6 (aux_value_ge of
-     Gaussian/Representation), Proposition 5.15 at zeta_{alpha,kappa} +- eps,
-     |g| / d -> sqrt alpha, and the CGMT in mean and concentration form
-     (library/comparison/cgmt.v).
-   - Proposition 1.4 (ii), the form that Unsat/Universality (U10, lane A)
-     uses: for Z of law tuple_prod (fun=> gaussian_feature_law kappa d)
-     (n d) and every eps > 0, the event that
-     2 * unsat_value (n d) d Z is farther than eps from
-     universality_e_star alpha kappa lies, for every large d, in a
-     measurable event of probability at most eps. *)
+   Lemma 5.16 and Proposition 1.4 (ii) (gaussian_fitting_error_cvg, the
+   form that Unsat/Universality uses) are in Gaussian/FittingError. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.

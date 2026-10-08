@@ -22,7 +22,22 @@
      cvg_prob_cst, cvg_probD, cvg_probN, cvg_probB, cvg_probM, cvg_probV
      (at a nonzero limit), cvg_prob_sqrt (by sqrt_dist_le,
      |sqrt a - sqrt b| <= sqrt |a - b| for all reals a, b), cvg_prob_norm,
-     cvg_prob_squeeze (between two statistics with the same limit).
+     cvg_prob_squeeze (between two statistics with the same limit),
+     cvg_prob_lipschitz (images under a Lipschitz map), cvg_prob_seq
+     (deterministic sequences).
+   - cvg_prob_center: if X d -> l in probability and X d - m d -> 0 in
+     probability, then the deterministic m d tends to l (two events of
+     probability at most 1/3 leave a point outside both); with m d the mean
+     and a concentration inequality, this gives the convergence of means.
+   - cvg_prob_concentration: if the deviations |X d - m d| >= u have
+     probability at most 2 exp (- u^2 / (c d^2)), as for a function of
+     Gaussian coordinates with Lipschitz constant of order d
+     (library/comparison/gauss_concentration.v), then
+     (X d - m d) / (d sqrt d) -> 0 in probability (expR_lin_small:
+     2 exp (- d / c) <= eps for every large d).
+   - cvg_prob_law: convergence in probability depends only on the laws of
+     the measurable statistics X d, for every large d; it moves a limit
+     from one sequence of probability spaces to another.
    - For the standard Gaussian vectors of library/gaussian/gauss.v:
      negligible_gaussN, the negligible events are still negligible after
      a |-> - a (gauss_orthogonal_law of library/comparison/gauss_law.v);
@@ -37,7 +52,7 @@ From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
 From mathcomp Require Import boolp classical_sets reals Rstruct.
 From mathcomp Require Import topology normedtype Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
-From mathcomp Require Import probability.
+From mathcomp Require Import interval measurable_realfun probability exp.
 From GaussianAnalysis Require Import measurable_matrix gauss gauss_law.
 
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
@@ -46,6 +61,24 @@ Local Open Scope ring_scope.
 Local Open Scope classical_set_scope.
 
 Local Notation RR := (R : realType).
+
+(* 2 exp (- d / c) <= eps for every large d. *)
+Lemma expR_lin_small (c eps : R) : 0 < c -> 0 < eps ->
+  exists D : nat, forall d, (D <= d)%N ->
+  2 * sequences.expR (- (d%:R / c)) <= eps.
+Proof.
+move=> c0 e0.
+exists (archimedean.Num.truncn (2 * c / eps)).+1 => d dD.
+have hd : 2 * c / eps < d%:R.
+  apply: lt_le_trans (archimedean.Num.Theory.truncnS_gt _) _.
+  by rewrite ler_nat.
+have y0 : 2 / eps < d%:R / c by rewrite ltr_pdivlMr // mulrAC.
+have ey : 2 / eps < sequences.expR (d%:R / c).
+  apply: lt_le_trans y0 _; apply: le_trans (expR_ge1Dx _).
+  by rewrite lerDr.
+rewrite expRN -[2 * _]/(2 / _) ler_pdivrMr ?expR_gt0 //.
+by rewrite ltr_pdivrMr // mulrC in ey; exact: ltW.
+Qed.
 
 Section in_probability.
 Context {disp : measure_display} (T : nat -> measurableType disp)
@@ -287,6 +320,110 @@ exists D0 => d dD a /= xt.
 by have /andP[Lx _] := hD d dD a; exact: le_trans xt.
 Qed.
 
+Lemma cvg_prob_lipschitz (f : RR -> RR) (L : RR) {X : forall d, T d -> RR}
+    {x : RR} :
+  0 < L -> (forall a b, `|f a - f b| <= L * `|a - b|) ->
+  cvg_prob X x -> cvg_prob (fun d a => f (X d a)) (f x).
+Proof.
+move=> L0 fL hX eta e0.
+have eL : 0 < eta / L by rewrite divr_gt0.
+have nX := hX _ eL.
+apply: negligibleW; first exact: nX.
+exists 0%N => d _ a /= h.
+by rewrite ler_pdivrMr // mulrC; apply: le_trans h (fL _ _).
+Qed.
+
+(* A deterministic sequence as a statistic. *)
+Lemma cvg_prob_seq (m : nat -> RR) (l : RR) :
+  (forall eta : R, 0 < eta -> exists D : nat, forall d, (D <= d)%N ->
+     `|m d - l| < eta) ->
+  cvg_prob (fun d _ => m d) l.
+Proof.
+move=> hm eta e0 eps p0; have [D hD] := hm _ e0.
+exists D => d dD; exists set0; split => //.
+  by rewrite measure0 lee_fin ltW.
+by move=> a /=; rewrite leNgt hD.
+Qed.
+
+(* If X converges in probability to l and X - m d converges in probability
+   to 0, then m d converges to l. *)
+Lemma cvg_prob_center (X : forall d, T d -> RR) (m : nat -> RR) (l : RR) :
+  cvg_prob X l -> cvg_prob (fun d a => X d a - m d) 0 ->
+  forall eta : R, 0 < eta -> exists D : nat, forall d, (D <= d)%N ->
+    `|m d - l| < eta.
+Proof.
+move=> hX hm eta e0.
+have e2 : 0 < eta / 2 by rewrite divr_gt0.
+have t3 : (0 : RR) < 3%:R^-1 by rewrite invr_gt0 ltr0n.
+have [D1 h1] := hX _ e2 _ t3; have [D2 h2] := hm _ e2 _ t3.
+exists (maxn D1 D2) => d; rewrite geq_max => /andP[d1 d2].
+have [A [mA PA XA]] := h1 d d1; have [B [mB PB XB]] := h2 d d2.
+(* A `|` B is not the whole space, which has probability 1 *)
+have : exists a, ~ (A `|` B) a.
+  apply/not_existsP => hAB.
+  have AB : A `|` B = setT.
+    by apply/seteqP; split => // a _; have := hAB a; apply: contra_notP.
+  have := measureU2 (P d) mA mB; rewrite AB => h.
+  have e1 : (P d [set: T d] = 1)%E := probability_setT (P d).
+  have h' : (1 <= P d A + P d B)%E.
+    by rewrite -[X in (X <= _)%E]e1; exact: h.
+  have := le_trans h' (leeD PA PB); rewrite -EFinD lee_fin.
+  by apply/negP; rewrite -ltNge -mulr2n -mulr_natl; lra.
+move=> [a /not_orP[nA nB]].
+have hA : `|X d a - l| < eta / 2.
+  by rewrite ltNge; apply/negP => h; apply: nA; exact: XA.
+have hB : `|X d a - m d| < eta / 2.
+  rewrite ltNge; apply/negP => h; apply: nB; apply: XB.
+  by rewrite /= subr0.
+have := ler_distD (X d a) (m d) l; rewrite distrC => t.
+apply: le_lt_trans t _; rewrite [eta]splitr; apply: ltrD => //.
+by rewrite distrC.
+Qed.
+
+(* A statistic that concentrates at scale d around m d, as Lipschitz
+   functions of d^2 Gaussian coordinates of constant Lipschitz norm do,
+   is close to m d at the scale d sqrt d. *)
+Lemma cvg_prob_concentration (X : forall d, T d -> RR) (m : nat -> RR)
+    (c : R) : 0 < c -> (forall d, measurable_fun setT (X d)) ->
+  (forall d (u : R), 0 <= u ->
+     (P d [set x | (u <= `|X d x - m d|)%R] <=
+      (2 * sequences.expR (- u ^+ 2 / (c * d%:R ^+ 2)))%:E)%E) ->
+  cvg_prob (fun d x => (X d x - m d) / (d%:R * Num.sqrt d%:R)) 0.
+Proof.
+move=> c0 mX hX eta e0.
+apply: negligible_measurable.
+  move=> d.
+  have mf : measurable_fun setT (fun x : T d =>
+      `|(X d x - m d) / (d%:R * Num.sqrt d%:R) - 0| : RR).
+    apply: measurableT_comp; first exact: normr_measurable.
+    apply: measurable_funB; last exact: measurable_cst.
+    apply: measurable_funM; last exact: measurable_cst.
+    by apply: measurable_funB; [exact: mX | exact: measurable_cst].
+  have := mf measurableT _ (measurable_itv `[eta, +oo[%R).
+  rewrite setTI; congr (measurable _).
+  by apply/seteqP; split => x /=; rewrite in_itv /= andbT.
+move=> eps p0.
+have ec : 0 < c / eta ^+ 2 by rewrite divr_gt0 // exprn_gt0.
+have [D hD] := expR_lin_small _ _ ec p0.
+exists (maxn D 1) => d; rewrite geq_max => /andP[dD d1].
+have dR : 0 < d%:R :> R by rewrite ltr0n.
+set s := d%:R * Num.sqrt d%:R.
+have s0 : 0 < s by rewrite mulr_gt0 // sqrtr_gt0.
+have -> : [set x | eta <= `|(X d x - m d) / s - 0|] =
+    [set x | (eta * s <= `|X d x - m d|)%R].
+  apply/seteqP; split => x /=;
+    by rewrite subr0 normrM normfV (gtr0_norm s0) ler_pdivlMr.
+apply: le_trans (hX d (eta * s) _) _; first by rewrite mulr_ge0 // ltW.
+rewrite lee_fin.
+have e : (eta * s) ^+ 2 / (c * d%:R ^+ 2) = d%:R / (c / eta ^+ 2).
+  rewrite /s !exprMn sqr_sqrtr ?ler0n //.
+  have cn : c != 0 by rewrite gt_eqF.
+  have en : eta != 0 by rewrite gt_eqF.
+  have dn : d%:R != 0 :> R by rewrite gt_eqF.
+  by field.
+by rewrite mulNr e; exact: hD.
+Qed.
+
 End in_probability.
 
 Arguments negligible {disp T} P E.
@@ -305,6 +442,50 @@ Arguments cvg_probV {disp T P X x}.
 Arguments cvg_prob_sqrt {disp T P X x}.
 Arguments cvg_prob_norm {disp T P X x}.
 Arguments cvg_prob_squeeze {disp T P L X U l}.
+Arguments cvg_prob_lipschitz {disp T P} f L {X x}.
+Arguments cvg_prob_seq {disp T} P m l.
+Arguments cvg_prob_center {disp T P X m l}.
+Arguments cvg_prob_concentration {disp T} P X m c%_ring_scope.
+
+Section law_transfer.
+Context {disp1 disp2 : measure_display} (T1 : nat -> measurableType disp1)
+  (T2 : nat -> measurableType disp2)
+  (P1 : forall d, probability (T1 d) RR) (P2 : forall d, probability (T2 d) RR).
+
+(* Convergence in probability depends only on the laws of the statistics
+   for every large d. *)
+Lemma cvg_prob_law (X1 : forall d, T1 d -> RR) (X2 : forall d, T2 d -> RR)
+    (l : RR) :
+  (forall d, measurable_fun setT (X1 d)) ->
+  (forall d, measurable_fun setT (X2 d)) ->
+  (exists D0 : nat, forall d, (D0 <= d)%N -> forall B : set RR, measurable B ->
+     P1 d (X1 d @^-1` B) = P2 d (X2 d @^-1` B)) ->
+  cvg_prob P2 X2 l -> cvg_prob P1 X1 l.
+Proof.
+move=> mX1 mX2 [D0 hL] h2 eta e0 eps p0.
+have [D hD] := h2 eta e0 eps p0.
+exists (maxn D0 D) => d; rewrite geq_max => /andP[d0 dD].
+pose B := [set y : RR | eta <= `|y - l|].
+have mB : measurable B.
+  have mf : measurable_fun setT (fun y : RR => `|y - l|).
+    apply: measurableT_comp; first exact: normr_measurable.
+    by apply: measurable_funB; [exact: measurable_id | exact: measurable_cst].
+  have := mf measurableT _ (measurable_itv `[eta, +oo[%R).
+  rewrite setTI; congr (measurable _).
+  by apply/seteqP; split => y /=; rewrite in_itv /= andbT.
+have m1 : measurable (X1 d @^-1` B).
+  by rewrite -[X in measurable X]setTI; exact: mX1.
+have m2 : measurable (X2 d @^-1` B).
+  by rewrite -[X in measurable X]setTI; exact: mX2.
+exists (X1 d @^-1` B); split => //.
+have [A [mA PA EA]] := hD d dD.
+rewrite hL //; apply: le_trans PA.
+by apply: le_measure => //; rewrite inE.
+Qed.
+
+End law_transfer.
+
+Arguments cvg_prob_law {disp1 disp2 T1 T2} P1 P2 X1 X2 l.
 
 (* The standard Gaussian vectors. *)
 
