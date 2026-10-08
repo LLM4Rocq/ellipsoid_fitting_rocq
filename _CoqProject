@@ -680,6 +680,8 @@ extension/Unsat/Ridge.v
 extension/Unsat/GoeBridge.v
 extension/Unsat/FourthMomentThree.v
 extension/Unsat/Universality.v
+extension/Sat/OneStage.v
+extension/Sat/LightTail.v
 extension/Sat/Apriori.v
 extension/Sat/SparseLower.v
 extension/Sat/EffectiveRank.v

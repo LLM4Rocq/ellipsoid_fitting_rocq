@@ -31,6 +31,20 @@ From GaussianAnalysis.comparison Require Import gauss_concentration slepian gord
 (* through a mesh. For T the unit sphere, w(T) = E[|h|] (gwidth_sphere),      *)
 (* which bounds the smallest singular value of G (gauss_min_singular_mean).   *)
 (*                                                                            *)
+(* For a second nonempty set Y of unit vectors of 'cV[R]_N, gordon_minmax is  *)
+(* Gordon's comparison for the min-max of the bilinear form:                  *)
+(* E[inf_(x in T) sup_(y in Y) <y, G x>] >= w(Y) - w(T), with                 *)
+(* w(Y) = E[sup_(y in Y) <g, y>]. Let Y be the unit vectors of the range of   *)
+(* an orthogonal projection P != 0 of 'cV[R]_N. Then sup_(y in Y) <y, v> is   *)
+(* |P v| (gwidth_range_sphere), so E[inf_(x in T) |P G x|] >= E[|g P|] - w(T) *)
+(* (gordon_projection), with the Gaussian tail of gordon_escape_tail          *)
+(* (gordon_projection_tail). Since E[|g A|^2] = |A|^2 (gauss_sqr_mulmx), the  *)
+(* Gaussian Poincare inequality gives E[|g P|] >= sqrt (tr P - 1)             *)
+(* (gauss_proj_mean_ge). So for M > 0, inf_(|x| = 1) |P G x| is at most       *)
+(* sqrt (tr P - 1) - sqrt M - u with probability at most expR (- u^2 / 2)     *)
+(* (gauss_proj_singular_tail): the smallest singular value of G seen through  *)
+(* P, for instance on the symmetric matrices.                                 *)
+(*                                                                            *)
 (* For N, M > 0, E[opnorm G] <= E[|g|] + E[|h|] <= sqrt N + sqrt M            *)
 (* (gauss_opnorm_mean, gauss_frobenius_mean_le, gauss_opnorm_mean_sqrt), and  *)
 (* opnorm G exceeds E[|g|] + E[|h|] + u with probability at most              *)
@@ -54,6 +68,8 @@ From GaussianAnalysis.comparison Require Import gauss_concentration slepian gord
 (*                        <lsubmx z, ys t> + <rsubmx z, xs u>                 *)
 (*      gwidth_fun T h == sup_(x in T) <h, x>, for h : 'rV[R]_M               *)
 (*      escape_inf T G == inf_(x in T) |G *m x|                               *)
+(*    minmax_sph T Y G == inf_(x in T) sup_(y in Y) <y, G *m x>               *)
+(*      range_sphere P == the unit vectors y of 'cV[R]_N with P *m y = y      *)
 (* ```                                                                        *)
 (******************************************************************************)
 
@@ -703,6 +719,321 @@ Qed.
 
 End gordon_escape.
 
+Section gordon_minmax.
+Context {R : realType} {N M : nat}.
+Variables (T : set 'cV[R]_M) (Y : set 'cV[R]_N).
+Hypotheses (T1 : forall x, T x -> frobenius x = 1) (T0 : T !=set0).
+Hypotheses (Y1 : forall y, Y y -> frobenius y = 1) (Y0 : Y !=set0).
+
+(* inf_(x in T) sup_(y in Y) <y, G x>. *)
+Definition minmax_sph (G : 'M[R]_(N, M)) : R :=
+  inf [set gwidth_fun Y (G *m x)^T | x in T].
+
+Let width_bound (v : 'rV[R]_N) : `|gwidth_fun Y v| <= frobenius v.
+Proof. exact: gwidth_norm. Qed.
+
+Lemma minmax_sph_le (G : 'M[R]_(N, M)) x :
+  T x -> minmax_sph G <= gwidth_fun Y (G *m x)^T.
+Proof.
+move=> Tx; apply: ge_inf; last by exists x.
+exists (- frobenius G) => _ [y Ty <-].
+have := width_bound (G *m y)^T.
+rewrite frobenius_trmx ler_norml => /andP [h _].
+apply: le_trans h; rewrite lerN2 (le_trans (frobenius_mulmx _ _)) //.
+by rewrite T1 // mulr1.
+Qed.
+
+Lemma minmax_sph_ge (G : 'M[R]_(N, M)) c :
+  (forall x, T x -> c <= gwidth_fun Y (G *m x)^T) -> c <= minmax_sph G.
+Proof.
+move=> hc; apply: lb_le_inf.
+  by case: T0 => x Tx; exists (gwidth_fun Y (G *m x)^T), x.
+by move=> _ [x Tx <-]; exact: hc.
+Qed.
+
+Lemma minmax_sph_lipschitz (G G' : 'M[R]_(N, M)) :
+  `|minmax_sph G - minmax_sph G'| <= 1 * frobenius (G - G').
+Proof.
+rewrite mul1r.
+have key (A B : 'M[R]_(N, M)) :
+    minmax_sph A <= minmax_sph B + frobenius (A - B).
+  rewrite -lerBlDr; apply: minmax_sph_ge => x Tx; rewrite lerBlDr.
+  apply: (le_trans (minmax_sph_le A Tx)).
+  have := gwidth_lipschitz Y1 Y0 (A *m x)^T (B *m x)^T.
+  rewrite mul1r -linearB /= -mulmxBl frobenius_trmx => h.
+  have hAB : frobenius ((A - B) *m x) <= frobenius (A - B).
+    by rewrite (le_trans (frobenius_mulmx _ _)) // T1 // mulr1.
+  move: h; rewrite ler_norml => /andP [_ h].
+  by rewrite -lerBlDl (le_trans h).
+rewrite ler_norml; have := key G G'; have := key G' G.
+rewrite -frobeniusN opprB; lra.
+Qed.
+
+Lemma integrable_minmax_sph :
+  (gauss (N * M)).-integrable [set: 'rV[R]_(N * M)]
+    (EFin \o (fun a => minmax_sph (vec_mx a : 'M[R]_(N, M)))).
+Proof.
+apply: (@integrable_gauss_lipschitz _ _ _ 1) => a a'.
+rewrite (le_trans (minmax_sph_lipschitz _ _)) //.
+by rewrite -linearB /= frobenius_vec_mx.
+Qed.
+
+Lemma minmax_bil_sph_le k l (xs : 'I_k.+1 -> 'cV[R]_M)
+    (ys : 'I_l.+1 -> 'cV[R]_N) (delta : R) (a : 'rV[R]_(N * M)) :
+  (forall t, Y (ys t)) ->
+  (forall x, T x -> exists u, frobenius (x - xs u) <= delta) ->
+  minmax (vec_mx (a *m bil_mx xs ys)) <=
+  minmax_sph (vec_mx a : 'M[R]_(N, M)) + delta * frobenius a.
+Proof.
+move=> ysY net; rewrite -lerBlDr; apply: minmax_sph_ge => x Tx.
+rewrite lerBlDr; have [u xu] := net x Tx.
+apply: (le_trans (minmax_le _ u)).
+have h1 : rmax (row u (vec_mx (a *m bil_mx xs ys))) <=
+    gwidth_fun Y ((vec_mx a : 'M[R]_(N, M)) *m xs u)^T.
+  apply: rmax_le => t; rewrite mxE bil_mxE mxdotC.
+  have := gwidth_ge Y1 ((vec_mx a : 'M[R]_(N, M)) *m xs u)^T (ysY t).
+  by rewrite trmxK.
+apply: (le_trans h1).
+have := gwidth_lipschitz Y1 Y0 ((vec_mx a : 'M[R]_(N, M)) *m xs u)^T
+  ((vec_mx a : 'M[R]_(N, M)) *m x)^T.
+rewrite mul1r -linearB /= -mulmxBr frobenius_trmx ler_norml => /andP [_ h].
+rewrite -lerBlDl (le_trans h) //.
+rewrite (le_trans (frobenius_mulmx _ _)) // frobenius_vec_mx mulrC.
+by rewrite -frobeniusN opprB ler_wpM2r // frobenius_ge0.
+Qed.
+
+(* If ys meets every ball of radius eta centered in Y, the largest of the
+   <g, ys t> is at least sup_(y in Y) <g, y> - eta |g|. *)
+Lemma rmax_net_width l (ys : 'I_l.+1 -> 'cV[R]_N) (eta : R) (g : 'rV[R]_N) :
+  (forall y, Y y -> exists t, frobenius (y - ys t) <= eta) ->
+  gwidth_fun Y g - eta * frobenius g <= rmax (g *m fam_mx ys).
+Proof.
+move=> net; rewrite lerBlDr; apply: (gwidth_le Y0) => y Yy.
+have [t yt] := net y Yy.
+apply: (le_trans _ (lerD (le_rmax _ t) (lexx _))).
+rewrite fam_mxE.
+have -> : mxdot g^T y = mxdot g^T (ys t) + mxdot g^T (y - ys t).
+  by rewrite mxdotBr; ring.
+rewrite lerD2l (le_trans (ler_mxdot _ _)) // frobenius_trmx mulrC.
+by rewrite ler_wpM2r // frobenius_ge0.
+Qed.
+
+(* Gordon's comparison for two sets of unit vectors: for the Gaussian matrix
+   vec_mx a of size N x M,
+   E[inf_(x in T) sup_(y in Y) <y, G x>] >=
+   E[sup_(y in Y) <g, y>] - E[sup_(x in T) <h, x>]. *)
+Theorem gordon_minmax :
+  \int[gauss N]_g gwidth_fun Y g - \int[gauss M]_h gwidth_fun T h <=
+  \int[gauss (N * M)]_a minmax_sph (vec_mx a : 'M[R]_(N, M)).
+Proof.
+have iG := @integrable_gauss_frobenius R N.
+have iGG := @integrable_gauss_frobenius R (N * M).
+pose Eg : R := \int[gauss N]_g frobenius (g : 'rV[R]_N).
+pose EG : R := \int[gauss (N * M)]_a frobenius (a : 'rV[R]_(N * M)).
+have Eg0 : 0 <= Eg by apply: Rintegral_ge0 => // g _; exact: frobenius_ge0.
+have EG0 : 0 <= EG by apply: Rintegral_ge0 => // a _; exact: frobenius_ge0.
+apply/ler_addgt0Pr => e e0.
+pose eps := e / (Eg + EG + 1).
+have C0 : 0 < Eg + EG + 1 by rewrite ltr_wpDl// addr_ge0.
+have eps0 : 0 < eps by rewrite divr_gt0.
+have epsC : eps * (Eg + EG) <= e.
+  by rewrite /eps mulrAC ler_pdivrMr// ler_wpM2l ?(ltW e0)//; lra.
+(* eps-nets xs of T and ys of Y. *)
+have Tr x : T x -> frobenius x <= 1 by move=> Tx; rewrite T1.
+have [Ts [TsT Tsnet _]] := @net_exists R M T 1 eps ler01 eps0 Tr.
+case: Ts TsT Tsnet => [|x0 Ts] TsT Tsnet; first by case: T0 => x /Tsnet [y].
+have Yr y : Y y -> frobenius y <= 1 by move=> Yy; rewrite Y1.
+have [Ys [YsY Ysnet _]] := @net_exists R N Y 1 eps ler01 eps0 Yr.
+case: Ys YsY Ysnet => [|y0 Ys] YsY Ysnet; first by case: Y0 => y /Ysnet [z].
+pose xs (u : 'I_(size Ts).+1) := nth 0 (x0 :: Ts) u.
+pose ys (t : 'I_(size Ys).+1) := nth 0 (y0 :: Ys) t.
+have xsT u : T (xs u) by apply: TsT; rewrite mem_nth.
+have xs1 u : frobenius (xs u) = 1 by apply: T1.
+have ysY t : Y (ys t) by apply: YsY; rewrite mem_nth.
+have ys1 t : frobenius (ys t) = 1 by apply: Y1.
+have xsnet x : T x -> exists u, frobenius (x - xs u) <= eps.
+  move=> Tx; have [z zT xz] := Tsnet x Tx.
+  have zi : (index z (x0 :: Ts) < (size Ts).+1)%N.
+    by rewrite -[X in (_ < X)%N]/(size (x0 :: Ts)) index_mem.
+  by exists (Ordinal zi); rewrite /xs /= nth_index.
+have ysnet y : Y y -> exists t, frobenius (y - ys t) <= eps.
+  move=> Yy; have [z zY yz] := Ysnet y Yy.
+  have zi : (index z (y0 :: Ys) < (size Ys).+1)%N.
+    by rewrite -[X in (_ < X)%N]/(size (y0 :: Ys)) index_mem.
+  by exists (Ordinal zi); rewrite /ys /= nth_index.
+(* Gordon's comparison of the auxiliary and the matrix processes. *)
+have iA := integrable_gauss_minmax (aux_mx xs ys).
+have iB := integrable_gauss_minmax (bil_mx xs ys).
+have h12 : \int[gauss (N + M)]_z minmax (vec_mx (z *m aux_mx xs ys)) <=
+    \int[gauss (N * M)]_a minmax (vec_mx (a *m bil_mx xs ys)).
+  apply: fine_le; [exact: integrable_fin_num|exact: integrable_fin_num|].
+  exact: aux_bil_minmax.
+rewrite integral_minmax_aux in h12.
+(* The two soft parts. *)
+have iGe : (gauss N).-integrable setT
+    (EFin \o (fun g : 'rV[R]_N => eps * frobenius g)).
+  have := integrableZl measurableT eps iG.
+  by apply: eq_integrable => // g _.
+have iW := integrable_gwidth Y1 Y0.
+have hY : \int[gauss N]_g gwidth_fun Y g <=
+    \int[gauss N]_g rmax (g *m fam_mx ys) + eps * Eg.
+  have iR := integrable_gauss_rmax (fam_mx ys).
+  have iS : (gauss N).-integrable setT (EFin \o (fun g : 'rV[R]_N =>
+      rmax (g *m fam_mx ys) + eps * frobenius g)).
+    rewrite (_ : EFin \o _ = (EFin \o (fun g => rmax (g *m fam_mx ys))) \+
+      (EFin \o (fun g : 'rV[R]_N => eps * frobenius g)))//.
+    exact: integrableD.
+  rewrite /Eg -RintegralZl// -RintegralD//.
+  apply: le_Rintegral => // g _; rewrite -lerBlDr.
+  exact: rmax_net_width.
+have hX : \int[gauss M]_h rmax (h *m fam_mx xs) <=
+    \int[gauss M]_h gwidth_fun T h.
+  apply: le_Rintegral => //; first exact: integrable_gauss_rmax.
+    exact: integrable_gwidth.
+  by move=> h _; exact: rmax_fam_width.
+have hB : \int[gauss (N * M)]_a minmax (vec_mx (a *m bil_mx xs ys)) <=
+    \int[gauss (N * M)]_a minmax_sph (vec_mx a : 'M[R]_(N, M)) + eps * EG.
+  have iFe : (gauss (N * M)).-integrable setT
+      (EFin \o (fun a : 'rV[R]_(N * M) => eps * frobenius a)).
+    have := integrableZl measurableT eps iGG.
+    by apply: eq_integrable => // a _.
+  have iI := integrable_minmax_sph.
+  have iS : (gauss (N * M)).-integrable setT
+      (EFin \o (fun a : 'rV[R]_(N * M) =>
+         minmax_sph (vec_mx a : 'M[R]_(N, M)) + eps * frobenius a)).
+    rewrite (_ : EFin \o _ =
+      (EFin \o (fun a => minmax_sph (vec_mx a : 'M[R]_(N, M)))) \+
+      (EFin \o (fun a : 'rV[R]_(N * M) => eps * frobenius a)))//.
+    exact: integrableD.
+  rewrite /EG -RintegralZl// -RintegralD//.
+  by apply: le_Rintegral => // a _; exact: minmax_bil_sph_le.
+have := ltW eps0; lra.
+Qed.
+
+End gordon_minmax.
+
+Section gordon_projection.
+Context {R : realType} {N M : nat}.
+Variable P : 'M[R]_N.
+Hypotheses (Psym : P^T = P) (Pid : P *m P = P) (P0 : P != 0).
+Variable T : set 'cV[R]_M.
+Hypotheses (T1 : forall x, T x -> frobenius x = 1) (T0 : T !=set0).
+
+(* The unit vectors of the range of the orthogonal projection P. *)
+Definition range_sphere : set 'cV[R]_N :=
+  [set y | frobenius y = 1 /\ P *m y = y].
+
+Lemma mxdot_proj (g : 'rV[R]_N) y :
+  P *m y = y -> mxdot g^T y = mxdot (g *m P)^T y.
+Proof.
+by move=> Py; rewrite -{1}Py mxdotC mxdot_mulmxl mxdotC trmx_mul.
+Qed.
+
+Lemma frobenius_proj_le m (A : 'M[R]_(N, m)) :
+  frobenius (P *m A) <= frobenius A.
+Proof.
+have h : frobenius (P *m A) ^+ 2 <= frobenius A * frobenius (P *m A).
+  rewrite frobenius_sqr mxdot_mulmxl mulmxA Psym Pid; exact: ler_mxdot.
+have := frobenius_ge0 (P *m A); have := frobenius_ge0 A; nra.
+Qed.
+
+Lemma range_sphere0 : range_sphere !=set0.
+Proof.
+have : ~~ [forall j, col j P == 0].
+  apply: contra P0 => /forallP h; apply/eqP/matrixP => i j.
+  by have /eqP/colP/(_ i) := h j; rewrite !mxE.
+case/forallPn => j Pj.
+have f0 : 0 < frobenius (col j P) by rewrite frobenius_gt0.
+exists ((frobenius (col j P))^-1 *: col j P); split.
+  rewrite frobeniusZ ger0_norm ?invr_ge0 ?(ltW f0) //.
+  by rewrite mulVf // gt_eqF.
+by rewrite -scalemxAr colE mulmxA Pid.
+Qed.
+
+Lemma gwidth_range_sphere (g : 'rV[R]_N) :
+  gwidth_fun range_sphere g = frobenius (g *m P).
+Proof.
+have Y0 := range_sphere0.
+have Y1 y : range_sphere y -> frobenius y = 1 by case.
+apply/eqP; rewrite eq_le; apply/andP; split.
+  apply: (gwidth_le Y0) => y [y1 Py].
+  rewrite mxdot_proj // (le_trans (ler_mxdot _ _)) //.
+  by rewrite y1 mulr1 frobenius_trmx.
+have [gP0|gP0] := eqVneq (g *m P) 0.
+  rewrite gP0 frobenius0; have [y Yy] := Y0.
+  apply: (le_trans _ (gwidth_ge Y1 _ Yy)).
+  by case: Yy => _ Py; rewrite mxdot_proj // gP0 trmx0 mxdot0l.
+have f0 : 0 < frobenius (g *m P) by rewrite frobenius_gt0.
+pose y := (frobenius (g *m P))^-1 *: (g *m P)^T.
+have Py : P *m y = y.
+  by rewrite /y -scalemxAr trmx_mul Psym mulmxA Pid.
+have y1 : frobenius y = 1.
+  rewrite /y frobeniusZ frobenius_trmx ger0_norm ?invr_ge0 ?(ltW f0) //.
+  by rewrite mulVf // gt_eqF.
+have Yy : range_sphere y by [].
+apply: (le_trans _ (gwidth_ge Y1 _ Yy)).
+rewrite mxdot_proj // /y mxdotZr.
+rewrite -frobenius_sqr frobenius_trmx expr2 mulrA mulVf ?mul1r //.
+by rewrite gt_eqF.
+Qed.
+
+Lemma minmax_sph_range (G : 'M[R]_(N, M)) :
+  minmax_sph T range_sphere G = escape_inf T (P *m G).
+Proof.
+rewrite /minmax_sph /escape_inf; congr inf; apply: eq_imagel => x _.
+by rewrite gwidth_range_sphere -frobenius_trmx trmx_mul trmxK Psym mulmxA.
+Qed.
+
+(* Gordon's comparison for P G: E[inf_(x in T) |P G x|] >= E[|g P|] - w(T). *)
+Theorem gordon_projection :
+  \int[gauss N]_g frobenius (g *m P) - \int[gauss M]_h gwidth_fun T h <=
+  \int[gauss (N * M)]_a escape_inf T (P *m vec_mx a : 'M[R]_(N, M)).
+Proof.
+have Y1 y : range_sphere y -> frobenius y = 1 by case.
+have h := gordon_minmax T1 T0 Y1 range_sphere0.
+have e1 : \int[gauss N]_g gwidth_fun range_sphere g =
+    \int[gauss N]_g frobenius (g *m P).
+  by apply: eq_Rintegral => g _; rewrite gwidth_range_sphere.
+have e2 : \int[gauss (N * M)]_a minmax_sph T range_sphere
+    (vec_mx a : 'M[R]_(N, M)) =
+    \int[gauss (N * M)]_a escape_inf T (P *m vec_mx a : 'M[R]_(N, M)).
+  by apply: eq_Rintegral => a _; rewrite minmax_sph_range.
+by rewrite -e1 -e2.
+Qed.
+
+Lemma escape_proj_lipschitz (a a' : 'rV[R]_(N * M)) :
+  `|escape_inf T (P *m vec_mx a : 'M[R]_(N, M)) -
+    escape_inf T (P *m vec_mx a' : 'M[R]_(N, M))| <=
+  1 * frobenius (a - a').
+Proof.
+rewrite (le_trans (escape_inf_lipschitz T1 T0 _ _)) //.
+rewrite -mulmxBr -linearB /= !mul1r (le_trans (frobenius_proj_le _)) //.
+by rewrite frobenius_vec_mx.
+Qed.
+
+Lemma measurable_escape_proj (A : set R) : measurable A ->
+  measurable ((fun a : 'rV[R]_(N * M) =>
+    escape_inf T (P *m vec_mx a : 'M[R]_(N, M))) @^-1` A).
+Proof.
+move=> mA; rewrite -[X in measurable X]setTI.
+exact: (continuous_measurable_mx
+  (lipschitz_frobenius_continuous escape_proj_lipschitz)).
+Qed.
+
+Theorem gordon_projection_tail (u : R) : 0 <= u ->
+  (gauss (N * M) [set a | escape_inf T (P *m vec_mx a : 'M[R]_(N, M)) <=
+     \int[gauss N]_g frobenius (g *m P) - \int[gauss M]_h gwidth_fun T h - u]%R
+   <= (expR (- u ^+ 2 / 2))%:E)%E.
+Proof.
+move=> u0; have := gauss_concentration_lower_tail escape_proj_lipschitz u0.
+rewrite expr1n mulr1; apply: le_trans; apply: le_measure; rewrite ?inE.
+- by rewrite -preimage_itvNyc; apply: measurable_escape_proj.
+- by rewrite -preimage_itvNyc; apply: measurable_escape_proj.
+- by move=> a /=; have := gordon_projection; lra.
+Qed.
+
+End gordon_projection.
+
 Section seq_index.
 
 Lemma seq_index (T : eqType) (d x0 : T) (s : seq T) y : y \in x0 :: s ->
@@ -962,3 +1293,138 @@ by apply: eq_Rintegral => h _; rewrite gwidth_sphere.
 Qed.
 
 End gauss_matrix_bounds.
+
+Section gauss_projection_mean.
+Context {R : realType}.
+
+(* E[|g A|^2] = |A|^2 for g of law gauss n. *)
+Lemma gauss_sqr_mulmx n k (A : 'M[R]_(n, k)) :
+  \int[gauss n]_g frobenius (g *m A) ^+ 2 = frobenius A ^+ 2.
+Proof.
+set B := A *m A^T.
+have mc (c : R) (i l : 'I_n) : measurable_fun [set: 'rV[R]_n]
+    (fun g : 'rV[R]_n => c * (g 0 i * g 0 l)).
+  apply: measurable_funM; first exact: measurable_cst.
+  by apply: measurable_funM; exact: measurable_mxentry.
+have ic (c : R) (i l : 'I_n) : (gauss n).-integrable [set: 'rV[R]_n]
+    (EFin \o (fun g : 'rV[R]_n => c * (g 0 i * g 0 l))).
+  apply: (integrable_gauss_poly (mc c i l) (C := `|c|) (k := 2)) => g.
+  rewrite normrM ler_wpM2l // normrM.
+  rewrite (le_trans (ler_pM (normr_ge0 _) (normr_ge0 _)
+    (mx_norm_entry_le g 0 i) (mx_norm_entry_le g 0 l))) //.
+  by rewrite -expr2 lerDr.
+have ic1 (i l : 'I_n) : (gauss n).-integrable [set: 'rV[R]_n]
+    (EFin \o (fun g : 'rV[R]_n => g 0 i * g 0 l)).
+  by have := ic 1 i l; apply: eq_integrable => // g _ /=; rewrite mul1r.
+have iS (i : 'I_n) : (gauss n).-integrable [set: 'rV[R]_n]
+    (EFin \o (fun g : 'rV[R]_n => \sum_l B l i * (g 0 i * g 0 l))).
+  have -> : EFin \o (fun g : 'rV[R]_n => \sum_l B l i * (g 0 i * g 0 l)) =
+      (fun g => \sum_l (EFin \o (fun g : 'rV[R]_n =>
+        B l i * (g 0 i * g 0 l))) g).
+    by apply/funext => g; rewrite /= sumEFin.
+  by apply: integrable_sum => // l _; exact: ic.
+have E (g : 'rV[R]_n) : frobenius (g *m A) ^+ 2 =
+    \sum_i \sum_l B l i * (g 0 i * g 0 l).
+  rewrite frobenius_sqr mxdot_mulmxr -mulmxA /mxdot big_ord1.
+  apply: eq_bigr => i _; rewrite !mxE mulr_sumr; apply: eq_bigr => l _.
+  by rewrite /B; ring.
+under eq_Rintegral do rewrite E.
+rewrite Rintegral_sum //.
+under eq_bigr do rewrite Rintegral_sum //.
+under eq_bigr do under eq_bigr do rewrite RintegralZl //.
+under eq_bigr do under eq_bigr do rewrite /Rintegral gauss_cov /=.
+rewrite frobenius_sqr mxdot_trace -/B /mxtrace; apply: eq_bigr => i _.
+rewrite (bigD1 i) //= eqxx mulr1 big1 ?addr0 // => l li.
+by rewrite eq_sym (negbTE li) mulr0.
+Qed.
+
+(* For an orthogonal projection P, E[|g P|] >= sqrt (tr P - 1), by the
+   Gaussian Poincare inequality, since E[|g P|^2] = tr P. *)
+Lemma gauss_proj_mean_ge n (P : 'M[R]_n) : P^T = P -> P *m P = P ->
+  Num.sqrt (\tr P - 1) <= \int[gauss n]_g frobenius (g *m P).
+Proof.
+move=> Psym Pid.
+pose F (g : 'rV[R]_n) := frobenius (g *m P).
+have Fl (v : 'rV[R]_n) : F v <= frobenius v.
+  rewrite /F -frobenius_trmx trmx_mul Psym -[X in _ <= X]frobenius_trmx.
+  exact: frobenius_proj_le.
+have F0 g : 0 <= F g by exact: frobenius_ge0.
+have FL (x y : 'rV[R]_n) : `|F x - F y| <= 1 * frobenius (x - y).
+  by rewrite mul1r (le_trans (ler_frobeniusB _ _)) // -mulmxBl Fl.
+have mF : measurable_fun [set: 'rV[R]_n] F :=
+  continuous_measurable_mx (lipschitz_frobenius_continuous FL).
+have iF : (gauss n).-integrable [set: 'rV[R]_n] (EFin \o F) :=
+  integrable_gauss_lipschitz FL.
+have iF2 : (gauss n).-integrable [set: 'rV[R]_n]
+    (EFin \o (fun g => F g ^+ 2)).
+  apply: (integrable_gauss_poly (C := n%:R) (k := 2)).
+    exact: measurable_funX.
+  move=> g; rewrite ger0_norm ?sqr_ge0 //.
+  apply: (le_trans (y := frobenius g ^+ 2)).
+    by rewrite !expr2 ler_pM.
+  rewrite frobenius_sqr /mxdot big_ord1.
+  apply: (le_trans (y := \sum_(i < n) `|g| ^+ 2)).
+    apply: ler_sum => i _; rewrite -[g 0 i * g 0 i]expr2.
+    rewrite -real_normK ?num_real //.
+    by rewrite !expr2 ler_pM ?normr_ge0 ?mx_norm_entry_le.
+  by rewrite sumr_const card_ord -[X in X <= _]mulr_natl ler_wpM2l // lerDr.
+have ic (c : R) : (gauss n).-integrable [set: 'rV[R]_n] (EFin \o cst c).
+  apply: (integrable_gauss_poly (measurable_cst c) (C := `|c|) (k := 0)).
+  by move=> g; rewrite expr0 ler_peMr // lerDr.
+set mu := \int[gauss n]_g F g.
+have mu0 : 0 <= mu by apply: Rintegral_ge0 => // g _.
+have E2 : \int[gauss n]_g F g ^+ 2 = \tr P.
+  by rewrite /F gauss_sqr_mulmx frobenius_sqr mxdot_trace Psym Pid.
+have i2 : (gauss n).-integrable [set: 'rV[R]_n]
+    (EFin \o (fun g => 2 * mu * F g)).
+  have := integrableZl measurableT (2 * mu) iF.
+  by apply: eq_integrable => // g _.
+have i3 : (gauss n).-integrable [set: 'rV[R]_n]
+    (EFin \o (fun g => 2 * mu * F g - mu ^+ 2)).
+  have := integrableB measurableT i2 (ic (mu ^+ 2)).
+  by apply: eq_integrable => // g _ /=; rewrite EFinB.
+(* The variance of F is E[F^2] - mu^2 = tr P - mu^2. *)
+have V : \int[gauss n]_g (F g - mu) ^+ 2 = \tr P - mu ^+ 2.
+  have e (g : 'rV[R]_n) :
+      (F g - mu) ^+ 2 = F g ^+ 2 - (2 * mu * F g - mu ^+ 2) by ring.
+  under eq_Rintegral do rewrite e.
+  rewrite RintegralB // E2 RintegralB //; first exact: ic.
+  rewrite (RintegralZl _ measurableT iF) -/mu Rintegral_cst //.
+  by rewrite [X in mu ^+ 2 * fine X]probability_setT mulr1; ring.
+have := gauss_poincare_lipschitz FL; rewrite -/mu V expr1n => h.
+rewrite -[X in _ <= X](ger0_norm mu0) -sqrtr_sqr; apply: ler_wsqrtr.
+lra.
+Qed.
+
+End gauss_projection_mean.
+
+Section gauss_projection_singular.
+Context {R : realType} {N M : nat}.
+
+(* The smallest singular value of P G for an orthogonal projection P:
+   inf_(|x| = 1) |P G x| is at most sqrt (tr P - 1) - sqrt M - u with
+   probability at most expR (- u^2 / 2). *)
+Theorem gauss_proj_singular_tail (P : 'M[R]_N) (u : R) :
+  P^T = P -> P *m P = P -> P != 0 -> (0 < M)%N -> 0 <= u ->
+  (gauss (N * M) [set a | escape_inf (@unit_sphere R M)
+      (P *m vec_mx a : 'M[R]_(N, M)) <=
+     Num.sqrt (\tr P - 1) - Num.sqrt M%:R - u]%R <=
+   (expR (- u ^+ 2 / 2))%:E)%E.
+Proof.
+move=> Psym Pid P0 M0 u0.
+have S1 x : (@unit_sphere R M) x -> frobenius x = 1 by [].
+have S0 : (@unit_sphere R M) !=set0.
+  exists (delta_mx (Ordinal M0) 0).
+  by rewrite /unit_sphere /= /frobenius mxdot_delta mxE !eqxx sqrtr1.
+have := gordon_projection_tail Psym Pid P0 S1 S0 u0.
+have -> : \int[gauss M]_h gwidth_fun (@unit_sphere R M) h =
+    \int[gauss M]_h frobenius h.
+  by apply: eq_Rintegral => h _; rewrite gwidth_sphere.
+apply: le_trans; apply: le_measure; rewrite ?inE.
+- by rewrite -preimage_itvNyc; apply: measurable_escape_proj.
+- by rewrite -preimage_itvNyc; apply: measurable_escape_proj.
+- move=> a /=; have := gauss_proj_mean_ge Psym Pid.
+  by have := @gauss_frobenius_mean_le R M; lra.
+Qed.
+
+End gauss_projection_singular.
