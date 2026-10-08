@@ -215,8 +215,9 @@ Qed.
 (* The fit event vanishes when the values of the data features and of the
    Gaussian features concentrate around the same c d, and the Gaussian
    values are rarely below e > 0. *)
-Theorem fit_event_vanishes (nu : nat -> nat -> probability (measurableTypeR R) R)
-    (n : nat -> nat) (c : nat -> R) (e : R) : (0 < e)%R ->
+Theorem fit_event_vanishes
+    (nu : nat -> nat -> probability (measurableTypeR R) R) (n : nat -> nat)
+    (c : nat -> R) (e : R) : (0 < e)%R ->
   paper_main_tends_to (fun d => tuple_prod (fun=> gaussian_feature_law 3%:R d)
     (n d) [set Z | (unsat_value (n d) d Z < e)%R]) 0 ->
   (forall eps : R, (0 < eps)%R -> paper_main_tends_to
@@ -270,7 +271,8 @@ Lemma regular_feature_le N (K K' tau tau' : R) (S : 'M[RR]_N)
 Proof.
 move=> K0 KK t0 tt [l0 F1 m0 cov F2]; split => //.
   move=> th; apply: le_trans (F1 th) _; rewrite lee_fin.
-  rewrite ler_wpM2r ?exprn_ge0 ?mxdot_ge0 // ler_wpM2r ?exprn_ge0 ?opnorm_ge0 //.
+  rewrite ler_wpM2r ?exprn_ge0 ?mxdot_ge0 //.
+  rewrite ler_wpM2r ?exprn_ge0 ?opnorm_ge0 //.
   by rewrite lerXn2r // nnegrE // (le_trans K0).
 move=> T sT; apply: le_trans (F2 T sT) _; rewrite lee_fin.
 rewrite ler_wpM2r ?exprn_ge0 ?frobenius_ge0 //.
@@ -373,7 +375,8 @@ apply: le_trans (_ : 2 * Num.sqrt 2 * 720%:R <= _);
 set l := opnorm _ in hl *.
 have l0 : 0 <= l by exact: opnorm_ge0.
 have L3le : L ^+ 3 <= 720%:R * d%:R.
-  apply: le_trans h6; rewrite (_ : 6 = 3 + 3)%N // exprD ler_peMr ?exprn_ege1 //.
+  apply: le_trans h6.
+  rewrite (_ : 6 = 3 + 3)%N // exprD ler_peMr ?exprn_ege1 //.
   exact: ltW.
 apply: le_trans (_ : Num.sqrt 2 * l * (720%:R * d%:R) <= _).
   by apply: ler_wpM2l => //; rewrite mulr_ge0 ?sqrtr_ge0.
@@ -388,7 +391,8 @@ Qed.
 (* The quadratic forms <W, v^T v> of the two features, |v| <= 1, are
    subexponential with the common constant fmt_L0 K / sqrt d, as Lemma 2.12
    (Unsat/Ridge) asks. *)
-Definition fmt_L0 (K : R) : R := Num.max (48 * K ^+ 2) (4 * Num.sqrt (3%:R + 1)).
+Definition fmt_L0 (K : R) : R :=
+  Num.max (48 * K ^+ 2) (4 * Num.sqrt (3%:R + 1)).
 
 Lemma fmt_subexp_data (K : R) (nu : nat -> probability (measurableTypeR R) R)
     d (v : 'rV[RR]_d) :
@@ -398,7 +402,8 @@ Lemma fmt_subexp_data (K : R) (nu : nat -> probability (measurableTypeR R) R)
     (fun z => mxdot z (mxvec (v^T *m v)) : RR) (fmt_L0 K / Num.sqrt d%:R).
 Proof.
 move=> hnu d0 v1.
-apply: subexponential_le (data_feature_quad_subexponential 3%:R K d nu hnu v d0 v1) _.
+apply: subexponential_le
+  (data_feature_quad_subexponential 3%:R K d nu hnu v d0 v1) _.
 by rewrite ler_pM2r ?invr_gt0 ?sqrtr_gt0 ?ltr0n // le_max lexx.
 Qed.
 
