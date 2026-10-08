@@ -17,7 +17,11 @@
      mixture_small_residual (Mixture/Interpolation), Theorem 1.9 for
      mixture samples. The latter asks alpha < 1/2, which holds since
      alpha < alpha*(kappa) < 1/2 (universality_alpha_star_lt of
-     Gaussian/Threshold). *)
+     Gaussian/Threshold).
+   - mixture_statement_holds: mixture_statement. Its first conjunct is
+     mixture_sat, its second (Theorem 1.2 (ii) for mixtures) is
+     mixture_unsat and its third (Theorem 1.7 for mixtures) is
+     mixture_error, both of Unsat/Universality. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -29,6 +33,7 @@ From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality Require Import MixtureDefinitions MixtureStatement.
 From EllipsoidUniversality.Gaussian Require Import Threshold.
 From EllipsoidUniversality.Mixture Require Import Points Interpolation.
+From EllipsoidUniversality.Unsat Require Import Universality.
 From EllipsoidUniversality.Sat Require Import Universality.
 
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
@@ -85,4 +90,14 @@ have /andP[_ h] := universality_alpha_star_lt _ k1.
 exact: (mixture_sat_of_interpolation kappa K alpha k1 K0 a0 ha
   (mixture_small_residual K alpha K0 a0 (lt_trans ha h))
   (mixture_points_nonzero_holds K K0)).
+Qed.
+
+(* Theorem 1.2 for finite mixtures of product laws: both phases and the
+   limit of the optimal fitting error. *)
+Theorem mixture_statement_holds : mixture_statement.
+Proof.
+move=> kappa K alpha k1 K0 a0; split.
+- exact: mixture_sat.
+- exact: mixture_unsat.
+- exact: mixture_error.
 Qed.
