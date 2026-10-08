@@ -21,6 +21,7 @@ library/matrix/whitening.v
 library/matrix/opnorm.v
 library/matrix/nets.v
 library/matrix/random_opnorm.v
+library/matrix/covering.v
 library/matrix/von_neumann.v
 library/matrix/psd_part.v
 library/matrix/nuclear.v
@@ -34,6 +35,7 @@ library/probability/semicircle_law.v
 library/probability/variational.v
 library/probability/symmetrization.v
 library/probability/small_ball_method.v
+library/probability/conditioning.v
 library/random_matrix/goe.v
 library/random_matrix/goe_rotation.v
 library/random_matrix/wigner.v
@@ -50,6 +52,7 @@ library/comparison/slepian.v
 library/comparison/gordon.v
 library/comparison/escape.v
 library/comparison/cgmt.v
+library/comparison/sudakov.v
 library/comparison/gauss_law.v
 library/comparison/ornstein_uhlenbeck.v
 library/comparison/brascamp_lieb.v
