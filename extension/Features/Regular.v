@@ -75,8 +75,12 @@
      is subexponential with constant 4 |a|, gauss_mxdot_subexponential, and
      |a|^2 = C_kappa (v^T v, v^T v) <= (kappa + 1) / d, unsat_cov_form_le).
 
-   Planned (phase 5, stage 1): the regularity of gaussian_feature_law, from
-   lane B's regularity of Gaussian features ((2.10) of the paper). *)
+   - gaussian_feature_regular: for kappa > 1 and d > 0,
+     gaussian_feature_law kappa d is a regular feature with covariance
+     unsat_cov kappa d and constants 3^(1/4) and
+     sqrt 2 opnorm (unsat_cov kappa d), from (2.10) of the paper
+     (gauss_regular_feature, convex/gauss_feature.v) and
+     gaussian_feature_mx_cov. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -92,7 +96,7 @@ From GaussianAnalysis.comparison Require Import gauss_linear.
 From GaussianAnalysis.probability Require Import lindeberg subgaussian.
 From GaussianAnalysis.probability Require Import efron_stein.
 From GaussianAnalysis.matrix Require Import euclidean opnorm real_spectral.
-From GaussianAnalysis.convex Require Import least_squares.
+From GaussianAnalysis.convex Require Import least_squares gauss_feature.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality.Gaussian Require Import Cones.
@@ -1941,6 +1945,21 @@ have := subexponential_mul sY (subgaussian_one _ _ (gauss n)).
 have -> : (fun t : 'rV[R]_n => mxdot t a * 1)%R = (fun g => mxdot g a : RR).
   by apply/boolp.funext => g; rewrite mulr1.
 by move=> h; apply: (subexponential_le _ _ _ _ _ _ h); lra.
+Qed.
+
+(* The Gaussian twin of Proposition 2.6: for kappa > 1 and d > 0, the law
+   of the Gaussian feature is a regular feature with covariance C_kappa, by
+   (2.10) (gauss_regular_feature) and gaussian_feature_mx_cov. *)
+Theorem gaussian_feature_regular (kappa : R) d : 1 < kappa -> (0 < d)%N ->
+  regular_feature (3 `^ (1 / 4)) (Num.sqrt 2 * opnorm (unsat_cov kappa d))
+    (unsat_cov kappa d) (gaussian_feature_law kappa d).
+Proof.
+move=> k1 d0; have k1' : 1 <= kappa by exact: ltW.
+rewrite -(gaussian_feature_mx_cov kappa d k1').
+apply: gauss_regular_feature => //.
+apply/eqP => S0; have := unsat_cov_opnorm_ge kappa d d0.
+rewrite -(gaussian_feature_mx_cov kappa d k1') S0 mulmx0 opnorm0.
+by apply/negP; rewrite -ltNge divr_gt0 ?ltr0n // subr_gt0.
 Qed.
 
 Section data_feature.
