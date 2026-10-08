@@ -31,7 +31,10 @@
      ones.
    - flat_row_label, flat_row_label_prod: for the labelled law of a
      mixture, flat_row lam d i j = mu (s_i) j for i < n and j < d, and
-     point i has law tuple_prod (mu (s_i)) d. *)
+     point i has law tuple_prod (mu (s_i)) d.
+   - mixture_label_lt, labelled_component: the labels are component
+     indices, so the labelled law of a mixture of component laws is a flat
+     family of component laws. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -202,6 +205,31 @@ Proof.
 move=> jd; have d0 : (0 < d)%N by apply: leq_ltn_trans jd.
 rewrite /flat_row modnMDl modn_small // divnMDl // divn_small // addn0.
 by rewrite /mixture_label (nth_map (tnth s i)) ?size_tuple // -tnth_nth.
+Qed.
+
+(* The label of a point is a component index. *)
+Lemma mixture_label_lt (N n : nat) (s : n.-tuple 'I_N) i :
+  (i < n)%N -> (mixture_label s i < N)%N.
+Proof.
+move=> i_lt.
+rewrite /mixture_label (nth_map (tnth s (Ordinal i_lt))) ?size_tuple //.
+exact: ltn_ord.
+Qed.
+
+(* The labelled law of a mixture of component laws is a flat family of
+   component laws. *)
+Lemma labelled_component (K : R) (N : nat)
+    (mu : nat -> nat -> probability (measurableTypeR R) R)
+    n d (s : n.-tuple 'I_N) :
+  (forall t j, (t < N)%N -> (j < d)%N -> mixture_component_law K (mu t j)) ->
+  forall k, (k < n * d)%N ->
+    mixture_component_law K (mu (mixture_label s (k %/ d)) (k %% d)).
+Proof.
+move=> hmu k kn.
+have d0 : (0 < d)%N.
+  by rewrite lt0n; apply/eqP => d0; move: kn; rewrite d0 muln0 ltn0.
+apply: hmu; last exact: ltn_pmod.
+by apply: mixture_label_lt; rewrite ltn_divLR.
 Qed.
 
 Lemma flat_row_label_prod (N : nat)
