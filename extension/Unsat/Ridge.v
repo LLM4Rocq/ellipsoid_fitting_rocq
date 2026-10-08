@@ -65,17 +65,18 @@
      least s^2 and of Markov's inequality for (1/n) sum_i <Z_i, I>^2
      (ridge_markov_identity), at the level c s^2 / 2 with
      c = 9 / (512 Kq).
-   - unsat_ridge_removal, Lemma 2.12 in the form of requests/c-to-b.md: for
-     features of regular laws mu d (regular_feature with covariance
-     unsat_cov kappa d) whose quadratic forms z |-> <z, mxvec (v^T v)>
-     (|v| <= 1) are subexponential with constant L0 / sqrt d, both for
-     d >= 1 (neither can hold at d = 0), n / d^2 ->
-     alpha > 0, measurable gap events and beta d >= 0, the probability
-     that unsat_ridge_value - unsat_value exceeds C beta d ln d tends to
-     0, with C = max / min + 1. ln is the logarithm of MathComp-Analysis.
-     For a given eps the proof takes a constant s, large enough for the
-     bound above to be below eps once n d >= alpha d^2 / 2, n d is large
-     and ln d >= s^2, so no limit along s_d^2 = ln d is needed. *)
+   - unsat_ridge_removal, Lemma 2.12 in the form that Unsat/Regularized
+     (lane B) uses: for features of regular laws mu d (regular_feature
+     with covariance unsat_cov kappa d) whose quadratic forms
+     z |-> <z, mxvec (v^T v)> (|v| <= 1) are subexponential with constant
+     L0 / sqrt d, both for d >= 1 (neither can hold at d = 0),
+     n / d^2 -> alpha > 0, measurable gap events and beta d >= 0, the
+     probability that unsat_ridge_value - unsat_value exceeds
+     C beta d ln d tends to 0, with C = max / min + 1. ln is the logarithm
+     of MathComp-Analysis. For a given eps the proof takes a constant s,
+     large enough for the bound above to be below eps once
+     n d >= alpha d^2 / 2, n d is large and ln d >= s^2, so no limit along
+     s_d^2 = ln d is needed. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -89,8 +90,9 @@ From mathcomp Require Import numfun lebesgue_integral probability.
 From GaussianAnalysis Require Import euclidean real_spectral opnorm.
 From GaussianAnalysis Require Import least_squares.
 From GaussianAnalysis Require Import logdet_barrier gordon gauss_linear.
-From GaussianAnalysis Require Import measurable_matrix lindeberg symmetrization efron_stein.
-From GaussianAnalysis Require Import subgaussian random_opnorm small_ball_method.
+From GaussianAnalysis Require Import measurable_matrix lindeberg.
+From GaussianAnalysis Require Import symmetrization efron_stein subgaussian.
+From GaussianAnalysis Require Import random_opnorm small_ball_method.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality.Gaussian Require Import Cones.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
@@ -604,7 +606,8 @@ have e1 : \int[mu]_z ((mxdot z theta)%R)%:E = 0.
   by have := rf1 theta; rewrite unlock.
 have e2 : \int[mu]_z ((mxdot z theta ^+ 2)%R)%:E =
     (mxdot (theta *m unsat_cov kappa d) theta)%:E.
-  by have := rf2 theta theta; rewrite unlock; under eq_integral do rewrite -expr2.
+  have := rf2 theta theta; rewrite unlock.
+  by under eq_integral do rewrite -expr2.
 by rewrite e1 e2 mule0 sube0 /unsat_scale -EFinD RplusE.
 Qed.
 
@@ -1059,7 +1062,8 @@ Theorem unsat_ridge_removal (alpha kappa K L0 : R) :
        subexponential (mu d) (fun z => mxdot z (mxvec (v^T *m v)))
          (L0 / Num.sqrt d%:R)) ->
     (forall d c, measurable [set Z : (n d).-tuple 'rV[RR]_(d * d) |
-       c < unsat_ridge_value kappa (n d) d (beta d) Z - unsat_value (n d) d Z]) ->
+       c < unsat_ridge_value kappa (n d) d (beta d) Z -
+           unsat_value (n d) d Z]) ->
     (forall d, 0 <= beta d) ->
     paper_main_tends_to
       (fun d => tuple_prod (fun=> mu d) (n d)
@@ -1085,7 +1089,8 @@ have A0 : 0 <= A.
   apply: mulr_ge0.
     by apply: divr_ge0; [apply: mulr_ge0 => //; exact: ltW | exact: ler0n].
   apply: mulr_ge0; first by apply: mulr_ge0; [exact: ler0n | exact: ltW].
-  by apply: addr_ge0; [exact: ler0n | apply: divr_ge0; [exact: ler0n | exact: ltW]].
+  apply: addr_ge0; first exact: ler0n.
+  by apply: divr_ge0; [exact: ler0n | exact: ltW].
 have Bc0 : 0 <= Bc.
   apply: divr_ge0; last exact: ler0n.
   by apply: mulr_ge0; [apply: mulr_ge0 => //; exact: ltW | exact: ltW].

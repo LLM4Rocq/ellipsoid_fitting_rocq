@@ -406,8 +406,9 @@ Variable nu : nat -> probability (measurableTypeR R) R.
 Hypothesis hnu :
   forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j).
 Hypotheses (Chw0 : (0 < Chw)%R) (C01 : (1 <= C0)%R).
-(* The Hanson-Wright inequality for the linear forms of one feature: item HW
-   of lane A (requests/c-to-a.md, item 1). *)
+(* The linear forms of one feature are subexponential with constant
+   Chw K^2 / sqrt d: the Hanson-Wright inequality, which data_feature_hw
+   below proves with Chw = 252. *)
 Hypothesis hw : forall y : 'rV[R]_(d * d), mxdot y y = 1%R ->
   subexponential (data_feature_law nu d) (fun z => mxdot z y)
     (Chw * K ^+ 2 / Num.sqrt d%:R)%R.
