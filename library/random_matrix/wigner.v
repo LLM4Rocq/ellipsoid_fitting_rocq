@@ -52,12 +52,14 @@ From GaussianAnalysis.random_matrix Require Import goe.
 (*   (goe_stat_clip_mean_cvg, with goe_stat_poly_clip, semicircle_poly and    *)
 (*   semicircle_clip), and it concentrates around its mean (goe_stat_conc:    *)
 (*   goe_stat g is sqrt 2 L / d-Lipschitz in a, goe_stat_lipschitz).          *)
-(*                                                                            *)
-(* Planned results (phase 5, stage 2; names come with the proofs):            *)
-(*                                                                            *)
-(* - The same uniformly over a family f_t, t in a compact interval, with |f_t *)
-(*   x - f_s x| <= L |t - s| for all x, as Lemma 5.14 needs for the functions *)
-(*   (x - t)_+ and (x - t)_+^2.                                               *)
+(* - wigner_uniform: the same uniformly over a family f_t, t in [t0, t1], of  *)
+(*   functions L-Lipschitz on [-3, 3] and L-Lipschitz in t on [-3, 3]: for    *)
+(*   every large d, the event that |goe_stat f_t a - \int f_t dsigma| >= eps  *)
+(*   for some t lies in a measurable event of probability at most eps. A grid *)
+(*   of step eps / (3 (|L| + 1)) in t, wigner at each grid point, the union   *)
+(*   bound (Boole_inequality), and the event opnorm W >= 3 again; between     *)
+(*   grid points goe_stat_near and semicircle_near. Lemma 5.14 uses it for    *)
+(*   the functions (x - t)_+ and (x - t)_+^2.                                 *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*   goe_stat f a == (1 / d) \sum_i f (spec (goe_mx a) 0 i), the empirical    *)
@@ -860,6 +862,196 @@ apply: le_trans (le_measure _ _ _ sub) _.
 apply: le_trans (measureU2 _ mA mB) _.
 apply: le_trans (leeD (h1 d d1) (h3 d d3)) _.
 by rewrite -EFinD -splitr.
+Qed.
+
+(* If |g x - h x| <= c on [-3, 3] and the spectrum of goe_mx a lies in
+   [-3, 3], the statistics of g and h differ by at most c. *)
+Lemma goe_stat_near d (g h : R -> R) (c : R) (a : 'rV[R]_(d * d)) :
+  opnorm (goe_mx a) <= 3 -> (forall x, -3 <= x <= 3 -> `|g x - h x| <= c) ->
+  `|goe_stat g a - goe_stat h a| <= c.
+Proof.
+move=> w3 gh.
+have c0 : 0 <= c.
+  by apply: le_trans (normr_ge0 _) (gh 0 _); rewrite oppr_le0 ler0n.
+have sb i : -3 <= spec (goe_mx a) 0 i <= 3.
+  rewrite -ler_norml.
+  exact: le_trans (spec_le_opnorm _ (goe_mx_symmetric a)) w3.
+rewrite /goe_stat -mulrBl -sumrB normrM [`|_^-1|]ger0_norm ?invr_ge0 ?ler0n //.
+have hb : `|\sum_i (g (spec (goe_mx a) 0 i) - h (spec (goe_mx a) 0 i))| <=
+    d%:R * c.
+  apply: le_trans (ler_norm_sum _ _ _) _.
+  apply: le_trans (_ : _ <= \sum_(i < d) c) _.
+    by apply: ler_sum => i _; exact: gh (sb i).
+  by rewrite sumr_const card_ord mulr_natl.
+have [d0|d0] := eqVneq (d%:R : R) 0; first by rewrite d0 invr0 mulr0.
+have dP : 0 < d%:R :> R by rewrite lt0r d0 ler0n.
+by rewrite ler_pdivrMr // mulrC.
+Qed.
+
+Lemma clip3_bound (x : R) : -3 <= clip 3 x <= 3.
+Proof. by have := @clip_bound R 3 x (ler0n R 3); rewrite ler_norml. Qed.
+
+(* The same for the integrals against the semicircle law. *)
+Lemma semicircle_near (g h : R -> R) (c : R) : continuous g -> continuous h ->
+  (forall x, -3 <= x <= 3 -> `|g x - h x| <= c) ->
+  `|\int[sigma]_x g x - \int[sigma]_x h x| <= c.
+Proof.
+move=> cg ch gh.
+have r0 : (2 : R) != 0 by rewrite pnatr_eq0.
+have cgc : continuous (fun x => g (clip 3 x)).
+  by move=> x; apply: continuous_comp; [exact: continuous_clip | exact: cg].
+have chc : continuous (fun x => h (clip 3 x)).
+  by move=> x; apply: continuous_comp; [exact: continuous_clip | exact: ch].
+have cd : continuous (fun x => g (clip 3 x) - h (clip 3 x)).
+  by move=> x; apply: continuousB; [exact: cgc | exact: chc].
+have cn : continuous (fun x => `|g (clip 3 x) - h (clip 3 x)|).
+  by move=> x; apply: (continuous_comp (cd x)); exact: norm_continuous.
+rewrite -(semicircle_clip cg) -(semicircle_clip ch).
+rewrite -(RintegralB measurableT (integrable_semicircle_continuous r0 cgc)
+  (integrable_semicircle_continuous r0 chc)).
+apply: le_trans
+  (le_normr_Rintegral measurableT (integrable_semicircle_continuous r0 cd)) _.
+apply: le_trans (le_Rintegral measurableT
+  (integrable_semicircle_continuous r0 cn)
+  (finite_measure_integrable_cst sigma c measurableT)
+  (fun x _ => gh _ (clip3_bound x))) _.
+rewrite Rintegral_cst // -[X in fine X]/(sigma setT).
+by rewrite probability_setT /= mulr1.
+Qed.
+
+(* Wigner's law uniformly over a family f_t, t in [t0, t1], of functions
+   that are L-Lipschitz on [-3, 3] and L-Lipschitz in t: for every large d,
+   the event that some t has a deviation at least eps lies in a measurable
+   event of probability at most eps. Lemma 5.14 of Koehler and Sohn uses it
+   for (x - t)_+ and (x - t)_+^2. *)
+Theorem wigner_uniform (f : R -> R -> R) (L t0 t1 : R) :
+  (forall t, continuous (f t)) ->
+  (forall t x y, t0 <= t <= t1 -> -3 <= x <= 3 -> -3 <= y <= 3 ->
+     `|f t x - f t y| <= L * `|x - y|) ->
+  (forall t s x, t0 <= t <= t1 -> t0 <= s <= t1 -> -3 <= x <= 3 ->
+     `|f t x - f s x| <= L * `|t - s|) ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  exists A : set 'rV[R]_(d * d), [/\ measurable A,
+    (@gauss R (d * d) A <= eps%:E)%E &
+    [set a | exists2 t, t0 <= t <= t1 &
+       eps <= `|goe_stat (f t) a - \int[sigma]_x f t x|] `<=` A].
+Proof.
+move=> cf fL ft eps e0.
+have [t10|t10] := leP t0 t1; last first.
+  exists 0%N => d _; exists set0; split => //.
+    by rewrite measure0 lee_fin ltW.
+  move=> a /= [t /andP[tt0 tt1]].
+  by have := le_trans tt0 tt1; rewrite leNgt t10.
+have h3 : (3 : R) != 0 by rewrite pnatr_eq0.
+set M := `|L| + 1.
+have M0 : 0 < M by rewrite ltr_wpDl.
+set del := eps / (3 * M).
+have del0 : 0 < del by rewrite divr_gt0 // mulr_gt0.
+have M0' : M != 0 := lt0r_neq0 M0.
+have hdel : M * del = eps / 3 by rewrite /del; field.
+set K := archimedean.Num.truncn ((t1 - t0) / del).
+pose tk (k : nat) := t0 + k%:R * del.
+have q0 : 0 <= (t1 - t0) / del by rewrite divr_ge0 ?subr_ge0 // ltW.
+have tk_in (k : nat) : (k <= K)%N -> t0 <= tk k <= t1.
+  move=> kK; apply/andP; split.
+    by rewrite /tk lerDl mulr_ge0 ?ler0n // ltW.
+  rewrite /tk -lerBrDl -ler_pdivlMr //.
+  have := archimedean.Num.Theory.truncn_le ((t1 - t0) / del).
+  by rewrite q0 => hK; apply: le_trans hK; rewrite ler_nat.
+set e2 := eps / (K.+2)%:R.
+have e20 : 0 < e2 by rewrite divr_gt0 // ltr0n.
+set e1 := Num.min (eps / 3) e2.
+have e10 : 0 < e1 by rewrite lt_min divr_gt0 // e20.
+have e1e : e1 <= eps / 3 by rewrite ge_min lexx.
+have e12 : e1 <= e2 by rewrite ge_min lexx orbT.
+have e3 : eps / 3 + e1 + eps / 3 <= eps.
+  rewrite [X in _ <= X](_ : eps = eps / 3 + eps / 3 + eps / 3); first by field.
+  by rewrite lerD2r lerD2l.
+have hk (k : 'I_K.+1) : exists D : nat, forall d, (D <= d)%N ->
+    (@gauss R (d * d) [set a | (e1 <= `|goe_stat (f (tk k)) a -
+       \int[sigma]_x f (tk k) x|)%R] <= e1%:E)%E.
+  have kK : (k <= K)%N by rewrite -ltnS ltn_ord.
+  apply: (@wigner (f (tk k)) L (cf _)) => // x y hx hy.
+  exact: fL (tk_in _ kK) hx hy.
+have /choice [Dk hDk] := hk.
+have s3 : 2 * Num.sqrt 2 < 3 :> R.
+  have s2 : Num.sqrt 2 < 3 / 2 :> R.
+    rewrite -(@ltr_pXn2r _ 2) ?nnegrE ?sqrtr_ge0 ?divr_ge0 // sqr_sqrtr //.
+    by rewrite expr_div_n; lra.
+  by lra.
+have [D0 h0] := goe_opnorm_tail_small s3 e20.
+exists (maxn D0 (\max_(k < K.+1) Dk k)) => d.
+rewrite geq_max => /andP[dD0 dDk].
+have dk (k : 'I_K.+1) : (Dk k <= d)%N := leq_trans (leq_bigmax k) dDk.
+pose B (k : nat) : set 'rV[R]_(d * d) :=
+  [set a | (e1 <= `|goe_stat (f (tk k)) a - \int[sigma]_x f (tk k) x|)%R].
+pose O : set 'rV[R]_(d * d) := [set a | (3 <= opnorm (goe_mx a))%R].
+have mclosed (F : 'rV[R]_(d * d) -> R) (c : R) : continuous F ->
+    measurable [set a | (c <= F a)%R].
+  move=> cF; have := (continuous_measurable_mx cF) measurableT _
+    (measurable_itv `[c, +oo[).
+  rewrite setTI; congr measurable; apply/seteqP.
+  by split => a /=; rewrite in_itv /= andbT.
+have mO : measurable O.
+  apply: mclosed.
+  exact: lipschitz_frobenius_continuous (@goe_opnorm_lipschitz R d).
+have mB (k : nat) : measurable (B k).
+  apply: mclosed => a; apply: (continuous_comp (continuousB
+    (@continuous_goe_stat d _ (cf _) a) (@cst_continuous _ _ _ a))).
+  exact: norm_continuous.
+have mU : measurable (\big[setU/set0]_(k < K.+1) B k).
+  by apply: bigsetU_measurable => k _; exact: mB.
+exists (O `|` \big[setU/set0]_(k < K.+1) B k); split.
+- exact: measurableU.
+- apply: le_trans (measureU2 _ mO mU) _.
+  have hU : (@gauss R (d * d) (\big[setU/set0]_(k < K.+1) B k) <=
+      \sum_(k < K.+1) @gauss R (d * d) (B k))%E.
+    exact: Boole_inequality.
+  have hS : (\sum_(k < K.+1) @gauss R (d * d) (B k) <=
+      \sum_(k < K.+1) e1%:E)%E.
+    by apply: lee_sum => k _; exact: hDk k d (dk k).
+  apply: le_trans (leeD (h0 d dD0) (le_trans hU hS)) _.
+  rewrite sumEFin sumr_const card_ord -EFinD lee_fin.
+  have h1 : e1 *+ K.+1 <= e2 *+ K.+1 by rewrite lerMn2r e12 orbT.
+  apply: le_trans (lerD (lexx e2) h1) _.
+  by rewrite -mulrS -mulr_natr /e2 divfK // pnatr_eq0.
+- move=> a /= [t htt ht]; have /andP[tt0 tt1] := htt.
+  have [w3|w3] := leP 3 (opnorm (goe_mx a)); first by left.
+  right; set k := archimedean.Num.truncn ((t - t0) / del).
+  have x0 : 0 <= (t - t0) / del by rewrite divr_ge0 ?subr_ge0 // ltW.
+  have /andP[kl ku] := archimedean.Num.Theory.truncn_itv x0.
+  have kK : (k <= K)%N.
+    rewrite /k archimedean.Num.Theory.truncn_le_nat.
+    apply: le_lt_trans (archimedean.Num.Theory.truncnS_gt _).
+    by rewrite ler_pM2r ?invr_gt0 // lerD2r.
+  have hk0 : t0 <= tk k <= t1 := tk_in k kK.
+  have tkt : `|t - tk k| <= del.
+    rewrite ler_pdivlMr // in kl.
+    rewrite ltr_pdivrMr // -natr1 mulrDl mul1r in ku.
+    move: kl ku; rewrite /tk; move: (k%:R * del) => x kl ku.
+    by rewrite ler_norml; apply/andP; split; lra.
+  have hL : L * `|t - tk k| <= eps / 3.
+    rewrite -hdel; apply: le_trans (ler_wpM2r (normr_ge0 _) (ler_norm L)) _.
+    by apply: ler_pM => //; rewrite lerDl.
+  have h1 : `|goe_stat (f t) a - goe_stat (f (tk k)) a| <= eps / 3.
+    apply: goe_stat_near (ltW w3) _ => x hx.
+    exact: le_trans (ft _ _ _ htt hk0 hx) hL.
+  have h2 : `|\int[sigma]_x f t x - \int[sigma]_x f (tk k) x| <= eps / 3.
+    apply: semicircle_near (cf _) (cf _) _ => x hx.
+    exact: le_trans (ft _ _ _ htt hk0 hx) hL.
+  rewrite -bigcup_mkord; exists k; first by rewrite /= ltnS.
+  rewrite /B /= leNgt; apply/negP => hlt.
+  have tri : `|goe_stat (f t) a - \int[sigma]_x f t x| <=
+      `|goe_stat (f t) a - goe_stat (f (tk k)) a| +
+      `|goe_stat (f (tk k)) a - \int[sigma]_x f (tk k) x| +
+      `|\int[sigma]_x f t x - \int[sigma]_x f (tk k) x|.
+    set p := goe_stat (f t) a; set q := goe_stat (f (tk k)) a.
+    set u := \int[sigma]_x f t x; set v := \int[sigma]_x f (tk k) x.
+    have -> : p - u = (p - q) + (q - v) - (u - v) by ring.
+    by apply: le_trans (ler_normB _ _) _; rewrite lerD2r; exact: ler_normD.
+  have := lt_le_trans (le_lt_trans ht (le_lt_trans tri
+    (ltr_leD (ler_ltD h1 hlt) h2))) e3.
+  by rewrite ltxx.
 Qed.
 
 End wigner.
