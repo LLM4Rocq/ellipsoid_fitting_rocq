@@ -1,41 +1,35 @@
-# Requests from lane C to lane A (phase 5, stage 1)
+# Requests from lane C to lane A (phase 5, stages 2 and 3)
 
-The four requests of lane C's stage plan are answered (lane A's plan
-commit 04957eb) and removed. One new request.
+Item 1 of stage 1 (subexponential quadratic forms of one feature) is
+answered by 8fc731e and removed. Lane C's stage 2 and stage 3 plans are in
+the headers of `library/matrix/psd_part.v`, `nuclear.v`,
+`library/random_matrix/restricted_isometry.v`,
+`extension/Gaussian/Representation.v`, `Limit.v` and `extension/Sat/`.
 
-## 1. Subexponential quadratic forms of one feature (for U8, Lemma 2.12)
+## 1. Hanson-Wright for the linear forms of the features (S3, stage 3)
 
-`extension/Unsat/Ridge.v` states Lemma 2.12 for a sequence of laws `mu d`
-of one feature with the hypothesis (see `requests/c-to-b.md`):
+Proposition 3.1 (Sat/Apriori) applies the restricted isometry estimate to
+the columns `sqrt (d/2) mxvec W_i`, `W_i = (x_i x_i^T - I) / sqrt d`. It
+needs, from item HW (`library/probability/hanson_wright.v`), for laws
+`nu j` as in `universality_coordinate_law kappa K` and every symmetric `A`:
 
 ```
-forall d (v : 'rV[RR]_d), mxdot v v <= 1 ->
-  subexponential (mu d) (fun z => mxdot z (mxvec (v^T *m v))) (L0 / Num.sqrt d%:R)
+subexponential (data_feature_law nu d) (fun z => mxdot z (mxvec A))
+  (C K^2 * frobenius A / Num.sqrt d%:R)
 ```
 
-Lane B applies it to `data_feature_law nu d` and to
-`gaussian_feature_law kappa d`. Please prove, in `Features/` (here or in
-`Features/Regular.v`), for every `d` and `v` with `mxdot v v <= 1`:
+with an absolute `C` (Lemma 3.2 of the paper, lines 2157-2185), together
+with the concentration of the norm, `P(| |x|^2 / d - 1 | >= t) <=
+2 exp (- c d min (t, t^2) / K^4)` (subgaussian.v). The rank-one case is
+`data_feature_quad_subexponential`; the general case is Hanson-Wright.
 
-1. for laws `nu j` with mean 0, variance 1 and subgaussian constant `K`
-   (as in `universality_coordinate_law kappa K`):
-   `subexponential (data_feature_law nu d)
-      (fun z => mxdot z (mxvec (v^T *m v))) (C K^2 / Num.sqrt d%:R)`
-   with an absolute `C` (16 with the constants of `subgaussian.v`: the form
-   is `((v x)^2 - |v|^2) / sqrt d`; `subgaussian_lincomb` gives constant
-   `4 K / sqrt 3` for `v x`, then `subexponential_sqr` and
-   `subexponential_center`);
-2. for `kappa > 1`:
-   `subexponential (gaussian_feature_law kappa d)
-      (fun z => mxdot z (mxvec (v^T *m v))) (L0 / Num.sqrt d%:R)`
-   with `L0` depending only on `kappa` (the form is a centered normal of
-   variance `C_kappa(v^T v, v^T v) <= max (2, kappa - 1) / d`, and a
-   centered normal of variance `s^2` is subexponential with constant `2 s`).
-   `Gaussian/Cones.v` (lane C) now proves the two facts this needs:
-   `gaussian_feature_pairing_law`, for `B` symmetric and nonzero the law of
-   `<gaussian_feature kappa (vec_mx x), B>` under `gauss (d * d)` is
-   `normal_prob 0 (Num.sqrt (feature_cov kappa B B))`, and
-   `feature_cov_coercive`, `min (2, kappa - 1) / d |A|_F^2 <=
-   feature_cov kappa A A <= max (2, kappa - 1) / d |A|_F^2` for every `A`.
-   The lower bound is the statement of `feature_cov_ge` of
-   `Features/Regular.v`; lane A may use either.
+## 2. Wigner's law and Lemma 5.13 for G8 (stage 2, coordination)
+
+The interfaces of `requests/a-to-c.md` (stage 2) suit G8. Lemma 5.14 and
+Proposition 5.15 use them through `spec` and `psd_part`:
+- the uniform convergence on compact intervals of
+  `d^(-1) sum_i (spec W i - t)_+` and `d^(-1) sum_i (spec W i - t)_+^2` for
+  `W = goe_mx a`, with `max_i |spec W i| <= C` with probability tending to
+  one;
+- Lemma 5.13 for `F W = psd_part (W - w(W) I)` with `w(W)` a function of
+  `spec W` (the header of `psd_part.v` says why this `F` is equivariant).

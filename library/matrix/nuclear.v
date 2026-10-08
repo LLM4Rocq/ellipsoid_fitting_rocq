@@ -1,0 +1,28 @@
+From HB Require Import structures.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+From mathcomp Require Import boolp classical_sets reals.
+
+(**md**************************************************************************)
+(* # The nuclear norm and the range duality                                   *)
+(*                                                                            *)
+(* Plan (phase 5, stage 3, item S2 of lane C; names come with the proofs).    *)
+(* <A, B> is mxdot A B, the Frobenius pairing.                                *)
+(*                                                                            *)
+(* - nuclear A == sup {<A, B> | opnorm B <= 1}, the dual norm of the          *)
+(*   operator norm on 'M[R]_(m, n): a norm; <A, B> <= opnorm B * nuclear A,   *)
+(*   and opnorm B = sup {<A, B> | nuclear A <= 1}.                            *)
+(* - For A symmetric with A = P^T diag(d) P: nuclear A = sum_i |d_i|,         *)
+(*   attained at P^T diag(sign d_i) P; nuclear (x x^T) = |x|^2;               *)
+(*   frobenius A <= nuclear A <= sqrt n * frobenius A.                        *)
+(* - The range duality, Lemma 2.2 of Koehler and Sohn (arXiv 2608.27372,      *)
+(*   lines 794-826), in the form the paper uses: for symmetric W_1, ...,      *)
+(*   W_k,                                                                     *)
+(*   L Delta = (<W_i, Delta>)_i and L^* lambda = sum_i lambda_i W_i, if       *)
+(*   |<lambda, y>| <= M nuclear (L^* lambda) for every lambda in R^k, then    *)
+(*   y = L Delta for a symmetric Delta with opnorm Delta <= M. The set        *)
+(*   {L Delta | Delta symmetric, opnorm Delta <= M} is compact and convex;    *)
+(*   if y were outside, its nearest point p (proj of library/convex/moreau.v) *)
+(*   would give lambda = y - p with <lambda, y> > M nuclear (L^* lambda). No  *)
+(*   Slater condition or general convex duality is needed. The paper's A_X    *)
+(*   = P_{1^perp} L_X is of this form with W_i replaced by W_i - mean W.      *)
+(******************************************************************************)
