@@ -935,7 +935,7 @@ apply: divr_ge0; last exact: ltW.
 by rewrite mulr_ge0 ?sqrtr_ge0 // addr_ge0 // divr_ge0 // ltW.
 Qed.
 
-Lemma ls_objective_ge0 (Z : n.-tuple 'rV[R]_N) th b :
+Let objective_ge0 (Z : n.-tuple 'rV[R]_N) th b :
   0 <= ls_objective Z lambda beta th b.
 Proof.
 rewrite /ls_objective; apply: addr_ge0.
@@ -951,7 +951,7 @@ rewrite /ls_barrier_value; apply: lb_le_inf.
   exists (ls_objective Z lambda beta th 0 + gamma * B th), th => //.
   by exists 0.
 move=> _ [th Dth [b _ <-]].
-by rewrite addr_ge0 ?ls_objective_ge0 // mulr_ge0 ?B0 // ltW.
+by rewrite addr_ge0 ?objective_ge0 // mulr_ge0 ?B0 // ltW.
 Qed.
 
 Lemma Phi_le (thr : 'rV[R]_N) (Z : n.-tuple 'rV[R]_N) : D thr ->
@@ -962,7 +962,7 @@ move=> Dthr; rewrite /ls_barrier_value.
 have lb : has_lbound [set ls_objective Z lambda beta th b + gamma * B th |
     th in D & b in [set: R]].
   exists 0 => _ [th Dth [b _ <-]].
-  by rewrite addr_ge0 ?ls_objective_ge0 // mulr_ge0 ?B0 // ltW.
+  by rewrite addr_ge0 ?objective_ge0 // mulr_ge0 ?B0 // ltW.
 apply: le_trans (ge_inf lb _) _; first by exists thr => //; exists 0.
 rewrite /ls_objective.
 under eq_bigr do rewrite sub0r sqrrN.
