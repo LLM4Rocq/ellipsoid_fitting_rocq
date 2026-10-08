@@ -3,11 +3,15 @@
    Stdlib's R. Item S10 of stage 3 of phase 5 (lane C).
 
    Proved here.
-   - small_residual_interpolation_unconditional: for 1 < kappa,
-     0 < alpha < 1/2 and coordinate laws as universality_coordinate_law
-     kappa K, the conclusion of small_residual_interpolation_limit
-     (Sat/Interpolation), with Proposition 3.4 given by
-     light_tail_quotient (Sat/LightTailBound, lane B).
+   - small_residual_interpolation_flat: for 0 < K and 0 < alpha < 1/2,
+     the conclusion of small_residual_interpolation_limit_flat
+     (Sat/Interpolation) for flat families of component laws, uniformly in
+     the family, with Proposition 3.4 given by light_tail_quotient_flat
+     (Sat/LightTailBound, lane B).
+   - small_residual_interpolation_unconditional: the same for
+     universality_sample_law and coordinate laws as
+     universality_coordinate_law kappa K, a flat family of component laws
+     (sample_law_component of Sat/Apriori).
    - small_residual_interpolation_holds: the hypothesis
      small_residual_interpolation kappa K alpha of
      universality_statement_of_interpolation (Sat/Universality, lane A)
@@ -24,7 +28,9 @@ From mathcomp Require Import ereal measure lebesgue_measure probability.
 From GaussianAnalysis.gaussian Require Import measurable_matrix.
 From GaussianAnalysis.matrix Require Import euclidean opnorm.
 From EllipsoidFitting Require Import PaperMainDefinitions.
+From GaussianAnalysis.probability Require Import lindeberg.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
+From EllipsoidUniversality Require Import MixtureDefinitions.
 From EllipsoidUniversality.Gaussian Require Import Threshold.
 From EllipsoidUniversality.Sat Require Import Apriori Interpolation.
 From EllipsoidUniversality.Sat Require Import LightTailBound Universality.
@@ -36,10 +42,33 @@ Local Open Scope classical_set_scope.
 
 Local Notation RR := (R : realType).
 
-(* Theorem 1.9: with probability tending to one, every residual y is
-   matched up to a shift, <W_i, Delta> = y_i + b for every i, by a
-   symmetric Delta with
-   opnorm Delta <= C1 ((ln d)^4 / sqrt d max_i |y_i| + |y| / d). *)
+(* Theorem 1.9 for flat families of component laws: with probability
+   tending to one, uniformly in the flat family, every residual y is matched
+   up to a shift, <W_i, Delta> = y_i + b for every i, by a symmetric Delta
+   with opnorm Delta <= C1 ((ln d)^4 / sqrt d max_i |y_i| + |y| / d). *)
+Theorem small_residual_interpolation_flat (K alpha : R) :
+  0 < K -> 0 < alpha -> alpha < 2^-1 ->
+  exists C1 : R, 0 < C1 /\
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  forall lam : nat -> probability (measurableTypeR R) R,
+    (forall k, (k < n d * d)%N -> mixture_component_law K (lam k)) ->
+  exists E : set (paper_main_sample (n d) d), [/\ measurable E,
+    (tuple_prod lam (n d * d) E <= eps%:E)%E &
+    forall x, ~ E x -> forall (y : 'rV[R]_(n d)) (Y : R),
+      (forall i, `|y 0 i| <= Y) ->
+      exists (Delta : 'M[R]_d) (b : R), [/\ Delta \is symmetricmx,
+        forall i, mxdot (sample_W x i) Delta = y 0 i + b &
+        opnorm Delta <=
+          C1 * (ln (d%:R : RR) ^+ 4 / Num.sqrt d%:R * Y +
+                frobenius y / d%:R)]].
+Proof.
+move=> K0 a0 ah.
+exact: (small_residual_interpolation_limit_flat K alpha K0 a0
+  (light_tail_quotient_flat K alpha K0 a0 ah)).
+Qed.
+
+(* The same for the sample law of coordinate laws. *)
 Theorem small_residual_interpolation_unconditional (kappa K alpha : R) :
   1 < kappa -> 0 < alpha -> alpha < 2^-1 ->
   exists C1 : R, 0 < C1 /\
@@ -57,9 +86,14 @@ Theorem small_residual_interpolation_unconditional (kappa K alpha : R) :
           C1 * (ln (d%:R : RR) ^+ 4 / Num.sqrt d%:R * Y +
                 frobenius y / d%:R)]].
 Proof.
-move=> k1 a0 ah.
-exact: (small_residual_interpolation_limit kappa K alpha a0
-  (light_tail_quotient kappa K alpha k1 a0 ah)).
+move=> _ a0 ah; have [K0|K0] := ltP 0 K; last first.
+  exists 1; split => [|nu hnu]; first exact: ltr01.
+  by have [K0' _] := hnu 1%N 0%N isT; move: K0; rewrite leNgt K0'.
+have [C1 [C10 hC]] := small_residual_interpolation_flat K alpha K0 a0 ah.
+exists C1; split => // nu hnu n hn eps e0.
+have [D hD] := hC n hn eps e0.
+exists D => d dD.
+exact: (hD d dD _ (sample_law_component kappa K (n d) d (nu d) (hnu d))).
 Qed.
 
 (* The hypothesis of universality_statement_of_interpolation. *)
