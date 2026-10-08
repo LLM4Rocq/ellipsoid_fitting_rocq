@@ -3,7 +3,8 @@
    976-991), at Stdlib's R: below the threshold, with probability tending
    to one, the points have a positive definite fit of value 1 with a
    condition number bounded by a constant. Item S11 of stage 3 of phase 5
-   (lane A).
+   (lane A), and the same for finite mixtures of product laws (item X7 of
+   phase 6, satisfiable part).
 
    Hypothesis. small_residual_interpolation kappa K alpha is Theorem 1.9
    of the paper in the form that small_residual_interpolation_holds
@@ -14,6 +15,13 @@
    where W_i = sample_W x i = (x_i x_i^T - I) / sqrt d. This is
    interpolation_det of Sat/Interpolation on the event of Theorem 2.3,
    with a = c sqrt d / (ln d)^4 and D = d.
+
+   Hypotheses of the mixture part. mixture_small_residual_interpolation
+   K alpha is the same statement for mixture_probability
+   (MixtureDefinitions) and every mixture_family K N w mu, with C1 chosen
+   before the family. mixture_points_nonzero K asks, for every such
+   family, a q with |q| < 1 such that, for d > 0, some point of a sample
+   of n points is not zero outside an event of probability at most q^n.
 
    Main results.
    - universality_sat_of_interpolation: the first conjunct of
@@ -27,6 +35,14 @@
      universality_unsat of Unsat/Universality. universality_theorem
      (UniversalityTheorem.v) applies it to
      small_residual_interpolation_holds.
+   - mixture_approximate_fit: approximate_fit for finite mixtures of
+     product laws. approximate_fit_law (Sat/ApproximateFit) applies to the
+     feature law mix_feature_law of Features/Mixture, which is regular
+     with a constant tau d -> 0 (mix_feature_regular, mix_tau_small) and
+     subexponential (mix_feature_subexponential).
+   - mixture_sat_of_interpolation: the first conjunct of mixture_statement
+     (MixtureStatement) from mixture_small_residual_interpolation and
+     mixture_points_nonzero, with the same condition number c = 4 M / m.
 
    Proof. Take delta with C1 sqrt (2 alpha delta) = m / 4. Outside the
    union of the event of approximate_fit, the event of Theorem 1.9 and the
@@ -45,7 +61,13 @@
    x^2 <= x^4 / (2 kappa) + kappa / 2 1_(x != 0)), and the first
    coordinates of the points are independent. The conditioned event is
    contained in the positive definite one (cond_sub_pd), and both are
-   measurable (Model/Measurability, item U11). *)
+   measurable (Model/Measurability, item U11). For mixtures the proof is
+   the same: mixture_probability is the probability mixture of the
+   labelled laws mixture_labelled_law with the product weights
+   (mixture_weights_prod of library/probability/mixture.v), the features
+   of a mixture sample are independent with law mix_feature_law
+   (mixture_features_law), and the points are handled by
+   mixture_points_nonzero. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -60,13 +82,15 @@ From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix.
 From GaussianAnalysis.matrix Require Import euclidean opnorm real_spectral.
 From GaussianAnalysis.probability Require Import lindeberg tuple_rows.
-From GaussianAnalysis.probability Require Import conditioning.
-From GaussianAnalysis.convex Require Import logdet_barrier.
+From GaussianAnalysis.probability Require Import conditioning subgaussian.
+From GaussianAnalysis.probability Require Import mixture.
+From GaussianAnalysis.convex Require Import logdet_barrier least_squares.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidFitting Require Import Measurability.Fit Measurability.Balanced.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality Require Import UniversalityStatement.
-From EllipsoidUniversality.Features Require Import Definitions Regular.
+From EllipsoidUniversality Require Import MixtureDefinitions.
+From EllipsoidUniversality.Features Require Import Definitions Regular Mixture.
 From EllipsoidUniversality.Model Require Import Rows Measurability.
 From EllipsoidUniversality.Unsat Require Import LeastSquares Regularized.
 From EllipsoidUniversality.Unsat Require Import Universality.
@@ -705,4 +729,233 @@ move=> hI kappa K alpha k1 K0 a0; split => ha.
   exact: (universality_sat_of_interpolation kappa K alpha k1 K0 a0 ha
     (hI kappa K alpha k1 K0 a0 ha)).
 exact: (universality_unsat kappa K alpha k1 a0 ha).
+Qed.
+
+(* 7. The satisfiable phase for mixtures of product laws (item X7 of phase
+   6, SAT part). *)
+
+Lemma tau_small_arith (K eta : R) d : 0 < eta -> (0 < d)%N ->
+  (2 ^+ 31 * K ^+ 8 + 16 * K ^+ 8) / eta ^+ 2 <= d%:R ->
+  2 ^+ 31 * K ^+ 8 / d%:R + 16 * K ^+ 8 / d%:R <= eta ^+ 2.
+Proof.
+move=> e0 d0 h; have dp : 0 < d%:R :> RR by rewrite ltr0n.
+by rewrite -mulrDl ler_pdivrMr // [_ * d%:R]mulrC -ler_pdivrMr ?exprn_gt0.
+Qed.
+
+(* The constant tau d of mix_feature_regular tends to 0. *)
+Lemma mix_tau_small (K eta : R) : 0 < eta -> exists D : nat, forall d,
+  (D <= d)%N -> Num.sqrt (2 ^+ 31 * K ^+ 8 / d%:R + 16 * K ^+ 8 / d%:R) <= eta.
+Proof.
+move=> e0.
+have [D hD] := af_ev_ge ((2 ^+ 31 * K ^+ 8 + 16 * K ^+ 8) / eta ^+ 2).
+exists D.+1 => d dD.
+have d0 : (0 < d)%N by exact: leq_trans dD.
+rewrite -[X in _ <= X](ger0_norm (ltW e0)) -sqrtr_sqr; apply: ler_wsqrtr.
+exact: (tau_small_arith K eta d e0 d0 (hD d (ltnW dD))).
+Qed.
+
+(* The approximate fit for the features of a mixture sample (Proposition
+   2.1): approximate_fit_law for the feature law mix_feature_law, which is
+   regular with covariance unsat_cov kappa d (mix_feature_regular) and has
+   subexponential linear forms (mix_feature_subexponential). The constants
+   m, M and C depend only on kappa, K and alpha. *)
+Theorem mixture_approximate_fit (kappa K alpha : R) :
+  1 < kappa -> 0 < K -> 0 < alpha -> alpha < universality_alpha_star kappa ->
+  exists m M C : R, [/\ 0 < m, m < 1, 1 < M, 0 < C &
+  forall (N : nat -> nat) (w : nat -> nat -> R)
+    (mu : nat -> nat -> nat -> probability (measurableTypeR R) R)
+    (hfam : mixture_family K N w mu),
+  mixture_fourth_moment kappa N w mu ->
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+  forall delta eps : R, 0 < delta -> 0 < eps ->
+  exists D : nat, forall d, (D <= d)%N ->
+  exists E : set ((n d).-tuple 'rV[RR]_(d * d)), [/\ measurable E,
+    (tuple_prod (fun=> mix_feature_law K N w mu hfam d) (n d) E <= eps%:E)%E &
+    forall Z, ~ E Z -> exists (theta : 'rV[R]_(d * d)) (b : R), [/\
+      pd_slice2 d m M theta,
+      \sum_(i < n d) (b - mxdot (tnth Z i) theta) ^+ 2 <= delta * (n d)%:R &
+      forall i, `|b - mxdot (tnth Z i) theta| <= C * ln d%:R]]].
+Proof.
+move=> k1 K0 a0 aast.
+have kp : 0 < kappa - 1 by rewrite subr_gt0.
+have Kf0 : 0 < 2 ^+ 10 * K ^+ 2 / Num.sqrt (kappa - 1).
+  by rewrite divr_gt0 ?sqrtr_gt0 // mulr_gt0 // exprn_gt0.
+have Ls0 : 0 < 252 * K ^+ 2 by rewrite mulr_gt0 // exprn_gt0.
+have [m [M [C [m0 m1 M1 C0 h]]]] := approximate_fit_law kappa alpha
+  (2 ^+ 10 * K ^+ 2 / Num.sqrt (kappa - 1))%R (252 * K ^+ 2)%R k1 a0 aast
+  Kf0 Ls0.
+exists m, M, C; split => // N w mu hfam h4 n hn delta eps dl0 e0.
+have hreg d : (0 < d)%N -> regular_feature
+    (2 ^+ 10 * K ^+ 2 / Num.sqrt (kappa - 1))
+    (Num.sqrt (2 ^+ 31 * K ^+ 8 / d%:R + 16 * K ^+ 8 / d%:R))
+    (unsat_cov kappa d) (mix_feature_law K N w mu hfam d).
+  by move=> d0; exact: (mix_feature_regular K N w mu hfam kappa h4 d k1 d0).
+have htau0 d : 0 <= Num.sqrt (2 ^+ 31 * K ^+ 8 / d%:R + 16 * K ^+ 8 / d%:R).
+  exact: sqrtr_ge0.
+have htau (eta : R) : 0 < eta -> exists D : nat, forall d, (D <= d)%N ->
+    Num.sqrt (2 ^+ 31 * K ^+ 8 / d%:R + 16 * K ^+ 8 / d%:R) <= eta.
+  exact: mix_tau_small.
+have hsub d (A : 'M[R]_d) (L : R) : (0 < d)%N -> 0 < L ->
+    252 * K ^+ 2 * frobenius A <= L ->
+    subexponential (mix_feature_law K N w mu hfam d)
+      (fun z => mxdot z (mxvec A) : RR) (L / Num.sqrt d%:R).
+  move=> d0 L0 hL.
+  exact: (mix_feature_subexponential K N w mu hfam d A L d0 L0 hL).
+exact: (h (mix_feature_law K N w mu hfam)
+  (fun d => Num.sqrt (2 ^+ 31 * K ^+ 8 / d%:R + 16 * K ^+ 8 / d%:R))
+  hreg htau0 htau hsub n hn delta eps dl0 e0).
+Qed.
+
+(* Theorem 1.9 for mixture samples, in the form that the assembly of the
+   satisfiable phase takes: small_residual_interpolation with
+   mixture_probability, for every family as mixture_family K N w mu asks,
+   with C1 chosen before the families. *)
+Definition mixture_small_residual_interpolation (K alpha : R) : Prop :=
+  exists C1 : R, 0 < C1 /\
+  forall (N : nat -> nat) (w : nat -> nat -> R)
+    (mu : nat -> nat -> nat -> probability (measurableTypeR R) R),
+  mixture_family K N w mu ->
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  exists E : set (paper_main_sample (n d) d), [/\ measurable E,
+    (mixture_probability (N d) (w d) (mu d) (n d) d E <= eps%:E)%E &
+    forall x, ~ E x -> forall (y : 'rV[R]_(n d)) (Y : R),
+      (forall i, `|y 0 i| <= Y) ->
+      exists (Delta : 'M[R]_d) (b : R), [/\ Delta \is symmetricmx,
+        forall i, mxdot (sample_W x i) Delta = y 0 i + b &
+        opnorm Delta <=
+          C1 * (ln (d%:R : RR) ^+ 4 / Num.sqrt d%:R * Y +
+                frobenius y / d%:R)]].
+
+(* For a mixture family of class K, every point of a sample of n points is
+   zero with probability at most q^n, for some q with |q| < 1 (q = 1 -
+   1 / (4 K^4) works). *)
+Definition mixture_points_nonzero (K : R) : Prop :=
+  forall (N : nat -> nat) (w : nat -> nat -> R)
+    (mu : nat -> nat -> nat -> probability (measurableTypeR R) R),
+  mixture_family K N w mu ->
+  exists q : R, `|q| < 1 /\ forall n d : nat, (0 < d)%N ->
+  exists G : set (paper_main_sample n d), [/\ measurable G,
+    (mixture_probability (N d) (w d) (mu d) n d G <= (q ^+ n)%:E)%E &
+    forall x, ~ G x -> exists i : 'I_n, paper_main_point x i != 0].
+
+(* The first conjunct of mixture_statement (MixtureStatement) from Theorem
+   1.9 for mixtures and the nonzero points, as
+   universality_sat_of_interpolation: the approximate fit of
+   mixture_approximate_fit, corrected by Theorem 1.9, with c = 4 M / m. *)
+Theorem mixture_sat_of_interpolation (kappa K alpha : R) :
+  1 < kappa -> 0 < K -> 0 < alpha -> alpha < universality_alpha_star kappa ->
+  mixture_small_residual_interpolation K alpha -> mixture_points_nonzero K ->
+  exists c : R, 1 <= c /\
+  (forall n d : nat, measurable (universality_pd_fit_event n d)) /\
+  (forall n d : nat, measurable (universality_conditioned_fit_event n d c)) /\
+  (forall (N : nat -> nat) (w : nat -> nat -> R)
+          (mu : nat -> nat -> nat -> probability (measurableTypeR R) R),
+    mixture_family K N w mu -> mixture_fourth_moment kappa N w mu ->
+    forall n : nat -> nat, universality_density_tends_to n alpha ->
+      paper_main_tends_to
+        (fun d => mixture_probability (N d) (w d) (mu d) (n d) d
+                    (universality_pd_fit_event (n d) d)) 1 /\
+      paper_main_tends_to
+        (fun d => mixture_probability (N d) (w d) (mu d) (n d) d
+                    (universality_conditioned_fit_event (n d) d c)) 1).
+Proof.
+move=> k1 K0 a0 aast [C1 [C10 hI]] hZ.
+have [m [M [C [m0 m1 M1 C0 hAF]]]] :=
+  mixture_approximate_fit kappa K alpha k1 K0 a0 aast.
+have mM : m < 1 < M by rewrite m1 M1.
+exists (4 * M / m)%R; split.
+  by rewrite ler_pdivlMr // mul1r; lra.
+split; first by move=> n d; exact: measurable_pd_fit_event.
+split; first by move=> n d; exact: measurable_conditioned_fit_event.
+move=> N w mu hfam h4 n hn.
+have [q [q1 hZq]] := hZ N w mu hfam.
+pose mixP d : probability (paper_main_sample (n d) d) RR :=
+  mixture (fun s : (n d).-tuple 'I_(N d) =>
+      mixture_labelled_law (N d) (mu d) (n d) d s)
+    (mixture_weights_prod (n d) (mix_weights K N w mu hfam d)).
+have mixPE d (A : set (paper_main_sample (n d) d)) :
+    mixture_probability (N d) (w d) (mu d) (n d) d A = mixP d A by [].
+(* for every eps > 0 and d large, a measurable event of probability at
+   most eps that contains the complement of the conditioned fit *)
+have key (eps : RR) : 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+    exists B : set (paper_main_sample (n d) d), [/\ measurable B,
+      (mixP d B <= eps%:E)%E &
+      ~` universality_conditioned_fit_event (n d) d (4 * M / m)%R `<=` B].
+  move=> e0.
+  have e4 : 0 < eps / 4 by rewrite divr_gt0.
+  have [delta dl0 hs2] : exists2 delta : RR, 0 < delta &
+      forall k d, (0 < d)%N -> k%:R <= 2 * alpha * d%:R ^+ 2 ->
+        C1 * (Num.sqrt (delta * k%:R) / d%:R) <= m / 4.
+    exists ((m / (4 * C1)) ^+ 2 / (2 * alpha)).
+      apply: divr_gt0.
+        apply: exprn_gt0; apply: divr_gt0 => //.
+        by apply: mulr_gt0; rewrite ?ltr0n.
+      by apply: mulr_gt0; rewrite ?ltr0n.
+    move=> k d d0 hk; exact: (sat_small2 C1 m alpha k d d0 C10 m0 a0 hk).
+  have [D1 hD1] := hAF N w mu hfam h4 n hn delta (eps / 4)%R dl0 e4.
+  have [D2 hD2] := hI N w mu hfam n hn (eps / 4)%R e4.
+  have [N0 hN0] := sat_expr_small q (eps / 4)%R q1 e4.
+  have [Dn hDn] := af_ev_density n alpha a0 hn.
+  have [Dq hDq] := af_ev_ge (2 * N0%:R / alpha).
+  have [Dl hDl] : af_eventually (fun d => (0 < d)%N ->
+      C1 * (ln (d%:R : RR) ^+ 4 / Num.sqrt d%:R * (C * ln (d%:R : RR)))
+        <= m / 4).
+    apply: (af_ev_mono _ _ _ (af_ev_sqrt
+      ((4 * C1 * C * Num.sqrt (2 ^+ 10 * 10`!%:R) / m) ^+ 2))) => d hd d0.
+    exact: (sat_small1 C1 C m d d0 C10 C0 m0 hd).
+  exists (maxn (maxn D1 D2) (maxn (maxn Dn Dq) Dl)) => d.
+  rewrite !geq_max => /andP[/andP[d1 d2] /andP[/andP[dn dq] dl]].
+  have [d0 [nlo nhi]] := hDn d dn.
+  have dR : 0 < d%:R :> RR by rewrite ltr0n.
+  have [E1 [mE1 PE1 hE1]] := hD1 d d1.
+  have [E2 [mE2 PE2 hE2]] := hD2 d d2.
+  rewrite mixPE in PE2.
+  have [G [mG PG hG]] := hZq (n d) d d0.
+  rewrite mixPE in PG.
+  have nN0 := sat_count_ge alpha N0 (n d) d d0 a0 (hDq d dq) nlo.
+  have PG' : (mixP d G <= (eps / 4)%:E)%E.
+    apply: le_trans PG _; rewrite lee_fin.
+    exact: le_trans (ler_norm _) (ltW (hN0 _ nN0)).
+  have [F1 [mF1 PF1 hF1]] : exists F1 : set (paper_main_sample (n d) d),
+      [/\ measurable F1,
+        (mixP d F1 <= (eps / 4)%:E)%E &
+        unsat_features (n d) d @^-1` E1 `<=` F1].
+    exists (unsat_features (n d) d @^-1` E1); split => //.
+      by rewrite -[X in measurable X]setTI; exact: measurable_unsat_features.
+    rewrite -mixPE (mixture_features_law K N w mu hfam (n d) d E1 mE1).
+    exact: PE1.
+  exists (F1 `|` E2 `|` G); split.
+  - by apply: measurableU => //; exact: measurableU.
+  - apply: le_trans (measureU2 _ (measurableU _ _ mF1 mE2) mG) _.
+    apply: le_trans (leeD (measureU2 _ mF1 mE2) (lexx _)) _.
+    apply: le_trans (leeD (leeD PF1 PE2) PG') _.
+    by rewrite -!EFinD lee_fin; exact: sat_quarters (ltW e0).
+  move=> x hx; apply: contrapT => hno; apply: hx.
+  apply: (sat_at_d m M C C1 delta (n d) d E1 E2 G d0 m0 mM (ltW C10) hE1 hE2 hG
+    (hDl d dl d0) (hs2 (n d) d d0 nhi) x) => h; apply: hno.
+  - by left; left; exact: hF1.
+  - by left; right.
+  - by right.
+suff hlim (A : forall d, set (paper_main_sample (n d) d)) :
+    (forall d, measurable (A d)) ->
+    (forall d,
+      universality_conditioned_fit_event (n d) d (4 * M / m)%R `<=` A d) ->
+    paper_main_tends_to
+      (fun d => mixture_probability (N d) (w d) (mu d) (n d) d (A d)) 1.
+  split; apply: hlim => d.
+  - exact: measurable_pd_fit_event.
+  - exact: cond_sub_pd.
+  - exact: measurable_conditioned_fit_event.
+  - by [].
+move=> mA hA eps e0.
+have e2 : 0 < eps / 2 by rewrite divr_gt0.
+have [D hD] := key (eps / 2) e2.
+exists D => d dD.
+have [B [mB PB hB]] := hD d dD.
+have AB : ~` A d `<=` B.
+  by move=> x hx; apply: hB => hc; apply: hx; exact: hA.
+have h := prob_close_one _ _ (mixP d) (A d) B (eps / 2) (mA d) mB AB PB.
+rewrite mixPE; apply: le_lt_trans h _.
+by rewrite lte_fin; exact: sat_half.
 Qed.
