@@ -1,18 +1,20 @@
 (* Proposition 3.4 of Koehler and Sohn, "Universality and sharp thresholds
    for ellipsoid fitting" (arXiv 2608.27372, lines 2436-2450, proof lines
    3610-3805 of arxiv_v1.tex): the light-tail quotient-norm lower bound, at
-   Stdlib's R. Item S9 of stage 3 of phase 5 (lane B), with Sat/LightTail,
-   which proves the union bound over the nets and its count over any
-   realType.
+   Stdlib's R, with Sat/LightTail, which proves the union bound over the
+   nets and its count over any realType.
 
-   Statement (light_tail_quotient). Let the coordinates of the points
-   x_1, ..., x_n of R^d be independent with laws
-   universality_coordinate_law kappa K, with 1 < kappa, and let n / d^2
-   tend to alpha in (0, 1/2). There are K1 > 0 and gam > 0, depending only
-   on kappa, K and alpha, such that for every C0 > 0 and every eps > 0, for
-   every large d, outside a measurable event of probability at most eps:
-   for every set I of at most C0 d ln d rows, every h supported on I and
-   every t supported off I with K1 d t_i^2 <= |t|^2 for every i and
+   Statement (light_tail_quotient_flat). Let the n d coordinates of a
+   sample of n points x_1, ..., x_n of R^d be independent, coordinate k
+   (coordinate k mod d of point k / d) with law lam k, a component law
+   with constant K (mixture_component_law of MixtureDefinitions: mean 0,
+   variance 1 and E exp (x^2 / K^2) <= 2), and let n / d^2 tend to alpha
+   in (0, 1/2). There are K1 > 0 and gam > 0, depending only on K and
+   alpha, such that for every C0 > 0 and every eps > 0 there is D,
+   independent of the laws, such that for every d >= D and every such
+   family lam, outside a measurable event of probability at most eps: for
+   every set I of at most C0 d ln d rows, every h supported on I and every
+   t supported off I with K1 d t_i^2 <= |t|^2 for every i and
    |h|_1 <= d |t|,
 
      gam d |t| <= nuclear (L_X^* (h + t)),
@@ -20,21 +22,26 @@
    where L_X^* z = sum_i z_i (x_i x_i^T - I) / sqrt d is sample_adj of
    Sat/Apriori. This is the form in which Theorem 1.9 (Sat/Interpolation)
    takes the proposition. It contains the paper's statement, whose heads
-   have |h|_1 <= d^(2/3) |t|; t is not normalized.
+   have |h|_1 <= d^(2/3) |t|; t is not normalized. light_tail_quotient is
+   the case of the paper: coordinate j of every point has law nu d j of
+   class universality_coordinate_law kappa K (sample_law_component of
+   Sat/Apriori).
 
    Proof. The blocks of light_union (Sat/LightTail): eps = (1/2 - alpha) / 2
    and L > 2 / (1/2 - alpha) blocks of columns, so that
    a = (1 - eps) (L - 1) / (2 L) exceeds alpha; stage l controls all but
-   floor (eps p_l) eigenvalues of its matrix Sigma_t. Two events:
-   - the a priori event of Proposition 3.1 (adjoint_bound_limit of
-     Sat/Apriori, from the Hanson-Wright inequality of lane A):
+   floor (eps p_l) eigenvalues of its matrix Sigma_t; the coordinates have
+   E[x^2 1_(|x| <= sqrt 8 K^2)] >= 1/2 (component_law_truncated of
+   Mixture/Component). Two events:
+   - the a priori event of Proposition 3.1 (adjoint_bound_limit_flat of
+     Sat/Apriori, from the Hanson-Wright inequality):
      |x_i|^2 < 2 d for every i and |L_X^* z|_F <= C1 sqrt d |z|, hence
      nuclear (L_X^* z) <= C1 d |z| and the same for every block; on it,
      Corollary 3.13 (block_effective_rank_light of Sat/EffectiveRank)
      gives the good events of all stages for every light unit tail, once
      K1 >= 16 L C1^2 / eps, and |t_i| |u_i| <= rho once K1 >= 2 / rho^2;
-   - the bad event of light_union, of probability at most expR (- d) by
-     light_count, for gam as in light_gamma.
+   - the bad event of light_union_flat, of probability at most expR (- d)
+     by light_count, for gam as in light_gamma.
    Outside their union the conclusion holds for unit tails, and for all t
    by homogeneity (light_scale).
 
@@ -59,6 +66,8 @@ From GaussianAnalysis Require Import von_neumann nuclear restricted_isometry.
 From GaussianAnalysis Require Import lindeberg tuple_rows conditioning.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
+From EllipsoidUniversality Require Import MixtureDefinitions.
+From EllipsoidUniversality.Mixture Require Import Component.
 From EllipsoidUniversality.Features Require Import Definitions Regular.
 From EllipsoidUniversality.Model Require Import Rows.
 From EllipsoidUniversality.Sat Require Import OneStage Apriori EffectiveRank.
@@ -262,7 +271,8 @@ have mg : measurable_fun setT g.
   exact: measurable_indic.
 have gi : mu.-integrable setT (EFin \o g).
   apply: le_integrable i2 => //; first exact/measurable_EFinP.
-  move=> x _; rewrite /comp /g !abse_EFin lee_fin (ger0_norm (sqr_ge0 x)) indicE.
+  move=> x _; rewrite /comp /g !abse_EFin lee_fin (ger0_norm (sqr_ge0 x)).
+  rewrite indicE.
   case: (x \in _); rewrite ?mulr1 ?mulr0 ?normr0 ?(ger0_norm (sqr_ge0 x)) //.
   exact: sqr_ge0.
 have fg x : (f x <= g x)%R.
@@ -563,17 +573,20 @@ End scaling.
 
 Section light_tail_theorem.
 
-(* Proposition 3.4, in the form that Theorem 1.9 takes. *)
-Theorem light_tail_quotient (kappa K alpha : R) :
-  1 < kappa -> 0 < alpha -> alpha < 2^-1 ->
+(* Proposition 3.4, in the form that Theorem 1.9 takes, for flat families:
+   coordinate k of the sample, coordinate k mod d of point k / d, has law
+   lam k, a component law with constant K. K1 and gam depend only on K and
+   alpha, and D only on K, alpha, C0, n and eps, not on the laws. *)
+Theorem light_tail_quotient_flat (K alpha : R) :
+  0 < K -> 0 < alpha -> alpha < 2^-1 ->
   exists K1 gam : R, [/\ 0 < K1, 0 < gam &
   forall C0 : R, 0 < C0 ->
-  forall nu : nat -> nat -> probability (measurableTypeR R) R,
-    (forall d j, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
   forall n : nat -> nat, universality_density_tends_to n alpha ->
   forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  forall lam : nat -> probability (measurableTypeR R) R,
+    (forall k, (k < n d * d)%N -> mixture_component_law K (lam k)) ->
   exists E : set (paper_main_sample (n d) d), [/\ measurable E,
-    (universality_sample_law (nu d) (n d) d E <= eps%:E)%E &
+    (tuple_prod lam (n d * d) E <= eps%:E)%E &
     forall x, ~ E x -> forall (I : {set 'I_(n d)}) (h t : 'rV[R]_(n d)),
       #|I|%:R <= C0 * d%:R * ln (d%:R : R) ->
       supported I h -> supported (~: I) t ->
@@ -581,7 +594,7 @@ Theorem light_tail_quotient (kappa K alpha : R) :
       l1_norm h <= d%:R * frobenius t ->
       gam * d%:R * frobenius t <= nuclear (sample_adj x (h + t))]].
 Proof.
-move=> k1 a0 ah.
+move=> K0 a0 ah.
 (* the blocks: eps = (1/2 - alpha) / 2 and L > 2 / (1/2 - alpha) *)
 set dlt : R := (2^-1 - alpha)%R.
 have dlt0 : 0 < dlt by rewrite /dlt subr_gt0.
@@ -607,13 +620,13 @@ have aE : a = ((1 - ep) * (L%:R - 1) / (2 * L%:R))%R by rewrite /a LE.
 have aa : alpha < a by rewrite aE /ep /dlt; exact: block_a_gt.
 have a12 : a <= 1 / 2 by rewrite aE; apply: block_a_le => //; exact: ltW.
 (* the constants of the union bound *)
-set M : R := Num.sqrt (2 * kappa).
-have M0 : 0 < M by rewrite sqrtr_gt0 mulr_gt0 //; lra.
+set M : R := (Num.sqrt 8%:R * K ^+ 2)%R.
+have M0 : 0 < M by rewrite mulr_gt0 ?exprn_gt0 // sqrtr_gt0 ltr0n.
 set mu : R := 8^-1.
 have mu0 : 0 < mu by rewrite invr_gt0 ltr0n.
 set c0 : R := ((1 - ep) / (2 * L%:R))%R.
 have c00 : 0 < c0 by rewrite /c0 divr_gt0 ?subr_gt0 // mulr_gt0 // ltr0n.
-have [C C0' hC] := light_union M0 mu0 c00.
+have [C C0' hC] := light_union_flat M0 mu0 c00.
 (* the constant of Proposition 3.1 *)
 set C1 : R := adj_const K (252)%R (alpha + 1).
 have C10 : 0 < C1.
@@ -633,17 +646,16 @@ have K1eff : 16 * L%:R * C1 ^+ 2 / ep <= K1 by rewrite le_max lexx orbT.
 have K10 : 0 < K1.
   by apply: lt_le_trans K1rho; rewrite divr_gt0 // exprn_gt0.
 exists K1, gam; split => //.
-move=> C0 C00 nu hnu n hn eta eta0.
+move=> C0 C00 n hn eta eta0.
 have e20 : 0 < eta / 2 by rewrite divr_gt0.
 have [Dc hcount] := light_count L a0 aa a12 C0' C10 gam0 gamC gexp C00.
-have [Dap hap] :=
-  adjoint_bound_limit kappa K alpha nu n hnu a0 hn (eta / 2) e20.
+have [Dap hap] := adjoint_bound_limit_flat K alpha n a0 hn (eta / 2) e20.
 set tol : R := ((a - alpha) / 2)%R.
 have tol0 : 0 < tol by rewrite /tol divr_gt0 // subr_gt0.
 have [Dn hdn] := hn tol tol0.
 have [De hexp] := light_exp_small 1 (eta / 2) ltr01 e20.
 exists (maxn (maxn Dc Dap) (maxn (maxn Dn De) (2 * L))) => d.
-rewrite !geq_max => /andP[/andP[dc dap] /andP[/andP[dn de] d2L]].
+rewrite !geq_max => /andP[/andP[dc dap] /andP[/andP[dn de] d2L]] lam hlam.
 have d0 : (0 < d)%N by apply: leq_trans d2L; rewrite muln_gt0 L0.
 have dR : 0 < d%:R :> R by rewrite ltr0n.
 have d2R : 0 < d%:R ^+ 2 :> R by rewrite exprn_gt0.
@@ -652,10 +664,8 @@ have hna : (n d)%:R <= (alpha + a) / 2 * d%:R ^+ 2.
   have e : alpha + tol = (alpha + a) / 2 by rewrite /tol; field.
   rewrite -e; exact: (density_upper (n d)%:R (d%:R ^+ 2) alpha tol d2R
     (hdn d dn)).
-have hnu' j : (j < d)%N -> universality_coordinate_law kappa K (nu d j).
-  exact: hnu.
 (* the a priori event (Proposition 3.1) *)
-have [E0 [mE0 PE0 hE0]] := hap d dap.
+have [E0 [mE0 PE0 hE0]] := hap d dap lam hlam.
 (* the union bound *)
 set m : nat := truncn (C0 * d%:R * ln (d%:R : R)).
 set k := blk_k L d ep.
@@ -664,21 +674,21 @@ have lnd : 0 <= C0 * d%:R * ln (d%:R : R).
   apply: mulr_ge0; first exact: mulr_ge0 C00' (ler0n _ d).
   by apply: ln_ge0; rewrite ler1n.
 have hm : m%:R <= C0 * d%:R * ln (d%:R : R) by rewrite /m truncn_le.
-have hm0 j : (j < d)%N -> (\int[nu d j]_x (x : R)%:E = 0)%E.
-  by move=> hj; exact: coordinate_law_mean _ _ _ (hnu' j hj).
-have hm1 j : (j < d)%N -> (\int[nu d j]_x ((x : R) ^+ 2)%:E = 1)%E.
-  by move=> hj; exact: coordinate_law_second _ _ _ (hnu' j hj).
-have hm2 j : (j < d)%N -> ((2^-1)%:E <=
-    \int[nu d j]_x (((x : R) ^+ 2 * \1_[set y : RR | `|y| <= M] x)%R)%:E)%E.
-  by move=> hj; exact: coordinate_law_truncated _ _ _ k1 (hnu' j hj).
+have hm0 j : (j < n d * d)%N -> (\int[lam j]_x (x : R)%:E = 0)%E.
+  by move=> hj; exact: component_law_mean (hlam j hj).
+have hm1 j : (j < n d * d)%N -> (\int[lam j]_x ((x : R) ^+ 2)%:E = 1)%E.
+  by move=> hj; exact: component_law_second (hlam j hj).
+have hm2 j : (j < n d * d)%N -> ((2^-1)%:E <=
+    \int[lam j]_x (((x : R) ^+ 2 * \1_[set y : RR | `|y| <= M] x)%R)%:E)%E.
+  by move=> hj; exact: component_law_truncated (hlam j hj).
 have hk l : (l < L.-1)%N -> (c0 * d%:R <= (k l)%:R) /\
     (c0 * d%:R <= (blk_q L d l)%:R) /\ (k l <= blk_p L d l)%N /\
     (k l <= d)%N.
   by move=> hl; exact: blk_k_hyp L d l ep L1 d2L ep0' ep1' hl.
-have [U [mU PU hU]] := hC (n d) d L m k (nu d) K1 d%:R C1 rho gam
+have [U [mU PU hU]] := hC (n d) d L m k lam K1 d%:R C1 rho gam
   hm0 hm1 hm2 hk rho0 hCrho gam0 C10 (ler0n _ d) d0.
 have hsum := blk_sum_ge L d ep L1 dL ep0' ep1'.
-have PU' : (universality_sample_law (nu d) (n d) d U <= (eta / 2)%:E)%E.
+have PU' : (tuple_prod lam (n d * d) U <= (eta / 2)%:E)%E.
   apply: le_trans PU _; rewrite lee_fin.
   apply: le_trans
     (hcount d (n d) m d%:R k dc hna hm (ler0n _ d) (lexx _) hsum) _.
@@ -697,11 +707,11 @@ have hnorm i : frobenius (sample_point x i) ^+ 2 <= 2 * d%:R.
   exact: norm_good_sq.
 move=> hb; apply: xU; apply: (hU x _ hnorm _ hb).
 - (* the blocks of L_X^* lam *)
-  move=> l lam _.
-  apply: le_trans (nuclear_stage_map_le x lam (@blk_cU_inj L d l)
+  move=> l z _.
+  apply: le_trans (nuclear_stage_map_le x z (@blk_cU_inj L d l)
     (@blk_cJ_inj L d l) (@blk_cUJ L d l)) _.
   rewrite -sample_adj_feature.
-  exact: nuclear_sample_adj_le (n d) d x C1 hadj lam.
+  exact: nuclear_sample_adj_le (n d) d x C1 hadj z.
 - (* the good events, by Corollary 3.13 *)
   move=> I' t' _ [_ t'1 t'l] l hl; split.
   + move=> j hj.
@@ -725,6 +735,38 @@ move=> hb; apply: xU; apply: (hU x _ hnorm _ hb).
       (frobenius_ge0 _) _ (normr_ge0 _) (t'l i)).
     exact: (sq_le _ _ _ (frobenius_ge0 _) (frobenius_stage_row x i
       (@blk_cU_inj L d l)) (hnorm i)).
+Qed.
+
+(* Proposition 3.4, in the form that Theorem 1.9 takes, for the paper's
+   sample law: coordinate j of every point has law nu d j. *)
+Theorem light_tail_quotient (kappa K alpha : R) :
+  1 < kappa -> 0 < alpha -> alpha < 2^-1 ->
+  exists K1 gam : R, [/\ 0 < K1, 0 < gam &
+  forall C0 : R, 0 < C0 ->
+  forall nu : nat -> nat -> probability (measurableTypeR R) R,
+    (forall d j, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  exists E : set (paper_main_sample (n d) d), [/\ measurable E,
+    (universality_sample_law (nu d) (n d) d E <= eps%:E)%E &
+    forall x, ~ E x -> forall (I : {set 'I_(n d)}) (h t : 'rV[R]_(n d)),
+      #|I|%:R <= C0 * d%:R * ln (d%:R : R) ->
+      supported I h -> supported (~: I) t ->
+      (forall i, K1 * d%:R * t 0 i ^+ 2 <= mxdot t t) ->
+      l1_norm h <= d%:R * frobenius t ->
+      gam * d%:R * frobenius t <= nuclear (sample_adj x (h + t))]].
+Proof.
+move=> k1 a0 ah.
+have [K0|K0] := ltP 0 K; last first.
+  (* without coordinate laws of class K there is nothing to prove *)
+  exists 1, 1; split => // C0 C00 nu hnu.
+  by have [/= K0' _] := hnu 1%N 0%N isT; move: K0; rewrite leNgt K0'.
+have [K1 [gam [K10 gam0 h]]] := light_tail_quotient_flat K alpha K0 a0 ah.
+exists K1, gam; split => // C0 C00 nu hnu n hn eta eta0.
+have [D hD] := h C0 C00 n hn eta eta0.
+exists D => d dD.
+exact: hD d dD (fun k => nu d (k %% d)%N)
+  (sample_law_component kappa K (n d) d (nu d) (hnu d)).
 Qed.
 
 End light_tail_theorem.
