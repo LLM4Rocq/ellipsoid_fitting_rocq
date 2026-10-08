@@ -37,23 +37,25 @@
        opnorm Delta <= (3 + (Cu + 1) / gam + 1 / Cu) (Y / a + |y| / D),
      since |<lam, y>| <= |h|_1 Y + |t| |y|.
 
-   - small_residual_interpolation_limit (Theorem 1.9 with probability
-     tending to one, in the form small_residual_interpolation of
-     Sat/Universality, lane A): for 0 < alpha, from Proposition 3.4 in the
-     form light_tail_bound kappa K alpha (constants K1, gam), there is
-     C1 > 0 such that, for every admissible family of coordinate laws,
-     every n of density alpha and every eps > 0, for every large d,
-     outside a measurable event of probability at most eps, every y with
-     |y_i| <= Y is matched, <W_i, Delta> = y_i + b, by a symmetric Delta
-     with opnorm Delta <= C1 ((ln d)^4 / sqrt d Y + |y| / d). The event
-     is the union of those of adjoint_bound_limit (Proposition 3.1 (iii),
-     Cu = adj_const K 252 (alpha + 1)), sparse_lower_limit (Proposition
-     3.3, a = sqrt d / (rate_CS K C0 (ln d)^4)) and light_tail_bound, with
-     C0 = 5 K1, k = floor (C0 d ln d) and D = r = d; on its complement
-     interpolation_det applies, since (1 - 1/(K1 d))^k <= exp (- k/(K1 d))
-     <= d^(-4), and C1 = (3 + (Cu + 1) / gam + 1 / Cu) (rate_CS K C0 + 1).
-     Sat/SmallResidual removes the hypothesis with light_tail_quotient of
-     Sat/LightTailBound (lane B). *)
+   - small_residual_interpolation_limit_flat (Theorem 1.9 with
+     probability tending to one, for flat families of component laws,
+     item X5 of phase 6): for 0 < K and 0 < alpha, from Proposition 3.4 in
+     the form light_tail_bound_flat K alpha (constants K1, gam), there is
+     C1 > 0 such that, for every n of density alpha and every eps > 0,
+     there is D such that for every d >= D and every flat family of
+     component laws with constant K, outside a measurable event of
+     probability at most eps, every y with |y_i| <= Y is matched,
+     <W_i, Delta> = y_i + b, by a symmetric Delta with
+     opnorm Delta <= C1 ((ln d)^4 / sqrt d Y + |y| / d). The event is the
+     union of those of adjoint_bound_limit_flat (Proposition 3.1 (iii),
+     Cu = adj_const K 252 (alpha + 1)), sparse_lower_limit_flat
+     (Proposition 3.3, a = sqrt d / (rate_CS K C0 (ln d)^4)) and
+     light_tail_bound_flat, with C0 = 5 K1, k = floor (C0 d ln d) and
+     D = r = d; on its complement interpolation_det applies, since
+     (1 - 1/(K1 d))^k <= exp (- k/(K1 d)) <= d^(-4), and
+     C1 = (3 + (Cu + 1) / gam + 1 / Cu) (rate_CS K C0 + 1).
+     Sat/SmallResidual removes the hypothesis with light_tail_quotient_flat
+     of Sat/LightTailBound (lane B). *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -71,7 +73,9 @@ From mathcomp Require Import topology Rstruct_topology.
 From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun.
 From mathcomp Require Import numfun lebesgue_integral probability.
 From mathcomp Require Import normedtype sequences exp.
+From GaussianAnalysis.probability Require Import lindeberg.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
+From EllipsoidUniversality Require Import MixtureDefinitions.
 From EllipsoidUniversality.Sat Require Import SparseLimit.
 
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
@@ -470,21 +474,22 @@ End interpolation_det.
 
 Local Open Scope classical_set_scope.
 
-(* Proposition 3.4 (item S9, light_tail_quotient of Sat/LightTailBound,
-   lane B) in the form that Theorem 2.3 uses: there are K1 > 0 and
-   gam > 0 such that for every C0 > 0, with probability tending to one,
+(* Proposition 3.4 for flat families of component laws (item S9,
+   light_tail_quotient_flat of Sat/LightTailBound, lane B) in the form that
+   Theorem 2.3 uses: there are K1 > 0 and gam > 0 such that for every
+   C0 > 0, with probability tending to one, uniformly in the flat family,
    for every set I of at most C0 d ln d rows, every t vanishing on I with
    K1 d t_i^2 <= |t|^2 for every i, and every h vanishing off I with
    |h|_1 <= d |t|, gam d |t| <= nuclear (L_X^* (h + t)). *)
-Definition light_tail_bound (kappa K alpha : R) : Prop :=
+Definition light_tail_bound_flat (K alpha : R) : Prop :=
   exists K1 gam : R, [/\ 0 < K1, 0 < gam &
   forall C0 : R, 0 < C0 ->
-  forall nu : nat -> nat -> probability (measurableTypeR R) R,
-    (forall d j, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
   forall n : nat -> nat, universality_density_tends_to n alpha ->
   forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  forall lam : nat -> probability (measurableTypeR R) R,
+    (forall k, (k < n d * d)%N -> mixture_component_law K (lam k)) ->
   exists E : set (paper_main_sample (n d) d), [/\ measurable E,
-    (universality_sample_law (nu d) (n d) d E <= eps%:E)%E &
+    (tuple_prod lam (n d * d) E <= eps%:E)%E &
     forall x, ~ E x -> forall (I : {set 'I_(n d)}) (h t : 'rV[R]_(n d)),
       #|I|%:R <= C0 * d%:R * ln (d%:R : R) ->
       supported I h -> supported (~: I) t ->
@@ -500,19 +505,19 @@ move=> c0 u0 v0; have cv : 0 <= c * v by rewrite mulr_ge0.
 by rewrite mulrDl !mulrDr mul1r; lra.
 Qed.
 
-(* Theorem 1.9: with probability tending to one, every residual y is
-   matched up to a shift, <W_i, Delta> = y_i + b for every i, by a
-   symmetric Delta with
-   opnorm Delta <= C1 ((ln d)^4 / sqrt d max_i |y_i| + |y| / d). *)
-Theorem small_residual_interpolation_limit (kappa K alpha : R) :
-  0 < alpha -> light_tail_bound kappa K alpha ->
+(* Theorem 1.9 for flat families of component laws: with probability
+   tending to one, uniformly in the flat family, every residual y is matched
+   up to a shift, <W_i, Delta> = y_i + b for every i, by a symmetric Delta
+   with opnorm Delta <= C1 ((ln d)^4 / sqrt d max_i |y_i| + |y| / d). *)
+Theorem small_residual_interpolation_limit_flat (K alpha : R) :
+  0 < K -> 0 < alpha -> light_tail_bound_flat K alpha ->
   exists C1 : R, 0 < C1 /\
-  forall nu : nat -> nat -> probability (measurableTypeR R) R,
-    (forall d j, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
   forall n : nat -> nat, universality_density_tends_to n alpha ->
   forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  forall lam : nat -> probability (measurableTypeR R) R,
+    (forall k, (k < n d * d)%N -> mixture_component_law K (lam k)) ->
   exists E : set (paper_main_sample (n d) d), [/\ measurable E,
-    (universality_probability (nu d) (n d) d E <= eps%:E)%E &
+    (tuple_prod lam (n d * d) E <= eps%:E)%E &
     forall x, ~ E x -> forall (y : 'rV[R]_(n d)) (Y : R),
       (forall i, `|y 0 i| <= Y) ->
       exists (Delta : 'M[R]_d) (b : R), [/\ Delta \is symmetricmx,
@@ -521,7 +526,7 @@ Theorem small_residual_interpolation_limit (kappa K alpha : R) :
           C1 * (ln (d%:R : R) ^+ 4 / Num.sqrt d%:R * Y +
                 frobenius y / d%:R)]].
 Proof.
-move=> a0 [K1 [gam [K10 gam0 hLT]]].
+move=> K0 a0 [K1 [gam [K10 gam0 hLT]]].
 pose C0 := 5 * K1.
 have C00 : 0 < C0 by rewrite /C0 mulr_gt0.
 pose Cu := adj_const K (252)%R (alpha + 1)%R.
@@ -542,12 +547,12 @@ have C'0 : 0 < C'.
   by apply: addr_gt0 => //; rewrite divr_gt0 // addr_gt0.
 exists (C' * (CS + 1)); split.
   by rewrite mulr_gt0 // addr_gt0.
-move=> nu hnu n hn eps e0.
+move=> n hn eps e0.
 pose e3 := eps / 3.
 have e30 : 0 < e3 by rewrite divr_gt0.
-have [D1 hD1] := adjoint_bound_limit kappa K alpha nu n hnu a0 hn e3 e30.
-have [D2 hD2] := sparse_lower_limit kappa K alpha C0 nu n hnu a0 hn C00 e3 e30.
-have [D3 hD3] := hLT C0 C00 nu hnu n hn e3 e30.
+have [D1 hD1] := adjoint_bound_limit_flat K alpha n a0 hn e3 e30.
+have [D2 hD2] := sparse_lower_limit_flat K alpha C0 n K0 a0 hn C00 e3 e30.
+have [D3 hD3] := hLT C0 C00 n hn e3 e30.
 have p3 : 0 < 4 * Cu * CS + 1.
   apply: ltr_wpDl; last exact: ltr01.
   exact: (mulr_ge0 (mulr_ge0 (ler0n _ 4) (ltW Cu0)) (ltW CS0)).
@@ -555,15 +560,14 @@ have c3 := ln_pow_le_sqrt (4 * Cu * CS + 1) 4 p3.
 have [D hD] := ev_and (density_ev _ _ a0 hn) (ev_and ev_ln_ge1 (ev_and c3
   (ev_and (ev_gt K1^-1) (ev_and (ev_ge 2) (ev_and (ev_ge D1)
   (ev_and (ev_ge D2) (ev_ge D3))))))).
-exists D => d dD.
+exists D => d dD lam hlam.
 have [[h1a h1b] [h2 [h3 [h4 [dd2 [dD1 [dD2 dD3]]]]]]] := hD d dD.
-have [E1 [mE1 PE1 hE1]] := hD1 d dD1.
-have [E2 [mE2 PE2 hE2]] := hD2 d dD2.
-have [E3 [mE3 PE3 hE3]] := hD3 d dD3.
+have [E1 [mE1 PE1 hE1]] := hD1 d dD1 lam hlam.
+have [E2 [mE2 PE2 hE2]] := hD2 d dD2 lam hlam.
+have [E3 [mE3 PE3 hE3]] := hD3 d dD3 lam hlam.
 exists (E1 `|` E2 `|` E3); split.
 - by apply: measurableU => //; apply: measurableU.
-- rewrite /universality_probability.
-  have mE12 : measurable (E1 `|` E2) by apply: measurableU.
+- have mE12 : measurable (E1 `|` E2) by apply: measurableU.
   apply: le_trans (measureU2 _ mE12 mE3) _.
   apply: le_trans (leeD (measureU2 _ mE1 mE2) PE3) _.
   apply: le_trans (leeD (leeD PE1 PE2) (lexx _)) _.
