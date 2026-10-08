@@ -68,7 +68,8 @@
    - unsat_ridge_removal, Lemma 2.12 in the form of requests/c-to-b.md: for
      features of regular laws mu d (regular_feature with covariance
      unsat_cov kappa d) whose quadratic forms z |-> <z, mxvec (v^T v)>
-     (|v| <= 1) are subexponential with constant L0 / sqrt d, n / d^2 ->
+     (|v| <= 1) are subexponential with constant L0 / sqrt d, both for
+     d >= 1 (neither can hold at d = 0), n / d^2 ->
      alpha > 0, measurable gap events and beta d >= 0, the probability
      that unsat_ridge_value - unsat_value exceeds C beta d ln d tends to
      0, with C = max / min + 1. ln is the logarithm of MathComp-Analysis.
@@ -1052,8 +1053,9 @@ Theorem unsat_ridge_removal (alpha kappa K L0 : R) :
   forall (n : nat -> nat) (mu : forall d, probability 'rV[RR]_(d * d) RR)
          (tau beta : nat -> R),
     universality_density_tends_to n alpha ->
-    (forall d, regular_feature K (tau d) (unsat_cov kappa d) (mu d)) ->
-    (forall d (v : 'rV[RR]_d), mxdot v v <= 1 ->
+    (forall d, (0 < d)%N ->
+       regular_feature K (tau d) (unsat_cov kappa d) (mu d)) ->
+    (forall d (v : 'rV[RR]_d), (0 < d)%N -> mxdot v v <= 1 ->
        subexponential (mu d) (fun z => mxdot z (mxvec (v^T *m v)))
          (L0 / Num.sqrt d%:R)) ->
     (forall d c, measurable [set Z : (n d).-tuple 'rV[RR]_(d * d) |
@@ -1137,7 +1139,8 @@ have hln : s ^+ 2 <= ln d%:R.
 (* the event of a large gap lies in the exceptional event of dimension d *)
 have Lp : 0 < L0 / Num.sqrt d%:R by rewrite divr_gt0// sqrtr_gt0.
 have [E [mE PE hE]] := unsat_ridge_gap_prob kappa K (tau d) (L0 / Num.sqrt d%:R)
-  s (beta d) (n d) d (mu d) k1 nd0 d0 s0 Lp (b0 d) (rf d) (sub d).
+  s (beta d) (n d) d (mu d) k1 nd0 d0 s0 Lp (b0 d) (rf d d0)
+  (fun v => sub d v d0).
 have evE : [set Z | (Cst + 1) * beta d * ln d%:R <
     unsat_ridge_value kappa (n d) d (beta d) Z - unsat_value (n d) d Z] `<=` E.
   move=> Z /= hZ; apply: contrapT => nEZ.
