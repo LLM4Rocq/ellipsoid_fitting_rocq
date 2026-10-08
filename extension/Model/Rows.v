@@ -18,14 +18,16 @@
      nu 0, ..., nu (d - 1).
    - integral_sample_map: for g measurable on the d-tuples of coordinates
      and mu the law of g under tuple_prod nu d, the values of g at the n
-     rows have the law tuple_prod (fun=> mu) n.
+     rows have the law tuple_prod (fun=> mu) n; sample_map_law says the
+     same for the probability of a measurable event.
    - integral_sample_features, sample_features_law: the features
      unsat_features n d x of the points are independent with the common
      law data_feature_law nu d; measurable_unsat_features.
-
-   Planned (phase 5, stage 1): the same for the frozen
-   gaussian_product_law (n * d), whose rows are independent with law
-   gaussian_product_law d (for Unsat/GoeBridge). *)
+   - gaussian_product_law_tuple_prod, gaussian_sample_lawE: the frozen
+     gaussian_product_law d is tuple_prod of d standard normal laws, so a
+     sample of law gaussian_product_law (n * d) has the law
+     universality_sample_law of the standard normal coordinates (for
+     Unsat/GoeBridge). *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -35,6 +37,7 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun.
 From mathcomp Require Import numfun lebesgue_integral probability.
 From GaussianAnalysis.gaussian Require Import measurable_matrix.
 From GaussianAnalysis.probability Require Import lindeberg tuple_rows.
+From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality.Unsat Require Import LeastSquares.
@@ -167,3 +170,55 @@ by apply: eq_integral => x _; rewrite !indicE.
 Qed.
 
 End sample_rows.
+
+(* The frozen Gaussian law of d coordinates is the product of d standard
+   normal laws: gaussian_product_law and tuple_prod are built in the same
+   way. *)
+Lemma gaussian_product_law_tuple_prod d (A : set (d.-tuple (measurableTypeR R))) :
+  gaussian_product_law d A = tuple_prod (fun=> gaussian_law_probability) d A.
+Proof.
+elim: d A => [//|d IH] A /=; rewrite /product_measure1 /=.
+by apply: eq_integral => x _; rewrite IH.
+Qed.
+
+(* So a Gaussian sample is a sample of n points whose coordinates are
+   independent standard normal. *)
+Lemma gaussian_sample_lawE n d (A : set (paper_main_sample n d)) :
+  gaussian_product_law (n * d) A =
+  universality_sample_law (fun=> gaussian_law_probability) n d A.
+Proof. exact: gaussian_product_law_tuple_prod. Qed.
+
+Section sample_map_law.
+Local Open Scope ereal_scope.
+
+(* The values of a measurable g at the n points of a sample are independent
+   with the law of g under tuple_prod nu d. *)
+Lemma sample_map_law (nu : nat -> probability (measurableTypeR R) R)
+    n d d' (U : measurableType d') (mu : probability U R)
+    (g : d.-tuple (measurableTypeR R) -> U) (A : set (n.-tuple U)) :
+  measurable_fun setT g ->
+  (forall B, measurable B -> mu B = tuple_prod nu d (g @^-1` B)) ->
+  measurable A ->
+  universality_sample_law nu n d
+    ((fun x => tuple_map (fun=> g) (tuple_rows n d x)) @^-1` A) =
+  tuple_prod (fun=> mu) n A.
+Proof.
+move=> mg mug mA.
+have mT : measurable_fun setT (fun x : paper_main_sample n d =>
+    tuple_map (fun=> g) (tuple_rows n d x)).
+  apply: measurableT_comp; last exact: measurable_tuple_rows.
+  exact: measurable_tuple_map.
+have mgA : measurable ((fun x : paper_main_sample n d =>
+    tuple_map (fun=> g) (tuple_rows n d x)) @^-1` A).
+  by rewrite -[X in measurable X]setTI; exact: mT.
+transitivity (\int[universality_sample_law nu n d]_x
+    (\1_((fun x => tuple_map (fun=> g) (tuple_rows n d x)) @^-1` A) x)%:E).
+  by rewrite integral_indic // setIT.
+transitivity (\int[tuple_prod (fun=> mu) n]_y (\1_A y)%:E);
+  last by rewrite integral_indic // setIT.
+rewrite -(integral_sample_map nu n d _ _ mu g (fun y => (\1_A y)%:E) mg mug).
+  by apply/measurable_EFinP; exact: measurable_indic.
+by apply: eq_integral => x _; rewrite !indicE.
+Qed.
+
+End sample_map_law.

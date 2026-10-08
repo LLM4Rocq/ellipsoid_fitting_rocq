@@ -30,11 +30,12 @@
       are independent GOE matrices with variance 2/d on the diagonal and
       1/d off it.
 
-   Planned results (phase 5, stage 1), here or in Features/Regular:
-   - mxvec (gaussian_feature kappa (vec_mx g)) = g *m gaussian_feature_mx
-     kappa d, and (gaussian_feature_mx kappa d)^T *m gaussian_feature_mx
-     kappa d = unsat_cov kappa d, so that the regularity of Gaussian features
-     of convex/barrier_lindeberg.v applies to gaussian_feature_law. *)
+   Features/Regular proves mxvec (gaussian_feature kappa (vec_mx g)) =
+   g *m gaussian_feature_mx kappa d (gaussian_feature_mxE) and, for
+   kappa >= 1, (gaussian_feature_mx kappa d)^T *m gaussian_feature_mx kappa d
+   = unsat_cov kappa d (gaussian_feature_mx_cov), so that the regularity of
+   Gaussian features of convex/barrier_lindeberg.v applies to
+   gaussian_feature_law. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

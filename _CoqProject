@@ -21,6 +21,7 @@ library/matrix/whitening.v
 library/matrix/opnorm.v
 library/matrix/nets.v
 library/matrix/random_opnorm.v
+library/matrix/von_neumann.v
 library/probability/moments.v
 library/probability/lindeberg.v
 library/probability/subgaussian.v
@@ -31,6 +32,9 @@ library/probability/semicircle_law.v
 library/probability/variational.v
 library/probability/symmetrization.v
 library/probability/small_ball_method.v
+library/random_matrix/goe.v
+library/random_matrix/goe_rotation.v
+library/random_matrix/wigner.v
 library/comparison/normal_mgf.v
 library/comparison/chi_square.v
 library/comparison/normal_linear.v
@@ -42,6 +46,7 @@ library/comparison/gauss_concentration.v
 library/comparison/slepian.v
 library/comparison/gordon.v
 library/comparison/escape.v
+library/comparison/cgmt.v
 library/comparison/gauss_law.v
 library/comparison/ornstein_uhlenbeck.v
 library/comparison/brascamp_lieb.v
@@ -50,9 +55,13 @@ library/convex/self_concordant.v
 library/convex/least_squares.v
 library/convex/logdet_barrier.v
 library/convex/minimizers.v
+library/convex/feature_moments.v
+library/convex/gauss_feature.v
 library/convex/ls_insertion.v
 library/convex/barrier_removal.v
 library/convex/barrier_lindeberg.v
+library/convex/ridge_comparison.v
+library/convex/moreau.v
 library/fourier/charfun.v
 library/fourier/esseen.v
 library/fourier/gauss_factor.v
@@ -662,3 +671,4 @@ extension/Unsat/Regularized.v
 extension/Unsat/Ridge.v
 extension/Unsat/GoeBridge.v
 extension/Unsat/FourthMomentThree.v
+extension/Unsat/Universality.v
