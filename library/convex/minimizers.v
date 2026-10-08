@@ -350,13 +350,12 @@ Qed.
 Definition ls_bopt (theta : 'rV[R]_N) : R :=
   s * (\sum_(i < n | P i) mxdot (tnth Z i) theta) / (s * #|P|%:R + beta).
 
-Lemma ls_ridge_bopt theta b : 0 <= s -> 0 < beta ->
+Lemma ls_ridge_bopt theta b : 0 < s * #|P|%:R + beta ->
   ls_ridge Z P s lambda beta theta b =
   ls_ridge Z P s lambda beta theta (ls_bopt theta) +
   (s * #|P|%:R + beta) * (b - ls_bopt theta) ^+ 2.
 Proof.
-move=> s0 b0.
-have A0 : 0 < s * #|P|%:R + beta by rewrite ltr_wpDl // mulr_ge0.
+move=> A0.
 have A0' : s * #|P|%:R + beta != 0 by rewrite gt_eqF.
 set b' := ls_bopt theta.
 have hb' : (s * #|P|%:R + beta) * b' =
@@ -395,6 +394,9 @@ Local Notation ridge := (ls_ridge Z P s lambda beta).
 Local Notation F := (ls_barrier_objective Z P s lambda beta gamma B).
 Local Notation bopt := (ls_bopt Z P s beta).
 Local Notation grad := (ls_grad Z P s lambda beta).
+
+Lemma ls_A0 : 0 < s * #|P|%:R + beta.
+Proof. by rewrite ltr_wpDl // mulr_ge0. Qed.
 
 Lemma ls_ridge_ge0 theta b : 0 <= ridge theta b.
 Proof.
@@ -460,8 +462,8 @@ Proof.
 move=> /andP[t0 t1].
 set bz := bopt z; set by_ := bopt y.
 apply: le_trans (_ : ridge (z + t *: (y - z)) (bz + t * (by_ - bz)) <= _).
-  rewrite [X in _ <= X]ls_ridge_bopt //.
-  by rewrite lerDl mulr_ge0 ?sqr_ge0 // addr_ge0 ?mulr_ge0 // ltW.
+  rewrite [X in _ <= X](ls_ridge_bopt Z lambda _ _ ls_A0).
+  by rewrite lerDl mulr_ge0 ?sqr_ge0 // ltW // ls_A0.
 rewrite ls_ridge_expand.
 have := ls_ridge_expand Z P s lambda beta 1 z bz (y - z) (by_ - bz).
 rewrite scale1r mul1r expr1n mul1r addrC subrK addrC subrK => ->.
@@ -486,8 +488,8 @@ move=> /(_ _ B0 _ D0) [].
 - by move=> z; exact: ls_ridge_coercive.
 move=> zm Dzm hzm; exists zm, (bopt zm); split => // theta' b' Dt.
 apply: le_trans (hzm theta' Dt) _; rewrite /ls_barrier_objective lerD2r.
-rewrite [X in _ <= X]ls_ridge_bopt //.
-by rewrite lerDl mulr_ge0 ?sqr_ge0 // addr_ge0 ?mulr_ge0 // ltW.
+rewrite [X in _ <= X](ls_ridge_bopt Z lambda _ _ ls_A0).
+by rewrite lerDl mulr_ge0 ?sqr_ge0 // ltW // ls_A0.
 Qed.
 
 Section at_minimizer.
