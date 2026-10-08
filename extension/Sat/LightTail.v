@@ -18,7 +18,7 @@
    gamma d |t|_2. Sat/LightTailBound proves it for the larger set of heads
    with |h|_1 <= d |t|_2.
 
-   Plan of the proof, as in the paper.
+   The proof, as in the paper.
    - Blocks. The columns are cut into L blocks I_1, ..., I_L of sizes
      d / L + O(1). Stage l = 2, ..., L reveals the rows of I and the
      columns U_l = I_1 + ... + I_(l-1); its fresh block is I_l, and the
@@ -40,10 +40,10 @@
    - Nets. Nets of the light unit tails of size (C / gamma)^n and of the
      heads of size exp (o(d^2)), the bounds of Proposition 3.1 (iii) (lane
      C, Sat/Apriori) and max_i |x_i|^2 <= 2 d to pass from the nets to all
-     pairs, a union bound over the sets I, and the choice of L, eps, gamma
-     and K with alpha < (1 - eps) (1 - 1/L) / 2.
-   Inputs of lane C, used in Sat/LightTailBound: Corollary 3.13 in the form
-   of the sorted eigenvalues, and Proposition 3.1.
+     pairs, and a union bound over the sets I.
+   The choice of L, eps, gamma and K with alpha < (1 - eps) (1 - 1/L) / 2,
+   and the inputs of lane C (Corollary 3.13 in the form of the sorted
+   eigenvalues, and Proposition 3.1), are in Sat/LightTailBound.
 
    Proved here:
    - spec_frame: if the k largest eigenvalues of a symmetric S are at least

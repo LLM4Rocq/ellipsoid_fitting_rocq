@@ -29,8 +29,9 @@ From GaussianAnalysis Require Import barrier_lindeberg barrier_removal.
 (* Phi_Z(D, B; beta, gamma) is ls_barrier_value and Lref is ls_ref_scale      *)
 (* lambda beta gamma D B (barrier_lindeberg.v).                               *)
 (*                                                                            *)
-(* - ls_value_barrierE: Phi_Z(D; beta) is the value with a barrier of weight  *)
-(*   0; measurable_ls_value: it is a measurable function of Z.                *)
+(* - measurable_ls_value: Phi_Z(D; beta) is a measurable function of Z, as   *)
+(*   the value with a barrier of weight 0 (ls_value_barrierE of               *)
+(*   least_squares.v).                                                        *)
 (* - markov_lt: P(f > M) <= E f / M for f >= 0 integrable and M > 0.          *)
 (* - ref_objective_mean: under mu^n,                                          *)
 (*     E F_Z(theta_0, 0; beta) = theta_0 Sigma theta_0^T / 2                  *)
@@ -59,16 +60,6 @@ Local Open Scope ring_scope.
 
 Section ls_value_measurable.
 Context {R : realType} {N : nat}.
-
-(* Phi_Z(D; beta) is the value with a barrier of weight 0. *)
-Lemma ls_value_barrierE n (Z : n.-tuple 'rV[R]_N) (lambda beta : R)
-    (D : set 'rV[R]_N) (B : 'rV[R]_N -> R) :
-  ls_value Z lambda beta D = ls_barrier_value Z lambda beta D 0 B.
-Proof.
-rewrite /ls_value /ls_barrier_value; congr inf; apply/seteqP.
-by split => _ [th Dth [b _ <-]]; exists th => //; exists b => //;
-  rewrite mul0r addr0.
-Qed.
 
 Lemma measurable_ls_value (V : {vspace 'rV[R]_N}) (D : set 'rV[R]_N) n
     (lambda beta : R) :
