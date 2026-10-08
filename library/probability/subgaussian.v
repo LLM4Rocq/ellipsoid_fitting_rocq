@@ -27,6 +27,7 @@ From GaussianAnalysis.probability Require Import lindeberg tuple_rows.
 (*                                                                            *)
 (* Main results, with explicit constants:                                     *)
 (* - subgaussian_tail: P(|X| >= u) <= 2 exp (- u^2 / K^2) for u >= 0;         *)
+(*   subexponential_tail: P(|Y| >= u) <= 2 exp (- u / L);                     *)
 (* - subgaussian_moment: E X^(2k) <= 2 k! K^(2k), and every power of X is     *)
 (*   integrable (integrable_subgaussian_exprn);                               *)
 (* - subgaussian_mgf: if E X = 0, then E exp (l X) <= exp (3 l^2 K^2) for     *)
@@ -255,6 +256,22 @@ apply: le_trans (measure_ge_expR P (u ^+ 2 / K ^+ 2)%R mf ler01) _.
 under eq_integral do rewrite mul1r expRD EFinM.
 rewrite ge0_integralZr //.
   by apply/measurable_EFinP; exact: measurable_expR_sqr.
+by rewrite EFinM lee_wpmul2r // lee_fin expR_ge0.
+Qed.
+
+Lemma subexponential_tail Y L (u : R) : subexponential P Y L ->
+  P [set t | u <= `|Y t|]%R <= (2 * expR (- (u / L)))%:E.
+Proof.
+move=> [L0 mY h].
+have mf : measurable_fun [set: T] (fun t => `|Y t| / L)%R.
+  apply: measurable_funM; last exact: measurable_cst.
+  exact: measurableT_comp (@normr_measurable _ _) mY.
+have -> : [set t | (u <= `|Y t|)%R] = [set t | (u / L <= `|Y t| / L)%R].
+  by apply/seteqP; split => t /=; rewrite ler_pM2r ?invr_gt0.
+apply: le_trans (measure_ge_expR P (u / L)%R mf ler01) _.
+under eq_integral do rewrite mul1r expRD EFinM.
+rewrite ge0_integralZr //.
+  by apply/measurable_EFinP; apply: measurableT_comp.
 by rewrite EFinM lee_wpmul2r // lee_fin expR_ge0.
 Qed.
 
