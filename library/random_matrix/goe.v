@@ -1,8 +1,9 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix sesquilinear.
-From mathcomp Require Import boolp classical_sets functions reals ereal.
+From mathcomp Require Import boolp classical_sets functions interval reals ereal.
 From mathcomp Require Import topology normedtype sequences derive exp.
-From mathcomp Require Import measure lebesgue_measure lebesgue_integral.
+From mathcomp Require Import measure lebesgue_measure lebesgue_integral numfun.
+From mathcomp Require Import measurable_realfun.
 From mathcomp Require Import probability arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss gauss_ibp.
 From GaussianAnalysis.gaussian Require Import gauss_interpolation.
@@ -61,6 +62,9 @@ From GaussianAnalysis.fourier Require Import charfun_rV.
 (*   d.                                                                       *)
 (* - goe_tr_sd: E t_(k+2) = (k + 1) / d E t_k + \sum_(r <= k) E[t_r t_(k-r)], *)
 (*   and Rintegral_cov_le: |Cov (X, Y)| <= (Var X + Var Y) / 2.               *)
+(* - goe_opnorm_tail_small: for c > 2 sqrt 2 and eps > 0, P(opnorm W >= c) <= *)
+(*   eps for every large d, from gauss_tail_expR (Markov's inequality for     *)
+(*   exp (s F)) and goe_opnorm_mgf.                                           *)
 (*                                                                            *)
 (* Planned results (phase 5, stage 2; names come with the proofs):            *)
 (*                                                                            *)
@@ -83,6 +87,7 @@ Unset Printing Implicit Defensive.
 
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
 Import numFieldTopology.Exports numFieldNormedType.Exports.
+Local Open Scope classical_set_scope.
 Local Open Scope ring_scope.
 
 Section polyfun.
@@ -463,6 +468,41 @@ apply: le_trans (_ : \int[gauss m]_x
   by rewrite sqrrB !real_normK ?num_real // in h; nra.
 rewrite Rintegral_polyfunZ; first by apply: polyfunD; exact: pSq.
 by rewrite Rintegral_polyfunD; [exact: pSq | exact: pSq | rewrite mulrC].
+Qed.
+
+(* Markov's inequality for the exponential: P(F >= c) <= exp (- s c)
+   E exp (s F) for s >= 0. *)
+Lemma gauss_tail_expR (F : 'rV[R]_m -> R) (c s : R) :
+  measurable_fun [set: 'rV[R]_m] F -> 0 <= s ->
+  (gauss m).-integrable [set: 'rV[R]_m] (EFin \o (fun x => expR (s * F x))) ->
+  (gauss m [set x | (c <= F x)%R] <=
+   (expR (- (s * c)) * \int[gauss m]_x expR (s * F x))%R%:E)%E.
+Proof.
+move=> mF s0 iF.
+have mA : measurable [set x | (c <= F x)%R].
+  have := mF measurableT _ (measurable_itv `[c, +oo[).
+  rewrite setTI; congr measurable; apply/seteqP.
+  by split => x /=; rewrite in_itv /= andbT.
+rewrite -(setIT [set x | (c <= F x)%R]) -integral_indic //.
+apply: le_trans (_ : (\int[gauss m]_x (expR (s * (F x - c)))%:E <= _)%E).
+  apply: ge0_le_integral => //.
+  - by apply/measurable_EFinP; exact: measurable_indic.
+  - apply/measurable_EFinP; apply: measurableT_comp => //.
+    by apply: measurable_funM => //; exact: measurable_funB.
+  move=> x _; rewrite lee_fin indicE.
+  have [/set_mem /= cx|_] := boolP (x \in [set x0 | (c <= F x0)%R]).
+    by rewrite -expR0 ler_expR mulr_ge0 // subr_ge0.
+  exact: expR_ge0.
+rewrite -RintegralZl //.
+have iG : (gauss m).-integrable [set: 'rV[R]_m]
+    (EFin \o (fun x => expR (- (s * c)) * expR (s * F x))).
+  rewrite (_ : _ \o _ = (fun x => (expR (- (s * c)))%:E *
+    (expR (s * F x))%:E)%E); first by apply/funext => x.
+  exact: integrableZl.
+have fin := integrable_fin_num measurableT iG.
+rewrite /Rintegral fineK // le_eqVlt; apply/orP; left; apply/eqP.
+apply: eq_integral => x _; congr EFin.
+by rewrite -expRD mulrBr addrC.
 Qed.
 
 End mxpow_polyfun.
@@ -1075,6 +1115,36 @@ rewrite -/K; apply: le_trans (_ : K * expR (ln (eps / (2 * K))) <= _).
 rewrite lnK ?posrE // le_eqVlt; apply/orP; left; apply/eqP.
 have Kn : K != 0 by rewrite gt_eqF.
 by clearbody K; field.
+Qed.
+
+(* P(opnorm W >= c) tends to 0 for every c > 2 sqrt 2. *)
+Lemma goe_opnorm_tail_small (c eps : R) : 2 * Num.sqrt 2 < c -> 0 < eps ->
+  exists D : nat, forall d1, (D <= d1)%N ->
+  (gauss (d1 * d1) [set a | (c <= opnorm (goe_mx a))%R] <= eps%:E)%E.
+Proof.
+move=> c2 e0; set q : R := c - 2 * Num.sqrt 2.
+have q0 : 0 < q by rewrite subr_gt0.
+set s : R := Num.max 0 ((1 - ln eps) / q).
+have s0 : 0 <= s by rewrite le_max lexx.
+have hs : - (q * s) + 1 <= ln eps.
+  have : (1 - ln eps) / q <= s by rewrite le_max lexx orbT.
+  by rewrite ler_pdivrMr // => h; rewrite mulrC; lra.
+exists (archimedean.Num.truncn (s ^+ 2)).+1 => d1 dD.
+have d0 : (0 < d1)%N by apply: leq_trans dD.
+have dR : 0 < d1%:R :> R by rewrite ltr0n.
+have hd : s ^+ 2 < d1%:R.
+  by apply: lt_le_trans (archimedean.Num.Theory.truncnS_gt _) _; rewrite ler_nat.
+have mF : measurable_fun [set: 'rV[R]_(d1 * d1)] (fun a => opnorm (goe_mx a)).
+  exact: continuous_measurable_mx (lipschitz_frobenius_continuous
+    (@goe_opnorm_lipschitz R d1)).
+apply: le_trans (gauss_tail_expR c mF s0 (integrable_goe_opnorm_expR _ _)) _.
+rewrite lee_fin; apply: le_trans (_ : expR (- (s * c)) *
+    expR (2 * Num.sqrt 2 * s + s ^+ 2 / d1%:R) <= _).
+  by apply: ler_wpM2l; [exact: expR_ge0 | exact: goe_opnorm_mgf].
+rewrite -expRD -[X in _ <= X](lnK (_ : eps \in Num.pos)) // ler_expR.
+apply: le_trans hs.
+have : s ^+ 2 / d1%:R <= 1 by rewrite ler_pdivrMr // mul1r ltW.
+by rewrite /q; lra.
 Qed.
 
 End goe_tr_moments.
