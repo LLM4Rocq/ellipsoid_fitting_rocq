@@ -57,7 +57,10 @@ From GaussianAnalysis.fourier Require Import charfun_rV.
 (*   (goe_clip_lipschitz, by the Hoffman-Wielandt inequality), so its         *)
 (*   variance is at most L^2 (gauss_poincare_lipschitz), and |t_k - goe_clip  *)
 (*   k| <= 2 opnorm W^k exp (u (opnorm W - 3)) (goe_clip_err). With u = sqrt  *)
-(*   d, Var t_k tends to 0.                                                   *)
+(*   d, Var t_k tends to 0: goe_tr_var_small, Var t_k <= eps for every large  *)
+(*   d.                                                                       *)
+(* - goe_tr_sd: E t_(k+2) = (k + 1) / d E t_k + \sum_(r <= k) E[t_r t_(k-r)], *)
+(*   and Rintegral_cov_le: |Cov (X, Y)| <= (Var X + Var Y) / 2.               *)
 (*                                                                            *)
 (* Planned results (phase 5, stage 2; names come with the proofs):            *)
 (*                                                                            *)
@@ -413,6 +416,53 @@ rewrite Rintegral_polyfunZ; first exact: pXe.
 rewrite i0 mulr0 add0r Rintegral_cst //.
 rewrite -[X in fine X]/(@gauss R m setT) probability_setT /= mulr1.
 by rewrite lerDl sqr_ge0.
+Qed.
+
+(* |Cov (X, Y)| <= (Var X + Var Y) / 2. *)
+Lemma Rintegral_cov_le (X Y : 'rV[R]_m -> R) : polyfun X -> polyfun Y ->
+  `|\int[gauss m]_x (X x * Y x) -
+    \int[gauss m]_x X x * \int[gauss m]_x Y x| <=
+  (\int[gauss m]_x (X x - \int[gauss m]_y X y) ^+ 2 +
+   \int[gauss m]_x (Y x - \int[gauss m]_y Y y) ^+ 2) / 2.
+Proof.
+move=> hX hY; set a := \int[gauss m]_y X y; set b := \int[gauss m]_y Y y.
+have pXa : polyfun (fun x => X x - a) by apply: polyfunB => //; exact: polyfun_cst.
+have pYb : polyfun (fun x => Y x - b) by apply: polyfunB => //; exact: polyfun_cst.
+have pP : polyfun (fun x => (X x - a) * (Y x - b)) by exact: polyfunM.
+have iXa : \int[gauss m]_x (X x - a) = 0.
+  rewrite Rintegral_polyfunD; [exact: hX | exact: polyfun_cst |].
+  rewrite Rintegral_cst // -[X in fine X]/(@gauss R m setT) probability_setT.
+  by rewrite /= mulr1 subrr.
+(* Cov (X, Y) = E[(X - E X) (Y - E Y)] *)
+have E1 : \int[gauss m]_x (X x * Y x) - a * b =
+    \int[gauss m]_x ((X x - a) * (Y x - b)).
+  have -> : \int[gauss m]_x (X x * Y x) =
+      \int[gauss m]_x ((X x - a) * (Y x - b) + (b * (X x - a) + a * Y x)).
+    by apply: eq_Rintegral => x _; ring.
+  rewrite Rintegral_polyfunD //.
+    by apply: polyfunD; apply: polyfunM => //; exact: polyfun_cst.
+  rewrite Rintegral_polyfunD //; [by apply: polyfunM => //; exact: polyfun_cst |
+    by apply: polyfunM => //; exact: polyfun_cst |].
+  by rewrite !Rintegral_polyfunZ // iXa mulr0 add0r -/b addrK.
+have pSq (F : 'rV[R]_m -> R) : polyfun F -> polyfun (fun x => F x ^+ 2).
+  by move=> hF; under eq_fun do rewrite expr2; exact: polyfunM.
+have pN : polyfun (fun x => `|(X x - a) * (Y x - b)|).
+  split.
+    by move=> x; apply: (continuous_comp (pP.1 x)); exact: norm_continuous.
+  by have [_ [C [k hC]]] := pP; exists C, k => x; rewrite normr_id; exact: hC.
+have pS2 : polyfun (fun x => 2^-1 * ((X x - a) ^+ 2 + (Y x - b) ^+ 2)).
+  by apply: polyfunM; [exact: polyfun_cst | apply: polyfunD; exact: pSq].
+(* |p q| <= (p^2 + q^2) / 2 *)
+rewrite E1; apply: le_trans (le_normr_Rintegral _ _) _ => //.
+  exact: integrable_polyfun.
+apply: le_trans (_ : \int[gauss m]_x
+    (2^-1 * ((X x - a) ^+ 2 + (Y x - b) ^+ 2)) <= _).
+  apply: le_Rintegral => //; [exact: integrable_polyfun |
+    exact: integrable_polyfun |].
+  move=> x _; rewrite normrM; have h := sqr_ge0 (`|X x - a| - `|Y x - b|).
+  by rewrite sqrrB !real_normK ?num_real // in h; nra.
+rewrite Rintegral_polyfunZ; first by apply: polyfunD; exact: pSq.
+by rewrite Rintegral_polyfunD; [exact: pSq | exact: pSq | rewrite mulrC].
 Qed.
 
 End mxpow_polyfun.
@@ -932,3 +982,99 @@ Qed.
 
 End goe_moments.
 
+Section goe_tr_moments.
+Context {R : realType} (d : nat).
+Local Notation gauss := (@gauss R).
+
+(* The Schwinger-Dyson equation for t_k = tr W^k / d:
+   E t_(k+2) = (k + 1) / d E t_k + \sum_(r <= k) E[t_r t_(k-r)]. *)
+Lemma goe_tr_sd k :
+  \int[gauss (d * d)]_a goe_tr k.+2 a =
+  k.+1%:R / d%:R * \int[gauss (d * d)]_a goe_tr k a +
+  \sum_(r < k.+1) \int[gauss (d * d)]_a (goe_tr r a * goe_tr (k - r) a).
+Proof.
+have pT r := polyfun_trace (mx_polyfun_exp r (@mx_polyfun_goe R d)).
+have e1 r : \int[gauss (d * d)]_a goe_tr r a =
+    d%:R^-1 * \int[gauss (d * d)]_a \tr (goe_mx a ^+ r).
+  by under eq_Rintegral do rewrite /goe_tr mulrC; rewrite Rintegral_polyfunZ.
+have e2 r q : \int[gauss (d * d)]_a (goe_tr r a * goe_tr q a) =
+    d%:R^-1 * d%:R^-1 *
+      \int[gauss (d * d)]_a (\tr (goe_mx a ^+ r) * \tr (goe_mx a ^+ q)).
+  rewrite -Rintegral_polyfunZ; first by apply: polyfunM.
+  by apply: eq_Rintegral => a _; rewrite /goe_tr; ring.
+rewrite e1 goe_schwinger_dyson e1 /=.
+under [X in _ = _ + X]eq_bigr do rewrite e2.
+by rewrite -mulr_sumr; ring.
+Qed.
+
+(* Var t_k tends to 0: for every eps > 0, Var t_k <= eps for every large d,
+   by goe_tr_var with u chosen from eps and d >= (2 u + 1)^2. *)
+Lemma goe_tr_var_small k (eps : R) : 0 < eps -> exists D : nat, forall d1,
+  (D <= d1)%N ->
+  \int[gauss (d1 * d1)]_a (goe_tr k a - \int[gauss (d1 * d1)]_b goe_tr k b) ^+ 2
+    <= eps.
+Proof.
+move=> e0.
+set K : R := 8 * (k.*2)`!%:R.
+have K0 : 0 < K by rewrite mulr_gt0 // ltr0n fact_gt0.
+set c : R := 6 - 4 * Num.sqrt 2.
+have c0 : 0 < c.
+  have s2 : Num.sqrt 2 < 3 / 2 :> R.
+    rewrite -(@ltr_pXn2r _ 2) ?nnegrE ?sqrtr_ge0 ?divr_ge0 // sqr_sqrtr //.
+    by rewrite expr_div_n; lra.
+  by rewrite /c; lra.
+set C1 : R := 2 * Num.sqrt 2 + 1.
+have e2K : 0 < eps / (2 * K) by rewrite divr_gt0 // mulr_gt0.
+set u : R := Num.max 0 ((C1 - ln (eps / (2 * K))) / c).
+have u0 : 0 <= u by rewrite le_max lexx.
+have hu : - (c * u) + C1 <= ln (eps / (2 * K)).
+  have : (C1 - ln (eps / (2 * K))) / c <= u by rewrite le_max lexx orbT.
+  by rewrite ler_pdivrMr // => h; rewrite mulrC; lra.
+pose D1 := (archimedean.Num.truncn ((2 * u + 1) ^+ 2)).+1.
+pose D2 := (archimedean.Num.truncn (8 * k%:R ^+ 2 * 9 ^+ k.-1 / eps)).+1.
+exists (maxn D1 D2) => d1; rewrite geq_max => /andP[dD1 dD2].
+have d0 : (0 < d1)%N by apply: leq_trans dD1.
+have dR : 0 < d1%:R :> R by rewrite ltr0n.
+have d1R : 1 <= d1%:R :> R by rewrite ler1n.
+apply: le_trans (@goe_tr_var R d1 k u d0 u0) _.
+rewrite (splitr eps); apply: lerD.
+  (* 2 L^2 <= eps / 2 since d >= 8 k^2 9^(k-1) / eps *)
+  have h2 : 8 * k%:R ^+ 2 * 9 ^+ k.-1 / eps < d1%:R.
+    apply: lt_le_trans (archimedean.Num.Theory.truncnS_gt _) _.
+    by rewrite ler_nat.
+  rewrite ltr_pdivrMr // in h2.
+  have e9 : (3 ^+ k.-1) ^+ 2 = 9 ^+ k.-1 :> R.
+    by rewrite -exprM mulnC exprM expr2 -natrM.
+  rewrite !exprMn sqr_sqrtr // e9.
+  move: h2; set a := k%:R ^+ 2; set b := (9 : R) ^+ k.-1 => h2.
+  have P0 : 0 <= a * b by rewrite mulr_ge0 ?exprn_ge0.
+  have -> : 2 * (2 * a * b * d1%:R^-1 ^+ 2) = 4 * (a * b) * d1%:R^-1 ^+ 2.
+    by ring.
+  rewrite -mulrA in h2.
+  move: (a * b) P0 h2 => P P0 h2.
+  have y0 : 0 < d1%:R^-1 :> R by rewrite invr_gt0.
+  have xy : d1%:R * d1%:R^-1 = 1 :> R by rewrite mulfV // gt_eqF.
+  have y1 : d1%:R^-1 <= 1 :> R by rewrite invr_le1 // ?unitfE ?gt_eqF.
+  move: (d1%:R : R) (d1%:R^-1 : R) dR d1R y0 xy y1 h2.
+  move=> x y dR d1R y0 xy y1 h2.
+  have h3 : 8 * P * y < x * eps * y by rewrite ltr_pM2r.
+  rewrite [x * eps * y]mulrAC xy mul1r in h3.
+  have h4 : P * y ^+ 2 <= P * y.
+    apply: ler_wpM2l => //; rewrite expr2; apply: ler_piMr => //.
+    exact: ltW.
+  by lra.
+(* K exp (...) <= K exp (- c u + C1) <= eps / 2 since d >= (2 u + 1)^2 *)
+have h1 : (2 * u + 1) ^+ 2 < d1%:R.
+  apply: lt_le_trans (archimedean.Num.Theory.truncnS_gt _) _.
+  by rewrite ler_nat.
+have hq : (2 * u + 1) ^+ 2 / d1%:R <= 1.
+  by rewrite ler_pdivrMr // mul1r ltW.
+rewrite -/K; apply: le_trans (_ : K * expR (ln (eps / (2 * K))) <= _).
+  rewrite ler_pM2l // ler_expR; apply: le_trans hu.
+  by rewrite /c /C1; lra.
+rewrite lnK ?posrE // le_eqVlt; apply/orP; left; apply/eqP.
+have Kn : K != 0 by rewrite gt_eqF.
+by clearbody K; field.
+Qed.
+
+End goe_tr_moments.
