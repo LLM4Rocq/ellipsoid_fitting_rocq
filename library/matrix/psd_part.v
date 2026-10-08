@@ -31,7 +31,8 @@ From GaussianAnalysis.matrix Require Import von_neumann.
 (* - psd_part_conj: psd_part (Q A Q^T) = Q (psd_part A) Q^T, Q orthogonal.    *)
 (* - psd_part_moreau: A = psd_part A - psd_part (- A) with                    *)
 (*   <psd_part A, psd_part (- A)> = 0.                                        *)
-(* - psd_part_nonexpansive: |psd_part A - psd_part B|_F <= |A - B|_F.         *)
+(* - psd_part_nonexpansive: |psd_part A - psd_part B|_F <= |A - B|_F;        *)
+(*   psd_partZ: psd_part (c A) = c psd_part A for c >= 0.                     *)
 (* - spec_shift_decomposition, trace_psd_part_shift and                       *)
 (*   frobenius_psd_part_shift: tr psd_part (A - w I) = sum_i (spec A i - w)_+ *)
 (*   and |psd_part (A - w I)|_F^2 = sum_i (spec A i - w)_+^2, with spec of    *)
@@ -267,6 +268,21 @@ have [->|f0] := eqVneq (frobenius (Ap - Bp)) 0; first exact: frobenius_ge0.
 have fp : 0 < frobenius (Ap - Bp) by rewrite lt_def f0 frobenius_ge0.
 rewrite -(ler_pM2r fp) -expr2 frobenius_sqr.
 exact: le_trans key cs.
+Qed.
+
+(* The positive part is positively homogeneous. *)
+Lemma psd_partZ n (c : R) (A : 'M[R]_n) : 0 <= c -> A \is symmetricmx ->
+  psd_part (c *: A) = c *: psd_part A.
+Proof.
+move=> c0 As; have Po := sym_spectralmx_orthogonal A.
+have AE := sym_spectralE As.
+set P := sym_spectralmx A in Po AE *; set v := sym_spectral_diag A in AE *.
+have cAE : c *: A = P^T *m diag_mx (c *: v) *m P.
+  by rewrite {1}AE linearZ /= -scalemxAr -scalemxAl.
+rewrite (psd_partE Po cAE) /psd_part -/P -/v.
+have -> : pos_row (c *: v) = c *: pos_row v.
+  by apply/rowP => i; rewrite !mxE maxr_pMr ?mulr0.
+by rewrite linearZ /= -scalemxAr -scalemxAl.
 Qed.
 
 (* A - w I = P^T diag (spec A - w) P. *)
