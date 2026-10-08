@@ -60,6 +60,16 @@ independent subgaussian coordinates (see below).
   their code is unchanged since commit `3c6afa1`, which added them to
   `main`. Phase 5 of `AGENTS.md` is the plan of the proof, and
   `extension/README.md` the feasibility study behind it.
+- **Stage 1 of that proof.** `universality_unsat_fourth_moment_three`
+  (`extension/Unsat/FourthMomentThree.v`) proves the first claim of
+  Theorem 1.2 (ii) for coordinates of fourth moment 3, where the threshold
+  alpha*(3) is 1/4: if n/d^2 tends to alpha > 1/4, the probability that
+  some positive semidefinite S has x_i^T S x_i = d for every i tends to 0.
+  The proof follows the paper: the least squares value of the quadratic
+  features is bounded below for Gaussian data by the GOE gap of the first
+  theorem's proof, and the Lindeberg argument with a barrier (the paper's
+  Theorem 2.9 and Corollary 2.13, with its Lemma 2.12 to remove the ridge)
+  shows that it concentrates around the same value for the data.
 
 ## What to read
 
@@ -276,4 +286,5 @@ step that its code and the code of its definitions are unchanged.
 Phase 5 of `AGENTS.md` plans the proof of the universality theorem of
 `extension/` in three stages: the unsatisfiable phase at fourth moment 3,
 then the Gaussian model and the unsatisfiable phase for every fourth
-moment, then the satisfiable phase. Its general results go to `library/`.
+moment, then the satisfiable phase. Stage 1 is done (above). Its general
+results go to `library/`.

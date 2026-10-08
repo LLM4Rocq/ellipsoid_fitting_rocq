@@ -4,15 +4,14 @@
    route (lines 1602-1635), at Stdlib's R. It is the theorem of stage 1 of
    phase 5 (AGENTS.md).
 
-   Statement to prove (names come with the proofs): for K > 0 and
-   alpha > 1/4, for every family nu of laws with
+   Main result, universality_unsat_fourth_moment_three: for alpha above
+   universality_alpha_star 3 (which is 1/4, universality_alpha_star3 of
+   Gaussian/Threshold), for every family nu of laws with
    universality_coordinate_law 3 K (nu d j) for j < d, and every n with
    universality_density_tends_to n alpha,
      paper_main_tends_to
        (fun d => universality_probability (nu d) (n d) d
                    (paper_main_fit_event (n d) d)) 0.
-   With universality_alpha_star3 (Gaussian/Threshold), the same holds for
-   every alpha > universality_alpha_star 3.
 
    Proved:
    1. fit_unsat_value: for d >= 1, if some S >= 0 fits the points with
@@ -39,10 +38,12 @@
       d > e (fmt_tau_le, by (ln d)^6 <= 720 d), and their quadratic forms
       <W, v^T v>, |v| <= 1, are subexponential with constant
       fmt_L0 K / sqrt d (fmt_subexp_data, fmt_subexp_gauss).
-
-   To do: the stage theorem, from 2 and Corollary 2.13 (ii) applied to the
-   two laws with the hypotheses of 3, once Lemma 2.12 asks its hypotheses
-   for d >= 1 only (requests/b-to-c.md). *)
+   4. universality_unsat_fourth_moment_three, from 2 with the constant e
+      of goe_unsat_value_lower and the center c d of the Gaussian
+      features (unsat_center of Unsat/Regularized). The concentration of
+      both laws around c d (fmt_concentration) is Corollary 2.13 (ii)
+      (unsat_value_concentration_law of Unsat/Regularized, which removes
+      the ridge by Lemma 2.12) with the hypotheses of 3. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval matrix.
@@ -62,6 +63,7 @@ From EllipsoidFitting Require Import Geometry.Psd Geometry.Homogeneous
 From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality.Unsat Require Import LeastSquares Regularized.
 From EllipsoidUniversality.Unsat Require Import GoeBridge.
+From EllipsoidUniversality.Gaussian Require Import Threshold.
 From EllipsoidUniversality.Features Require Import Definitions Regular.
 From EllipsoidUniversality.Model Require Import Rows.
 Import GRing.Theory Num.Theory Order.TTheory.
@@ -416,4 +418,67 @@ move=> d0 v1.
 apply: subexponential_le
   (gaussian_feature_quad_subexponential 3%:R d v (ler1n _ _) d0 v1) _.
 by rewrite ler_pM2r ?invr_gt0 ?sqrtr_gt0 ?ltr0n // le_max lexx orbT.
+Qed.
+
+(* 4. The stage theorem. *)
+
+Lemma fmt_K_gt0 K : 0 < fmt_K K.
+Proof. by rewrite lt_max powR_gt0 ?orbT. Qed.
+
+Lemma fmt_L0_gt0 K : 0 < fmt_L0 K.
+Proof.
+by rewrite /fmt_L0 lt_max; apply/orP; right; rewrite mulr_gt0 // sqrtr_gt0.
+Qed.
+
+(* Corollary 2.13 (ii) (unsat_value_concentration_law of Unsat/Regularized,
+   which applies Lemma 2.12) for features with the constants of 3: the
+   values concentrate around the center of the Gaussian features. *)
+Lemma fmt_concentration (K alpha : R) (n : nat -> nat)
+    (rho : forall d, probability 'rV[RR]_(d * d) RR) :
+  0 < alpha -> universality_density_tends_to n alpha ->
+  (forall d, (0 < d)%N ->
+     regular_feature (fmt_K K) (fmt_tau K d) (unsat_cov 3%:R d) (rho d)) ->
+  (forall d (v : 'rV[RR]_d), (0 < d)%N -> mxdot v v <= 1 ->
+     subexponential (rho d) (fun z => mxdot z (mxvec (v^T *m v)) : RR)
+       (fmt_L0 K / Num.sqrt d%:R)) ->
+  forall eps : R, 0 < eps ->
+    paper_main_tends_to (fun d => tuple_prod (fun=> rho d) (n d)
+      [set Z | eps < `|unsat_value (n d) d Z -
+         unsat_center 3%:R (n d) d (gaussian_feature_law 3%:R d)
+           (unsat_beta d) (unsat_gamma d)|]) 0.
+Proof.
+move=> a0 hn hreg hsub.
+have k3 : 1 < 3%:R :> RR by rewrite ltr1n.
+exact: (unsat_value_concentration_law 3%:R alpha (fmt_K K) (fmt_C0 K)
+  (fmt_L0 K) n rho (gaussian_feature_law 3%:R) (fmt_tau K) k3 a0
+  (fmt_K_gt0 K) (fmt_C0_ge0 K) (fmt_L0_gt0 K) hn hreg (fmt_regular_gauss K)
+  hsub (fmt_tau_ge0 K) (fmt_tau_le K)).
+Qed.
+
+(* The theorem of stage 1: for every family of coordinate laws of fourth
+   moment 3 and every n with n / d^2 -> alpha > alpha*(3) = 1/4, the
+   probability that some S >= 0 fits the n points tends to 0. *)
+Theorem universality_unsat_fourth_moment_three (K alpha : R) :
+  universality_alpha_star 3%:R < alpha ->
+  forall nu : nat -> nat -> probability (measurableTypeR R) R,
+    (forall d j : nat, (j < d)%N ->
+       universality_coordinate_law 3%:R K (nu d j)) ->
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+    paper_main_tends_to
+      (fun d => universality_probability (nu d) (n d) d
+                  (paper_main_fit_event (n d) d)) 0.
+Proof.
+rewrite universality_alpha_star3 => a4 nu hnu n hn.
+have a0 : 0 < alpha by apply: lt_trans a4; rewrite invr_gt0 ltr0n.
+have a14 : 1 / 4%:R < alpha by rewrite div1r.
+have [e [e0 hg]] := goe_unsat_value_lower alpha a14.
+apply: (fit_event_vanishes nu n
+  (fun d => unsat_center 3%:R (n d) d (gaussian_feature_law 3%:R d)
+     (unsat_beta d) (unsat_gamma d)) e e0 (hg n hn)).
+  apply: (fmt_concentration K alpha n (gaussian_feature_law 3%:R)) => //.
+    exact: fmt_regular_gauss.
+  by move=> d v d0 v1; exact: fmt_subexp_gauss.
+apply: (fmt_concentration K alpha n (fun d => data_feature_law (nu d) d)) => //.
+  by move=> d d0; apply: fmt_regular_data => // j jd; exact: hnu.
+by move=> d v d0 v1; apply: fmt_subexp_data => // j jd; exact: hnu.
 Qed.
