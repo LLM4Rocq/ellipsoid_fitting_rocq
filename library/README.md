@@ -4,8 +4,8 @@ A Rocq library on Gaussian measures, Gaussian comparison and concentration
 inequalities, and the linear algebra and probability tools they need. It is
 written over an arbitrary `R : realType`, in the style of MathComp-Analysis,
 so that parts of it can later be proposed to MathComp-Analysis. It does not
-depend on the ellipsoid fitting paper. The proof of the paper in
-`theories/` uses it at Stdlib's `R`.
+depend on the ellipsoid fitting papers. The proofs of the two theorems in
+`theories/` and `extension/` use it at Stdlib's `R`.
 
 No human has reviewed its statements yet. The table of main results below
 is the place to start.
@@ -36,11 +36,11 @@ is the place to start.
 | Directory | Topic |
 |---|---|
 | `gaussian/` | the measurable structure and the norm of real matrices, Lebesgue measure and the standard Gaussian measure on `'rV[R]_n`, marginals and Fubini, moments, Gaussian integration by parts (Stein's identity) in one and several dimensions, differentiability from continuous partial derivatives, continuity of parameter integrals, Gaussian interpolation between two covariances |
-| `comparison/` | linear images and rotation invariance, tails, moment generating functions and chi-square laws, concentration of Lipschitz functions and the Poincare inequality, Slepian, Sudakov-Fernique and Gordon comparison inequalities, escape through a mesh, norms of Gaussian matrices |
-| `matrix/` | the spectral theorem for real symmetric matrices, operator and Frobenius norms, nets on spheres |
-| `probability/` | Paley-Zygmund and other moment inequalities, the Lindeberg replacement method, subgaussian and subexponential variables (Hoeffding, Bernstein, Hanson-Wright), the Efron-Stein inequality, product laws by rows and conditioning on coordinates, measurable choices of minimizers, symmetrization and the small-ball method, the semicircle law and the scalar variational problem of the Gaussian model |
+| `comparison/` | linear images and rotation invariance, shifts, tails, moment generating functions and chi-square laws, concentration of Lipschitz functions and the Poincare inequality, Slepian, Sudakov-Fernique and Gordon comparison inequalities, Sudakov's minoration, escape through a mesh, norms of Gaussian matrices, the convex Gaussian min-max theorem, the Ornstein-Uhlenbeck semigroup and the Brascamp-Lieb inequality |
+| `matrix/` | the spectral theorem for real symmetric matrices, the positive part of a symmetric matrix and whitening, operator, Frobenius and nuclear norms, nets on spheres and coverings of nuclear-norm balls, von Neumann's trace inequality and the Hoffman-Wielandt inequality, effective ranks, the operator norm of sums of independent random matrices |
+| `probability/` | Paley-Zygmund and other moment inequalities, the Lindeberg replacement method, subgaussian and subexponential variables (Hoeffding, Bernstein, Hanson-Wright), the norms of random vectors and matrices with subgaussian coordinates, the Efron-Stein inequality, product laws by rows and conditioning on coordinates, measurable choices of minimizers, symmetrization and the small-ball method, the semicircle law and the scalar variational problem of the Gaussian model |
 | `fourier/` | characteristic functions of laws on the line and on row vectors, written without complex numbers; Levy concentration functions, Esseen's inequality and the Kolmogorov-Rogozin inequality under a second moment condition; Gaussian regularization and the bound of probabilities by the integral of the characteristic function; the vector small-ball estimate of Koehler and Sohn; the Fourier inversion theorem |
-| `convex/` | planned in phase 5: self-concordant barriers and the log-determinant barrier, minimizers of strongly convex functions with a barrier, the Lindeberg replacement for barrier-regularized least squares, Moreau's decomposition for closed convex cones |
+| `convex/` | self-concordant barriers and the log-determinant barrier, minimizers of least squares objectives with a barrier, the Lindeberg replacement for barrier-regularized least squares with regular features and the removal of the barrier and of the ridge, projections onto closed convex sets and Moreau's decomposition for closed convex cones |
 | `random_matrix/` | the Gaussian orthogonal ensemble: the Schwinger-Dyson equation for its moments, the operator norm, Wigner's semicircle law, and the invariance of its law under orthogonal conjugation, with the diagonal of equivariant matrix functions; the restricted isometry of matrices with independent subexponential columns (Adamczak, Litvak, Pajor and Tomczak-Jaegermann) and the norms of sparse combinations of subgaussian vectors |
 
 ## Main results

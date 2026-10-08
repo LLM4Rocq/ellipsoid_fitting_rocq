@@ -7,9 +7,11 @@
 #                 depends on it: for iteration; it does not replace make check
 #   make check    build, then run scripts/check_sources.py: the axioms of the
 #                 main theorem are among those of check/assumptions.expected,
-#                 the frozen files are unchanged, and library/ depends neither
-#                 on the papers nor on Stdlib's reals; unless CITATIONS=no, it
-#                 also runs scripts/stale_citations.py (see make citations)
+#                 those of the universality theorem among those of
+#                 check/universality_assumptions.expected, the frozen files
+#                 are unchanged, and library/ depends neither on the papers
+#                 nor on Stdlib's reals; unless CITATIONS=no, it also runs
+#                 scripts/stale_citations.py (see make citations)
 #   make citations
 #                 list the names that comments cite but that nothing defines
 #                 (scripts/stale_citations.py), after a build
@@ -40,7 +42,8 @@ theories/%.vo library/%.vo extension/%.vo: Makefile.rocq FORCE
 check: build
 	mkdir -p build
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -o build/Assumptions.vo check/Assumptions.v > build/assumptions.txt
-	python3 scripts/check_sources.py build/assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/UniversalityAssumptions.vo check/UniversalityAssumptions.v > build/universality_assumptions.txt
+	python3 scripts/check_sources.py build/assumptions.txt build/universality_assumptions.txt
 	$(if $(filter yes,$(CITATIONS)),$(EXEC) python3 scripts/stale_citations.py,@true)
 	@echo "make check passed."
 

@@ -15,8 +15,15 @@
    EllipsoidUniversality, Stdlib's real analysis (Reals, Lra, Psatz,
    Rpower and the other R* modules) or MathComp's bridge to them (Rstruct,
    Rstruct_topology).
-4. Given the output of check/Assumptions.v as argument, every axiom it
-   prints is among those of check/assumptions.expected. Fewer is fine.
+4. Given the output of check/Assumptions.v as first argument, every axiom
+   it prints is among those of check/assumptions.expected. Given the output
+   of check/UniversalityAssumptions.v as second argument, every axiom it
+   prints is among those of check/universality_assumptions.expected. Fewer
+   is fine. Every axiom of check/universality_assumptions.expected is among
+   those of check/assumptions.expected, whose text is frozen (EXACT).
+5. check/UniversalityAssumptions.v has the code UNIVERSALITY_CHECK: it
+   checks that universality_theorem proves the frozen statement
+   universality_statement, and prints the axioms of universality_theorem.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -46,6 +53,11 @@ EXTENSION_FROZEN = [
     "extension/UniversalityStatement.v",
 ]
 EXTENSION_BASELINE = "3c6afa103ccd56c7d98bc59cb253d5d40d13fda0"
+UNIVERSALITY_CHECK = (
+    "From EllipsoidUniversality Require Import UniversalityStatement "
+    "UniversalityTheorem. Definition universality_theorem_checked : "
+    "universality_statement := universality_theorem. "
+    "Print Assumptions universality_theorem.")
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 ASSUMPTION = re.compile(
     r"(?:\A|(?<=\.))\s*(?:#\[[^\]]*\]\s*)?(?:Local\s+|Global\s+)?"
@@ -117,13 +129,29 @@ def main():
                 failures.append(f"{path.relative_to(ROOT)}: requires Stdlib's {full}")
             elif last in MATHCOMP_BRIDGE:
                 failures.append(f"{path.relative_to(ROOT)}: requires {full}")
+    if code((ROOT / "check" / "UniversalityAssumptions.v").read_text()) != UNIVERSALITY_CHECK:
+        failures.append("check/UniversalityAssumptions.v: code differs from UNIVERSALITY_CHECK")
+    allowed = axiom_names((ROOT / "check" / "assumptions.expected").read_text())
+    allowed_universality = axiom_names(
+        (ROOT / "check" / "universality_assumptions.expected").read_text())
+    for name in sorted(allowed_universality - allowed):
+        failures.append(f"check/universality_assumptions.expected: {name} "
+                        "is not among check/assumptions.expected")
     if len(sys.argv) > 1:
         printed = axiom_names(Path(sys.argv[1]).read_text())
-        allowed = axiom_names((ROOT / "check" / "assumptions.expected").read_text())
         for name in sorted(printed - allowed):
             failures.append(f"main theorem: {name} is not among check/assumptions.expected")
         if not failures and printed != allowed:
             print("main theorem: fewer axioms than check/assumptions.expected:",
+                  ", ".join(sorted(printed)) or "none")
+    if len(sys.argv) > 2:
+        printed = axiom_names(Path(sys.argv[2]).read_text())
+        for name in sorted(printed - allowed_universality):
+            failures.append(f"universality theorem: {name} is not among "
+                            "check/universality_assumptions.expected")
+        if not failures and printed != allowed_universality:
+            print("universality theorem: fewer axioms than "
+                  "check/universality_assumptions.expected:",
                   ", ".join(sorted(printed)) or "none")
     for line in failures:
         print(line)
@@ -134,7 +162,8 @@ def main():
           f"{EXTENSION_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
-          + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else ""))
+          + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
+          + ("; axioms of the universality theorem allowed" if len(sys.argv) > 2 else ""))
 
 
 if __name__ == "__main__":

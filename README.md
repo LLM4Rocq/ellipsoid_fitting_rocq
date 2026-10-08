@@ -23,9 +23,9 @@ growing with d.
 
 Each result also states that the events it measures are measurable.
 
-`extension/` states a second theorem, which nothing proves yet: Theorem 1.2
-of Koehler and Sohn, which extends the first result to points with
-independent subgaussian coordinates (see below).
+`extension/` proves a second theorem: Theorem 1.2 of Koehler and Sohn,
+which extends the first result to points with independent subgaussian
+coordinates (see below).
 
 ## Status
 
@@ -46,30 +46,38 @@ independent subgaussian coordinates (see below).
   (`ClassicalDedekindReals.sig_forall_dec` and `sig_not_dec`).
   `check/assumptions.expected` gives their exact types. Nothing from the
   paper is assumed.
-- **A second statement, not yet proved.** `extension/` states Theorem 1.2
-  of Koehler and Sohn, *Universality and sharp thresholds for ellipsoid
+- **A second theorem, proved.** `extension/` states Theorem 1.2 of
+  Koehler and Sohn, *Universality and sharp thresholds for ellipsoid
   fitting* ([arXiv:2608.27372v1](https://arxiv.org/abs/2608.27372v1)): for
   points with independent coordinates of mean 0, variance 1, fourth moment
   kappa > 1 and subgaussian norm at most K, the same phase transition at a
   threshold alpha*(kappa), a well-conditioned positive definite fit below
   it, and above it the limit e*(alpha, kappa) > 0 of the optimal squared
-  fitting error. The statement `universality_statement`
+  fitting error. The kernel accepts
+  `universality_theorem : universality_statement`
+  (`extension/UniversalityTheorem.v`). The statement
   (`extension/UniversalityStatement.v`) and its definitions
   (`extension/UniversalityDefinitions.v`) were reviewed against the paper
   and accepted before any proof, and are frozen: `make check` checks that
   their code is unchanged since commit `3c6afa1`, which added them to
-  `main`. Phase 5 of `AGENTS.md` is the plan of the proof, and
-  `extension/README.md` the feasibility study behind it.
-- **Stage 1 of that proof.** `universality_unsat_fourth_moment_three`
-  (`extension/Unsat/FourthMomentThree.v`) proves the first claim of
-  Theorem 1.2 (ii) for coordinates of fourth moment 3, where the threshold
-  alpha*(3) is 1/4: if n/d^2 tends to alpha > 1/4, the probability that
-  some positive semidefinite S has x_i^T S x_i = d for every i tends to 0.
-  The proof follows the paper: the least squares value of the quadratic
-  features is bounded below for Gaussian data by the GOE gap of the first
-  theorem's proof, and the Lindeberg argument with a barrier (the paper's
-  Theorem 2.9 and Corollary 2.13, with its Lemma 2.12 to remove the ridge)
-  shows that it concentrates around the same value for the data.
+  `main`. `make check` checks that the axioms of the theorem are among
+  the eight classical axioms of the first theorem
+  (`check/universality_assumptions.expected`): it uses seven of them, all
+  but excluded middle (`Classical_Prop.classic`).
+- **The proof of the second theorem.** Phase 5 of `AGENTS.md` is its plan,
+  and `extension/README.md` the feasibility study behind it. It follows
+  the paper. Above the threshold (`extension/Unsat/`), the least squares
+  value of the quadratic features of the points concentrates around its
+  value for Gaussian data, by the Lindeberg argument with a barrier (the
+  paper's Theorem 2.9 and Corollary 2.13, with its Lemma 2.12 to remove
+  the ridge); the Gaussian model (`extension/Gaussian/`, Proposition 1.4)
+  computes that value by the convex Gaussian min-max theorem and Wigner's
+  semicircle law. Below the threshold (`extension/Sat/`), the same
+  Lindeberg argument and the Gaussian fit of Lemma 5.17 give an
+  approximate fit (Proposition 2.1), and the small-residual interpolation
+  (Theorem 1.9, from Theorem 2.3 and Propositions 3.1, 3.3 and 3.4)
+  corrects it into an exact, well-conditioned fit. The general tools are
+  in `library/`.
 
 ## What to read
 
@@ -89,7 +97,8 @@ The reals are Stdlib's `R`, used through MathComp's structures. Vectors and
 matrices are MathComp's.
 
 The statement of the universality theorem is
-`extension/UniversalityStatement.v`, with a comment that reads it. Its
+`extension/UniversalityStatement.v`, with a comment that reads it, and
+`extension/UniversalityTheorem.v` proves it. Its
 definitions, in `extension/UniversalityDefinitions.v`, reuse those of
 `theories/PaperMainDefinitions.v` that do not depend on the law of the
 points, and take the law of independent coordinates from the library
@@ -145,36 +154,47 @@ generated`), whose code cannot change. The other modules print none.
   `theories/Gaussian/C/D.v` is the module `EllipsoidFitting.Gaussian.C.D`.
 - `extension/`: the universality theorem, under the logical root
   `EllipsoidUniversality` and at Stdlib's `R` like `theories/`: its
-  statement and definitions, the feasibility study `extension/README.md`,
-  and the folders of its proof: `Model/` (the law of the sample and the
-  measurability of the events), `Features/` (the quadratic features of the
-  points), `Unsat/` (the unsatisfiable phase), `Gaussian/` (the Gaussian
-  model) and `Sat/` (the satisfiable phase).
-- `library/`: the library `GaussianAnalysis`, 37 files of general results
-  on Gaussian measures, Gaussian comparison and concentration, real
-  matrices and probability, over an arbitrary `R : realType`, and the
-  Fourier analysis of anti-concentration: characteristic functions of laws
-  on the line and on row vectors, written without complex numbers, Levy
-  concentration functions and Esseen's inequality, the Brascamp-Lieb
-  inequality in Gaussian and Lebesgue form, the vector small-ball
-  estimate of Koehler and Sohn, and the Fourier inversion theorem. The
-  proof of the paper uses the library at Stdlib's `R`:
-  `Gaussian/Law/LibraryBridge` identifies the library's Gaussian measure
-  with the product law of the statement,
+  statement and definitions, the theorem (`UniversalityTheorem.v`), the
+  feasibility study `extension/README.md`, and the folders of its proof:
+  `Model/` (the law of the sample and the measurability of the events),
+  `Features/` (the quadratic features of the points), `Unsat/` (the
+  unsatisfiable phase), `Gaussian/` (the Gaussian model) and `Sat/` (the
+  satisfiable phase).
+- `library/`: the library `GaussianAnalysis`, 72 files of general results
+  over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
+  and concentration, real matrices and probability; the Fourier analysis
+  of anti-concentration (characteristic functions written without complex
+  numbers, Levy concentration functions and Esseen's inequality, the
+  Brascamp-Lieb inequality, the vector small-ball estimate of Koehler and
+  Sohn, the Fourier inversion theorem); and the tools of the universality
+  theorem: self-concordant barriers, least squares with a barrier and the
+  Lindeberg method for it, Moreau's decomposition and the convex Gaussian
+  min-max theorem, subgaussian and subexponential variables (Hoeffding,
+  Bernstein, Hanson-Wright), the Efron-Stein inequality, the GOE and
+  Wigner's semicircle law, restricted isometry, nuclear norms and
+  coverings. The two proofs use the library at Stdlib's `R`: in
+  `theories/`, `Gaussian/Law/LibraryBridge` identifies the library's
+  Gaussian measure with the product law of the statement,
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
-  and 20 other modules of `theories/` require library files directly.
+  and 20 other modules of `theories/` require library files directly, as
+  do the modules of `extension/`.
   `library/README.md` gives its conventions, its main results and their
-  users. Phase 5 adds the directories `convex/` and `random_matrix/`.
+  users. Phase 5 added the directories `convex/` and `random_matrix/`.
 - `check/Assumptions.v`: prints the axioms of the main theorem.
   `check/assumptions.expected` is the expected output.
+  `check/UniversalityAssumptions.v` checks that `universality_theorem`
+  proves the frozen statement and prints its axioms;
+  `check/universality_assumptions.expected` is the expected output.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, and the statement of the universality
   theorem and its definitions the same code as at commit `3c6afa1`
   (comments may differ); that no module of `theories/`, `library/` or
   `extension/` contains `Admitted`, `Axiom`, `Parameter` or `Conjecture`;
-  and that no module of `library/` requires a module of `theories/` or
-  `extension/` or Stdlib's reals. `make check` runs it.
+  that no module of `library/` requires a module of `theories/` or
+  `extension/` or Stdlib's reals; and that the axioms of each theorem are
+  among its expected ones, the second list being part of the first.
+  `make check` runs it.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
 - `scripts/unused.py`: lists the declarations of `theories/` that the main
@@ -255,7 +275,8 @@ done, and the second is done in part.
    `Gaussian/Iterated/BlockRotation`, `Gaussian/Iterated/PolynomialGrowth`).
    What it no longer needed is deleted: `theories/` had 632 modules and
    102,415 lines at the tag `phase1`, and has 588 modules and 86,410 lines
-   now. The library has 37 files and 21,005 lines.
+   now. The library had 37 files and 21,005 lines at the end of phase 4,
+   and has 72 files and 48,032 lines after phase 5.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -283,8 +304,8 @@ What remains:
 The statement keeps its meaning throughout: `make check` checks after each
 step that its code and the code of its definitions are unchanged.
 
-Phase 5 of `AGENTS.md` plans the proof of the universality theorem of
-`extension/` in three stages: the unsatisfiable phase at fourth moment 3,
-then the Gaussian model and the unsatisfiable phase for every fourth
-moment, then the satisfiable phase. Stage 1 is done (above). Its general
-results go to `library/`.
+Phase 5 of `AGENTS.md` proved the universality theorem of `extension/`
+in three stages: the unsatisfiable phase at fourth moment 3 (tag
+`stage1`), then the Gaussian model and the unsatisfiable phase for every
+fourth moment (tag `stage2`), then the satisfiable phase (tag `phase5`).
+Its general results are in `library/`.
