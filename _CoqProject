@@ -675,6 +675,7 @@ extension/Gaussian/Cones.v
 extension/Gaussian/Threshold.v
 extension/Gaussian/Representation.v
 extension/Gaussian/Limit.v
+extension/Gaussian/Subcritical.v
 extension/Unsat/LeastSquares.v
 extension/Unsat/Regularized.v
 extension/Unsat/Ridge.v
