@@ -37,7 +37,22 @@
         measurable (pm_fit_event_measurable, measurable_error_event of
         Model/Measurability), a fit makes the fitting error at most 0
         (fit_fitting_error of Unsat/FourthMomentThree) and so lies in the
-        error event at e* / 2, and the error events vanish by Theorem 1.7. *)
+        error event at e* / 2, and the error events vanish by Theorem 1.7.
+   3. Finite mixtures of product laws (item X7 of phase 6, the
+      unsatisfiable part of mixture_statement). Under (M1)-(M3)
+      (mixture_family K and mixture_fourth_moment kappa of
+      MixtureDefinitions), the features of a sample are i.i.d. with the law
+      mix_feature_law (mixture_features_law of Features/Mixture), regular
+      with covariance unsat_cov kappa d and constants uni_K and mix_tau d,
+      like the Gaussian features (mix_feature_regular, mix_regular_gauss),
+      with mix_tau d <= mix_C0 / (ln d)^3 (mix_tau_le); their values
+      concentrate around uni_center (mix_concentration). Hence:
+      - mixture_error_cvg, mixture_error: Theorem 1.7 for mixtures, the
+        third part of mixture_statement, for every alpha > 0;
+      - mixture_unsat: the second part of mixture_statement, above the
+        threshold;
+      - mixture_probability_ge0, le_mixture_probability: the probability
+        of a set of samples of a mixture is nonnegative and monotone. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval matrix.
@@ -53,11 +68,13 @@ From GaussianAnalysis.probability Require Import lindeberg subgaussian.
 From GaussianAnalysis.convex Require Import least_squares ridge_comparison.
 From EllipsoidFitting Require Import PaperMainDefinitions Measurability.Fit.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
+From EllipsoidUniversality Require Import MixtureDefinitions.
 From EllipsoidUniversality.Unsat Require Import LeastSquares Regularized.
 From EllipsoidUniversality.Unsat Require Import FourthMomentThree.
 From EllipsoidUniversality.Gaussian Require Import Threshold FittingError.
 From EllipsoidUniversality.Features Require Import Definitions Regular.
 From EllipsoidUniversality.Model Require Import Rows Measurability.
+From EllipsoidUniversality.Features Require Import Mixture.
 Import GRing.Theory Num.Theory Order.TTheory.
 
 Local Open Scope classical_set_scope.
@@ -215,7 +232,125 @@ exact: (unsat_value_concentration_law kappa alpha uni_K uni_C0 uni_L0 n rho
   hn hreg uni_regular_gauss hsub uni_tau_ge0 uni_tau_le).
 Qed.
 
+(* The constant tau of the features of a finite mixture of product laws
+   (mix_feature_regular of Features/Mixture) and of the Gaussian features,
+   and its decay mix_tau d <= mix_C0 / (ln d)^3. *)
+Definition mix_tau (d : nat) : R :=
+  Num.max (Num.sqrt (2 ^+ 31 * K ^+ 8 / d%:R + 16 * K ^+ 8 / d%:R))
+          (Num.sqrt 2 * opnorm (unsat_cov kappa d)).
+
+Definition mix_C0 : R :=
+  Num.max (Num.sqrt ((2 ^+ 31 * K ^+ 8 + 16 * K ^+ 8) * 720%:R))
+          (Num.sqrt 2 * Num.max 2 (kappa - 1) * 720%:R).
+
+Lemma mix_tau_ge0 d : 0 <= mix_tau d.
+Proof. by rewrite le_max sqrtr_ge0. Qed.
+
+Lemma mix_C0_ge0 : 0 <= mix_C0.
+Proof. by rewrite le_max sqrtr_ge0. Qed.
+
+Lemma mix_tau_le : exists D : nat, forall d : nat, (D <= d)%N ->
+  mix_tau d <= mix_C0 / ln (d%:R : RR) ^+ 3.
+Proof.
+exists (archimedean.Num.truncn (expR (1 : RR))).+1 => d hd.
+have L1 := ln_ge1 d hd.
+have d0 : (0 < d)%N by apply: leq_trans hd.
+have dR : (0 : RR) < d%:R by rewrite ltr0n.
+set L := ln (d%:R : RR) in L1 *.
+have L0 : 0 < L by apply: lt_le_trans L1.
+have L3 : 0 < L ^+ 3 by rewrite exprn_gt0.
+have h6 : L ^+ 6 <= 720%:R * d%:R by apply: ln_pow6_le; rewrite ler1n.
+rewrite /mix_tau ge_max; apply/andP; split.
+  rewrite -mulrDl ler_pdivlMr //.
+  apply: le_trans
+    (_ : Num.sqrt ((2 ^+ 31 * K ^+ 8 + 16 * K ^+ 8) * 720%:R) <= _);
+    last by rewrite le_max lexx.
+  have k8 : (0 : RR) <= K ^+ 8 by rewrite (_ : 8 = 4 * 2)%N // exprM sqr_ge0.
+  have p31 : (0 : RR) <= 2 ^+ 31 by exact: exprn_ge0.
+  have p16 : (0 : RR) <= 16 by exact: ler0n.
+  have a0 : (0 : RR) <= 2 ^+ 31 * K ^+ 8 + 16 * K ^+ 8.
+    by apply: addr_ge0; apply: mulr_ge0.
+  have L3' : 0 <= L ^+ 3 by exact: ltW.
+  rewrite -[L ^+ 3](ger0_norm L3') -sqrtr_sqr -sqrtrM ?divr_ge0 ?ler0n //.
+  apply: ler_wsqrtr; set a := 2 ^+ 31 * K ^+ 8 + 16 * K ^+ 8.
+  rewrite -exprM /= -mulrA; apply: ler_wpM2l; first exact: a0.
+  by rewrite mulrC ler_pdivrMr.
+have hl := unsat_lambda_bounds kappa d k1 d0.
+move: hl => /andP[_]; rewrite /unsat_lambda => hl.
+rewrite ler_pdivlMr //.
+apply: le_trans (_ : Num.sqrt 2 * Num.max 2 (kappa - 1) * 720%:R <= _);
+  last by rewrite le_max lexx orbT.
+set l := opnorm _ in hl *.
+have l0 : 0 <= l by exact: opnorm_ge0.
+have L3le : L ^+ 3 <= 720%:R * d%:R.
+  apply: le_trans h6.
+  rewrite (_ : 6 = 3 + 3)%N // exprD ler_peMr ?exprn_ege1 //.
+  exact: ltW.
+apply: le_trans (_ : Num.sqrt 2 * l * (720%:R * d%:R) <= _).
+  by apply: ler_wpM2l => //; rewrite mulr_ge0 ?sqrtr_ge0.
+rewrite (_ : Num.sqrt 2 * l * (720%:R * d%:R) =
+  Num.sqrt 2 * 720%:R * (l * d%:R)); first by ring.
+rewrite [X in _ <= X](_ : Num.sqrt 2 * Num.max 2 (kappa - 1) * 720%:R =
+  Num.sqrt 2 * 720%:R * Num.max 2 (kappa - 1)); first by ring.
+apply: ler_wpM2l; last exact: hl.
+apply: mulr_ge0; [exact: sqrtr_ge0|exact: ler0n].
+Qed.
+
+Lemma mix_regular_gauss d : (0 < d)%N ->
+  regular_feature uni_K (mix_tau d) (unsat_cov kappa d)
+    (gaussian_feature_law kappa d).
+Proof.
+move=> d0; have := gaussian_feature_regular kappa d k1 d0.
+apply: regular_feature_le; rewrite ?le_max ?lexx ?orbT ?powR_ge0 //.
+by rewrite mulr_ge0 ?sqrtr_ge0 ?opnorm_ge0.
+Qed.
+
+(* Corollary 2.13 (ii) with the constants of the mixtures: the values of
+   features regular with uni_K and mix_tau concentrate around the center
+   of the Gaussian features. *)
+Lemma mix_concentration (alpha : R) (n : nat -> nat)
+    (rho : forall d, probability 'rV[RR]_(d * d) RR) :
+  0 < alpha -> universality_density_tends_to n alpha ->
+  (forall d, (0 < d)%N ->
+     regular_feature uni_K (mix_tau d) (unsat_cov kappa d) (rho d)) ->
+  (forall d (v : 'rV[RR]_d), (0 < d)%N -> mxdot v v <= 1 ->
+     subexponential (rho d) (fun z => mxdot z (mxvec (v^T *m v)) : RR)
+       (uni_L0 / Num.sqrt d%:R)) ->
+  forall eps : R, 0 < eps ->
+    paper_main_tends_to (fun d => tuple_prod (fun=> rho d) (n d)
+      [set Z | eps < `|unsat_value (n d) d Z - uni_center (n d) d|]) 0.
+Proof.
+move=> a0 hn hreg hsub.
+exact: (unsat_value_concentration_law kappa alpha uni_K mix_C0 uni_L0 n rho
+  (gaussian_feature_law kappa) mix_tau k1 a0 uni_K_gt0 mix_C0_ge0 uni_L0_gt0
+  hn hreg mix_regular_gauss hsub mix_tau_ge0 mix_tau_le).
+Qed.
+
 End constants.
+
+(* The probability of a set of samples of a finite mixture is nonnegative
+   and monotone, for nonnegative weights. *)
+Lemma mixture_probability_ge0 (N : nat) (w : nat -> R)
+    (mu : nat -> nat -> probability (measurableTypeR R) R) n d
+    (E : set (paper_main_sample n d)) :
+  (forall s, (s < N)%N -> 0 <= w s) ->
+  (0 <= mixture_probability N w mu n d E)%E.
+Proof.
+move=> w0; apply: sume_ge0 => s _; apply: mule_ge0; last exact: measure_ge0.
+by rewrite lee_fin; apply: prodr_ge0 => i _; exact: w0 (ltn_ord _).
+Qed.
+
+Lemma le_mixture_probability (N : nat) (w : nat -> R)
+    (mu : nat -> nat -> probability (measurableTypeR R) R) n d
+    (A B : set (paper_main_sample n d)) :
+  (forall s, (s < N)%N -> 0 <= w s) -> measurable A -> measurable B ->
+  A `<=` B ->
+  (mixture_probability N w mu n d A <= mixture_probability N w mu n d B)%E.
+Proof.
+move=> w0 mA mB AB; apply: lee_sum => s _; apply: lee_wpmul2l.
+  by rewrite lee_fin; apply: prodr_ge0 => i _; exact: w0 (ltn_ord _).
+by apply: le_measure; rewrite ?inE.
+Qed.
 
 
 (* 2. Theorem 1.7 and the unsatisfiable phase, from Proposition 1.4 (ii). *)
@@ -338,9 +473,11 @@ Qed.
 Theorem universality_unsat : universality_alpha_star kappa < alpha ->
   0 < e /\
   (forall n d : nat, measurable (paper_main_fit_event n d)) /\
-  (forall (n d : nat) (eps : R), measurable (universality_error_event n d e eps)) /\
+  (forall (n d : nat) (eps : R),
+     measurable (universality_error_event n d e eps)) /\
   (forall nu : nat -> nat -> probability (measurableTypeR R) R,
-    (forall d j : nat, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
+    (forall d j : nat, (j < d)%N ->
+       universality_coordinate_law kappa K (nu d j)) ->
     forall n : nat -> nat, universality_density_tends_to n alpha ->
       paper_main_tends_to
         (fun d => universality_probability (nu d) (n d) d
@@ -362,6 +499,124 @@ apply: le_lt_trans (hD d dD).
 rewrite !sube0 !gee0_abs ?measure_ge0 //.
 apply: le_measure; rewrite ?inE //; first exact: pm_fit_event_measurable.
   exact: measurable_error_event.
+move=> x fx; have := fit_fitting_error (n d) d x dp fx.
+rewrite /universality_error_event /=.
+move: (universality_fitting_error (n d) d x) => g g0.
+rewrite distrC ger0_norm; first by rewrite subr_ge0 (le_trans g0) // ltW.
+by move: g0 e0; lra.
+Qed.
+
+(* Theorem 1.7 for finite mixtures of product laws (the third part of
+   mixture_statement): the optimal squared fitting error tends to
+   e*(alpha, kappa) in probability. The features of a mixture sample are
+   i.i.d. with the law mix_feature_law (mixture_features_law of
+   Features/Mixture), regular with covariance unsat_cov kappa d under
+   (M3) (mix_feature_regular) and with subexponential quadratic forms
+   (mix_feature_quad_subexponential). *)
+Theorem mixture_error_cvg (N : nat -> nat) (w : nat -> nat -> R)
+    (mu : nat -> nat -> nat -> probability (measurableTypeR R) R) :
+  mixture_family K N w mu -> mixture_fourth_moment kappa N w mu ->
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+  forall eps : R, 0 < eps ->
+    paper_main_tends_to (fun d => mixture_probability (N d) (w d) (mu d)
+      (n d) d (universality_error_event (n d) d e eps)) 0.
+Proof.
+move=> hfam h4 n hn eps eps0.
+have e2 : 0 < eps / 2 by rewrite divr_gt0 // ltr0n.
+have e4 : 0 < eps / 4 by rewrite divr_gt0 // ltr0n.
+have [D0 hD0] := uni_center_limit n hn (eps / 2)%R e2.
+have hreg d : (0 < d)%N -> regular_feature (uni_K kappa K)
+    (mix_tau kappa K d) (unsat_cov kappa d) (mix_feature_law K N w mu hfam d).
+  move=> d0; have := mix_feature_regular K N w mu hfam kappa h4 d k1 d0.
+  apply: regular_feature_le; rewrite ?le_max ?lexx ?sqrtr_ge0 //.
+  apply: divr_ge0; last exact: sqrtr_ge0.
+  by apply: mulr_ge0; [exact: exprn_ge0 | exact: sqr_ge0].
+have hsub d (v : 'rV[RR]_d) : (0 < d)%N -> mxdot v v <= 1 ->
+    subexponential (mix_feature_law K N w mu hfam d)
+      (fun z => mxdot z (mxvec (v^T *m v)) : RR)
+      (uni_L0 kappa K / Num.sqrt d%:R).
+  move=> d0 v1; apply: subexponential_le
+    (mix_feature_quad_subexponential K N w mu hfam d v d0 v1) _.
+  by rewrite ler_pM2r ?invr_gt0 ?sqrtr_gt0 ?ltr0n // le_max lexx.
+have hcd := @mix_concentration kappa K k1 alpha n
+  (mix_feature_law K N w mu hfam) a0 hn hreg hsub (eps / 4)%R e4.
+move=> eta eta0.
+have [D1 hD1] := tends_to0_lt _ _ eta0 (fun d => measure_ge0 _ _) hcd.
+exists (maxn (maxn D0 D1) 1) => d; rewrite !geq_max => /andP[/andP[d0 d1] dp].
+have w0 : forall s, (s < N d)%N -> 0 <= w d s by case: (hfam d).
+have p0 := mixture_probability_ge0 (N d) (w d) (mu d) (n d) d
+  (universality_error_event (n d) d e eps) w0.
+rewrite sube0 gee0_abs //.
+apply: le_lt_trans (hD1 d d1).
+set c := uni_center kappa (n d) d.
+have mfar := measurable_unsat_value_far (n d) d c (eps / 4)%R.
+set far := [set Z | (eps / 4 < `|unsat_value (n d) d Z - c|)%R] in mfar *.
+apply: (@le_trans _ _ (mixture_probability (N d) (w d) (mu d) (n d) d
+    (unsat_features (n d) d @^-1` far))); last first.
+  by rewrite (mixture_features_law K N w mu hfam (n d) d _ mfar); exact: lexx.
+apply: le_mixture_probability => //.
+- exact: measurable_error_event.
+- rewrite -[X in measurable X]setTI.
+  by apply: measurable_unsat_features => //.
+move=> x /=; rewrite /far /universality_error_event /= unsat_fitting_error //.
+set u := unsat_value (n d) d (unsat_features (n d) d x) => hx.
+have hc := hD0 d d0; rewrite -/c in hc.
+have t := ler_normD (2 * u - 2 * c) (2 * c - e).
+rewrite (_ : 2 * u - 2 * c + (2 * c - e) = 2 * u - e) in t; first by ring.
+have tu : `|2 * u - 2 * c| = 2 * `|u - c|.
+  by rewrite -mulrBr normrM gtr0_norm ?ltr0n.
+rewrite tu in t; move: hx t hc.
+move: (`|2 * u - e|) (`|u - c|) (`|2 * c - e|) => a b f; lra.
+Qed.
+
+(* The third part of mixture_statement, for every alpha > 0. *)
+Theorem mixture_error :
+  (forall (n d : nat) (eps : R),
+     measurable (universality_error_event n d e eps)) /\
+  (forall (N : nat -> nat) (w : nat -> nat -> R)
+          (mu : nat -> nat -> nat -> probability (measurableTypeR R) R),
+    mixture_family K N w mu -> mixture_fourth_moment kappa N w mu ->
+    forall n : nat -> nat, universality_density_tends_to n alpha ->
+    forall eps : R, 0 < eps ->
+      paper_main_tends_to
+        (fun d => mixture_probability (N d) (w d) (mu d) (n d) d
+                    (universality_error_event (n d) d e eps)) 0).
+Proof.
+split; first by move=> n d eps; exact: measurable_error_event.
+exact: mixture_error_cvg.
+Qed.
+
+(* The second part of mixture_statement (Theorem 1.2 (ii) for finite
+   mixtures): above the threshold, no positive semidefinite fit, with
+   probability tending to one. *)
+Theorem mixture_unsat : universality_alpha_star kappa < alpha ->
+  0 < e /\
+  (forall n d : nat, measurable (paper_main_fit_event n d)) /\
+  (forall (N : nat -> nat) (w : nat -> nat -> R)
+          (mu : nat -> nat -> nat -> probability (measurableTypeR R) R),
+    mixture_family K N w mu -> mixture_fourth_moment kappa N w mu ->
+    forall n : nat -> nat, universality_density_tends_to n alpha ->
+      paper_main_tends_to
+        (fun d => mixture_probability (N d) (w d) (mu d) (n d) d
+                    (paper_main_fit_event (n d) d)) 0).
+Proof.
+move=> ha; have e0 : 0 < e by rewrite universality_e_star_gt0.
+split => //; split; first by move=> n d; exact: pm_fit_event_measurable.
+move=> N w mu hfam h4 n hn.
+have e2 : 0 < e / 2 by rewrite divr_gt0 // ltr0n.
+have h := mixture_error_cvg N w mu hfam h4 n hn (e / 2)%R e2.
+move=> eta eta0; have [D hD] := h eta eta0.
+exists (maxn D 1) => d; rewrite geq_max => /andP[dD dp].
+apply: le_lt_trans (hD d dD).
+have w0 : forall s, (s < N d)%N -> 0 <= w d s by case: (hfam d).
+have p1 := mixture_probability_ge0 (N d) (w d) (mu d) (n d) d
+  (paper_main_fit_event (n d) d) w0.
+have p2 := mixture_probability_ge0 (N d) (w d) (mu d) (n d) d
+  (universality_error_event (n d) d e (e / 2)) w0.
+rewrite !sube0 !gee0_abs //.
+apply: le_mixture_probability => //.
+- exact: pm_fit_event_measurable.
+- exact: measurable_error_event.
 move=> x fx; have := fit_fitting_error (n d) d x dp fx.
 rewrite /universality_error_event /=.
 move: (universality_fitting_error (n d) d x) => g g0.
