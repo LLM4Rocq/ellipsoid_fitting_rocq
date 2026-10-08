@@ -4,6 +4,7 @@ From mathcomp Require Import boolp classical_sets reals ereal.
 From mathcomp Require Import measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability ring_tactic field_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss.
+From GaussianAnalysis.probability Require Import semicircle_law.
 
 (**md**************************************************************************)
 (* # Wigner's semicircle law for the GOE                                      *)
@@ -22,6 +23,14 @@ From GaussianAnalysis.gaussian Require Import measurable_matrix gauss.
 (*   MathComp-Analysis 1.16): bernstein_lipschitz, |B_n f (x) - f x| <= L /   *)
 (*   (2 sqrt n) on [0, 1] for f L-Lipschitz, from the mean and the variance   *)
 (*   of the binomial law (bernstein_mean, bernstein_var).                     *)
+(* - segner: Segner's recurrence c_(n+1) = \sum_(i <= n) c_i c_(n-i) for a    *)
+(*   sequence with c_0 = 1 and (i + 2) c_(i+1) = (4 i + 2) c_i, by sums       *)
+(*   symmetric under i |-> n - i (the Catalan numbers, without generating     *)
+(*   functions).                                                              *)
+(* - semicircle_catalan: the moments m_k of semicircle_prob 2 satisfy the     *)
+(*   recursion of the Schwinger-Dyson equation of goe.v in the limit, m_(k+1) *)
+(*   = \sum_(r < k) m_r m_(k-1-r), from segner and the moment recursion and   *)
+(*   the odd moments of semicircle_law.v.                                     *)
 (*                                                                            *)
 (* Planned results (phase 5, stage 2; names come with the proofs):            *)
 (*                                                                            *)
@@ -230,3 +239,105 @@ by rewrite ler_pM2l ?mulr_gt0 // ltW.
 Qed.
 
 End bernstein.
+
+Section catalan.
+Context {R : realFieldType}.
+
+(* Segner's recurrence c_(n+1) = \sum_(i <= n) c_i c_(n-i) for a sequence
+   with c_0 = 1 and (i + 2) c_(i+1) = (4 i + 2) c_i, such as the Catalan
+   numbers and the even moments of the semicircle law of radius 2. *)
+Lemma segner (c : nat -> R) : c 0%N = 1 ->
+  (forall i, i.+2%:R * c i.+1 = (4 * i%:R + 2) * c i) ->
+  forall n, \sum_(0 <= i < n.+1) c i * c (n - i)%N = c n.+1.
+Proof.
+move=> c0 cS.
+pose S n := \sum_(0 <= i < n.+1) c i * c (n - i)%N.
+(* \sum_i i c_i c_(n-i) = n S n / 2, by i |-> n - i *)
+have Sw n : 2 * \sum_(0 <= i < n.+1) i%:R * (c i * c (n - i)%N) = n%:R * S n.
+  rewrite mulr_natl mulr2n {2}big_nat_rev /= add0n.
+  rewrite -big_split /= /S mulr_sumr; apply: eq_big_nat => i /andP[_ ilt].
+  have iln : (i <= n)%N by rewrite -ltnS.
+  rewrite subSS subKn // [c (n - i)%N * _]mulrC -mulrDl -natrD subnKC //.
+have S0 : S 0%N = c 1%N.
+  have := cS 0%N; rewrite c0 mulr0 add0r mulr1 => h.
+  rewrite /S big_nat1 c0 mulr1.
+  by apply: (mulfI (_ : 2%:R != 0 :> R)); rewrite ?pnatr_eq0 // h mulr1.
+(* (n + 3) S (n + 1) = 2 c_(n+1) + (4 n + 4) S n *)
+have Srec n : n.+3%:R * S n.+1 = 2 * c n.+1 + (4 * n%:R + 4) * S n.
+  pose T := \sum_(0 <= i < n.+2) i.+1%:R * (c i * c (n.+1 - i)%N).
+  have T1 : 2 * T = n.+3%:R * S n.+1.
+    have -> : T = \sum_(0 <= i < n.+2) i%:R * (c i * c (n.+1 - i)%N) + S n.+1.
+      rewrite /T /S -big_split /=; apply: eq_bigr => i _.
+      by rewrite -natr1 mulrDl mul1r.
+    by rewrite mulrDr Sw -mulrDl -natrD addn2.
+  have T2 : T = c n.+1 +
+      \sum_(0 <= i < n.+1) (4 * i%:R + 2) * (c i * c (n - i)%N).
+    rewrite /T big_nat_recl // c0 mul1r mul1r subn0; congr (_ + _).
+    by apply: eq_bigr => i _; rewrite subSS mulrA cS -mulrA.
+  have T3 : \sum_(0 <= i < n.+1) (4 * i%:R + 2) * (c i * c (n - i)%N) =
+      2 * (n%:R * S n) + 2 * S n.
+    rewrite -Sw /S !mulr_sumr -big_split; apply: eq_bigr => i _ /=; ring.
+  apply: (mulfI (_ : 2%:R != 0 :> R)); first by rewrite pnatr_eq0.
+  by rewrite -T1 T2 T3; ring.
+elim=> [|n ih]; first exact: S0.
+apply: (mulfI (_ : n.+3%:R != 0 :> R)); first by rewrite pnatr_eq0.
+have ihS : S n = c n.+1 := ih.
+by rewrite -/(S n.+1) Srec ihS -[n.+3]/(n.+1.+2) cS; ring.
+Qed.
+
+End catalan.
+
+Section semicircle_catalan.
+Context {R : realType}.
+Local Notation m k := (\int[semicircle_prob (2 : R)]_x ((x : R) ^+ k)).
+
+(* A sum over r < 2 n + 1, split into even and odd r. *)
+Lemma sum_parity (f : nat -> R) n :
+  \sum_(r < n.*2.+1) f r =
+  \sum_(i < n.+1) f i.*2 + \sum_(i < n) f i.*2.+1.
+Proof.
+elim: n => [|n ih]; first by rewrite !big_ord1 big_ord0 addr0.
+rewrite doubleS [X in X = _]big_ord_recr /= [X in X + _ = _]big_ord_recr /= ih.
+rewrite [X in _ = X + _]big_ord_recr [X in _ = _ + X]big_ord_recr /= doubleS.
+set A := \sum_(i < n.+1) _; set B := \sum_(i < n) _.
+by rewrite -!addrA; congr (_ + _); rewrite addrA addrC addrA.
+Qed.
+
+(* The moments of the semicircle law of radius 2 satisfy the recursion of
+   the Schwinger-Dyson equation: m_(k+1) = \sum_(r < k) m_r m_(k-1-r). *)
+Lemma semicircle_catalan k : m k.+1 = \sum_(r < k) m r * m (k.-1 - r)%N.
+Proof.
+have r0 : (2 : R) != 0 by rewrite pnatr_eq0.
+have modd i : m i.*2.+1 = 0 := semicircle_moment_odd r0 i.
+have mo j : odd j -> m j = 0.
+  by move=> oj; rewrite -(odd_double_half j) oj add1n modd.
+(* the even moments satisfy Segner's recurrence *)
+have hS n : \sum_(0 <= i < n.+1) m i.*2 * m (n - i)%N.*2 = m n.+1.*2.
+  apply: (segner (c := fun i => m i.*2)); first exact: semicircle_moment0.
+  move=> i; rewrite doubleS (semicircle_momentS r0) /=.
+  have e1 : (i.*2.+4)%:R = 2 * i.+2%:R :> R.
+    by rewrite -[i.*2.+4]/((i.+2).*2) -mul2n natrM.
+  have e2 : (i.*2.+1)%:R = 2 * i%:R + 1 :> R.
+    by rewrite -addn1 natrD -mul2n natrM.
+  have e3 : i.+2%:R = i%:R + 2 :> R by rewrite -addn2 natrD.
+  have i2 : i%:R + 2 != 0 :> R by rewrite -e3 pnatr_eq0.
+  by rewrite e1 e2 e3; field.
+have := odd_double_half k; case: (odd k) => /= kE.
+  (* k = 2 n + 1: the odd terms vanish, the even ones give Segner's sum *)
+  rewrite -kE add1n /= -[(k./2).*2.+2]/((k./2).+1.*2) -hS big_mkord.
+  rewrite (sum_parity (fun r => m r * m (k./2.*2 - r)%N)) /=.
+  rewrite [X in _ = _ + X]big1 ?addr0; first by move=> i _; rewrite modd mul0r.
+  by apply: eq_bigr => i _; rewrite doubleB.
+(* k = 2 n: every term has an odd moment *)
+rewrite -kE add0n modd; symmetry; apply: big1 => r _.
+have [ro|re] := boolP (odd r); first by rewrite mo // mul0r.
+apply/eqP; rewrite mulf_eq0; apply/orP; right; apply/eqP; apply: mo.
+have rlt := ltn_ord r.
+have h0 : (0 < k./2)%N by rewrite -double_gt0 (leq_ltn_trans (leq0n r) rlt).
+rewrite oddB; first by rewrite -ltnS prednK // double_gt0.
+have -> : odd (k./2.*2.-1) = true.
+  by rewrite -(prednK h0) doubleS /= odd_double.
+by rewrite (negbTE re).
+Qed.
+
+End semicircle_catalan.
