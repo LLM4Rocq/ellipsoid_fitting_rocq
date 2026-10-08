@@ -37,6 +37,7 @@ library/probability/symmetrization.v
 library/probability/small_ball_method.v
 library/probability/conditioning.v
 library/probability/hanson_wright.v
+library/probability/measurable_minimizer.v
 library/random_matrix/goe.v
 library/random_matrix/goe_rotation.v
 library/random_matrix/wigner.v
