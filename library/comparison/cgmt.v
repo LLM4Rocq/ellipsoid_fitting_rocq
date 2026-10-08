@@ -40,6 +40,14 @@ From GaussianAnalysis.convex Require Import moreau.
 (* d^(3/2), so the error rho vanishes: the normalized Phi and phi have the    *)
 (* same limit in probability, which is what the comparisons                   *)
 (* (eq:cgmt-comparisons) of the paper are used for.                           *)
+(* - measurable_escape_inf, measurable_cgmt_aux: Phi(K) and phi(K) are        *)
+(*   measurable functions of the Gaussian entries (they are Lipschitz), so    *)
+(*   that their laws are defined.                                             *)
+(* - For a set K of row vectors, the theorems apply to the set tr_set K of    *)
+(*   their transposes: escape_inf_tr_set and cgmt_aux_tr_set write Phi and    *)
+(*   phi as infima over K, and tr_set K is nonempty, bounded, closed or       *)
+(*   convex with K (tr_set_neq0, tr_set_bounded, closed_tr_set,               *)
+(*   convex_tr_set).                                                          *)
 (*                                                                            *)
 (* The proofs. gordon_gamma is Gordon's inequality (gordon.v) for finite      *)
 (* families rs u and cs t: the min-max over u and t of                        *)
@@ -57,6 +65,7 @@ From GaussianAnalysis.convex Require Import moreau.
 (*                                                                            *)
 (* ```                                                                        *)
 (*  cgmt_aux K g h == inf_(x in K) (|g| |x| - <h, x>)_+                       *)
+(*        tr_set K == the set of the transposes x^T of the x in K             *)
 (*    infsup S T F == inf_(s in S) sup_(t in T) F s t                         *)
 (*   auxg_mx rs cs == the matrix C such that vec_mx (z *m C) u t is           *)
 (*                    |rs u| <lsubmx z, cs t> + |cs t| <rsubmx z, rs u>       *)
@@ -1397,3 +1406,87 @@ lra.
 Qed.
 
 End cgmt_mean.
+
+Section cgmt_laws.
+Context {R : realType} {N M : nat}.
+Variables (K : set 'cV[R]_M) (rho : R).
+Hypotheses (K0 : K !=set0) (Kb : forall x, K x -> frobenius x <= rho).
+
+(* Phi and phi are Lipschitz, hence measurable, functions of the Gaussian
+   entries, so that their laws are defined. *)
+Lemma measurable_escape_inf : measurable_fun setT
+  (fun a : 'rV[R]_(N * M) => escape_inf K (vec_mx a : 'M[R]_(N, M))).
+Proof.
+apply: continuous_measurable_mx.
+apply: (@lipschitz_frobenius_continuous _ _ _ rho) => a a'.
+by rewrite (le_trans (escape_inf_lip K0 Kb _ _)) // -linearB /= frobenius_vec_mx.
+Qed.
+
+Lemma measurable_cgmt_aux : measurable_fun setT
+  (fun z : 'rV[R]_(N + M) => cgmt_aux K (lsubmx z) (rsubmx z)).
+Proof.
+apply: continuous_measurable_mx.
+apply: (@lipschitz_frobenius_continuous _ _ _ (Num.sqrt 2 * rho)) => z z'.
+exact: (@cgmt_aux_lipschitz R N M K K0 rho Kb).
+Qed.
+
+End cgmt_laws.
+
+Section cgmt_rows.
+Context {R : realType} {M : nat}.
+Variable K : set 'rV[R]_M.
+
+(* The theorems above take a set of column vectors; for a set K of row
+   vectors they apply to the set tr_set K of the transposes, and the
+   following lemmas write Phi, phi and the hypotheses in terms of K. *)
+Definition tr_set : set 'cV[R]_M := [set x^T | x in K].
+
+Lemma tr_setE : tr_set = [set y | K y^T].
+Proof.
+apply/seteqP; split => [_ [x Kx <-]|y Ky] /=; first by rewrite trmxK.
+by exists y^T; rewrite ?trmxK.
+Qed.
+
+Lemma escape_inf_tr_set N (A : 'M[R]_(N, M)) :
+  escape_inf tr_set A = inf [set frobenius (A *m x^T) | x in K].
+Proof.
+rewrite /escape_inf; congr inf; apply/seteqP; split.
+  by move=> _ [_ [x Kx <-] <-]; exists x.
+by move=> _ [x Kx <-]; exists x^T => //; exists x.
+Qed.
+
+Lemma cgmt_aux_tr_set N (g : 'rV[R]_N) (h : 'rV[R]_M) :
+  cgmt_aux tr_set g h =
+  inf [set Num.max 0 (frobenius g * frobenius x - mxdot h x) | x in K].
+Proof.
+rewrite /cgmt_aux; congr inf; apply/seteqP; split.
+  move=> _ [_ [x Kx <-] <-]; exists x => //.
+  by rewrite frobenius_trmx mxdot_trmx.
+move=> _ [x Kx <-]; exists x^T; first by exists x.
+by rewrite frobenius_trmx mxdot_trmx.
+Qed.
+
+Lemma tr_set_neq0 : K !=set0 -> tr_set !=set0.
+Proof. by case=> x Kx; exists x^T, x. Qed.
+
+Lemma tr_set_bounded (rho : R) : (forall x, K x -> frobenius x <= rho) ->
+  forall y, tr_set y -> frobenius y <= rho.
+Proof. by move=> Kb _ [x Kx <-]; rewrite frobenius_trmx; exact: Kb. Qed.
+
+Lemma closed_tr_set : closed K -> closed tr_set.
+Proof.
+move=> Kc; rewrite tr_setE.
+exact: (continuous_closedP _).1 (@continuous_trmx _ M 1) _ Kc.
+Qed.
+
+Lemma convex_tr_set : (forall x y (t : R), K x -> K y -> 0 <= t <= 1 ->
+    K (x + t *: (y - x))) ->
+  forall x y (t : R), tr_set x -> tr_set y -> 0 <= t <= 1 ->
+    tr_set (x + t *: (y - x)).
+Proof.
+move=> Kcvx _ _ t [x Kx <-] [y Ky <-] t01.
+exists (x + t *: (y - x)); first exact: Kcvx.
+by rewrite linearD linearZ linearB.
+Qed.
+
+End cgmt_rows.
