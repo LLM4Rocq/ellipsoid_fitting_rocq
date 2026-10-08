@@ -26,8 +26,9 @@
    - goe_gap_unsat_value: outside the event of paper_main_hybrid_gap_event
      (theories/Hybrid/Assembly.v) at head dimension 0, unsat_value of the
      GOE features is at least 2 e. For S > 0 of trace d and b real,
-     S / (2 sqrt d) is positive semidefinite with squared Frobenius norm at
-     least 1/4 (unsat_domain_frobenius), the residual of theories/ at
+     S / (2 sqrt d) is positive semidefinite (posdef_paper_psd of
+     Unsat/LeastSquares) with squared Frobenius norm at least 1/4
+     (unsat_domain_frobenius), the residual of theories/ at
      (0, b / 2, S / (2 sqrt d)) is half the least squares residual
      (goe_residualE), and the loss 1 - exp (- t^2) of theories/ is at most
      t^2 (paper_main_loss_le_sqr).
@@ -60,9 +61,9 @@ From EllipsoidFitting Require Import Matrix.Definitions
   Gaussian.Law.LibraryBridge Loss.Translated Head.SmallBallNet.
 From EllipsoidFitting Require Import Hybrid.Residual Hybrid.Loss Hybrid.Assembly.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
-From EllipsoidUniversality.Unsat Require Import LeastSquares.
+From EllipsoidUniversality.Unsat Require Import LeastSquares Regularized.
 From EllipsoidUniversality.Features Require Import Definitions Regular.
-From EllipsoidUniversality.Model Require Import Rows Measurability.
+From EllipsoidUniversality.Model Require Import Rows.
 Import GRing.Theory Num.Theory Order.TTheory.
 
 Local Open Scope classical_set_scope.
@@ -244,16 +245,6 @@ rewrite /paper_main_loss RminusE RexpE RoppE RpowE lerBlDr -lerBlDl.
 exact: expR_ge1Dx.
 Qed.
 
-(* A positive definite matrix of convex/logdet_barrier.v is positive
-   semidefinite in the sense of the frozen definitions. *)
-Lemma posdefmx_paper_main_psd (S : 'M[RR]_d) : posdefmx S -> paper_main_psd S.
-Proof.
-case=> /symmetricmxP St Spos; split; first exact: paper_main_symmetricP.
-move=> v; rewrite paper_main_quadratic_formE.
-have [->|v0] := eqVneq v 0; first by rewrite trmx0 !mul0mx mxE.
-have := Spos v^T; rewrite trmx_eq0 => /(_ v0).
-by rewrite mxdot_rowE trmx_mul trmxK St mulmxA => /ltW.
-Qed.
 
 (* For S > 0 of trace d, the matrix S / (2 sqrt d) is admissible in the gap
    event of theories/: its squared Frobenius norm is at least 1/4. *)
@@ -304,13 +295,13 @@ Lemma goe_gap_unsat_value N (x : (N * D).-tuple (measurableTypeR R))
 Proof.
 move=> gap; rewrite /unsat_value /ls_value; apply: lb_le_inf.
   exists (ls_objective (goe_features N x) 0 0 (mxvec 1%:M) 0).
-  by exists (mxvec 1%:M); [exact: unsat_domain_id | exists 0].
+  by exists (mxvec 1%:M); [exact: pd_slice_one | exists 0].
 move=> _ [th Dth [b _ <-]].
 set c := (2 * Num.sqrt (d%:R : RR))^-1.
 have c0 : 0 <= c by rewrite invr_ge0 mulr_ge0 ?sqrtr_ge0.
 have Hsym : paper_main_symmetric (0 : 'M[R]_0) by case.
 have Hpsd : paper_main_psd (c *: vec_mx th).
-  by apply: paper_main_psd_scale c0 _; apply: posdefmx_paper_main_psd; case: Dth.
+  by apply: paper_main_psd_scale c0 _; apply: posdef_paper_psd; case: Dth.
 have Hfro : (1 / 4 <= paper_main_frobenius (0 : 'M[R]_0) ^ 2 +
     paper_main_frobenius (c *: vec_mx th) ^ 2)%Rcoq.
   apply/RleP; rewrite RplusE !RpowE RdivE R1E IZRposE INRE /=.
