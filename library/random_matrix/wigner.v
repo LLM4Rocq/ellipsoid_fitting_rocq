@@ -7,9 +7,9 @@ From mathcomp Require Import probability ring_tactic field_tactic.
 From mathcomp Require Import arithmetic_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss.
 From GaussianAnalysis.probability Require Import semicircle_law.
-From GaussianAnalysis.gaussian Require Import gauss_interpolation.
+From GaussianAnalysis.gaussian Require Import gauss_ibp gauss_interpolation.
 From GaussianAnalysis.comparison Require Import gauss_smoothing gauss_concentration.
-From GaussianAnalysis.matrix Require Import euclidean von_neumann.
+From GaussianAnalysis.matrix Require Import euclidean opnorm von_neumann.
 From GaussianAnalysis.random_matrix Require Import goe.
 
 (**md**************************************************************************)
@@ -40,19 +40,29 @@ From GaussianAnalysis.random_matrix Require Import goe.
 (* - goe_moment_cvg: for W = goe_mx a with a of law gauss (d * d), E tr W^k / *)
 (*   d tends to the k-th moment of semicircle_prob 2 as d tends to infinity,  *)
 (*   by induction on k with goe_tr_sd of goe.v, whose covariance terms tend   *)
-(*   to 0 (goe_tr_cov_cvg, from goe_tr_var_small and Rintegral_cov_le).       *)
+(*   to 0 (goe_tr_cov_cvg, from goe_tr_var_small and Rintegral_cov_le); the   *)
+(*   same holds for the eigenvalues clipped to [-3, 3] (goe_clip_cvg).        *)
+(* - wigner: Wigner's semicircle law. For f continuous and L-Lipschitz on     *)
+(*   [-3, 3], and eps > 0, P(|goe_stat f a - \int f dsigma| >= eps) <= eps    *)
+(*   for every large d, where goe_stat f a = (1 / d) \sum_i f (spec W 0 i)    *)
+(*   and sigma = semicircle_prob 2. Off the event opnorm W >= 3, whose        *)
+(*   probability tends to 0 (goe_opnorm_tail_small), the statistic is that of *)
+(*   f o clip 3, which is Lipschitz (clip_comp_lipschitz); its mean tends to  *)
+(*   \int f dsigma by polynomial approximation on [-3, 3]                     *)
+(*   (goe_stat_clip_mean_cvg, with goe_stat_poly_clip, semicircle_poly and    *)
+(*   semicircle_clip), and it concentrates around its mean (goe_stat_conc:    *)
+(*   goe_stat g is sqrt 2 L / d-Lipschitz in a, goe_stat_lipschitz).          *)
 (*                                                                            *)
 (* Planned results (phase 5, stage 2; names come with the proofs):            *)
 (*                                                                            *)
-(* - wigner: for every continuous f and eps > 0, the probability that |(1 /   *)
-(*   d) \sum_i f (spec W i) - \int f d(semicircle_prob 2)| > eps tends to 0   *)
-(*   as d tends to infinity: for polynomials from the moments and the         *)
-(*   variance bound of goe.v and Chebyshev's inequality, then on the event    *)
-(*   opnorm W < 3 by uniform approximation.                                   *)
 (* - The same uniformly over a family f_t, t in a compact interval, with |f_t *)
 (*   x - f_s x| <= L |t - s| for all x, as Lemma 5.14 needs for the functions *)
 (*   (x - t)_+ and (x - t)_+^2.                                               *)
-(* - In particular (1 / d) \tr (W^2) tends to 1 in probability.               *)
+(*                                                                            *)
+(* ```                                                                        *)
+(*   goe_stat f a == (1 / d) \sum_i f (spec (goe_mx a) 0 i), the empirical    *)
+(*                   mean of f over the spectrum of the GOE matrix goe_mx a   *)
+(* ```                                                                        *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -762,6 +772,94 @@ have -> : eps * (u ^+ 2 / (2 * (2 * M ^+ 2 / d%:R ^+ 2))) =
     d%:R ^+ 2 * (u ^+ 2 * eps) / (4 * M ^+ 2) by field.
 rewrite ler_pdivlMr ?mulr_gt0 ?exprn_gt0 //.
 by apply: le_trans hd2; rewrite mulrA -natrM.
+Qed.
+
+Lemma continuous_goe_stat d (f : R -> R) : continuous f ->
+  continuous (@goe_stat d f).
+Proof.
+move=> cf; have sl (i : 'I_d) (a b : 'rV[R]_(d * d)) :
+    `|spec (goe_mx a) 0 i - spec (goe_mx b) 0 i| <=
+    Num.sqrt (2 / d%:R) * frobenius (a - b).
+  apply: le_trans (spec_lipschitz _ (goe_mx_symmetric a) (goe_mx_symmetric b)) _.
+  by rewrite -goe_mxB; exact: frobenius_goe_mx.
+have cs (i : 'I_d) : continuous (fun a : 'rV[R]_(d * d) => f (spec (goe_mx a) 0 i)).
+  move=> a; apply: continuous_comp; last exact: cf.
+  exact: (@lipschitz_frobenius_continuous R (d * d)
+    (fun a => spec (goe_mx a) 0 i) _ (sl i) a).
+move=> a; apply: (@continuousM _ _ (fun a => \sum_i f (spec (goe_mx a) 0 i))
+  (cst (d%:R^-1))); last exact: cst_continuous.
+exact: continuous_sum.
+Qed.
+
+(* Wigner's semicircle law: for f continuous and Lipschitz on [-3, 3] and
+   eps > 0, the probability that (1 / d) \sum_i f (lambda_i (W)) is farther
+   than eps from \int f d(semicircle_prob 2) is at most eps for every large
+   d. *)
+Theorem wigner (f : R -> R) (L : R) : continuous f ->
+  (forall x y : R, -3 <= x <= 3 -> -3 <= y <= 3 -> `|f x - f y| <= L * `|x - y|) ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  (@gauss R (d * d) [set a | (eps <= `|goe_stat f a - \int[sigma]_x f x|)%R]
+     <= eps%:E)%E.
+Proof.
+move=> cf fL eps e0; have [L0 gL] := clip_comp_lipschitz fL.
+have e2 : 0 < eps / 2 by rewrite divr_gt0.
+have s3 : 2 * Num.sqrt 2 < 3 :> R.
+  have s2 : Num.sqrt 2 < 3 / 2 :> R.
+    rewrite -(@ltr_pXn2r _ 2) ?nnegrE ?sqrtr_ge0 ?divr_ge0 // sqr_sqrtr //.
+    by rewrite expr_div_n; lra.
+  by lra.
+(* P(opnorm W >= 3) <= eps / 2, |E S - \int f| <= eps / 2 and
+   P(|S - E S| >= eps / 2) <= eps / 2 for S the statistic of f o clip 3 *)
+have [D1 h1] := goe_opnorm_tail_small s3 e2.
+have [D2 _ h2] := (cvgrPdist_le _ _).1 (goe_stat_clip_mean_cvg cf fL) _ e2.
+have [D3 h3] := goe_stat_conc L0 gL e2 e2.
+exists (maxn D1 (maxn D2 D3)) => d; rewrite !geq_max => /andP[d1 /andP[d2 d3]].
+have hm := h2 d d2; rewrite /= in hm.
+have mclosed (F : 'rV[R]_(d * d) -> R) (c : R) : continuous F ->
+    measurable [set a | (c <= F a)%R].
+  move=> cF; have := (continuous_measurable_mx cF) measurableT _
+    (measurable_itv `[c, +oo[).
+  rewrite setTI; congr measurable; apply/seteqP.
+  by split => a /=; rewrite in_itv /= andbT.
+have mA : measurable [set a : 'rV[R]_(d * d) | (3 <= opnorm (goe_mx a))%R].
+  apply: mclosed.
+  exact: lipschitz_frobenius_continuous (@goe_opnorm_lipschitz R d).
+set E := \int[@gauss R (d * d)]_b goe_stat (fun x => f (clip 3 x)) b.
+set I := \int[sigma]_x f x.
+have cfc : continuous (fun x => f (clip 3 x)).
+  by move=> x; apply: continuous_comp; [exact: continuous_clip | exact: cf].
+have mB : measurable [set a : 'rV[R]_(d * d) |
+    (eps / 2 <= `|goe_stat (fun x => f (clip 3 x)) a - E|)%R].
+  apply: mclosed => a; apply: (continuous_comp (continuousB
+    (@continuous_goe_stat d _ cfc a) (@cst_continuous _ _ E a))).
+  exact: norm_continuous.
+have mT : measurable [set a : 'rV[R]_(d * d) | (eps <= `|goe_stat f a - I|)%R].
+  apply: mclosed => a; apply: (continuous_comp (continuousB
+    (@continuous_goe_stat d _ cf a) (@cst_continuous _ _ I a))).
+  exact: norm_continuous.
+(* off the event opnorm W >= 3 the statistics of f and of f o clip 3
+   agree *)
+have sub : [set a : 'rV[R]_(d * d) | (eps <= `|goe_stat f a - I|)%R] `<=`
+    [set a | (3 <= opnorm (goe_mx a))%R] `|`
+    [set a | (eps / 2 <= `|goe_stat (fun x => f (clip 3 x)) a - E|)%R].
+  move=> a /= h; have [w3|w3] := leP 3 (opnorm (goe_mx a)); [by left | right].
+  have eqS : goe_stat f a = goe_stat (fun x => f (clip 3 x)) a.
+    rewrite /goe_stat; congr (_ / _); apply: eq_bigr => i _; rewrite clip_id //.
+    exact: le_trans (spec_le_opnorm _ (goe_mx_symmetric a)) (ltW w3).
+  rewrite eqS in h.
+  have := ler_normD (goe_stat (fun x => f (clip 3 x)) a - E) (E - I).
+  rewrite addrA subrK => ht.
+  rewrite distrC -/E -/I in hm.
+  move: h ht hm.
+  move: (`|goe_stat (fun x => f (clip 3 x)) a - E|)
+    (`|goe_stat (fun x => f (clip 3 x)) a - I|) (`|E - I|).
+  by move=> p q r; lra.
+apply: le_trans (le_measure _ _ _ sub) _.
+- by rewrite inE.
+- by rewrite inE; exact: measurableU.
+apply: le_trans (measureU2 _ mA mB) _.
+apply: le_trans (leeD (h1 d d1) (h3 d d3)) _.
+by rewrite -EFinD -splitr.
 Qed.
 
 End wigner.
