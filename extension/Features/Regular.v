@@ -54,11 +54,19 @@
      (E <W, A>^4 <= 9 2^33 K^8 feature_cov kappa A A^2 /
      min (2, kappa - 1)^2).
 
-   Planned (phase 5, stage 1): the Gaussian feature. The covariance matrix
-   of gaussian_feature_law kappa d is unsat_cov kappa d, so it is a regular
-   feature with that covariance and constants 3^(1/4) and
-   sqrt 2 opnorm (unsat_cov kappa d), by the Gaussian case of
-   convex/barrier_lindeberg.v. *)
+   - The Gaussian feature: gaussian_feature kappa A (Gaussian/Cones) is
+     c (G + (s - 1) diag G) with G = (A + A^T) / 2, c = sqrt (2 / d) and
+     s = sqrt ((kappa - 1) / 2) (gaussian_featureE). For kappa >= 1,
+     <gaussian_feature kappa A, gaussian_feature kappa B> =
+     unsat_cov_form kappa d A B (mxdot_gaussian_feature); the matrix
+     S = gaussian_feature_mx kappa d of g |-> mxvec (gaussian_feature kappa
+     (vec_mx g)) (gaussian_feature_mxE) is symmetric and satisfies
+     S^T S = unsat_cov kappa d (gaussian_feature_mx_cov), so
+     gaussian_feature_law kappa d, the law of g *m S under gauss (d * d),
+     has covariance C_kappa.
+
+   Planned (phase 5, stage 1): the regularity of gaussian_feature_law, from
+   the Gaussian case of convex/barrier_lindeberg.v (lane B). *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -1639,6 +1647,170 @@ by rewrite expr2 mulr_suml; apply: eq_bigr => k _; rewrite mulr_sumr.
 Qed.
 
 End sum_l2.
+
+(* The covariance of the Gaussian feature: gaussian_feature kappa (Cones)
+   is c (G + (s - 1) diag G) with G = (A + A^T) / 2, c = sqrt (2 / d) and
+   s = sqrt ((kappa - 1) / 2). *)
+Lemma mxdot_diag_part d (A B : 'M[R]_d) :
+  mxdot A (diag_part B) = \sum_i A i i * B i i.
+Proof.
+apply: eq_bigr => i _; rewrite (bigD1 i) //= big1 ?addr0.
+  by move=> j ji; rewrite mxE eq_sym (negbTE ji) mulr0.
+by rewrite mxE eqxx.
+Qed.
+
+Lemma mxdot_goe_part d (A B : 'M[R]_d) :
+  mxdot (goe_part A) B = (2%:R)^-1 * (mxdot A B + mxdot A B^T).
+Proof.
+rewrite /goe_part mxdotZl mxdotDl; congr (_ * (_ + _)).
+by rewrite -[X in mxdot _ X]trmxK mxdot_trmx.
+Qed.
+
+Lemma goe_part_diag d (A : 'M[R]_d) (i : 'I_d) : goe_part A i i = A i i.
+Proof. by rewrite !mxE; field. Qed.
+
+Lemma gaussian_featureE (kappa : R) d (A : 'M[R]_d) :
+  gaussian_feature kappa A = Num.sqrt (2%:R / d%:R) *:
+    (goe_part A + (Num.sqrt ((kappa - 1) / 2%:R) - 1) *:
+      diag_part (goe_part A)).
+Proof.
+rewrite /gaussian_feature /cone_map; congr (_ *: _).
+by rewrite scalerBl scale1r addrA addrAC.
+Qed.
+
+Lemma gaussian_feature_entry (kappa : R) d (A : 'M[R]_d) (i j : 'I_d) :
+  gaussian_feature kappa A i j = Num.sqrt (2%:R / d%:R) *
+    ((2%:R)^-1 * (A i j + A j i) +
+     (Num.sqrt ((kappa - 1) / 2%:R) - 1) * ((i == j)%:R * A i i)).
+Proof.
+rewrite gaussian_featureE !mxE; congr (_ * (_ + _ * _)).
+by case: eqP => [->|ij]; [rewrite mul1r; field | rewrite mul0r].
+Qed.
+
+Lemma gaussian_feature_sym (kappa : R) d (A : 'M[R]_d) :
+  (gaussian_feature kappa A)^T = gaussian_feature kappa A.
+Proof.
+apply/matrixP => i j; rewrite mxE !gaussian_feature_entry.
+case: (eqVneq i j) => [->//|ij].
+by rewrite /=; ring.
+Qed.
+
+(* <gaussian_feature A, B> is symmetric in A and B. *)
+Lemma mxdot_gaussian_featurel (kappa : R) d (A B : 'M[R]_d) :
+  mxdot (gaussian_feature kappa A) B = Num.sqrt (2%:R / d%:R) *
+    ((2%:R)^-1 * (mxdot A B + mxdot A B^T) +
+     (Num.sqrt ((kappa - 1) / 2%:R) - 1) * \sum_i A i i * B i i).
+Proof.
+rewrite gaussian_featureE mxdotZl mxdotDl mxdotZl.
+rewrite mxdotDl mxdotZl [mxdot (diag_part _) _]mxdotC mxdot_diag_part.
+rewrite -[X in mxdot A^T X]trmxK mxdot_trmx.
+congr (_ * (_ + _ * _)).
+by apply: eq_bigr => i _; rewrite goe_part_diag mulrC.
+Qed.
+
+Lemma mxdot_gaussian_featureC (kappa : R) d (A B : 'M[R]_d) :
+  mxdot (gaussian_feature kappa A) B = mxdot A (gaussian_feature kappa B).
+Proof.
+rewrite [RHS]mxdotC !mxdot_gaussian_featurel; congr (_ * (_ * _ + _ * _)).
+  rewrite [mxdot B A]mxdotC; congr (_ + _).
+  by rewrite -[RHS]mxdot_trmx trmxK mxdotC.
+by apply: eq_bigr => i _; rewrite mulrC.
+Qed.
+
+Lemma mxdot_gaussian_feature (kappa : R) d (A B : 'M[R]_d) : 1 <= kappa ->
+  mxdot (gaussian_feature kappa A) (gaussian_feature kappa B) =
+  unsat_cov_form kappa d A B.
+Proof.
+move=> k1.
+have gs := gaussian_feature_sym kappa d B.
+have gd (i : 'I_d) : gaussian_feature kappa B i i =
+    Num.sqrt (2%:R / d%:R) * Num.sqrt ((kappa - 1) / 2%:R) * B i i.
+  by rewrite gaussian_feature_entry eqxx mul1r; field.
+rewrite mxdot_gaussian_featurel gs.
+have -> : (2%:R)^-1 * (mxdot A (gaussian_feature kappa B) +
+    mxdot A (gaussian_feature kappa B)) = mxdot A (gaussian_feature kappa B).
+  by field.
+rewrite -mxdot_gaussian_featureC mxdot_gaussian_featurel.
+have -> : \sum_i A i i * gaussian_feature kappa B i i =
+    Num.sqrt (2%:R / d%:R) * Num.sqrt ((kappa - 1) / 2%:R) *
+    \sum_i A i i * B i i.
+  by rewrite mulr_sumr; apply: eq_bigr => i _; rewrite gd; ring.
+rewrite /unsat_cov_form !RmultE !RplusE ?RminusE.
+set c := Num.sqrt (2%:R / d%:R); set s := Num.sqrt ((kappa - 1) / 2%:R).
+have c2 : c ^+ 2 = 2%:R / d%:R by rewrite sqr_sqrtr // divr_ge0 ?ler0n.
+have s2 : s ^+ 2 = (kappa - 1) / 2%:R.
+  by rewrite sqr_sqrtr // divr_ge0 ?subr_ge0 ?ler0n.
+move: c2 s2; clearbody c s => c2 s2.
+set S := \sum_i _; set X := mxdot A B + _.
+have -> : c * (c * (2%:R^-1 * X + (s - 1) * S) + (s - 1) * (c * s * S)) =
+    c ^+ 2 * (2%:R^-1 * X + (s ^+ 2 - 1) * S) by ring.
+rewrite c2 s2.
+by clearbody S X; set u := (d%:R^-1)%R; clearbody u; field.
+Qed.
+
+(* The matrix of the Gaussian feature is symmetric, its covariance matrix
+   S^T S is unsat_cov kappa d, and g *m S is the mxvec of the Gaussian
+   feature of vec_mx g. *)
+Lemma gaussian_featureD (kappa : R) d (A B : 'M[R]_d) :
+  gaussian_feature kappa (A + B) =
+  gaussian_feature kappa A + gaussian_feature kappa B.
+Proof.
+apply/matrixP => i j; rewrite [RHS]mxE !gaussian_feature_entry !mxE.
+by ring.
+Qed.
+
+Lemma gaussian_featureZ (kappa : R) d a (A : 'M[R]_d) :
+  gaussian_feature kappa (a *: A) = a *: gaussian_feature kappa A.
+Proof.
+apply/matrixP => i j; rewrite [RHS]mxE !gaussian_feature_entry !mxE.
+by ring.
+Qed.
+
+Lemma gaussian_feature0 (kappa : R) d :
+  gaussian_feature kappa (0 : 'M[R]_d) = 0.
+Proof.
+by apply/matrixP => i j; rewrite gaussian_feature_entry !mxE; ring.
+Qed.
+
+Lemma gaussian_feature_mxE (kappa : R) d (g : 'rV[R]_(d * d)) :
+  g *m gaussian_feature_mx kappa d =
+  mxvec (gaussian_feature kappa (vec_mx g)).
+Proof.
+apply/rowP => q; rewrite mxE (vec_mx_sum _ _ g).
+have -> : gaussian_feature kappa
+    (\sum_(p < d * d) g 0 p *: vec_mx (delta_mx 0 p)) =
+    \sum_(p < d * d) g 0 p *: gaussian_feature kappa (vec_mx (delta_mx 0 p)).
+  elim/big_rec2: _ => [|p A B _ <-]; first exact: gaussian_feature0.
+  by rewrite gaussian_featureD gaussian_featureZ.
+rewrite linear_sum summxE; apply: eq_bigr => p _.
+by rewrite linearZ !mxE.
+Qed.
+
+Lemma gaussian_feature_mx_entry (kappa : R) d (p q : 'I_(d * d)) :
+  gaussian_feature_mx kappa d p q =
+  mxdot (gaussian_feature kappa (vec_mx (delta_mx 0 p)))
+        (vec_mx (delta_mx 0 q : 'rV[R]_(d * d))).
+Proof.
+rewrite mxE -mxdot_mxvec vec_mxK.
+by rewrite (mxdot_delta (mxvec (gaussian_feature kappa _)) 0 q).
+Qed.
+
+Lemma gaussian_feature_mx_symE (kappa : R) d (p q : 'I_(d * d)) :
+  gaussian_feature_mx kappa d p q = gaussian_feature_mx kappa d q p.
+Proof.
+by rewrite !gaussian_feature_mx_entry mxdot_gaussian_featureC mxdotC.
+Qed.
+
+Lemma gaussian_feature_mx_cov (kappa : R) d : 1 <= kappa ->
+  (gaussian_feature_mx kappa d)^T *m gaussian_feature_mx kappa d =
+  unsat_cov kappa d.
+Proof.
+move=> k1; apply/matrixP => p q.
+rewrite [RHS]mxE -(mxdot_gaussian_feature _ d _ _ k1) -mxdot_mxvec.
+rewrite -!gaussian_feature_mxE /mxdot big_ord1 mxE; apply: eq_bigr => r _.
+rewrite -!rowE [in LHS]mxE (gaussian_feature_mx_symE _ _ r p).
+by rewrite (gaussian_feature_mx_symE _ _ r q) !mxE.
+Qed.
 
 Section data_feature.
 Local Open Scope ereal_scope.
