@@ -716,6 +716,7 @@ extension/Mixture/Points.v
 extension/Mixture/OneComponent.v
 extension/Mixture/Theorem.v
 extension/MixtureTheorem.v
+extension/PairedTheorem.v
 extension/Paired/Uniform.v
 extension/Paired/Law.v
 extension/Paired/Theorem.v
