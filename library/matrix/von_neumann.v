@@ -288,6 +288,15 @@ rewrite -trmx_orthogonal => /(orthogonal_sqr_row j) <-.
 by apply: eq_bigr => i _; rewrite mxE.
 Qed.
 
+(* The power sums of the spectrum are the traces of the powers. *)
+Lemma sum_spec_exp A k : A \is symmetricmx ->
+  \sum_i spec A 0 i ^+ k = \tr (A ^+ k).
+Proof.
+move=> As; have [P Po AE] := spec_decomposition As.
+rewrite (spectral_trace Po (spectral_exp k Po AE)).
+by apply: eq_bigr => i _; rewrite [RHS]mxE.
+Qed.
+
 (* von Neumann's trace inequality. *)
 Theorem von_neumann_trace A B : A \is symmetricmx -> B \is symmetricmx ->
   \tr (A *m B) <= \sum_i spec A 0 i * spec B 0 i.
