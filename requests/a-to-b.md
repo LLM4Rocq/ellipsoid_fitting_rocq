@@ -42,27 +42,12 @@ Theorem unsat_value_concentration (kappa alpha K C0 : R) :
 The name is a proposal. Hypotheses required only for every large `d`, and a
 regularity constant `K` that may differ between `mu` and `nu`, are fine too.
 Lane A provides the hypotheses: `data_feature_law (nu d) d` is regular with
-`tau d = C / sqrt d` (`Features/Regular.v`), and `gaussian_feature_law kappa d`
-through your Gaussian case of (2.10) (item 3).
+`tau d = C / sqrt d` (`data_feature_regular` of `Features/Regular.v`), and
+`gaussian_feature_law kappa d` is regular by your `gauss_regular_feature`
+(`gaussian_feature_regular`).
 
 ## 2. The fitting error as a least squares value
 
 As planned in `LeastSquares.v`: for every sample `x` (with `d >= 1` if
 needed),
 `universality_fitting_error n d x = 2 * unsat_value n d (unsat_features n d x)`.
-
-## 3. The Gaussian case of (2.10) for a law given by its values
-
-`gaussian_feature_law kappa d` is the image of `gauss (d * d)` under
-`g |-> g *m gaussian_feature_mx kappa d`, an mfun declared in
-`Features/Definitions.v`. To apply (2.10) without depending on which mfun
-instance builds the law, please state it for any law `nu` on `'rV[R]_N`
-given by its values:
-
-```
-(forall A, measurable A -> nu A = gauss k ((fun x => x *m S) @^-1` A)) ->
-S != 0 -> regular_feature (3 `^ (1/4)) (Num.sqrt 2 * opnorm (S^T *m S)) (S^T *m S) nu
-```
-
-(or with the constants you choose), as `cf_rV_tuple_prod` of
-`fourier/charfun_rV.v` takes the law of its sum.
