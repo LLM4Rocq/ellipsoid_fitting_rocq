@@ -18,9 +18,11 @@
       around the center uni_center of the Gaussian features
       (uni_concentration). This is the construction of FourthMomentThree
       with kappa in place of 3.
-   2. gaussian_value_limit is Proposition 1.4 (ii) in the form that
-      Gaussian/Limit (item G8, lane C) announces: 2 unsat_value of the
-      Gaussian features tends to e*(alpha, kappa) in probability. Under it:
+   2. Proposition 1.4 (ii): gaussian_value_limit, the value 2 unsat_value
+      of the Gaussian features tends to e*(alpha, kappa) in probability,
+      holds by gaussian_fitting_error_limit of Gaussian/FittingError
+      (Lemma 5.16 and Proposition 5.15, item G8, lane C):
+      gaussian_value_limit_holds. Hence:
       - uni_center_limit: 2 uni_center (n d) d tends to e*(alpha, kappa),
         since the Gaussian values concentrate around the center and have
         e* as limit;
@@ -29,15 +31,13 @@
         (unsat_fitting_error of Unsat/LeastSquares), tends to
         e*(alpha, kappa) in probability under the sample law
         (sample_features_law of Model/Rows);
-      - universality_unsat_of_gaussian: the second conjunct of
-        universality_statement for alpha > alpha*(kappa): e* > 0
+      - universality_unsat: the second conjunct of universality_statement
+        for every kappa > 1 and alpha > alpha*(kappa): e* > 0
         (universality_e_star_gt0 of Gaussian/Threshold), the events are
         measurable (pm_fit_event_measurable, measurable_error_event of
         Model/Measurability), a fit makes the fitting error at most 0
         (fit_fitting_error of Unsat/FourthMomentThree) and so lies in the
-        error event at e* / 2, and the error events vanish by Theorem 1.7.
-   What remains for the stage 2 theorem is gaussian_value_limit itself,
-   from Lemma 5.16 and Proposition 5.15 (Gaussian/Limit). *)
+        error event at e* / 2, and the error events vanish by Theorem 1.7. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum interval matrix.
@@ -55,7 +55,7 @@ From EllipsoidFitting Require Import PaperMainDefinitions Measurability.Fit.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality.Unsat Require Import LeastSquares Regularized.
 From EllipsoidUniversality.Unsat Require Import FourthMomentThree.
-From EllipsoidUniversality.Gaussian Require Import Threshold.
+From EllipsoidUniversality.Gaussian Require Import Threshold FittingError.
 From EllipsoidUniversality.Features Require Import Definitions Regular.
 From EllipsoidUniversality.Model Require Import Rows Measurability.
 Import GRing.Theory Num.Theory Order.TTheory.
@@ -236,7 +236,12 @@ Definition gaussian_value_limit : Prop :=
     (tuple_prod (fun=> gaussian_feature_law kappa d) (n d) E <= eps%:E)%E &
     [set Z | eps < `|2 * unsat_value (n d) d Z - e|] `<=` E].
 
-Hypothesis hG : gaussian_value_limit.
+(* Proposition 1.4 (ii): gaussian_fitting_error_limit of Gaussian/FittingError
+   (Lemma 5.16 and Proposition 5.15, item G8). *)
+Lemma gaussian_value_limit_holds : gaussian_value_limit.
+Proof. exact: (@gaussian_fitting_error_limit alpha kappa a0 k1). Qed.
+
+Let hG := gaussian_value_limit_holds.
 
 (* Twice the center of the Gaussian features tends to e. *)
 Lemma uni_center_limit (n : nat -> nat) :
@@ -328,9 +333,9 @@ apply: le_trans (_ : (universality_sample_law (nu d) (n d) d
 by rewrite sample_features_law.
 Qed.
 
-(* The second conjunct of universality_statement (Theorem 1.2 (ii)), given
-   Proposition 1.4 (ii). *)
-Theorem universality_unsat_of_gaussian : universality_alpha_star kappa < alpha ->
+(* The second conjunct of universality_statement (Theorem 1.2 (ii)) for every
+   kappa > 1. *)
+Theorem universality_unsat : universality_alpha_star kappa < alpha ->
   0 < e /\
   (forall n d : nat, measurable (paper_main_fit_event n d)) /\
   (forall (n d : nat) (eps : R), measurable (universality_error_event n d e eps)) /\
