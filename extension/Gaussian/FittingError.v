@@ -55,7 +55,8 @@
      (universality_e_starE of Gaussian/Threshold).
      gaussian_fitting_error_gap: above the threshold, e* > 0
      (universality_e_star_gt0) and the event 2 unsat_value <= e* / 2 is
-     negligible. *)
+     negligible. gaussian_fitting_error_limit states the limit in the
+     form that Unsat/Universality (U10, lane A) takes as its hypothesis. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -1042,3 +1043,22 @@ by rewrite distrC; apply: le_trans (ler_norm _); lra.
 Qed.
 
 End fitting_error_limit.
+
+(* Proposition 1.4 (ii) in the form that Unsat/Universality takes as its
+   hypothesis: for every eps > 0 and every large d, the event
+   |2 unsat_value - e*| > eps lies in a measurable event of probability at
+   most eps. *)
+Theorem gaussian_fitting_error_limit (alpha kappa : R) :
+  0 < alpha -> 1 < kappa ->
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  exists E : set ((n d).-tuple 'rV[RR]_(d * d)), [/\ measurable E,
+    (tuple_prod (fun=> gaussian_feature_law kappa d) (n d) E <= eps%:E)%E &
+    [set Z | eps < `|2 * unsat_value (n d) d Z -
+       universality_e_star alpha kappa|] `<=` E].
+Proof.
+move=> a0 k1 n hn eps e0.
+have [D hD] := gaussian_fitting_error_cvg alpha kappa n a0 k1 hn eps e0 eps e0.
+exists D => d dD; have [A [mA PA EA]] := hD d dD.
+by exists A; split => // Z /= hZ; apply: EA; exact: ltW.
+Qed.
