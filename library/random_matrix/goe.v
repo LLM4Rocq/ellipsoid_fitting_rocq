@@ -1,13 +1,15 @@
 From HB Require Import structures.
-From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix sesquilinear.
 From mathcomp Require Import boolp classical_sets functions reals ereal.
 From mathcomp Require Import topology normedtype sequences derive exp.
 From mathcomp Require Import measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss gauss_ibp.
 From GaussianAnalysis.gaussian Require Import gauss_interpolation.
-From GaussianAnalysis.matrix Require Import euclidean opnorm.
-From GaussianAnalysis.comparison Require Import gauss_concentration escape.
+From GaussianAnalysis.matrix Require Import euclidean opnorm real_spectral.
+From GaussianAnalysis.matrix Require Import von_neumann.
+From GaussianAnalysis.comparison Require Import gauss_smoothing gauss_concentration.
+From GaussianAnalysis.comparison Require Import escape.
 From GaussianAnalysis.fourier Require Import charfun_rV.
 
 (**md**************************************************************************)
@@ -48,12 +50,17 @@ From GaussianAnalysis.fourier Require Import charfun_rV.
 (*   gauss_opnorm_mean and E |g| <= sqrt n, gauss_frobenius_mean); and        *)
 (*   E exp (s opnorm W) <= exp (2 sqrt 2 s + s^2 / d) for s >= 0              *)
 (*   (goe_opnorm_mgf, by Gaussian concentration).                             *)
+(* - goe_tr_var: with t_k = goe_tr k = tr W^k / d, for every u >= 0,          *)
+(*   Var t_k <= 2 L^2 + 8 (2k)! exp (2 sqrt 2 (2u + 1) + (2u + 1)^2 / d - 6u) *)
+(*   with L = sqrt 2 k 3^(k-1) / d. The statistic goe_clip k of the           *)
+(*   eigenvalues clipped to [-3, 3] is L-Lipschitz in a                       *)
+(*   (goe_clip_lipschitz, by the Hoffman-Wielandt inequality), so its         *)
+(*   variance is at most L^2 (gauss_poincare_lipschitz), and |t_k - goe_clip  *)
+(*   k| <= 2 opnorm W^k exp (u (opnorm W - 3)) (goe_clip_err). With u = sqrt  *)
+(*   d, Var t_k tends to 0.                                                   *)
 (*                                                                            *)
 (* Planned results (phase 5, stage 2; names come with the proofs):            *)
 (*                                                                            *)
-(* - Var t_k -> 0 as d -> oo: t_k is the statistic of clip_3(x)^k, which is   *)
-(*   Lipschitz in a with constant O(1 / d), up to an error bounded by         *)
-(*   opnorm W^k exp (u (opnorm W - 3)), small by goe_opnorm_mgf.              *)
 (* - E t_k tends to the k-th moment of semicircle_prob 2 (a Catalan number    *)
 (*   for k even, 0 for k odd), by goe_schwinger_dyson and semicircle_catalan  *)
 (*   of wigner.v.                                                             *)
@@ -162,6 +169,12 @@ have p1 := exprn_ge0 k1 t0; have p2 := exprn_ge0 k2 t0.
 have p12 := exprn_ge0 (k1 + k2) t0.
 rewrite exprD in p12 e1 e2 *.
 have C12 := mulr_ge0 C10 C20; nra.
+Qed.
+
+Lemma polyfunB F G : polyfun F -> polyfun G -> polyfun (fun x => F x - G x).
+Proof.
+move=> hF hG; under eq_fun do rewrite -mulN1r.
+by apply: polyfunD => //; apply: polyfunM => //; exact: polyfun_cst.
 Qed.
 
 Lemma polyfun_sum (I : Type) (s : seq I) (F : I -> 'rV[R]_m -> R) :
@@ -373,6 +386,35 @@ move=> hd hF hdF; have [C [k [h1 h2]]] := polyfun_bound2 hF hdF.
 by rewrite /Rintegral (gauss_ibp hd hF.1 hdF.1 h1 h2).
 Qed.
 
+(* The variance is the least mean square deviation. *)
+Lemma Rintegral_var_le (X : 'rV[R]_m -> R) (c : R) : polyfun X ->
+  \int[gauss m]_x (X x - \int[gauss m]_y X y) ^+ 2 <=
+  \int[gauss m]_x (X x - c) ^+ 2.
+Proof.
+move=> hX; set e := \int[gauss m]_y X y.
+have pc (r : R) : polyfun (fun _ : 'rV[R]_m => r) := polyfun_cst r.
+have pXe : polyfun (fun x => X x - e).
+  by apply: polyfunD => //; exact: pc.
+have -> : \int[gauss m]_x (X x - c) ^+ 2 = \int[gauss m]_x
+    ((X x - e) ^+ 2 + (2 * (e - c) * (X x - e) + (e - c) ^+ 2)).
+  by apply: eq_Rintegral => x _; rewrite -[X x - c](subrK e) -addrA; ring.
+have pS : polyfun (fun x => (X x - e) ^+ 2).
+  by under eq_fun do rewrite expr2; exact: polyfunM.
+have p2 : polyfun (fun x => 2 * (e - c) * (X x - e)).
+  by apply: polyfunM; [exact: pc | exact: pXe].
+have i0 : \int[gauss m]_x (X x - e) = 0.
+  rewrite Rintegral_polyfunD; [exact: hX | exact: polyfun_cst |].
+  rewrite Rintegral_cst // -[X in fine X]/(@gauss R m setT) probability_setT.
+  by rewrite /= mulr1 subrr.
+rewrite Rintegral_polyfunD; first exact: pS.
+  by apply: polyfunD => //; exact: polyfun_cst.
+rewrite Rintegral_polyfunD; [exact: p2 | exact: polyfun_cst |].
+rewrite Rintegral_polyfunZ; first exact: pXe.
+rewrite i0 mulr0 add0r Rintegral_cst //.
+rewrite -[X in fine X]/(@gauss R m setT) probability_setT /= mulr1.
+by rewrite lerDl sqr_ge0.
+Qed.
+
 End mxpow_polyfun.
 
 Section goe.
@@ -581,6 +623,233 @@ by field.
 Qed.
 
 End goe_opnorm.
+
+Section clip_pow.
+Context {R : realType}.
+
+(* |x^k - y^k| <= k M^(k-1) |x - y| for |x|, |y| <= M. *)
+Lemma exprB_le (M x y : R) k : `|x| <= M -> `|y| <= M ->
+  `|x ^+ k - y ^+ k| <= k%:R * M ^+ k.-1 * `|x - y|.
+Proof.
+move=> xM yM; have M0 : 0 <= M := le_trans (normr_ge0 x) xM.
+rewrite subrXX normrM mulrC; apply: ler_wpM2r; first exact: normr_ge0.
+apply: le_trans (ler_norm_sum _ _ _) _.
+apply: le_trans (_ : \sum_(i < k) M ^+ k.-1 <= _).
+  apply: ler_sum => i _; rewrite normrM !normrX.
+  have ik : (i <= k.-1)%N by rewrite -ltnS prednK // (leq_ltn_trans _ (ltn_ord i)).
+  rewrite -[in M ^+ k.-1](subnK ik) exprD.
+  by apply: ler_pM; rewrite ?exprn_ge0 ?normr_ge0 // lerXn2r // nnegrE.
+by rewrite sumr_const card_ord mulr_natl.
+Qed.
+
+Lemma clip_pow_lipschitz (c x y : R) k : 0 <= c ->
+  `|clip c x ^+ k - clip c y ^+ k| <= k%:R * c ^+ k.-1 * `|x - y|.
+Proof.
+move=> c0; apply: le_trans (exprB_le _ (clip_bound _ c0) (clip_bound _ c0)) _.
+by apply: ler_wpM2l; [rewrite mulr_ge0 ?exprn_ge0 | exact: clip_lipschitz].
+Qed.
+
+(* The error of clipping at c a point x with |x| <= w, weighted so as to
+   vanish when w <= c. *)
+Lemma clip_pow_err (c w x u : R) k : 0 <= c -> `|x| <= w -> 0 <= u ->
+  `|x ^+ k - clip c x ^+ k| <= 2 * w ^+ k * expR (u * (w - c)).
+Proof.
+move=> c0 xw u0; have w0 : 0 <= w := le_trans (normr_ge0 x) xw.
+have [xc|cx] := leP `|x| c.
+  rewrite clip_id // subrr normr0.
+  by rewrite mulr_ge0 ?expR_ge0 // mulr_ge0 ?exprn_ge0.
+have cw : c <= w by apply: le_trans (ltW cx) xw.
+apply: le_trans (ler_normB _ _) _.
+apply: le_trans (_ : w ^+ k + w ^+ k <= _).
+  apply: lerD; rewrite normrX lerXn2r // ?nnegrE //.
+  by apply: le_trans (clip_bound _ c0) cw.
+rewrite -mulr2n -mulr_natl -[X in X <= _]mulr1; apply: ler_wpM2l.
+  by rewrite mulr_ge0 ?exprn_ge0.
+by rewrite -expR0 ler_expR mulr_ge0 // subr_ge0.
+Qed.
+
+Lemma exprn_le_fact_expR (x : R) j : 0 <= x -> x ^+ j <= j`!%:R * expR x.
+Proof.
+move=> x0; case: j => [|j]; first by rewrite expr0 fact0 mul1r -expR0 ler_expR.
+have h := expR_ge1Dxn j x0.
+have f0 : 0 < (j.+1)`!%:R :> R by rewrite ltr0n fact_gt0.
+rewrite -ler_pdivrMl // mulrC.
+by apply: le_trans h; rewrite lerDr.
+Qed.
+
+End clip_pow.
+
+Section spec_opnorm.
+Context {R : realType} {n : nat}.
+
+Lemma spec_le_opnorm (A : 'M[R]_n) i : A \is symmetricmx ->
+  `|spec A 0 i| <= opnorm A.
+Proof.
+move=> As; have [P Po AE] := spec_decomposition As.
+by rewrite (opnorm_spectral Po AE) (bigD1 i) //= le_max lexx.
+Qed.
+
+End spec_opnorm.
+
+Section goe_stats.
+Context {R : realType} (d : nat).
+Local Notation gauss := (@gauss R).
+
+Lemma goe_mx_symmetric (a : 'rV[R]_(d * d)) : goe_mx a \is symmetricmx.
+Proof. by apply/symmetricmxP; exact: goe_mx_sym. Qed.
+
+(* t_k = tr W^k / d and its version with the eigenvalues clipped to
+   [-3, 3]. *)
+Definition goe_tr k (a : 'rV[R]_(d * d)) : R := \tr (goe_mx a ^+ k) / d%:R.
+
+Definition goe_clip k (a : 'rV[R]_(d * d)) : R :=
+  (\sum_i clip 3 (spec (goe_mx a) 0 i) ^+ k) / d%:R.
+
+Lemma goe_trE k a :
+  goe_tr k a = (\sum_i spec (goe_mx a) 0 i ^+ k) / d%:R.
+Proof. by rewrite /goe_tr sum_spec_exp // goe_mx_symmetric. Qed.
+
+Lemma goe_clip_err k a (u : R) : 0 <= u ->
+  `|goe_tr k a - goe_clip k a| <=
+  2 * opnorm (goe_mx a) ^+ k * expR (u * (opnorm (goe_mx a) - 3)).
+Proof.
+move=> u0; rewrite goe_trE /goe_clip -mulrBl -sumrB normrM.
+have [dz|dn] := eqVneq (d%:R : R) 0.
+  rewrite dz invr0 normr0 mulr0.
+  by rewrite mulr_ge0 ?expR_ge0 // mulr_ge0 ?exprn_ge0 ?opnorm_ge0.
+have d0 : 0 < d%:R :> R by rewrite lt0r dn ler0n.
+rewrite [`|_^-1|]ger0_norm ?invr_ge0 ?ler0n // ler_pdivrMr //.
+apply: le_trans (ler_norm_sum _ _ _) _.
+apply: le_trans (_ : \sum_(i < d) 2 * opnorm (goe_mx a) ^+ k *
+    expR (u * (opnorm (goe_mx a) - 3)) <= _).
+  apply: ler_sum => i _; apply: clip_pow_err => //.
+  exact: spec_le_opnorm (goe_mx_symmetric a).
+by rewrite sumr_const card_ord mulr_natr.
+Qed.
+
+Lemma goe_clip_lipschitz k (a b : 'rV[R]_(d * d)) :
+  `|goe_clip k a - goe_clip k b| <=
+  Num.sqrt 2 * k%:R * 3 ^+ k.-1 / d%:R * frobenius (a - b).
+Proof.
+rewrite /goe_clip -mulrBl normrM.
+have [dz|dn] := eqVneq (d%:R : R) 0.
+  by rewrite dz !invr0 normr0 !mulr0 mul0r.
+have d0 : 0 < d%:R :> R by rewrite lt0r dn ler0n.
+rewrite [`|_^-1|]ger0_norm ?invr_ge0 ?ler0n //.
+have L0 : 0 <= k%:R * 3 ^+ k.-1 :> R by rewrite mulr_ge0 ?exprn_ge0.
+have h := spec_stat_lipschitz (L := k%:R * 3 ^+ k.-1) (goe_mx_symmetric a)
+  (goe_mx_symmetric b) (fun x y => clip_pow_lipschitz x y k (ler0n _ 3)).
+rewrite ler_pdivrMr //; apply: le_trans h _; rewrite -goe_mxB.
+apply: le_trans (_ : k%:R * 3 ^+ k.-1 * Num.sqrt d%:R *
+    (Num.sqrt (2 / d%:R) * frobenius (a - b)) <= _).
+  by apply: ler_wpM2l; [rewrite mulr_ge0 ?sqrtr_ge0 | exact: frobenius_goe_mx].
+rewrite le_eqVlt; apply/orP; left; apply/eqP.
+have sd : Num.sqrt d%:R != 0 :> R by rewrite gt_eqF // sqrtr_gt0.
+by rewrite sqrtrM ?ler0n // sqrtrV ?ler0n //; field.
+Qed.
+
+Lemma polyfun_goe_tr k : polyfun (goe_tr k).
+Proof.
+apply: polyfunM; last exact: polyfun_cst.
+exact: polyfun_trace (mx_polyfun_exp k (@mx_polyfun_goe R d)).
+Qed.
+
+Lemma goe_clip_bound k a : `|goe_clip k a| <= 3 ^+ k.
+Proof.
+rewrite /goe_clip normrM.
+have [dz|dn] := eqVneq (d%:R : R) 0.
+  by rewrite dz invr0 normr0 mulr0 exprn_ge0.
+have d0 : 0 < d%:R :> R by rewrite lt0r dn ler0n.
+rewrite [`|_^-1|]ger0_norm ?invr_ge0 ?ler0n // ler_pdivrMr //.
+apply: le_trans (ler_norm_sum _ _ _) _.
+apply: le_trans (_ : \sum_(i < d) (3 : R) ^+ k <= _).
+  by apply: ler_sum => i _; rewrite normrX lerXn2r ?nnegrE ?clip_bound.
+by rewrite sumr_const card_ord mulr_natr.
+Qed.
+
+Lemma polyfun_goe_clip k : polyfun (goe_clip k).
+Proof.
+split; first exact: lipschitz_frobenius_continuous (goe_clip_lipschitz k).
+exists (3 ^+ k), 0%N => a; rewrite expr0.
+apply: le_trans (goe_clip_bound k a) _.
+by rewrite ler_peMr ?exprn_ge0 // lerDl.
+Qed.
+
+(* Var t_k <= 2 L^2 + 8 (2 k)! exp (2 sqrt 2 (2 u + 1) + (2 u + 1)^2 / d - 6 u)
+   for every u >= 0, with L = sqrt 2 k 3^(k-1) / d the Lipschitz constant of
+   the clipped statistic: Var t_k <= E (t_k - E S)^2 <= 2 E (t_k - S)^2
+   + 2 Var S, Var S <= L^2 by the Gaussian Poincare inequality, and
+   (t_k - S)^2 <= 4 (2 k)! exp ((2 u + 1) opnorm W - 6 u) by goe_clip_err. *)
+Theorem goe_tr_var k (u : R) : (0 < d)%N -> 0 <= u ->
+  \int[gauss (d * d)]_a (goe_tr k a - \int[gauss (d * d)]_b goe_tr k b) ^+ 2 <=
+  2 * (Num.sqrt 2 * k%:R * 3 ^+ k.-1 / d%:R) ^+ 2 +
+  8 * (k.*2)`!%:R *
+    expR (2 * Num.sqrt 2 * (2 * u + 1) + (2 * u + 1) ^+ 2 / d%:R - 6 * u).
+Proof.
+move=> d0 u0.
+set ES := \int[gauss (d * d)]_b goe_clip k b.
+have pt := polyfun_goe_tr k; have pS := polyfun_goe_clip k.
+have psq (F : 'rV[R]_(d * d) -> R) : polyfun F -> polyfun (fun a => F a ^+ 2).
+  by move=> hF; under eq_fun do rewrite expr2; exact: polyfunM.
+have ptS : polyfun (fun a => (goe_tr k a - goe_clip k a) ^+ 2).
+  by apply: psq; exact: polyfunB.
+have pSE : polyfun (fun a => (goe_clip k a - ES) ^+ 2).
+  by apply: psq; apply: polyfunB => //; exact: polyfun_cst.
+(* Var t_k <= E (t_k - E S)^2 <= 2 E (t_k - S)^2 + 2 E (S - E S)^2 *)
+apply: le_trans (Rintegral_var_le ES pt) _.
+apply: le_trans (_ : \int[gauss (d * d)]_a
+    (2 * (goe_tr k a - goe_clip k a) ^+ 2 + 2 * (goe_clip k a - ES) ^+ 2) <= _).
+  apply: le_Rintegral => //.
+  - by apply: integrable_polyfun; apply: psq; apply: polyfunB => //;
+      exact: polyfun_cst.
+  - apply: integrable_polyfun; apply: polyfunD.
+      by apply: polyfunM => //; exact: polyfun_cst.
+    by apply: polyfunM => //; exact: polyfun_cst.
+  move=> a _; set x := goe_tr k a - goe_clip k a; set y := goe_clip k a - ES.
+  have -> : goe_tr k a - ES = x + y by rewrite /x /y addrA subrK.
+  by clearbody x y; have h := sqr_ge0 (x - y); nra.
+rewrite Rintegral_polyfunD; first by apply: polyfunM => //; exact: polyfun_cst.
+  by apply: polyfunM => //; exact: polyfun_cst.
+rewrite !Rintegral_polyfunZ // addrC; apply: lerD.
+  apply: ler_wpM2l => //.
+  exact: gauss_poincare_lipschitz (goe_clip_lipschitz k).
+(* (t_k - S)^2 <= 4 (2 k)! exp (-6 u) exp ((2 u + 1) opnorm W) *)
+have hpt a : (goe_tr k a - goe_clip k a) ^+ 2 <=
+    4 * (k.*2)`!%:R * expR (- (6 * u)) * expR ((2 * u + 1) * opnorm (goe_mx a)).
+  have w0 := opnorm_ge0 (goe_mx a); set w := opnorm (goe_mx a).
+  have e := goe_clip_err k a u0; rewrite -/w in e.
+  apply: le_trans (_ : (2 * w ^+ k * expR (u * (w - 3))) ^+ 2 <= _).
+    rewrite -real_normK ?num_real // lerXn2r // ?nnegrE ?normr_ge0 //.
+    by rewrite mulr_ge0 ?expR_ge0 // mulr_ge0 ?exprn_ge0.
+  rewrite !exprMn -exprM -expRM_natr.
+  have hw := exprn_le_fact_expR (k * 2) w0; rewrite mulnC mul2n in hw.
+  apply: le_trans (_ : 2 ^+ 2 * ((k.*2)`!%:R * expR w) *
+      expR (u * (w - 3) * 2%:R) <= _).
+    apply: ler_wpM2r; first exact: expR_ge0.
+    by apply: ler_wpM2l; [exact: exprn_ge0 | rewrite muln2; exact: hw].
+  rewrite le_eqVlt; apply/orP; left; apply/eqP.
+  rewrite (_ : 2 ^+ 2 = 4 :> R); first by rewrite expr2 -natrM.
+  by rewrite -!mulrA -!expRD; congr (_ * (_ * expR _)); ring.
+have iE : (gauss (d * d)).-integrable [set: 'rV[R]_(d * d)]
+    (EFin \o (fun a => 4 * (k.*2)`!%:R * expR (- (6 * u)) *
+      expR ((2 * u + 1) * opnorm (goe_mx a)))).
+  rewrite (_ : _ \o _ = (fun a => (4 * (k.*2)`!%:R * expR (- (6 * u)))%:E *
+    (expR ((2 * u + 1) * opnorm (goe_mx a)))%:E)%E); first by apply/funext => a.
+  exact: integrableZl (integrable_goe_opnorm_expR _ _).
+apply: le_trans (_ : 2 * \int[gauss (d * d)]_a (4 * (k.*2)`!%:R *
+    expR (- (6 * u)) * expR ((2 * u + 1) * opnorm (goe_mx a))) <= _).
+  by apply: ler_wpM2l => //; apply: le_Rintegral => //; exact: integrable_polyfun.
+rewrite RintegralZl //; first exact: integrable_goe_opnorm_expR.
+have u1 : 0 <= 2 * u + 1 by rewrite addr_ge0 // mulr_ge0.
+have hm := @goe_opnorm_mgf R d (2 * u + 1) d0 u1.
+apply: le_trans (_ : 2 * (4 * (k.*2)`!%:R * expR (- (6 * u)) *
+    expR (2 * Num.sqrt 2 * (2 * u + 1) + (2 * u + 1) ^+ 2 / d%:R)) <= _).
+  by apply: ler_wpM2l => //; apply: ler_wpM2l.
+rewrite le_eqVlt; apply/orP; left; apply/eqP.
+by rewrite [in RHS]expRD; ring.
+Qed.
+
+End goe_stats.
 
 Section goe_moments.
 Context {R : realType}.
