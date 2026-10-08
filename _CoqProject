@@ -690,6 +690,7 @@ extension/Unsat/FourthMomentThree.v
 extension/Unsat/Universality.v
 extension/Sat/OneStage.v
 extension/Sat/LightTail.v
+extension/Sat/LightTailBound.v
 extension/Sat/Apriori.v
 extension/Sat/AprioriSparse.v
 extension/Sat/SparseLower.v

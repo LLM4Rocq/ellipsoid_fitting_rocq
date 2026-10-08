@@ -1,10 +1,11 @@
 (* Proposition 3.4 of Koehler and Sohn, "Universality and sharp thresholds
    for ellipsoid fitting" (arXiv 2608.27372, lines 2436-2450, proof lines
    3610-3805 of arxiv_v1.tex): the light-tail quotient-norm lower bound.
-   Item S9 of stage 3 of phase 5 (lane B). The parts that do not depend on
-   other items are proved, over any realType: everything up to the union
-   bound and its asymptotic count. The final statement, with Corollary 3.13
-   and Proposition 3.1 (iii) of lane C as inputs, comes next.
+   Item S9 of stage 3 of phase 5 (lane B). This file proves, over any
+   realType, everything up to the union bound and its asymptotic count.
+   Sat/LightTailBound assembles them with Proposition 3.1 (Sat/Apriori) and
+   Corollary 3.13 (Sat/EffectiveRank) into the proposition itself, at
+   Stdlib's R (light_tail_quotient).
 
    Statement. Let x_1, ..., x_n be the points of a sample whose coordinates
    are independent with laws universality_coordinate_law kappa K0, and let
@@ -14,7 +15,8 @@
    every t with t_i = 0 on I and |t|_oo <= (K d)^(-1/2) |t|_2, and every h
    with h_i = 0 outside I and |h|_1 <= d^(2/3) |t|_2, the nuclear norm of
    L_X^* (h + t) = d^(-1/2) sum_i (h + t)_i (x_i x_i^T - I) is at least
-   gamma d |t|_2.
+   gamma d |t|_2. Sat/LightTailBound proves it for the larger set of heads
+   with |h|_1 <= d |t|_2.
 
    Plan of the proof, as in the paper.
    - Blocks. The columns are cut into L blocks I_1, ..., I_L of sizes
@@ -40,10 +42,10 @@
      C, Sat/Apriori) and max_i |x_i|^2 <= 2 d to pass from the nets to all
      pairs, a union bound over the sets I, and the choice of L, eps, gamma
      and K with alpha < (1 - eps) (1 - 1/L) / 2.
-   Inputs of lane C (requests/b-to-c.md): Corollary 3.13 in the form of the
-   sorted eigenvalues, and Proposition 3.1 (iii).
+   Inputs of lane C, used in Sat/LightTailBound: Corollary 3.13 in the form
+   of the sorted eigenvalues, and Proposition 3.1.
 
-   Proved so far:
+   Proved here:
    - spec_frame: if the k largest eigenvalues of a symmetric S are at least
      mu, there is a k x p matrix Q with orthonormal rows with
      mu |y|^2 <= y Q S Q^T y^T for every y;
