@@ -2410,7 +2410,9 @@ Qed.
 
 (* For |v| <= 1, the quadratic form z |-> <z, mxvec (v^T v)> of the
    features, ((v x)^2 - |v|^2) / sqrt d, is subexponential with constant
-   48 K^2 / sqrt d (requests/c-to-a.md, item 1). *)
+   48 K^2 / sqrt d. Corollary 2.13 (ii) takes it as hypothesis on the
+   features (uni_subexp_data of Unsat/Universality, fmt_subexp_data of
+   Unsat/FourthMomentThree). *)
 Lemma data_feature_quad_subexponential (v : 'rV[R]_d) :
   (0 < d)%N -> (mxdot v v <= 1)%R ->
   subexponential mu (fun z => mxdot z (mxvec (v^T *m v)) : RR)
@@ -2482,7 +2484,8 @@ Qed.
 (* Every quadratic form of the features, by the Hanson-Wright inequality
    (probability/hanson_wright.v): <W, A> = (x^T A x - tr A) / sqrt d is
    subexponential with constant L / sqrt d for every L >= 252 K^2 |A|_F
-   (requests/c-to-a.md, item 1). *)
+   (used by data_feature_hw of Sat/Apriori and sat_subexp of
+   Sat/ApproximateFit). *)
 Lemma data_feature_subexponential (A : 'M[R]_d) (L : R) :
   (0 < d)%N -> (0 < L)%R -> (252 * K ^+ 2 * frobenius A <= L)%R ->
   subexponential mu (fun z => mxdot z (mxvec A) : RR) (L / Num.sqrt d%:R)%R.
@@ -2511,7 +2514,7 @@ have e : (fun z => mxdot z (mxvec A) : RR) \o data_feature_map d =
 by rewrite e; exact: subexponential_scale.
 Qed.
 
-(* The form of requests/c-to-a.md: constant 252 K^2 |A|_F / sqrt d, for
+(* The same with the constant 252 K^2 |A|_F / sqrt d itself, for
    A != 0. *)
 Lemma data_feature_subexponential_frob (A : 'M[R]_d) :
   (0 < d)%N -> (A != 0)%R ->
@@ -2524,7 +2527,8 @@ by rewrite !mulr_gt0 ?exprn_gt0 ?frobenius_gt0 // ltr0n.
 Qed.
 
 (* The same for the Gaussian feature: constant 4 sqrt (kappa + 1) / sqrt d
-   (requests/c-to-a.md, item 2). *)
+   (uni_subexp_gauss of Unsat/Universality, fmt_subexp_gauss of
+   Unsat/FourthMomentThree). *)
 Lemma gaussian_feature_quad_subexponential (v : 'rV[R]_d) :
   (1 <= kappa)%R -> (0 < d)%N -> (mxdot v v <= 1)%R ->
   subexponential (gaussian_feature_law kappa d)

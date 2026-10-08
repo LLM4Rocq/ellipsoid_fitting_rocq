@@ -62,10 +62,6 @@ From GaussianAnalysis.probability Require Import lindeberg tuple_rows.
 (* (e^y <= 1 + y + y^2 e^|y|), exprn_le_expR (u^k <= k! e^u for u >= 0),      *)
 (* le_expR34, expR_mean_le and expR_third_le; lee_prod_ge0 is the             *)
 (* monotonicity of products of nonnegative extended reals.                    *)
-(*                                                                            *)
-(* Planned result (phase 5, stage 3): the infimum psi2_norm is attained, so   *)
-(* that subgaussian P X K holds for every K > 0 with psi2_norm P X <= K as    *)
-(* soon as X is subgaussian with some constant (monotone convergence).        *)
 (******************************************************************************)
 
 Set Implicit Arguments.

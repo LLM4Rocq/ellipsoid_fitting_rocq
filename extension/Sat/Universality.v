@@ -6,13 +6,14 @@
    (lane A).
 
    Hypothesis. small_residual_interpolation kappa K alpha is Theorem 1.9
-   (Sat/Interpolation, item S10 of lane C) in the form that
-   requests/a-to-c.md asks for: with probability tending to one, every y
-   in R^n with |y_i| <= Y for every i is <W_i, Delta> = y_i + b for some
-   symmetric Delta with opnorm Delta <= C1 ((ln d)^4 / sqrt d Y + |y| / d)
-   and some real b, where W_i = sample_W x i = (x_i x_i^T - I) / sqrt d.
-   This is interpolation_det of Sat/Interpolation on the event of Theorem
-   2.3, with a = c sqrt d / (ln d)^4 and D = d.
+   of the paper in the form that small_residual_interpolation_holds
+   (Sat/SmallResidual, item S10 of lane C) proves: with probability
+   tending to one, every y in R^n with |y_i| <= Y for every i is
+   <W_i, Delta> = y_i + b for some symmetric Delta with
+   opnorm Delta <= C1 ((ln d)^4 / sqrt d Y + |y| / d) and some real b,
+   where W_i = sample_W x i = (x_i x_i^T - I) / sqrt d. This is
+   interpolation_det of Sat/Interpolation on the event of Theorem 2.3,
+   with a = c sqrt d / (ln d)^4 and D = d.
 
    Main results.
    - universality_sat_of_interpolation: the first conjunct of
@@ -23,7 +24,9 @@
    - universality_statement_of_interpolation: universality_statement,
      both parts, from small_residual_interpolation for every kappa > 1,
      K > 0 and 0 < alpha < alpha*(kappa). The second part is
-     universality_unsat of Unsat/Universality.
+     universality_unsat of Unsat/Universality. universality_theorem
+     (UniversalityTheorem.v) applies it to
+     small_residual_interpolation_holds.
 
    Proof. Take delta with C1 sqrt (2 alpha delta) = m / 4. Outside the
    union of the event of approximate_fit, the event of Theorem 1.9 and the
