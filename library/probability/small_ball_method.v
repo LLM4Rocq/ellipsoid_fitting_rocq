@@ -818,24 +818,3 @@ by rewrite muleA -EFinM mulVf ?gt_eqF// mul1e.
 Qed.
 
 End affine_moments.
-
-Section tuple_coordinate.
-Context d (T : measurableType d) (R : realType).
-Local Open Scope ereal_scope.
-
-(* The coordinate k of tuple_prod mu n has law mu k. *)
-Lemma ge0_integral_tuple_tnth (mu : nat -> probability T R) n (k : 'I_n)
-    (g : T -> \bar R) :
-  measurable_fun [set: T] g -> (forall t, 0 <= g t) ->
-  \int[tuple_prod mu n]_x g (tnth x k) = \int[mu k]_t g t.
-Proof.
-move=> mg g0.
-have mgk : measurable_fun [set: n.-tuple T] (fun x => g (tnth x k)).
-  exact: measurableT_comp mg (measurable_tnth k).
-rewrite (ge0_integral_tuple_prod_set mu k mgk (fun x => g0 _)).
-under eq_integral do under eq_integral do rewrite tnth_mktuple eqxx.
-rewrite integral_cst//.
-by rewrite [X in _ * X]probability_setT mule1.
-Qed.
-
-End tuple_coordinate.
