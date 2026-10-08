@@ -32,6 +32,21 @@
      (F1) as data_feature_fourth: E <W, theta>^4 <= 9 2^33 K^8 |theta|^4 /
      d^2; unsat_cov_opnorm_ge: the operator norm of C_kappa is at least
      (kappa - 1) / d.
+   - (F2) as data_feature_variance: Var (z T z^T) <= 2^31 K^8 |T|_F^2 / d
+     for every T, by Efron-Stein. Resampling the coordinate j changes W
+     only in the row and the column j (feature_set_support), so
+     F (x) - F (x^(j)) = <D, z T> + <D, z' T^T> with D = z - z'
+     (quad_stat_diff) is bounded by |D|_F times the part of z T in that
+     row and column (feature_diff_dot_le, rc_proj). Cauchy-Schwarz and the
+     fourth moments E |D|_F^4 <= 2^20 K^8 (feature_diff_moment4) and
+     E |rc_j (W M)|^4 <= (2^19 K^4 rc_weight j M / d)^2
+     (proj_feature_moment4, from (F1) and integral_sum_sqr_le) give
+     quad_stat_resample2; each entry lies in at most two rows and columns
+     (sum_rc_weight).
+   - Proposition 2.6 as data_feature_regular: for kappa > 1 and d > 0,
+     data_feature_law nu d is a regular feature (regular_feature of
+     convex/least_squares.v) with covariance unsat_cov kappa d,
+     K_feat = 2^10 K^2 / sqrt (kappa - 1) and tau = sqrt (2^31 K^8 / d).
    - The same in the vocabulary of Gaussian/Cones, for Unsat/Ridge:
      unsat_cov_form_sym and data_feature_cov_sym (feature_cov kappa A B, B
      symmetric), feature_cov_ge (min (2, kappa - 1) |A|_F^2 / d <=
@@ -39,20 +54,11 @@
      (E <W, A>^4 <= 9 2^33 K^8 feature_cov kappa A A^2 /
      min (2, kappa - 1)^2).
 
-   Planned (phase 5, stage 1):
-   - (F2): Var (Z T Z^T) <= C |T|_F^2 / d for the features, by Efron-Stein:
-     a resampled coordinate changes W only in one row and one column, and
-     the fourth moments of the projected linear forms are bounded by (F1)
-     (lines 4370-4436).
-   - Proposition 2.6: for kappa > 1, data_feature_law nu d is a regular
-     feature with covariance unsat_cov kappa d (regular_feature of
-     convex/least_squares.v), with constants depending only on kappa and K
-     and tau of order 1 / sqrt d.
-   - The Gaussian feature: the covariance matrix of
-     gaussian_feature_law kappa d is unsat_cov kappa d, so it is a regular
-     feature with that covariance and constants 3^(1/4) and
-     sqrt 2 opnorm (unsat_cov kappa d), by the Gaussian case of
-     convex/barrier_lindeberg.v. *)
+   Planned (phase 5, stage 1): the Gaussian feature. The covariance matrix
+   of gaussian_feature_law kappa d is unsat_cov kappa d, so it is a regular
+   feature with that covariance and constants 3^(1/4) and
+   sqrt 2 opnorm (unsat_cov kappa d), by the Gaussian case of
+   convex/barrier_lindeberg.v. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
@@ -1244,6 +1250,396 @@ have key : Num.min 2 (kappa - 1) * mxdot A A <= 2 * mxdot A A + (kappa - 3) * s.
 by rewrite mulrAC; apply: ler_wpM2r => //; rewrite invr_ge0 ler0n.
 Qed.
 
+Lemma sqrt_inv_sqr d :
+  (Num.sqrt d%:R)^-1 * (Num.sqrt d%:R)^-1 = d%:R^-1 :> R.
+Proof. by rewrite -invfM -expr2 sqr_sqrtr ?ler0n. Qed.
+
+(* The matrix W of the feature of a point t is quad_mx t / sqrt d. *)
+Lemma vec_mx_feature d (t : d.-tuple (measurableTypeR R)) :
+  vec_mx (data_feature_map d t) = (Num.sqrt d%:R)^-1 *: quad_mx t.
+Proof.
+rewrite /data_feature_map /unsat_feature mxvecK; apply/matrixP => a b.
+by rewrite !mxE big_ord1 !mxE.
+Qed.
+
+Lemma quad_mx_entry2_le d (t : d.-tuple (measurableTypeR R)) (a b : 'I_d) :
+  quad_mx t a b ^+ 2 <= 4 * (1 + \sum_(k < d) (tnth t k : R) ^+ 4).
+Proof.
+rewrite mxE; set x := (tnth t a : R); set y := (tnth t b : R).
+set v : R := (a == b)%:R; set S := \sum_(k < d) _.
+have S0 : 0 <= S by apply: sumr_ge0 => k _; exact: exprn4_ge0.
+have v2 : v ^+ 2 <= 1 by rewrite /v; case: (a == b); rewrite ?expr1n ?expr0n.
+have ha : x ^+ 4 <= 1 + S := coord_pow4_le d t a.
+have hb : y ^+ 4 <= 1 + S := coord_pow4_le d t b.
+have u2 : (x * y) ^+ 2 <= 1 + S.
+  have h := sqr_ge0 (x ^+ 2 - y ^+ 2).
+  rewrite exprMn; rewrite (_ : 4 = 2 * 2)%N // !exprM in ha hb; nra.
+have := sqr_ge0 ((x * y)%R + v); nra.
+Qed.
+
+(* |W|_F^2 <= 4 d (1 + sum_k x_k^4). *)
+Lemma feature_norm_le d (t : d.-tuple (measurableTypeR R)) :
+  mxdot (data_feature_map d t) (data_feature_map d t) <=
+  4 * d%:R * (1 + \sum_(k < d) (tnth t k : R) ^+ 4).
+Proof.
+set S := 1 + _.
+have S0 : 0 <= S by rewrite addr_ge0 // sumr_ge0 // => k _; exact: exprn4_ge0.
+rewrite -[data_feature_map d t]vec_mxK mxdot_mxvec vec_mx_feature.
+rewrite mxdotZl mxdotZr mulrA sqrt_inv_sqr.
+have GG : mxdot (quad_mx t) (quad_mx t) <= (d * d)%:R * (4 * S).
+  apply: le_trans (_ : \sum_(a < d) \sum_(b < d) (4 * S) <= _).
+    apply: ler_sum => a _; apply: ler_sum => b _; rewrite -expr2.
+    exact: quad_mx_entry2_le.
+  under eq_bigr do rewrite sumr_const card_ord.
+  rewrite sumr_const card_ord -mulrnA [in X in _ <= X]mulr_natl.
+  exact: lexx.
+apply: le_trans (ler_wpM2l _ GG) _; first by rewrite invr_ge0 ler0n.
+rewrite natrM; have [->|d0] := eqVneq (d%:R : R) 0.
+  by rewrite invr0 !mul0r mulr0 mul0r.
+by rewrite le_eqVlt; apply/orP; left; apply/eqP; field.
+Qed.
+
+(* |z T z^T| <= |T|_F |z|^2. *)
+Lemma quad_stat_le n (z : 'rV[R]_n) (T : 'M[R]_n) :
+  `|mxdot z (z *m T)| <= frobenius T * mxdot z z.
+Proof.
+apply: le_trans (mxdot_le _ _) _.
+apply: le_trans (ler_wpM2l (frobenius_ge0 _) (frobenius_mulmx _ _)) _.
+by rewrite mulrA -expr2 frobenius_sqr mulrC.
+Qed.
+
+Lemma measurable_quad_stat d (T : 'M[R]_(d * d)) :
+  measurable_fun [set: d.-tuple (measurableTypeR R)]
+    (fun t => mxdot (data_feature_map d t) (data_feature_map d t *m T) : RR).
+Proof.
+have mz := measurable_data_feature_map d.
+have mzT : measurable_fun [set: d.-tuple (measurableTypeR R)]
+    (fun t => data_feature_map d t *m T).
+  by apply: measurable_mulmx => //; exact: measurable_cst.
+rewrite /mxdot; apply: measurable_sum => i; apply: measurable_sum => j.
+apply: measurable_funM.
+  exact: measurableT_comp (measurable_mxentry i j) mz.
+exact: measurableT_comp (measurable_mxentry i j) mzT.
+Qed.
+
+(* Resampling: z T z^T - z' T z'^T = <z - z', z T> + <z - z', z' T^T>. *)
+Lemma quad_stat_diff n (z z' : 'rV[R]_n) (T : 'M[R]_n) :
+  mxdot z (z *m T) - mxdot z' (z' *m T) =
+  mxdot (z - z') (z *m T) + mxdot (z - z') (z' *m T^T).
+Proof.
+have e : mxdot z' (z *m T) - mxdot z' (z' *m T) =
+    mxdot (z - z') (z' *m T^T).
+  by rewrite -mxdotBr -mulmxBl mxdotC mxdot_mulmxr.
+by rewrite mxdotBl -e; ring.
+Qed.
+
+(* The part of a d x d matrix in the row and the column j. *)
+Definition rc_proj {d} (j : 'I_d) (M : 'M[R]_d) : 'M[R]_d :=
+  \matrix_(a, b) (((a == j) || (b == j))%:R * M a b).
+
+Lemma mxdot_rc_proj d (j : 'I_d) (X Y : 'M[R]_d) :
+  (forall a b, a != j -> b != j -> X a b = 0) ->
+  mxdot X Y = mxdot X (rc_proj j Y).
+Proof.
+move=> X0; apply: eq_bigr => a _; apply: eq_bigr => b _; rewrite mxE.
+case: (boolP ((a == j) || (b == j))) => [_|]; first by rewrite mul1r.
+by rewrite negb_or => /andP[aj bj]; rewrite X0 // !mul0r.
+Qed.
+
+(* Resampling the coordinate j changes the feature only in the row and the
+   column j. *)
+Lemma feature_set_support d (t : d.-tuple (measurableTypeR R)) (j : 'I_d)
+    (s : R) (a b : 'I_d) : a != j -> b != j ->
+  vec_mx (data_feature_map d t - data_feature_map d (tuple_set t j s)) a b = 0.
+Proof.
+move=> aj bj; rewrite linearB /= !vec_mx_feature !mxE.
+by rewrite !tnth_tuple_set_neq // subrr.
+Qed.
+
+Lemma feature_diff_dot_le d (t : d.-tuple (measurableTypeR R)) (j : 'I_d)
+    (s : R) (v : 'rV[R]_(d * d)) :
+  mxdot (data_feature_map d t - data_feature_map d (tuple_set t j s)) v ^+ 2
+  <= mxdot (data_feature_map d t - data_feature_map d (tuple_set t j s))
+       (data_feature_map d t - data_feature_map d (tuple_set t j s)) *
+     mxdot (rc_proj j (vec_mx v)) (rc_proj j (vec_mx v)).
+Proof.
+set D := data_feature_map d t - _.
+have -> : mxdot D v = mxdot (vec_mx D) (vec_mx v).
+  by rewrite -[in RHS]mxdot_mxvec !vec_mxK.
+have -> : mxdot D D = mxdot (vec_mx D) (vec_mx D).
+  by rewrite -[in RHS]mxdot_mxvec !vec_mxK.
+rewrite (mxdot_rc_proj _ j (vec_mx D) (vec_mx v)
+  (fun a b aj bj => feature_set_support d t j s a b aj bj)).
+exact: mxdot_cauchy_schwarz.
+Qed.
+
+Lemma sum_eq1 d (k : 'I_d) : \sum_(e < d) (e == k)%:R = 1 :> R.
+Proof. by have := sum_delta' d (fun=> 1) k; under eq_bigr do rewrite mul1r. Qed.
+
+(* |W - W^(j)|_F^2 <= (6 D^2 sum_b x_b^2 + 3 D^4) / d, D = s - x_j. *)
+Lemma feature_diff_norm_le d (t : d.-tuple (measurableTypeR R)) (j : 'I_d)
+    (s : R) :
+  mxdot (data_feature_map d t - data_feature_map d (tuple_set t j s))
+        (data_feature_map d t - data_feature_map d (tuple_set t j s)) <=
+  d%:R^-1 * (6 * (s - tnth t j) ^+ 2 * \sum_(b < d) (tnth t b : R) ^+ 2 +
+             3 * (s - tnth t j) ^+ 4).
+Proof.
+set Z := (_ - _ : 'rV[R]_(d * d)); set D := s - tnth t j.
+have -> : mxdot Z Z = mxdot (vec_mx Z) (vec_mx Z).
+  by rewrite -[in RHS]mxdot_mxvec !vec_mxK.
+rewrite /Z linearB /= !vec_mx_feature -scalerBr mxdotZl mxdotZr mulrA.
+rewrite sqrt_inv_sqr; apply: ler_wpM2l; first by rewrite invr_ge0 ler0n.
+set G := quad_mx t - quad_mx (tuple_set t j s).
+pose x (b : 'I_d) : R := tnth t b; pose e (a : 'I_d) : R := (a == j)%:R.
+have hab a b : G a b * G a b <=
+    3 * D ^+ 2 * (e a * x b ^+ 2 + x a ^+ 2 * e b) +
+    3 * D ^+ 4 * (e a * e b).
+  rewrite /G !mxE !tnth_tuple_setE -/D /e /x.
+  have D2 := sqr_ge0 D; have D4 := exprn4_ge0 D; clearbody D.
+  case: (a =P j) => [->|aj]; case: (b =P j) => [->|bj] /=.
+  - by have := sqr_ge0 (D * (tnth t j - D)); nra.
+  - by have := sqr_ge0 (D * tnth t b); nra.
+  - by have := sqr_ge0 (D * tnth t a); nra.
+  - nra.
+apply: le_trans (_ : \sum_a \sum_b (3 * D ^+ 2 * (e a * x b ^+ 2 +
+    x a ^+ 2 * e b) + 3 * D ^+ 4 * (e a * e b)) <= _).
+  by apply: ler_sum => a _; apply: ler_sum => b _; exact: hab.
+have e1 : \sum_(a < d) e a = 1 by exact: sum_eq1.
+rewrite le_eqVlt; apply/orP; left; apply/eqP.
+have s1 : \sum_(a < d) \sum_(b < d) e a * x b ^+ 2 =
+    \sum_(b < d) tnth t b ^+ 2.
+  by under eq_bigr do rewrite -mulr_sumr; rewrite -mulr_suml e1 mul1r.
+have s2 : \sum_(a < d) \sum_(b < d) x a ^+ 2 * e b =
+    \sum_(b < d) tnth t b ^+ 2.
+  by under eq_bigr do rewrite -mulr_sumr e1 mulr1.
+have s3 : \sum_(a < d) \sum_(b < d) e a * e b = 1.
+  by under eq_bigr do rewrite -mulr_sumr e1 mulr1.
+transitivity (3 * D ^+ 2 * (\sum_(a < d) \sum_(b < d) e a * x b ^+ 2 +
+    \sum_(a < d) \sum_(b < d) x a ^+ 2 * e b) +
+    3 * D ^+ 4 * \sum_(a < d) \sum_(b < d) e a * e b).
+  rewrite mulrDr !mulr_sumr -!big_split /=; apply: eq_bigr => a _.
+  rewrite !mulr_sumr -!big_split /=; apply: eq_bigr => b _; ring.
+by rewrite s1 s2 s3; ring.
+Qed.
+
+Lemma sqr_sum1_le n (y : 'I_n -> R) :
+  (\sum_i y i) ^+ 2 <= n%:R * \sum_i y i ^+ 2.
+Proof. by have := sqr_sum_le 1 n (fun=> y); rewrite !big_ord1 mul1n. Qed.
+
+(* |W - W^(j)|_F^4 <= 54 2^7 (x_j^8 + s^8) + 36 sum_b x_b^8 / d. *)
+Lemma feature_diff_norm4_le d (t : d.-tuple (measurableTypeR R)) (j : 'I_d)
+    (s : R) :
+  mxdot (data_feature_map d t - data_feature_map d (tuple_set t j s))
+        (data_feature_map d t - data_feature_map d (tuple_set t j s)) ^+ 2
+  <= 54 * 2 ^+ 7 * ((tnth t j : R) ^+ 8 + s ^+ 8) +
+     36 / d%:R * \sum_(b < d) (tnth t b : R) ^+ 8.
+Proof.
+set Z := (_ - _ : 'rV[R]_(d * d)); set D := s - tnth t j.
+set q := \sum_(b < d) (tnth t b : R) ^+ 2.
+set Q4 := \sum_(b < d) (tnth t b : R) ^+ 4.
+set Q8 := \sum_(b < d) (tnth t b : R) ^+ 8.
+have r1 : 1 <= d%:R :> R by rewrite ler1n (leq_ltn_trans (leq0n j)).
+have r0 : 0 < d%:R :> R by apply: lt_le_trans r1.
+have h := feature_diff_norm_le d t j s; rewrite -/Z -/D -/q in h.
+have Z0 : 0 <= mxdot Z Z := mxdot_ge0 Z.
+have D4 := exprn4_ge0 D; have D8 := exprn8_ge0 D.
+have q0 : 0 <= q by apply: sumr_ge0 => b _; exact: sqr_ge0.
+have F2 : q ^+ 2 <= d%:R * Q4.
+  have := sqr_sum1_le d (fun b => (tnth t b : R) ^+ 2).
+  by rewrite /Q4; under [X in _ <= _ * X]eq_bigr do rewrite -exprM.
+have F3 : D ^+ 4 * Q4 <= (d%:R * D ^+ 8 + Q8) / 2.
+  rewrite /Q4 /Q8 mulr_sumr.
+  apply: le_trans (_ : \sum_(b < d) (D ^+ 8 + (tnth t b : R) ^+ 8) / 2 <= _).
+    apply: ler_sum => b _; have := sqr_ge0 (D ^+ 4 - (tnth t b : R) ^+ 4).
+    have e8 (y : R) : y ^+ 8 = (y ^+ 4) ^+ 2 by rewrite -exprM.
+    by rewrite !e8; nra.
+  rewrite -mulr_suml big_split /= sumr_const card_ord -mulr_natl.
+  rewrite [in X in _ <= X]mulr_natl; exact: lexx.
+have F4 : D ^+ 8 <= 2 ^+ 7 * ((tnth t j : R) ^+ 8 + s ^+ 8).
+  by rewrite addrC; exact: pow8_sub_le.
+have S1 : mxdot Z Z ^+ 2 <=
+    (d%:R^-1 * (6 * D ^+ 2 * q + 3 * D ^+ 4)) ^+ 2.
+  by rewrite ler_pXn2r // nnegrE // (le_trans Z0 h).
+have S2 : (6 * D ^+ 2 * q + 3 * D ^+ 4) ^+ 2 <=
+    36 * d%:R ^+ 2 * D ^+ 8 + 36 * d%:R * Q8 + 18 * D ^+ 8.
+  have a1 : (6 * D ^+ 2 * q + 3 * D ^+ 4) ^+ 2 <=
+      72 * (D ^+ 4 * q ^+ 2) + 18 * D ^+ 8.
+    have := sqr_ge0 (6 * D ^+ 2 * q - 3 * D ^+ 4).
+    have e4 : D ^+ 4 = (D ^+ 2) ^+ 2 by rewrite -exprM.
+    have e8 : D ^+ 8 = (D ^+ 2) ^+ 4 by rewrite -exprM.
+    by rewrite e4 e8; nra.
+  have a2 : D ^+ 4 * q ^+ 2 <= D ^+ 4 * (d%:R * Q4) by rewrite ler_wpM2l.
+  have a3 : D ^+ 4 * (d%:R * Q4) <= d%:R * ((d%:R * D ^+ 8 + Q8) / 2).
+    by rewrite mulrCA ler_wpM2l // ltW.
+  by clearbody D q Q4 Q8; nra.
+apply: le_trans S1 _; rewrite exprMn exprVn.
+apply: le_trans (ler_wpM2l _ S2) _; first by rewrite invr_ge0 exprn_ge0 // ltW.
+have e : (d%:R ^+ 2)^-1 * (36 * d%:R ^+ 2 * D ^+ 8 + 36 * d%:R * Q8 +
+    18 * D ^+ 8) = 36 * D ^+ 8 + 36 / d%:R * Q8 + 18 * D ^+ 8 / d%:R ^+ 2.
+  have dn : d%:R != 0 :> R by rewrite gt_eqF.
+  by field.
+rewrite e.
+have d2 : 18 * D ^+ 8 / d%:R ^+ 2 <= 18 * D ^+ 8.
+  rewrite ler_pdivrMr ?exprn_gt0 //.
+  have h18 : 0 <= 18 * D ^+ 8 by rewrite mulr_ge0.
+  have hd : 1 <= d%:R ^+ 2 :> R by rewrite expr2; nra.
+  nra.
+by clearbody D q Q4 Q8; nra.
+Qed.
+
+Lemma mulmx_row_dot n (z : 'rV[R]_n) (M : 'M[R]_n) q :
+  (z *m M) 0 q = mxdot z (row q M^T).
+Proof.
+by rewrite mxE /mxdot big_ord1; apply: eq_bigr => p _; rewrite !mxE.
+Qed.
+
+Lemma rc_proj_norm d (j : 'I_d) (w : 'rV[R]_(d * d)) :
+  mxdot (rc_proj j (vec_mx w)) (rc_proj j (vec_mx w)) =
+  \sum_(p : 'I_d * 'I_d)
+    ((p.1 == j) || (p.2 == j))%:R * w 0 (mxvec_index p.1 p.2) ^+ 2.
+Proof.
+rewrite /mxdot pair_big /=; apply: eq_bigr => -[a b] _ /=.
+rewrite !mxE; case: ((a == j) || (b == j)).
+  by rewrite !mul1r expr2.
+by rewrite !mul0r.
+Qed.
+
+Lemma measurable_mxdot_fun dU (U : measurableType dU) m n
+    (f g : U -> 'M[RR]_(m, n)) :
+  measurable_fun setT f -> measurable_fun setT g ->
+  measurable_fun setT (fun x => mxdot (f x) (g x) : RR).
+Proof.
+move=> /measurable_fun_mxP mf /measurable_fun_mxP mg.
+rewrite /mxdot; apply: measurable_sum => i; apply: measurable_sum => j.
+exact: measurable_funM.
+Qed.
+
+Lemma measurable_rc_proj dU (U : measurableType dU) d (j : 'I_d)
+    (f : U -> 'M[RR]_d) :
+  measurable_fun setT f ->
+  measurable_fun setT (fun x => rc_proj j (f x) : 'M[RR]_d).
+Proof.
+move=> /measurable_fun_mxP mf; apply/measurable_fun_mxP => a b.
+apply: (eq_measurable_fun (fun x => ((a == j) || (b == j))%:R * f x a b : RR)).
+  by move=> x _; rewrite mxE.
+by apply: measurable_funM => //; exact: mf.
+Qed.
+
+Lemma measurable_vec_mx dU (U : measurableType dU) m n
+    (f : U -> 'rV[RR]_(m * n)) :
+  measurable_fun setT f -> measurable_fun setT (fun x => vec_mx (f x)).
+Proof.
+move=> /measurable_fun_mxP mf; apply/measurable_fun_mxP => a b.
+apply: (eq_measurable_fun (fun x => f x 0 (mxvec_index a b))).
+  by move=> x _; rewrite mxE.
+exact: mf.
+Qed.
+
+(* The squared norm of the part of a linear map M on d x d matrices that
+   the row and the column j see: sum over (a, b) in the row or the column j
+   of the squared norm of the column (a, b) of M. *)
+Definition rc_weight {d} (j : 'I_d) (M : 'M[R]_(d * d)) : R :=
+  \sum_(p : 'I_d * 'I_d) ((p.1 == j) || (p.2 == j))%:R *
+    mxdot (row (mxvec_index p.1 p.2) M^T) (row (mxvec_index p.1 p.2) M^T).
+
+Lemma rc_weight_ge0 d (j : 'I_d) (M : 'M[R]_(d * d)) : 0 <= rc_weight j M.
+Proof. by apply: sumr_ge0 => p _; rewrite mulr_ge0 ?ler0n ?mxdot_ge0. Qed.
+
+(* Each entry (a, b) is in at most two of the rows and columns j. *)
+Lemma sum_rc_weight d (M : 'M[R]_(d * d)) :
+  \sum_(j < d) rc_weight j M <= 2 * mxdot M M.
+Proof.
+rewrite /rc_weight exchange_big /=.
+have -> : mxdot M M = \sum_(p : 'I_d * 'I_d)
+    mxdot (row (mxvec_index p.1 p.2) M^T) (row (mxvec_index p.1 p.2) M^T).
+  rewrite -mxdot_trmx -[LHS]/(\sum_q \sum_k M^T q k * M^T q k).
+  rewrite (reindex (uncurry (@mxvec_index d d))) /=.
+    exact: (curry_mxvec_bij d d).
+  apply: eq_bigr => -[a b] _ /=; rewrite /mxdot big_ord1.
+  by apply: eq_bigr => k _; rewrite !mxE.
+rewrite mulr_sumr; apply: ler_sum => p _; rewrite -mulr_suml.
+apply: ler_wpM2r; first exact: mxdot_ge0.
+apply: le_trans (_ : \sum_(j < d) ((p.1 == j)%:R + (p.2 == j)%:R) <= _).
+  apply: ler_sum => j _.
+  by case: (p.1 == j); case: (p.2 == j); rewrite /= ?addr0 ?add0r ?lerDl.
+have one (k : 'I_d) : \sum_(e < d) (k == e)%:R = 1 :> R.
+  by have := sum_delta d (fun=> 1) k; under eq_bigr do rewrite mul1r.
+by rewrite big_split /= !one; lra.
+Qed.
+
+Section sum_l2.
+Local Open Scope ereal_scope.
+Context dT (T : measurableType dT) (mu : {measure set T -> \bar R}).
+
+Lemma lee_sqr_fin (x : \bar R) (y : R) : 0 <= x -> (0 <= y)%R ->
+  x ^+ 2 <= (y ^+ 2)%:E -> x <= y%:E.
+Proof.
+case: x => [r| |] // r0 y0.
+  rewrite -EFin_expe !lee_fin => h.
+  by rewrite -(ler_pXn2r (_ : (0 < 2)%N)) ?nnegrE.
+Qed.
+
+(* Cauchy-Schwarz for nonnegative functions with bounded second moments:
+   E f g <= a b when E f^2 <= a^2 and E g^2 <= b^2. *)
+Lemma integral_mul_le (f g : T -> RR) (a b : R) :
+  measurable_fun setT f -> measurable_fun setT g ->
+  (forall x, (0 <= f x)%R) -> (forall x, (0 <= g x)%R) ->
+  (0 <= a)%R -> (0 <= b)%R ->
+  \int[mu]_x (f x ^+ 2)%:E <= (a ^+ 2)%:E ->
+  \int[mu]_x (g x ^+ 2)%:E <= (b ^+ 2)%:E ->
+  \int[mu]_x (f x * g x)%:E <= (a * b)%:E.
+Proof.
+move=> mf mg f0 g0 a0 b0 hf hg.
+apply: lee_sqr_fin.
+- by apply: integral_ge0 => x _; rewrite lee_fin mulr_ge0.
+- by rewrite mulr_ge0.
+have := cauchy_schwarz mu mf mg.
+under eq_integral do rewrite ger0_norm ?mulr_ge0 //.
+move/le_trans; apply; rewrite exprMn EFinM.
+by apply: lee_pmul => //; apply: integral_ge0 => x _;
+  rewrite lee_fin sqr_ge0.
+Qed.
+
+(* || sum_i Y_i ||_2 <= sum_i c_i when || Y_i ||_2 <= c_i, for nonnegative
+   Y_i, in squared form. *)
+Lemma integral_sum_sqr_le (I : finType) (Y : I -> T -> RR) (c : I -> R) :
+  (forall i, measurable_fun setT (Y i)) -> (forall i x, (0 <= Y i x)%R) ->
+  (forall i, (0 <= c i)%R) ->
+  (forall i, \int[mu]_x ((Y i x) ^+ 2)%:E <= ((c i) ^+ 2)%:E) ->
+  \int[mu]_x ((\sum_i Y i x) ^+ 2)%:E <= ((\sum_i c i) ^+ 2)%:E.
+Proof.
+move=> mY Y0 c0 hY.
+have e x : ((\sum_i Y i x) ^+ 2 = \sum_i \sum_k Y i x * Y k x)%R.
+  by rewrite expr2 mulr_suml; apply: eq_bigr => i _; rewrite mulr_sumr.
+have m2 i k : measurable_fun setT (fun x => (Y i x * Y k x)%:E).
+  by apply/measurable_EFinP; exact: measurable_funM.
+have p2 i k x : 0 <= (Y i x * Y k x)%:E by rewrite lee_fin mulr_ge0.
+under eq_integral do rewrite e -sumEFin.
+under eq_integral do under eq_bigr do rewrite -sumEFin.
+rewrite ge0_integral_sum //.
+- by move=> i; apply: emeasurable_sum => k; exact: m2.
+- by move=> i x _; apply: sume_ge0 => k _; exact: p2.
+have h i k : \int[mu]_x (Y i x * Y k x)%:E <= (c i * c k)%:E.
+  apply: lee_sqr_fin; first by apply: integral_ge0 => x _; exact: p2.
+    by rewrite mulr_ge0.
+  have := cauchy_schwarz mu (mY i) (mY k).
+  under eq_integral do rewrite ger0_norm ?mulr_ge0 //.
+  move/le_trans; apply; rewrite exprMn EFinM.
+  by apply: lee_pmul => //; apply: integral_ge0 => x _;
+    rewrite lee_fin sqr_ge0.
+have E k : \int[mu]_x (\sum_i (Y k x * Y i x)%:E) =
+    \sum_i \int[mu]_x (Y k x * Y i x)%:E.
+  by rewrite ge0_integral_sum.
+under eq_bigr do rewrite E.
+apply: (@le_trans _ _ (\sum_k \sum_i (c k * c i)%:E)).
+  by apply: lee_sum => k _; apply: lee_sum => i _; exact: h.
+under eq_bigr do rewrite sumEFin.
+rewrite sumEFin lee_fin le_eqVlt; apply/orP; left; apply/eqP.
+by rewrite expr2 mulr_suml; apply: eq_bigr => k _; rewrite mulr_sumr.
+Qed.
+
+End sum_l2.
+
 Section data_feature.
 Local Open Scope ereal_scope.
 Variables (kappa K : R) (d : nat).
@@ -1265,9 +1661,6 @@ Lemma data_feature_dotE (th : 'rV[R]_(d * d)) t :
   mxdot (data_feature_map d t) th =
   ((Num.sqrt d%:R)^-1 * quad_form (vec_mx th) t)%R.
 Proof. by rewrite -data_feature_dot vec_mxK. Qed.
-
-Lemma sqrt_inv_sqr : ((Num.sqrt d%:R)^-1 * (Num.sqrt d%:R)^-1 = d%:R^-1 :> R)%R.
-Proof. by rewrite -invfM -expr2 sqr_sqrtr ?ler0n. Qed.
 
 (* Covariance matching: E <W, theta> = 0 and
    E <W, theta> <W, theta'> = theta C_kappa theta'^T. *)
@@ -1301,14 +1694,10 @@ by rewrite !RmultE !RplusE ?RminusE.
 Qed.
 
 (* (F1) for the features: E <W, theta>^4 <= 9 2^33 K^8 |theta|^4 / d^2. *)
-Lemma data_feature_fourth (th : 'rV[R]_(d * d)) :
-  'E_mu[fun z => (mxdot z th ^+ 4)%R] <=
+Lemma feature_dot_moment4 (th : 'rV[R]_(d * d)) :
+  \int[P]_t (mxdot (data_feature_map d t) th ^+ 4)%:E <=
   (9 * 2 ^+ 33 * K ^+ 8 / d%:R ^+ 2 * mxdot th th ^+ 2)%:E.
 Proof.
-have mf : measurable_fun setT
-    (fun z : 'rV[RR]_(d * d) => (mxdot z th ^+ 4)%R : RR).
-  by apply: measurable_funX; exact: measurable_mxdotl.
-rewrite (data_feature_expectation _ mf).
 set c : R := (d%:R ^- 2)%R.
 have -> : \int[P]_t (mxdot (data_feature_map d t) th ^+ 4)%:E =
     \int[P]_t (c%:E * (quad_form (vec_mx th) t ^+ 4)%:E).
@@ -1327,6 +1716,370 @@ rewrite -EFinM lee_fin.
 have -> : mxdot (vec_mx th) (vec_mx th) = mxdot th th.
   by rewrite -mxdot_mxvec !vec_mxK.
 by rewrite /c le_eqVlt; apply/orP; left; apply/eqP; ring.
+Qed.
+
+Lemma data_feature_fourth (th : 'rV[R]_(d * d)) :
+  'E_mu[fun z => (mxdot z th ^+ 4)%R] <=
+  (9 * 2 ^+ 33 * K ^+ 8 / d%:R ^+ 2 * mxdot th th ^+ 2)%:E.
+Proof.
+have mf : measurable_fun setT
+    (fun z : 'rV[RR]_(d * d) => (mxdot z th ^+ 4)%R : RR).
+  by apply: measurable_funX; exact: measurable_mxdotl.
+by rewrite (data_feature_expectation _ mf); exact: feature_dot_moment4.
+Qed.
+
+(* The same with a square: E <W, theta>^4 <= (2^19 K^4 |theta|^2 / d)^2. *)
+Lemma feature_dot_moment4_sqr (th : 'rV[R]_(d * d)) :
+  \int[P]_t ((mxdot (data_feature_map d t) th ^+ 2) ^+ 2)%:E <=
+  ((2 ^+ 19 * K ^+ 4 / d%:R * mxdot th th) ^+ 2)%:E.
+Proof.
+under eq_integral do rewrite -exprM.
+apply: le_trans (feature_dot_moment4 th) _; rewrite lee_fin.
+have K8 : (0 <= K ^+ 8)%R := exprn8_ge0 K.
+have A : (0 <= mxdot th th ^+ 2 / d%:R ^+ 2)%R.
+  by rewrite divr_ge0 ?sqr_ge0 ?exprn_ge0.
+have e1 : (9 * 2 ^+ 33 * K ^+ 8 / d%:R ^+ 2 * mxdot th th ^+ 2 =
+    (9 * 2 ^+ 33) * (K ^+ 8 * (mxdot th th ^+ 2 / d%:R ^+ 2)))%R.
+  by ring.
+have e2 : ((2 ^+ 19 * K ^+ 4 / d%:R * mxdot th th) ^+ 2 =
+    2 ^+ 38 * (K ^+ 8 * (mxdot th th ^+ 2 / d%:R ^+ 2)))%R.
+  by rewrite -exprVn; ring.
+rewrite e1 e2; apply: ler_wpM2r; first exact: mulr_ge0 K8 A.
+lra.
+Qed.
+
+
+(* The fourth moment of the part of W M in the row and the column j:
+   E |rc_j (W M)|^4 <= (2^19 K^4 rc_weight j M / d)^2. *)
+Lemma proj_feature_moment4 (M : 'M[R]_(d * d)) (j : 'I_d) :
+  \int[P]_t (mxdot (rc_proj j (vec_mx (data_feature_map d t *m M)))
+                   (rc_proj j (vec_mx (data_feature_map d t *m M))) ^+ 2)%:E
+  <= ((2 ^+ 19 * K ^+ 4 / d%:R * rc_weight j M) ^+ 2)%:E.
+Proof.
+under eq_integral do rewrite rc_proj_norm.
+under eq_integral do under eq_bigr do rewrite mulmx_row_dot.
+rewrite /rc_weight mulr_sumr.
+pose S (p : 'I_d * 'I_d) : R := ((p.1 == j) || (p.2 == j))%:R.
+pose th (p : 'I_d * 'I_d) := row (mxvec_index p.1 p.2) M^T.
+apply: (integral_sum_sqr_le _ _ P _
+  (fun p t => (S p * mxdot (data_feature_map d t) (th p) ^+ 2)%R : RR)
+  (fun p => 2 ^+ 19 * K ^+ 4 / d%:R * (S p * mxdot (th p) (th p)))%R).
+- move=> p; apply: measurable_funM => //; apply: measurable_funX.
+  exact: measurableT_comp (measurable_mxdotl _ _)
+    (measurable_data_feature_map d).
+- by move=> p t; rewrite mulr_ge0 ?ler0n ?sqr_ge0.
+- move=> p; apply: mulr_ge0; last by rewrite mulr_ge0 ?ler0n ?mxdot_ge0.
+  apply: divr_ge0; last exact: ler0n.
+  by apply: mulr_ge0; [exact: exprn_ge0 | exact: exprn4_ge0].
+move=> p; rewrite /S; case: (_ || _).
+  under eq_integral do rewrite mul1r.
+  by rewrite mul1r; exact: feature_dot_moment4_sqr.
+under eq_integral do rewrite mul0r expr0n.
+by rewrite integral0 mul0r mulr0 expr0n.
+Qed.
+
+(* E |W - W^(j)|_F^4 <= 2^20 K^8, x^(j) the point x with its coordinate j
+   resampled. *)
+Lemma feature_diff_moment4 (j : 'I_d) :
+  \int[P \x nu j]_p
+    (mxdot (data_feature_map d p.1 - data_feature_map d (tuple_set p.1 j p.2))
+           (data_feature_map d p.1 - data_feature_map d (tuple_set p.1 j p.2))
+     ^+ 2)%:E <= (2 ^+ 20 * K ^+ 8)%:E.
+Proof.
+have K0 : (0 < K)%R := @coordinate_law_K _ _ _ (hnu j (ltn_ord j)).
+have d1 : (1 <= d%:R :> R)%R by rewrite ler1n (leq_ltn_trans (leq0n j)).
+set C1 : R := (54 * 2 ^+ 7)%R; set C2 : R := (36 / d%:R)%R.
+have C10 : (0 <= C1)%R by rewrite /C1 mulr_ge0 // exprn_ge0.
+have C20 : (0 <= C2)%R by rewrite /C2 divr_ge0 // ler0n.
+have mz := measurable_data_feature_map d.
+have mD : measurable_fun setT (fun p : d.-tuple (measurableTypeR R) *
+    measurableTypeR R => (data_feature_map d p.1 -
+      data_feature_map d (tuple_set p.1 j p.2))%R).
+  apply: measurable_addmx; first exact: measurableT_comp mz measurable_fst.
+  apply: measurable_oppmx.
+  exact: measurableT_comp mz (measurable_tuple_set_pair j).
+have mx8 : measurable_fun setT
+    (fun t : d.-tuple (measurableTypeR R) => ((tnth t j : RR) ^+ 8)%:E).
+  by apply/measurable_EFinP; apply: measurable_funX; exact: measurable_tnth.
+have ms8 : measurable_fun setT
+    (fun s : measurableTypeR R => ((s : RR) ^+ 8)%:E).
+  by apply/measurable_EFinP; exact: measurable_funX.
+have mS8 : measurable_fun setT (fun t : d.-tuple (measurableTypeR R) =>
+    ((\sum_(b < d) (tnth t b : RR) ^+ 8)%R)%:E).
+  apply/measurable_EFinP; apply: measurable_sum => b.
+  by apply: measurable_funX; exact: measurable_tnth.
+have e80 (y : R) : 0 <= (y ^+ 8)%:E by rewrite lee_fin exprn8_ge0.
+have S80 (t : d.-tuple (measurableTypeR R)) :
+    0 <= ((\sum_(b < d) (tnth t b : R) ^+ 8)%R)%:E.
+  by rewrite lee_fin sumr_ge0 // => b _; exact: exprn8_ge0.
+apply: (@le_trans _ _ (\int[P \x nu j]_p
+    ((C1%:E * ((tnth p.1 j : R) ^+ 8)%:E + C1%:E * ((p.2 : R) ^+ 8)%:E) +
+     C2%:E * ((\sum_(b < d) (tnth p.1 b : R) ^+ 8)%R)%:E))).
+  apply: ge0_le_integral => //.
+  - by move=> p _; rewrite lee_fin sqr_ge0.
+  - apply/measurable_EFinP; apply: measurable_funX.
+    exact: measurable_mxdot_fun.
+  - apply: emeasurable_funD; first apply: emeasurable_funD.
+    + by apply: measurable_funeM; exact: measurableT_comp mx8 measurable_fst.
+    + by apply: measurable_funeM; exact: measurableT_comp ms8 measurable_snd.
+    + by apply: measurable_funeM; exact: measurableT_comp mS8 measurable_fst.
+  move=> p _; rewrite -!EFinM -!EFinD lee_fin /C1 /C2 -mulrDr.
+  exact: feature_diff_norm4_le.
+rewrite ge0_integralD //.
+- by move=> p _; rewrite adde_ge0 // mule_ge0 ?lee_fin ?exprn8_ge0.
+- apply: emeasurable_funD.
+  + by apply: measurable_funeM; exact: measurableT_comp mx8 measurable_fst.
+  + by apply: measurable_funeM; exact: measurableT_comp ms8 measurable_snd.
+- by move=> p _; apply: mule_ge0; [rewrite lee_fin | exact: S80].
+- by apply: measurable_funeM; exact: measurableT_comp mS8 measurable_fst.
+rewrite ge0_integralD //.
+- by move=> p _; rewrite mule_ge0 ?lee_fin ?exprn8_ge0.
+- by apply: measurable_funeM; exact: measurableT_comp mx8 measurable_fst.
+- by move=> p _; rewrite mule_ge0 ?lee_fin ?exprn8_ge0.
+- by apply: measurable_funeM; exact: measurableT_comp ms8 measurable_snd.
+rewrite ge0_integralZl_EFin //;
+  first exact: measurableT_comp mx8 measurable_fst.
+rewrite ge0_integralZl_EFin //;
+  first exact: measurableT_comp ms8 measurable_snd.
+rewrite ge0_integralZl_EFin //;
+  first exact: measurableT_comp mS8 measurable_fst.
+rewrite (resample_fst d nu j _ mx8); first by move=> t; exact: e80.
+rewrite (resample_snd d nu j _ ms8); first by move=> s; exact: e80.
+rewrite (resample_fst d nu j _ mS8); first by move=> t; exact: S80.
+clear mD mz mx8 ms8 mS8.
+have B1 := coord_tuple_moment8 _ _ _ _ hnu j.
+have B2 := coord_moment8 _ _ _ _ hnu j.
+have B3 : \int[P]_t ((\sum_(b < d) (tnth t b : R) ^+ 8)%R)%:E <=
+    (d%:R * (48 * K ^+ 8))%:E.
+  under eq_integral do rewrite -sumEFin.
+  rewrite ge0_integral_sum //.
+  - move=> b; apply/measurable_EFinP; apply: measurable_funX.
+    exact: measurable_tnth.
+  apply: (@le_trans _ _ (\sum_(k < d) (48 * K ^+ 8)%:E)).
+    by apply: lee_sum => k _; exact: (coord_tuple_moment8 _ _ _ _ hnu k).
+  rewrite sumEFin sumr_const card_ord lee_fin [X in (_ <= X)%R]mulr_natl.
+  exact: lexx.
+have C1' : 0 <= C1%:E by rewrite lee_fin.
+have C2' : 0 <= C2%:E by rewrite lee_fin.
+apply: le_trans (leeD (leeD (lee_wpmul2l C1' B1) (lee_wpmul2l C1' B2))
+  (lee_wpmul2l C2' B3)) _.
+rewrite -!EFinM -!EFinD lee_fin /C1 /C2.
+have K8 : (0 <= K ^+ 8)%R := exprn8_ge0 K.
+have e : (36 / d%:R * (d%:R * (48 * K ^+ 8)) = 36 * 48 * K ^+ 8)%R.
+  have dn : (d%:R != 0 :> R)%R by rewrite gt_eqF // (lt_le_trans ltr01 d1).
+  by field.
+by rewrite e; lra.
+Qed.
+
+(* Resampling the coordinate j changes F (x) = z T z^T, z the feature of x,
+   by at most 2^30 K^8 (rc_weight j T + rc_weight j T^T) / d in mean
+   square. *)
+Lemma quad_stat_resample2 (T : 'M[R]_(d * d)) (j : 'I_d) :
+  \int[P]_t \int[nu j]_s
+    ((mxdot (data_feature_map d t) (data_feature_map d t *m T) -
+      mxdot (data_feature_map d (tuple_set t j s))
+            (data_feature_map d (tuple_set t j s) *m T)) ^+ 2)%:E <=
+  (2 ^+ 30 * K ^+ 8 / d%:R * (rc_weight j T + rc_weight j T^T))%:E.
+Proof.
+have K0 : (0 < K)%R := @coordinate_law_K _ _ _ (hnu j (ltn_ord j)).
+have K4 : (0 <= K ^+ 4)%R := exprn4_ge0 K.
+have K8 : (0 <= K ^+ 8)%R := exprn8_ge0 K.
+have dinv : (0 <= d%:R^-1 :> R)%R by rewrite invr_ge0 ler0n.
+set z := data_feature_map d.
+have mz : measurable_fun setT z := measurable_data_feature_map d.
+have mz1 : measurable_fun setT (fun p : d.-tuple (measurableTypeR R) *
+    measurableTypeR R => z p.1) := measurableT_comp mz measurable_fst.
+have mz2 : measurable_fun setT (fun p : d.-tuple (measurableTypeR R) *
+    measurableTypeR R => z (tuple_set p.1 j p.2)).
+  exact: measurableT_comp mz (measurable_tuple_set_pair j).
+have mq (f : d.-tuple (measurableTypeR R) * measurableTypeR R ->
+    'rV[RR]_(d * d)) : measurable_fun setT f ->
+    measurable_fun setT (fun p => mxdot (f p) (f p *m T) : RR).
+  move=> mf; apply: measurable_mxdot_fun => //.
+  by apply: measurable_mulmx => //; exact: measurable_cst.
+have mR (M : 'M[R]_(d * d)) : measurable_fun setT
+    (fun t : d.-tuple (measurableTypeR R) =>
+      mxdot (rc_proj j (vec_mx (z t *m M)))
+            (rc_proj j (vec_mx (z t *m M))) : RR).
+  have m1 : measurable_fun setT (fun t : d.-tuple (measurableTypeR R) =>
+      rc_proj j (vec_mx (z t *m M)) : 'M[RR]_d).
+    apply: measurable_rc_proj; apply: measurable_vec_mx.
+    by apply: measurable_mulmx => //; exact: measurable_cst.
+  exact: measurable_mxdot_fun.
+pose D2 (p : d.-tuple (measurableTypeR R) * measurableTypeR R) : R :=
+  mxdot (z p.1 - z (tuple_set p.1 j p.2)) (z p.1 - z (tuple_set p.1 j p.2)).
+have mD2 : measurable_fun setT (fun p => D2 p : RR).
+  have mD : measurable_fun setT (fun p : d.-tuple (measurableTypeR R) *
+      measurableTypeR R => (z p.1 - z (tuple_set p.1 j p.2))%R).
+    by apply: measurable_addmx => //; exact: measurable_oppmx.
+  exact: measurable_mxdot_fun.
+pose R1 (t : d.-tuple (measurableTypeR R)) : R :=
+  mxdot (rc_proj j (vec_mx (z t *m T))) (rc_proj j (vec_mx (z t *m T))).
+pose R2 (t : d.-tuple (measurableTypeR R)) : R :=
+  mxdot (rc_proj j (vec_mx (z t *m T^T))) (rc_proj j (vec_mx (z t *m T^T))).
+have mR1 : measurable_fun setT (fun p : d.-tuple (measurableTypeR R) *
+    measurableTypeR R => R1 p.1 : RR).
+  exact: measurableT_comp (mR T) measurable_fst.
+have mR2 : measurable_fun setT (fun p : d.-tuple (measurableTypeR R) *
+    measurableTypeR R => R2 (tuple_set p.1 j p.2) : RR).
+  exact: measurableT_comp (mR T^T) (measurable_tuple_set_pair j).
+have D20 p : (0 <= D2 p)%R by exact: mxdot_ge0.
+have R10 t : (0 <= R1 t)%R by exact: mxdot_ge0.
+have R20 t : (0 <= R2 t)%R by exact: mxdot_ge0.
+pose G (p : d.-tuple (measurableTypeR R) * measurableTypeR R) :=
+  ((mxdot (z p.1) (z p.1 *m T) -
+    mxdot (z (tuple_set p.1 j p.2)) (z (tuple_set p.1 j p.2) *m T)) ^+ 2)%:E.
+have mG : measurable_fun setT G.
+  apply/measurable_EFinP; apply: measurable_funX.
+  by apply: measurable_funB; apply: mq.
+have G0 p : 0 <= G p by rewrite lee_fin sqr_ge0.
+rewrite (resample_prod d nu j G mG G0).
+(* pointwise: (F - F')^2 <= 2 |D|^2 R1 + 2 |D|^2 R2 *)
+apply: (@le_trans _ _ (\int[P \x nu j]_p
+    (2%:E * (D2 p * R1 p.1)%:E + 2%:E * (D2 p * R2 (tuple_set p.1 j p.2))%:E))).
+  apply: ge0_le_integral => //.
+  - apply: emeasurable_funD; apply: measurable_funeM;
+      by apply/measurable_EFinP; exact: measurable_funM.
+  move=> p _; rewrite /G -!EFinM -EFinD lee_fin quad_stat_diff.
+  have h1 := feature_diff_dot_le d p.1 j p.2 (z p.1 *m T).
+  have h2 := feature_diff_dot_le d p.1 j p.2
+    (z (tuple_set p.1 j p.2) *m T^T).
+  rewrite -/(D2 p) -/(R1 p.1) in h1.
+  rewrite -/(D2 p) -/(R2 (tuple_set p.1 j p.2)) in h2.
+  move: h1 h2; set a := mxdot _ (z p.1 *m T); set b := mxdot _ (_ *m T^T).
+  move=> h1 h2; have := sqr_ge0 (a - b); nra.
+clear mG G0 G mq mz mz1 mz2.
+have D2m : \int[P \x nu j]_p ((D2 p) ^+ 2)%:E <= ((2 ^+ 10 * K ^+ 4) ^+ 2)%:E.
+  rewrite (_ : (2 ^+ 10 * K ^+ 4) ^+ 2 = 2 ^+ 20 * K ^+ 8)%R.
+    by rewrite exprMn -!exprM.
+  exact: feature_diff_moment4.
+have R1m : \int[P \x nu j]_p ((R1 p.1) ^+ 2)%:E <=
+    ((2 ^+ 19 * K ^+ 4 / d%:R * rc_weight j T) ^+ 2)%:E.
+  rewrite (resample_fst d nu j (fun t => ((R1 t) ^+ 2)%:E)).
+  - by apply/measurable_EFinP; apply: measurable_funX; exact: mR.
+  - by move=> t; rewrite lee_fin sqr_ge0.
+  exact: proj_feature_moment4.
+have R2m : \int[P \x nu j]_p ((R2 (tuple_set p.1 j p.2)) ^+ 2)%:E <=
+    ((2 ^+ 19 * K ^+ 4 / d%:R * rc_weight j T^T) ^+ 2)%:E.
+  rewrite (resample_set d nu j (fun t => ((R2 t) ^+ 2)%:E)).
+  - by apply/measurable_EFinP; apply: measurable_funX; exact: mR.
+  - by move=> t; rewrite lee_fin sqr_ge0.
+  exact: proj_feature_moment4.
+have c10 := rc_weight_ge0 d j T; have c20 := rc_weight_ge0 d j T^T.
+have a0 : (0 <= 2 ^+ 10 * K ^+ 4)%R by rewrite mulr_ge0 // exprn_ge0.
+have b0 (c : R) : (0 <= c)%R -> (0 <= 2 ^+ 19 * K ^+ 4 / d%:R * c)%R.
+  move=> c0; apply: mulr_ge0 => //; apply: mulr_ge0 => //.
+  by apply: mulr_ge0 => //; exact: exprn_ge0.
+have I1 := integral_mul_le _ _ (P \x nu j) _ _ _ _ mD2 mR1 D20
+  (fun p => R10 p.1) a0 (b0 _ c10) D2m R1m.
+have I2 := integral_mul_le _ _ (P \x nu j) _ _ _ _ mD2 mR2 D20
+  (fun p => R20 _) a0 (b0 _ c20) D2m R2m.
+have m1 : measurable_fun setT (fun p : d.-tuple (measurableTypeR R) *
+    measurableTypeR R => (D2 p * R1 p.1)%:E).
+  by apply/measurable_EFinP; exact: measurable_funM.
+have m2 : measurable_fun setT (fun p : d.-tuple (measurableTypeR R) *
+    measurableTypeR R => (D2 p * R2 (tuple_set p.1 j p.2))%:E).
+  by apply/measurable_EFinP; exact: measurable_funM.
+rewrite ge0_integralD //.
+- by move=> p _; rewrite mule_ge0 // lee_fin mulr_ge0.
+- exact: measurable_funeM.
+- by move=> p _; rewrite mule_ge0 // lee_fin mulr_ge0.
+- exact: measurable_funeM.
+rewrite !ge0_integralZl_EFin //.
+- by move=> p _; rewrite lee_fin mulr_ge0.
+- by move=> p _; rewrite lee_fin mulr_ge0.
+have t0 : (0 : \bar R) <= 2 by rewrite lee_fin ler0n.
+apply: le_trans (leeD (lee_wpmul2l t0 I1) (lee_wpmul2l t0 I2)) _.
+rewrite -!EFinM -EFinD lee_fin le_eqVlt; apply/orP; left; apply/eqP.
+by ring.
+Qed.
+
+Lemma integrable_quad_stat (T : 'M[R]_(d * d)) :
+  P.-integrable setT (fun t =>
+    (mxdot (data_feature_map d t) (data_feature_map d t *m T))%:E).
+Proof.
+apply: (integrable_poly _ _ _ _ hnu 4 (fun t =>
+  mxdot (data_feature_map d t) (data_feature_map d t *m T) : RR)
+  (frobenius T * (4 * d%:R))%R).
+  exact: measurable_quad_stat.
+move=> t; apply: le_trans (quad_stat_le _ _ _) _; rewrite -mulrA.
+by apply: ler_wpM2l; [exact: frobenius_ge0 | exact: feature_norm_le].
+Qed.
+
+(* (F2) for the features: Var (z T z^T) <= 2^31 K^8 |T|_F^2 / d. *)
+Lemma data_feature_variance (T : 'M[R]_(d * d)) :
+  'V_mu[fun z => mxdot z (z *m T)] <= (2 ^+ 31 * K ^+ 8 / d%:R * mxdot T T)%:E.
+Proof.
+have mF : measurable_fun setT
+    (fun z : 'rV[RR]_(d * d) => mxdot z (z *m T) : RR).
+  apply: measurable_mxdot_fun; first exact: measurable_id.
+  by apply: measurable_mulmx; [exact: measurable_id | exact: measurable_cst].
+rewrite /data_feature_law (variance_distribution _ _ mF).
+apply: le_trans (efron_stein_resample (integrable_quad_stat T)) _.
+have h0 : (0 : \bar R) <= (2^-1)%:E by rewrite lee_fin invr_ge0.
+apply: (le_trans (lee_wpmul2l h0 _)).
+  by apply: lee_sum => j _; exact: quad_stat_resample2.
+rewrite /= sumEFin -EFinM lee_fin -mulr_sumr big_split /=.
+have K8 : (0 <= K ^+ 8)%R := exprn8_ge0 K.
+have c0 : (0 <= 2 ^+ 30 * K ^+ 8 / d%:R)%R.
+  by rewrite divr_ge0 ?ler0n // mulr_ge0 // exprn_ge0.
+have S := lerD (sum_rc_weight d T) (sum_rc_weight d T^T).
+rewrite mxdot_trmx in S.
+apply: le_trans (ler_wpM2l _ (ler_wpM2l c0 S)) _; first by rewrite invr_ge0.
+rewrite le_eqVlt; apply/orP; left; apply/eqP.
+by set u := (d%:R^-1)%R; clearbody u; field.
+Qed.
+
+(* Proposition 2.6: for kappa > 1, the law of the quadratic features is a
+   regular feature with covariance C_kappa, K_feat = 2^10 K^2 /
+   sqrt (kappa - 1) and tau = sqrt (2^31 K^8 / d), of order 1 / sqrt d. *)
+Theorem data_feature_regular : (1 < kappa)%R -> (0 < d)%N ->
+  regular_feature (2 ^+ 10 * K ^+ 2 / Num.sqrt (kappa - 1))%R
+    (Num.sqrt (2 ^+ 31 * K ^+ 8 / d%:R))%R (unsat_cov kappa d) mu.
+Proof.
+move=> k1 d0.
+have kp : (0 < kappa - 1)%R by rewrite subr_gt0.
+have dp : (0 < d%:R :> R)%R by rewrite ltr0n.
+have lam := unsat_cov_opnorm_ge kappa d d0.
+have lam0 : (0 < (kappa - 1) / d%:R)%R by rewrite divr_gt0.
+split.
+- exact: lt_le_trans lam0 lam.
+- move=> th; apply: le_trans (data_feature_fourth th) _; rewrite lee_fin.
+  have K8 : (0 <= K ^+ 8)%R := exprn8_ge0 K.
+  have t2 : (0 <= mxdot th th ^+ 2)%R by exact: sqr_ge0.
+  have e : ((2 ^+ 10 * K ^+ 2 / Num.sqrt (kappa - 1)) ^+ 4 =
+      2 ^+ 40 * K ^+ 8 / (kappa - 1) ^+ 2)%R.
+    have s4 : (Num.sqrt (kappa - 1) ^+ 4 = (kappa - 1) ^+ 2)%R.
+      by rewrite -[4%N]/(2 * 2)%N exprM sqr_sqrtr // ltW.
+    by rewrite expr_div_n s4; ring.
+  rewrite e; set L := opnorm _.
+  have l2 : ((kappa - 1) ^+ 2 / d%:R ^+ 2 <= L ^+ 2)%R.
+    rewrite -expr_div_n ler_pXn2r // nnegrE ?(ltW lam0) //.
+    exact: ltW (lt_le_trans lam0 lam).
+  have kn : (kappa - 1 != 0)%R by rewrite gt_eqF.
+  have dn : (d%:R != 0 :> R)%R by rewrite gt_eqF.
+  have X : (9 * 2 ^+ 33 * K ^+ 8 / d%:R ^+ 2 <=
+      2 ^+ 40 * K ^+ 8 / (kappa - 1) ^+ 2 * L ^+ 2)%R.
+    apply: le_trans (_ : _ <= 2 ^+ 40 * K ^+ 8 / (kappa - 1) ^+ 2 *
+      ((kappa - 1) ^+ 2 / d%:R ^+ 2))%R _.
+      have -> : (2 ^+ 40 * K ^+ 8 / (kappa - 1) ^+ 2 *
+          ((kappa - 1) ^+ 2 / d%:R ^+ 2) =
+          2 ^+ 40 * (K ^+ 8 / d%:R ^+ 2))%R by field.
+      have k0 : (0 <= K ^+ 8 / d%:R ^+ 2)%R.
+        by rewrite divr_ge0 // exprn_ge0 // ltW.
+      have -> : (9 * 2 ^+ 33 * K ^+ 8 / d%:R ^+ 2 =
+          9 * 2 ^+ 33 * (K ^+ 8 / d%:R ^+ 2))%R by ring.
+      by apply: ler_wpM2r => //; lra.
+    apply: ler_wpM2l => //.
+    apply: divr_ge0; first by rewrite mulr_ge0 // exprn_ge0.
+    by rewrite exprn_ge0 // ltW.
+  by apply: ler_wpM2r.
+- exact: data_feature_mean.
+- exact: data_feature_cov.
+move=> T _; apply: le_trans (data_feature_variance T) _.
+rewrite sqr_sqrtr ?frobenius_sqr //.
+apply: divr_ge0; last exact: ler0n.
+by apply: mulr_ge0; [exact: exprn_ge0 | exact: exprn8_ge0].
 Qed.
 
 (* Lane C's forms (Unsat/Ridge): E <W, A> <W, B> = feature_cov kappa A B
