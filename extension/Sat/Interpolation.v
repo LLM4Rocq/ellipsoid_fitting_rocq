@@ -17,7 +17,7 @@
        N z <= Cu D |z| for every z (Proposition 3.1 (iii), Sat/Apriori),
        gam D |t| <= N (h + t) whenever |I| <= k, h is supported in I, t
          is supported off I, K D t_i^2 <= |t|^2 for every i and
-         |h|_1 <= r |t| (Proposition 3.4, Sat/LightTail of lane B),
+         |h|_1 <= r |t| (Proposition 3.4, Sat/LightTailBound of lane B),
      and (1 - 1/(K D))^k <= D^(-4), 2 Cu D <= a r, 4 Cu <= a D, D >= 2.
      Then every lam has a set I of at most k largest coordinates with
        a |lam_I|_1 + D |lam off I| <= (3 + (Cu + 1) / gam + 1 / Cu) N lam.
