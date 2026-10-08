@@ -74,6 +74,10 @@
      (gaussian_feature_quad_subexponential: a Gaussian linear form <g, a>
      is subexponential with constant 4 |a|, gauss_mxdot_subexponential, and
      |a|^2 = C_kappa (v^T v, v^T v) <= (kappa + 1) / d, unsat_cov_form_le).
+     For every A, by the Hanson-Wright inequality, <W, A> is
+     subexponential with constant L / sqrt d for every L >= 252 K^2 |A|_F
+     (data_feature_subexponential; data_feature_subexponential_frob with
+     L = 252 K^2 |A|_F for A != 0).
 
    - gaussian_feature_regular: for kappa > 1 and d > 0,
      gaussian_feature_law kappa d is a regular feature with covariance
@@ -94,7 +98,7 @@ From mathcomp Require Import sesquilinear.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss.
 From GaussianAnalysis.comparison Require Import gauss_linear.
 From GaussianAnalysis.probability Require Import lindeberg subgaussian.
-From GaussianAnalysis.probability Require Import efron_stein.
+From GaussianAnalysis.probability Require Import efron_stein hanson_wright.
 From GaussianAnalysis.matrix Require Import euclidean opnorm real_spectral.
 From GaussianAnalysis.convex Require Import least_squares gauss_feature.
 From EllipsoidFitting Require Import PaperMainDefinitions.
@@ -2473,6 +2477,50 @@ have m0' : (0 <= mxdot v v * K ^+ 2)%R.
 rewrite -mulr_suml Sv exprMn (sqr_sqrtr m0').
 have K2 : (0 <= K ^+ 2)%R := sqr_ge0 K.
 by have := ler_wpM2r K2 v1; nra.
+Qed.
+
+(* Every quadratic form of the features, by the Hanson-Wright inequality
+   (probability/hanson_wright.v): <W, A> = (x^T A x - tr A) / sqrt d is
+   subexponential with constant L / sqrt d for every L >= 252 K^2 |A|_F
+   (requests/c-to-a.md, item 1). *)
+Lemma data_feature_subexponential (A : 'M[R]_d) (L : R) :
+  (0 < d)%N -> (0 < L)%R -> (252 * K ^+ 2 * frobenius A <= L)%R ->
+  subexponential mu (fun z => mxdot z (mxvec A) : RR) (L / Num.sqrt d%:R)%R.
+Proof.
+move=> d0 L0 hL; rewrite /data_feature_law.
+apply/subexponential_distribution; first exact: measurable_mxdotl.
+have sd : (0 < Num.sqrt d%:R :> R)%R by rewrite sqrtr_gt0 ltr0n.
+have sg : forall j, (j < d)%N ->
+    subgaussian (nu j) (fun x : measurableTypeR R => (x : R)) K.
+  by move=> j jd; exact: (@coordinate_law_subgaussian _ _ _ (hnu j jd)).
+have m0 : forall j, (j < d)%N ->
+    (\int[nu j]_t (fun x : measurableTypeR R => (x : R)) t)%R = 0%R.
+  move=> j jd; rewrite /Rintegral.
+  by rewrite (@coordinate_law_mean _ _ _ (hnu j jd)).
+have hw := @hanson_wright_subexponential _ _ RR nu d
+  (fun=> fun x : measurableTypeR R => (x : R)) K sg m0 A L L0 hL.
+have hc : hw_center nu (fun=> fun x : measurableTypeR R => (x : R)) A = \tr A.
+  rewrite /hw_center /mxtrace; apply: eq_bigr => i _.
+  rewrite /hw_sqmean /Rintegral (@coordinate_law_second _ _ _ (hnu i (ltn_ord i))).
+  by rewrite /= mulr1.
+rewrite hc in hw.
+have e : (fun z => mxdot z (mxvec A) : RR) \o data_feature_map d =
+    (fun t => (hw_quad (fun=> fun x : measurableTypeR R => (x : R)) A t -
+       \tr A) / Num.sqrt d%:R)%R.
+  by apply/boolp.funext => t /=; rewrite data_feature_dot quad_formE mulrC.
+by rewrite e; exact: subexponential_scale.
+Qed.
+
+(* The form of requests/c-to-a.md: constant 252 K^2 |A|_F / sqrt d, for
+   A != 0. *)
+Lemma data_feature_subexponential_frob (A : 'M[R]_d) :
+  (0 < d)%N -> (A != 0)%R ->
+  subexponential mu (fun z => mxdot z (mxvec A) : RR)
+    (252 * K ^+ 2 * frobenius A / Num.sqrt d%:R)%R.
+Proof.
+move=> d0 A0; have K0 : (0 < K)%R := @coordinate_law_K _ _ _ (hnu 0 d0).
+apply: data_feature_subexponential => //.
+by rewrite !mulr_gt0 ?exprn_gt0 ?frobenius_gt0 // ltr0n.
 Qed.
 
 (* The same for the Gaussian feature: constant 4 sqrt (kappa + 1) / sqrt d
