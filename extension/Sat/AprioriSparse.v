@@ -23,7 +23,17 @@
      outside a measurable event of probability at most 2 exp (- s), every
      m-sparse u satisfies
      |sum_i u_i x_i| <= 32 K sqrt (m (1 + ln (n / m)) + 6 (m + d) + s) |u|
-     (sparse_norm_subgaussian of restricted_isometry.v). *)
+     (sparse_norm_subgaussian of restricted_isometry.v).
+   - sparse_gram_bound (the bound on Q_I): for 0 < m <= n, 0 < beta <= 1/2
+     and th >= 0, outside a measurable event of probability at most
+     2 (log_4 m + 2) exp (- sqrt m (1 + ln (n / m))) +
+     2 n exp (- d min (th^2 / (576 K^4), th / (12 K^2))), every m-sparse u
+     satisfies | |L_X^* u|_F^2 / d - |u|^2 | <= gram_dev |u|^2, where
+     gram_dev = (256 T^2 + 32 T sqrt B + 8 beta B) / d + th (2 + th) +
+     (3 + 2 th) / d, T = gram_scale is the scale of restricted_isometry
+     for the features (subexponential with constant 252 K^2 / sqrt d, by
+     data_feature_hw of Sat/Apriori) and B = gram_feature_bound bounds
+     |W_i|_F^2 when | |x_i|^2 - d | <= th d (feature_dev_le). *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -222,3 +232,187 @@ apply: le_trans (hGp _ Gx u um) _.
 have e84 : (8 * 4 = 32 :> R)%R by rewrite -natrM.
 by rewrite /sparse_norm_bound mulrA e84.
 Qed.
+
+(* 3. The Gram matrices of sparse sets of features. *)
+
+(* |W|_F^2 - d for a point with | |x|^2 - d | <= th d: with s = |x|^2,
+   |W|_F^2 = (s^2 - 2 s + d) / d (mxdot_sample_W). *)
+Lemma feature_dev_le (s dR th : R) : (0 < dR)%R -> (0 <= th)%R ->
+  (`|s - dR| <= th * dR)%R ->
+  (`|(s ^+ 2 - 2 * s + dR) / dR - dR| <=
+   dR * (th * (2 + th)) + (3 + 2 * th))%R.
+Proof.
+move=> d0 th0 hs.
+have dn : dR != 0 by rewrite gt_eqF.
+have -> : ((s ^+ 2 - 2 * s + dR) / dR - dR =
+    ((s - dR) ^+ 2 + 2 * dR * (s - dR) - 2 * (s - dR) - dR) / dR)%R.
+  by field.
+move: hs; set e := (s - dR)%R => hs.
+rewrite normrM normfV (gtr0_norm d0) ler_pdivrMr //.
+have hth : (0 <= th * dR)%R by rewrite mulr_ge0 // ltW.
+have e1 : (- (th * dR) <= e <= th * dR)%R by rewrite -ler_norml.
+have e2 : (e ^+ 2 <= (th * dR) ^+ 2)%R.
+  rewrite -[e ^+ 2]real_normK ?num_real //.
+  by rewrite ler_sqr ?nnegrE ?normr_ge0.
+have de : (- (th * dR * dR) <= dR * e <= th * dR * dR)%R.
+  move: e1 => /andP[e1 e1']; apply/andP; split.
+    by rewrite -mulNr [dR * e]mulrC ler_wpM2r // ltW.
+  by rewrite [dR * e]mulrC ler_wpM2r // ltW.
+move: e1 e2 de => /andP[e1 e1'] e2 /andP[de de'].
+rewrite exprMn in e2.
+have t2 : (0 <= th ^+ 2 * dR ^+ 2)%R by rewrite mulr_ge0 ?sqr_ge0.
+have es : (0 <= e ^+ 2)%R := sqr_ge0 e.
+clearbody e.
+by rewrite ler_norml; apply/andP; split; lra.
+Qed.
+
+Section sparse_gram.
+Variables (kappa K : R) (n d m : nat).
+Variable nu : nat -> probability (measurableTypeR R) R.
+Hypothesis hnu :
+  forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j).
+Hypotheses (d0 : (0 < d)%N) (m0 : (0 < m)%N) (mn : (m <= n)%N).
+Variables (beta th : R).
+Hypotheses (beta0 : (0 < beta)%R) (beta1 : (beta <= 1 / 2)%R).
+Hypothesis th0 : (0 <= th)%R.
+
+(* The scale T of the restricted isometry theorem for the features, whose
+   linear forms are subexponential with constant 252 K^2 / sqrt d
+   (data_feature_hw). *)
+Definition gram_scale : R :=
+  rip_T n m (252 * K ^+ 2 / Num.sqrt d%:R)%R beta 1.
+
+(* |W_i|_F^2 <= gram_feature_bound when | |x_i|^2 - d | <= th d. *)
+Definition gram_feature_bound : R :=
+  (d%:R * (1 + th * (2 + th)) + (3 + 2 * th))%R.
+
+(* The isometry defect of the Gram matrices Q_I. *)
+Definition gram_dev : R :=
+  ((256 * gram_scale ^+ 2 + 32 * gram_scale * Num.sqrt gram_feature_bound +
+    8 * beta * gram_feature_bound) / d%:R +
+   th * (2 + th) + (3 + 2 * th) / d%:R)%R.
+
+(* The bound on Q_I: outside a measurable event of the stated probability,
+   | |sum_i u_i W_i|_F^2 / d - |u|^2 | <= gram_dev |u|^2 for every m-sparse
+   u. *)
+Theorem sparse_gram_bound :
+  exists G : set (paper_main_sample n d), [/\ measurable G,
+    (universality_sample_law nu n d (~` G) <=
+      (2 * (trunc_log 4 m).+2%:R *
+         expR (- (Num.sqrt m%:R * (1 + ln (n%:R / m%:R)))) +
+       n%:R * (2 * expR (- Num.min (th ^+ 2 * d%:R / (576 * K ^+ 4))
+                                   (th * d%:R / (12 * K ^+ 2)))))%:E)%E &
+    forall x, G x -> forall u : 'rV[R]_n, (#|supp u| <= m)%N ->
+      (`|frobenius (sample_adj x u) ^+ 2 / d%:R - mxdot u u| <=
+       gram_dev * mxdot u u)%R].
+Proof.
+have K0 : (0 < K)%R by have [] := hnu 0 d0.
+set psi := (252 * K ^+ 2 / Num.sqrt d%:R)%R.
+have sd0 : (0 < Num.sqrt d%:R :> R)%R by rewrite sqrtr_gt0 ltr0n.
+have psi0 : (0 < psi)%R by rewrite /psi !mulr_gt0 ?invr_gt0 ?exprn_gt0.
+have sub i (y : 'rV[R]_(d * d)) : (i < n)%N -> mxdot y y = 1%R ->
+    subexponential (data_feature_law nu d) (fun v => mxdot v y) psi.
+  by move=> _ y1; exact: data_feature_hw kappa K d nu hnu d0 y y1.
+have cen i (y : 'rV[R]_(d * d)) : (i < n)%N -> mxdot y y = 1%R ->
+    (\int[data_feature_law nu d]_v mxdot v y = 0)%R.
+  move=> _ _; have := data_feature_mean _ _ _ _ hnu y.
+  by rewrite /Rintegral unlock => ->.
+(* the restricted isometry theorem for the features, with K = 1 *)
+have [Gf [mGf PGf hGf]] := @restricted_isometry RR n (d * d) m
+  (fun=> data_feature_law nu d) psi psi0 sub cen beta 1 m0 mn beta0 beta1
+  (lexx _).
+have mF : measurable (unsat_features n d @^-1` Gf).
+  rewrite -[X in measurable X]setTI.
+  exact: (measurable_unsat_features n d) measurableT Gf mGf.
+have mN := measurable_norm_good n d th.
+exists (unsat_features n d @^-1` Gf `&` norm_good n d th); split.
+- exact: measurableI.
+- rewrite setCI; apply: le_trans (measureU2 _ _ _) _.
+  + exact: measurableC.
+  + exact: measurableC.
+  rewrite EFinD; apply: leeD.
+    have e := sample_features_law nu n d (~` Gf) (measurableC mGf).
+    apply: (@le_trans _ _
+      (tuple_prod (fun=> data_feature_law nu d) n (~` Gf))).
+      rewrite preimage_setC.
+      exact: (eq_ind_r (fun v => (v <= _)%E) (lexx _) e).
+    by apply: le_trans PGf _; rewrite mul1r.
+  exact: (norm_good_prob kappa K n d nu hnu th th0).
+move=> x [/= hGx hNx] u um.
+set X := unsat_features n d x.
+have dR : (0 < d%:R :> R)%R by rewrite ltr0n.
+(* the squared norms of the features *)
+have hdev (i : 'I_n) : (`|mxdot (tnth X i) (tnth X i) - d%:R| <=
+    d%:R * (th * (2 + th)) + (3 + 2 * th))%R.
+  rewrite /X -mxvec_sample_W mxdot_mxvec mxdot_sample_W //.
+  by apply: feature_dev_le => //; exact: ltW (hNx i).
+set D0 := (d%:R * (th * (2 + th)) + (3 + 2 * th))%R in hdev.
+have D00 : (0 <= D0)%R.
+  have h1 : (0 <= d%:R * (th * (2 + th)))%R.
+    have t2 : (0 <= 2 + th)%R := addr_ge0 (ler0n _ 2) th0.
+    exact: mulr_ge0 (ler0n _ _) (mulr_ge0 th0 t2).
+  have t3 : (0 <= 3 + 2 * th)%R :=
+    addr_ge0 (ler0n _ 3) (mulr_ge0 (ler0n _ 2) th0).
+  exact: addr_ge0 h1 t3.
+have GF : gram_feature_bound = (d%:R + D0)%R.
+  by rewrite /gram_feature_bound /D0; ring.
+have hsq (i : 'I_n) : (mxdot (tnth X i) (tnth X i) <= gram_feature_bound)%R.
+  have := hdev i; rewrite ler_norml => /andP[_ h].
+  by rewrite GF addrC -lerBlDr.
+have GF0 : (0 <= gram_feature_bound)%R by rewrite GF addr_ge0 // ltW.
+have hmax : (maxnorm X <= Num.sqrt gram_feature_bound)%R.
+  rewrite /maxnorm; apply: bigmax_le; first exact: sqrtr_ge0.
+  by move=> i _; rewrite /frobenius ler_wsqrtr.
+(* the restricted isometry constant *)
+have T0 : (0 <= gram_scale)%R.
+  rewrite /gram_scale /rip_T -/psi.
+  have l1 : (0 <= ln (n%:R / m%:R : RR))%R.
+    by rewrite ln_ge0 // ler_pdivlMr ?ltr0n // mul1r ler_nat.
+  have b1 : (beta <= 1)%R.
+    by apply: le_trans beta1 _; rewrite ler_pdivrMr //; lra.
+  have l2 : (ln beta <= 0)%R by rewrite ln_le0.
+  apply: mulr_ge0; last by lra.
+  by rewrite !mulr_ge0 ?sqrtr_ge0 ?ler0n // ltW.
+have gsE : rip_T n m psi beta 1 = gram_scale by [].
+have hrip : (rip_const m X <= 256 * gram_scale ^+ 2 +
+    32 * gram_scale * Num.sqrt gram_feature_bound +
+    8 * beta * gram_feature_bound)%R.
+  apply: le_trans (hGf X hGx) _; rewrite gsE.
+  apply: lerD; first apply: lerD => //.
+    by apply: ler_wpM2l => //; rewrite mulr_ge0.
+  apply: ler_wpM2l; first by rewrite mulr_ge0 // ltW.
+  rewrite -[X in (_ <= X)%R](sqr_sqrtr GF0).
+  by rewrite ler_sqr ?nnegrE ?maxnorm_ge0 ?sqrtr_ge0.
+(* | |u X|^2 - d |u|^2 | <= (rip_const + D0) |u|^2 *)
+have key : (`|mxdot (u *m tuple_mx X) (u *m tuple_mx X) -
+    d%:R * mxdot u u| <= (rip_const m X + D0) * mxdot u u)%R.
+  have uu : mxdot u u = (\sum_i u 0 i * u 0 i)%R by rewrite /mxdot big_ord1.
+  have -> : (mxdot (u *m tuple_mx X) (u *m tuple_mx X) - d%:R * mxdot u u =
+      gram_off X u u +
+      \sum_i u 0 i * u 0 i * (mxdot (tnth X i) (tnth X i) - d%:R))%R.
+    rewrite /gram_off uu mulr_sumr.
+    under [X in _ = _ + X]eq_bigr do rewrite mulrBr.
+    by rewrite sumrB; under [X in _ = _ + (_ - X)]eq_bigr do rewrite mulrC;
+      ring.
+  rewrite mulrDl; apply: le_trans (ler_normD _ _) _; apply: lerD.
+    exact: gram_off_rip.
+  apply: le_trans (ler_norm_sum _ _ _) _.
+  rewrite uu mulr_sumr; apply: ler_sum => i _.
+  have u2 : (0 <= u 0 i * u 0 i)%R by rewrite -expr2 sqr_ge0.
+  by rewrite normrM (ger0_norm u2) mulrC ler_wpM2r // hdev.
+have dn : d%:R != 0 :> R by rewrite gt_eqF.
+rewrite frobenius_sample_adj frobenius_sqr -/X.
+have -> : (mxdot (u *m tuple_mx X) (u *m tuple_mx X) / d%:R - mxdot u u =
+    (mxdot (u *m tuple_mx X) (u *m tuple_mx X) - d%:R * mxdot u u) /
+    d%:R)%R by field.
+rewrite normrM normfV (gtr0_norm dR) ler_pdivrMr //.
+apply: le_trans key _.
+rewrite [X in (_ <= X)%R]mulrAC; apply: ler_wpM2r; first exact: mxdot_ge0.
+have -> : (gram_dev * d%:R = 256 * gram_scale ^+ 2 +
+    32 * gram_scale * Num.sqrt gram_feature_bound +
+    8 * beta * gram_feature_bound + D0)%R.
+  by rewrite /gram_dev /D0; field.
+by rewrite lerD2r.
+Qed.
+
+End sparse_gram.
