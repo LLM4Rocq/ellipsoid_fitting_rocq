@@ -671,6 +671,10 @@ theories/Unsat/SupercriticalParameters.v
 
 extension/UniversalityDefinitions.v
 extension/UniversalityStatement.v
+extension/MixtureDefinitions.v
+extension/MixtureStatement.v
+extension/PairedDefinitions.v
+extension/PairedStatement.v
 extension/Model/Rows.v
 extension/Model/Measurability.v
 extension/Features/Definitions.v
@@ -702,3 +706,5 @@ extension/Sat/ApproximateFit.v
 extension/Sat/Universality.v
 extension/Sat/SmallResidual.v
 extension/UniversalityTheorem.v
+extension/Mixture/Component.v
+extension/Paired/Uniform.v
