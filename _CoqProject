@@ -681,6 +681,7 @@ extension/Model/Rows.v
 extension/Model/Measurability.v
 extension/Features/Definitions.v
 extension/Features/Regular.v
+extension/Features/Mixture.v
 extension/Gaussian/Cones.v
 extension/Gaussian/Threshold.v
 extension/Gaussian/Representation.v
