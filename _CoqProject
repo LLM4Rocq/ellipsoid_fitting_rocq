@@ -681,6 +681,7 @@ extension/Gaussian/InProbability.v
 extension/Gaussian/Limit.v
 extension/Gaussian/Subcritical.v
 extension/Gaussian/FittingError.v
+extension/Gaussian/GaussianModel.v
 extension/Unsat/LeastSquares.v
 extension/Unsat/Regularized.v
 extension/Unsat/Ridge.v
