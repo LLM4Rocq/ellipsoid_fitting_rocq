@@ -63,15 +63,6 @@ have -> : (1 - t) * mxdot u u + t * mxdot v v -
 by rewrite mulr_ge0 ?mxdot_ge0 // mulr_ge0 // subr_ge0.
 Qed.
 
-Lemma ls_objective_ge0 n (Z : n.-tuple 'rV[R]_N) (lambda beta : R) th b :
-  0 <= lambda -> 0 <= beta -> 0 <= ls_objective Z lambda beta th b.
-Proof.
-move=> l0 b0; rewrite /ls_objective; apply: addr_ge0.
-  rewrite mulr_ge0 ?invr_ge0 ?mulrn_wge0 ?ler0n //.
-  by rewrite sumr_ge0 // => j _; rewrite sqr_ge0.
-by rewrite mulr_ge0 ?addr_ge0 ?sqr_ge0 ?mulr_ge0 ?mxdot_ge0.
-Qed.
-
 (* F_Z is convex in (theta, b). *)
 Lemma ls_objective_convex n (Z : n.-tuple 'rV[R]_N) (lambda beta t : R)
     (th th' : 'rV[R]_N) (b b' : R) :

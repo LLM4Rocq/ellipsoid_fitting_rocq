@@ -45,17 +45,28 @@ From GaussianAnalysis Require Import measurable_matrix euclidean opnorm.
 (* The paper's lambda is the operator norm opnorm Sigma; the definitions take *)
 (* it as a parameter, so that they do not depend on a law.                    *)
 (*                                                                            *)
-(* Planned results (stage 1 of phase 5):                                      *)
-(* - The values are nonnegative when B >= 0 on D, and at most                 *)
-(*   F_Z(theta, b; beta) + gamma B theta for every theta in D and b;          *)
-(*   ls_barrier_value with gamma = 0 is ls_value, and ls_value is             *)
-(*   nondecreasing in beta.                                                   *)
-(* - Z |-> Phi_Z(D, B; beta, gamma) and Z |-> Phi_Z(D; beta) are measurable   *)
-(*   functions of the n-tuple Z (they are upper semicontinuous), for every D, *)
-(*   B >= 0 continuous on D, and beta, gamma >= 0.                            *)
-(* - A regular feature has finite fourth moments of its linear forms, so      *)
-(*   that Z |-> F_Z(theta, b; beta) and Z |-> Phi_Z are integrable for the    *)
-(*   law of n independent copies.                                             *)
+(* Main results, for lambda, beta, gamma >= 0 and B >= 0 on D:                *)
+(* - ls_objective_ge0: F_Z(theta, b; beta) >= 0.                              *)
+(* - ls_barrier_value_le, ls_barrier_value_ge0: Phi_Z(D, B; beta, gamma) is   *)
+(*   at most F_Z(theta, b; beta) + gamma B theta for every theta in D and     *)
+(*   every real b, and it is nonnegative.                                     *)
+(* - ls_value_barrierE: Phi_Z(D; beta) is the value with a barrier of weight  *)
+(*   0; ls_value_le and ls_value_ge0 are the same bounds for it.              *)
+(* - ls_barrier_value_mono, ls_value_mono: the values are nondecreasing in    *)
+(*   beta.                                                                    *)
+(* Over an empty D both values are 0 (ls_barrier_value_empty).                *)
+(*                                                                            *)
+(* Elsewhere in the library. The values are measurable functions of the       *)
+(* n-tuple Z when D is nonempty, convex and relatively open and B >= 0 is     *)
+(* continuous on D (measurable_ls_barrier_value in barrier_lindeberg.v,       *)
+(* measurable_ls_value in ridge_comparison.v), and so is the minimizer        *)
+(* (measurable_ls_min, probability/measurable_minimizer.v). For a regular     *)
+(* feature, the fourth moments of the linear forms are finite and every       *)
+(* measurable g with |g z| <= a + b |z|^4 is integrable (reg_int4,            *)
+(* reg_integrable in feature_moments.v); under the hypotheses of Theorem 2.9, *)
+(* Phi_Z(D, B; beta, gamma) is integrable for n independent regular features  *)
+(* (int_Phi, barrier_lindeberg.v). Gaussian features are regular              *)
+(* (gauss_regular_feature, gauss_feature.v).                                  *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -97,6 +108,131 @@ Definition ls_value n (Z : n.-tuple 'rV[R]_N) (lambda beta : R) D : R :=
   inf [set ls_objective Z lambda beta theta b | theta in D & b in [set: R]].
 
 End least_squares.
+
+Section least_squares_values.
+Context {R : realType} {N : nat}.
+Implicit Types (D : set 'rV[R]_N) (B : 'rV[R]_N -> R).
+
+Lemma ls_objective_ge0 n (Z : n.-tuple 'rV[R]_N) (lambda beta : R) th b :
+  0 <= lambda -> 0 <= beta -> 0 <= ls_objective Z lambda beta th b.
+Proof.
+move=> l0 b0; rewrite /ls_objective; apply: addr_ge0.
+  rewrite mulr_ge0 ?invr_ge0 ?mulrn_wge0 ?ler0n //.
+  by rewrite sumr_ge0 // => j _; rewrite sqr_ge0.
+by rewrite mulr_ge0 ?addr_ge0 ?sqr_ge0 ?mulr_ge0 ?mxdot_ge0.
+Qed.
+
+(* Phi_Z(D; beta) is the value with a barrier of weight 0. *)
+Lemma ls_value_barrierE n (Z : n.-tuple 'rV[R]_N) (lambda beta : R)
+    (D : set 'rV[R]_N) (B : 'rV[R]_N -> R) :
+  ls_value Z lambda beta D = ls_barrier_value Z lambda beta D 0 B.
+Proof.
+rewrite /ls_value /ls_barrier_value; congr inf; apply/seteqP.
+by split => _ [th Dth [b _ <-]]; exists th => //; exists b => //;
+  rewrite mul0r addr0.
+Qed.
+
+Lemma ls_barrier_value_empty n (Z : n.-tuple 'rV[R]_N) (lambda beta : R) D
+    (gamma : R) B :
+  ~ (D !=set0) -> ls_barrier_value Z lambda beta D gamma B = 0.
+Proof.
+move=> D0; rewrite /ls_barrier_value -[RHS]inf0; congr inf.
+apply/seteqP; split; last exact: sub0set.
+by move=> y [th Dth _]; apply: D0; exists th.
+Qed.
+
+Lemma ls_barrier_value_le n (Z : n.-tuple 'rV[R]_N) (lambda beta : R) D
+    (gamma : R) B th b :
+  0 <= lambda -> 0 <= beta -> 0 <= gamma -> (forall z, D z -> 0 <= B z) ->
+  D th ->
+  ls_barrier_value Z lambda beta D gamma B <=
+    ls_objective Z lambda beta th b + gamma * B th.
+Proof.
+move=> l0 b0 g0 B0 Dth; rewrite /ls_barrier_value.
+have lb : has_lbound [set ls_objective Z lambda beta th' b' + gamma * B th' |
+    th' in D & b' in [set: R]].
+  exists 0 => _ [th' Dth' [b' _ <-]].
+  by rewrite addr_ge0 ?ls_objective_ge0 // mulr_ge0 ?B0.
+by apply: (ge_inf lb); exists th => //; exists b.
+Qed.
+
+Lemma ls_barrier_value_ge0 n (Z : n.-tuple 'rV[R]_N) (lambda beta : R) D
+    (gamma : R) B :
+  0 <= lambda -> 0 <= beta -> 0 <= gamma -> (forall z, D z -> 0 <= B z) ->
+  0 <= ls_barrier_value Z lambda beta D gamma B.
+Proof.
+move=> l0 b0 g0 B0.
+have [[th Dth]|D0] := pselect (D !=set0); last first.
+  by rewrite ls_barrier_value_empty // lexx.
+rewrite /ls_barrier_value; apply: lb_le_inf.
+  exists (ls_objective Z lambda beta th 0 + gamma * B th), th => //.
+  by exists 0.
+move=> _ [th' Dth' [b' _ <-]].
+by rewrite addr_ge0 ?ls_objective_ge0 // mulr_ge0 ?B0.
+Qed.
+
+Lemma ls_barrier_value_mono n (Z : n.-tuple 'rV[R]_N) (lambda beta beta' : R)
+    D (gamma : R) B :
+  0 <= lambda -> 0 <= beta -> beta <= beta' -> 0 <= gamma ->
+  (forall z, D z -> 0 <= B z) ->
+  ls_barrier_value Z lambda beta D gamma B <=
+    ls_barrier_value Z lambda beta' D gamma B.
+Proof.
+move=> l0 b0 bb g0 B0.
+have [[th Dth]|D0] := pselect (D !=set0); last first.
+  by rewrite !ls_barrier_value_empty // lexx.
+have Fle th' b' :
+    ls_objective Z lambda beta th' b' <= ls_objective Z lambda beta' th' b'.
+  have q0 : 0 <= lambda * mxdot th' th' + b' ^+ 2.
+    by rewrite addr_ge0 ?sqr_ge0 // mulr_ge0 // mxdot_ge0.
+  by rewrite /ls_objective lerD2l (ler_wpM2r q0 bb).
+have lb : has_lbound [set ls_objective Z lambda beta th' b' + gamma * B th' |
+    th' in D & b' in [set: R]].
+  exists 0 => _ [th' Dth' [b' _ <-]].
+  by rewrite addr_ge0 ?ls_objective_ge0 // mulr_ge0 ?B0.
+rewrite /ls_barrier_value; apply: lb_le_inf.
+  exists (ls_objective Z lambda beta' th 0 + gamma * B th), th => //.
+  by exists 0.
+move=> _ [th' Dth' [b' _ <-]].
+apply: le_trans (ge_inf lb _) _; first by exists th' => //; exists b'.
+by rewrite lerD2r Fle.
+Qed.
+
+Lemma ls_value_le n (Z : n.-tuple 'rV[R]_N) (lambda beta : R) D th b :
+  0 <= lambda -> 0 <= beta -> D th ->
+  ls_value Z lambda beta D <= ls_objective Z lambda beta th b.
+Proof.
+pose B0f : 'rV[R]_N -> R := fun=> 0.
+move=> l0 b0 Dth; rewrite (ls_value_barrierE Z lambda beta D B0f).
+have z0 : (0 : R) <= 0 := lexx 0.
+have B0 z : D z -> 0 <= B0f z by move=> _; exact: lexx.
+by have := ls_barrier_value_le Z b l0 b0 z0 B0 Dth; rewrite mul0r addr0.
+Qed.
+
+Lemma ls_value_ge0 n (Z : n.-tuple 'rV[R]_N) (lambda beta : R) D :
+  0 <= lambda -> 0 <= beta -> 0 <= ls_value Z lambda beta D.
+Proof.
+pose B0f : 'rV[R]_N -> R := fun=> 0.
+move=> l0 b0; rewrite (ls_value_barrierE Z lambda beta D B0f).
+have z0 : (0 : R) <= 0 := lexx 0.
+have B0 z : D z -> 0 <= B0f z by move=> _; exact: lexx.
+by apply: ls_barrier_value_ge0.
+Qed.
+
+Lemma ls_value_mono n (Z : n.-tuple 'rV[R]_N) (lambda beta beta' : R) D :
+  0 <= lambda -> 0 <= beta -> beta <= beta' ->
+  ls_value Z lambda beta D <= ls_value Z lambda beta' D.
+Proof.
+pose B0f : 'rV[R]_N -> R := fun=> 0.
+move=> l0 b0 bb.
+rewrite (ls_value_barrierE Z lambda beta D B0f).
+rewrite (ls_value_barrierE Z lambda beta' D B0f).
+have z0 : (0 : R) <= 0 := lexx 0.
+have B0 z : D z -> 0 <= B0f z by move=> _; exact: lexx.
+by apply: ls_barrier_value_mono.
+Qed.
+
+End least_squares_values.
 
 Section regular_feature.
 Context {R : realType} {N : nat}.
