@@ -706,4 +706,5 @@ extension/Sat/Universality.v
 extension/Sat/SmallResidual.v
 extension/UniversalityTheorem.v
 extension/Mixture/Component.v
+extension/Mixture/Flat.v
 extension/Paired/Uniform.v
