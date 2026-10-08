@@ -5,6 +5,7 @@ From mathcomp Require Import topology normedtype derive.
 From mathcomp Require Import measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import probability arithmetic_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss gauss_ibp.
+From GaussianAnalysis.gaussian Require Import gauss_interpolation.
 
 (**md**************************************************************************)
 (* # The Gaussian orthogonal ensemble                                         *)
@@ -27,15 +28,20 @@ From GaussianAnalysis.gaussian Require Import measurable_matrix gauss gauss_ibp.
 (*   products and powers of matrices with such entries (mx_polyfun) and for   *)
 (*   their traces.                                                            *)
 (* - is_derive_mxpow: the derivative of M |-> (M ^+ k) i j at W along E is    *)
-(*   the entry (i, j) of mxpow_deriv W E k = \sum_(r < k) W^r E W^(k-1-r).    *)
+(*   the entry (i, j) of mxpow_deriv W E k = \sum_(r < k) W^r E W^(k-1-r);    *)
+(*   mxpow_deriv_trace: for W symmetric, \sum_(i, j) of the entries (j, i) of *)
+(*   mxpow_deriv W (E_ij + E_ji) k is k tr W^(k-1) + \sum_(r < k) tr W^r tr   *)
+(*   W^(k-1-r).                                                               *)
+(* - gauss_ibp_polyfun: Gaussian integration by parts E[x_p F x] = E[d_p F x] *)
+(*   for F and d_p F of polynomial growth.                                    *)
+(* - goe_schwinger_dyson: the Schwinger-Dyson equation for the moments of W,  *)
+(*   E tr W^(k+1) = (k E tr W^(k-1) + \sum_(r < k) E[tr W^r tr W^(k-1-r)])    *)
+(*   / d, by integration by parts in each coordinate a_ij of a; with t_k = tr *)
+(*   W^k / d it reads E t_(k+1) = (k / d) E t_(k-1) + \sum_(r < k) E[t_r      *)
+(*   t_(k-1-r)].                                                              *)
 (*                                                                            *)
 (* Planned results (phase 5, stage 2; names come with the proofs):            *)
 (*                                                                            *)
-(* - Gaussian integration by parts for W: E[W_ij F (W)] = (1 / d) E[d_ij F    *)
-(*   (W) + d_ji F (W)] for F of class C^1 with derivatives of polynomial      *)
-(*   growth (from gauss_ibp).                                                 *)
-(* - The Schwinger-Dyson equation for the moments t_k = \tr (W^k) / d: E      *)
-(*   t_(k+1) = (k / d) E t_(k-1) + \sum_(r < k) E[t_r t_(k-1-r)].             *)
 (* - Var t_k = O(1 / d^2), by the Gaussian Poincare inequality.               *)
 (* - E t_k tends to the k-th moment of semicircle_prob 2 (a Catalan number    *)
 (*   for k even, 0 for k odd).                                                *)
@@ -256,7 +262,109 @@ rewrite mxpow_derivS [RHS]mxE !mxE -big_split /=; apply: eq_bigr => l _.
 by rewrite /GRing.scale /= addrC mulrC.
 Qed.
 
+Lemma mxpow_derivD W E F k :
+  mxpow_deriv W (E + F) k = mxpow_deriv W E k + mxpow_deriv W F k.
+Proof.
+rewrite /mxpow_deriv -big_split; apply: eq_bigr => r _.
+by rewrite mulmxDr mulmxDl.
+Qed.
+
+Lemma mxpow_derivZ W E c k : mxpow_deriv W (c *: E) k = c *: mxpow_deriv W E k.
+Proof.
+rewrite /mxpow_deriv scaler_sumr; apply: eq_bigr => r _.
+by rewrite -scalemxAr -scalemxAl.
+Qed.
+
+Lemma mulmx_delta_entry p q (A : 'M[R]_(p, n)) (B : 'M[R]_(n, q)) i j a b :
+  (A *m delta_mx i j *m B) a b = A a i * B j b.
+Proof.
+rewrite mxE (bigD1 j) //= big1 ?addr0.
+  move=> l lj; rewrite mxE big1 ?mul0r // => m _.
+  by rewrite mxE (negbTE lj) andbF mulr0.
+rewrite mxE (bigD1 i) //= big1 ?addr0.
+  by move=> m mi; rewrite mxE (negbTE mi) mulr0.
+by rewrite mxE !eqxx mulr1.
+Qed.
+
+Lemma trmx_exp W k : (W ^+ k)^T = W^T ^+ k.
+Proof.
+elim: k => [|k ih]; first by rewrite !expr0 trmx1.
+by rewrite exprSr -mulmxE trmx_mul ih mulmxE -exprS.
+Qed.
+
+(* The sum over (i, j) of the entries (j, i) of the derivative of W^k along
+   E_ij + E_ji: k tr W^(k-1) + \sum_(r < k) tr W^r tr W^(k-1-r) for W
+   symmetric. *)
+Lemma mxpow_deriv_trace W k : W^T = W ->
+  \sum_i \sum_j mxpow_deriv W (delta_mx i j + delta_mx j i) k j i =
+  k%:R * \tr (W ^+ k.-1) + \sum_(r < k) \tr (W ^+ r) * \tr (W ^+ (k.-1 - r)).
+Proof.
+move=> WT; have sym r : (W ^+ r)^T = W ^+ r by rewrite trmx_exp WT.
+have -> : \sum_i \sum_j mxpow_deriv W (delta_mx i j + delta_mx j i) k j i =
+    \sum_(r < k) \sum_i \sum_j ((W ^+ r) j i * (W ^+ (k.-1 - r)) j i +
+      (W ^+ r) j j * (W ^+ (k.-1 - r)) i i).
+  rewrite [RHS]exchange_big; apply: eq_bigr => i _.
+  rewrite [RHS]exchange_big; apply: eq_bigr => j _.
+  rewrite /mxpow_deriv summxE; apply: eq_bigr => r _.
+  by rewrite mulmxDr mulmxDl mxE !mulmx_delta_entry.
+have -> : k%:R * \tr (W ^+ k.-1) = \sum_(r < k) \tr (W ^+ k.-1).
+  by rewrite sumr_const card_ord mulr_natl.
+rewrite -big_split; apply: eq_bigr => r _ /=.
+under eq_bigr do rewrite big_split; rewrite big_split /=.
+congr (_ + _).
+  have rk : (r <= k.-1)%N.
+    by rewrite -ltnS prednK // (leq_ltn_trans _ (ltn_ord r)).
+  rewrite -[in RHS](subnKC rk) exprD -mulmxE -[X in _ *m X]sym.
+  rewrite exchange_big /mxtrace; apply: eq_bigr => j _; rewrite mxE.
+  by apply: eq_bigr => i _; rewrite mxE.
+rewrite /mxtrace mulr_sumr; apply: eq_bigr => i _.
+by rewrite mulr_suml.
+Qed.
+
 End mxpow_derive.
+
+Section mxpow_polyfun.
+Context {R : realType} {m n : nat}.
+
+Lemma mx_polyfun_mxpow_deriv (A : 'rV[R]_m -> 'M[R]_n) (E : 'M[R]_n) k :
+  mx_polyfun A -> mx_polyfun (fun x => mxpow_deriv (A x) E k).
+Proof.
+move=> hA; apply: mx_polyfun_sum => r.
+apply: mx_polyfun_mul; last exact: mx_polyfun_exp.
+by apply: mx_polyfun_mul; [exact: mx_polyfun_exp | exact: mx_polyfun_cst].
+Qed.
+
+(* Integrals of functions of polynomial growth against gauss m. *)
+Lemma integrable_polyfun (F : 'rV[R]_m -> R) : polyfun F ->
+  (gauss m).-integrable [set: 'rV[R]_m] (EFin \o F).
+Proof.
+move=> [cF [C [k hC]]].
+exact: integrable_gauss_poly (continuous_measurable_mx cF) hC.
+Qed.
+
+Lemma Rintegral_polyfunD (F G : 'rV[R]_m -> R) : polyfun F -> polyfun G ->
+  \int[gauss m]_x (F x + G x) = \int[gauss m]_x F x + \int[gauss m]_x G x.
+Proof. by move=> hF hG; rewrite RintegralD //; exact: integrable_polyfun. Qed.
+
+Lemma Rintegral_polyfunZ c (F : 'rV[R]_m -> R) : polyfun F ->
+  \int[gauss m]_x (c * F x) = c * \int[gauss m]_x F x.
+Proof. by move=> hF; rewrite RintegralZl //; exact: integrable_polyfun. Qed.
+
+Lemma Rintegral_polyfun_sum (I : Type) (s : seq I) (F : I -> 'rV[R]_m -> R) :
+  (forall i, polyfun (F i)) ->
+  \int[gauss m]_x (\sum_(i <- s) F i x) = \sum_(i <- s) \int[gauss m]_x F i x.
+Proof. by move=> hF; apply: Rintegral_sum => // i; exact: integrable_polyfun. Qed.
+
+(* Gaussian integration by parts for functions of polynomial growth. *)
+Lemma gauss_ibp_polyfun (p : 'I_m) (F dF : 'rV[R]_m -> R) :
+  (forall x, is_derive x (delta_mx 0 p) F (dF x)) -> polyfun F -> polyfun dF ->
+  \int[gauss m]_x (x 0 p * F x) = \int[gauss m]_x dF x.
+Proof.
+move=> hd hF hdF; have [C [k [h1 h2]]] := polyfun_bound2 hF hdF.
+by rewrite /Rintegral (gauss_ibp hd hF.1 hdF.1 h1 h2).
+Qed.
+
+End mxpow_polyfun.
 
 Section goe.
 Context {R : realType}.
@@ -268,4 +376,117 @@ Definition goe_mx d (a : 'rV[R]_(d * d)) : 'M[R]_d :=
 Lemma goe_mx_sym d (a : 'rV[R]_(d * d)) : (goe_mx a)^T = goe_mx a.
 Proof. by rewrite /goe_mx linearZ /= linearD /= trmxK addrC. Qed.
 
+Lemma goe_mxE d (a : 'rV[R]_(d * d)) i j :
+  goe_mx a i j =
+  (Num.sqrt (2 * d%:R))^-1 * (a 0 (mxvec_index i j) + a 0 (mxvec_index j i)).
+Proof. by rewrite /goe_mx !mxE. Qed.
+
+Lemma goe_mxD d (a b : 'rV[R]_(d * d)) : goe_mx (a + b) = goe_mx a + goe_mx b.
+Proof. by apply/matrixP => i j; rewrite [RHS]mxE !goe_mxE !mxE addrACA mulrDr. Qed.
+
+Lemma goe_mxZ d (h : R) (a : 'rV[R]_(d * d)) : goe_mx (h *: a) = h *: goe_mx a.
+Proof. by apply/matrixP => i j; rewrite [RHS]mxE !goe_mxE !mxE -mulrDr mulrCA. Qed.
+
+Lemma goe_mx_delta d (i j : 'I_d) :
+  goe_mx (delta_mx 0 (mxvec_index i j)) =
+  (Num.sqrt (2 * d%:R))^-1 *: (delta_mx i j + delta_mx j i).
+Proof. by rewrite /goe_mx vec_mx_delta trmx_delta. Qed.
+
+Lemma mx_polyfun_goe d : mx_polyfun (@goe_mx d).
+Proof.
+move=> i j; under eq_fun do rewrite goe_mxE.
+by apply: polyfunM; [exact: polyfun_cst | apply: polyfunD; exact: polyfun_coord].
+Qed.
+
+Lemma is_derive_goe_pow d k (i j : 'I_d) (x v : 'rV[R]_(d * d)) :
+  is_derive x v (fun a => (goe_mx a ^+ k) i j)
+    (mxpow_deriv (goe_mx x) (goe_mx v) k i j).
+Proof.
+apply: (is_derive_transfer (G := fun M : 'M[R]_d => (M ^+ k) i j)
+  (b := goe_mx x) (w := goe_mx v)); last exact: is_derive_mxpow.
+by move=> h; rewrite goe_mxD goe_mxZ.
+Qed.
+
 End goe.
+
+Section goe_moments.
+Context {R : realType}.
+Local Notation gauss := (@gauss R).
+
+(* The Schwinger-Dyson equation for the moments of the GOE: E tr W^(k+1) =
+   (k E tr W^(k-1) + \sum_(r < k) E[tr W^r tr W^(k-1-r)]) / d. *)
+Theorem goe_schwinger_dyson d k :
+  \int[gauss (d * d)]_a \tr (goe_mx a ^+ k.+1) =
+  d%:R^-1 * (k%:R * \int[gauss (d * d)]_a \tr (goe_mx a ^+ k.-1) +
+    \sum_(r < k) \int[gauss (d * d)]_a
+      (\tr (goe_mx a ^+ r) * \tr (goe_mx a ^+ (k.-1 - r)))).
+Proof.
+set c : R := (Num.sqrt (2 * d%:R))^-1.
+have hW := @mx_polyfun_goe R d.
+have hWk r := mx_polyfun_exp r hW.
+have sym (a : 'rV[R]_(d * d)) r : (goe_mx a ^+ r)^T = goe_mx a ^+ r.
+  by rewrite trmx_exp goe_mx_sym.
+(* tr W^(k+1) = 2 c \sum_(i, j) a_ij (W^k)_ji *)
+have htr (a : 'rV[R]_(d * d)) : \tr (goe_mx a ^+ k.+1) =
+    2 * c * \sum_i \sum_j (a 0 (mxvec_index i j) * (goe_mx a ^+ k) j i).
+  rewrite exprS -mulmxE /mxtrace.
+  have e2 : \sum_i \sum_j a 0 (mxvec_index j i) * (goe_mx a ^+ k) j i =
+      \sum_i \sum_j a 0 (mxvec_index i j) * (goe_mx a ^+ k) j i.
+    rewrite exchange_big; apply: eq_bigr => i _; apply: eq_bigr => j _.
+    by rewrite -{1}(sym a k) mxE.
+  have cS (S : R) : 2 * c * S = c * S + c * S.
+    by rewrite -mulrA mulr_natl mulr2n.
+  rewrite cS -[X in _ = _ + c * X]e2 !mulr_sumr -big_split.
+  apply: eq_bigr => i _; rewrite mxE !mulr_sumr -big_split.
+  apply: eq_bigr => j _.
+  by rewrite goe_mxE -/c /= !mulrA -mulrDl -mulrDr.
+have pD (i j : 'I_d) : polyfun (fun a : 'rV[R]_(d * d) =>
+    mxpow_deriv (goe_mx a) (delta_mx i j + delta_mx j i) k j i).
+  exact: mx_polyfun_mxpow_deriv.
+have pT r : polyfun (fun a : 'rV[R]_(d * d) => \tr (goe_mx a ^+ r)).
+  exact: polyfun_trace.
+have pF (i j : 'I_d) : polyfun (fun a : 'rV[R]_(d * d) =>
+    a 0 (mxvec_index i j) * (goe_mx a ^+ k) j i).
+  by apply: polyfunM; [exact: polyfun_coord | exact: hWk].
+(* integration by parts in a_ij: E[a_ij (W^k)_ji] = c E[D_ij] *)
+have hibp (i j : 'I_d) :
+    \int[gauss (d * d)]_a (a 0 (mxvec_index i j) * (goe_mx a ^+ k) j i) =
+    c * \int[gauss (d * d)]_a
+      (mxpow_deriv (goe_mx a) (delta_mx i j + delta_mx j i) k j i).
+  have hd (x : 'rV[R]_(d * d)) := is_derive_goe_pow k j i x
+    (delta_mx 0 (mxvec_index i j)).
+  rewrite (gauss_ibp_polyfun hd (hWk k j i)
+    (mx_polyfun_mxpow_deriv (goe_mx (delta_mx 0 (mxvec_index i j))) k hW j i)).
+  rewrite -Rintegral_polyfunZ; first exact: pD.
+  by apply: eq_Rintegral => a _; rewrite goe_mx_delta mxpow_derivZ mxE.
+have hsum : \sum_i \int[gauss (d * d)]_x
+      \sum_j x 0 (mxvec_index i j) * (goe_mx x ^+ k) j i =
+    c * \int[gauss (d * d)]_a
+      \sum_i \sum_j mxpow_deriv (goe_mx a) (delta_mx i j + delta_mx j i) k j i.
+  rewrite Rintegral_polyfun_sum.
+    by move=> i; apply: polyfun_sum => j; exact: pD.
+  rewrite mulr_sumr; apply: eq_bigr => i _.
+  rewrite Rintegral_polyfun_sum; first by move=> j; exact: pD.
+  rewrite Rintegral_polyfun_sum; first by move=> j; exact: pF.
+  by rewrite mulr_sumr; apply: eq_bigr => j _; exact: hibp.
+under eq_Rintegral do rewrite htr.
+rewrite Rintegral_polyfunZ.
+  by apply: polyfun_sum => i; apply: polyfun_sum => j; exact: pF.
+rewrite Rintegral_polyfun_sum.
+  by move=> i; apply: polyfun_sum => j; exact: pF.
+rewrite hsum.
+under eq_Rintegral do rewrite mxpow_deriv_trace ?goe_mx_sym //.
+rewrite Rintegral_polyfunD.
+- by apply: polyfunM; [exact: polyfun_cst | exact: pT].
+- by apply: polyfun_sum => r; apply: polyfunM; exact: pT.
+rewrite Rintegral_polyfunZ; first exact: pT.
+rewrite [X in _ + X]Rintegral_polyfun_sum.
+  by move=> r; apply: polyfunM; exact: pT.
+have cc : 2 * c * c = d%:R^-1.
+  rewrite /c -mulrA -invfM -expr2 sqr_sqrtr; first by rewrite mulr_ge0 // ler0n.
+  by rewrite invfM mulrA mulfV ?mul1r // pnatr_eq0.
+by rewrite mulrA cc.
+Qed.
+
+End goe_moments.
+
