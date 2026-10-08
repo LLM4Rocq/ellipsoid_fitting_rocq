@@ -54,6 +54,7 @@ library/comparison/escape.v
 library/comparison/cgmt.v
 library/comparison/sudakov.v
 library/comparison/gauss_law.v
+library/comparison/gauss_matrix_law.v
 library/comparison/ornstein_uhlenbeck.v
 library/comparison/brascamp_lieb.v
 library/comparison/brascamp_lieb_lebesgue.v
