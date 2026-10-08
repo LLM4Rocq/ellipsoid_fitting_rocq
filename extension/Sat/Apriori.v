@@ -38,11 +38,15 @@
      nuclear_le_frobenius) and |L_X D| <= adj_const sqrt d |D|_F (by
      duality).
 
+   - adjoint_bound_limit: the same with probability tending to one when
+     n / d^2 tends to alpha > 0, with C = adj_const K 252 (alpha + 1): the
+     failure probability is at most 12 / sqrt (min (n, d^2)) +
+     12 (alpha + 1) / (c^3 d) (trunc_log_expR_le, sqr_expR_le).
+
    Still to come: the first display of Proposition 3.1, the Gram matrices
    Q_I for |I| <= C0' d ln d (restricted_isometry with beta = d^(-1/2) and
    norm_good with th = ln d / sqrt d, through sparse_isometry_dev) and
-   |X_I| (sparse_norm_subgaussian), and the limits of the failure
-   probabilities when n / d^2 tends to alpha > 0. *)
+   |X_I| (sparse_norm_subgaussian). *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -600,3 +604,175 @@ by rewrite mulrAC.
 Qed.
 
 End adjoint_consequences.
+
+(* 6. The failure probabilities tend to 0 when n / d^2 tends to alpha > 0. *)
+
+Section adjoint_limit.
+
+(* 2 (log_4 m + 2) exp (- sqrt m) <= 12 / sqrt m. *)
+Lemma trunc_log_expR_le (m : nat) : (0 < m)%N ->
+  (2 * (trunc_log 4 m).+2%:R * expR (- Num.sqrt m%:R) <=
+   12 / Num.sqrt m%:R :> R)%R.
+Proof.
+move=> m0.
+set k := trunc_log 4 m.
+set s := Num.sqrt m%:R.
+have s1 : (1 <= s :> R)%R.
+  rewrite /s -[X in (X <= _)%R]sqrtr1 ler_sqrt //.
+  by rewrite ler1n.
+have s0 : (0 < s :> R)%R by apply: lt_le_trans s1; exact: ltr01.
+have ss : (s ^+ 2 = m%:R :> R)%R by rewrite sqr_sqrtr // ler0n.
+(* k^2 < 4^k <= m, so k <= sqrt m *)
+have kk : (k * k < m)%N.
+  have h4 := @trunc_logP 4 m isT m0.
+  have h2 := @ltn_expl 2 k isT.
+  apply: leq_trans h4; rewrite (_ : 4 = 2 * 2)%N // expnMn.
+  exact: ltn_mul.
+have ks : (k%:R <= s :> R)%R.
+  rewrite -ler_sqr ?nnegrE ?ler0n ?(ltW s0) // ss -natrX ler_nat -mulnn.
+  exact: ltnW.
+(* exp (sqrt m) >= m / 2 *)
+have es : (s ^+ 2 / 2 <= expR s :> R)%R.
+  have h := expR_ge1Dxn 1 (ltW s0).
+  rewrite (_ : 1.+1`! = 2)%N // in h.
+  by apply: le_trans h; rewrite lerDr.
+have em : (expR (- s) <= 2 / s ^+ 2 :> R)%R.
+  rewrite expRN -[2 / s ^+ 2]invf_div lef_pV2 ?posrE ?divr_gt0 ?exprn_gt0 //.
+  exact: expR_gt0.
+have kR : (k.+2%:R = k%:R + 2 :> R)%R by rewrite -addn2 natrD.
+apply: (@le_trans _ _ (2 * (s + 2) * (2 / s ^+ 2))).
+  rewrite kR; apply: ler_pM.
+  - by rewrite mulr_ge0 // addr_ge0 // ler0n.
+  - exact: ltW (expR_gt0 _).
+  - by rewrite ler_wpM2l // lerD2r.
+  - exact: em.
+have sn : s != 0 by rewrite gt_eqF.
+rewrite -subr_ge0.
+have -> : (12 / s - 2 * (s + 2) * (2 / s ^+ 2) = 8 * (s - 1) / s ^+ 2 :> R)%R.
+  by field.
+by rewrite divr_ge0 ?exprn_ge0 ?(ltW s0) // mulr_ge0 // subr_ge0.
+Qed.
+
+(* d^2 exp (- c d) <= 6 / (c^3 d). *)
+Lemma sqr_expR_le (c : R) (d : nat) : (0 < c)%R -> (0 < d)%N ->
+  (d%:R ^+ 2 * expR (- (c * d%:R)) <= 6 / (c ^+ 3 * d%:R) :> R)%R.
+Proof.
+move=> c0 d0.
+have dR : (0 < d%:R :> R)%R by rewrite ltr0n.
+set y := (c * d%:R)%R.
+have y0 : (0 < y :> R)%R by rewrite mulr_gt0.
+(* exp y >= y^3 / 6 *)
+have h := expR_ge1Dxn 2 (ltW y0).
+rewrite (_ : 2.+1`! = 6)%N // in h.
+have ey : (y ^+ 3 / 6 <= expR y :> R)%R by apply: le_trans h; rewrite lerDr.
+have em : (expR (- y) <= 6 / y ^+ 3 :> R)%R.
+  rewrite expRN -[6 / y ^+ 3]invf_div lef_pV2 ?posrE ?divr_gt0 ?exprn_gt0 //.
+  exact: expR_gt0.
+apply: le_trans (ler_wpM2l _ em) _; first by rewrite exprn_ge0 // ler0n.
+have cn : c != 0 by rewrite gt_eqF.
+have dn : d%:R != 0 :> R by rewrite gt_eqF.
+by rewrite /y le_eqVlt; apply/orP; left; apply/eqP; field.
+Qed.
+
+(* Proposition 3.1, second display, with probability tending to one: if
+   n(d) / d^2 tends to alpha > 0, then for every eps > 0 and every large d,
+   outside a measurable event of probability at most eps, every point has
+   | |x_i|^2 - d | < d and |L_X^* z|_F <= C sqrt d |z| for every z, with
+   C = adj_const K 252 (alpha + 1). *)
+Theorem adjoint_bound_limit (kappa K alpha : R)
+    (nu : nat -> nat -> probability (measurableTypeR R) R) (n : nat -> nat) :
+  (forall d j, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
+  (0 < alpha)%R -> universality_density_tends_to n alpha ->
+  forall eps : R, (0 < eps)%R -> exists D : nat, forall d, (D <= d)%N ->
+  exists E : set (paper_main_sample (n d) d), [/\ measurable E,
+    (universality_sample_law (nu d) (n d) d E <= eps%:E)%E &
+    forall x, ~ E x -> norm_good (n d) d 1 x /\
+      forall z : 'rV[R]_(n d),
+      (frobenius (sample_adj x z) <=
+       adj_const K (252)%R (alpha + 1) * Num.sqrt d%:R * frobenius z)%R].
+Proof.
+move=> hnu a0 hn eps e0.
+have K0 : (0 < K)%R by have [] := hnu 1%N 0%N isT.
+set C0 := (alpha + 1)%R.
+have C01 : (1 <= C0)%R by rewrite /C0 lerDr ltW.
+set c := (Num.min (576 * K ^+ 4)^-1 (12 * K ^+ 2)^-1)%R.
+have c0 : (0 < c)%R by rewrite lt_min !invr_gt0 !mulr_gt0 ?exprn_gt0.
+set q := (Num.min (alpha / 2) 1)%R.
+have q0 : (0 < q)%R by rewrite lt_min divr_gt0 // ltr01.
+have [D1 h1] := hn _ q0.
+pose D2 := (archimedean.Num.truncn ((24 / eps) ^+ 2 / q)).+1.
+pose D3 := (archimedean.Num.truncn (24 * C0 / (c ^+ 3 * eps))).+1.
+exists (maxn (maxn D1 D2) (maxn D3 1)) => d.
+rewrite !geq_max => /andP[/andP[d1 d2] /andP[d3 dpos]].
+have dR : (0 < d%:R :> R)%R by rewrite ltr0n.
+have hd := h1 d d1; rewrite /paper_main_density RdivE in hd.
+have d2R : (0 < d%:R ^+ 2 :> R)%R by rewrite exprn_gt0.
+have qa : (q <= alpha / 2)%R by rewrite /q ge_min lexx.
+have q1 : (q <= 1)%R by rewrite /q ge_min lexx orbT.
+(* q d^2 <= n <= (alpha + 1) d^2 *)
+move: hd; rewrite ltr_norml => /andP[hlo hhi].
+have rlo : (q <= (n d)%:R / d%:R ^+ 2)%R by lra.
+have rhi : ((n d)%:R / d%:R ^+ 2 <= C0)%R by rewrite /C0; lra.
+have nlow : (q * d%:R ^+ 2 <= (n d)%:R)%R by rewrite -ler_pdivlMr.
+have nup : ((n d)%:R <= C0 * d%:R ^+ 2)%R by rewrite -ler_pdivrMr.
+have n0 : (0 < n d)%N.
+  by rewrite -(ltr0n R); apply: lt_le_trans nlow; rewrite mulr_gt0.
+have [G [mG PG HG]] := adjoint_bound_data kappa K C0 (n d) d (nu d) (hnu d)
+  C01 dpos n0 nup.
+exists (~` G); split.
+- exact: measurableC.
+- apply: le_trans PG _; rewrite lee_fin.
+  rewrite [eps]splitr; apply: lerD.
+    (* the first term: m = min (n, d^2) >= q d^2 > (24 / eps)^2 *)
+    set m := minn (n d) (d * d).
+    have m0 : (0 < m)%N by rewrite leq_min n0 muln_gt0 dpos.
+    have h12 : (2 * (trunc_log 4 m).+2%:R * expR (- Num.sqrt m%:R) <=
+        12 / Num.sqrt m%:R)%R := trunc_log_expR_le m m0.
+    apply: le_trans h12 _.
+    have mR : (q * d%:R ^+ 2 <= m%:R)%R.
+      rewrite /m /minn; case: ifP => _ //.
+      by rewrite natrM -expr2 ler_piMl // ltW.
+    have dd : (d%:R <= d%:R ^+ 2 :> R)%R.
+      by rewrite expr2 ler_peMl ?ler0n // ler1n.
+    have hX : ((24 / eps) ^+ 2 / q < d%:R)%R.
+      apply: lt_le_trans (archimedean.Num.Theory.truncnS_gt _) _.
+      by rewrite ler_nat.
+    have mq : ((24 / eps) ^+ 2 <= m%:R)%R.
+      apply: le_trans mR; apply: le_trans (ler_wpM2l (ltW q0) dd).
+      by move: hX; rewrite ltr_pdivrMr // [d%:R * _]mulrC => /ltW.
+    have e24 : (0 <= 24 / eps)%R by rewrite divr_ge0 // ltW.
+    have sm : (24 / eps <= Num.sqrt m%:R)%R.
+      by rewrite -(ger0_norm e24) -sqrtr_sqr ler_sqrt.
+    have sm0 : (0 < Num.sqrt m%:R :> R)%R by rewrite sqrtr_gt0 ltr0n.
+    rewrite ler_pdivrMr //.
+    have e2' : (0 <= eps / 2 :> R)%R by rewrite divr_ge0 // ltW.
+    apply: le_trans (ler_wpM2l e2' sm).
+    have en : eps != 0 by rewrite gt_eqF.
+    by rewrite le_eqVlt; apply/orP; left; apply/eqP; field.
+  (* the second term: n 2 exp (- c d) <= 12 (alpha + 1) / (c^3 d) *)
+  have mE : (Num.min (d%:R / (576 * K ^+ 4)) (d%:R / (12 * K ^+ 2)) =
+      c * d%:R)%R.
+    by rewrite /c -minr_pMr ?ler0n // mulrC.
+  rewrite mE.
+  have hs : (d%:R ^+ 2 * expR (- (c * d%:R)) <= 6 / (c ^+ 3 * d%:R))%R :=
+    sqr_expR_le c d c0 dpos.
+  apply: (@le_trans _ _ (C0 * d%:R ^+ 2 * (2 * expR (- (c * d%:R))))).
+    by apply: ler_wpM2r => //; rewrite mulr_ge0 // ltW // expR_gt0.
+  have -> : (C0 * d%:R ^+ 2 * (2 * expR (- (c * d%:R))) =
+      2 * C0 * (d%:R ^+ 2 * expR (- (c * d%:R))))%R by ring.
+  apply: le_trans (ler_wpM2l _ hs) _.
+    by rewrite mulr_ge0 // (le_trans _ C01) // ler01.
+  have hY : (24 * C0 / (c ^+ 3 * eps) < d%:R)%R.
+    apply: lt_le_trans (archimedean.Num.Theory.truncnS_gt _) _.
+    by rewrite ler_nat.
+  have cn : c != 0 by rewrite gt_eqF.
+  have en : eps != 0 by rewrite gt_eqF.
+  have dn : d%:R != 0 :> R by rewrite gt_eqF.
+  have -> : (2 * C0 * (6 / (c ^+ 3 * d%:R)) =
+      eps / 2 * (24 * C0 / (c ^+ 3 * eps) / d%:R))%R by field.
+  rewrite -[X in (_ <= X)%R]mulr1 ler_wpM2l ?divr_ge0 ?ltW //.
+  by rewrite ltr_pdivrMr // mul1r.
+- by move=> x /contrapT Gx; exact: HG.
+Qed.
+
+End adjoint_limit.
