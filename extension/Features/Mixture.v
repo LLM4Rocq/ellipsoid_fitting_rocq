@@ -30,6 +30,12 @@
      kappa d by (M3) (coord_cov_mix), and each differs from it by at most
      16 K^8 / d in squared Frobenius norm (coord_cov_frobenius, since
      0 <= kap s j, kappa <= 4 K^4).
+   - mixture_rows_law, mixture_features_law (item X3, mixture half): under
+     mixture_probability (MixtureDefinitions), the points are i.i.d. with
+     law mix_point_law, the mixture of the products of the component laws,
+     and their features are i.i.d. with law mix_feature_law: by
+     tuple_prod_mixture (probability/mixture.v), flat_rows_law,
+     flat_features_law and flat_row_label_prod (Mixture/Flat).
    - coord_cov_mix, coord_cov_frobenius, eq_coord_cov: coord_cov is affine
      in the fourth moments, |coord_cov kap d - coord_cov kap' d|_F^2 =
      sum_(j < d) ((kap j - kap' j) / d)^2, and only kap j for j < d
@@ -46,6 +52,7 @@ From mathcomp Require Import numfun lebesgue_integral probability.
 From mathcomp Require Import normedtype sequences exp.
 From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix.
+From GaussianAnalysis.probability Require Import lindeberg tuple_rows.
 From GaussianAnalysis.probability Require Import subgaussian mixture.
 From GaussianAnalysis.matrix Require Import euclidean opnorm.
 From GaussianAnalysis.convex Require Import least_squares feature_mixture.
@@ -55,6 +62,8 @@ From EllipsoidUniversality Require Import MixtureDefinitions.
 From EllipsoidUniversality.Mixture Require Import Component.
 From EllipsoidUniversality.Unsat Require Import LeastSquares.
 From EllipsoidUniversality.Features Require Import Definitions Regular.
+From EllipsoidUniversality.Model Require Import Rows.
+From EllipsoidUniversality.Mixture Require Import Flat.
 Import Order.TTheory GRing.Theory Num.Theory.
 
 Local Open Scope classical_set_scope.
@@ -321,3 +330,53 @@ exact: (mixture_regular_feature (mix_weights d) P2 P1 P4 PV SigmaE S0 spread AK)
 Qed.
 
 End mix_feature.
+
+(* 3. The sample of a mixture (item X3, mixture half). *)
+
+Section mixture_sample.
+Variables (K : R) (N : nat -> nat) (w : nat -> nat -> R).
+Variable mu : nat -> nat -> nat -> probability (measurableTypeR R) R.
+Hypothesis hfam : mixture_family K N w mu.
+
+(* The law of a point: the mixture of the products of the component laws. *)
+Definition mix_point_law d : probability (d.-tuple (measurableTypeR R)) RR :=
+  mixture (fun s : 'I_(N d) => tuple_prod (mu d s) d) (mix_weights K N w mu hfam d).
+
+(* A label of a dimension with weights of sum one. *)
+Let label0 d : exists s : 'I_(N d), true :=
+  mixture_weights_inhabited (mix_weights K N w mu hfam d).
+
+(* The sample probability as the n-fold product of the point law, read
+   through tuple_rows: the points are i.i.d. with law mix_point_law. *)
+Theorem mixture_rows_law n d (A : set (n.-tuple (d.-tuple (measurableTypeR R)))) :
+  measurable A ->
+  mixture_probability (N d) (w d) (mu d) n d (tuple_rows n d @^-1` A) =
+  tuple_prod (fun=> mix_point_law d) n A.
+Proof.
+move=> mA; have [i0 _] := label0 d.
+rewrite /mix_point_law (@tuple_prod_mixture _ _ _ _ _ _ _ i0 n A mA).
+rewrite /mixture_probability; apply: eq_bigr => s _; congr (_ * _)%E.
+rewrite /mixture_labelled_law flat_rows_law //.
+rewrite (@eq_tuple_prod _ _ _ _ (fun k => tuple_prod (mu d (nth i0 s k)) d) n) //.
+move=> i ilt; rewrite (flat_row_label_prod (N d) (mu d) n d s (Ordinal ilt)).
+by rewrite (tnth_nth i0).
+Qed.
+
+(* The features of the points are i.i.d. with law mix_feature_law. *)
+Theorem mixture_features_law n d (E : set (n.-tuple 'rV[RR]_(d * d))) :
+  measurable E ->
+  mixture_probability (N d) (w d) (mu d) n d (unsat_features n d @^-1` E) =
+  tuple_prod (fun=> mix_feature_law K N w mu hfam d) n E.
+Proof.
+move=> mE; have [i0 _] := label0 d.
+rewrite /mix_feature_law (@tuple_prod_mixture _ _ _ _ _ _ _ i0 n E mE).
+rewrite /mixture_probability; apply: eq_bigr => s _; congr (_ * _)%E.
+rewrite /mixture_labelled_law flat_features_law //.
+rewrite (@eq_tuple_prod _ _ _ _
+  (fun k => data_feature_law (mu d (nth i0 s k)) d) n) //.
+move=> i ilt.
+rewrite /data_feature_law (flat_row_label_prod (N d) (mu d) n d s (Ordinal ilt)).
+by rewrite (tnth_nth i0).
+Qed.
+
+End mixture_sample.
