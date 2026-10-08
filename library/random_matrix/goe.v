@@ -1,11 +1,14 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets functions reals ereal.
-From mathcomp Require Import topology normedtype derive.
+From mathcomp Require Import topology normedtype sequences derive exp.
 From mathcomp Require Import measure lebesgue_measure lebesgue_integral.
-From mathcomp Require Import probability arithmetic_tactic.
+From mathcomp Require Import probability arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix gauss gauss_ibp.
 From GaussianAnalysis.gaussian Require Import gauss_interpolation.
+From GaussianAnalysis.matrix Require Import euclidean opnorm.
+From GaussianAnalysis.comparison Require Import gauss_concentration escape.
+From GaussianAnalysis.fourier Require Import charfun_rV.
 
 (**md**************************************************************************)
 (* # The Gaussian orthogonal ensemble                                         *)
@@ -39,15 +42,21 @@ From GaussianAnalysis.gaussian Require Import gauss_interpolation.
 (*   / d, by integration by parts in each coordinate a_ij of a; with t_k = tr *)
 (*   W^k / d it reads E t_(k+1) = (k / d) E t_(k-1) + \sum_(r < k) E[t_r      *)
 (*   t_(k-1-r)].                                                              *)
+(* - The operator norm: frobenius W <= sqrt (2 / d) |a| (frobenius_goe_mx),   *)
+(*   so opnorm W is sqrt (2 / d)-Lipschitz in a (goe_opnorm_lipschitz);       *)
+(*   E opnorm W <= 2 sqrt 2 for d >= 1 (goe_opnorm_mean, from                 *)
+(*   gauss_opnorm_mean and E |g| <= sqrt n, gauss_frobenius_mean); and        *)
+(*   E exp (s opnorm W) <= exp (2 sqrt 2 s + s^2 / d) for s >= 0              *)
+(*   (goe_opnorm_mgf, by Gaussian concentration).                             *)
 (*                                                                            *)
 (* Planned results (phase 5, stage 2; names come with the proofs):            *)
 (*                                                                            *)
-(* - Var t_k = O(1 / d^2), by the Gaussian Poincare inequality.               *)
+(* - Var t_k -> 0 as d -> oo: t_k is the statistic of clip_3(x)^k, which is   *)
+(*   Lipschitz in a with constant O(1 / d), up to an error bounded by         *)
+(*   opnorm W^k exp (u (opnorm W - 3)), small by goe_opnorm_mgf.              *)
 (* - E t_k tends to the k-th moment of semicircle_prob 2 (a Catalan number    *)
-(*   for k even, 0 for k odd).                                                *)
-(* - A crude bound on the operator norm: the probability that opnorm W >= 3   *)
-(*   is at most exp (- c d) for some c > 0 (gauss_opnorm_tail of              *)
-(*   comparison/escape.v).                                                    *)
+(*   for k even, 0 for k odd), by goe_schwinger_dyson and semicircle_catalan  *)
+(*   of wigner.v.                                                             *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*          goe_mx a == the GOE matrix (A + A^T) / sqrt (2 d) of a row        *)
@@ -408,6 +417,170 @@ by move=> h; rewrite goe_mxD goe_mxZ.
 Qed.
 
 End goe.
+
+Section gauss_frobenius_mean.
+Context {R : realType} (n : nat).
+
+(* E |g| <= sqrt n for g of law gauss n, by 2 |g| sqrt n <= |g|^2 + n. *)
+Lemma gauss_frobenius_mean :
+  \int[@gauss R n]_g frobenius g <= Num.sqrt n%:R.
+Proof.
+have [n0|n0] := posnP n.
+  subst n; rewrite sqrtr0.
+  have -> : \int[@gauss R 0]_g frobenius g = \int[@gauss R 0]_g (0 : R).
+    apply: eq_Rintegral => g _.
+    by rewrite (_ : g = 0) ?frobenius0 //; apply/rowP => -[].
+  by rewrite Rintegral_cst // mul0r.
+set t := Num.sqrt n%:R.
+have t0 : 0 < t by rewrite sqrtr_gt0 ltr0n.
+have tt : t * t = n%:R by rewrite -expr2 sqr_sqrtr ?ler0n.
+have pq : polyfun (fun g : 'rV[R]_n => mxdot g g).
+  have -> : (fun g : 'rV[R]_n => mxdot g g) = (fun g => \sum_j g 0 j * g 0 j).
+    by apply/funext => g; rewrite /mxdot big_ord1.
+  by apply: polyfun_sum => j; apply: polyfunM; exact: polyfun_coord.
+have E2 : \int[@gauss R n]_g mxdot g g = n%:R.
+  by rewrite /Rintegral integral_gauss_mxdot_self.
+(* |g| <= t / 2 + |g|^2 / (2 t), since (|g| - t)^2 >= 0 *)
+have hp (g : 'rV[R]_n) : frobenius g <= t / 2 + (2 * t)^-1 * mxdot g g.
+  rewrite -frobenius_sqr; set f := frobenius g.
+  have e : t / 2 + (2 * t)^-1 * f ^+ 2 = (t * t + f ^+ 2) / (2 * t).
+    rewrite [RHS]mulrDl [f ^+ 2 / _]mulrC; congr (_ + _).
+    by rewrite invfM [2^-1 * _]mulrC mulrA mulfK ?gt_eqF.
+  have h := sqr_ge0 (f - t).
+  by rewrite e ler_pdivlMr ?mulr_gt0 //; rewrite sqrrB in h; nra.
+have pc : polyfun (fun g : 'rV[R]_n => t / 2 + (2 * t)^-1 * mxdot g g).
+  apply: polyfunD; first exact: polyfun_cst.
+  by apply: polyfunM; [exact: polyfun_cst | exact: pq].
+apply: le_trans (_ : \int[@gauss R n]_g (t / 2 + (2 * t)^-1 * mxdot g g) <= _).
+  apply: le_Rintegral => //.
+  - exact: gauss_smoothing.integrable_gauss_frobenius.
+  - exact: integrable_polyfun.
+rewrite Rintegral_polyfunD; first exact: polyfun_cst.
+  by apply: polyfunM; [exact: polyfun_cst | exact: pq].
+rewrite [X in _ + X]Rintegral_polyfunZ // E2 Rintegral_cst //.
+rewrite -[X in fine X]/(@gauss R n setT) probability_setT /= mulr1.
+rewrite -tt invfM -mulrA [t^-1 * (t * t)]mulrA mulVf ?gt_eqF // mul1r.
+lra.
+Qed.
+
+End gauss_frobenius_mean.
+
+Section goe_opnorm.
+Context {R : realType} (d : nat).
+Local Notation gauss := (@gauss R).
+
+Lemma goe_mxB (a b : 'rV[R]_(d * d)) : goe_mx (a - b) = goe_mx a - goe_mx b.
+Proof. by rewrite goe_mxD -scaleN1r goe_mxZ scaleN1r. Qed.
+
+Lemma two_div_sqrt : 2 * (Num.sqrt (2 * d%:R))^-1 = Num.sqrt (2 / d%:R) :> R.
+Proof.
+have [->|d0] := posnP d; first by rewrite mulr0 sqrtr0 !invr0 mulr0 sqrtr0.
+have p0 : 0 < 2 * d%:R :> R by rewrite mulr_gt0 // ltr0n.
+have s0 : 0 < Num.sqrt (2 * d%:R) :> R by rewrite sqrtr_gt0.
+apply: (mulIf (_ : Num.sqrt (2 * d%:R) != 0)); first by rewrite gt_eqF.
+rewrite divfK ?gt_eqF // -sqrtrM ?divr_ge0 ?ler0n //.
+rewrite mulrACA mulVf ?pnatr_eq0 -?lt0n // mulr1.
+by rewrite -expr2 sqrtr_sqr ger0_norm.
+Qed.
+
+Lemma frobenius_goe_mx (a : 'rV[R]_(d * d)) :
+  frobenius (goe_mx a) <= Num.sqrt (2 / d%:R) * frobenius a.
+Proof.
+rewrite /goe_mx frobeniusZ ger0_norm ?invr_ge0 ?sqrtr_ge0 // -two_div_sqrt.
+rewrite [2 / _]mulrC -mulrA; apply: ler_wpM2l.
+  by rewrite invr_ge0 sqrtr_ge0.
+apply: le_trans (frobeniusD _ _) _.
+by rewrite frobenius_trmx frobenius_vec_mx mulr_natl mulr2n.
+Qed.
+
+Lemma goe_opnorm_lipschitz (a b : 'rV[R]_(d * d)) :
+  `|opnorm (goe_mx a) - opnorm (goe_mx b)| <=
+  Num.sqrt (2 / d%:R) * frobenius (a - b).
+Proof.
+apply: le_trans (opnorm_lipschitz _ _) _.
+by rewrite -goe_mxB frobenius_goe_mx.
+Qed.
+
+Lemma integrable_goe_opnorm :
+  (gauss (d * d)).-integrable [set: 'rV[R]_(d * d)]
+    (EFin \o (fun a => opnorm (goe_mx a))).
+Proof. exact: integrable_gauss_lipschitz goe_opnorm_lipschitz. Qed.
+
+Lemma opnorm_goe_mx (a : 'rV[R]_(d * d)) :
+  opnorm (goe_mx a) <= Num.sqrt (2 / d%:R) * opnorm (vec_mx a : 'M[R]_(d, d)).
+Proof.
+rewrite /goe_mx opnormZ ger0_norm ?invr_ge0 ?sqrtr_ge0 // -two_div_sqrt.
+rewrite [2 / _]mulrC -mulrA; apply: ler_wpM2l.
+  by rewrite invr_ge0 sqrtr_ge0.
+apply: le_trans (opnormD _ _) _.
+by rewrite opnorm_trmx mulr_natl mulr2n.
+Qed.
+
+(* E opnorm W <= 2 sqrt 2: opnorm W <= sqrt (2 / d) opnorm A, and E opnorm A
+   <= E |g| + E |h| <= 2 sqrt d by Gordon's inequality (gauss_opnorm_mean). *)
+Lemma goe_opnorm_mean : (0 < d)%N ->
+  \int[gauss (d * d)]_a opnorm (goe_mx a) <= 2 * Num.sqrt 2.
+Proof.
+move=> d0.
+have iA := @integrable_gauss_opnorm R d d.
+have iZ : (gauss (d * d)).-integrable [set: 'rV[R]_(d * d)]
+    (EFin \o (fun a => Num.sqrt (2 / d%:R) * opnorm (vec_mx a : 'M[R]_(d, d)))).
+  rewrite (_ : _ \o _ = (fun a => (Num.sqrt (2 / d%:R))%:E *
+    (opnorm (vec_mx a : 'M[R]_(d, d)))%:E)%E); first by apply/funext => a.
+  exact: integrableZl.
+apply: le_trans (_ : \int[gauss (d * d)]_a
+    (Num.sqrt (2 / d%:R) * opnorm (vec_mx a : 'M[R]_(d, d))) <= _).
+  apply: le_Rintegral => //; first exact: integrable_goe_opnorm.
+  by move=> a _; exact: opnorm_goe_mx.
+rewrite RintegralZl //.
+apply: le_trans (_ : Num.sqrt (2 / d%:R) * (Num.sqrt d%:R + Num.sqrt d%:R) <= _).
+  apply: ler_wpM2l; first exact: sqrtr_ge0.
+  apply: le_trans (gauss_opnorm_mean d0 d0) _.
+  by apply: lerD; exact: gauss_frobenius_mean.
+rewrite -mulr2n mulrnAr -sqrtrM ?divr_ge0 ?ler0n //.
+by rewrite divfK ?pnatr_eq0 -?lt0n // -mulr_natl.
+Qed.
+
+Lemma integrable_goe_opnorm_expR (s : R) :
+  (gauss (d * d)).-integrable [set: 'rV[R]_(d * d)]
+    (EFin \o (fun a => expR (s * opnorm (goe_mx a)))).
+Proof.
+set EF := \int[gauss (d * d)]_a opnorm (goe_mx a).
+have iC := integrable_gauss_concentration goe_opnorm_lipschitz s.
+rewrite (_ : _ \o _ = (fun a => (expR (s * EF))%:E *
+    (expR (s * (opnorm (goe_mx a) - EF)))%:E)%E).
+  by apply/funext => a; rewrite /= -EFinM -expRD mulrBr addrC subrK.
+exact: integrableZl.
+Qed.
+
+(* E exp (s opnorm W) <= exp (2 sqrt 2 s + s^2 / d) for s >= 0: Gaussian
+   concentration of the sqrt (2 / d)-Lipschitz function opnorm W around its
+   mean, which is at most 2 sqrt 2. *)
+Lemma goe_opnorm_mgf (s : R) : (0 < d)%N -> 0 <= s ->
+  \int[gauss (d * d)]_a expR (s * opnorm (goe_mx a)) <=
+  expR (2 * Num.sqrt 2 * s + s ^+ 2 / d%:R).
+Proof.
+move=> d0 s0.
+set EF := \int[gauss (d * d)]_a opnorm (goe_mx a).
+have hc := gauss_concentration goe_opnorm_lipschitz s.
+have iC := integrable_gauss_concentration goe_opnorm_lipschitz s.
+have fin := integrable_fin_num measurableT iC.
+rewrite -(fineK fin) lee_fin in hc.
+have -> : \int[gauss (d * d)]_a expR (s * opnorm (goe_mx a)) =
+    expR (s * EF) * \int[gauss (d * d)]_a expR (s * (opnorm (goe_mx a) - EF)).
+  rewrite -RintegralZl //; apply: eq_Rintegral => a _.
+  by rewrite -expRD mulrBr addrC subrK.
+rewrite expRD; apply: ler_pM.
+- exact: expR_ge0.
+- by apply: Rintegral_ge0 => a _; exact: expR_ge0.
+- rewrite ler_expR mulrC; apply: ler_wpM2r => //; exact: goe_opnorm_mean.
+apply: le_trans hc _; rewrite sqr_sqrtr ?divr_ge0 ?ler0n //.
+rewrite le_eqVlt; apply/orP; left; apply/eqP; congr expR.
+have dn : d%:R != 0 :> R by rewrite pnatr_eq0 -lt0n.
+by field.
+Qed.
+
+End goe_opnorm.
 
 Section goe_moments.
 Context {R : realType}.
