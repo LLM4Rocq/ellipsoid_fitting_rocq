@@ -32,20 +32,10 @@
      The infimum is finite because |<G, T_kappa S>| <= |T_kappa G|_F
      |S|_F and |S|_F <= Tr S for S >= 0 (frobenius_le_trace).
 
-   Still to come.
-   - Lemma 5.4 in law: for Q an n x (n - 1) matrix whose columns are an
-     orthonormal basis of 1^perp, centered_sq v = |Q^T v|^2, and Q^T M has
-     the law of an (n - 1) x (d * d) standard Gaussian matrix
-     (gauss_mulmx_law of library/comparison/gauss_law.v). Hence
-     2 unsat_value n d Z has the law of (2 d^2 / n) Phi_d^2 with
-     Phi_d = d^(-3/2) inf_{S in R_d} |A mxvec (T_kappa S)| and A an
-     (n - 1) x (d * d) standard Gaussian matrix.
-   - Lemma 5.5 in the mean and concentration form of
-     library/comparison/cgmt.v: K = {mxvec (T_kappa S) | S in R_d} is a
-     nonempty compact convex set of radius at most
-     max (1, sqrt ((kappa - 1)/2)) d, so after the normalization by
-     d^(3/2) the means of Phi_d and of (phihat_d)_+ differ by O(d^(-1/2))
-     and both concentrate at that scale. *)
+   Lemma 5.4 in law and the set K = {mxvec (T_kappa S) | S in R_d} of
+   Lemma 5.5, with its mean and concentration form for the CGMT of
+   library/comparison/cgmt.v, are in Gaussian/FittingError, which also
+   proves Lemma 5.16 and Proposition 1.4 (ii). *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
