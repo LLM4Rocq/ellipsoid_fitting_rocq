@@ -40,6 +40,11 @@ From GaussianAnalysis.convex Require Import moreau.
 (* d^(3/2), so the error rho vanishes: the normalized Phi and phi have the    *)
 (* same limit in probability, which is what the comparisons                   *)
 (* (eq:cgmt-comparisons) of the paper are used for.                           *)
+(* - cgmt_aux_mean_zero, cgmt_zero_tail: if phi(K) vanishes with              *)
+(*   probability more than 1/2, then E phi(K) <= 2 rho sqrt (ln 4), and       *)
+(*   Phi(K) exceeds rho (1 + 2 sqrt (ln 4)) + u with probability at most      *)
+(*   2 exp (- u^2 / (2 rho^2)): the approximate solutions that the CGMT gives *)
+(*   when the auxiliary problem has the value 0.                              *)
 (* - measurable_escape_inf, measurable_cgmt_aux: Phi(K) and phi(K) are        *)
 (*   measurable functions of the Gaussian entries (they are Lipschitz), so    *)
 (*   that their laws are defined.                                             *)
@@ -1490,3 +1495,96 @@ by rewrite linearD linearZ linearB.
 Qed.
 
 End cgmt_rows.
+
+Section cgmt_zero.
+Context {R : realType} {N M : nat}.
+Variables (K : set 'cV[R]_M) (rho : R).
+Hypotheses (K0 : K !=set0) (Kb : forall x, K x -> frobenius x <= rho).
+Local Open Scope ereal_scope.
+
+(* If phi(K) vanishes with probability more than 1/2, its mean is at most
+   2 rho sqrt (ln 4), by its concentration. *)
+Lemma cgmt_aux_mean_zero : (0 < rho)%R ->
+  (2^-1)%:E <
+    gauss (N + M) [set z | cgmt_aux K (lsubmx z) (rsubmx z) = 0%R] ->
+  (\int[gauss (N + M)]_z cgmt_aux K (lsubmx z) (rsubmx z) <=
+   2 * rho * Num.sqrt (ln 4))%R.
+Proof.
+move=> rho0 h0.
+set m := (\int[gauss (N + M)]_z cgmt_aux K (lsubmx z) (rsubmx z))%R.
+have mphi := @measurable_cgmt_aux R N M K rho K0 Kb.
+have m0 : (0 <= m)%R.
+  by apply: Rintegral_ge0 => z _; exact: cgmt_aux_ge0.
+rewrite leNgt; apply/negP => hm.
+pose u0 := (2 * rho * Num.sqrt (ln 4))%R.
+have u00 : (0 <= u0)%R by rewrite /u0 !mulr_ge0 ?sqrtr_ge0 // ltW.
+have tail := @cgmt_aux_tail R N M K rho K0 Kb u0 u00.
+have E1 : measurable
+    [set z : 'rV[R]_(N + M) | cgmt_aux K (lsubmx z) (rsubmx z) = 0%R].
+  have := mphi measurableT [set 0%R] (measurable_set1 _).
+  by rewrite setTI.
+have E2 : measurable [set z : 'rV[R]_(N + M) | (u0 <=
+    `|cgmt_aux K (lsubmx z) (rsubmx z) -
+      \int[gauss (N + M)]_y cgmt_aux K (lsubmx y) (rsubmx y)|)%R].
+  have mf : measurable_fun setT (fun z : 'rV[R]_(N + M) =>
+      `|cgmt_aux K (lsubmx z) (rsubmx z) - m|%R).
+    apply: measurableT_comp; first exact: normr_measurable.
+    by apply: measurable_funB => //; exact: measurable_cst.
+  have := mf measurableT _ (measurable_itv `[u0, +oo[).
+  rewrite setTI; congr (measurable _).
+  by apply/seteqP; split => z /=; rewrite in_itv /= andbT.
+(* if E phi > u0, phi = 0 is a deviation of at least u0 from the mean *)
+have sub : [set z : 'rV[R]_(N + M) | cgmt_aux K (lsubmx z) (rsubmx z) = 0%R]
+    `<=` [set z | (u0 <= `|cgmt_aux K (lsubmx z) (rsubmx z) -
+      \int[gauss (N + M)]_y cgmt_aux K (lsubmx y) (rsubmx y)|)%R].
+  move=> z /= ->; rewrite -/m sub0r normrN ger0_norm //.
+  exact: ltW.
+have := le_trans (le_measure _ (mem_set E1) (mem_set E2) sub) tail.
+have -> : (- u0 ^+ 2 / (4 * rho ^+ 2) = - ln 4)%R.
+  rewrite /u0 !exprMn sqr_sqrtr ?ln_ge0 ?ler1n //.
+  by have rn := lt0r_neq0 rho0; field.
+rewrite expRN lnK ?posrE // => h.
+have := lt_le_trans h0 h; rewrite lte_fin.
+lra.
+Qed.
+
+(* Then Phi(K) exceeds rho (1 + 2 sqrt (ln 4)) + u with probability at most
+   2 exp (- u^2 / (2 rho^2)): the approximate solutions that the CGMT
+   gives when the auxiliary problem has the value 0. *)
+Theorem cgmt_zero_tail (u : R) : (0 < N)%N -> (0 < rho)%R -> closed K ->
+  (forall x y (t : R), K x -> K y -> 0 <= t <= 1 -> K (x + t *: (y - x)))%R ->
+  (0 <= u)%R ->
+  (2^-1)%:E <
+    gauss (N + M) [set z | cgmt_aux K (lsubmx z) (rsubmx z) = 0%R] ->
+  gauss (N * M) [set a | rho * (1 + 2 * Num.sqrt (ln 4)) + u <=
+     escape_inf K (vec_mx a : 'M[R]_(N, M))]%R <=
+  (2 * expR (- u ^+ 2 / (2 * rho ^+ 2)))%:E.
+Proof.
+move=> N0 rho0 Kc Kcvx u0 h0.
+have hm := cgmt_aux_mean_zero rho0 h0.
+set m := (\int[gauss (N + M)]_z cgmt_aux K (lsubmx z) (rsubmx z))%R in hm *.
+have tail := @cgmt_tail R N M K rho K0 Kb u N0 Kc Kcvx u0.
+have mPhi := @measurable_escape_inf R N M K rho K0 Kb.
+pose c := (rho * (1 + 2 * Num.sqrt (ln 4)) + u)%R.
+have E1 : measurable [set a : 'rV[R]_(N * M) |
+    (c <= escape_inf K (vec_mx a : 'M[R]_(N, M)))%R].
+  have := mPhi measurableT _ (measurable_itv `[c, +oo[).
+  rewrite setTI; congr (measurable _).
+  by apply/seteqP; split => a /=; rewrite in_itv /= andbT.
+have E2 : measurable [set a : 'rV[R]_(N * M) | (rho + u <=
+    `|escape_inf K (vec_mx a : 'M[R]_(N, M)) - m|)%R].
+  have mf : measurable_fun setT (fun a : 'rV[R]_(N * M) =>
+      `|escape_inf K (vec_mx a : 'M[R]_(N, M)) - m|%R).
+    apply: measurableT_comp; first exact: normr_measurable.
+    by apply: measurable_funB => //; exact: measurable_cst.
+  have := mf measurableT _ (measurable_itv `[rho + u, +oo[%R).
+  rewrite setTI; congr (measurable _).
+  by apply/seteqP; split => a /=; rewrite in_itv /= andbT.
+apply: le_trans tail.
+apply: le_measure; rewrite ?inE //.
+move=> a /= ha; rewrite ger0_norm; last first.
+  by rewrite -/m; move: ha; lra.
+by rewrite -/m; move: ha; lra.
+Qed.
+
+End cgmt_zero.
