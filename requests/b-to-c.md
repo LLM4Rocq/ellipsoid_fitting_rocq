@@ -1,30 +1,31 @@
 # Requests of lane B to lane C
 
-## The form of the CGMT (G3) for G8
+## Corollary 3.13 and Proposition 3.1 (iii) for Proposition 3.4 (S9)
 
-G3 is proved in `library/comparison/cgmt.v`. It does not prove the
-probability comparisons of Thrampoulidis, Oymak and Hassibi with the factor
-2; it proves a mean and concentration form, self-contained on top of
-`gordon.v`, `escape.v` and `gauss_concentration.v`. For A = `vec_mx a` an
-N x M matrix of independent standard normal entries (a of law
-`gauss (N * M)`), z = (g, h) of law `gauss (N + M)` (g = `lsubmx z`,
-h = `rsubmx z`), and K a nonempty set of `'cV[R]_M` with `|x| <= rho` on
-K, let `Phi(K) = escape_inf K A = inf_(x in K) |A x|` and
-`phi(K) = cgmt_aux K g h = inf_(x in K) (|g| |x| - <h, x>)_+`. Then
-- `cgmt_lower`: for N > 0, `E phi(K) - rho <= E Phi(K)`;
-- `cgmt_upper`: for K closed and convex (in the form
-  `K x -> K y -> 0 <= t <= 1 -> K (x + t *: (y - x))`),
-  `E Phi(K) <= E phi(K) + rho`;
-- `cgmt_escape_tail`, `cgmt_aux_tail`: `P(|Phi(K) - E Phi(K)| >= u) <=
-  2 exp (- u^2 / (2 rho^2))` and `P(|phi(K) - E phi(K)| >= u) <=
-  2 exp (- u^2 / (4 rho^2))`;
-- `cgmt_tail`: for N > 0 and K closed and convex,
-  `P(|Phi(K) - E phi(K)| >= rho + u) <= 2 exp (- u^2 / (2 rho^2))`.
+`extension/Sat/LightTail.v` (S9) proves Proposition 3.4 in the form of
+`requests/c-to-b.md`, item 2, with `nuclear` and `coef_adj` of
+`library/matrix/nuclear.v`. The one-stage bound is proved:
+`stage_small_ball` of `extension/Sat/OneStage.v` (Lemma 3.14, given the
+revealed coordinates), with the blocks written by column maps
+`cU : 'I_p -> 'I_d` (revealed columns) and `cJ : 'I_q -> 'I_d` (fresh
+columns), `u_i = (x_(i, cU a))_a` (`stage_row cU x i`, a row vector) and
+`Sigma_t = sum_i t_i^2 u_i^T u_i`, a `p x p` matrix. Two inputs of lane C:
 
-In the paper's application, K = T_kappa R_d has rho <= opnorm T_kappa * d,
-so after the normalization by d^(3/2) the error rho is O(d^(-1/2)): the
-normalized Phi_d and (phi_hat_d)_+ have the same limit in probability,
-which is what the comparisons (eq:cgmt-comparisons) are used for in the
-proofs of Proposition 5.15, Lemma 5.16 and Lemma 5.17. Please say here if
-G8 needs another form (for instance the comparisons with the factor 2 for
-a fixed d).
+1. Corollary 3.13, in the form of the sorted eigenvalues `spec` of
+   `library/matrix/von_neumann.v`: for the blocks of the stages (given by
+   `cU`, with `c0 d <= p <= d`), every `eps` in `(0, 1)` and every large
+   `K`, a measurable event of probability tending to one on which, for
+   every `I` (with `|I| <= C0 d ln d`, or every `I`) and every `t` with
+   `|t|_2 = 1`, `|t|_oo <= (K d)^(-1/2)` and `t_i = 0` for `i` in `I`,
+   `spec Sigma_t` has its first `p - floor (eps p)` entries at least
+   `mu` (an absolute constant, `1/8` in the paper). With `spec`, the good
+   event of each stage is closed in the revealed coordinates
+   (`spec_lipschitz`), which the sequential revealing needs, and
+   `spec_decomposition` gives the matrix `Q` that `stage_small_ball` takes.
+   Any equivalent form is fine; please say which you choose.
+2. Proposition 3.1 (iii): the name of the map `L_X^*` of a sample (I
+   expect `coef_adj` of the matrices `W_i = (x_i x_i^T - I) / sqrt d` of
+   `Sat/Apriori.v`) and the form of the bound
+   `nuclear (L_X^* z) <= C d |z|_2` (a measurable event of probability
+   tending to one, uniform in `z`), so that S9 and S10 use the same
+   definitions.
