@@ -24,6 +24,13 @@
 5. check/UniversalityAssumptions.v has the code UNIVERSALITY_CHECK: it
    checks that universality_theorem proves the frozen statement
    universality_statement, and prints the axioms of universality_theorem.
+6. Phase 6. check/MixtureAssumptions.v and check/PairedAssumptions.v have
+   the codes MIXTURE_CHECK and PAIRED_CHECK: they check that
+   mixture_theorem proves mixture_theorem_statement and paired_theorem
+   proves paired_statement, and print their axioms. Given these outputs as
+   third and fourth arguments, every axiom they print is among those of
+   check/mixture_assumptions.expected and check/paired_assumptions.expected,
+   whose axioms are among those of check/assumptions.expected.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -58,6 +65,23 @@ UNIVERSALITY_CHECK = (
     "UniversalityTheorem. Definition universality_theorem_checked : "
     "universality_statement := universality_theorem. "
     "Print Assumptions universality_theorem.")
+MIXTURE_CHECK = (
+    "From EllipsoidUniversality Require Import MixtureStatement "
+    "MixtureTheorem. Definition mixture_theorem_checked : "
+    "mixture_theorem_statement := mixture_theorem. "
+    "Print Assumptions mixture_theorem.")
+PAIRED_CHECK = (
+    "From EllipsoidUniversality Require Import PairedStatement "
+    "PairedTheorem. Definition paired_theorem_checked : "
+    "paired_statement := paired_theorem. "
+    "Print Assumptions paired_theorem.")
+# The theorems of phase 6: name, check file, its code, expected axioms.
+PHASE6_THEOREMS = [
+    ("mixture theorem", "check/MixtureAssumptions.v", MIXTURE_CHECK,
+     "check/mixture_assumptions.expected"),
+    ("paired theorem", "check/PairedAssumptions.v", PAIRED_CHECK,
+     "check/paired_assumptions.expected"),
+]
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 ASSUMPTION = re.compile(
     r"(?:\A|(?<=\.))\s*(?:#\[[^\]]*\]\s*)?(?:Local\s+|Global\s+)?"
@@ -153,6 +177,19 @@ def main():
             print("universality theorem: fewer axioms than "
                   "check/universality_assumptions.expected:",
                   ", ".join(sorted(printed)) or "none")
+    for k, (name, check, check_code, expected) in enumerate(PHASE6_THEOREMS):
+        if code((ROOT / check).read_text()) != check_code:
+            failures.append(f"{check}: code differs from the expected check")
+        allowed_k = axiom_names((ROOT / expected).read_text())
+        for ax in sorted(allowed_k - allowed):
+            failures.append(f"{expected}: {ax} is not among check/assumptions.expected")
+        if len(sys.argv) > 3 + k:
+            printed = axiom_names(Path(sys.argv[3 + k]).read_text())
+            for ax in sorted(printed - allowed_k):
+                failures.append(f"{name}: {ax} is not among {expected}")
+            if not failures and printed != allowed_k:
+                print(f"{name}: fewer axioms than {expected}:",
+                      ", ".join(sorted(printed)) or "none")
     for line in failures:
         print(line)
     if failures:
@@ -163,7 +200,9 @@ def main():
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
-          + ("; axioms of the universality theorem allowed" if len(sys.argv) > 2 else ""))
+          + ("; axioms of the universality theorem allowed" if len(sys.argv) > 2 else "")
+          + ("; axioms of the mixture theorem allowed" if len(sys.argv) > 3 else "")
+          + ("; axioms of the paired theorem allowed" if len(sys.argv) > 4 else ""))
 
 
 if __name__ == "__main__":

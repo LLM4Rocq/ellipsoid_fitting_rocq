@@ -43,7 +43,9 @@ check: build
 	mkdir -p build
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -o build/Assumptions.vo check/Assumptions.v > build/assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/UniversalityAssumptions.vo check/UniversalityAssumptions.v > build/universality_assumptions.txt
-	python3 scripts/check_sources.py build/assumptions.txt build/universality_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/MixtureAssumptions.vo check/MixtureAssumptions.v > build/mixture_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/PairedAssumptions.vo check/PairedAssumptions.v > build/paired_assumptions.txt
+	python3 scripts/check_sources.py build/assumptions.txt build/universality_assumptions.txt build/mixture_assumptions.txt build/paired_assumptions.txt
 	$(if $(filter yes,$(CITATIONS)),$(EXEC) python3 scripts/stale_citations.py,@true)
 	@echo "make check passed."
 
