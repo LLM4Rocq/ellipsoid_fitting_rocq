@@ -2,7 +2,8 @@
    for ellipsoid fitting" (arXiv 2608.27372, lines 2436-2450, proof lines
    3610-3805 of arxiv_v1.tex): the light-tail quotient-norm lower bound.
    Item S9 of stage 3 of phase 5 (lane B). The parts that do not depend on
-   other items are proved, over any realType; the assembly comes next.
+   other items are proved, over any realType: everything up to the union
+   bound. The asymptotic count and the final statement come next.
 
    Statement. Let x_1, ..., x_n be the points of a sample whose coordinates
    are independent with laws universality_coordinate_law kappa K0, and let
@@ -59,20 +60,50 @@
      L_X^* (h + t) in the dual ball of radius gam d, and the good event with
      the k_l largest eigenvalues) occur together with probability at most
      prod_l (C gam)^(k_l q_l), for gam >= C rho; C depends only on M, mu
-     and c0. *)
+     and c0;
+   - blk_bnd, blk_p, blk_q, blk_cU, blk_cJ: the blocks of columns, block s
+     being [floor (s d / L), floor ((s + 1) d / L)); stage s < L - 1
+     reveals the blocks 0, ..., s and its fresh block is s + 1; they
+     satisfy the hypotheses of stages_small_ball, and
+     blk_p_ge, blk_q_ge give p_s >= (s + 1) (d / L - 1) and
+     q_s >= d / L - 1;
+   - l1norm, rV_net, head_net: an eta-net of a bounded set of row vectors
+     with (2 e (1 + 2 r / eta))^n points, and an l1 eta-net of the heads
+     on I of l1 norm at most r with
+     (2 e (1 + 2 r sqrt (|I| + 1) / eta))^|I| points;
+   - dual_ballP, nuclear_submx, nuclear_outer_le, nuclear_sum_le: the dual
+     ball of radius r is the nuclear-norm ball, the nuclear norm of a
+     submatrix is at most that of the matrix, and
+     nuclear (u^T v) <= |u| |v|;
+   - sample_point, sample_feature, stage_map_submx, nuclear_stage_map_le,
+     nuclear_stage_map_l1: with W_i = d^(-1/2) (x_i x_i^T - I), the block
+     of L_X^* lam = coef_adj W lam on rows cU and columns cJ is
+     stage_map; its nuclear norm is at most that of L_X^* lam, and at most
+     d^(-1/2) b |lam|_1 when |x_i|^2 <= b for every i;
+   - light_tail, light_bad, light_union, the union bound: the bad event
+     (some pair (h, t), t a light unit tail off a set I of at most m rows
+     and h a head on I of l1 norm at most r, with every block of
+     L_X^* (h + t) of nuclear norm below gam d) meets the events of the
+     a priori bound (C1 d |lam|_2 for every block), of |x_i|^2 <= 2 d and
+     of the good events of all light unit tails only inside a measurable
+     set of probability at most
+     (n + 1)^m H^m T^n prod_l (2 C gam)^(k_l q_l), with
+     H = 2 e (1 + 16 r sqrt (m + 1) / (gam sqrt d)) and
+     T = 2 e (1 + 8 C1 / gam). *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import sesquilinear interval.
 From mathcomp Require Import boolp classical_sets cardinality reals Rstruct.
-From mathcomp Require Import topology normedtype.
+From mathcomp Require Import topology normedtype sequences exp.
 From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
 From mathcomp Require Import numfun probability.
 From mathcomp Require Import measurable_realfun measurable_fun_approximation.
 From GaussianAnalysis Require Import measurable_matrix.
-From GaussianAnalysis Require Import euclidean opnorm real_spectral von_neumann.
+From GaussianAnalysis Require Import euclidean opnorm nets real_spectral.
+From GaussianAnalysis Require Import von_neumann nuclear.
 From GaussianAnalysis Require Import lindeberg tuple_rows conditioning.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
@@ -427,3 +458,682 @@ apply: (tuple_prod_chain_le (S := S) (A := A)
 Qed.
 
 End pair_bound.
+
+
+(* The boundaries of the L blocks of columns: bnd s = (min (s, L) d) / L,
+   rounded down, so that block s < L is the set of columns
+   [bnd s, bnd s.+1). Stage s reveals the columns [0, blk_p s) of the
+   blocks 0, ..., s and its fresh columns are those of block s.+1. *)
+Definition blk_bnd (L d s : nat) : nat := (minn s L * d) %/ L.
+
+Lemma blk_bnd_le L d s : (blk_bnd L d s <= d)%N.
+Proof.
+rewrite /blk_bnd; case: L => [|L]; first by rewrite divn0.
+apply: leq_trans (leq_div2r _ (leq_mul (geq_minr s L.+1) (leqnn d))) _.
+by rewrite mulKn.
+Qed.
+
+Lemma blk_bnd_mono L d s s' :
+  (s <= s')%N -> (blk_bnd L d s <= blk_bnd L d s')%N.
+Proof.
+move=> ss'; apply: leq_div2r; apply: leq_mul => //.
+by rewrite leq_min geq_minr (leq_trans (geq_minl _ _) ss').
+Qed.
+
+Definition blk_p (L d s : nat) : nat := blk_bnd L d s.+1.
+Definition blk_q (L d s : nat) : nat := blk_bnd L d s.+2 - blk_bnd L d s.+1.
+
+Lemma blk_pq L d s : (blk_p L d s + blk_q L d s = blk_bnd L d s.+2)%N.
+Proof. by rewrite /blk_p /blk_q subnKC // blk_bnd_mono. Qed.
+
+Definition blk_cU (L d s : nat) (a : 'I_(blk_p L d s)) : 'I_d :=
+  widen_ord (blk_bnd_le L d s.+1) a.
+Arguments blk_cU : clear implicits.
+
+Lemma blk_cJ_subproof L d s (b : 'I_(blk_q L d s)) : (blk_p L d s + b < d)%N.
+Proof. by rewrite (leq_trans _ (blk_bnd_le L d s.+2)) // -blk_pq ltn_add2l. Qed.
+
+Definition blk_cJ (L d s : nat) (b : 'I_(blk_q L d s)) : 'I_d :=
+  Ordinal (blk_cJ_subproof b).
+Arguments blk_cJ : clear implicits.
+
+Lemma blk_cU_inj L d s : injective (blk_cU L d s).
+Proof. by move=> a a' /(congr1 val) /= e; apply: val_inj. Qed.
+
+Lemma blk_cJ_inj L d s : injective (blk_cJ L d s).
+Proof. by move=> b b' /(congr1 val) /= /addnI e; apply: val_inj. Qed.
+
+Lemma blk_cUJ L d s a b : blk_cU L d s a != blk_cJ L d s b.
+Proof.
+by rewrite -val_eqE /= neq_ltn (leq_trans (ltn_ord a)) ?leq_addr.
+Qed.
+
+Lemma blk_cU_succ L d s a : exists a', blk_cU L d s.+1 a' = blk_cU L d s a.
+Proof.
+have h : (a < blk_p L d s.+1)%N.
+  by rewrite (leq_trans (ltn_ord a)) // blk_bnd_mono.
+by exists (Ordinal h); apply: val_inj.
+Qed.
+
+Lemma blk_cJ_succ L d s b : exists a', blk_cU L d s.+1 a' = blk_cJ L d s b.
+Proof.
+have h : (blk_p L d s + b < blk_p L d s.+1)%N.
+  by rewrite [X in (_ < X)%N]/blk_p -blk_pq ltn_add2l.
+by exists (Ordinal h); apply: val_inj.
+Qed.
+
+
+
+Section block_sizes.
+Context {RT : realType}.
+
+Lemma blk_bnd_ge L d s : (0 < L)%N -> (s <= L)%N ->
+  (s * d)%:R / L%:R - 1 <= (blk_bnd L d s)%:R :> RT.
+Proof.
+move=> L0 sL; rewrite /blk_bnd (minn_idPl sL).
+have L0' : (0 < L%:R :> RT) by rewrite ltr0n.
+rewrite lerBlDr ler_pdivrMr // mulrDl mul1r -natrM -natrD ler_nat.
+by rewrite {1}(divn_eq (s * d) L) leq_add2l ltnW // ltn_pmod.
+Qed.
+
+Lemma blk_bnd_le_div L d s : (0 < L)%N -> (s <= L)%N ->
+  (blk_bnd L d s)%:R <= (s * d)%:R / L%:R :> RT.
+Proof.
+move=> L0 sL; rewrite /blk_bnd (minn_idPl sL).
+have L0' : (0 < L%:R :> RT) by rewrite ltr0n.
+by rewrite ler_pdivlMr // -natrM ler_nat leq_divM.
+Qed.
+
+Lemma blk_p_ge L d s : (0 < L)%N -> (s.+1 <= L)%N ->
+  s.+1%:R * (d%:R / L%:R - 1) <= (blk_p L d s)%:R :> RT.
+Proof.
+move=> L0 sL; apply: le_trans (blk_bnd_ge d L0 sL).
+by rewrite mulrBr mulr1 natrM mulrA lerB // ?ler1n.
+Qed.
+
+Lemma blk_q_ge L d s : (0 < L)%N -> (s.+2 <= L)%N ->
+  d%:R / L%:R - 1 <= (blk_q L d s)%:R :> RT.
+Proof.
+move=> L0 sL; rewrite /blk_q natrB ?blk_bnd_mono //.
+have h1 := blk_bnd_ge d L0 sL.
+have h2 := blk_bnd_le_div d L0 (ltnW sL).
+move: h1; rewrite mulSn natrD mulrDl => h1.
+lra.
+Qed.
+
+Lemma sum_succ_nat (N : nat) : \sum_(s < N) (s.+1)%:R = (N * N.+1)%:R / 2 :> RT.
+Proof.
+elim: N => [|N IH]; first by rewrite big_ord0 mul0n mul0r.
+rewrite big_ord_recr /= IH !natrM -[N.+2]addn2 -[N.+1]addn1 !natrD.
+by field.
+Qed.
+
+End block_sizes.
+
+Section light_nets.
+Context {RT : realType}.
+
+Definition l1norm n (h : 'rV[RT]_n) : RT := \sum_i `|h 0 i|.
+
+Lemma l1norm_ge0 n (h : 'rV[RT]_n) : 0 <= l1norm h.
+Proof. by apply: sumr_ge0 => i _. Qed.
+
+Lemma l1normD n (h h' : 'rV[RT]_n) : l1norm (h + h') <= l1norm h + l1norm h'.
+Proof.
+rewrite /l1norm -big_split /=; apply: ler_sum => i _.
+by rewrite mxE ler_normD.
+Qed.
+
+Lemma l1normN n (h : 'rV[RT]_n) : l1norm (- h) = l1norm h.
+Proof. by apply: eq_bigr => i _; rewrite mxE normrN. Qed.
+
+Lemma frobenius_le_l1norm n (h : 'rV[RT]_n) : frobenius h <= l1norm h.
+Proof.
+rewrite -(ger0_norm (l1norm_ge0 h)) -sqrtr_sqr; apply: ler_wsqrtr.
+rewrite /mxdot big_ord1 /l1norm expr2 mulr_suml; apply: ler_sum => i _.
+rewrite mulr_sumr (bigD1 i) //= -normrM ler_wpDr ?real_ler_norm ?num_real //.
+by apply: sumr_ge0 => j _; rewrite -normrM normr_ge0.
+Qed.
+
+Lemma l1norm_le_frobenius n (h : 'rV[RT]_n) :
+  l1norm h <= Num.sqrt n%:R * frobenius h.
+Proof.
+pose s : 'rV[RT]_n := \row_i (Num.sg (h 0 i)).
+have e : l1norm h = mxdot h s.
+  rewrite /mxdot big_ord1; apply: eq_bigr => i _.
+  by rewrite mxE mulrC -normrEsg.
+have s1 : frobenius s <= Num.sqrt n%:R.
+  rewrite /frobenius ler_wsqrtr // /mxdot big_ord1.
+  apply: (le_trans (y := \sum_(i < n) (1 : RT))); last first.
+    by rewrite sumr_const card_ord.
+  apply: ler_sum => i _; rewrite mxE -expr2 sqr_sg.
+  by case: (h 0 i != 0); rewrite ?ler01 ?lexx.
+rewrite e mulrC; apply: le_trans (ler_mxdot _ _) _.
+by rewrite ler_wpM2l ?frobenius_ge0.
+Qed.
+
+(* An eta-net of a bounded set of row vectors, of its own points. *)
+Lemma rV_net n (S : set 'rV[RT]_n) (r eta : RT) : 0 <= r -> 0 < eta ->
+  (forall t, S t -> frobenius t <= r) ->
+  exists Ns : seq 'rV[RT]_n, [/\ forall t, t \in Ns -> S t,
+    forall t, S t -> exists2 t0, t0 \in Ns & frobenius (t - t0) <= eta &
+    (size Ns)%:R <= (2 * expR 1 * (1 + 2 * r / eta)) ^+ n].
+Proof.
+move=> r0 e0 Sr.
+have Sr' (c : 'cV[RT]_n) : [set c | S c^T] c -> frobenius c <= r.
+  by move=> /= Sc; rewrite -frobenius_trmx Sr.
+have [Nc [NcS Ncnet Ncsize]] := net_exists r0 e0 Sr'.
+exists (map trmx Nc); split.
+- by move=> t /mapP [c cN ->]; exact: NcS.
+- move=> t St.
+  have [c cN tc] : exists2 c, c \in Nc & frobenius (t^T - c) <= eta.
+    by apply: Ncnet; rewrite /= trmxK.
+  exists c^T; first by apply/mapP; exists c.
+  by rewrite -frobenius_trmx linearB /= trmxK.
+- by rewrite size_map.
+Qed.
+
+(* The heads: vectors supported on I of l1 norm at most r. *)
+Definition light_head n (I : {set 'I_n}) (r : RT) : set 'rV[RT]_n :=
+  [set h : 'rV[RT]_n | (forall i, i \notin I -> h 0 i = 0) /\ l1norm h <= r].
+
+(* An l1 net of the heads, of its own points, of size exponential in |I|:
+   a net of the l1 ball of 'rV_#|I| for the Euclidean distance, pushed to
+   the coordinates of I. *)
+Lemma head_net n (I : {set 'I_n}) (r eta : RT) : 0 <= r -> 0 < eta ->
+  exists Ns : seq 'rV[RT]_n, [/\ forall h, h \in Ns -> light_head I r h,
+    forall h, light_head I r h ->
+      exists2 h0, h0 \in Ns & l1norm (h - h0) <= eta &
+    (size Ns)%:R <=
+      (2 * expR 1 * (1 + 2 * r * Num.sqrt (#|I|.+1)%:R / eta)) ^+ #|I|].
+Proof.
+move=> r0 e0; set k := #|I|.
+pose emb (v : 'rV[RT]_k) : 'rV[RT]_n :=
+  \row_i \sum_(a < k) (enum_val a == i)%:R * v 0 a.
+pose pull (h : 'rV[RT]_n) : 'rV[RT]_k := \row_a h 0 (enum_val a).
+have embv v a : emb v 0 (enum_val a) = v 0 a.
+  rewrite mxE (bigD1 a) //= eqxx mul1r big1 ?addr0 // => b ba.
+  by rewrite (inj_eq enum_val_inj) (negPf ba) mul0r.
+have emb0 v i : i \notin I -> emb v 0 i = 0.
+  move=> iI; rewrite mxE big1 // => a _.
+  have : enum_val a \in I := enum_valP a.
+  by case: eqP => [->|_]; rewrite ?(negPf iI) // mul0r.
+have embB v w : emb (v - w) = emb v - emb w.
+  apply/rowP => i; rewrite !mxE -sumrB; apply: eq_bigr => a _.
+  by rewrite !mxE mulrBr.
+have l1emb v : l1norm (emb v) = l1norm v.
+  have z : \sum_(i | i \notin I) `|emb v 0 i| = 0.
+    by apply: big1 => i /emb0 ->; rewrite normr0.
+  rewrite /l1norm (bigID (mem I)) /= z addr0.
+  rewrite (big_enum_val (fun i => `|emb v 0 i|)) /=.
+  by apply: eq_bigr => a _; rewrite embv.
+have pullK (h : 'rV[RT]_n) :
+    (forall i, i \notin I -> h 0 i = 0) -> emb (pull h) = h.
+  move=> hI; apply/rowP => i; have [iI|iI] := boolP (i \in I).
+    by rewrite -(enum_rankK_in iI iI) embv mxE.
+  by rewrite emb0 // hI.
+have l1pull (h : 'rV[RT]_n) : l1norm (pull h) <= l1norm h.
+  rewrite /l1norm; under eq_bigr do rewrite mxE.
+  rewrite -(big_enum_val (fun i => `|h 0 i|)) [X in _ <= X](bigID (mem I)) /=.
+  by rewrite lerDl sumr_ge0.
+pose S' := [set v : 'rV[RT]_k | l1norm v <= r].
+have S'r v : S' v -> frobenius v <= r.
+  by move=> /= vr; exact: le_trans (frobenius_le_l1norm v) vr.
+have e'0 : 0 < eta / Num.sqrt (k.+1)%:R by rewrite divr_gt0 // sqrtr_gt0 ltr0n.
+have [Ns' [Ns'S Ns'net Ns'size]] := rV_net r0 e'0 S'r.
+exists (map emb Ns'); split.
+- move=> h /mapP [v vN ->]; split; first by move=> i iI; exact: emb0.
+  by rewrite l1emb; exact: Ns'S.
+- move=> h [hI hr]; have [v vN hv] := Ns'net (pull h) (le_trans (l1pull h) hr).
+  exists (emb v); first by apply/mapP; exists v.
+  rewrite -[X in X - _](pullK h hI) -embB l1emb.
+  apply: le_trans (l1norm_le_frobenius _) _.
+  apply: le_trans (ler_wpM2l (sqrtr_ge0 _) hv) _.
+  rewrite mulrA ler_pdivrMr ?sqrtr_gt0 ?ltr0n // mulrC ler_wpM2l ?(ltW e0) //.
+  by rewrite ler_wsqrtr // ler_nat.
+- rewrite size_map; apply: (le_trans Ns'size).
+  by rewrite invf_div mulrA lexx.
+Qed.
+
+End light_nets.
+Section nuclear_blocks.
+Context {RT : realType}.
+
+Lemma dual_ballP m q (r : RT) (A : 'M[RT]_(m, q)) : 0 <= r ->
+  dual_ball r A <-> nuclear A <= r.
+Proof.
+move=> r0; split => [hA|hA C].
+  apply: nuclear_le => B B1; apply: le_trans (hA B) _.
+  by rewrite -[leRHS]mulr1 ler_wpM2l.
+apply: le_trans (ler_norm _) _; apply: le_trans (mxdot_le_nuclear A C) _.
+by rewrite mulrC ler_wpM2r ?opnorm_ge0.
+Qed.
+
+Lemma sum_sel l (j : 'I_l) (F : 'I_l -> RT) : \sum_i (j == i)%:R * F i = F j.
+Proof.
+rewrite (bigD1 j) //= eqxx mul1r.
+have -> : \sum_(i < l | i != j) (j == i)%:R * F i = 0.
+  by apply: big1 => i /negPf ij; rewrite eq_sym ij mul0r.
+by rewrite addr0.
+Qed.
+
+(* The matrix whose rows are the unit vectors e_(f a). *)
+Definition sel_mx k l (f : 'I_k -> 'I_l) : 'M[RT]_(k, l) :=
+  \matrix_(a, i) (f a == i)%:R.
+
+Lemma sel_mx_orth k l (f : 'I_k -> 'I_l) : injective f ->
+  sel_mx f *m (sel_mx f)^T = 1%:M.
+Proof.
+move=> fi; apply/matrixP => a a'; rewrite /sel_mx !mxE.
+under eq_bigr => i _ do rewrite !mxE.
+by rewrite sum_sel (inj_eq fi) eq_sym.
+Qed.
+
+Lemma sel_mx_sub m n p q (A : 'M[RT]_(m, n)) (f : 'I_p -> 'I_m)
+    (g : 'I_q -> 'I_n) :
+  \matrix_(a, b) A (f a) (g b) = sel_mx f *m A *m (sel_mx g)^T.
+Proof.
+apply/matrixP => a b; rewrite /sel_mx !mxE.
+under eq_bigr => i _ do rewrite !mxE.
+under eq_bigr => i _ do under eq_bigr => j _ do rewrite mxE.
+under eq_bigr => i _ do rewrite sum_sel mulrC.
+by rewrite sum_sel.
+Qed.
+
+(* The nuclear norm of a submatrix is at most that of the matrix. *)
+Lemma nuclear_submx m n p q (A : 'M[RT]_(m, n)) (f : 'I_p -> 'I_m)
+    (g : 'I_q -> 'I_n) :
+  injective f -> injective g ->
+  nuclear (\matrix_(a, b) A (f a) (g b)) <= nuclear A.
+Proof.
+move=> fi gi; rewrite sel_mx_sub; apply: nuclear_le => B B1.
+have o1 : opnorm (sel_mx f)^T <= 1 := opnorm_trmx_orthorows (sel_mx_orth fi).
+have o2 : opnorm (sel_mx g) <= 1.
+  by rewrite -opnorm_trmx; exact: opnorm_trmx_orthorows (sel_mx_orth gi).
+rewrite mxdot_mulmxr trmxK mxdot_mulmxl; apply: nuclear_ub.
+apply: (le_trans (opnorm_mulmx _ _)); rewrite -[leRHS]mul1r.
+apply: ler_pM; rewrite ?opnorm_ge0 //.
+apply: (le_trans (opnorm_mulmx _ _)); rewrite -[leRHS]mul1r.
+by apply: ler_pM; rewrite ?opnorm_ge0.
+Qed.
+
+Lemma nuclear_outer_le p q (u : 'rV[RT]_p) (v : 'rV[RT]_q) :
+  nuclear (u^T *m v) <= frobenius u * frobenius v.
+Proof.
+apply: nuclear_le => B B1; rewrite mxdot_mulmxl trmxK.
+apply: le_trans (ler_mxdot _ _) _; rewrite mulrC ler_wpM2r ?frobenius_ge0 //.
+rewrite -frobenius_trmx trmx_mul.
+apply: le_trans (frobenius_mulmx_opnorm _ _) _.
+by rewrite opnorm_trmx frobenius_trmx -[leRHS]mul1r ler_wpM2r ?frobenius_ge0.
+Qed.
+
+Lemma nuclear_sum_le m n (I : finType) (F : I -> 'M[RT]_(m, n)) :
+  nuclear (\sum_i F i) <= \sum_i nuclear (F i).
+Proof.
+elim/big_ind2: _ => // [|A a B b hA hB].
+  by rewrite (eqP (_ : nuclear (0 : 'M[RT]_(m, n)) == 0)) // nuclear_eq0.
+by apply: le_trans (nuclearD _ _) (lerD hA hB).
+Qed.
+
+End nuclear_blocks.
+
+Section sample_blocks.
+Context {RT : realType}.
+Local Notation sample n d := ((n * d)%N.-tuple (measurableTypeR RT)).
+
+(* Point i of the sample, as a row vector. *)
+Definition sample_point n d (x : sample n d) (i : 'I_n) : 'rV[RT]_d :=
+  \row_j sample_entry x i j.
+
+(* The matrices W_i = d^(-1/2) (x_i x_i^T - I) of the paper, whose
+   combination coef_adj (sample_feature x) lam is L_X^* lam. *)
+Definition sample_feature n d (x : sample n d) (i : 'I_n) : 'M[RT]_d :=
+  (Num.sqrt d%:R)^-1 *: ((sample_point x i)^T *m sample_point x i - 1%:M).
+
+(* The block of the rows cU and the columns cJ of L_X^* lam. *)
+Lemma stage_map_submx n d p q (cU : 'I_p -> 'I_d) (cJ : 'I_q -> 'I_d)
+    (x : sample n d) (lam : 'rV[RT]_n) :
+  (forall a b, cU a != cJ b) ->
+  stage_map cU cJ x lam =
+  \matrix_(a, b) coef_adj (sample_feature x) lam (cU a) (cJ b).
+Proof.
+move=> UJ; apply/matrixP => a b; rewrite /stage_map /coef_adj !mxE !summxE.
+rewrite mulr_sumr; apply: eq_bigr => i _.
+rewrite !mxE big_ord1 !mxE big_ord1 !mxE (negPf (UJ a b)) subr0.
+by rewrite mulrCA.
+Qed.
+
+Lemma nuclear_stage_map_le n d p q (cU : 'I_p -> 'I_d) (cJ : 'I_q -> 'I_d)
+    (x : sample n d) (lam : 'rV[RT]_n) :
+  injective cU -> injective cJ -> (forall a b, cU a != cJ b) ->
+  nuclear (stage_map cU cJ x lam) <= nuclear (coef_adj (sample_feature x) lam).
+Proof.
+by move=> Ui Ji UJ; rewrite stage_map_submx //; exact: nuclear_submx.
+Qed.
+
+Lemma stage_row_sel n d p (c : 'I_p -> 'I_d) (x : sample n d) i :
+  stage_row c x i = sample_point x i *m (sel_mx c)^T.
+Proof.
+apply/rowP => a; rewrite !mxE.
+under eq_bigr => j _ do rewrite !mxE mulrC.
+by rewrite sum_sel.
+Qed.
+
+Lemma frobenius_stage_row n d p (c : 'I_p -> 'I_d) (x : sample n d) i :
+  injective c -> frobenius (stage_row c x i) <= frobenius (sample_point x i).
+Proof.
+move=> ci; rewrite stage_row_sel.
+exact: frobenius_mulmx_orthorows (sel_mx_orth ci).
+Qed.
+
+(* The l1 bound of the paper: if |x_i|^2 <= b for every i, the nuclear norm
+   of a block of L_X^* lam is at most d^(-1/2) b |lam|_1. *)
+Lemma nuclear_stage_map_l1 n d p q (cU : 'I_p -> 'I_d) (cJ : 'I_q -> 'I_d)
+    (x : sample n d) (lam : 'rV[RT]_n) (b : RT) :
+  injective cU -> injective cJ ->
+  (forall i, frobenius (sample_point x i) ^+ 2 <= b) ->
+  nuclear (stage_map cU cJ x lam) <=
+  (Num.sqrt d%:R)^-1 * b * l1norm lam.
+Proof.
+move=> Ui Ji hb; rewrite /stage_map nuclearZ ger0_norm ?invr_ge0 ?sqrtr_ge0 //.
+rewrite -mulrA ler_wpM2l ?invr_ge0 ?sqrtr_ge0 //.
+apply: le_trans (nuclear_sum_le _) _; rewrite /l1norm mulr_sumr.
+apply: ler_sum => i _; rewrite nuclearZ mulrC ler_wpM2r //.
+apply: le_trans (nuclear_outer_le _ _) _; apply: le_trans (hb i); rewrite expr2.
+by apply: ler_pM; rewrite ?frobenius_ge0 ?frobenius_stage_row.
+Qed.
+
+End sample_blocks.
+
+Section light_union.
+Context {RT : realType}.
+Local Notation sample n d := ((n * d)%N.-tuple (measurableTypeR RT)).
+
+Lemma stage_mapN n d p q (cU : 'I_p -> 'I_d) (cJ : 'I_q -> 'I_d)
+    (x : sample n d) (l1 : 'rV[RT]_n) :
+  stage_map cU cJ x (- l1) = - stage_map cU cJ x l1.
+Proof.
+rewrite /stage_map -scalerN -sumrN; congr (_ *: _).
+by apply: eq_bigr => i _; rewrite mxE scaleNr.
+Qed.
+
+Lemma measurable_stage_event n d p q (cU : 'I_p -> 'I_d) (cJ : 'I_q -> 'I_d)
+    (h t : 'rV[RT]_n) (k : nat) (mu rho gam : RT) :
+  measurable (stage_event cU cJ h t k mu rho gam : set (sample n d)).
+Proof.
+apply: measurableI; last exact: measurable_stage_good.
+have mm : measurable_fun setT
+    (fun x : sample n d => stage_map cU cJ x (h + t)).
+  exact: measurable_stage_map.
+have := mm measurableT _ (@measurable_dual_ball _ p q (gam * d%:R)).
+by rewrite setTI.
+Qed.
+
+(* The light unit tails off I. *)
+Definition light_tail n (I : {set 'I_n}) (K d : RT) : set 'rV[RT]_n :=
+  [set t : 'rV[RT]_n | [/\ forall i, i \in I -> t 0 i = 0, frobenius t = 1 &
+     forall i, `|t 0 i| <= (Num.sqrt (K * d))^-1]].
+
+(* Some pair (h, t) with t a light unit tail off a set I of at most m rows
+   and h a head on I has all its blocks of nuclear norm below gam d. *)
+Definition light_bad n d L m (K r gam : RT) : set (sample n d) :=
+  [set x | exists (I : {set 'I_n}) (h t : 'rV[RT]_n), [/\ (#|I| <= m)%N,
+     light_head I r h, light_tail I K d%:R t &
+     forall l, (l < L.-1)%N ->
+       nuclear (stage_map (blk_cU L d l) (blk_cJ L d l) x (h + t)) <
+       gam * d%:R]].
+
+(* Every set of at most m rows is the set of the rows of an m-tuple of
+   options, and conversely. *)
+Lemma tuple_of_set n m (I : {set 'I_n}) : (#|I| <= m)%N ->
+  exists s : m.-tuple (option 'I_n), [set i | Some i \in s]%SET = I.
+Proof.
+move=> Im.
+have sz : size (map Some (enum I) ++ nseq (m - #|I|) None) == m.
+  by rewrite size_cat size_map size_nseq -cardE subnKC.
+exists (Tuple sz); apply/setP => i; rewrite inE /= mem_cat mem_nseq andbF orbF.
+by rewrite (mem_map (@Some_inj _)) mem_enum.
+Qed.
+
+Lemma card_tuple_set n m (s : m.-tuple (option 'I_n)) :
+  (#|[set i | Some i \in s]%SET| <= m)%N.
+Proof.
+have -> : [set i | Some i \in s]%SET = [set i | i \in pmap id s]%SET.
+  by apply/setP => i; rewrite !inE mem_pmap map_id.
+rewrite cardsE (leq_trans (card_size _)) // size_pmap.
+by rewrite (leq_trans (count_size _ _)) // size_tuple.
+Qed.
+
+Lemma mu_bigsetU_le d (T : measurableType d) (R : realType)
+    (mu : {measure set T -> \bar R}) (I : Type) (s : seq I) (P : pred I)
+    (F : I -> set T) :
+  (forall i, P i -> measurable (F i)) ->
+  (mu (\big[setU/set0]_(i <- s | P i) F i) <= \sum_(i <- s | P i) mu (F i))%E.
+Proof.
+move=> mF.
+have : measurable (\big[setU/set0]_(i <- s | P i) F i) /\
+    (mu (\big[setU/set0]_(i <- s | P i) F i) <=
+     \sum_(i <- s | P i) mu (F i))%E.
+  elim/big_rec2: _ => [|i U u Pi [mU hU]]; first by rewrite measure0.
+  split; first exact: measurableU (mF i Pi) mU.
+  exact: le_trans (measureU2 _ (mF i Pi) mU) (leeD (lexx _) hU).
+by case.
+Qed.
+
+Lemma bigsetU_seqP (T : Type) (I : eqType) (s : seq I) (F : I -> set T) x :
+  (exists2 i, i \in s & F i x) -> (\big[setU/set0]_(i <- s) F i) x.
+Proof.
+elim: s => [|a s IH] [i]; rewrite ?in_nil // big_cons inE.
+case/orP => [/eqP -> Fx|iS Fx]; first by left.
+by right; apply: IH; exists i.
+Qed.
+
+Local Open Scope ereal_scope.
+
+(* The union bound of the proof of Proposition 3.4: on the events of the a
+   priori bound, of the norms of the points and of Corollary 3.13, the bad
+   event is contained in a measurable set of probability at most
+   (n + 1)^m H^m T^n prod_l (2 C gam)^(k_l q_l): there are at most
+   (n + 1)^m sets I, H^m heads and T^n tails in the nets, and each pair has
+   the bound of stages_small_ball. *)
+Theorem light_union (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R -> (0 < c0)%R ->
+  exists2 C : RT, (0 < C)%R &
+  forall n d L m (k : nat -> nat)
+    (nu : nat -> probability (measurableTypeR RT) RT) (K r C1 rho gam : RT),
+  (forall j, (j < d)%N -> \int[nu j]_x x%:E = 0) ->
+  (forall j, (j < d)%N -> \int[nu j]_x ((x ^+ 2)%R)%:E = 1) ->
+  (forall j, (j < d)%N -> (2^-1)%:E <=
+     \int[nu j]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
+  (forall l, (l < L.-1)%N -> (c0 * d%:R <= (k l)%:R)%R /\
+     (c0 * d%:R <= (blk_q L d l)%:R)%R /\ (k l <= blk_p L d l)%N /\
+     (k l <= d)%N) ->
+  (0 < rho)%R -> (C * rho <= 2 * gam)%R -> (0 < gam)%R -> (0 < C1)%R ->
+  (0 <= r)%R -> (0 < d)%N ->
+  exists U : set (sample n d), [/\ measurable U,
+    tuple_prod (fun j => nu (j %% d)%N) (n * d) U <=
+      ((n.+1)%:R ^+ m *
+       (2 * expR 1 * (1 + 16 * r * Num.sqrt (m.+1)%:R /
+          (gam * Num.sqrt d%:R))) ^+ m *
+       (2 * expR 1 * (1 + 8 * C1 / gam)) ^+ n *
+       \prod_(l < L.-1) (C * (2 * gam)) ^+ (k l * blk_q L d l))%R%:E &
+    forall x : sample n d,
+      (forall l (lam : 'rV[RT]_n), (l < L.-1)%N ->
+         nuclear (stage_map (blk_cU L d l) (blk_cJ L d l) x lam) <=
+         C1 * d%:R * frobenius lam)%R ->
+      (forall i, frobenius (sample_point x i) ^+ 2 <= 2 * d%:R)%R ->
+      (forall (I : {set 'I_n}) t, (#|I| <= m)%N -> light_tail I K d%:R t ->
+         forall l, (l < L.-1)%N ->
+           stage_good (blk_cU L d l) t (k l) mu rho x) ->
+      light_bad L m K r gam x -> U x].
+Proof.
+move=> M0 mu0 c00.
+have [C C0 hC] := stages_small_ball M0 mu0 c00.
+exists C => // n d L m k nu K r C1 rho gam hm0 hm1 hm2 hk rho0 hgam gam0 C10
+  r0 d0.
+have sd0 : (0 < Num.sqrt d%:R :> RT)%R by rewrite sqrtr_gt0 ltr0n.
+pose eh := (gam * Num.sqrt d%:R / 8)%R.
+pose et := (gam / (4 * C1))%R.
+have eh0 : (0 < eh)%R by rewrite /eh divr_gt0 // mulr_gt0.
+have et0 : (0 < et)%R by rewrite /et divr_gt0 // mulr_gt0.
+have tail1 (I : {set 'I_n}) t : light_tail I K d%:R t -> (frobenius t <= 1)%R.
+  by case=> _ -> _.
+pose Nh (I : {set 'I_n}) := projT1 (cid (head_net I r0 eh0)).
+have NhP (I : {set 'I_n}) := projT2 (cid (head_net I r0 eh0)).
+pose Nt (I : {set 'I_n}) := projT1 (cid (rV_net ler01 et0 (@tail1 I))).
+have NtP (I : {set 'I_n}) := projT2 (cid (rV_net ler01 et0 (@tail1 I))).
+pose Iof (s : m.-tuple (option 'I_n)) := [set i | Some i \in s]%SET.
+pose Ev (I : {set 'I_n}) (h0 t0 : 'rV[RT]_n) :=
+  \bigcap_(l < L.-1) stage_event (blk_cU L d l) (blk_cJ L d l) h0 t0 (k l)
+    mu rho (2 * gam)%R.
+pose U := \big[setU/set0]_(s : m.-tuple (option 'I_n))
+  \big[setU/set0]_(h0 <- Nh (Iof s)) \big[setU/set0]_(t0 <- Nt (Iof s))
+    Ev (Iof s) h0 t0.
+have mEv I h0 t0 : measurable (Ev I h0 t0).
+  rewrite /Ev bigcap_mkord; apply: big_ind => //; first exact: measurableI.
+  by move=> l _; exact: measurable_stage_event.
+exists U; split.
+- apply: bigsetU_measurable => s _; apply: bigsetU_measurable => h0' _.
+  by apply: bigsetU_measurable => t0 _; exact: mEv.
+- pose B := (\prod_(l < L.-1) (C * (2 * gam)) ^+ (k l * blk_q L d l))%R.
+  pose Hm := (2 * expR 1 * (1 + 16 * r * Num.sqrt (m.+1)%:R /
+    (gam * Num.sqrt d%:R)))%R.
+  pose T := (2 * expR 1 * (1 + 8 * C1 / gam))%R.
+  have B0 : (0 <= B)%R.
+    apply: prodr_ge0 => l _; apply: exprn_ge0.
+    by rewrite mulr_ge0 // ?(ltW C0) // mulr_ge0 // ltW.
+  have e2 : (1 <= 2 * expR 1 :> RT)%R.
+    by have := expR_ge1Dx (1 : RT); lra.
+  have Hm1 : (1 <= Hm)%R.
+    have z : (0 <= 16 * r * Num.sqrt (m.+1)%:R / (gam * Num.sqrt d%:R))%R.
+      apply: divr_ge0; last by apply: mulr_ge0; [exact: ltW|exact: sqrtr_ge0].
+      apply: mulr_ge0; last exact: sqrtr_ge0.
+      by apply: mulr_ge0; [exact: ler0n|exact: r0].
+    by rewrite /Hm; nra.
+  have T1 : (1 <= T)%R.
+    have z : (0 <= 8 * C1 / gam)%R.
+      apply: divr_ge0; last exact: ltW.
+      by apply: mulr_ge0; [exact: ler0n|exact: ltW].
+    by rewrite /T; nra.
+  have Hm0 : (0 <= Hm)%R by apply: le_trans Hm1.
+  have g0 : (gam != 0)%R by rewrite gt_eqF.
+  have s0 : (Num.sqrt d%:R != 0 :> RT)%R by rewrite gt_eqF.
+  have e0 : (0 <= 2 * expR 1 :> RT)%R by have := e2; lra.
+  have sizeNh s : ((size (Nh (Iof s)))%:R <= Hm ^+ m)%R.
+    have [_ _ hs] := NhP (Iof s); apply: le_trans hs _.
+    have km := card_tuple_set s.
+    set k' := #|Iof s|.
+    pose base := (2 * expR 1 * (1 + 2 * r * Num.sqrt (k'.+1)%:R / eh))%R.
+    have base0 : (0 <= base)%R.
+      have z : (0 <= 2 * r * Num.sqrt (k'.+1)%:R / eh)%R.
+        apply: divr_ge0; last exact: ltW.
+        apply: mulr_ge0; last exact: sqrtr_ge0.
+        by apply: mulr_ge0; [exact: ler0n|exact: r0].
+      by rewrite /base; nra.
+    have baseH : (base <= Hm)%R.
+      have pos : (0 <= (gam * Num.sqrt d%:R)^-1)%R.
+        by rewrite invr_ge0; apply: mulr_ge0; [exact: ltW|exact: sqrtr_ge0].
+      have q : (2 * r * Num.sqrt (k'.+1)%:R / eh <=
+          16 * r * Num.sqrt (m.+1)%:R / (gam * Num.sqrt d%:R))%R.
+        have -> : (2 * r * Num.sqrt (k'.+1)%:R / eh =
+            16 * r * Num.sqrt (k'.+1)%:R / (gam * Num.sqrt d%:R))%R.
+          by rewrite /eh; field.
+        apply: (ler_wpM2r pos); apply: ler_wpM2l.
+          by apply: mulr_ge0; [exact: ler0n|exact: r0].
+        by apply: ler_wsqrtr; rewrite ler_nat ltnS.
+      by rewrite /base /Hm; apply: (ler_wpM2l e0); rewrite lerD2l.
+    apply: (le_trans _ (ler_weXn2l Hm1 km)).
+    by apply: (lerXn2r k'); rewrite ?nnegrE.
+  have sizeNt s : ((size (Nt (Iof s)))%:R <= T ^+ n)%R.
+    have [_ _ hs] := NtP (Iof s); apply: le_trans hs _.
+    have c0' : (C1 != 0)%R by rewrite gt_eqF.
+    by rewrite /T /et (_ : 2 * 1 / (gam / (4 * C1)) = 8 * C1 / gam)%R //; field.
+  have hEv (I : {set 'I_n}) h0 t0 : light_head I r h0 ->
+      light_tail I K d%:R t0 ->
+      tuple_prod (fun j => nu (j %% d)%N) (n * d) (Ev I h0 t0) <= B%:E.
+    case=> hI _ [tI _ _].
+    have H1 := hC n d L.-1 (blk_p L d) (blk_q L d) k (blk_cU L d) (blk_cJ L d)
+      nu [pred i | i \in I] h0 t0 rho (2 * gam)%R.
+    have H2 := H1 (fun l => @blk_cJ_inj L d l).
+    have H3 := H2 (fun l a b => blk_cUJ a b).
+    have H4 := H3 (fun l a => blk_cU_succ a).
+    have H5 := H4 (fun l b => blk_cJ_succ b).
+    have H6 := H5 hm0 hm1 hm2.
+    have H7 := H6 (fun i iI => tI i iI).
+    have H8 := H7 (fun i iI => hI i iI).
+    have H9 := H8 hk rho0 hgam.
+    exact: H9.
+  have csum (I' : eqType) (s : seq I') (c : RT) :
+      \sum_(i <- s) c%:E = ((size s)%:R * c)%R%:E.
+    have cs : count xpredT s = size s by elim: s => //= a s ->.
+    by rewrite sumEFin big_const_seq cs iter_addr addr0 mulr_natl.
+  have inner s : tuple_prod (fun j => nu (j %% d)%N) (n * d)
+      (\big[setU/set0]_(h0 <- Nh (Iof s)) \big[setU/set0]_(t0 <- Nt (Iof s))
+        Ev (Iof s) h0 t0) <= (Hm ^+ m * T ^+ n * B)%R%:E.
+    have [NhS _ _] := NhP (Iof s); have [NtS _ _] := NtP (Iof s).
+    have m1 (h0 : 'rV[RT]_n) : true -> measurable
+        (\big[setU/set0]_(t0 <- Nt (Iof s)) Ev (Iof s) h0 t0).
+      by move=> _; apply: bigsetU_measurable => t0 _; exact: mEv.
+    have m2 (h0 t0 : 'rV[RT]_n) : true -> measurable (Ev (Iof s) h0 t0).
+      by move=> _; exact: mEv.
+    apply: le_trans (mu_bigsetU_le _ _ m1) _.
+    apply: (@le_trans _ _ (\sum_(h0 <- Nh (Iof s))
+        ((size (Nt (Iof s)))%:R * B)%R%:E)).
+      rewrite big_seq [X in (_ <= X)%E]big_seq.
+      apply: lee_sum => h0 h0N; apply: le_trans (mu_bigsetU_le _ _ (m2 h0)) _.
+      rewrite -csum big_seq [X in (_ <= X)%E]big_seq; apply: lee_sum => t0 t0N.
+      by apply: hEv; [exact: NhS | exact: NtS].
+    rewrite csum lee_fin mulrA; apply: (ler_wpM2r B0).
+    by apply: ler_pM; rewrite ?ler0n ?sizeNh ?sizeNt.
+  have m3 (s : m.-tuple (option 'I_n)) : true -> measurable
+      (\big[setU/set0]_(h0 <- Nh (Iof s)) \big[setU/set0]_(t0 <- Nt (Iof s))
+        Ev (Iof s) h0 t0).
+    move=> _; apply: bigsetU_measurable => h0' _.
+    by apply: bigsetU_measurable => t0 _; exact: mEv.
+  apply: le_trans (mu_bigsetU_le _ _ m3) _.
+  apply: le_trans (lee_sum _ (fun s _ => inner s)) _.
+  rewrite sumEFin sumr_const card_tuple card_option card_ord lee_fin.
+  rewrite -/Hm -/T -/B -[X in (X <= _)%R]mulr_natl natrX !mulrA.
+  exact: lexx.
+- move=> x hA hN hG [I [h [t [Im hhd htl hsmall]]]].
+  have [s sI] := tuple_of_set Im.
+  have [NhS Nhnet _] := NhP I; have [NtS Ntnet _] := NtP I.
+  have [h0 h0N hh0] := Nhnet h hhd.
+  have [t0 t0N tt0] := Ntnet t htl.
+  have g0 : (gam != 0)%R by rewrite gt_eqF.
+  have s0 : (Num.sqrt d%:R != 0 :> RT)%R by rewrite gt_eqF.
+  have c1 : (C1 != 0)%R by rewrite gt_eqF.
+  apply: bigsetU_seqP; exists s; first exact: mem_index_enum.
+  rewrite /Iof sI.
+  apply: bigsetU_seqP; exists h0 => //.
+  apply: bigsetU_seqP; exists t0 => //.
+  move=> l /= lL; split; last exact: hG I t0 Im (NtS t0 t0N) l lL.
+  apply/dual_ballP; first by rewrite mulr_ge0 ?ler0n // mulr_ge0 // ltW.
+  have Ui := @blk_cU_inj L d l; have Ji := @blk_cJ_inj L d l.
+  pose S lam := stage_map (blk_cU L d l) (blk_cJ L d l) x lam.
+  have tri a b c : (nuclear (S (a + (b + c))) <=
+      nuclear (S a) + nuclear (S b) + nuclear (S c))%R.
+    rewrite /S stage_mapD; apply: le_trans (nuclearD _ _) _.
+    by rewrite -addrA lerD2l stage_mapD; exact: nuclearD.
+  have e : (h0 + t0 = (h + t) + ((h0 - h) + (t0 - t)))%R.
+    by apply/rowP => i; rewrite !mxE; ring.
+  have b1 := hsmall l lL.
+  have b2 : (nuclear (S (h0 - h)) <= gam * d%:R / 4)%R.
+    apply: le_trans (@nuclear_stage_map_l1 RT n d _ _ (blk_cU L d l)
+      (blk_cJ L d l) x (h0 - h)%R (2 * d%:R)%R Ui Ji hN) _.
+    rewrite -opprB l1normN.
+    apply: le_trans (ler_wpM2l _ hh0) _.
+      by rewrite mulr_ge0 ?invr_ge0 ?sqrtr_ge0 // mulr_ge0 ?ler0n.
+    by rewrite /eh le_eqVlt; apply/orP; left; apply/eqP; field.
+  have b3 : (nuclear (S (t0 - t)) <= gam * d%:R / 4)%R.
+    apply: le_trans (hA l (t0 - t)%R lL) _.
+    rewrite -opprB frobeniusN.
+    apply: le_trans (ler_wpM2l _ tt0) _.
+      by rewrite mulr_ge0 ?ler0n // ltW.
+    by rewrite /et le_eqVlt; apply/orP; left; apply/eqP; field.
+  rewrite -/(S (h0 + t0)%R) e; apply: le_trans (tri _ _ _) _.
+  have := ltW b1; rewrite -/(S (h + t)%R) => b1'.
+  have gd : (0 <= gam * d%:R)%R by rewrite mulr_ge0 ?ler0n // ltW.
+  rewrite -mulrA; lra.
+Qed.
+
+End light_union.
