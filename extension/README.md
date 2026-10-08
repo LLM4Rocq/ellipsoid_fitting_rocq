@@ -32,7 +32,8 @@ categories *exists*, *new general library* and *new paper-specific work*,
 the dependencies and the critical path; (c) the staged plan, starting with
 the examination of the first milestone; (d) the rules of the repository
 that the extension would need to change; (e) the formal statement and the
-choices made in it.
+choices made in it; (f) phase 6, the theorem for finite mixtures of product
+laws and its corollary for the paired law.
 
 ---
 
@@ -796,3 +797,115 @@ modules independent of the paper and of Stdlib's reals, the axioms of the
 main theorem allowed, no stale citation). Nothing in `theories/`,
 `library/`, `scripts/`, the `Makefile` or the READMEs outside `extension/`
 was changed.
+
+---
+
+## (f) Phase 6: finite mixtures of product laws and the paired law
+
+Phase 6 proves a generalization of Theorem 1.2 that is not in the
+literature checked so far: both phases of exact ellipsoid fitting for
+i.i.d. points whose law is, at each dimension `d`, a finite mixture of
+product laws, the assumptions (M1) to (M3) of
+`notes/mixture-product-universality.md` (on the VM, under
+`/srv/ellipsoid-fitting/`); and its corollary, exact fitting for the
+paired law of `notes/paired-dependent-sat.md`. The plan is
+`notes/paired-law-plan-v2.md`, section 4.
+
+### Files
+
+| File | Content |
+|---|---|
+| `MixtureDefinitions.v` | the definitions of the general statement (below); definitions only |
+| `MixtureStatement.v` | `mixture_statement`, `mixture_interpolation_statement` and `mixture_theorem_statement`, their conjunction |
+| `PairedDefinitions.v` | the uniform law on `[-sqrt 3, sqrt 3]` (`paired_uniform_spec`), `h = P_4(x / sqrt 3)` (`paired_kernel`), the pair and sample densities, `paired_probability` |
+| `PairedStatement.v` | `paired_statement` |
+| `Mixture/Component.v` | the consequences of (M2): subgaussian coordinates, integrable powers, `E x^4 <= 4 K^4`, `E x^2 1_{|x| <= sqrt 8 K^2} >= 1/2`, `P(x != 0) >= 1 / (4 K^4)` |
+| `Mixture/Flat.v` | flat families `tuple_prod lam (n * d)`: the points and their features are independent, with the laws of each point; the labelled law of a mixture and `universality_sample_law` are flat families |
+| `Mixture/Points.v` | some point of a sample is not zero with probability tending to one |
+| `Mixture/Interpolation.v` | Theorem 1.9 for mixtures (`mixture_small_residual`) and `mixture_interpolation_holds` |
+| `Mixture/OneComponent.v` | `mixture_universality_statement`: `mixture_statement` implies `universality_statement` |
+| `Mixture/Theorem.v`, `MixtureTheorem.v` | `mixture_statement_holds`, then `mixture_theorem : mixture_theorem_statement` |
+| `Paired/Uniform.v` | the uniform law, the range of `h`, the laws `(1 + a h) mu` for `-1 <= a <= 7/3` |
+| `Paired/Law.v` | the paired law as a finite mixture of product laws |
+| `Paired/Theorem.v`, `PairedTheorem.v` | `paired_of_mixture`, then `paired_theorem : paired_statement` |
+
+The modules `Mixture/Theorem` and `Paired/Theorem` are required by their
+full names (`Require Import EllipsoidUniversality.Mixture.Theorem`), since
+`Theorem` is a keyword.
+
+### The definitions
+
+| Definition | Meaning |
+|---|---|
+| `mixture_component_law K mu` | (M2): `0 < K`, mean 0, variance 1, `E exp(x^2 / K^2) <= 2`; `universality_coordinate_law` without the fourth moment |
+| `mixture_family K N w mu` | (M1) and (M2): for every `d`, `N d` components with weights `w d s >= 0` of sum one and coordinate laws `mu d s j`, `s < N d`, `j < d`, that are component laws |
+| `mixture_fourth_moment kappa N w mu` | (M3): under the mixture, every coordinate has fourth moment `kappa` |
+| `mixture_label s i`, `mixture_labelled_law N mu n d s` | the label of point `i` in a tuple `s` of labels; given the labels, the `n * d` coordinates are independent, coordinate `k` (coordinate `k mod d` of point `k / d`) with law `mu (s_(k / d)) (k mod d)` |
+| `mixture_probability N w mu n d E` | the probability of `E` for `n` i.i.d. points of the mixture: the average over the label tuples, with product weights, of the labelled laws |
+| `mixture_interpolation n d C x` | Theorem 1.9 at a sample: every `y` is `(<W_i, Delta>)_i` up to a constant, for a symmetric `Delta` with `|v^T Delta v| <= C (|y|_2 / d + (ln d)^4 |y|_oo / sqrt d) |v|^2`, written with the frozen quadratic form |
+
+The number of components `N d` may grow with `d`. The paired law has
+`2^(d / 2)` components, one bit per pair of coordinates.
+
+### The statements
+
+`mixture_statement` has the three parts of Theorem 1.2, for every
+`kappa > 1`, `K > 0` and `alpha > 0`, with `mixture_probability` in place
+of `universality_probability` and (M1)-(M3) in place of
+`universality_coordinate_law`: below the threshold `alpha*(kappa)`, a
+positive definite fit, and a fit of condition number at most `c`, with
+probability tending to one, `c` depending only on `alpha`, `kappa` and
+`K`; above it, `e*(alpha, kappa) > 0` and no positive semidefinite fit;
+for every `alpha`, the optimal squared fitting error tends to
+`e*(alpha, kappa)` in probability. `mixture_interpolation_statement` is
+Theorem 1.9 under (M1)-(M2), for `alpha < 1/2`, with `C` chosen before the
+mixture. `paired_statement` is the corollary for the paired law, with a
+parameter `-1 <= eps d <= 7/3` that may depend on `d`: the threshold
+`alpha*(9/5)`, the error `e*(alpha, 9/5)` and the interpolation estimate.
+The statement files await the user's review; once accepted they are
+frozen like `UniversalityDefinitions.v` and `UniversalityStatement.v`.
+
+### The proof
+
+The route of `notes/mixture-product-universality.md`: the interpolation
+chain is proved given the labels of the points, uniformly in them, and the
+exceptional events of the label tuples are intersected; the approximate
+fit and the unsatisfiable phase use the mixture of the feature laws.
+
+- Library: `probability/density_law.v` (laws given by a density),
+  `probability/mixture.v` (finite mixtures, total variance, the product of
+  copies of a mixture, `mixture_cover`), `convex/feature_mixture.v` (a
+  mixture of regular feature laws is regular, in Hilbert-Schmidt form).
+- Flat families: the a priori estimates (`Sat/Apriori.v`,
+  `Sat/AprioriSparse.v`, `Sat/SparseLimit.v`), the light-tail bound
+  (`Sat/OneStage.v`, `Sat/LightTail.v`, `Sat/LightTailBound.v`) and the
+  small-residual interpolation (`Sat/Interpolation.v`,
+  `Sat/SmallResidual.v`) hold for every flat family of component laws,
+  with the dimension threshold chosen before the laws; the statements of
+  phase 5 for `universality_sample_law` are now their corollaries.
+- Features: the bounds of `Features/Regular.v` for component laws, and
+  `Features/Mixture.v`: the mixture feature law, regular with covariance
+  `unsat_cov kappa d` under (M3), and the features of a mixture sample,
+  i.i.d. with that law.
+- Assemblies: the approximate fit from any regular feature law
+  (`Sat/ApproximateFit.v`), the satisfiable phase (`Sat/Universality.v`),
+  the unsatisfiable phase and Theorem 1.7 (`Unsat/Universality.v`), then
+  `Mixture/Theorem.v`.
+- The paired law: `paired_probability_mixture` writes it as a mixture of
+  product laws with the identities (M16) (`eps < 0`) and (M17)
+  (`eps >= 0`) of the note; the component laws `(1 + a h) mu` have
+  constant 3 and fourth moment `9/5 + 8 a / 35`, and the parameters have
+  mean 0 under the weights, so the fourth moment of the mixture is `9/5`.
+
+### Verification
+
+`make check` compiles `check/MixtureAssumptions.v` and
+`check/PairedAssumptions.v`, which check that `mixture_theorem` proves
+`mixture_theorem_statement` and `paired_theorem` proves
+`paired_statement`, and compares their axioms with
+`check/mixture_assumptions.expected` and
+`check/paired_assumptions.expected` (`scripts/check_sources.py`). Both
+theorems use seven of the eight classical axioms of
+`check/assumptions.expected`, all but `Classical_Prop.classic`, as
+`universality_theorem` does. `Mixture/OneComponent.v` checks that the
+general statement contains the theorem of phase 5.
