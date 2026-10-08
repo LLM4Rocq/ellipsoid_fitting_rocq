@@ -102,13 +102,6 @@ Local Open Scope ring_scope.
 
 Section covariance.
 
-Lemma mxdot_vec_mx d (x y : 'rV[R]_(d * d)) :
-  mxdot (vec_mx x) (vec_mx y) = mxdot x y.
-Proof.
-rewrite /mxdot [in RHS]big_ord1 [in RHS]sum_mxvec_index.
-by apply: eq_bigr => i _; apply: eq_bigr => j _; rewrite !mxE.
-Qed.
-
 Lemma unsat_cov_formC (kappa : R) d (A B : 'M[R]_d) :
   unsat_cov_form kappa d A B = unsat_cov_form kappa d B A.
 Proof.
