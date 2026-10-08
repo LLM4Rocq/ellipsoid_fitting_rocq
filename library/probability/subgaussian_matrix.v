@@ -13,7 +13,7 @@ From GaussianAnalysis.probability Require Import lindeberg subgaussian.
 (* The coordinates are independent (a tuple of law tuple_prod mu n),          *)
 (* centered and subgaussian with constant K (subgaussian.v).                  *)
 (*                                                                            *)
-(* Planned results (phase 5, stage 1), with explicit numerical constants:     *)
+(* Planned results (phase 5, stage 3), with explicit numerical constants:     *)
 (* - concentration of the norm (Vershynin, Theorem 3.1.1): if moreover        *)
 (*   E x_i^2 = 1, then P(|frobenius x - sqrt n| >= t) <= 2 exp (- c t^2 / K^4)*)
 (*   for the row vector x of the coordinates, from Bernstein's inequality for *)
