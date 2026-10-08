@@ -33,6 +33,7 @@ library/probability/semicircle_law.v
 library/probability/variational.v
 library/probability/symmetrization.v
 library/probability/small_ball_method.v
+library/probability/conditioning.v
 library/random_matrix/goe.v
 library/random_matrix/goe_rotation.v
 library/random_matrix/wigner.v
