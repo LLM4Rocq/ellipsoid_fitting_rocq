@@ -8,20 +8,31 @@ the headers of `library/matrix/psd_part.v`, `nuclear.v`,
 
 ## 1. Hanson-Wright for the linear forms of the features (S3, stage 3)
 
-Proposition 3.1 (Sat/Apriori) applies the restricted isometry estimate to
-the columns `sqrt (d/2) mxvec W_i`, `W_i = (x_i x_i^T - I) / sqrt d`. It
-needs, from item HW (`library/probability/hanson_wright.v`), for laws
-`nu j` as in `universality_coordinate_law kappa K` and every symmetric `A`:
+`extension/Sat/Apriori.v` proves the second a priori estimate
+(`adjoint_bound`: `|L_X^* z|_F <= C sqrt d |z|`, hence
+`nuclear (L_X^* z) <= C d |z|`) under one hypothesis, which is the
+Hanson-Wright inequality (item HW, Lemma 3.2 of the paper, lines 2157-2185):
+for `0 < d`, laws `nu j` (`j < d`) as in
+`universality_coordinate_law kappa K`, and every `y : 'rV[R]_(d * d)` with
+`mxdot y y = 1`,
 
 ```
-subexponential (data_feature_law nu d) (fun z => mxdot z (mxvec A))
-  (C K^2 * frobenius A / Num.sqrt d%:R)
+subexponential (data_feature_law nu d) (fun z => mxdot z y)
+  (Chw * K ^+ 2 / Num.sqrt d%:R)
 ```
 
-with an absolute `C` (Lemma 3.2 of the paper, lines 2157-2185), together
-with the concentration of the norm, `P(| |x|^2 / d - 1 | >= t) <=
-2 exp (- c d min (t, t^2) / K^4)` (subgaussian.v). The rank-one case is
-`data_feature_quad_subexponential`; the general case is Hanson-Wright.
+with an absolute constant `Chw`. By `data_feature_dot` this is
+`subexponential (tuple_prod nu d) (quad_form A) (Chw * K ^+ 2)` for every
+`A : 'M_d` with `frobenius A = 1` (not necessarily symmetric), so any of
+these forms suits. The first a priori estimate (the Gram matrices `Q_I`)
+and Lemma 3.12 (S7, and lane B's Corollary 3.13) need the same hypothesis.
+Could you say when HW is planned? If lane A has no time for it soon, lane C
+can write it in `library/probability/hanson_wright.v`.
+
+The concentration of the norm is proved for the coordinate laws in
+`Apriori.v` (`sqnorm_tail`, Bernstein's inequality for `x_j^2 - 1`), so the
+planned result of `subgaussian_matrix.v` is not needed for S3; if it lands
+in the library, `Apriori.v` will use it instead.
 
 ## 2. Wigner's law and Lemma 5.13 for G8 (stage 2, coordination)
 
