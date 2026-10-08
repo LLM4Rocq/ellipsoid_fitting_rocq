@@ -64,6 +64,18 @@ From mathcomp Require Import lebesgue_integral probability.
 (*   quadratic a + 2 b t + k t^2 >= 0 for all t has b^2 <= a k),              *)
 (*   upper_form_ge0 (E f^2 + c (E f)^2 >= 0 for c > -1), integrable_of_sqr,   *)
 (*   integrable_mul_sqr, integrable_quad_bound, Rintegral_prob_cst.           *)
+(* - Finite samples: empirical s is the law of an element of a nonempty       *)
+(*   list s drawn uniformly, a probability (the Dirac mass at 0 for the       *)
+(*   empty list), with ge0_integral_empirical, integrable_empirical,          *)
+(*   Rintegral_empirical: integrals against it are averages over s. For       *)
+(*   g : 'I_d -> R, empirical_fun g is the empirical law of its values and    *)
+(*   upper_moment_empirical_fun gives m and s as averages.                    *)
+(* - empirical_variational_le, the finite form of Lemma 5.7 for c >= 0, with  *)
+(*   weights that need not be functions of the values: for r i >= 0,          *)
+(*   (1/d) sum_i (g i + z) r i <= sqrt V sqrt ((1/d) sum_i r i^2 +            *)
+(*   c ((1/d) sum_i r i)^2), V = upper_value (empirical_fun g) c z;           *)
+(*   empirical_variational_attained: equality of (1/d) sum_i (g i + z) p i    *)
+(*   with V at p i = (g i - w)_+, w the cutoff.                               *)
 (*                                                                            *)
 (* Laws on the line are probabilities on measurableTypeR R, as in             *)
 (* fourier/charfun.v. A finite second moment is the integrability of x^2.     *)
@@ -79,6 +91,9 @@ From mathcomp Require Import lebesgue_integral probability.
 (*    upper_admissible mu == the measurable f >= 0 with f^2 integrable and    *)
 (*                         E f > 0                                            *)
 (* upper_ratio mu c z f == (E (X + z) f(X))_+^2 / (E f(X)^2 + c (E f(X))^2)   *)
+(*         empirical s == the average of the Dirac masses at the elements     *)
+(*                        of s                                                *)
+(*    empirical_fun g == empirical [seq g i | i <- enum 'I_d]                 *)
 (* ```                                                                        *)
 (******************************************************************************)
 
@@ -1295,3 +1310,249 @@ by rewrite oppr_ge0 ltW.
 Qed.
 
 End symmetric_law.
+
+(* HB declares canonical projections that the structures of the measure
+   already provide; the warning says so. The setting lasts until the end of
+   this file and is not exported. *)
+Set Warnings "-redundant-canonical-projection".
+
+Section empirical.
+Context {R : realType}.
+Local Open Scope ereal_scope.
+Implicit Types (s : seq R) (A : set (measurableTypeR R)).
+
+(* The Dirac masses at the elements of s. *)
+Definition emp_diracs s (k : nat) :
+    {measure set (measurableTypeR R) -> \bar R} :=
+  \d_(nth 0%R s k : measurableTypeR R).
+
+Lemma emp_weight_ge0 s : (0 <= (size s)%:R^-1 :> R)%R.
+Proof. by rewrite invr_ge0 ler0n. Qed.
+
+(* The empirical law of s: the average of the Dirac masses at its elements,
+   and the Dirac mass at 0 when s is empty. *)
+Definition empirical s : set (measurableTypeR R) -> \bar R :=
+  if s is [::] then \d_(0%R : measurableTypeR R)
+  else mscale (NngNum (emp_weight_ge0 s)) (msum (emp_diracs s) (size s)).
+
+Lemma empiricalE s A : s != [::] ->
+  empirical s A =
+  (((size s)%:R^-1)%R)%:E * \sum_(x <- s) \d_(x : measurableTypeR R) A.
+Proof.
+case: s => [//|x s] _ /=.
+rewrite /mscale /msum /=; congr (_ * _).
+rewrite [RHS](big_nth 0%R) big_mkord /=.
+by apply: eq_bigr => k _.
+Qed.
+
+Let empirical0 s : empirical s set0 = 0.
+Proof. by case: s => [|x s] /=; rewrite measure0. Qed.
+
+Let empirical_ge0 s A : 0 <= empirical s A.
+Proof. by case: s => [|x s] /=; rewrite measure_ge0. Qed.
+
+Let empirical_sigma_additive s : semi_sigma_additive (empirical s).
+Proof. by case: s => [|x s] /=; exact: measure_semi_sigma_additive. Qed.
+
+HB.instance Definition _ s := isMeasure.Build _ _ _ (empirical s)
+  (empirical0 s) (empirical_ge0 s) (@empirical_sigma_additive s).
+
+Lemma empirical_setT s : empirical s [set: measurableTypeR R] = 1.
+Proof.
+case: s => [|x s]; first by rewrite /= diracT.
+rewrite empiricalE //; under eq_bigr do rewrite diracT.
+rewrite sumEFin -EFinM; congr (_%:E).
+rewrite big_const_seq count_predT iter_addr addr0 -[(_ *+ _)%R]mulr_natl.
+by rewrite mulr1 mulVf // pnatr_eq0.
+Qed.
+
+HB.instance Definition _ s :=
+  Measure_isProbability.Build _ _ _ (empirical s) (empirical_setT s).
+
+
+Lemma ge0_integral_empirical s (f : measurableTypeR R -> \bar R) :
+  s != [::] -> measurable_fun [set: measurableTypeR R] f ->
+  (forall x, 0 <= f x) ->
+  \int[empirical s]_x f x = (((size s)%:R^-1)%R)%:E * \sum_(x <- s) f x.
+Proof.
+case: s => [//|x s] _ mf f0 /=.
+rewrite ge0_integral_mscale //= ge0_integral_measure_sum //; congr (_ * _).
+rewrite [RHS](big_nth 0%R) big_mkord; apply: eq_bigr => k _.
+by rewrite /emp_diracs integral_dirac // diracT mul1e.
+Qed.
+
+Lemma integrable_empirical s (f : measurableTypeR R -> R) :
+  s != [::] -> measurable_fun [set: measurableTypeR R] f ->
+  (empirical s).-integrable [set: measurableTypeR R] (EFin \o f).
+Proof.
+move=> s0 mf; apply/integrableP; split; first exact/measurable_EFinP.
+rewrite ge0_integral_empirical //; last first.
+  have -> : (\sum_(x <- s) `|(EFin \o f) x|)%E = (\sum_(x <- s) `|f x|)%:E.
+    by rewrite -sumEFin; apply: eq_bigr => x _; rewrite /comp abse_EFin.
+  by rewrite -EFinM ltry.
+by apply: measurableT_comp => //; exact/measurable_EFinP.
+Qed.
+
+Lemma Rintegral_empirical_ge0 s (f : measurableTypeR R -> R) :
+  s != [::] -> measurable_fun [set: measurableTypeR R] f ->
+  (forall x, (0 <= f x)%R) ->
+  (\int[empirical s]_x f x = (size s)%:R^-1 * \sum_(x <- s) f x)%R.
+Proof.
+move=> s0 mf f0; rewrite /Rintegral ge0_integral_empirical //.
+  exact/measurable_EFinP.
+have e (t : seq R) : (\sum_(x <- t) (f x)%:E)%R = (\sum_(x <- t) f x)%:E.
+  by elim: t => [|y t IH]; rewrite ?big_nil ?big_cons // IH EFinD.
+by rewrite e -EFinM.
+Qed.
+
+Lemma Rintegral_empirical s (f : measurableTypeR R -> R) :
+  s != [::] -> measurable_fun [set: measurableTypeR R] f ->
+  (\int[empirical s]_x f x = (size s)%:R^-1 * \sum_(x <- s) f x)%R.
+Proof.
+move=> s0 mf.
+pose fp x := Num.max (f x) 0%R; pose fn x := Num.max (- f x)%R 0%R.
+have fE : f = (fun x => fp x - fn x)%R.
+  apply/funext => x; rewrite /fp /fn.
+  case: (lerP 0 (f x)) => h.
+    by rewrite (max_idPr (_ : (- f x <= 0)%R)) ?subr0 // oppr_le0.
+  by rewrite (max_idPl (_ : (0 <= - f x)%R)) ?sub0r ?opprK // oppr_ge0 ltW.
+have mfp : measurable_fun [set: measurableTypeR R] fp.
+  by apply: measurable_maxr => //; exact: measurable_cst.
+have mfn : measurable_fun [set: measurableTypeR R] fn.
+  apply: measurable_maxr; last exact: measurable_cst.
+  exact: measurableT_comp mf.
+have fp0 x : (0 <= fp x)%R by rewrite /fp le_max lexx orbT.
+have fn0 x : (0 <= fn x)%R by rewrite /fn le_max lexx orbT.
+have ip := integrable_empirical s0 mfp.
+have iN := integrable_empirical s0 mfn.
+rewrite [in LHS]fE (RintegralB _ ip iN) //.
+rewrite (Rintegral_empirical_ge0 s0 mfp fp0).
+rewrite (Rintegral_empirical_ge0 s0 mfn fn0).
+by rewrite -mulrBr -sumrB [in RHS]fE.
+Qed.
+
+End empirical.
+
+Section empirical_variational.
+Context {R : realType} (d : nat) (g : 'I_d -> R).
+Hypothesis d0 : (0 < d)%N.
+
+(* The empirical law of g 0, ..., g (d - 1). *)
+Definition empirical_fun := empirical [seq g i | i <- enum 'I_d].
+
+Local Notation nu := empirical_fun.
+
+Lemma empirical_fun_neq0 : [seq g i | i <- enum 'I_d] != [::].
+Proof. by rewrite -size_eq0 size_map size_enum_ord -lt0n. Qed.
+
+Lemma sum_empirical_fun (F : R -> R) :
+  \sum_(x <- [seq g i | i <- enum 'I_d]) F x = \sum_i F (g i).
+Proof. by rewrite big_map big_enum. Qed.
+
+Lemma Rintegral_empirical_fun (f : measurableTypeR R -> R) :
+  measurable_fun [set: measurableTypeR R] f ->
+  \int[nu]_x f x = d%:R^-1 * \sum_i f (g i).
+Proof.
+move=> mf; rewrite /empirical_fun (Rintegral_empirical empirical_fun_neq0 mf).
+by rewrite size_map size_enum_ord sum_empirical_fun.
+Qed.
+
+Lemma empirical_fun_sqr :
+  nu.-integrable [set: measurableTypeR R] (EFin \o (fun x => (x : R) ^+ 2)).
+Proof.
+apply: integrable_empirical; first exact: empirical_fun_neq0.
+exact: measurable_funX.
+Qed.
+
+Lemma upper_moment_empirical_fun k w :
+  upper_moment nu k w = d%:R^-1 * \sum_i Num.max (g i - w) 0 ^+ k.
+Proof.
+rewrite /upper_moment Rintegral_empirical_fun //.
+apply: measurable_funX; apply: measurable_maxr => //.
+by apply: measurable_funB.
+Qed.
+
+(* The finite form of Lemma 5.7: the weights need not be functions of the
+   values g i. *)
+Lemma empirical_variational_le (c z : R) (r : 'I_d -> R) :
+  0 <= c -> (forall i, 0 <= r i) ->
+  d%:R^-1 * \sum_i (g i + z) * r i <=
+  Num.sqrt (upper_value nu c z) *
+  Num.sqrt (d%:R^-1 * \sum_i r i ^+ 2 + c * (d%:R^-1 * \sum_i r i) ^+ 2).
+Proof.
+move=> c0 r0.
+have c1 : -1 < c by apply: lt_le_trans c0; rewrite ltrN10.
+set w := upper_cutoff nu c z.
+have e := upper_cutoffE empirical_fun_sqr z c1; rewrite -/w in e.
+set m := upper_moment nu 1 w in e *.
+set sv := upper_moment nu 2 w.
+have VE : upper_value nu c z = sv + c * m ^+ 2 by [].
+pose p i := Num.max (g i - w) 0.
+have mE : m = d%:R^-1 * \sum_i p i.
+  by rewrite /m upper_moment_empirical_fun; under eq_bigr do rewrite expr1.
+have sE : sv = d%:R^-1 * \sum_i p i ^+ 2.
+  by rewrite /sv upper_moment_empirical_fun.
+(* Cauchy-Schwarz for finite sums *)
+have cs : (\sum_i p i * r i) ^+ 2 <= (\sum_i p i ^+ 2) * (\sum_i r i ^+ 2).
+  apply: discriminant_le; first by apply: sumr_ge0 => i _; exact: sqr_ge0.
+  move=> t; have -> : \sum_i p i ^+ 2 + 2 * (\sum_i p i * r i) * t +
+      (\sum_i r i ^+ 2) * t ^+ 2 = \sum_i (p i + t * r i) ^+ 2.
+    rewrite [RHS](eq_bigr (fun i =>
+      p i ^+ 2 + 2 * t * (p i * r i) + t ^+ 2 * r i ^+ 2)).
+      by move=> i _; ring.
+    by rewrite !big_split /= -!mulr_sumr; ring.
+  by apply: sumr_ge0 => i _; exact: sqr_ge0.
+(* (g i + z) r i <= (g i - w)_+ r i + c m r i, since w + z = c m *)
+have h1 : \sum_i (g i + z) * r i <= \sum_i p i * r i + c * m * \sum_i r i.
+  rewrite mulr_sumr -big_split /=; apply: ler_sum => i _.
+  have -> : (g i + z) * r i = (g i - w) * r i + (w + z) * r i by ring.
+  by rewrite e -mulrA lerD2r ler_wpM2r // /p le_max lexx.
+have m0 : 0 <= m.
+  rewrite mE mulr_ge0 ?invr_ge0 ?ler0n // sumr_ge0 // => i _.
+  by rewrite /p le_max lexx orbT.
+have sv0 : 0 <= sv.
+  by rewrite sE mulr_ge0 ?invr_ge0 ?ler0n // sumr_ge0 // => i _; exact: sqr_ge0.
+set A := d%:R^-1 * \sum_i r i ^+ 2.
+set B := d%:R^-1 * \sum_i r i.
+have A0 : 0 <= A.
+  by rewrite mulr_ge0 ?invr_ge0 ?ler0n // sumr_ge0 // => i _; exact: sqr_ge0.
+have B0 : 0 <= B by rewrite mulr_ge0 ?invr_ge0 ?ler0n // sumr_ge0.
+set P := d%:R^-1 * \sum_i p i * r i.
+have P0 : 0 <= P.
+  rewrite mulr_ge0 ?invr_ge0 ?ler0n // sumr_ge0 // => i _.
+  by rewrite mulr_ge0 // /p le_max lexx orbT.
+have hP2 : P ^+ 2 <= sv * A.
+  rewrite /P sE /A exprMn.
+  have -> : d%:R^-1 * (\sum_i p i ^+ 2) * (d%:R^-1 * \sum_i r i ^+ 2) =
+      d%:R^-1 ^+ 2 * ((\sum_i p i ^+ 2) * \sum_i r i ^+ 2) by ring.
+  by rewrite ler_wpM2l // exprn_ge0 // invr_ge0 ler0n.
+have hP : P <= Num.sqrt sv * Num.sqrt A.
+  rewrite -sqrtrM // -[P]ger0_norm // -sqrtr_sqr; exact: ler_wsqrtr.
+have h2 : d%:R^-1 * \sum_i (g i + z) * r i <= P + c * m * B.
+  by rewrite /P /B mulrCA -mulrDr ler_wpM2l ?invr_ge0 ?ler0n.
+apply: (le_trans h2); apply: (le_trans (lerD hP (lexx (c * m * B)))).
+rewrite VE -sqrtrM ?addr_ge0 ?mulr_ge0 ?exprn_ge0 //.
+set u := Num.sqrt sv; set v := Num.sqrt A.
+have u0 : 0 <= u := sqrtr_ge0 sv.
+have v0 : 0 <= v := sqrtr_ge0 A.
+have -> : sv = u ^+ 2 by rewrite /u sqr_sqrtr.
+have -> : A = v ^+ 2 by rewrite /v sqr_sqrtr.
+apply: le_trans (_ : _ <= Num.sqrt ((u * v + c * m * B) ^+ 2)) _.
+  rewrite -exprMn sqrtr_sqr ger0_norm ?mulr_ge0 // sqrtr_sqr.
+  exact: ler_norm.
+rewrite -sqrtrM ?addr_ge0 ?mulr_ge0 ?exprn_ge0 //; apply: ler_wsqrtr.
+have : 0 <= c * (u * B - m * v) ^+ 2 by rewrite mulr_ge0 // sqr_ge0.
+nra.
+Qed.
+
+Lemma empirical_variational_attained (c z : R) : -1 < c ->
+  d%:R^-1 * \sum_i (g i + z) * Num.max (g i - upper_cutoff nu c z) 0 =
+  upper_value nu c z.
+Proof.
+move=> c1; have := upper_variational_attained empirical_fun_sqr z c1.
+rewrite Rintegral_empirical_fun //.
+apply: measurable_funM; first by apply: measurable_funD.
+by apply: measurable_maxr => //; apply: measurable_funB.
+Qed.
+
+End empirical_variational.

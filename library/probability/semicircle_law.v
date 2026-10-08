@@ -6,6 +6,7 @@ From mathcomp Require Import ereal topology normedtype sequences exp trigo.
 From mathcomp Require Import derive realfun.
 From mathcomp Require Import measure lebesgue_measure measurable_realfun numfun.
 From mathcomp Require Import lebesgue_integral probability ftc charge.
+From GaussianAnalysis.comparison Require Import normal_linear.
 
 (**md**************************************************************************)
 (* # The semicircle law                                                       *)
@@ -47,6 +48,10 @@ From mathcomp Require Import lebesgue_integral probability ftc charge.
 (*   semicircle_moment1, semicircle_moment2, semicircle_moment_odd: E 1 = 1,  *)
 (*   E X = 0, E X^2 = r^2 / 4, and the odd moments vanish. At r = 2 the even  *)
 (*   moments are the Catalan numbers.                                         *)
+(* - semicircle_pdf_scale, ge0_integral_semicircle_scale: for r, a > 0, the   *)
+(*   semicircle law of radius a r is the image of the one of radius r under   *)
+(*   x |-> a x (by the affine change of variables of                          *)
+(*   comparison/normal_linear.v).                                             *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*    semicircle_pdf r x == 2 / (pi r^2) sqrt (r^2 - x^2), zero outside       *)
@@ -754,3 +759,55 @@ exists ((fun x => F x / semicircle_pdf r x) \_ J); split.
 Qed.
 
 End semicircle_support.
+
+Section semicircle_scale.
+Context {R : realType}.
+Local Notation mu := (@lebesgue_measure R).
+
+Lemma semicircle_pdf_scale (r a x : R) : 0 < r -> 0 < a ->
+  a * semicircle_pdf (a * r) (a * x) = semicircle_pdf r x.
+Proof.
+move=> r0 a0.
+have ar0 : a * r != 0 by rewrite mulf_neq0 // gt_eqF.
+have rn0 : r != 0 by rewrite gt_eqF.
+rewrite (semicircle_pdfE _ ar0) (semicircle_pdfE _ rn0).
+have -> : (a * r) ^+ 2 - (a * x) ^+ 2 = a ^+ 2 * (r ^+ 2 - x ^+ 2) by ring.
+rewrite sqrtrM ?exprn_ge0 ?ltW // sqrtr_sqr ger0_norm ?ltW //.
+have an0 : a != 0 by rewrite gt_eqF.
+rewrite exprMn !invfM.
+transitivity ((a * a^-1) * (a * a^-1) *
+  (2 * (pi^-1 * (r^-1 / r)) * Num.sqrt (r ^+ 2 - x ^+ 2))); first by ring.
+by rewrite mulfV // !mul1r.
+Qed.
+
+(* The semicircle law of radius a r is the image of the one of radius r under
+   x |-> a x. *)
+Lemma ge0_integral_semicircle_scale (r a : R) (f : R -> \bar R) :
+  0 < r -> 0 < a -> (forall x, (0 <= f x)%E) -> measurable_fun [set: R] f ->
+  (\int[semicircle_prob r]_x f (a * x)%R =
+   \int[semicircle_prob (a * r)%R]_x f x)%E.
+Proof.
+move=> r0 a0 f0 mf.
+have mfa : measurable_fun [set: R] (fun x => f (a * x)).
+  by apply: measurableT_comp => //; apply: measurable_funM.
+rewrite ge0_integral_semicircle_prob // ge0_integral_semicircle_prob //.
+pose h y := (f y * (semicircle_pdf (a * r) y)%:E)%E.
+have h0 y : (0 <= h y)%E by rewrite /h mule_ge0 // lee_fin semicircle_pdf_ge0.
+have mh : measurable_fun [set: R] h.
+  apply: emeasurable_funM => //; apply/measurable_EFinP.
+  exact: measurable_semicircle_pdf.
+have an0 : a != 0 by rewrite gt_eqF.
+have := ge0_integral_lebesgue_affine 0 an0 mh h0.
+rewrite (gtr0_norm a0) => e.
+have -> : (\int[mu]_x (f x * (semicircle_pdf (a * r) x)%:E))%E =
+    (a%:E * \int[mu]_x h (a * x + 0)%R)%E.
+  by rewrite e muleA -EFinM mulfV // mul1e.
+have mha : measurable_fun [set: R] (fun x => h (a * x + 0)%R).
+  exact: (measurableT_comp mh (measurable_affine a 0)).
+have a0' : (0 <= a%:E)%E by rewrite lee_fin ltW.
+rewrite -ge0_integralZl //.
+apply: eq_integral => x _; rewrite /h addr0 muleCA -EFinM.
+by rewrite semicircle_pdf_scale.
+Qed.
+
+End semicircle_scale.
