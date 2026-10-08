@@ -699,3 +699,4 @@ extension/Sat/EffectiveRank.v
 extension/Sat/Interpolation.v
 extension/Sat/ApproximateFit.v
 extension/Sat/Universality.v
+extension/Sat/SmallResidual.v

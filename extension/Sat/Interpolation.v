@@ -37,9 +37,23 @@
        opnorm Delta <= (3 + (Cu + 1) / gam + 1 / Cu) (Y / a + |y| / D),
      since |<lam, y>| <= |h|_1 Y + |t| |y|.
 
-   The probabilistic statements (the three hypotheses with probability
-   tending to one, with a = c sqrt d / (ln d)^4, D = d and k = C0 d ln d)
-   come next. *)
+   - small_residual_interpolation_limit (Theorem 1.9 with probability
+     tending to one, in the form small_residual_interpolation of
+     Sat/Universality, lane A): for 0 < alpha, from Proposition 3.4 in the
+     form light_tail_bound kappa K alpha (constants K1, gam), there is
+     C1 > 0 such that, for every admissible family of coordinate laws,
+     every n of density alpha and every eps > 0, for every large d,
+     outside a measurable event of probability at most eps, every y with
+     |y_i| <= Y is matched, <W_i, Delta> = y_i + b, by a symmetric Delta
+     with opnorm Delta <= C1 ((ln d)^4 / sqrt d Y + |y| / d). The event
+     is the union of those of adjoint_bound_limit (Proposition 3.1 (iii),
+     Cu = adj_const K 252 (alpha + 1)), sparse_lower_limit (Proposition
+     3.3, a = sqrt d / (rate_CS K C0 (ln d)^4)) and light_tail_bound, with
+     C0 = 5 K1, k = floor (C0 d ln d) and D = r = d; on its complement
+     interpolation_det applies, since (1 - 1/(K1 d))^k <= exp (- k/(K1 d))
+     <= d^(-4), and C1 = (3 + (Cu + 1) / gam + 1 / Cu) (rate_CS K C0 + 1).
+     Sat/SmallResidual removes the hypothesis with light_tail_quotient of
+     Sat/LightTailBound (lane B). *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -53,6 +67,12 @@ From GaussianAnalysis.random_matrix Require Import restricted_isometry.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality.Sat Require Import Apriori AprioriSparse.
 From EllipsoidUniversality.Sat Require Import SparseLower.
+From mathcomp Require Import topology Rstruct_topology.
+From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun.
+From mathcomp Require Import numfun lebesgue_integral probability.
+From mathcomp Require Import normedtype sequences exp.
+From EllipsoidUniversality Require Import UniversalityDefinitions.
+From EllipsoidUniversality.Sat Require Import SparseLimit.
 
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
 
@@ -445,3 +465,194 @@ by rewrite mulrA [_ * C']mulrC.
 Qed.
 
 End interpolation_det.
+
+(* 5. Theorem 1.9 with probability tending to one. *)
+
+Local Open Scope classical_set_scope.
+
+(* Proposition 3.4 (item S9, light_tail_quotient of Sat/LightTailBound,
+   lane B) in the form that Theorem 2.3 uses: there are K1 > 0 and
+   gam > 0 such that for every C0 > 0, with probability tending to one,
+   for every set I of at most C0 d ln d rows, every t vanishing on I with
+   K1 d t_i^2 <= |t|^2 for every i, and every h vanishing off I with
+   |h|_1 <= d |t|, gam d |t| <= nuclear (L_X^* (h + t)). *)
+Definition light_tail_bound (kappa K alpha : R) : Prop :=
+  exists K1 gam : R, [/\ 0 < K1, 0 < gam &
+  forall C0 : R, 0 < C0 ->
+  forall nu : nat -> nat -> probability (measurableTypeR R) R,
+    (forall d j, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  exists E : set (paper_main_sample (n d) d), [/\ measurable E,
+    (universality_sample_law (nu d) (n d) d E <= eps%:E)%E &
+    forall x, ~ E x -> forall (I : {set 'I_(n d)}) (h t : 'rV[R]_(n d)),
+      #|I|%:R <= C0 * d%:R * ln (d%:R : R) ->
+      supported I h -> supported (~: I) t ->
+      (forall i, K1 * d%:R * t 0 i ^+ 2 <= mxdot t t) ->
+      l1_norm h <= d%:R * frobenius t ->
+      gam * d%:R * frobenius t <= nuclear (sample_adj x (h + t))]].
+
+(* The last step of Theorem 1.9, with a clean context for lra. *)
+Lemma lin_combine (c u v : R) : 0 <= c -> 0 <= u -> 0 <= v ->
+  c * u + v <= (c + 1) * (u + v).
+Proof.
+move=> c0 u0 v0; have cv : 0 <= c * v by rewrite mulr_ge0.
+by rewrite mulrDl !mulrDr mul1r; lra.
+Qed.
+
+(* Theorem 1.9: with probability tending to one, every residual y is
+   matched up to a shift, <W_i, Delta> = y_i + b for every i, by a
+   symmetric Delta with
+   opnorm Delta <= C1 ((ln d)^4 / sqrt d max_i |y_i| + |y| / d). *)
+Theorem small_residual_interpolation_limit (kappa K alpha : R) :
+  0 < alpha -> light_tail_bound kappa K alpha ->
+  exists C1 : R, 0 < C1 /\
+  forall nu : nat -> nat -> probability (measurableTypeR R) R,
+    (forall d j, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  exists E : set (paper_main_sample (n d) d), [/\ measurable E,
+    (universality_probability (nu d) (n d) d E <= eps%:E)%E &
+    forall x, ~ E x -> forall (y : 'rV[R]_(n d)) (Y : R),
+      (forall i, `|y 0 i| <= Y) ->
+      exists (Delta : 'M[R]_d) (b : R), [/\ Delta \is symmetricmx,
+        forall i, mxdot (sample_W x i) Delta = y 0 i + b &
+        opnorm Delta <=
+          C1 * (ln (d%:R : R) ^+ 4 / Num.sqrt d%:R * Y +
+                frobenius y / d%:R)]].
+Proof.
+move=> a0 [K1 [gam [K10 gam0 hLT]]].
+pose C0 := 5 * K1.
+have C00 : 0 < C0 by rewrite /C0 mulr_gt0.
+pose Cu := adj_const K (252)%R (alpha + 1)%R.
+have Cu0 : 0 < Cu.
+  rewrite /Cu /adj_const /=; apply: mulr_gt0; rewrite sqrtr_gt0.
+    apply: (@lt_le_trans _ _ 25); first exact: ltr0n.
+    rewrite lerDr; apply: addr_ge0.
+      exact: (mulr_ge0 (ler0n _ 256) (sqr_ge0 _)).
+    apply: mulr_ge0; first exact: (mulr_ge0 (ler0n _ 32) (sqrtr_ge0 _)).
+    apply: mulr_ge0; last by rewrite addr_ge0 // addr_ge0 // ltW.
+    exact: (mulr_ge0 (mulr_ge0 (ler0n _ 2100) (ler0n _ 252)) (sqr_ge0 K)).
+  by rewrite addr_gt0 // addr_gt0.
+pose CS := rate_CS K C0.
+have CS0 : 0 < CS := rate_CS_gt0 K C0 C00.
+pose C' := 3 + (Cu + 1) / gam + Cu^-1.
+have C'0 : 0 < C'.
+  rewrite /C'; apply: addr_gt0; last by rewrite invr_gt0.
+  by apply: addr_gt0 => //; rewrite divr_gt0 // addr_gt0.
+exists (C' * (CS + 1)); split.
+  by rewrite mulr_gt0 // addr_gt0.
+move=> nu hnu n hn eps e0.
+pose e3 := eps / 3.
+have e30 : 0 < e3 by rewrite divr_gt0.
+have [D1 hD1] := adjoint_bound_limit kappa K alpha nu n hnu a0 hn e3 e30.
+have [D2 hD2] := sparse_lower_limit kappa K alpha C0 nu n hnu a0 hn C00 e3 e30.
+have [D3 hD3] := hLT C0 C00 nu hnu n hn e3 e30.
+have p3 : 0 < 4 * Cu * CS + 1.
+  apply: ltr_wpDl; last exact: ltr01.
+  exact: (mulr_ge0 (mulr_ge0 (ler0n _ 4) (ltW Cu0)) (ltW CS0)).
+have c3 := ln_pow_le_sqrt (4 * Cu * CS + 1) 4 p3.
+have [D hD] := ev_and (density_ev _ _ a0 hn) (ev_and ev_ln_ge1 (ev_and c3
+  (ev_and (ev_gt K1^-1) (ev_and (ev_ge 2) (ev_and (ev_ge D1)
+  (ev_and (ev_ge D2) (ev_ge D3))))))).
+exists D => d dD.
+have [[h1a h1b] [h2 [h3 [h4 [dd2 [dD1 [dD2 dD3]]]]]]] := hD d dD.
+have [E1 [mE1 PE1 hE1]] := hD1 d dD1.
+have [E2 [mE2 PE2 hE2]] := hD2 d dD2.
+have [E3 [mE3 PE3 hE3]] := hD3 d dD3.
+exists (E1 `|` E2 `|` E3); split.
+- by apply: measurableU => //; apply: measurableU.
+- rewrite /universality_probability.
+  have mE12 : measurable (E1 `|` E2) by apply: measurableU.
+  apply: le_trans (measureU2 _ mE12 mE3) _.
+  apply: le_trans (leeD (measureU2 _ mE1 mE2) PE3) _.
+  apply: le_trans (leeD (leeD PE1 PE2) (lexx _)) _.
+  by rewrite -!EFinD lee_fin /e3; lra.
+move=> x nE y Y hY.
+have xE1 : ~ E1 x by move=> h; apply: nE; left; left.
+have xE2 : ~ E2 x by move=> h; apply: nE; left; right.
+have xE3 : ~ E3 x by move=> h; apply: nE; right.
+have [_ hadj] := hE1 x xE1.
+have hz z : nuclear (sample_adj x z) <= Cu * d%:R * frobenius z.
+  exact: nuclear_sample_adj_le (n d) d x Cu hadj z.
+have d0 : (0 < d)%N by apply: leq_trans dd2.
+have dR : 0 < d%:R :> R by rewrite ltr0n.
+have d2R : 2%:R <= d%:R :> R by rewrite ler_nat.
+have KD1 : 1 <= K1 * d%:R.
+  by move: h4; rewrite -(ltr_pM2l K10) mulfV ?gt_eqF // => /ltW.
+have l1 : 1 <= ln (d%:R : R) := h2.
+have l0 : 0 <= ln (d%:R : R) by apply: le_trans l1.
+have l40 : 0 < ln (d%:R : R) ^+ 4 by rewrite exprn_gt0 // (lt_le_trans ltr01).
+have sd0 : 0 < Num.sqrt (d%:R : R) by rewrite sqrtr_gt0.
+have x0 : 0 <= C0 * d%:R * ln (d%:R : R) by rewrite !mulr_ge0 // ltW.
+pose k := archimedean.Num.truncn (C0 * d%:R * ln (d%:R : R)).
+pose a := Num.sqrt (d%:R : R) / (CS * ln (d%:R : R) ^+ 4).
+have a0' : 0 < a by rewrite /a divr_gt0 // mulr_gt0.
+have lpos : 0 < ln (d%:R : R) by apply: lt_le_trans l1; exact: ltr01.
+have hh h : (#|supp h| <= k)%N -> a * l1_norm h <= nuclear (sample_adj x h).
+  move=> hk.
+  have hs : #|supp h|%:R <= C0 * d%:R * ln (d%:R : R).
+    by move: hk; rewrite /k archimedean.Num.Theory.truncn_ge_nat.
+  have H := hE2 x xE2 h hs.
+  rewrite /a /l1_norm mulrAC ler_pdivrMr ?mulr_gt0 //.
+  rewrite mulrC [X in _ <= X]mulrC.
+  exact: H.
+have ht (I : {set 'I_(n d)}) (h t : 'rV[R]_(n d)) : (#|I| <= k)%N ->
+    supported I h -> supported (~: I) t ->
+    (forall i, K1 * d%:R * t 0 i ^+ 2 <= mxdot t t) ->
+    l1_norm h <= d%:R * frobenius t ->
+    gam * d%:R * frobenius t <= nuclear (sample_adj x (h + t)).
+  move=> hk; apply: hE3 => //.
+  by move: hk; rewrite /k archimedean.Num.Theory.truncn_ge_nat.
+have l4 : 0 <= ln (d%:R : R) ^+ 4 by rewrite exprn_ge0 // ltW.
+have X0 : 0 <= Cu * CS * ln (d%:R : R) ^+ 4.
+  exact: (mulr_ge0 (mulr_ge0 (ltW Cu0) (ltW CS0)) l4).
+have hr : 2 * Cu * d%:R <= a * d%:R.
+  apply: ler_wpM2r; first exact: ltW.
+  rewrite /a ler_pdivlMr ?mulr_gt0 //.
+  by move: h3 X0 l4; lra.
+have hDc : 4 * Cu <= a * d%:R.
+  apply: le_trans (_ : a <= _); last first.
+    by apply: ler_peMr; [exact: ltW | rewrite ler1n].
+  rewrite /a ler_pdivlMr ?mulr_gt0 //.
+  by move: h3 X0 l4; lra.
+have hk : (1 - (K1 * d%:R)^-1) ^+ k <= (d%:R ^+ 4)^-1.
+  have KDp : 0 < K1 * d%:R by apply: lt_le_trans KD1; exact: ltr01.
+  have w0 : 0 <= (K1 * d%:R)^-1 by rewrite invr_ge0 ltW.
+  have w1 : (K1 * d%:R)^-1 <= 1 by rewrite invf_le1.
+  have e1 : 1 - (K1 * d%:R)^-1 <= expR (- (K1 * d%:R)^-1).
+    exact: expR_ge1Dx.
+  have p0 : 0 <= 1 - (K1 * d%:R)^-1 by rewrite subr_ge0.
+  apply: le_trans (_ : expR (- (K1 * d%:R)^-1) ^+ k <= _).
+    by apply: lerXn2r => //; rewrite nnegrE ?expR_ge0.
+  rewrite -expRM_natr.
+  have -> : (d%:R ^+ 4)^-1 = expR (- (4%:R * ln (d%:R : R))).
+    by rewrite expRN expRM_natl lnK // posrE.
+  rewrite ler_expR mulNr lerN2.
+  (* 4 ln d <= k / (K1 d) *)
+  have hk1 := archimedean.Num.Theory.truncnS_gt (C0 * d%:R * ln (d%:R : R)).
+  rewrite -/k in hk1.
+  rewrite [_^-1 * _]mulrC ler_pdivlMr //.
+  rewrite -[k.+1%:R]natr1 /C0 in hk1.
+  have KDl := ler_pM ler01 ler01 KD1 l1; rewrite mul1r in KDl.
+  by move: hk1 KDl; lra.
+have np : (0 < n d)%N.
+  have q0 : 0 < Num.min (alpha / 2) 1 by rewrite lt_min divr_gt0 // ltr01.
+  rewrite -(ltr0n R); apply: lt_le_trans h1a.
+  by rewrite mulr_gt0 // exprn_gt0.
+have Y0 : 0 <= Y := le_trans (normr_ge0 _) (hY (Ordinal np)).
+have [Delta [Ds DM [b hb]]] := interpolation_det (n d) d x k a Cu gam K1
+  d%:R d%:R a0' Cu0 gam0 d2R KD1 hh hz ht hk hr hDc y Y Y0 hY.
+exists Delta, b; split => //.
+apply: le_trans DM _.
+rewrite -mulrA; apply: ler_wpM2l; first exact: ltW.
+clearbody CS.
+have eY : Y / a = CS * (ln (d%:R : R) ^+ 4 / Num.sqrt (d%:R : R) * Y).
+  by rewrite /a invf_div mulrC -!mulrA.
+rewrite eY.
+have u0 : 0 <= ln (d%:R : R) ^+ 4 / Num.sqrt (d%:R : R) * Y.
+  by rewrite mulr_ge0 // divr_ge0 // ltW.
+have v0 : 0 <= frobenius y / d%:R by rewrite divr_ge0 ?frobenius_ge0 // ltW.
+exact: (lin_combine _ _ _ (ltW CS0) u0 v0).
+Qed.
+
