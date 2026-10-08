@@ -55,15 +55,18 @@
    - stage_cov, stage_good, measurable_stage_good: the matrix
      Sigma_t = sum_i t_i^2 u_i^T u_i of a stage and its good event, which
      is measurable;
-   - stages_small_ball, the bound for a fixed pair: if the stages l < L
-     reveal the rows of I and nested sets of columns cU l, each containing
-     the columns of the stage before and its fresh columns cJ l, if t
-     vanishes on I and h outside I, and c0 d <= k_l, c0 d <= q_l,
-     k_l <= p_l and k_l <= d, then the events of the stages (the block of
-     L_X^* (h + t) in the dual ball of radius gam d, and the good event with
-     the k_l largest eigenvalues) occur together with probability at most
-     prod_l (C gam)^(k_l q_l), for gam >= C rho; C depends only on M, mu
-     and c0;
+   - stages_small_ball_flat, the bound for a fixed pair: if the stages
+     l < L reveal the rows of I and nested sets of columns cU l, each
+     containing the columns of the stage before and its fresh columns
+     cJ l, if t vanishes on I and h outside I, and c0 d <= k_l,
+     c0 d <= q_l, k_l <= p_l and k_l <= d, then the events of the stages
+     (the block of L_X^* (h + t) in the dual ball of radius gam d, and the
+     good event with the k_l largest eigenvalues) occur together with
+     probability at most prod_l (C gam)^(k_l q_l), for gam >= C rho; C
+     depends only on M, mu and c0. Coordinate k of the sample has law
+     lam k, of mean 0, variance 1 and E[x^2 1_(|x| <= M)] >= 1/2;
+     stages_small_ball is the case of the paper, where coordinate j of
+     every point has law nu j;
    - blk_bnd, blk_p, blk_q, blk_cU, blk_cJ: the blocks of columns, block s
      being [floor (s d / L), floor ((s + 1) d / L)); stage s < L - 1
      reveals the blocks 0, ..., s and its fresh block is s + 1; they
@@ -83,16 +86,18 @@
      of L_X^* lam = coef_adj W lam on rows cU and columns cJ is
      stage_map; its nuclear norm is at most that of L_X^* lam, and at most
      d^(-1/2) b |lam|_1 when |x_i|^2 <= b for every i;
-   - light_tail, light_bad, light_union, the union bound: the bad event
-     (some pair (h, t), t a light unit tail off a set I of at most m rows
-     and h a head on I of l1 norm at most r, with every block of
+   - light_tail, light_bad, light_union_flat, the union bound: the bad
+     event (some pair (h, t), t a light unit tail off a set I of at most m
+     rows and h a head on I of l1 norm at most r, with every block of
      L_X^* (h + t) of nuclear norm below gam d) meets the events of the
-     a priori bound (C1 d |lam|_2 for every block), of |x_i|^2 <= 2 d and
-     of the good events of all light unit tails only inside a measurable
-     set of probability at most
+     a priori bound (C1 d |z|_2 for every block of L_X^* z), of
+     |x_i|^2 <= 2 d and of the good events of all light unit tails only
+     inside a measurable set of probability at most
      (n + 1)^m H^m T^n prod_l (2 C gam)^(k_l q_l), with
      H = 2 e (1 + 16 r sqrt (m + 1) / (gam sqrt d)) and
-     T = 2 e (1 + 8 C1 / gam);
+     T = 2 e (1 + 8 C1 / gam), when coordinate k of the sample has law
+     lam k as in stages_small_ball_flat; light_union is the case of the
+     paper;
    - light_gamma, light_count, the count: for alpha < a, there is gam with
      2 C gam <= 1 such that, for every C0 > 0 and every large d, the bound
      of light_union is at most expR (- d) when n <= ((alpha + a) / 2) d^2,
@@ -353,33 +358,34 @@ Local Open Scope ereal_scope.
 
 (* The bound for a fixed pair (h, t): the stages l < L reveal the rows of I
    and nested sets of columns cU l; the events of the stages occur together
-   with probability at most the product of the (C gam)^(k_l q_l). *)
-Theorem stages_small_ball (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R ->
+   with probability at most the product of the (C gam)^(k_l q_l). Here
+   coordinate j of the sample has law lam j. *)
+Theorem stages_small_ball_flat (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R ->
   (0 < c0)%R ->
   exists2 C : RT, (0 < C)%R &
   forall n d L (p q k : nat -> nat) (cU : forall l, 'I_(p l) -> 'I_d)
     (cJ : forall l, 'I_(q l) -> 'I_d)
-    (nu : nat -> probability (measurableTypeR RT) RT) (I : {pred 'I_n})
+    (lam : nat -> probability (measurableTypeR RT) RT) (I : {pred 'I_n})
     (h t : 'rV[RT]_n) (rho gam : RT),
   (forall l, injective (cJ l)) -> (forall l a b, cU l a != cJ l b) ->
   (forall l a, exists a', cU l.+1 a' = cU l a) ->
   (forall l b, exists a', cU l.+1 a' = cJ l b) ->
-  (forall j, (j < d)%N -> \int[nu j]_x x%:E = 0) ->
-  (forall j, (j < d)%N -> \int[nu j]_x ((x ^+ 2)%R)%:E = 1) ->
-  (forall j, (j < d)%N -> (2^-1)%:E <=
-     \int[nu j]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
+  (forall j, (j < n * d)%N -> \int[lam j]_x x%:E = 0) ->
+  (forall j, (j < n * d)%N -> \int[lam j]_x ((x ^+ 2)%R)%:E = 1) ->
+  (forall j, (j < n * d)%N -> (2^-1)%:E <=
+     \int[lam j]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
   (forall i, i \in I -> t 0 i = 0)%R ->
   (forall i, i \notin I -> h 0 i = 0)%R ->
   (forall l, (l < L)%N -> (c0 * d%:R <= (k l)%:R)%R /\
      (c0 * d%:R <= (q l)%:R)%R /\ (k l <= p l)%N /\ (k l <= d)%N) ->
   (0 < rho)%R -> (C * rho <= gam)%R ->
-  tuple_prod (fun j => nu (j %% d)%N) (n * d)
+  tuple_prod lam (n * d)
     (\bigcap_(l < L) stage_event (cU l) (cJ l) h t (k l) mu rho gam) <=
   (\prod_(l < L) (C * gam) ^+ (k l * q l))%R%:E.
 Proof.
 move=> M0 mu0 c00.
-have [C C0 hC] := stage_small_ball M0 mu0 c00.
-exists C => // n d L p q k cU cJ nu I h t rho gam cJinj hUJ hUU hJU h0 h1 h2
+have [C C0 hC] := stage_small_ball_flat M0 mu0 c00.
+exists C => // n d L p q k cU cJ lam I h t rho gam cJinj hUJ hUU hJU h0 h1 h2
   ht hh hk rho0 hgam.
 have Cg0 : (0 <= C * gam)%R.
   by rewrite mulr_ge0 // ltW // (lt_le_trans _ hgam) // mulr_gt0.
@@ -414,13 +420,13 @@ have gS l x y (U : {pred 'I_(n * d)}) :
 have AS l x y : A l (tuple_merge (S l.+1) x y) = A l x.
   have eU i := stage_row_merge x y (inSUs l i).
   have eJ i := stage_row_merge x y (inSJs l i).
-  have emap lam : stage_map (cU l) (cJ l) (tuple_merge (S l.+1) x y) lam =
-      stage_map (cU l) (cJ l) x lam.
+  have emap z : stage_map (cU l) (cJ l) (tuple_merge (S l.+1) x y) z =
+      stage_map (cU l) (cJ l) x z.
     by rewrite /stage_map; congr (_ *: _); apply: eq_bigr => i _; rewrite eU eJ.
   by rewrite /A /stage_event /= emap (gS l x y (S l.+1) (inSUs l)).
 (* given the coordinates revealed at stage l, Lemma 3.14 *)
 have hcond l x : (l < L)%N ->
-    tuple_prod (fun j => nu (j %% d)%N) (n * d)
+    tuple_prod lam (n * d)
       [set y | A l (tuple_merge (S l) x y)] <= ((C * gam) ^+ (k l * q l))%:E.
   move=> lL; have [hk1 [hk2 [hk3 hk4]]] := hk l lL.
   have mX := measurable_merge_section (S l) x (mA l).
@@ -450,7 +456,7 @@ have hcond l x : (l < L)%N ->
     exact: hy.
   apply: le_trans (le_measure _ (mem_set mX)
     (mem_set (measurable_merge_section (S l) x mY)) sub) _.
-  apply: (hC n d (p l) (q l) (k l) (cU l) (cJ l) nu I t Q B x rho gam) => //.
+  apply: (hC n d (p l) (q l) (k l) (cU l) (cJ l) lam I t Q B x rho gam) => //.
   - by move=> y; rewrite -stage_cov_form; exact: hQ.
   - exact: gx.2.
 (* the stages, revealed one after the other *)
@@ -466,6 +472,36 @@ apply: (tuple_prod_chain_le (S := S) (A := A)
 - by move=> l _; rewrite exprn_ge0.
 - by move=> l x lL _; exact: hcond.
 Qed.
+
+(* The same when coordinate j of every point has law nu j. *)
+Theorem stages_small_ball (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R ->
+  (0 < c0)%R ->
+  exists2 C : RT, (0 < C)%R &
+  forall n d L (p q k : nat -> nat) (cU : forall l, 'I_(p l) -> 'I_d)
+    (cJ : forall l, 'I_(q l) -> 'I_d)
+    (nu : nat -> probability (measurableTypeR RT) RT) (I : {pred 'I_n})
+    (h t : 'rV[RT]_n) (rho gam : RT),
+  (forall l, injective (cJ l)) -> (forall l a b, cU l a != cJ l b) ->
+  (forall l a, exists a', cU l.+1 a' = cU l a) ->
+  (forall l b, exists a', cU l.+1 a' = cJ l b) ->
+  (forall j, (j < d)%N -> \int[nu j]_x x%:E = 0) ->
+  (forall j, (j < d)%N -> \int[nu j]_x ((x ^+ 2)%R)%:E = 1) ->
+  (forall j, (j < d)%N -> (2^-1)%:E <=
+     \int[nu j]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
+  (forall i, i \in I -> t 0 i = 0)%R ->
+  (forall i, i \notin I -> h 0 i = 0)%R ->
+  (forall l, (l < L)%N -> (c0 * d%:R <= (k l)%:R)%R /\
+     (c0 * d%:R <= (q l)%:R)%R /\ (k l <= p l)%N /\ (k l <= d)%N) ->
+  (0 < rho)%R -> (C * rho <= gam)%R ->
+  tuple_prod (fun j => nu (j %% d)%N) (n * d)
+    (\bigcap_(l < L) stage_event (cU l) (cJ l) h t (k l) mu rho gam) <=
+  (\prod_(l < L) (C * gam) ^+ (k l * q l))%R%:E.
+Proof.
+move=> M0 mu0 c00; have [C C0 hC] := stages_small_ball_flat M0 mu0 c00.
+exists C => // n d L p q k cU cJ nu I h t rho gam cJinj hUJ hUU hJU h0 h1 h2.
+by apply: hC => // j /ltn_mod_mul jd; [exact: h0|exact: h1|exact: h2].
+Qed.
+
 
 End pair_bound.
 
@@ -945,31 +981,33 @@ Local Open Scope ereal_scope.
    event is contained in a measurable set of probability at most
    (n + 1)^m H^m T^n prod_l (2 C gam)^(k_l q_l): there are at most
    (n + 1)^m sets I, H^m heads and T^n tails in the nets, and each pair has
-   the bound of stages_small_ball. *)
-Theorem light_union (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R -> (0 < c0)%R ->
+   the bound of stages_small_ball. Here coordinate j of the sample has law
+   lam j. *)
+Theorem light_union_flat (M mu c0 : RT) :
+  (0 < M)%R -> (0 < mu)%R -> (0 < c0)%R ->
   exists2 C : RT, (0 < C)%R &
   forall n d L m (k : nat -> nat)
-    (nu : nat -> probability (measurableTypeR RT) RT) (K r C1 rho gam : RT),
-  (forall j, (j < d)%N -> \int[nu j]_x x%:E = 0) ->
-  (forall j, (j < d)%N -> \int[nu j]_x ((x ^+ 2)%R)%:E = 1) ->
-  (forall j, (j < d)%N -> (2^-1)%:E <=
-     \int[nu j]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
+    (lam : nat -> probability (measurableTypeR RT) RT) (K r C1 rho gam : RT),
+  (forall j, (j < n * d)%N -> \int[lam j]_x x%:E = 0) ->
+  (forall j, (j < n * d)%N -> \int[lam j]_x ((x ^+ 2)%R)%:E = 1) ->
+  (forall j, (j < n * d)%N -> (2^-1)%:E <=
+     \int[lam j]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
   (forall l, (l < L.-1)%N -> (c0 * d%:R <= (k l)%:R)%R /\
      (c0 * d%:R <= (blk_q L d l)%:R)%R /\ (k l <= blk_p L d l)%N /\
      (k l <= d)%N) ->
   (0 < rho)%R -> (C * rho <= 2 * gam)%R -> (0 < gam)%R -> (0 < C1)%R ->
   (0 <= r)%R -> (0 < d)%N ->
   exists U : set (sample n d), [/\ measurable U,
-    tuple_prod (fun j => nu (j %% d)%N) (n * d) U <=
+    tuple_prod lam (n * d) U <=
       ((n.+1)%:R ^+ m *
        (2 * expR 1 * (1 + 16 * r * Num.sqrt (m.+1)%:R /
           (gam * Num.sqrt d%:R))) ^+ m *
        (2 * expR 1 * (1 + 8 * C1 / gam)) ^+ n *
        \prod_(l < L.-1) (C * (2 * gam)) ^+ (k l * blk_q L d l))%R%:E &
     forall x : sample n d,
-      (forall l (lam : 'rV[RT]_n), (l < L.-1)%N ->
-         nuclear (stage_map (blk_cU L d l) (blk_cJ L d l) x lam) <=
-         C1 * d%:R * frobenius lam)%R ->
+      (forall l (z : 'rV[RT]_n), (l < L.-1)%N ->
+         nuclear (stage_map (blk_cU L d l) (blk_cJ L d l) x z) <=
+         C1 * d%:R * frobenius z)%R ->
       (forall i, frobenius (sample_point x i) ^+ 2 <= 2 * d%:R)%R ->
       (forall (I : {set 'I_n}) t, (#|I| <= m)%N -> light_tail I K d%:R t ->
          forall l, (l < L.-1)%N ->
@@ -977,8 +1015,8 @@ Theorem light_union (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R -> (0 < c0)%R ->
       light_bad L m K r gam x -> U x].
 Proof.
 move=> M0 mu0 c00.
-have [C C0 hC] := stages_small_ball M0 mu0 c00.
-exists C => // n d L m k nu K r C1 rho gam hm0 hm1 hm2 hk rho0 hgam gam0 C10
+have [C C0 hC] := stages_small_ball_flat M0 mu0 c00.
+exists C => // n d L m k lam K r C1 rho gam hm0 hm1 hm2 hk rho0 hgam gam0 C10
   r0 d0.
 have sd0 : (0 < Num.sqrt d%:R :> RT)%R by rewrite sqrtr_gt0 ltr0n.
 pose eh := (gam * Num.sqrt d%:R / 8)%R.
@@ -1059,10 +1097,10 @@ exists U; split.
     by rewrite /T /et (_ : 2 * 1 / (gam / (4 * C1)) = 8 * C1 / gam)%R //; field.
   have hEv (I : {set 'I_n}) h0 t0 : light_head I r h0 ->
       light_tail I K d%:R t0 ->
-      tuple_prod (fun j => nu (j %% d)%N) (n * d) (Ev I h0 t0) <= B%:E.
+      tuple_prod lam (n * d) (Ev I h0 t0) <= B%:E.
     case=> hI _ [tI _ _].
     have H1 := hC n d L.-1 (blk_p L d) (blk_q L d) k (blk_cU L d) (blk_cJ L d)
-      nu [pred i | i \in I] h0 t0 rho (2 * gam)%R.
+      lam [pred i | i \in I] h0 t0 rho (2 * gam)%R.
     have H2 := H1 (fun l => @blk_cJ_inj L d l).
     have H3 := H2 (fun l a b => blk_cUJ a b).
     have H4 := H3 (fun l a => blk_cU_succ a).
@@ -1076,7 +1114,7 @@ exists U; split.
       \sum_(i <- s) c%:E = ((size s)%:R * c)%R%:E.
     have cs : count xpredT s = size s by elim: s => //= a s ->.
     by rewrite sumEFin big_const_seq cs iter_addr addr0 mulr_natl.
-  have inner s : tuple_prod (fun j => nu (j %% d)%N) (n * d)
+  have inner s : tuple_prod lam (n * d)
       (\big[setU/set0]_(h0 <- Nh (Iof s)) \big[setU/set0]_(t0 <- Nt (Iof s))
         Ev (Iof s) h0 t0) <= (Hm ^+ m * T ^+ n * B)%R%:E.
     have [NhS _ _] := NhP (Iof s); have [NtS _ _] := NtP (Iof s).
@@ -1145,6 +1183,43 @@ exists U; split.
   have gd : (0 <= gam * d%:R)%R by rewrite mulr_ge0 ?ler0n // ltW.
   rewrite -mulrA; lra.
 Qed.
+
+(* The same when coordinate j of every point has law nu j. *)
+Theorem light_union (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R -> (0 < c0)%R ->
+  exists2 C : RT, (0 < C)%R &
+  forall n d L m (k : nat -> nat)
+    (nu : nat -> probability (measurableTypeR RT) RT) (K r C1 rho gam : RT),
+  (forall j, (j < d)%N -> \int[nu j]_x x%:E = 0) ->
+  (forall j, (j < d)%N -> \int[nu j]_x ((x ^+ 2)%R)%:E = 1) ->
+  (forall j, (j < d)%N -> (2^-1)%:E <=
+     \int[nu j]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
+  (forall l, (l < L.-1)%N -> (c0 * d%:R <= (k l)%:R)%R /\
+     (c0 * d%:R <= (blk_q L d l)%:R)%R /\ (k l <= blk_p L d l)%N /\
+     (k l <= d)%N) ->
+  (0 < rho)%R -> (C * rho <= 2 * gam)%R -> (0 < gam)%R -> (0 < C1)%R ->
+  (0 <= r)%R -> (0 < d)%N ->
+  exists U : set (sample n d), [/\ measurable U,
+    tuple_prod (fun j => nu (j %% d)%N) (n * d) U <=
+      ((n.+1)%:R ^+ m *
+       (2 * expR 1 * (1 + 16 * r * Num.sqrt (m.+1)%:R /
+          (gam * Num.sqrt d%:R))) ^+ m *
+       (2 * expR 1 * (1 + 8 * C1 / gam)) ^+ n *
+       \prod_(l < L.-1) (C * (2 * gam)) ^+ (k l * blk_q L d l))%R%:E &
+    forall x : sample n d,
+      (forall l (lam : 'rV[RT]_n), (l < L.-1)%N ->
+         nuclear (stage_map (blk_cU L d l) (blk_cJ L d l) x lam) <=
+         C1 * d%:R * frobenius lam)%R ->
+      (forall i, frobenius (sample_point x i) ^+ 2 <= 2 * d%:R)%R ->
+      (forall (I : {set 'I_n}) t, (#|I| <= m)%N -> light_tail I K d%:R t ->
+         forall l, (l < L.-1)%N ->
+           stage_good (blk_cU L d l) t (k l) mu rho x) ->
+      light_bad L m K r gam x -> U x].
+Proof.
+move=> M0 mu0 c00; have [C C0 hC] := light_union_flat M0 mu0 c00.
+exists C => // n d L m k nu K r C1 rho gam h0 h1 h2.
+by apply: hC => // j /ltn_mod_mul jd; [exact: h0|exact: h1|exact: h2].
+Qed.
+
 
 End light_union.
 

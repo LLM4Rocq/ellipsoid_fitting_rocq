@@ -25,16 +25,20 @@
      |h|_1 sqrt d <= rate_CS K C0 (ln d)^4 nuclear (L_X^* h) for every h
      with at most m nonzero coordinates, rate_CS K C0 =
      rate_CL K C0 (1 + 2 Cg sqrt C0) + 2 C0.
-   - sparse_lower_limit (Proposition 3.3 with probability tending to one,
-     through the first display of Proposition 3.1 at the rates
-     delta <= Cg (ln d)^4 / sqrt d and L^2 <= rate_CL K C0 d (ln d)^2):
-     if n / d^2 tends to alpha > 0, then for every
-     eps > 0 and every large d, outside a measurable event of probability
-     at most eps, every h with at most C0 d ln d nonzero coordinates
+   - sparse_lower_limit_features (Proposition 3.3 with probability
+     tending to one, through the first display of Proposition 3.1 at the
+     rates delta <= Cg (ln d)^4 / sqrt d and
+     L^2 <= rate_CL K C0 d (ln d)^2): if n / d^2 tends to alpha > 0, then
+     for every eps > 0 there is D such that for every d >= D and every flat
+     family of component laws with the hypotheses on the features of
+     sparse_gram_bound_flat, outside a measurable event of probability at
+     most eps, every h with at most C0 d ln d nonzero coordinates
      satisfies |h|_1 sqrt d <= rate_CS K C0 (ln d)^4 nuclear (L_X^* h).
-     The event is that of sparse_gram_bound and sparse_points_bound with
-     m = floor (C0 d ln d); its probability is at most
-     12 / sqrt m + 2 (alpha + 1) / d^2 + 2 exp (- d). *)
+     The event is that of sparse_gram_bound_flat and
+     sparse_points_bound_flat with m = floor (C0 d ln d); its probability
+     is at most 12 / sqrt m + 2 (alpha + 1) / d^2 + 2 exp (- d). D does not
+     depend on the laws. sparse_lower_limit is the case of
+     universality_sample_law with coordinate laws. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -46,9 +50,13 @@ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun.
 From mathcomp Require Import numfun lebesgue_integral probability.
 From mathcomp Require Import normedtype sequences exp.
 From GaussianAnalysis.matrix Require Import euclidean opnorm nuclear.
+From GaussianAnalysis.probability Require Import lindeberg subgaussian.
 From GaussianAnalysis.random_matrix Require Import restricted_isometry.
 From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
+From EllipsoidUniversality Require Import MixtureDefinitions.
+From EllipsoidUniversality.Features Require Import Definitions.
+From EllipsoidUniversality.Mixture Require Import Flat.
 From EllipsoidUniversality.Sat Require Import Apriori AprioriSparse.
 From EllipsoidUniversality.Sat Require Import SparseLower.
 
@@ -559,20 +567,27 @@ by rewrite le_eqVlt; apply/orP; left; apply/eqP; ring.
 Qed.
 
 (* 4. Proposition 3.3 with probability tending to one. *)
-Theorem sparse_lower_limit (kappa K alpha C0 : R)
-    (nu : nat -> nat -> probability (measurableTypeR R) R) (n : nat -> nat) :
-  (forall d j, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
-  0 < alpha -> universality_density_tends_to n alpha -> 0 < C0 ->
+
+(* For flat families of component laws whose features satisfy the
+   hypotheses of sparse_gram_bound_flat; D does not depend on the laws. *)
+Theorem sparse_lower_limit_features (K alpha C0 : R) (n : nat -> nat) :
+  0 < K -> 0 < alpha -> universality_density_tends_to n alpha -> 0 < C0 ->
   forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  forall lam : nat -> probability (measurableTypeR R) R,
+    (forall k, (k < n d * d)%N -> mixture_component_law K (lam k)) ->
+    (forall i (y : 'rV[R]_(d * d)), (i < n d)%N -> mxdot y y = 1 ->
+       subexponential (data_feature_law (flat_row lam d i) d)
+         (fun z => mxdot z y) (252 * K ^+ 2 / Num.sqrt d%:R)) ->
+    (forall i (y : 'rV[R]_(d * d)), (i < n d)%N -> mxdot y y = 1 ->
+       \int[data_feature_law (flat_row lam d i) d]_v mxdot v y = 0) ->
   exists E : set (paper_main_sample (n d) d), [/\ measurable E,
-    (universality_sample_law (nu d) (n d) d E <= eps%:E)%E &
+    (tuple_prod lam (n d * d) E <= eps%:E)%E &
     forall x, ~ E x -> forall h : 'rV[R]_(n d),
       #|supp h|%:R <= C0 * d%:R * lnR d%:R ->
       (\sum_i `|h 0 i|) * Num.sqrt d%:R <=
       rate_CS K C0 * lnR d%:R ^+ 4 * nuclear (sample_adj x h)].
 Proof.
-move=> hnu a0 hn C00 eps e0.
-have K0 : 0 < K by have [] := hnu 1%N 0%N isT.
+move=> K0 a0 hn C00 eps e0.
 set q := Num.min (alpha / 2) 1.
 have q0 : 0 < q by rewrite lt_min divr_gt0 // ltr01.
 have Cg0 : 0 <= rate_Cg K C0 := rate_Cg_ge0 K C0.
@@ -590,7 +605,7 @@ have [D hD] := ev_and c1 (ev_and ev_ln_ge1 (ev_and c3 (ev_and c4
   (ev_and (ev_gt (((36 / eps) ^+ 2 + 1) / C0))
   (ev_and (ev_gt (6 * (alpha + 1) / eps)) (ev_and (ev_gt (6 / eps))
   (ev_and (ev_gt (alpha + 1)) (ev_ge 5))))))))))).
-exists D => d dD.
+exists D => d dD lam hlam hw cen.
 have [[h1a h1b] [h2 [h3 [h4 [h5 [h6 [h7 [h9 [h10 [h11 [h12 d5]]]]]]]]]]] :=
   hD d dD.
 have d0 : (0 < d)%N by apply: leq_trans d5.
@@ -656,10 +671,10 @@ have beta0 : 0 < (d%:R : R)^-1 by rewrite invr_gt0.
 have beta1 : (d%:R : R)^-1 <= 1 / 2.
   rewrite mul1r lef_pV2 ?posrE // ler_nat.
   by apply: leq_trans d5.
-have [G1 [mG1 PG1 hG1]] := sparse_gram_bound kappa K (n d) d m (nu d)
-  (hnu d) d0 m0 mn (d%:R)^-1 th beta0 beta1 th0.
-have [G2 [mG2 PG2 hG2]] := sparse_points_bound kappa K (n d) d (nu d) m
-  d%:R (hnu d) d0 m0 mn (ler0n _ d).
+have [G1 [mG1 PG1 hG1]] := sparse_gram_bound_flat K (n d) d m lam hlam hw cen
+  d0 m0 mn (d%:R)^-1 th beta0 beta1 th0.
+have [G2 [mG2 PG2 hG2]] := sparse_points_bound_flat K (n d) d lam m
+  d%:R hlam d0 m0 mn (ler0n _ d).
 have e3 : 0 < eps / 3 by rewrite divr_gt0.
 have T3 : 2 * expR (- (d%:R : R)) <= eps / 3.
   have e : expR (- (d%:R : R)) <= d%:R^-1.
@@ -757,4 +772,26 @@ have hm : (#|supp h| <= m)%N.
   by rewrite /m archimedean.Num.Theory.truncn_ge_nat.
 exact: (sparse_lower_rate K C0 th L (n d) d m x K0 C00 d5 m0 mn l1 l2 hg mC
   lnm thl hL (hG1 x xG1) (hG2 x xG2) h hm).
+Qed.
+
+(* The same for the sample law of coordinate laws. *)
+Theorem sparse_lower_limit (kappa K alpha C0 : R)
+    (nu : nat -> nat -> probability (measurableTypeR R) R) (n : nat -> nat) :
+  (forall d j, (j < d)%N -> universality_coordinate_law kappa K (nu d j)) ->
+  0 < alpha -> universality_density_tends_to n alpha -> 0 < C0 ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  exists E : set (paper_main_sample (n d) d), [/\ measurable E,
+    (universality_sample_law (nu d) (n d) d E <= eps%:E)%E &
+    forall x, ~ E x -> forall h : 'rV[R]_(n d),
+      #|supp h|%:R <= C0 * d%:R * lnR d%:R ->
+      (\sum_i `|h 0 i|) * Num.sqrt d%:R <=
+      rate_CS K C0 * lnR d%:R ^+ 4 * nuclear (sample_adj x h)].
+Proof.
+move=> hnu a0 hn C00 eps e0.
+have K0 : 0 < K by have [] := hnu 1%N 0%N isT.
+have [D hD] := sparse_lower_limit_features K alpha C0 n K0 a0 hn C00 eps e0.
+exists (maxn D 1) => d; rewrite geq_max => /andP[dD d0].
+exact: (hD d dD _ (sample_law_component kappa K (n d) d (nu d) (hnu d))
+  (sample_law_feature_hw kappa K (n d) d (nu d) (hnu d) d0)
+  (sample_law_feature_mean kappa K (n d) d (nu d) (hnu d))).
 Qed.

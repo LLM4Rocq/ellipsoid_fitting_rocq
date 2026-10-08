@@ -1,25 +1,38 @@
 (* The approximate fit: Proposition 2.1 of Koehler and Sohn, "Universality
    and sharp thresholds for ellipsoid fitting" (arXiv 2608.27372, lines
-   725-740, proof lines 4443-4596), at Stdlib's R. Item S1 of stage 3 of
-   phase 5 (lane A).
+   725-740, proof lines 4443-4596), at Stdlib's R, for every law of the
+   features that is regular with the covariance of the paper and has
+   subexponential linear forms.
 
-   Setting. kappa > 1, K > 0, alpha > 0 and n d / d^2 -> alpha
-   (universality_density_tends_to); for every d the coordinate laws
-   nu d j (j < d) are universality_coordinate_law kappa K. The features of
-   a sample x are W_i = (x_i x_i^T - I) / sqrt d, given as the rows
-   mxvec W_i of unsat_features n d x (Unsat/LeastSquares), of law
-   tuple_prod (fun=> data_feature_law (nu d) d) n.
+   Setting. kappa > 1, alpha > 0 and n d / d^2 -> alpha
+   (universality_density_tends_to). For every d, rho d is a law on
+   R^(d d), the law of the feature mxvec W of one point. It is a regular
+   feature law (regular_feature of convex/least_squares.v) with constants
+   Kf and tau d and covariance unsat_cov kappa d, where tau d -> 0, and
+   its linear forms <z, mxvec A> are subexponential with constant
+   L / sqrt d for every L >= Ls |A|_F. The features of a sample are n
+   independent draws of rho d. For the paper's data, with coordinate laws
+   nu d j (j < d) of class universality_coordinate_law kappa K, the
+   features of a sample x are W_i = (x_i x_i^T - I) / sqrt d, given as the
+   rows mxvec W_i of unsat_features n d x (Unsat/LeastSquares), of law
+   data_feature_law (nu d) d, and Ls = 252 K^2 (Hanson-Wright,
+   data_feature_subexponential of Features/Regular).
 
-   Main result. approximate_fit: for 0 < alpha < alpha*(kappa) there are
-   0 < m < 1 < M and C > 0, depending only on alpha, kappa and K, such
-   that for every delta > 0 and eps > 0 and every large d, outside a
-   measurable event of probability at most eps (under the law of the n
-   features), some S with mxvec S in pd_slice2 d m M (m I < S < M I and
-   tr S = d) and some real b satisfy
-     sum_i (b - <W_i, S>)^2 <= delta n   and   |b - <W_i, S>| <= C ln d
-   for every i. The paper's rates are (ln d / d)^(1/10) and (ln d)^2; the
-   form above is what Theorem 1.9 (Sat/Interpolation, lane C) needs: its
-   bound C' ((ln d)^4 / sqrt d |y|_oo + |y|_2 / d) tends to 0.
+   Main results.
+   - approximate_fit_law: for 0 < alpha < alpha*(kappa) there are
+     0 < m < 1 < M and C > 0, depending only on alpha, kappa and Ls, such
+     that for every family rho as above, every delta > 0 and eps > 0 and
+     every large d, outside a measurable event of probability at most eps
+     (under the law of the n features), some S with mxvec S in
+     pd_slice2 d m M (m I < S < M I and tr S = d) and some real b satisfy
+       sum_i (b - <W_i, S>)^2 <= delta n   and   |b - <W_i, S>| <= C ln d
+     for every i. How large d must be depends also on Kf and on the rate
+     at which tau tends to 0.
+   - approximate_fit: the same for the features of the paper's data, with
+     m, M and C depending only on alpha, kappa and K.
+   The paper's rates are (ln d / d)^(1/10) and (ln d)^2; the form above is
+   what Theorem 1.9 (Sat/Interpolation) needs: its bound
+   C' ((ln d)^4 / sqrt d |y|_oo + |y|_2 / d) tends to 0.
 
    Hypothesis. gaussian_subcritical_fit kappa alpha is Proposition 1.4 (i)
    for the Gaussian features with intercept 0: some symmetric S with
@@ -33,11 +46,13 @@
       convex/barrier_lindeberg.v) on the domain pd_slice2 d m M, with
       m = min (m0, 1) / 2, M = 2 max (M0, 1) and its 2d-self-concordant
       barrier logdet_barrier2 (Lemma 2.8, convex/logdet_barrier.v), for the
-      data features and for the Gaussian ones (both regular:
-      uni_regular_data and uni_regular_gauss of Unsat/Universality), with
-      beta = delta / (2 A0) fixed, A0 = max (2, kappa - 1) M + 1, and
-      gamma = 1 / (d sqrt d). Both values Phi_W and Phi_G are within
-      beta / 4 of E Phi_G, except on events of vanishing probability.
+      features of law rho d and for the Gaussian ones, both regular with
+      the constants max (Kf, 3^(1/4)) and max (tau d, sqrt 2 |Sigma|)
+      (gaussian_feature_regular of Features/Regular and regular_feature_le
+      of Unsat/FourthMomentThree), with beta = delta / (2 A0) fixed,
+      A0 = max (2, kappa - 1) M + 1, and gamma = 1 / (d sqrt d). Both
+      values Phi_W and Phi_G are within beta / 4 of E Phi_G, except on
+      events of vanishing probability.
    2. The Gaussian witness S of the hypothesis is in the domain, with
       b = 0: Phi_G <= beta lambda |S|_F^2 + gamma B(S)
       <= beta max (2, kappa - 1) M + beta / 4. Hence E Phi_G and then Phi_W
@@ -50,9 +65,8 @@
       beta (b^(i))^2 <= Phi_W, so |b^(i)| = O(1), and
       |<W_i, S> - b| <= |<W_i, S^(i)> - b^(i)| (add the two optimality
       inequalities). Given the other rows, <W_i, S^(i)> is subexponential
-      with constant L0 = 252 K^2 sqrt M (Hanson-Wright,
-      data_feature_subexponential of Features/Regular, as
-      |S^(i)|_F^2 <= M d), so a union bound over the n rows gives
+      with constant L0 = Ls sqrt M, as |S^(i)|_F^2 <= M d, so a union bound
+      over the n rows gives
       max_i |<W_i, S> - b| <= sqrt A0 + 3 L0 ln d, except on an event of
       probability at most 2 n / d^3.
 
@@ -69,11 +83,13 @@
      sat_loo_tuple_set, measurable_sat_loo.
    - sat_subexp, sat_loo_tail: the bad event of row i (|b^(i)| <= B0 and a
      residual above s0) has probability at most
-     2 exp (- (s0 - B0) / (252 K^2 sqrt M)) under the data features.
+     2 exp (- (s0 - B0) / (Ls sqrt M)) when the linear forms of the
+     features are subexponential with constant Ls |A|_F / sqrt d.
    - af_conc, af_ref_scale_le, af_value_witness, af_center_le: Theorem 2.9
-     on the domain for any regular law with the constants of the Gaussian
-     features, the reference scale (1 + 1 / beta) (1 + max (2, kappa - 1)),
-     the value at a Gaussian witness, and the bound of E Phi_G.
+     on the domain for any law regular with constants Kf and tau when the
+     Gaussian features are regular with the same constants, the reference
+     scale (1 + 1 / beta) (1 + max (2, kappa - 1)), the value at a
+     Gaussian witness, and the bound of E Phi_G.
    - af_at_d: the approximate fit at one large dimension, from the bounds
      af_err_small, af_prob_small, af_wit_small and af_union_small of the
      error terms; af_ev_density, af_ev_tau, af_ev_ge and af_ev_sqrt give
@@ -91,7 +107,8 @@ From mathcomp Require Import numfun lebesgue_integral probability.
 From GaussianAnalysis.gaussian Require Import measurable_matrix.
 From GaussianAnalysis.matrix Require Import euclidean opnorm real_spectral.
 From GaussianAnalysis.probability Require Import lindeberg efron_stein.
-From GaussianAnalysis.probability Require Import subgaussian measurable_minimizer.
+From GaussianAnalysis.probability Require Import subgaussian.
+From GaussianAnalysis.probability Require Import measurable_minimizer.
 From GaussianAnalysis.convex Require Import self_concordant least_squares.
 From GaussianAnalysis.convex Require Import logdet_barrier minimizers.
 From GaussianAnalysis.convex Require Import barrier_lindeberg ridge_comparison.
@@ -294,7 +311,8 @@ Lemma sat_minP P Z theta b : D theta ->
   sat_obj P Z (sat_min P Z) (sat_int P Z) <= sat_obj P Z theta b.
 Proof. exact: ls_minP. Qed.
 
-Lemma sat_valueE Z : sat_value Z = sat_obj predT Z (sat_min predT Z) (sat_int predT Z).
+Lemma sat_valueE Z :
+  sat_value Z = sat_obj predT Z (sat_min predT Z) (sat_int predT Z).
 Proof.
 rewrite /sat_value /ls_barrier_value.
 set S := [set _ | _ in _ & _ in _].
@@ -404,25 +422,27 @@ split; first exact: measurable_ls_bopt_min.
 exact: measurable_mxdot_ls_min.
 Qed.
 
-(* 3. The leave-one-out residuals under the data features. Given the other
-   rows, <W_i, S^(i)> is subexponential with constant 252 K^2 sqrt M
-   (Hanson-Wright, as |S^(i)|_F^2 <= M d), so the event that the intercept
-   b^(i) is at most B0 and the residual of row i exceeds s0 has probability
-   at most 2 exp (- (s0 - B0) / (252 K^2 sqrt M)). *)
+(* 3. The leave-one-out residuals, for a law mu of the features whose
+   linear forms <z, mxvec A> are subexponential with constant
+   L / sqrt d for every L >= Ls |A|_F (for the data, Ls = 252 K^2 by
+   Hanson-Wright). Given the other rows, <W_i, S^(i)> is subexponential
+   with constant Ls sqrt M, as |S^(i)|_F^2 <= M d, so the event that the
+   intercept b^(i) is at most B0 and the residual of row i exceeds s0 has
+   probability at most 2 exp (- (s0 - B0) / (Ls sqrt M)). *)
 
-Variables (kappa K : R) (nu : nat -> probability (measurableTypeR R) R).
-Hypotheses (hnu : forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j)).
-Hypotheses (K0 : 0 < K) (d0 : (0 < d)%N).
+Variables (Ls : R) (mu : probability 'rV[RR]_(d * d) RR).
+Hypothesis Ls0 : 0 < Ls.
+Hypothesis hsub : forall (A : 'M[R]_d) (L : R), 0 < L ->
+  Ls * frobenius A <= L ->
+  subexponential mu (fun z => mxdot z (mxvec A) : RR) (L / Num.sqrt d%:R).
+Hypothesis d0 : (0 < d)%N.
 
-Local Notation mu := (data_feature_law nu d).
-
-Definition sat_tail_const : RR := 252 * K ^+ 2 * Num.sqrt M.
+Definition sat_tail_const : RR := Ls * Num.sqrt M.
 
 Lemma sat_tail_const_gt0 : 0 < sat_tail_const.
 Proof.
 have M0 : 0 < M by case/andP: mM => _ /(lt_trans ltr01).
-apply: mulr_gt0; last by rewrite sqrtr_gt0.
-by apply: mulr_gt0; [rewrite ltr0n | rewrite exprn_gt0].
+by apply: mulr_gt0; last by rewrite sqrtr_gt0.
 Qed.
 
 Lemma sat_subexp theta : D theta ->
@@ -431,15 +451,13 @@ Proof.
 move=> Dth.
 have M0 : 0 < M by case/andP: mM => _ /(lt_trans ltr01).
 have dR : 0 < d%:R :> R by rewrite ltr0n.
-pose L := 252 * K ^+ 2 * Num.sqrt (M * d%:R).
-have L0 : 0 < L.
-  apply: mulr_gt0; last by rewrite sqrtr_gt0 mulr_gt0.
-  by apply: mulr_gt0; [rewrite ltr0n | rewrite exprn_gt0].
-have hL : 252 * K ^+ 2 * frobenius (vec_mx theta) <= L.
-  rewrite /L; apply: ler_wpM2l; first by apply: mulr_ge0; [exact: ler0n | exact: sqr_ge0].
+pose L := Ls * Num.sqrt (M * d%:R).
+have L0 : 0 < L by apply: mulr_gt0; last by rewrite sqrtr_gt0 mulr_gt0.
+have hL : Ls * frobenius (vec_mx theta) <= L.
+  rewrite /L; apply: ler_wpM2l; first exact: ltW.
   rewrite /frobenius; apply: ler_wsqrtr.
   rewrite -mxdot_mxvec vec_mxK; exact: slice2_frobenius (ltW m0) Dth.
-have := data_feature_subexponential kappa K d nu hnu (vec_mx theta) L d0 L0 hL.
+have := hsub (vec_mx theta) L L0 hL.
 rewrite vec_mxK.
 have -> : L / Num.sqrt d%:R = sat_tail_const.
   rewrite /L /sat_tail_const sqrtrM ?ltW // mulrA mulfK //.
@@ -505,7 +523,8 @@ have -> : (fun t => (\1_(sat_bad i s0 B0) (tuple_set Z i t) : RR)%:E) =
 have mF : measurable [set t : 'rV[RR]_(d * d) |
     `|b| <= B0 /\ s0 < `|b - mxdot t th|].
   have mlt : measurable [set t : 'rV[RR]_(d * d) | s0 < `|b - mxdot t th|].
-    apply: measurable_set_lt; apply: measurableT_comp (@normr_measurable RR _) _.
+    apply: measurable_set_lt.
+    apply: measurableT_comp (@normr_measurable RR _) _.
     apply: measurable_funB => //; exact: measurable_mxdotl.
   have [hb|hb] := pselect (`|b| <= B0).
     have -> : [set t : 'rV[RR]_(d * d) | `|b| <= B0 /\ s0 < `|b - mxdot t th|] =
@@ -539,18 +558,19 @@ End sat_values.
    Gaussian witness. *)
 
 Section af_fixed.
-Variables (kappa K : R) (m M : R) (d n : nat) (beta gamma t : R).
+Variables (kappa Kf : R) (m M : R) (d n : nat) (beta gamma t tau : R).
 Hypotheses (k1 : 1 < kappa) (d0 : (0 < d)%N) (n0 : (0 < n)%N).
 Hypotheses (m_pos : 0 < m) (mM : m < 1 < M).
 Hypotheses (b0 : 0 < beta) (g0 : 0 < gamma) (t0 : 0 < t).
 Hypothesis n36 : 36 <= n%:R * gamma.
+Hypothesis tau0 : 0 <= tau.
+Hypothesis hG :
+  regular_feature Kf tau (unsat_cov kappa d) (gaussian_feature_law kappa d).
 
 Local Notation lam := (opnorm (unsat_cov kappa d)).
 Local Notation D := (pd_slice2 d m M).
 Local Notation Bar := (logdet_barrier2 d m M).
 Local Notation T := (n.-tuple 'rV[RR]_(d * d)).
-Local Notation Kf := (uni_K kappa K).
-Local Notation tau := (uni_tau kappa K d).
 Local Notation Mk := (Num.max 2 (kappa - 1)).
 
 Lemma af_lam_gt0 : 0 < lam.
@@ -563,7 +583,8 @@ Qed.
 
 Lemma af_lam_le : lam * d%:R <= Mk.
 Proof.
-by have /andP[_ h] := unsat_lambda_bounds kappa d k1 d0; rewrite /unsat_lambda in h.
+have /andP[_ h] := unsat_lambda_bounds kappa d k1 d0.
+by rewrite /unsat_lambda in h.
 Qed.
 
 Definition af_value (Z : T) : RR := sat_value m M d n lam beta gamma Z.
@@ -580,7 +601,7 @@ Definition af_prob : RR :=
   4 * (1 + Kf ^+ 4) ^+ 2 * ls_ref_scale lam beta gamma D Bar ^+ 2 /
     (n%:R * t ^+ 2).
 
-(* Theorem 2.9 (2.14) for any regular feature law with the constants of the
+(* Theorem 2.9 (2.14) for any feature law regular with the constants of the
    Gaussian features. *)
 Lemma af_conc (rho : probability 'rV[RR]_(d * d) RR) :
   regular_feature Kf tau (unsat_cov kappa d) rho ->
@@ -589,8 +610,7 @@ Lemma af_conc (rho : probability 'rV[RR]_(d * d) RR) :
 Proof.
 move=> rrho.
 exact: (barrier_lindeberg_concentration (sat_DV m M d) (sat_scB m M d)
-  (sat_B0 m M d mM) (sat_D0 m M d mM) rrho
-  (uni_regular_gauss kappa K k1 d d0) (uni_tau_ge0 kappa K d) n0 b0 g0 t0 n36).
+  (sat_B0 m M d mM) (sat_D0 m M d mM) rrho hG tau0 n0 b0 g0 t0 n36).
 Qed.
 
 Lemma measurable_af_value : measurable_fun setT af_value.
@@ -675,7 +695,7 @@ have nR : 0 < n%:R :> R by rewrite ltr0n.
 have /andP[hl1 _] := unsat_lambda_bounds kappa d k1 d0.
 rewrite /unsat_lambda in hl1.
 have taul : tau / lam <= tau * d%:R / (kappa - 1).
-  rewrite -mulrA ler_wpM2l ?uni_tau_ge0 // ler_pdivlMr // mulrC ler_pdivrMr //.
+  rewrite -mulrA ler_wpM2l // ler_pdivlMr // mulrC ler_pdivrMr //.
   by rewrite mulrC.
 have dimle : Num.sqrt (\dim (@sym_traceless RR d))%:R <= d%:R :> R.
   rewrite -[X in _ <= X]ger0_norm ?ler0n // -sqrtr_sqr.
@@ -686,10 +706,10 @@ have A0 : 0 <= 100 * (1 + Kf ^+ 4) ^+ 2 :> R by rewrite mulr_ge0 // exprn_ge0.
 have s0 : 0 <= (Num.sqrt (n%:R * gamma))^-1 by rewrite invr_ge0 sqrtr_ge0.
 apply: ler_pM; first by rewrite mulr_ge0 // exprn_ge0.
 - rewrite addr_ge0 // mulr_ge0 ?invr_ge0 ?ler0n // mulr_ge0 ?sqrtr_ge0 //.
-  by rewrite addr_ge0 // divr_ge0 ?uni_tau_ge0 // ltW.
+  by rewrite addr_ge0 // divr_ge0 // ltW.
 - by rewrite ler_wpM2l.
 rewrite lerD2l ler_wpM2r ?invr_ge0 ?ler0n //.
-have tl0 : 0 <= tau / lam + 1 by rewrite addr_ge0 // divr_ge0 ?uni_tau_ge0 // ltW.
+have tl0 : 0 <= tau / lam + 1 by rewrite addr_ge0 // divr_ge0 // ltW.
 by apply: ler_pM; [exact: sqrtr_ge0|exact: tl0|exact: dimle|rewrite lerD2r].
 Qed.
 
@@ -723,8 +743,7 @@ pose F := [set Z : T | (af_err + t < `|af_value Z - af_center|)%R].
 have mF : measurable F.
   apply: measurable_set_lt; apply: measurableT_comp (@normr_measurable RR _) _.
   by apply: measurable_funB => //; exact: measurable_af_value.
-have PF : (P F <= af_prob%:E)%E :=
-    af_conc (gaussian_feature_law kappa d) (uni_regular_gauss kappa K k1 d d0).
+have PF : (P F <= af_prob%:E)%E := af_conc (gaussian_feature_law kappa d) hG.
 have [Z [nE nF]] : exists Z, ~ E Z /\ ~ F Z.
   apply: contrapT => hno.
   have cover : [set: T] `<=` E `|` F.
@@ -821,6 +840,24 @@ have h4 : Num.sqrt 2 * opnorm (unsat_cov kappa d) * d%:R <= eta * d%:R.
 by rewrite ler_pM2r in h4.
 Qed.
 
+(* The constant tau of the Gaussian features tends to 0. *)
+Lemma af_ev_gauss_tau (kappa eta : R) : 1 < kappa -> 0 < eta ->
+  af_eventually (fun d => Num.sqrt 2 * opnorm (unsat_cov kappa d) <= eta).
+Proof.
+move=> k1 e0.
+have := af_ev_and _ _
+  (af_ev_ge (Num.sqrt 2 * Num.max 2 (kappa - 1) / eta)) (af_ev_ge 1).
+apply: af_ev_mono => d [h2 h3].
+have dR : 0 < d%:R :> R by apply: lt_le_trans h3.
+have d0 : (0 < d)%N by rewrite -(ltr_nat RR).
+have hl := af_lam_le kappa d k1 d0.
+rewrite ler_pdivrMr // in h2.
+have h4 : Num.sqrt 2 * opnorm (unsat_cov kappa d) * d%:R <= eta * d%:R.
+  rewrite -mulrA [eta * _]mulrC; apply: le_trans h2.
+  by apply: ler_wpM2l; [exact: sqrtr_ge0 | exact: hl].
+by rewrite ler_pM2r in h4.
+Qed.
+
 (* A finite union bound over the rows. *)
 Lemma af_union_le (n d : nat) (P : probability (n.-tuple 'rV[RR]_(d * d)) RR)
     (F : 'I_n -> set (n.-tuple 'rV[RR]_(d * d))) :
@@ -860,8 +897,8 @@ Lemma af_arith_sum (p q e : R) : p <= q -> q <= e / 2 -> p + e / 2 <= e.
 Proof. by move=> *; lra. Qed.
 
 Section af_main.
-Variables (kappa K alpha m0 M0 : R).
-Hypotheses (k1 : 1 < kappa) (K0 : 0 < K) (a0 : 0 < alpha).
+Variables (kappa Kf Ls alpha m0 M0 : R).
+Hypotheses (k1 : 1 < kappa) (Ls0 : 0 < Ls) (a0 : 0 < alpha).
 Hypotheses (m00 : 0 < m0) (mM0 : m0 <= M0).
 
 Definition af_m : RR := Num.min m0 1 / 2.
@@ -869,7 +906,7 @@ Definition af_M : RR := 2 * Num.max M0 1.
 Definition af_Mk : RR := Num.max 2 (kappa - 1).
 Definition af_A0 : RR := af_Mk * af_M + 1.
 Definition af_B0 : RR := Num.sqrt af_A0.
-Definition af_L0 : RR := sat_tail_const af_M K.
+Definition af_L0 : RR := sat_tail_const af_M Ls.
 Definition af_C : RR := af_B0 + 3 * af_L0.
 
 Lemma af_dom : [/\ 0 < af_m, af_m < m0, af_m < 1, M0 < af_M & 1 < af_M].
@@ -896,8 +933,8 @@ Qed.
 Lemma af_L0_gt0 : 0 < af_L0.
 Proof.
 have [_ _ _ _ M1] := af_dom.
-rewrite /af_L0 /sat_tail_const; apply: mulr_gt0; last by rewrite sqrtr_gt0; lra.
-by apply: mulr_gt0; [rewrite ltr0n | rewrite exprn_gt0].
+rewrite /af_L0 /sat_tail_const.
+by apply: mulr_gt0; last by rewrite sqrtr_gt0; lra.
 Qed.
 
 Lemma af_C_gt0 : 0 < af_C.
@@ -916,10 +953,10 @@ Definition af_cB : RR :=
   ln ((1 - af_m) * (af_M - 1)) - ln (m0 - af_m) - ln (af_M - M0).
 Definition af_cBp : RR := Num.max af_cB 0.
 Definition af_L1 : RR := (1 + af_beta^-1) * (1 + af_Mk).
-Definition af_A1 : RR := 100 * (1 + uni_K kappa K ^+ 4) ^+ 2 * af_L1 ^+ 2.
+Definition af_A1 : RR := 100 * (1 + Kf ^+ 4) ^+ 2 * af_L1 ^+ 2.
 Definition af_eta : RR := af_beta / (16 * af_A1).
 Definition af_P1 : RR :=
-  4 * (1 + uni_K kappa K ^+ 4) ^+ 2 * af_L1 ^+ 2 / af_t ^+ 2.
+  4 * (1 + Kf ^+ 4) ^+ 2 * af_L1 ^+ 2 / af_t ^+ 2.
 Definition af_Q : RR := Num.max 4 (2 / eps).
 Definition af_gam (d : nat) : RR := (d%:R * Num.sqrt d%:R)^-1.
 Definition af_s (d : nat) : RR := af_B0 + 3 * af_L0 * ln d%:R.
@@ -940,9 +977,9 @@ apply: mulr_gt0; last by lra.
 by apply: addr_gt0; [exact: ltr01 | rewrite invr_gt0 af_beta_gt0].
 Qed.
 
-Lemma af_Kf_gt0 : 0 < (1 + uni_K kappa K ^+ 4) ^+ 2.
+Lemma af_Kf_gt0 : 0 < (1 + Kf ^+ 4) ^+ 2.
 Proof.
-have : 0 <= uni_K kappa K ^+ 4 by rewrite exprn_even_ge0.
+have : 0 <= Kf ^+ 4 by rewrite exprn_even_ge0.
 by move=> h; rewrite exprn_gt0 //; lra.
 Qed.
 
@@ -989,7 +1026,8 @@ have ss : Num.sqrt d%:R * Num.sqrt d%:R = d%:R :> RR.
 have dsd : 0 < d%:R * Num.sqrt d%:R :> RR by apply: mulr_gt0.
 rewrite /af_gam ler_pdivlMr //.
 apply: (le_trans _ h1); rewrite le_eqVlt; apply/orP; left; apply/eqP.
-transitivity (alpha / 2 * d%:R * (Num.sqrt d%:R * Num.sqrt d%:R)); first by ring.
+transitivity (alpha / 2 * d%:R * (Num.sqrt d%:R * Num.sqrt d%:R)).
+  by ring.
 by rewrite ss expr2 mulrA.
 Qed.
 
@@ -1021,10 +1059,10 @@ have hX : af_eta^-1 <= Num.sqrt (N%:R * af_gam d).
 rewrite -[X in _ <= X]invrK lef_pV2 ?posrE ?invr_gt0 ?sqrtr_gt0 //.
 Qed.
 
-Lemma af_T2 d N : (0 < d)%N -> alpha / 2 * d%:R ^+ 2 <= N%:R ->
-  uni_tau kappa K d <= (kappa - 1) * alpha * af_eta / 4 ->
+Lemma af_T2 d N tau : (0 < d)%N -> alpha / 2 * d%:R ^+ 2 <= N%:R ->
+  tau <= (kappa - 1) * alpha * af_eta / 4 ->
   4 / (alpha * af_eta) <= d%:R ->
-  d%:R * (uni_tau kappa K d * d%:R / (kappa - 1) + 1) / N%:R <= af_eta.
+  d%:R * (tau * d%:R / (kappa - 1) + 1) / N%:R <= af_eta.
 Proof.
 move=> d0 h1 ht h4.
 have k0 : 0 < kappa - 1 by rewrite subr_gt0.
@@ -1032,15 +1070,15 @@ have e0' := af_eta_gt0.
 have dR : 0 < d%:R :> RR by rewrite ltr0n.
 have nR : 0 < N%:R :> RR.
   apply: lt_le_trans h1; apply: mulr_gt0; [exact: divr_gt0 | exact: exprn_gt0].
-have u1 : uni_tau kappa K d * d%:R / (kappa - 1) <= alpha * af_eta * d%:R / 4.
+have u1 : tau * d%:R / (kappa - 1) <= alpha * af_eta * d%:R / 4.
   rewrite ler_pdivrMr //.
   have := ler_wpM2r (ltW dR) ht.
-  by move: (uni_tau kappa K d) => u h; lra.
+  by move=> h; lra.
 have u2 : 1 <= alpha * af_eta * d%:R / 4.
   have ae : 0 < alpha * af_eta by apply: mulr_gt0.
   by move: h4; rewrite ler_pdivrMr // => h; lra.
 rewrite ler_pdivrMr //.
-move: u1 u2; set u := uni_tau kappa K d * d%:R / (kappa - 1) => u1 u2.
+move: u1 u2; set u := tau * d%:R / (kappa - 1) => u1 u2.
 have hP : d%:R * (u + 1) <= d%:R * (alpha * af_eta * d%:R / 2).
   by apply: ler_wpM2l; [exact: ltW | lra].
 have hN : af_eta * (alpha / 2 * d%:R ^+ 2) <= af_eta * N%:R.
@@ -1049,17 +1087,17 @@ rewrite expr2 in hN.
 by clearbody u; lra.
 Qed.
 
-Lemma af_err_small d N : (0 < d)%N -> (0 < N)%N ->
+Lemma af_err_small d N tau : (0 < d)%N -> (0 < N)%N -> 0 <= tau ->
   alpha / 2 * d%:R ^+ 2 <= N%:R ->
-  uni_tau kappa K d <= (kappa - 1) * alpha * af_eta / 4 ->
+  tau <= (kappa - 1) * alpha * af_eta / 4 ->
   4 / (alpha * af_eta) <= d%:R -> 2 / (alpha * af_eta ^+ 2) <= Num.sqrt d%:R ->
-  af_err kappa K af_m af_M d N af_beta (af_gam d) <= af_beta / 8.
+  af_err kappa Kf af_m af_M d N af_beta (af_gam d) tau <= af_beta / 8.
 Proof.
-move=> d0 N0 h1 ht h4 h5.
-apply: le_trans (af_err_le kappa K af_m af_M d N af_beta (af_gam d) k1 d0 N0
-  af_mM af_beta_gt0 (af_gam_gt0 d d0)) _.
+move=> d0 N0 tau0 h1 ht h4 h5.
+apply: le_trans (af_err_le kappa Kf af_m af_M d N af_beta (af_gam d) tau k1 d0
+  N0 af_mM af_beta_gt0 (af_gam_gt0 d d0) tau0) _.
 rewrite -/af_Mk -/af_L1 -/af_A1.
-have T12 := lerD (af_T1 d N d0 h1 h5) (af_T2 d N d0 h1 ht h4).
+have T12 := lerD (af_T1 d N d0 h1 h5) (af_T2 d N tau d0 h1 ht h4).
 apply: le_trans (_ : af_A1 * (af_eta + af_eta) <= _).
   by apply: ler_wpM2l; [exact: ltW af_A1_gt0 | exact: T12].
 have A1n : af_A1 != 0 := lt0r_neq0 af_A1_gt0.
@@ -1068,7 +1106,7 @@ Qed.
 
 Lemma af_prob_small d N : (0 < d)%N -> alpha / 2 * d%:R ^+ 2 <= N%:R ->
   2 / alpha * af_P1 * af_Q <= d%:R ->
-  af_prob kappa K af_m af_M d N af_beta (af_gam d) af_t <= 1 / af_Q.
+  af_prob kappa Kf af_m af_M d N af_beta (af_gam d) af_t <= 1 / af_Q.
 Proof.
 move=> d0 h1 h7.
 have dR : 1 <= d%:R :> RR by rewrite ler1n.
@@ -1077,10 +1115,10 @@ have nR : 0 < N%:R :> RR.
   apply: lt_le_trans h1; apply: mulr_gt0; [exact: divr_gt0 | exact: exprn_gt0].
 have Q0 : 0 < af_Q by apply: (lt_le_trans _ af_Q4); rewrite ltr0n.
 have t0 := af_t_gt0.
-apply: le_trans (af_prob_le kappa K af_m af_M d N af_beta (af_gam d) af_t k1 d0
-  af_mM af_beta_gt0 (af_gam_gt0 d d0) t0) _.
+apply: le_trans (af_prob_le kappa Kf af_m af_M d N af_beta (af_gam d) af_t k1
+  d0 af_mM af_beta_gt0 (af_gam_gt0 d d0) t0) _.
 rewrite -/af_Mk -/af_L1.
-have -> : 4 * (1 + uni_K kappa K ^+ 4) ^+ 2 * af_L1 ^+ 2 / (N%:R * af_t ^+ 2) =
+have -> : 4 * (1 + Kf ^+ 4) ^+ 2 * af_L1 ^+ 2 / (N%:R * af_t ^+ 2) =
     af_P1 / N%:R.
   have Nn : N%:R != 0 :> RR := lt0r_neq0 nR.
   have tn : af_t != 0 := lt0r_neq0 t0.
@@ -1135,19 +1173,25 @@ rewrite ler_pdivrMr //.
 by move: h9; rewrite ler_pdivrMr // => h; lra.
 Qed.
 
-(* The event of Theorem 2.9 for the data. *)
-Definition af_F1 d N : set (N.-tuple 'rV[RR]_(d * d)) :=
-  [set Z | (af_err kappa K af_m af_M d N af_beta (af_gam d) + af_t <
+(* The event of Theorem 2.9 for the features. *)
+Definition af_F1 d N tau : set (N.-tuple 'rV[RR]_(d * d)) :=
+  [set Z | (af_err kappa Kf af_m af_M d N af_beta (af_gam d) tau + af_t <
      `|af_value kappa af_m af_M d N af_beta (af_gam d) Z -
        af_center kappa af_m af_M d N af_beta (af_gam d)|)%R].
 
 (* The approximate fit at one large dimension d with N samples, given the
-   Gaussian witness at d. *)
-Lemma af_at_d (nu : nat -> probability (measurableTypeR R) R) (d N : nat) :
-  (forall j, (j < d)%N -> universality_coordinate_law kappa K (nu j)) ->
+   Gaussian witness at d, for features of law rho, regular with the
+   constants Kf and tau of the Gaussian features. *)
+Lemma af_at_d (d N : nat) (tau : R) (rho : probability 'rV[RR]_(d * d) RR) :
+  regular_feature Kf tau (unsat_cov kappa d) rho ->
+  regular_feature Kf tau (unsat_cov kappa d) (gaussian_feature_law kappa d) ->
+  0 <= tau ->
+  (forall (A : 'M[R]_d) (L : R), 0 < L -> Ls * frobenius A <= L ->
+     subexponential rho (fun z => mxdot z (mxvec A) : RR)
+       (L / Num.sqrt d%:R)) ->
   (0 < d)%N ->
   alpha / 2 * d%:R ^+ 2 <= N%:R -> N%:R <= 2 * alpha * d%:R ^+ 2 ->
-  uni_tau kappa K d <= (kappa - 1) * alpha * af_eta / 4 ->
+  tau <= (kappa - 1) * alpha * af_eta / 4 ->
   4 / (alpha * af_eta) <= d%:R ->
   2 / (alpha * af_eta ^+ 2) <= Num.sqrt d%:R ->
   72 / alpha <= Num.sqrt d%:R ->
@@ -1163,13 +1207,13 @@ Lemma af_at_d (nu : nat -> probability (measurableTypeR R) R) (d N : nat) :
       \tr S = d%:R &
       forall i, mxdot (tnth Z i) (mxvec S) = 0]]) ->
   exists E : set (N.-tuple 'rV[RR]_(d * d)), [/\ measurable E,
-    (tuple_prod (fun=> data_feature_law nu d) N E <= eps%:E)%E &
+    (tuple_prod (fun=> rho) N E <= eps%:E)%E &
     forall Z, ~ E Z -> exists (theta : 'rV[R]_(d * d)) (b : R), [/\
       pd_slice2 d af_m af_M theta,
       \sum_(i < N) (b - mxdot (tnth Z i) theta) ^+ 2 <= delta * N%:R &
       forall i, `|b - mxdot (tnth Z i) theta| <= af_C * ln d%:R]].
 Proof.
-move=> hnu d0 h1 h2 ht h4 h5 h6 h7 h8 h9 hl [EG [mEG PEG hEG]].
+move=> hreg hG tau0 hsub d0 h1 h2 ht h4 h5 h6 h7 h8 h9 hl [EG [mEG PEG hEG]].
 have [m_pos mm0 m1 M0M M1] := af_dom.
 have mM := af_mM.
 have b0 := af_beta_gt0.
@@ -1182,7 +1226,7 @@ have N0 : (0 < N)%N by rewrite -(ltr_nat RR).
 have g0 := af_gam_gt0 d d0.
 have n36 := af_n36 d N d0 h1 h6.
 have l0 : 0 < opnorm (unsat_cov kappa d) := af_lam_gt0 kappa d k1 d0.
-have herr := af_err_small d N d0 N0 h1 ht h4 h5.
+have herr := af_err_small d N tau d0 N0 tau0 h1 ht h4 h5.
 have hprob := af_prob_small d N d0 h1 h7.
 have Q4 := af_Q4.
 have Qe := af_Qe.
@@ -1194,9 +1238,9 @@ have hQe : 1 / af_Q <= eps / 2.
 (* the center of the Gaussian features *)
 have hc : af_center kappa af_m af_M d N af_beta (af_gam d) <=
     af_beta * af_Mk * af_M + af_beta / 4 +
-    af_err kappa K af_m af_M d N af_beta (af_gam d) + af_t.
-  apply: (af_center_le kappa K af_m af_M d N af_beta (af_gam d) af_t k1 d0 N0 mM
-    b0 g0 t0 n36 EG _ mEG PEG); first exact: le_trans hprob hQ4.
+    af_err kappa Kf af_m af_M d N af_beta (af_gam d) tau + af_t.
+  apply: (af_center_le kappa Kf af_m af_M d N af_beta (af_gam d) af_t tau N0
+    mM b0 g0 t0 n36 tau0 hG EG _ mEG PEG); first exact: le_trans hprob hQ4.
   move=> Z nZ; have [S [Ssym hS Str hZS]] := hEG Z nZ.
   have [DS BS] := slice2_witness d af_m af_M m0 M0 S mM mm0 M0M Ssym Str hS.
   apply: le_trans (af_value_witness kappa af_m af_M d N af_beta (af_gam d) k1 d0
@@ -1204,26 +1248,26 @@ have hc : af_center kappa af_m af_M d N af_beta (af_gam d) <=
   rewrite /af_Mk lerD2l.
   apply: le_trans (af_wit_small d d0 h8).
   by apply: ler_wpM2l; [exact: ltW | exact: BS].
-(* the data value is at most beta A0, except on af_F1 *)
-have mF1 : measurable (af_F1 d N).
+(* the value is at most beta A0, except on af_F1 *)
+have mF1 : measurable (af_F1 d N tau).
   apply: measurable_set_lt; apply: measurableT_comp (@normr_measurable RR _) _.
   apply: measurable_funB => //.
   exact: (measurable_af_value kappa af_m af_M d N af_beta (af_gam d) mM b0 g0).
-have PF1 : (tuple_prod (fun=> data_feature_law nu d) N (af_F1 d N) <=
-    (af_prob kappa K af_m af_M d N af_beta (af_gam d) af_t)%:E)%E.
-  exact: (af_conc kappa K af_m af_M d N af_beta (af_gam d) af_t k1 d0 N0 mM b0
-    g0 t0 n36 _ (uni_regular_data kappa K k1 nu d hnu d0)).
-have hV Z : ~ af_F1 d N Z ->
+have PF1 : (tuple_prod (fun=> rho) N (af_F1 d N tau) <=
+    (af_prob kappa Kf af_m af_M d N af_beta (af_gam d) af_t)%:E)%E.
+  exact: (af_conc kappa Kf af_m af_M d N af_beta (af_gam d) af_t tau N0 mM b0
+    g0 t0 n36 tau0 hG _ hreg).
+have hV Z : ~ af_F1 d N tau Z ->
     af_value kappa af_m af_M d N af_beta (af_gam d) Z <= af_beta * af_A0.
   rewrite /af_F1 /= => /negP; rewrite -leNgt => /ler_normlP [_ h].
   exact: (af_arith_value _ _ _ _ _ _ b0 h herr hc).
 (* the leave-one-out residuals are at most s, except on F2 *)
-have [mF2 PF2] := af_union_le N d (tuple_prod (fun=> data_feature_law nu d) N)
+have [mF2 PF2] := af_union_le N d (tuple_prod (fun=> rho) N)
   (fun i => sat_bad af_m af_M d N (opnorm (unsat_cov kappa d)) af_beta
     (af_gam d) mM l0 b0 g0 i (af_s d) af_B0)
   (fun i => measurable_sat_bad af_m af_M d N (opnorm (unsat_cov kappa d))
     af_beta (af_gam d) mM l0 b0 g0 i (af_s d) af_B0).
-have PF2' : (tuple_prod (fun=> data_feature_law nu d) N
+have PF2' : (tuple_prod (fun=> rho) N
     (\big[setU/set0]_(i < N) sat_bad af_m af_M d N (opnorm (unsat_cov kappa d))
        af_beta (af_gam d) mM l0 b0 g0 i (af_s d) af_B0) <= (eps / 2)%:E)%E.
   apply: le_trans PF2 _.
@@ -1231,10 +1275,10 @@ have PF2' : (tuple_prod (fun=> data_feature_law nu d) N
       (2 * expR (- ((af_s d - af_B0) / af_L0)))%:E <= _)%E).
     apply: lee_sum => i _.
     exact: (sat_loo_tail af_m af_M d N (opnorm (unsat_cov kappa d)) af_beta
-      (af_gam d) m_pos mM l0 b0 g0 kappa K nu hnu K0 d0 i (af_s d) af_B0).
+      (af_gam d) m_pos mM l0 b0 g0 Ls rho Ls0 hsub d0 i (af_s d) af_B0).
   rewrite sumEFin sumr_const card_ord lee_fin -[X in X <= _]mulr_natl.
   exact: af_union_small d N d0 h2 h9.
-exists (af_F1 d N `|` \big[setU/set0]_(i < N) sat_bad af_m af_M d N
+exists (af_F1 d N tau `|` \big[setU/set0]_(i < N) sat_bad af_m af_M d N
   (opnorm (unsat_cov kappa d)) af_beta (af_gam d) mM l0 b0 g0 i (af_s d) af_B0).
 split.
 - exact: measurableU.
@@ -1242,7 +1286,7 @@ split.
   apply: le_trans (leeD PF1 PF2') _.
   by rewrite -EFinD lee_fin; exact: (af_arith_sum _ _ _ hprob hQe).
 move=> Z nZ.
-have nF1 : ~ af_F1 d N Z by move=> h; apply: nZ; left.
+have nF1 : ~ af_F1 d N tau Z by move=> h; apply: nZ; left.
 have hVZ := hV Z nF1.
 exists (sat_min af_m af_M d N (opnorm (unsat_cov kappa d)) af_beta (af_gam d)
   mM l0 b0 g0 predT Z).
@@ -1296,6 +1340,91 @@ Lemma gaussian_subcritical_fit_holds (kappa alpha : R) :
   gaussian_subcritical_fit kappa alpha.
 Proof. exact: gaussian_fit_below_threshold. Qed.
 
+(* Proposition 2.1, the approximate fit, for a law rho d of the features
+   that is regular with covariance unsat_cov kappa d and constants Kf and
+   tau d -> 0, and whose linear forms <z, mxvec A> are subexponential with
+   constant L / sqrt d for every L >= Ls |A|_F: below the threshold, with
+   probability tending to one, some S with m I < S < M I and tr S = d and
+   some b have
+     sum_i (b - <W_i, S>)^2 <= delta n   and   |b - <W_i, S>| <= C ln d,
+   for every delta > 0, with m, M and C depending only on alpha, kappa
+   and Ls. *)
+Theorem approximate_fit_law (kappa alpha Kf Ls : R) :
+  1 < kappa -> 0 < alpha -> alpha < universality_alpha_star kappa ->
+  0 < Kf -> 0 < Ls ->
+  exists m M C : R, [/\ 0 < m, m < 1, 1 < M, 0 < C &
+  forall (rho : forall d : nat, probability 'rV[RR]_(d * d) RR)
+    (tau : nat -> R),
+    (forall d, (0 < d)%N ->
+       regular_feature Kf (tau d) (unsat_cov kappa d) (rho d)) ->
+    (forall d, 0 <= tau d) ->
+    (forall eta : R, 0 < eta ->
+       exists D : nat, forall d, (D <= d)%N -> tau d <= eta) ->
+    (forall d (A : 'M[R]_d) (L : R), (0 < d)%N -> 0 < L ->
+       Ls * frobenius A <= L ->
+       subexponential (rho d) (fun z => mxdot z (mxvec A) : RR)
+         (L / Num.sqrt d%:R)) ->
+  forall n : nat -> nat, universality_density_tends_to n alpha ->
+  forall delta eps : R, 0 < delta -> 0 < eps ->
+  exists D : nat, forall d, (D <= d)%N ->
+  exists E : set ((n d).-tuple 'rV[RR]_(d * d)), [/\ measurable E,
+    (tuple_prod (fun=> rho d) (n d) E <= eps%:E)%E &
+    forall Z, ~ E Z -> exists (theta : 'rV[R]_(d * d)) (b : R), [/\
+      pd_slice2 d m M theta,
+      \sum_(i < n d) (b - mxdot (tnth Z i) theta) ^+ 2 <= delta * (n d)%:R &
+      forall i, `|b - mxdot (tnth Z i) theta| <= C * ln d%:R]]].
+Proof.
+move=> k1 a0 aast Kf0 Ls0.
+have [m0 [M0 [m00 mM0 hG]]] :=
+  gaussian_subcritical_fit_holds kappa alpha k1 a0 aast.
+have [m_pos _ m1 _ M1] := af_dom m0 M0 m00.
+exists (af_m m0), (af_M M0), (af_C kappa Ls M0); split => //.
+  exact: af_C_gt0.
+move=> rho tau hreg tau0 htau hsub n hn delta eps dl0 e0.
+(* the constants of the data and of the Gaussian features, by maxima *)
+pose Kg := Num.max Kf (3 `^ (1 / 4)).
+pose taug d := Num.max (tau d) (Num.sqrt 2 * opnorm (unsat_cov kappa d)).
+have hreg' d : (0 < d)%N ->
+    regular_feature Kg (taug d) (unsat_cov kappa d) (rho d).
+  move=> d0; apply: regular_feature_le (hreg d d0);
+    rewrite ?le_max ?lexx ?tau0 //.
+  exact: ltW.
+have hG' d : (0 < d)%N -> regular_feature Kg (taug d) (unsat_cov kappa d)
+    (gaussian_feature_law kappa d).
+  move=> d0; apply: regular_feature_le (gaussian_feature_regular kappa d k1 d0);
+    rewrite ?le_max ?lexx ?orbT ?powR_ge0 //.
+  by rewrite mulr_ge0 ?sqrtr_ge0 ?opnorm_ge0.
+have taug0 d : 0 <= taug d by rewrite le_max tau0.
+have eta0 := af_eta_gt0 kappa Kg m0 M0 m00 delta dl0.
+have te : 0 < (kappa - 1) * alpha * af_eta kappa Kg M0 delta / 4.
+  apply: divr_gt0; last by rewrite ltr0n.
+  by apply: mulr_gt0 => //; apply: mulr_gt0 => //; rewrite subr_gt0.
+have q4 : (0 : RR) < 1 / 4 by rewrite divr_gt0 // ltr0n.
+have [Dn hDn] := af_ev_density n alpha a0 hn.
+have [Dt hDt] := htau _ te.
+have [Dg hDg] := af_ev_gauss_tau kappa _ k1 te.
+have [D1 hD1] := af_ev_ge (4 / (alpha * af_eta kappa Kg M0 delta)).
+have [D2 hD2] := af_ev_sqrt (2 / (alpha * af_eta kappa Kg M0 delta ^+ 2)).
+have [D3 hD3] := af_ev_sqrt (72 / alpha).
+have [D4 hD4] := af_ev_ge (2 / alpha * af_P1 kappa Kg M0 delta *
+  af_Q eps).
+have [D5 hD5] := af_ev_sqrt (4 * af_cBp m0 M0 / af_beta kappa M0 delta).
+have [D6 hD6] := af_ev_ge (8 * alpha / eps).
+have [DG hDG] := hG n hn (1 / 4)%R q4.
+exists (maxn (maxn (maxn Dn (maxn Dt Dg)) (maxn D1 D2))
+  (maxn (maxn D3 D4) (maxn (maxn D5 D6) (maxn DG
+     (archimedean.Num.truncn (expR (1 : RR))).+1)))) => d.
+rewrite !geq_max => /andP[/andP[/andP[dn /andP[dt dg]] /andP[d1 d2]]
+  /andP[/andP[d3 d4] /andP[/andP[d5 d6] /andP[dG de]]]].
+have [d0 [h1 h2]] := hDn d dn.
+have ht : taug d <= (kappa - 1) * alpha * af_eta kappa Kg M0 delta / 4.
+  by rewrite ge_max hDt // hDg.
+exact: (af_at_d kappa Kg Ls alpha m0 M0 k1 Ls0 a0 m00 delta eps dl0 e0
+  d (n d) (taug d) (rho d) (hreg' d d0) (hG' d d0) (taug0 d)
+  (fun A L L0 hL => hsub d A L d0 L0 hL) d0 h1 h2 ht (hD1 d d1) (hD2 d d2)
+  (hD3 d d3) (hD4 d d4) (hD5 d d5) (hD6 d d6) (ln_ge1 d de) (hDG d dG)).
+Qed.
+
 (* Proposition 2.1, the approximate fit, for the features of the data:
    below the threshold, with probability tending to one, some S with
    m I < S < M I and tr S = d and some b have
@@ -1318,33 +1447,14 @@ Theorem approximate_fit (kappa K alpha : R) :
       forall i, `|b - mxdot (tnth Z i) theta| <= C * ln d%:R]]].
 Proof.
 move=> k1 K0 a0 aast.
-have [m0 [M0 [m00 mM0 hG]]] := gaussian_subcritical_fit_holds kappa alpha k1 a0 aast.
-have [m_pos _ m1 _ M1] := af_dom m0 M0 m00.
-exists (af_m m0), (af_M M0), (af_C kappa K M0); split => //.
-  exact: af_C_gt0.
-move=> nu hnu n hn delta eps dl0 e0.
-have eta0 := af_eta_gt0 kappa K m0 M0 m00 delta dl0.
-have te : 0 < (kappa - 1) * alpha * af_eta kappa K M0 delta / 4.
-  apply: divr_gt0; last by rewrite ltr0n.
-  by apply: mulr_gt0 => //; apply: mulr_gt0 => //; rewrite subr_gt0.
-have q4 : (0 : RR) < 1 / 4 by rewrite divr_gt0 // ltr0n.
-have [Dn hDn] := af_ev_density n alpha a0 hn.
-have [Dt hDt] := af_ev_tau kappa K _ k1 te.
-have [D1 hD1] := af_ev_ge (4 / (alpha * af_eta kappa K M0 delta)).
-have [D2 hD2] := af_ev_sqrt (2 / (alpha * af_eta kappa K M0 delta ^+ 2)).
-have [D3 hD3] := af_ev_sqrt (72 / alpha).
-have [D4 hD4] := af_ev_ge (2 / alpha * af_P1 kappa K M0 delta *
-  af_Q eps).
-have [D5 hD5] := af_ev_sqrt (4 * af_cBp m0 M0 / af_beta kappa M0 delta).
-have [D6 hD6] := af_ev_ge (8 * alpha / eps).
-have [DG hDG] := hG n hn (1 / 4)%R q4.
-exists (maxn (maxn (maxn Dn Dt) (maxn D1 D2))
-  (maxn (maxn D3 D4) (maxn (maxn D5 D6) (maxn DG
-     (archimedean.Num.truncn (expR (1 : RR))).+1)))) => d.
-rewrite !geq_max => /andP[/andP[/andP[dn dt] /andP[d1 d2]]
-  /andP[/andP[d3 d4] /andP[/andP[d5 d6] /andP[dg de]]]].
-have [d0 [h1 h2]] := hDn d dn.
-exact: (af_at_d kappa K alpha m0 M0 k1 K0 a0 m00 delta eps dl0 e0 (nu d)
-  d (n d) (fun j jd => hnu d j jd) d0 h1 h2 (hDt d dt) (hD1 d d1) (hD2 d d2)
-  (hD3 d d3) (hD4 d d4) (hD5 d d5) (hD6 d d6) (ln_ge1 d de) (hDG d dg)).
+have Ls0 : 0 < 252 * K ^+ 2 :> RR by rewrite mulr_gt0 ?ltr0n ?exprn_gt0.
+have [m [M [C [m0 m1 M1 C0 hAF]]]] := approximate_fit_law kappa alpha
+  (uni_K kappa K) (252 * K ^+ 2)%R k1 a0 aast (uni_K_gt0 kappa K) Ls0.
+exists m, M, C; split => // nu hnu.
+apply: (hAF (fun d => data_feature_law (nu d) d) (uni_tau kappa K)).
+- by move=> d d0; exact: (uni_regular_data kappa K k1 (nu d) d (hnu d) d0).
+- exact: uni_tau_ge0.
+- by move=> eta eta0; exact: (af_ev_tau kappa K eta k1 eta0).
+move=> d A L d0 L0 hL.
+exact: (data_feature_subexponential kappa K d (nu d) (hnu d) A L d0 L0 hL).
 Qed.
