@@ -56,6 +56,7 @@ library/convex/ls_insertion.v
 library/convex/barrier_removal.v
 library/convex/barrier_lindeberg.v
 library/convex/ridge_comparison.v
+library/convex/moreau.v
 library/fourier/charfun.v
 library/fourier/esseen.v
 library/fourier/gauss_factor.v
