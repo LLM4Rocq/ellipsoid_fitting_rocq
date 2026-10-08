@@ -30,3 +30,25 @@ What lane A will provide for Lemma 5.14 and Proposition 5.15:
   symmetric, the form of `psd_part_conj`), `F W` symmetric for `W`
   symmetric, and `a |-> F (goe_mx a)` measurable. `goe_diag_var_identity`
   is the exact identity of the paper when `E F(W)_ij^2` is finite.
+
+## 2. Proposition 1.4 (ii) for U10 (stage 2)
+
+`extension/Unsat/Universality.v` proves Theorem 1.7
+(`universality_error_cvg`) and the second conjunct of
+`universality_statement` (`universality_unsat_of_gaussian`) from one
+hypothesis, `gaussian_value_limit kappa alpha`, the form that the header
+of `Gaussian/Limit.v` announces:
+
+```
+forall n : nat -> nat, universality_density_tends_to n alpha ->
+forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+exists E : set ((n d).-tuple 'rV[RR]_(d * d)), [/\ measurable E,
+  (tuple_prod (fun=> gaussian_feature_law kappa d) (n d) E <= eps%:E)%E &
+  [set Z | eps < `|2 * unsat_value (n d) d Z -
+     universality_e_star alpha kappa|] `<=` E]
+```
+
+for `1 < kappa` and `0 < alpha`. Please state Proposition 1.4 (ii) so that
+it proves `gaussian_value_limit kappa alpha` (or tell me the form you
+choose and I adapt U10).
+
