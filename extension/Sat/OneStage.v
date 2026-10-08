@@ -28,19 +28,25 @@
      Q stage_map t is the matrix colsum_mx (library/matrix/covering.v) of
      the fresh coordinates y_(i, cJ j) with the weights
      w_i = d^(-1/2) t_i u_i Q^T.
-   - stage_small_ball (Lemma 3.14, conditional form): for coordinate laws
-     of mean 0, variance 1 and E[x^2 1_(|x| <= M)] >= 1/2, there is a
-     constant C depending only on M, mu and c0 such that the following
-     holds. Let x0 be the revealed coordinates, t a tail that vanishes
-     on I, and Q an m x p matrix with orthonormal rows (the paper's
-     isometry of V_(t, l) onto R^m) with
+   - stage_small_ball_flat (Lemma 3.14, conditional form): for a sample
+     with independent coordinates, coordinate k of law lam k of mean 0,
+     variance 1 and E[x^2 1_(|x| <= M)] >= 1/2, there is a constant C
+     depending only on M, mu and c0 such that the following holds. Let x0
+     be the revealed coordinates, t a tail that vanishes on I, and Q an
+     m x p matrix with orthonormal rows (the paper's isometry of V_(t, l)
+     onto R^m) with
        mu |y|^2 <= sum_i t_i^2 <y, u_i Q^T>^2 for every y in R^m
      (the paper's P_V Sigma_(t, l) P_V >= mu P_V),
        |t_i| |u_i| <= rho for every i, and
        c0 d <= m, c0 d <= q, m <= d.
      Then for every gam >= C rho and every p x q matrix B, the resampled
      matrix stage_map t + B is in the dual ball of radius gam d with
-     probability at most (C gam)^(m q).
+     probability at most (C gam)^(m q). The laws may differ from one
+     point to another: the fresh coordinates of a column, one for each
+     point, have the laws lam (i d + cJ j), and the vector small-ball
+     bound takes laws that vary with the index.
+   - stage_small_ball: the same when coordinate j of every point has law
+     nu j, the setting of the paper.
    The proof is the paper's. The projection by Q maps the dual ball of the
    p x q matrices into that of the m x q matrices. matrix_small_ball
    covers the latter by exp (48 (m + q) d + 33) <= C^(m q) products of
@@ -142,6 +148,11 @@ exact: opnorm_trmx_orthorows.
 Qed.
 
 End dual_ball.
+
+(* Coordinate k of a sample of n points of R^d is a coordinate of a point,
+   k mod d. *)
+Lemma ltn_mod_mul n d k : (k < n * d)%N -> (k %% d < d)%N.
+Proof. by case: d => [|d]; rewrite ?muln0 ?ltn0 // ltn_pmod. Qed.
 
 Lemma row_index_inj n d (i i' : 'I_n) (j j' : 'I_d) :
   row_index i j = row_index i' j' -> i = i' /\ j = j'.
@@ -302,19 +313,20 @@ Qed.
 
 Local Open Scope ereal_scope.
 
-(* Lemma 3.14, given the revealed coordinates x0. *)
-Theorem stage_small_ball (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R ->
+(* Lemma 3.14, given the revealed coordinates x0, for a sample whose
+   coordinate k has law lam k. *)
+Theorem stage_small_ball_flat (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R ->
   (0 < c0)%R ->
   exists2 C : RT, (0 < C)%R &
   forall n d p q m (cU : 'I_p -> 'I_d) (cJ : 'I_q -> 'I_d)
-    (nu : nat -> probability (measurableTypeR RT) RT) (I : {pred 'I_n})
+    (lam : nat -> probability (measurableTypeR RT) RT) (I : {pred 'I_n})
     (t : 'rV[RT]_n) (Q : 'M[RT]_(m, p)) (B : 'M[RT]_(p, q))
     (x0 : sample n d) (rho gam : RT),
   injective cJ -> (forall a b, cU a != cJ b) ->
-  (forall j, (j < d)%N -> \int[nu j]_x x%:E = 0) ->
-  (forall j, (j < d)%N -> \int[nu j]_x ((x ^+ 2)%R)%:E = 1) ->
-  (forall j, (j < d)%N -> (2^-1)%:E <=
-     \int[nu j]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
+  (forall k, (k < n * d)%N -> \int[lam k]_x x%:E = 0) ->
+  (forall k, (k < n * d)%N -> \int[lam k]_x ((x ^+ 2)%R)%:E = 1) ->
+  (forall k, (k < n * d)%N -> (2^-1)%:E <=
+     \int[lam k]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
   (forall i, i \in I -> t 0 i = 0)%R ->
   (Q *m Q^T = 1%:M)%R ->
   (forall y : 'rV[RT]_m, mu * mxdot y y <=
@@ -322,7 +334,7 @@ Theorem stage_small_ball (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R ->
   (forall i, `|t 0 i| * frobenius (stage_row cU x0 i) <= rho)%R ->
   (c0 * d%:R <= m%:R)%R -> (c0 * d%:R <= q%:R)%R -> (m <= d)%N ->
   (0 < rho)%R -> (C * rho <= gam)%R ->
-  tuple_prod (fun k => nu (k %% d)%N) (n * d)
+  tuple_prod lam (n * d)
     [set y | dual_ball (gam * d%:R)%R
        (stage_map cU cJ (tuple_merge (stage_revealed cU I) x0 y) t + B)%R]
   <= ((C * gam) ^+ (m * q))%R%:E.
@@ -331,7 +343,7 @@ move=> M0 mu0 c00.
 have [Cv Cv0 hCv] := @vector_small_ball_moments RT M M0.
 pose C := Num.max Cv (expR (96 / c0 + 33) * (Cv / Num.sqrt (mu * c0)))%R.
 exists C; first by rewrite lt_max Cv0.
-move=> n d p q m cU cJ nu I t Q B x0 rho gam cJinj hUJ h0 h1 h2 ht QQ hcov
+move=> n d p q m cU cJ lam I t Q B x0 rho gam cJinj hUJ h0 h1 h2 ht QQ hcov
   hrho hm hq md rho0 hgam.
 have CvC : (Cv <= C)%R by rewrite le_max lexx.
 have gam0 : (0 < gam)%R.
@@ -389,13 +401,13 @@ have hw (k : 'I_n) : (w k = ((Num.sqrt d%:R)^-1 * t 0 k) *:
 have etaE : (eta * Num.sqrt m%:R = s * gam)%R.
   by rewrite /eta -mulrA mulVf ?mulr1 // gt_eqF // sqrtr_gt0 ltr0n.
 have hcol (j : 'I_q) (nu' : nat -> probability (measurableTypeR RT) RT) :
-    (forall i : 'I_n, nu' i = nu (g i j %% d)%N) -> forall z : 'rV[RT]_m,
+    (forall i : 'I_n, nu' i = lam (g i j)) -> forall z : 'rV[RT]_m,
     tuple_prod nu' n [set u | (frobenius
        (\sum_(i < n) tnth u i *: w i - z) <= gam)%R] <=
     ((Cv * eta) ^+ m)%R%:E.
   move=> hnu' z.
-  have hnuj k : (k < n)%N -> nu' k = nu (cJ j).
-    by move=> kn; rewrite (hnu' (Ordinal kn)) /g /= modnMDl modn_small.
+  have hnuj k (kn : (k < n)%N) : nu' k = lam (g (Ordinal kn) j).
+    exact: (hnu' (Ordinal kn)).
   have hsc (u : n.-tuple (measurableTypeR RT)) :
       (\sum_(i < n) tnth u i *: (s *: w i) - s *: z =
        s *: (\sum_(i < n) tnth u i *: w i - z))%R.
@@ -407,9 +419,9 @@ have hcol (j : 'I_q) (nu' : nat -> probability (measurableTypeR RT) RT) :
     by apply/seteqP; split => u /=;
       rewrite hsc frobeniusZ ger0_norm ?(ltW s0) // etaE ler_pM2l.
   apply: (hCv m n nu' (fun k => s *: w k) (s *: z) (rho / Num.sqrt mu)%R eta).
-  - by move=> k kn; rewrite hnuj //; apply: h0.
-  - by move=> k kn; rewrite hnuj //; apply: h1.
-  - by move=> k kn; rewrite hnuj //; apply: h2.
+  - by move=> k kn; rewrite (hnuj k kn); exact: (h0 _ (ltn_ord _)).
+  - by move=> k kn; rewrite (hnuj k kn); exact: (h1 _ (ltn_ord _)).
+  - by move=> k kn; rewrite (hnuj k kn); exact: (h2 _ (ltn_ord _)).
   - move=> x.
     have key (k : 'I_n) : (mxdot x (s *: w k) =
         (Num.sqrt mu)^-1 * (t 0 k * mxdot x (stage_row cU x0 k *m Q^T)))%R.
@@ -442,7 +454,7 @@ have r0 : (0 < gam * d%:R)%R by rewrite mulr_gt0.
 have eta0 : (0 <= eta)%R.
   by rewrite /eta divr_ge0 ?sqrtr_ge0 // mulr_ge0 // ltW.
 have pc0 : (0 <= (Cv * eta) ^+ m)%R by rewrite exprn_ge0 // mulr_ge0 // ltW.
-have := @matrix_small_ball RT m q (n * d) n g (fun k => nu (k %% d)%N) w
+have := @matrix_small_ball RT m q (n * d) n g lam w
   (Q *m B) (dual_ball (gam * d%:R)%R) (gam * d%:R)%R gam ((Cv * eta) ^+ m)%R
   ginj m0 q0 r0 gam0 pc0 (@measurable_dual_ball _ m q _) (fun A hA => hA)
   hcol.
@@ -454,6 +466,37 @@ apply: lerXn2r.
 - by rewrite nnegrE !mulr_ge0 ?expR_ge0 ?divr_ge0 ?sqrtr_ge0 // ltW.
 - by rewrite nnegrE mulr_ge0 // ?ltW // (lt_le_trans Cv0).
 by rewrite ler_wpM2r ?(ltW gam0) // le_max lexx orbT.
+Qed.
+
+(* Lemma 3.14 for a sample whose coordinate j of every point has law
+   nu j. *)
+Theorem stage_small_ball (M mu c0 : RT) : (0 < M)%R -> (0 < mu)%R ->
+  (0 < c0)%R ->
+  exists2 C : RT, (0 < C)%R &
+  forall n d p q m (cU : 'I_p -> 'I_d) (cJ : 'I_q -> 'I_d)
+    (nu : nat -> probability (measurableTypeR RT) RT) (I : {pred 'I_n})
+    (t : 'rV[RT]_n) (Q : 'M[RT]_(m, p)) (B : 'M[RT]_(p, q))
+    (x0 : sample n d) (rho gam : RT),
+  injective cJ -> (forall a b, cU a != cJ b) ->
+  (forall j, (j < d)%N -> \int[nu j]_x x%:E = 0) ->
+  (forall j, (j < d)%N -> \int[nu j]_x ((x ^+ 2)%R)%:E = 1) ->
+  (forall j, (j < d)%N -> (2^-1)%:E <=
+     \int[nu j]_x ((x ^+ 2 * \1_[set y | `|y| <= M] x)%R)%:E) ->
+  (forall i, i \in I -> t 0 i = 0)%R ->
+  (Q *m Q^T = 1%:M)%R ->
+  (forall y : 'rV[RT]_m, mu * mxdot y y <=
+     \sum_(i < n) (t 0 i * mxdot y (stage_row cU x0 i *m Q^T)) ^+ 2)%R ->
+  (forall i, `|t 0 i| * frobenius (stage_row cU x0 i) <= rho)%R ->
+  (c0 * d%:R <= m%:R)%R -> (c0 * d%:R <= q%:R)%R -> (m <= d)%N ->
+  (0 < rho)%R -> (C * rho <= gam)%R ->
+  tuple_prod (fun k => nu (k %% d)%N) (n * d)
+    [set y | dual_ball (gam * d%:R)%R
+       (stage_map cU cJ (tuple_merge (stage_revealed cU I) x0 y) t + B)%R]
+  <= ((C * gam) ^+ (m * q))%R%:E.
+Proof.
+move=> M0 mu0 c00; have [C C0 hC] := stage_small_ball_flat M0 mu0 c00.
+exists C => // n d p q m cU cJ nu I t Q B x0 rho gam cJinj hUJ h0 h1 h2.
+by apply: hC => // k /ltn_mod_mul kd; [exact: h0|exact: h1|exact: h2].
 Qed.
 
 End stage.
