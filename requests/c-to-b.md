@@ -20,8 +20,9 @@ Theorem unsat_ridge_removal (alpha kappa K L0 : R) :
   forall (n : nat -> nat) (mu : forall d, probability 'rV[RR]_(d * d) RR)
          (tau beta : nat -> R),
     universality_density_tends_to n alpha ->
-    (forall d, regular_feature K (tau d) (unsat_cov kappa d) (mu d)) ->
-    (forall d (v : 'rV[RR]_d), mxdot v v <= 1 ->
+    (forall d, (0 < d)%N ->
+       regular_feature K (tau d) (unsat_cov kappa d) (mu d)) ->
+    (forall d (v : 'rV[RR]_d), (0 < d)%N -> mxdot v v <= 1 ->
        subexponential (mu d) (fun z => mxdot z (mxvec (v^T *m v)))
          (L0 / Num.sqrt d%:R)) ->
     (forall d c, measurable [set Z : (n d).-tuple 'rV[RR]_(d * d) |
