@@ -1,6 +1,6 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
-From mathcomp Require Import sesquilinear.
+From mathcomp Require Import sesquilinear interval.
 From mathcomp Require Import boolp classical_sets functions reals.
 From mathcomp Require Import ereal topology normedtype sequences exp.
 From mathcomp Require Import measure lebesgue_measure measurable_realfun numfun.
@@ -19,41 +19,43 @@ From GaussianAnalysis.probability Require Import conditioning.
 (* Let x have law tuple_prod mu n, so that X_i = f_i (x_i) are independent,   *)
 (* centered and subgaussian with constant K (subgaussian.v), and let A be a   *)
 (* real n x n matrix. The quadratic form Q = \sum_(i, j) a_ij X_i X_j         *)
-(* concentrates around its mean: Hanson and Wright, in the form of Rudelson   *)
-(* and Vershynin (Vershynin, High-Dimensional Probability, theorem 6.2.1).    *)
-(* This is item HW of phase 5 (Lemma 3.2 of Koehler and Sohn, arXiv           *)
-(* 2608.27372, lines 2157-2185), proved with explicit constants.              *)
+(* (hw_quad A) concentrates around hw_center A = \sum_i a_ii E X_i^2, which   *)
+(* is its mean (an identity this file does not need): the inequality of       *)
+(* Hanson and Wright in the form of Rudelson and Vershynin (Vershynin, High-  *)
+(* Dimensional Probability, theorem 6.2.1), with explicit constants. This is  *)
+(* item HW of phase 5 (Lemma 3.2 of Koehler and Sohn, arXiv 2608.27372, lines *)
+(* 2157-2185).                                                                *)
 (*                                                                            *)
-(* Proved:                                                                    *)
-(*                                                                            *)
-(* - integral_gauss_expR_dot: E exp <g, w> = exp (|w|^2 / 2) for g of law     *)
-(*   gauss n.                                                                 *)
+(* - hanson_wright: for u >= 0, P(|Q - E Q| >= u) <= 2 exp (- min (u^2 /     *)
+(*   (6912 K^4 |A|_F^2), u / (136 K^2 opnorm A))), with 6912 written 4 * 1728 *)
+(*   in the statement; hanson_wright_upper is the one-sided bound.            *)
+(* - hanson_wright_subexponential: Q - E Q is subexponential with every       *)
+(*   constant L >= 252 K^2 |A|_F.                                             *)
+(* - hanson_wright_mgf: E exp (l (Q - E Q)) <= exp (1728 l^2 K^4 |A|_F^2)     *)
+(*   when 68 |l| K^2 opnorm A <= 1. Q - E Q is the diagonal part \sum_i a_ii  *)
+(*   (X_i^2 - E X_i^2) (hw_diag_mgf, Bernstein's inequality,                  *)
+(*   subexponential_sum_mgf) plus the off-diagonal part (hw_quad_split), and  *)
+(*   exp of their average is at most the average of the exps.                 *)
+(* - hw_offdiag_mgf: E exp (l \sum_(i != j) a_ij X_i X_j) <= exp (432 l^2 K^4 *)
+(*   |A|_F^2) when 1152 l^2 K^4 opnorm A ^ 2 <= 1. The off-diagonal sum is 4  *)
+(*   / 2^n times the sum over the sets S of the decoupled sums \sum_(i in S,  *)
+(*   j notin S) (offdiag_decouple, since a quarter of the sets contain i and  *)
+(*   not j: sum_set_indicator, by the involutions set_toggle), and            *)
+(*   expR_avg_le is Jensen's inequality for exp and a finite average.         *)
+(* - hw_decoupled_mgf: E exp (l \sum_(i in S, j notin S) a_ij X_i X_j) <= exp *)
+(*   (27 l^2 K^4 |A|_F^2) when 72 l^2 K^4 opnorm A ^ 2 <= 1. Resample the     *)
+(*   coordinates outside S (ge0_integral_tuple_prod_merge of conditioning.v), *)
+(*   apply Hoeffding's inequality to them, write the result as a Gaussian     *)
+(*   integral (integral_gauss_expR_dot: E exp <g, w> = exp (|w|^2 / 2)),      *)
+(*   exchange the integrals (fubini_tonelli), apply Hoeffding's inequality to *)
+(*   the coordinates in S, and bound the Gaussian chaos for the matrix        *)
+(*   hw_mask S A, whose norms are at most those of A.                         *)
 (* - gauss_chaos_mgf: for M : 'M_(n, m), 0 <= t and 4 t opnorm M ^ 2 <= 1, E  *)
 (*   exp (t |g M|^2) <= exp (3 / 2 t |M|_F^2): g M has the law of h B with B  *)
 (*   = diag (sqrt d) P for the spectral decomposition M^T M = P^T diag d P    *)
 (*   (ge0_integral_gauss_mulmx), and |h B|^2 is a weighted chi-square.        *)
-(* - offdiag_decouple: \sum_(i != j) c_ij = 4 / 2^n \sum_S \sum_(i in S, j    *)
-(*   notin S) c_ij, since a quarter of the sets S contain i and not j         *)
-(*   (sum_set_indicator, by the involutions set_toggle); expR_avg_le,         *)
-(*   Jensen's inequality for exp and a finite average; ge0_integral_avg.      *)
-(* - hw_decoupled_mgf: for every set S, E exp (l \sum_(i in S, j notin S)     *)
-(*   a_ij X_i X_j) <= exp (27 l^2 K^4 |A|_F^2) when 72 l^2 K^4 opnorm A ^ 2   *)
-(*   <= 1. Resample the coordinates outside S (ge0_integral_tuple_prod_merge  *)
-(*   of conditioning.v), apply Hoeffding's inequality to them, write the      *)
-(*   result as a Gaussian integral, exchange the integrals (fubini_tonelli),  *)
-(*   apply Hoeffding's inequality to the coordinates in S, and bound the      *)
-(*   Gaussian chaos with the matrix hw_mask S A, whose norms are at most      *)
-(*   those of A.                                                              *)
-(* - hw_offdiag_mgf: E exp (l \sum_(i != j) a_ij X_i X_j) <= exp (432 l^2 K^4 *)
-(*   |A|_F^2) when 1152 l^2 K^4 opnorm A ^ 2 <= 1, by offdiag_decouple and    *)
-(*   expR_avg_le.                                                             *)
-(*                                                                            *)
-(* Planned (phase 5, stage 3; names come with the proofs):                    *)
-(*                                                                            *)
-(* - the diagonal \sum_i a_ii (X_i^2 - E X_i^2) by Bernstein's inequality;    *)
-(* - hanson_wright: P(|Q - E Q| >= u) <= 2 exp (- c min (u^2 / (K^4 |A|_F^2), *)
-(*   u / (K^2 opnorm A))), and Q - E Q is subexponential with constant C K^2  *)
-(*   |A|_F.                                                                   *)
+(* - subexponential_of_mgf: if E exp (l Y) <= exp (l^2 s^2) for |l| b <= 1,   *)
+(*   then Y is subexponential with every constant L >= 3 max (2 s, b).        *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -289,6 +291,94 @@ by apply/eqP; field.
 Qed.
 
 End integral_avg.
+
+Section subexponential_of_mgf.
+Context d (T : measurableType d) (R : realType) (P : probability T R).
+
+(* A bound on the moment generating function near 0 gives a subexponential
+   constant: if E exp (l Y) <= exp (l^2 s^2) for |l| b <= 1, then Y is
+   subexponential with every constant L >= 3 max (2 s, b). *)
+Lemma subexponential_of_mgf (Y : T -> R) (s b L : R) :
+  measurable_fun [set: T] Y -> 0 <= s -> 0 < b ->
+  (forall l, `|l| * b <= 1 ->
+     (\int[P]_x (expR (l * Y x))%:E <= (expR (l ^+ 2 * s ^+ 2))%:E)%E) ->
+  3 * Num.max (2 * s) b <= L -> subexponential P Y L.
+Proof.
+move=> mY s0 b0 hmgf hL.
+set M := Num.max (2 * s) b.
+have bM : b <= M by rewrite le_max lexx orbT.
+have sM : 2 * s <= M by rewrite le_max lexx.
+have M0 : 0 < M by apply: lt_le_trans bM.
+have L0 : 0 < L by apply: lt_le_trans hL; rewrite mulr_gt0.
+have e14 : expR (1 / 4) <= 2 :> R.
+  have := expR_mul1B_le1 (1 / 4 : R).
+  have : 0 < expR (1 / 4 : R) by exact: expR_gt0.
+  lra.
+have hpm (e : R) : e ^+ 2 = 1 ->
+    (\int[P]_x (expR (e / M * Y x))%:E <= 2%:E)%E.
+  move=> e2; have ea : `|e| = 1.
+    by have := sqrtr_sqr e; rewrite e2 sqrtr1 => <-.
+  apply: le_trans (hmgf (e / M) _) _.
+    rewrite normrM ea mul1r normfV (gtr0_norm M0) mulrC.
+    by rewrite ler_pdivrMr // mul1r.
+  rewrite lee_fin; apply: le_trans e14; rewrite ler_expR.
+  have M0' : M != 0 by rewrite gt_eqF.
+  rewrite expr_div_n e2 (_ : 1 / M ^+ 2 * s ^+ 2 = s ^+ 2 / M ^+ 2);
+    first by field.
+  rewrite ler_pdivrMr ?exprn_gt0 //.
+  have h2 : 0 <= (M - 2 * s) * (M + 2 * s).
+    by apply: mulr_ge0; [rewrite subr_ge0 | apply: addr_ge0;
+      [exact: ltW | exact: mulr_ge0]].
+  lra.
+pose g (k : 'I_3) (x : T) : R :=
+  if val k == 0%N then expR (1 / M * Y x)
+  else if val k == 1%N then expR (-1 / M * Y x) else 2.
+have mg k : measurable_fun [set: T] (g k).
+  rewrite /g; case: (val k == 0%N) => /=.
+    by apply: measurableT_comp => //; apply: measurable_funM.
+  case: (val k == 1%N) => /=; last exact: measurable_cst.
+  by apply: measurableT_comp => //; apply: measurable_funM.
+have g0 k x : 0 <= g k x.
+  rewrite /g; case: (val k == 0%N) => /=; first exact: expR_ge0.
+  by case: (val k == 1%N) => /=; rewrite ?expR_ge0 ?ler0n.
+have hpt x : expR (`|Y x| / L) <= #|'I_3|%:R^-1 * \sum_k g k x.
+  have hs : \sum_k g k x = expR (1 / M * Y x) + expR (-1 / M * Y x) + 2.
+    by rewrite !big_ord_recr big_ord0 /= add0r.
+  rewrite card_ord hs.
+  apply: (@le_trans _ _ (expR (`|Y x| / M / 3))).
+    rewrite ler_expR -!mulrA ler_wpM2l // -invfM lef_pV2 ?posrE ?mulr_gt0 //.
+    by rewrite mulrC.
+  apply: le_trans (expR_third_le _) _.
+  have hab : expR (`|Y x| / M) <= expR (1 / M * Y x) + expR (-1 / M * Y x).
+    have [hy|hy] := lerP 0 (Y x).
+      rewrite ger0_norm // mulrC mul1r lerDl; exact: expR_ge0.
+    have M0' : M != 0 by rewrite gt_eqF.
+    rewrite ltr0_norm // (_ : - Y x / M = -1 / M * Y x); first by field.
+    by rewrite lerDr; exact: expR_ge0.
+  by move: hab; lra.
+split => //.
+apply: (@le_trans _ _ (\int[P]_x (#|'I_3|%:R^-1 * \sum_k g k x)%:E)%E).
+  apply: ge0_le_integral.
+  - by [].
+  - by move=> x hx; rewrite lee_fin expR_ge0.
+  - apply/measurable_EFinP; apply: measurableT_comp => //.
+    by apply: measurable_funM => //; apply: measurableT_comp.
+  - apply/measurable_EFinP; apply: measurable_funM => //.
+    by apply: measurable_sum => k; exact: mg.
+  by move=> x hx; rewrite lee_fin hpt.
+have e2 : (\int[P]_x (2 : R)%:E = 2%:E)%E.
+  by rewrite integral_cst // -[Z in (_ * Z)%E]/(P setT) probability_setT mule1.
+apply: (ge0_integral_avg _ mg).
+- by rewrite card_ord.
+- exact: g0.
+move=> k; rewrite /g; case: (val k == 0%N).
+  exact: hpm 1 (expr1n _ _).
+case: (val k == 1%N).
+  by apply: hpm; rewrite sqrrN expr1n.
+by rewrite e2.
+Qed.
+
+End subexponential_of_mgf.
 
 Section hanson_wright.
 Context d (T : measurableType d) (R : realType).
@@ -543,6 +633,352 @@ apply: (@le_trans _ _ (\int[P]_x (N%:R^-1 *
     by apply: measurable_sum => S; exact: mE.
   by move=> x _; rewrite lee_fin hpt.
 by apply: (ge0_integral_avg N0 mE) => // S x; exact: expR_ge0.
+Qed.
+
+Lemma entry_le_opnorm (A : 'M[R]_n) i j : `|A i j| <= opnorm A.
+Proof.
+have e (k : 'I_n) : frobenius (delta_mx k 0 : 'cV[R]_n) = 1.
+  by rewrite /frobenius mxdot_delta mxE !eqxx sqrtr1.
+by have := mxdot_delta_opnorm A i j; rewrite !e !mulr1.
+Qed.
+
+(* The second moments E X_i^2 and the diagonal part
+   \sum_i a_ii (X_i^2 - E X_i^2). *)
+Definition hw_sqmean (i : nat) : R := \int[mu i]_t f i t ^+ 2.
+
+Definition hw_diag (A : 'M[R]_n) (x : n.-tuple T) : R :=
+  \sum_i A i i * (X x i ^+ 2 - hw_sqmean i).
+
+Let sub_center (i : nat) : (i < n)%N ->
+  subexponential (mu i) (fun t => f i t ^+ 2 - hw_sqmean i) (3 * K ^+ 2).
+Proof.
+by move=> ilt; exact: subexponential_center (subexponential_sqr (sf ilt)).
+Qed.
+
+Let center0 (i : nat) : (i < n)%N ->
+  \int[mu i]_t (f i t ^+ 2 - hw_sqmean i) = 0.
+Proof.
+move=> ilt; have i2 := integrable_subexponential (subexponential_sqr (sf ilt)).
+rewrite RintegralB //; try exact: finite_measure_integrable_cst.
+rewrite Rintegral_cst // -[Y in fine Y]/(mu i setT) probability_setT /=.
+by rewrite mulr1 /hw_sqmean subrr.
+Qed.
+
+(* Bernstein's inequality for the diagonal part. *)
+Theorem hw_diag_mgf (A : 'M[R]_n) (l : R) :
+  6 * `|l| * K ^+ 2 * opnorm A <= 1 ->
+  (\int[P]_x (expR (l * hw_diag A x))%:E <=
+   (expR (144 * l ^+ 2 * K ^+ 4 * mxdot A A))%:E)%E.
+Proof.
+move=> hl.
+pose g (i : nat) (t : T) := f i t ^+ 2 - hw_sqmean i.
+have hb : forall i, (i < n)%N ->
+    `|l * ord_ext (fun k => A k k) i| <= (2 * (3 * K ^+ 2))^-1.
+  move=> i ilt; have [K0 _ _] := sf ilt.
+  have K6 : 0 < 2 * (3 * K ^+ 2) by rewrite !mulr_gt0 // exprn_gt0.
+  have -> : ord_ext (fun k => A k k) i = A (Ordinal ilt) (Ordinal ilt).
+    by rewrite -[i]/(nat_of_ord (Ordinal ilt)) ord_extE.
+  rewrite normrM -div1r ler_pdivlMr //.
+  apply: (@le_trans _ _ (`|l| * opnorm A * (2 * (3 * K ^+ 2)))).
+    rewrite ler_pM2r //; apply: ler_wpM2l => //.
+    exact: entry_le_opnorm.
+  have e : `|l| * opnorm A * (2 * (3 * K ^+ 2)) =
+      6 * `|l| * K ^+ 2 * opnorm A by ring.
+  by rewrite e.
+have := @subexponential_sum_mgf _ _ R mu n g (fun=> 3 * K ^+ 2)
+  (ord_ext (fun k => A k k)) l sub_center center0 hb.
+under eq_integral do under eq_bigr do rewrite ord_extE.
+move/le_trans; apply; rewrite lee_fin ler_expR.
+under eq_bigr do rewrite ord_extE.
+rewrite -mulr_suml.
+have hd : \sum_(i < n) A i i ^+ 2 <= mxdot A A.
+  rewrite /mxdot; apply: ler_sum => i _; rewrite (bigD1 i) //= -expr2 lerDl.
+  by apply: sumr_ge0 => j _; have := sqr_ge0 (A i j); rewrite expr2.
+have lK : 0 <= l ^+ 2 * K ^+ 4 by rewrite mulr_ge0 ?sqr_ge0 // exprn_even_ge0.
+have := ler_wpM2l lK hd; lra.
+Qed.
+
+(* The quadratic form Q = \sum_(i, j) a_ij X_i X_j and the constant
+   \sum_i a_ii E X_i^2, which is its mean. *)
+Definition hw_quad (A : 'M[R]_n) (x : n.-tuple T) : R :=
+  \sum_i \sum_j A i j * (X x i * X x j).
+
+Definition hw_center (A : 'M[R]_n) : R := \sum_i A i i * hw_sqmean i.
+
+Lemma hw_quad_split (A : 'M[R]_n) (x : n.-tuple T) :
+  hw_quad A x - hw_center A = hw_diag A x + hw_offdiag A x.
+Proof.
+have e (i j : 'I_n) (F : R) : F = (i == j)%:R * F + (i != j)%:R * F.
+  by case: (i == j); rewrite /= ?mulr1n ?mulr0n ?mul1r ?mul0r ?addr0 ?add0r.
+have d1 (i : 'I_n) : \sum_j (i == j)%:R * (A i j * (X x i * X x j)) =
+    A i i * X x i ^+ 2.
+  rewrite (bigD1 i) //= eqxx /= mulr1n mul1r big1 ?addr0 ?expr2 // => j ji.
+  by rewrite eq_sym (negbTE ji) mul0r.
+rewrite /hw_quad.
+under eq_bigr => i _ do under eq_bigr => j _ do
+  rewrite (e i j (A i j * (X x i * X x j))).
+under eq_bigr do rewrite big_split /=.
+rewrite big_split /=; under eq_bigr do rewrite d1.
+rewrite /hw_offdiag /hw_diag /hw_center addrAC; congr (_ + _).
+by rewrite -sumrB; apply: eq_bigr => i _; rewrite mulrBr.
+Qed.
+
+Let mquad (A : 'M[R]_n) : measurable_fun [set: n.-tuple T] (hw_quad A).
+Proof.
+rewrite /hw_quad; apply: measurable_sum => i; apply: measurable_sum => j.
+by apply: measurable_funM => //; exact: measurable_funM.
+Qed.
+
+Let mdiag (A : 'M[R]_n) : measurable_fun [set: n.-tuple T] (hw_diag A).
+Proof.
+rewrite /hw_diag; apply: measurable_sum => i; apply: measurable_funM => //.
+by apply: measurable_funB => //; exact: measurable_funX.
+Qed.
+
+(* The moment generating function of Q - E Q. *)
+Theorem hanson_wright_mgf (A : 'M[R]_n) (l : R) :
+  68 * `|l| * K ^+ 2 * opnorm A <= 1 ->
+  (\int[P]_x (expR (l * (hw_quad A x - hw_center A)))%:E <=
+   (expR (1728 * l ^+ 2 * K ^+ 4 * mxdot A A))%:E)%E.
+Proof.
+move=> hl; set B := 1728 * l ^+ 2 * K ^+ 4 * mxdot A A.
+have u0 : 0 <= `|l| * K ^+ 2 * opnorm A.
+  apply: mulr_ge0; last exact: opnorm_ge0.
+  by apply: mulr_ge0; [exact: normr_ge0 | exact: sqr_ge0].
+have hd : (\int[P]_x (expR (2 * l * hw_diag A x))%:E <= (expR B)%:E)%E.
+  apply: le_trans (hw_diag_mgf _) _.
+    by rewrite normrM ger0_norm //; lra.
+  rewrite lee_fin ler_expR /B.
+  have : 0 <= l ^+ 2 * K ^+ 4 * mxdot A A.
+    apply: mulr_ge0; last exact: mxdot_ge0.
+    by apply: mulr_ge0; [exact: sqr_ge0 | exact: exprn_even_ge0].
+  lra.
+have ho : (\int[P]_x (expR (2 * l * hw_offdiag A x))%:E <= (expR B)%:E)%E.
+  apply: le_trans (hw_offdiag_mgf _) _.
+    have l2 : l ^+ 2 = `|l| ^+ 2 by rewrite -normrX ger0_norm ?sqr_ge0.
+    rewrite (_ : 1152 * (2 * l) ^+ 2 * K ^+ 4 * opnorm A ^+ 2 =
+      4608 * (`|l| * K ^+ 2 * opnorm A) ^+ 2); first by rewrite exprMn l2; ring.
+    move: u0 hl; set u := `|l| * K ^+ 2 * opnorm A => u0 hl.
+    have hl' : 68 * u <= 1 by move: hl; rewrite /u; lra.
+    nra.
+  by rewrite lee_fin ler_expR /B; lra.
+pose g (b : bool) (x : n.-tuple T) :=
+  expR (2 * l * (if b then hw_diag A x else hw_offdiag A x)).
+have mg b : measurable_fun [set: n.-tuple T] (g b).
+  apply: measurableT_comp => //; apply: measurable_funM => //.
+  by case: b; [exact: mdiag | exact: moff].
+have hpt x : expR (l * (hw_quad A x - hw_center A)) <=
+    #|{: bool}|%:R^-1 * \sum_(b : bool) g b x.
+  rewrite card_bool big_bool.
+  have gT : g true x = expR (2 * l * hw_diag A x) by [].
+  have gF : g false x = expR (2 * l * hw_offdiag A x) by [].
+  rewrite gT gF hw_quad_split.
+  have e : l * (hw_diag A x + hw_offdiag A x) =
+      (2 * l * hw_diag A x + 2 * l * hw_offdiag A x) / 2 by field.
+  by rewrite e [Y in _ <= Y]mulrC; exact: expR_mean_le.
+apply: (@le_trans _ _ (\int[P]_x (#|{: bool}|%:R^-1 *
+    \sum_(b : bool) g b x)%:E)%E).
+  apply: ge0_le_integral.
+  - by [].
+  - by move=> x hx; rewrite lee_fin expR_ge0.
+  - apply/measurable_EFinP; apply: measurableT_comp => //.
+    by apply: measurable_funM => //; apply: measurable_funB.
+  - apply/measurable_EFinP; apply: measurable_funM => //.
+    by apply: measurable_sum => b; exact: mg.
+  by move=> x hx; rewrite lee_fin hpt.
+have gT x : g true x = expR (2 * l * hw_diag A x) by [].
+have gF x : g false x = expR (2 * l * hw_offdiag A x) by [].
+apply: (ge0_integral_avg _ mg).
+- by rewrite card_bool.
+- by move=> b x; exact: expR_ge0.
+case.
+- by under eq_integral do rewrite gT; exact: hd.
+- by under eq_integral do rewrite gF; exact: ho.
+Qed.
+
+Lemma hw_quad0 (x : n.-tuple T) : hw_quad 0 x - hw_center 0 = 0.
+Proof.
+have z i j : (0 : 'M[R]_n) i j = 0.
+  by rewrite -[(0 : 'M[R]_n)]/(const_mx 0) mxE.
+have q0 : hw_quad 0 x = 0.
+  by rewrite /hw_quad big1 // => i _; rewrite big1 // => j _; rewrite z mul0r.
+have c0 : hw_center 0 = 0 by rewrite /hw_center big1 // => i _; rewrite z mul0r.
+by rewrite q0 c0 subrr.
+Qed.
+
+(* Hanson-Wright, subexponential form: Q - E Q is subexponential with
+   constant 252 K^2 |A|_F. *)
+Theorem hanson_wright_subexponential (A : 'M[R]_n) (L : R) :
+  0 < L -> 252 * K ^+ 2 * frobenius A <= L ->
+  subexponential P (fun x => hw_quad A x - hw_center A) L.
+Proof.
+move=> L0 hL.
+have mY : measurable_fun [set: n.-tuple T] (fun x => hw_quad A x - hw_center A).
+  by apply: measurable_funB => //; exact: mquad.
+have [A0|A0] := eqVneq A 0.
+  split; [exact: L0 | exact: mY |].
+  rewrite A0; under eq_integral do rewrite hw_quad0 normr0 mul0r expR0.
+  by rewrite integral_cst // -[Z in (_ * Z)%E]/(P setT) probability_setT mule1
+    lee_fin ler1n.
+have /matrix0Pn [i [j _]] := A0.
+have [K0 _ _] := sf (ltn_ord i).
+have fA : 0 < frobenius A by rewrite frobenius_gt0.
+have K2 : 0 < K ^+ 2 by rewrite exprn_gt0.
+pose s := Num.sqrt 1728 * K ^+ 2 * frobenius A.
+pose b := 68 * K ^+ 2 * frobenius A.
+have s0 : 0 <= s by rewrite !mulr_ge0 ?sqrtr_ge0 // ltW.
+have b0 : 0 < b by rewrite !mulr_gt0.
+apply: (@subexponential_of_mgf _ _ R P _ s b L mY s0 b0).
+  move=> l hl; apply: le_trans (hanson_wright_mgf _) _.
+    apply: le_trans hl; rewrite /b.
+    rewrite (_ : `|l| * (68 * K ^+ 2 * frobenius A) =
+      68 * `|l| * K ^+ 2 * frobenius A); first by ring.
+    have c0 : 0 <= 68 * `|l| * K ^+ 2.
+      by apply: mulr_ge0; [apply: mulr_ge0; [exact: ler0n | exact: normr_ge0] |
+        exact: sqr_ge0].
+    exact: (ler_wpM2l c0 (opnorm_le_frobenius A)).
+  rewrite lee_fin ler_expR le_eqVlt; apply/orP; left; apply/eqP.
+  have h1728 : (0 : R) <= 1728 by rewrite ler0n.
+  by rewrite /s !exprMn (sqr_sqrtr h1728) frobenius_sqr; ring.
+apply: le_trans hL.
+have s42 : Num.sqrt 1728 <= 42 :> R.
+  have h42 : (0 : R) <= 42 by rewrite ler0n.
+  rewrite -(ger0_norm h42) -sqrtr_sqr ler_sqrt; first exact: sqr_ge0.
+  by rewrite -natrX ler_nat.
+have KA : 0 <= K ^+ 2 * frobenius A by rewrite mulr_ge0 // ltW.
+have h1 : 2 * s <= 84 * K ^+ 2 * frobenius A.
+  by have := ler_wpM2r KA s42; rewrite /s; lra.
+have h2 : b <= 84 * K ^+ 2 * frobenius A by rewrite /b; lra.
+have : Num.max (2 * s) b <= 84 * K ^+ 2 * frobenius A by rewrite ge_max h1 h2.
+lra.
+Qed.
+
+(* Hanson-Wright, upper tail: P(Q - E Q >= u) <= exp (- min (u^2 / (6912
+   K^4 |A|_F^2), u / (136 K^2 opnorm A))). *)
+Theorem hanson_wright_upper (A : 'M[R]_n) (u : R) : 0 <= u ->
+  (P [set x | (u <= hw_quad A x - hw_center A)%R] <=
+   (expR (- Num.min (u ^+ 2 / (4 * 1728 * K ^+ 4 * mxdot A A))
+                    (u / (136 * K ^+ 2 * opnorm A))))%:E)%E.
+Proof.
+move=> u0.
+have mY : measurable_fun [set: n.-tuple T] (fun x => hw_quad A x - hw_center A).
+  by apply: measurable_funB => //; exact: mquad.
+have mU : measurable [set x | u <= hw_quad A x - hw_center A].
+  have := mY measurableT _ (measurable_itv `[u, +oo[).
+  rewrite setTI; congr measurable; apply/seteqP.
+  by split => x /=; rewrite in_itv /= andbT.
+have [A0|A0] := eqVneq A 0.
+  apply: le_trans (probability_le1 P mU) _; rewrite lee_fin.
+  by rewrite A0 mxdot0l opnorm0 !mulr0 !invr0 !mulr0 minxx oppr0 expR0.
+have /matrix0Pn [i [j Aij]] := A0.
+have [K0 _ _] := sf (ltn_ord i).
+have oA : 0 < opnorm A.
+  by apply: lt_le_trans (entry_le_opnorm A i j); rewrite normr_gt0.
+have fA : 0 < mxdot A A by rewrite mxdot_gt0.
+have K2 : 0 < K ^+ 2 by rewrite exprn_gt0.
+have K4 : 0 < K ^+ 4 by rewrite exprn_gt0.
+have n1728 : (0 : R) < 1728 by rewrite ltr0n.
+have n68 : (0 : R) < 68 by rewrite ltr0n.
+pose s2 := 1728 * K ^+ 4 * mxdot A A.
+pose b := 68 * K ^+ 2 * opnorm A.
+have s20 : 0 < s2 by apply: mulr_gt0; [exact: mulr_gt0 | exact: fA].
+have b0 : 0 < b by apply: mulr_gt0; [exact: mulr_gt0 | exact: oA].
+have chern (t : R) : 0 <= t -> t * b <= 1 ->
+    (P [set x | (u <= hw_quad A x - hw_center A)%R] <=
+     (expR (- t * u + t ^+ 2 * s2))%:E)%E.
+  move=> t0 tb; apply: le_trans (measure_ge_expR _ _ mY t0) _.
+  have e x : expR (t * (hw_quad A x - hw_center A - u)) =
+      expR (- t * u) * expR (t * (hw_quad A x - hw_center A)).
+    by rewrite -expRD; congr expR; ring.
+  under eq_integral do rewrite e EFinM.
+  rewrite ge0_integralZl_EFin //; try by [
+    move=> x _; rewrite lee_fin expR_ge0 |
+    apply/measurable_EFinP; apply: measurableT_comp => //;
+      apply: measurable_funM].
+  have ht : 68 * `|t| * K ^+ 2 * opnorm A <= 1.
+    by move: tb; rewrite /b ger0_norm //; lra.
+  apply: le_trans (lee_wpmul2l _ (hanson_wright_mgf ht)) _.
+    by rewrite lee_fin expR_ge0.
+  rewrite -EFinM lee_fin -expRD ler_expR /s2; lra.
+have h4 : (4 : R) != 0 by rewrite pnatr_eq0.
+have h1728 : (1728 : R) != 0 := lt0r_neq0 n1728.
+have h68 : (68 : R) != 0 := lt0r_neq0 n68.
+have K0' : K != 0 by rewrite gt_eqF.
+have fA' : mxdot A A != 0 by rewrite gt_eqF.
+have oA' : opnorm A != 0 by rewrite gt_eqF.
+have b0' : b != 0 by rewrite gt_eqF.
+have [hc|hc] := leP (u / (2 * s2)) b^-1.
+- apply: le_trans (chern (u / (2 * s2)) _ _) _.
+  + by apply: divr_ge0 => //; apply: mulr_ge0; [exact: ler0n | exact: ltW].
+  + by rewrite -ler_pdivlMr // div1r.
+  rewrite lee_fin ler_expR.
+  have e : - (u / (2 * s2)) * u + (u / (2 * s2)) ^+ 2 * s2 =
+      - (u ^+ 2 / (4 * 1728 * K ^+ 4 * mxdot A A)).
+    by rewrite /s2; field.
+  by rewrite e lerN2 ge_min lexx.
+- apply: le_trans (chern b^-1 _ _) _.
+  + by rewrite invr_ge0 ltW.
+  + by rewrite mulVf.
+  rewrite lee_fin ler_expR.
+  apply: (@le_trans _ _ (- (u / (136 * K ^+ 2 * opnorm A)))); last first.
+    by rewrite lerN2 ge_min lexx orbT.
+  have hc' : 2 * s2 / b < u.
+    by move: hc; rewrite ltr_pdivlMr ?mulr_gt0 // mulrC.
+  have e1 : - b^-1 * u + b^-1 ^+ 2 * s2 = b^-1 * (- u + s2 / b) by field.
+  have e2 : - (u / (136 * K ^+ 2 * opnorm A)) = b^-1 * (- u / 2).
+    by rewrite /b; field.
+  rewrite e1 e2 ler_pM2l ?invr_gt0 //.
+  by move: hc'; lra.
+Qed.
+
+Lemma hw_quadN (A : 'M[R]_n) (x : n.-tuple T) :
+  hw_quad (- A) x - hw_center (- A) = - (hw_quad A x - hw_center A).
+Proof.
+have q : hw_quad (- A) x = - hw_quad A x.
+  rewrite /hw_quad -sumrN; apply: eq_bigr => i _.
+  by rewrite -sumrN; apply: eq_bigr => j _; rewrite mxE mulNr.
+have c : hw_center (- A) = - hw_center A.
+  by rewrite /hw_center -sumrN; apply: eq_bigr => i _; rewrite mxE mulNr.
+by rewrite q c; ring.
+Qed.
+
+(* The Hanson-Wright inequality: P(|Q - E Q| >= u) <= 2 exp (- min (u^2 /
+   (6912 K^4 |A|_F^2), u / (136 K^2 opnorm A))). *)
+Theorem hanson_wright (A : 'M[R]_n) (u : R) : 0 <= u ->
+  (P [set x | (u <= `|hw_quad A x - hw_center A|)%R] <=
+   (2 * expR (- Num.min (u ^+ 2 / (4 * 1728 * K ^+ 4 * mxdot A A))
+                        (u / (136 * K ^+ 2 * opnorm A))))%:E)%E.
+Proof.
+move=> u0.
+have mset (B : 'M[R]_n) : measurable [set x | u <= hw_quad B x - hw_center B].
+  have mY : measurable_fun [set: n.-tuple T]
+      (fun x => hw_quad B x - hw_center B).
+    by apply: measurable_funB => //; exact: mquad.
+  have := mY measurableT _ (measurable_itv `[u, +oo[).
+  rewrite setTI; congr measurable; apply/seteqP.
+  by split => x /=; rewrite in_itv /= andbT.
+have sub : [set x | u <= `|hw_quad A x - hw_center A|] `<=`
+    [set x | u <= hw_quad A x - hw_center A] `|`
+    [set x | u <= hw_quad (- A) x - hw_center (- A)].
+  move=> x /=; rewrite hw_quadN.
+  have [h|h] := lerP 0 (hw_quad A x - hw_center A).
+    by rewrite ger0_norm // => hu; left.
+  by rewrite ltr0_norm // => hu; right.
+have mabs : measurable [set x | u <= `|hw_quad A x - hw_center A|].
+  have mY : measurable_fun [set: n.-tuple T]
+      (fun x => `|hw_quad A x - hw_center A|).
+    apply: measurableT_comp => //; apply: measurable_funB => //; exact: mquad.
+  have := mY measurableT _ (measurable_itv `[u, +oo[).
+  rewrite setTI; congr measurable; apply/seteqP.
+  by split => x /=; rewrite in_itv /= andbT.
+apply: le_trans (le_measure _ _ _ sub) _.
+- by rewrite inE.
+- by rewrite inE; apply: measurableU; exact: mset.
+apply: le_trans (measureU2 _ (mset A) (mset (- A))) _.
+have hN := hanson_wright_upper (- A) u0.
+rewrite mxdotNl mxdotNr opprK opnormN in hN.
+apply: le_trans (leeD (hanson_wright_upper A u0) hN) _.
+by rewrite -EFinD lee_fin; lra.
 Qed.
 
 End hanson_wright.
