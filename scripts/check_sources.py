@@ -67,6 +67,19 @@
    check/condition_assumptions.expected and
    check/latent_scope_assumptions.expected, whose axioms are among those
    of check/assumptions.expected.
+11. Phase 9. An axiom report with the line "Axioms:" must list at least
+   one axiom after it; a report without axioms is accepted only through
+   the line "Closed under the global context". The check files and
+   expected lists of CHECKS_EXACT_P8, those of the axiom checks of phases
+   7 and 8, are byte-identical to the commit CHECKS_P8_BASELINE, a
+   separate baseline; CHECKS_BASELINE and check/frozen-baseline do not
+   change.
+12. Phase 9. The code of each file of PHASE9_FROZEN, the statements of the
+   robustness corollary, of the tensorization bounds of the latent-sign
+   law, of the continuous-latent counterexample and of the endpoint
+   expansions of the condition-number curve, and their definitions, must
+   equal its code at the commit PHASE9_BASELINE, at which the user accepted
+   them.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -112,6 +125,17 @@ CHECKS_EXACT = [
     "check/paired_assumptions.expected",
 ]
 CHECKS_BASELINE = "c3e555eba4d2d3958d76418c21feebcc241510fc"
+CHECKS_EXACT_P8 = [
+    "check/LatentSignAssumptions.v",
+    "check/latent_sign_assumptions.expected",
+    "check/CountableAssumptions.v",
+    "check/countable_assumptions.expected",
+    "check/ConditionAssumptions.v",
+    "check/condition_assumptions.expected",
+    "check/LatentScopeAssumptions.v",
+    "check/latent_scope_assumptions.expected",
+]
+CHECKS_P8_BASELINE = "a89ed1e6e29e1041a9a108d82f85bc84620bdd3d"
 TUPLE_PROD = "library/probability/lindeberg.v"
 LATENT_FROZEN = [
     "extension/LatentSignDefinitions.v",
@@ -126,6 +150,14 @@ PHASE8_FROZEN = [
     "extension/LatentSignScope.v",
 ]
 PHASE8_BASELINE = "5442e84ba6cdc9ad69848040ea4483269e578896"
+PHASE9_FROZEN = [
+    "extension/RobustDefinitions.v",
+    "extension/RobustStatement.v",
+    "extension/LatentTensorization.v",
+    "extension/ContinuousLatent.v",
+    "extension/ConditionEndpoints.v",
+]
+PHASE9_BASELINE = "1c05ffcbebc81492639e7f9afc7b3dc2b88021e0"
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -217,11 +249,16 @@ def tuple_prod_code(text):
 
 
 def report_complete(text):
-    """An axiom report is complete when it has the line "Axioms:" or the
-    line "Closed under the global context"."""
-    return any(line.rstrip() == "Axioms:" or
-               line.startswith("Closed under the global context")
-               for line in text.splitlines())
+    """An axiom report is complete when it has the line "Closed under the
+    global context", or the line "Axioms:" followed by at least one
+    axiom. A report with the line "Axioms:" and no axiom is incomplete."""
+    lines = text.splitlines()
+    if any(line.startswith("Closed under the global context") for line in lines):
+        return True
+    if any(line.rstrip() == "Axioms:" for line in lines):
+        return any(not name.startswith("unexpected section ")
+                   for name in axiom_names(text))
+    return False
 
 
 def axiom_names(text):
@@ -261,9 +298,15 @@ def main():
     for path in PHASE8_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE8_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE8_BASELINE[:12]}")
+    for path in PHASE9_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE9_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE9_BASELINE[:12]}")
     for path in CHECKS_EXACT:
         if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
+    for path in CHECKS_EXACT_P8:
+        if (ROOT / path).read_text() != at_baseline(CHECKS_P8_BASELINE, path):
+            failures.append(f"{path}: differs from {CHECKS_P8_BASELINE[:12]}")
     now = tuple_prod_code((ROOT / TUPLE_PROD).read_text())
     if now[1] is None:
         failures.append(f"{TUPLE_PROD}: no section tuple_prod")
@@ -273,7 +316,8 @@ def main():
     for arg in sys.argv[1:]:
         if not report_complete(Path(arg).read_text()):
             failures.append(f"{arg}: the axiom report has neither the line "
-                            "Axioms: nor the line Closed under the global context")
+                            "Axioms: with at least one axiom nor the line "
+                            "Closed under the global context")
     sources = [path for top in ("theories", "library", "extension")
                for path in sorted((ROOT / top).rglob("*.v"))]
     for path in sources:
@@ -340,10 +384,14 @@ def main():
           f"{PHASE6_BASELINE[:12]}; "
           f"{len(CHECKS_EXACT)} check files and tuple_prod unchanged since "
           f"{CHECKS_BASELINE[:12]}; "
+          f"{len(CHECKS_EXACT_P8)} check files of phases 7 and 8 unchanged since "
+          f"{CHECKS_P8_BASELINE[:12]}; "
           f"{len(LATENT_FROZEN)} frozen files of phase 7 unchanged since "
           f"{LATENT_BASELINE[:12]}; "
           f"{len(PHASE8_FROZEN)} frozen files of phase 8 unchanged since "
           f"{PHASE8_BASELINE[:12]}; "
+          f"{len(PHASE9_FROZEN)} frozen files of phase 9 unchanged since "
+          f"{PHASE9_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
