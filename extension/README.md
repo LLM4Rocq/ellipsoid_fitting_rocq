@@ -1,7 +1,7 @@
 # Universality and finite mixtures of product laws
 
 This directory, under the logical root `EllipsoidUniversality`, holds
-three theorems beyond the three theorems of Misiakiewicz and Wen for
+the theorems below, beyond the three theorems of Misiakiewicz and Wen for
 Gaussian points.
 
 - **The finite-mixture theorem**, the main result of phase 6:
@@ -28,6 +28,16 @@ Gaussian points.
   independent coordinates: `universality_theorem : universality_statement`
   (`UniversalityTheorem.v`), proved in phase 5. The finite-mixture theorem
   contains it, with one component (`Mixture/OneComponent.v`).
+- **Three extensions of the finite-mixture theorem**, proved in phase 8:
+  `countable_theorem : countable_theorem_statement`
+  (`CountableTheorem.v`) for countable mixtures;
+  `condition_theorem : condition_theorem_statement`
+  (`ConditionTheorem.v`), the threshold alpha_C of an exact fit of
+  condition number at most C and the limit C_star(alpha) of the optimal
+  condition number, at fourth moment 3; and
+  `latent_scope_theorem : latent_scope_statement`
+  (`LatentScopeTheorem.v`), the covariance and variance computations
+  that place the latent-sign law outside product laws. Section (g).
 
 Sections (a) to (e) are the feasibility study written before phase 5, for
 extending the formal result of this repository to Theorem 1.2 of Koehler
@@ -60,7 +70,9 @@ the dependencies and the critical path; (c) the staged plan, starting with
 the examination of the first milestone; (d) the rules of the repository
 that the extension would need to change; (e) the formal statement and the
 choices made in it; (f) phase 6, the theorem for finite mixtures of product
-laws and its corollary for the paired law.
+laws and its corollary for the paired law; (g) phase 8, countable
+mixtures, the optimal condition number and the scope of the latent-sign
+law.
 
 ---
 
@@ -975,3 +987,109 @@ the mixture of the two product laws with weights 1/2, as
 `mixture_theorem_statement`, and `latent_sign_theorem` proves it.
 `check/LatentSignAssumptions.v` checks that it proves the frozen
 statement; it uses the same seven axioms as `paired_theorem`.
+
+## (g) Phase 8: countable mixtures, the optimal condition number, the scope of the latent-sign law
+
+Phase 8 formalizes three extensions of the finite-mixture theorem, from
+`notes/phase6-three-extensions.md` (the note), by the route of
+`notes/three-extensions-plan.md` (on the VM, under
+`/srv/ellipsoid-fitting/`). As for phase 6, the proofs are ordinary and
+their novelty is not confirmed.
+
+### Files
+
+| File | Content |
+|---|---|
+| `CountableMixtureDefinitions.v`, `CountableMixtureStatement.v` | countable mixtures of product laws (`countable_mixture_family`, `countable_fourth_moment`, `countable_mixture_probability`, a sum over the label tuples in `n.-tuple nat`); `countable_mixture_statement`, `countable_interpolation_statement` and their conjunction `countable_theorem_statement` |
+| `ConditionDefinitions.v`, `ConditionStatement.v` | `condition_t`, `condition_alpha`, `condition_star`, `data_condition_number`; `condition_statement` (the note's (20)), `condition_number_statement` ((21)), their countable versions and their conjunction `condition_theorem_statement` |
+| `LatentSignScope.v` | `latent_covariance_statement` ((10)), `latent_variance_statement` ((11)) and `latent_scope_statement` |
+| `Countable/Truncation.v` | the cutoff with tail mass at most `(d + 1)^-3`, the truncated finite family whose last component has the coordinate marginals of the tail, and the coupling of samples: the two probabilities of a set of samples differ by at most `n r_d` |
+| `Countable/Theorem.v`, `CountableTheorem.v` | `countable_theorem : countable_theorem_statement`, with the constants of the finite theorem; `countable_of_finite`: the countable statements contain the finite ones |
+| `Condition/Cover.v` | for `1 <= C0 < C1`, finitely many two-sided slices, independent of `d`, that cover the trace-`d` slice of the cone of condition number `C0` with barriers `O(d)` and lie in that of `C1` |
+| `Condition/Slices.v` | the approximate fit on one two-sided slice from a bound on its Gaussian center, and the deterministic choice of a slice among finitely many |
+| `Condition/Curve.v` | `t_C`, `alpha_C = 1/2 - V(C)` with `V(C)` the minimum of the clip energy, the monotonicity and the Lipschitz bound of `C -> alpha_C`, and `C_star` |
+| `Condition/GaussianCone.v` | the support function of the cone at a Gaussian matrix: `sigma_C(G) / d -> sqrt alpha_C` in probability |
+| `Condition/GaussianWitness.v`, `Condition/GaussianGap.v` | below `alpha_C`, an approximate Gaussian witness in the cone; above it, a gap for the centered square loss; both by the CGMT on cones of `library/comparison/cone_escape.v` |
+| `Condition/Sat.v`, `Condition/Unsat.v` | the two halves of (20) from the Gaussian inputs, by Theorem 2.9 with its barrier on each slice of the cover |
+| `Condition/Theorem.v`, `Condition/Countable.v`, `ConditionTheorem.v` | (20), (21) from (20), the countable versions, then `condition_theorem : condition_theorem_statement` |
+| `Paired/Scope.v`, `LatentScopeTheorem.v` | (10) and (11) for one point of the latent-sign law, then `latent_scope_theorem : latent_scope_statement` |
+
+The user accepted the five statement files at commit `5442e84`; they are
+frozen, and `scripts/check_sources.py` compares their code with that
+commit.
+
+### Countable mixtures
+
+`countable_theorem_statement` has the conclusions of
+`mixture_theorem_statement`, with its constants, for families with
+countably many components at each dimension (weights `w d s`, `s : nat`,
+of sum one). The proof truncates the family at a cutoff whose tail mass
+`r_d` is at most `(d + 1)^-3`; the components beyond the cutoff are
+replaced by one product law, that of the coordinate marginals of the tail,
+so that the truncated family satisfies (M1)-(M3) with the same `K` and
+`kappa`, and `mixture_theorem` applies to it. The labelled laws of the two
+families agree on the label tuples whose labels are all below the cutoff,
+so the probabilities of a set of samples differ by at most `n r_d`, which
+tends to 0 since `n_d <= 2 alpha d^2`.
+
+### The optimal condition number at fourth moment three
+
+For `C > 1`, `alpha_C` is the threshold of `n / d^2` for an exact fit of
+condition number at most `C` (`condition_statement`, for finite and
+countable mixtures of fourth moment 3); for `0 < alpha < 1/4`, the optimal
+condition number of the sample tends to `C_star(alpha)` in probability
+(`condition_number_statement`). The route:
+
+- `alpha_C`: with `m` and `v` the first and second upper moments of the
+  semicircle law, `t_C` is the zero of `m(-t) - C m(C t)` in
+  `(0, sqrt 2 / C)` and minimizes `v(-t) + v(C t)`, the mean squared
+  distance to `[t, C t]`; so `alpha_C = 1/2 - V(C)` with `V(C)` an infimum
+  of functions monotone and Lipschitz in `C` (`condition_alphaE`). Hence
+  `C -> alpha_C` is strictly increasing and 4-Lipschitz on `(1, oo)`, from
+  0 to 1/4, without an implicit function theorem, and `C_star` is its
+  inverse (`condition_starP`).
+- The Gaussian limit: the support function of the cone `K_C` at a
+  Gaussian matrix is `sqrt (|H|_F^2 - dist(H, K_C)^2)` (Moreau), and
+  `dist(H, K_C)^2` is the minimum over `t` of the sum of the squared
+  distances of the eigenvalues to `[t, C t]` (Hoffman-Wielandt), whose
+  normalized limit is `V(C)` by the uniform semicircle law for the GOE
+  (`library/matrix/condition_cone.v`, `library/random_matrix/wigner.v`).
+- The Gaussian witness and the Gaussian gap come from the convex Gaussian
+  min-max theorem on cones (`library/comparison/cone_escape.v`): below
+  `alpha_C` some matrix of the cone has small Gaussian square loss, above
+  it every matrix of the trace slice has centered loss at least `g n`.
+- Universality: the cone is covered by finitely many two-sided slices; on
+  each, Theorem 2.9 with its barrier (`af_conc`) compares the data values
+  with the Gaussian centers, and the slice is chosen at each `d` from the
+  Gaussian centers alone. Below the threshold, at some `C_- < C` with
+  `alpha < alpha_(C_-)`, the approximate fit is corrected into an exact fit
+  of condition number at most `C` by Theorem 1.9 (`Condition/Sat.v`);
+  above it, at some `C_+ > C`, an exact fit of condition number at most
+  `C` would give a value below the Gaussian gap (`Condition/Unsat.v`).
+- (21) follows from (20) at `C_star + eps/2` and
+  `max (C_star - eps/2, (1 + C_star)/2)`, since the fit events increase
+  with the condition number.
+
+### The scope of the latent-sign law
+
+`latent_scope_statement` concerns one point of the latent-sign law with
+parameter `s` in `[0, 1]`, through its density
+(`latent_point_expectation`). (10): every coordinate has the uniform law
+`mu`, `E h(x_j) = 0`, and `E h(x_j) h(x_k) = s^2 / 81` for distinct `j`
+and `k`, for every `d`: the coupling does not decay with the dimension.
+(11): `F(x) = (|x_1| + ... + |x_d|) / sqrt d`, convex and 1-Lipschitz, has
+variance `1/4 + (d - 1) s^2 / 768`, which grows linearly with `d` for
+`s > 0`. So these laws, for which `latent_sign_statement` holds, satisfy
+no concentration inequality for convex 1-Lipschitz functions with a
+constant independent of `d`.
+
+### Verification
+
+`make check` compiles `check/CountableAssumptions.v`,
+`check/ConditionAssumptions.v` and `check/LatentScopeAssumptions.v`, which
+check that `countable_theorem`, `condition_theorem` and
+`latent_scope_theorem` prove the frozen statements, and compares their
+axioms with the expected lists (`scripts/check_sources.py`, rule 10).
+Each of the three theorems uses seven of the eight classical axioms of
+`check/assumptions.expected`, all but `Classical_Prop.classic`, as the
+theorems of phases 5 to 7 do.

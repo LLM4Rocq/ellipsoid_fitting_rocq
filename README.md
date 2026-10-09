@@ -30,7 +30,11 @@ independent subgaussian coordinates. The second, the main result of phase
 laws. Two corollaries are proved: the theorem of Koehler and Sohn, the
 case of one component, and exact fitting for the paired law, whose
 coordinates are dependent in pairs. Phase 7 proves a third, for a law
-whose coordinates are coupled by one hidden sign.
+whose coordinates are coupled by one hidden sign. Phase 8 extends the
+mixture theorem to countable mixtures, finds the threshold for a fit of
+condition number at most C and the limit of the optimal condition number
+at fourth moment 3, and measures how far the latent-sign law is from a
+product law.
 
 ## Status
 
@@ -118,6 +122,30 @@ whose coordinates are coupled by one hidden sign.
   (`check/MixtureAssumptions.v`, `check/PairedAssumptions.v`,
   `check/LatentSignAssumptions.v`). `extension/README.md`, section (f),
   describes the definitions, the statements and the proofs.
+- **Phase 8: three extensions, proved.**
+  `countable_theorem : countable_theorem_statement`
+  (`extension/CountableTheorem.v`): the conclusions of the mixture
+  theorem, with its constants, for mixtures with countably many
+  components. `condition_theorem : condition_theorem_statement`
+  (`extension/ConditionTheorem.v`), for finite and countable mixtures of
+  fourth moment 3: for every C > 1, the probability of an exact fit of
+  condition number at most C tends to 1 if n/d^2 tends to some
+  alpha < alpha_C and to 0 if alpha > alpha_C, with alpha_C given by the
+  semicircle law; for 0 < alpha < 1/4, the optimal condition number of an
+  exact fit tends in probability to C_star(alpha), the inverse of
+  C -> alpha_C. `latent_scope_theorem : latent_scope_statement`
+  (`extension/LatentScopeTheorem.v`): for one point of the latent-sign
+  law, the features h(x_j) of two coordinates have covariance s^2 / 81 in
+  every dimension, and the convex 1-Lipschitz function
+  (|x_1| + ... + |x_d|) / sqrt d has variance 1/4 + (d - 1) s^2 / 768.
+  The five statement files (`CountableMixtureDefinitions.v`,
+  `CountableMixtureStatement.v`, `ConditionDefinitions.v`,
+  `ConditionStatement.v`, `LatentSignScope.v`) were accepted by the user
+  and are frozen at commit `5442e84`. The three theorems use the same
+  seven axioms (`check/CountableAssumptions.v`,
+  `check/ConditionAssumptions.v`, `check/LatentScopeAssumptions.v`).
+  `extension/README.md`, section (g), describes them; the proofs are
+  ordinary and their novelty is not confirmed.
 
 ## What to read
 
@@ -206,18 +234,22 @@ generated`), whose code cannot change. The other modules print none.
   Stdlib's `R` like `theories/`. At the top: the statements and their
   definitions, and the theorems `UniversalityTheorem.v`
   (`universality_theorem`), `MixtureTheorem.v` (`mixture_theorem`),
-  `PairedTheorem.v` (`paired_theorem`) and `LatentSignTheorem.v`
-  (`latent_sign_theorem`). The folders of the proofs:
+  `PairedTheorem.v` (`paired_theorem`), `LatentSignTheorem.v`
+  (`latent_sign_theorem`), `CountableTheorem.v` (`countable_theorem`),
+  `ConditionTheorem.v` (`condition_theorem`) and `LatentScopeTheorem.v`
+  (`latent_scope_theorem`). The folders of the proofs:
   `Model/` (the law of the sample and the measurability of the events),
   `Features/` (the quadratic features of the points, and those of a
   mixture), `Unsat/` (the unsatisfiable phase), `Gaussian/` (the Gaussian
   model), `Sat/` (the satisfiable phase), `Mixture/` (component laws,
   samples whose coordinate laws vary with the point, the interpolation and
-  the assembly for mixtures) and `Paired/` (the uniform law, the paired
-  law and the latent-sign law as mixtures). `extension/README.md` holds the
-  feasibility study of phase 5 and, in its section (f), the description of
-  phases 6 and 7.
-- `library/`: the library `GaussianAnalysis`, 75 files of general results
+  the assembly for mixtures), `Paired/` (the uniform law, the paired
+  law and the latent-sign law as mixtures, and the scope of the latter),
+  `Countable/` (the truncation of a countable mixture and the transfer of
+  the theorem) and `Condition/` (the condition-number theorem).
+  `extension/README.md` holds the feasibility study of phase 5 and, in its
+  sections (f) and (g), the description of phases 6 to 8.
+- `library/`: the library `GaussianAnalysis`, 78 files of general results
   over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
   and concentration, real matrices and probability; the Fourier analysis
   of anti-concentration (characteristic functions written without complex
@@ -229,9 +261,14 @@ generated`), whose code cannot change. The other modules print none.
   min-max theorem, subgaussian and subexponential variables (Hoeffding,
   Bernstein, Hanson-Wright), the Efron-Stein inequality, the GOE and
   Wigner's semicircle law, restricted isometry, nuclear norms and
-  coverings; and the tools of phase 6: laws given by a density, finite
+  coverings; the tools of phase 6: laws given by a density, finite
   mixtures of probabilities, and the regularity of a mixture of feature
-  laws. The proofs use the library at Stdlib's `R`: in
+  laws; and those of phase 8: countable mixtures of probabilities and
+  sums over label tuples, the cone of symmetric matrices of bounded
+  condition number (its distance by Hoffman-Wielandt and its support
+  function by Moreau), the clip energy of a symmetric law, the uniform
+  semicircle law for families of linear statistics of the GOE, and the
+  convex Gaussian min-max theorem on cones. The proofs use the library at Stdlib's `R`: in
   `theories/`, `Gaussian/Law/LibraryBridge` identifies the library's
   Gaussian measure with the product law of the statement,
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
@@ -248,14 +285,19 @@ generated`), whose code cannot change. The other modules print none.
   `check/LatentSignAssumptions.v` do the same for `mixture_theorem`,
   `paired_theorem` and `latent_sign_theorem`, with the expected lists
   `check/mixture_assumptions.expected`, `check/paired_assumptions.expected`
-  and `check/latent_sign_assumptions.expected`.
+  and `check/latent_sign_assumptions.expected`; and
+  `check/CountableAssumptions.v`, `check/ConditionAssumptions.v` and
+  `check/LatentScopeAssumptions.v` for the three theorems of phase 8, with
+  `check/countable_assumptions.expected`,
+  `check/condition_assumptions.expected` and
+  `check/latent_scope_assumptions.expected`.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality
   theorem and its definitions the same code as at commit `3c6afa1`, the
   four statement files of phase 6 the same code as at commit `eef4694`,
-  and the two of phase 7 the same code as at commit `d4de51d` (comments
-  may differ); that the axiom-check files of phases 5
+  the two of phase 7 the same code as at commit `d4de51d`, and the five
+  of phase 8 the same code as at commit `5442e84` (comments may differ); that the axiom-check files of phases 5
   and 6 and their expected lists are byte-identical to commit `c3e555e`,
   and that the Require commands of `library/probability/lindeberg.v` and
   its section `tuple_prod`, on which the frozen statements depend, have
@@ -348,8 +390,8 @@ done, and the second is done in part.
    What it no longer needed is deleted: `theories/` had 632 modules and
    102,415 lines at the tag `phase1`, and has 588 modules and 86,410 lines
    now. The library had 37 files and 21,005 lines at the end of phase 4,
-   72 files and 48,032 lines after phase 5, and has 75 files and 48,991
-   lines after phase 6.
+   72 files and 48,032 lines after phase 5, 75 files and 48,991 lines
+   after phase 6, and has 78 files and 51,203 lines after phase 8.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -384,4 +426,7 @@ fourth moment (tag `stage2`), then the satisfiable phase (tag `phase5`).
 Its general results are in `library/`. Phase 6 proved the finite-mixture
 theorem and its corollary for the paired law (tag `phase6`). Phase 7
 proved the corollary for the latent-sign law, hardened the checks and
-generalized two library results (tag `phase7`).
+generalized two library results (tag `phase7`). Phase 8 proved the three
+extensions of the mixture theorem: countable mixtures, the optimal
+condition number at fourth moment 3, and the scope of the latent-sign law
+(tag `phase8`).
