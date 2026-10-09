@@ -14,6 +14,10 @@
      limit cond_support_goe_cvg (Condition/GaussianCone, Q2).
    - conditioned_fit_mono: the event universality_conditioned_fit_event
      n d c increases with c.
+   - measurable_data_condition_number: the optimal condition number
+     data_condition_number n d is a measurable function of the sample, with
+     values in the extended reals: {data_condition_number < r} is the union
+     over the rationals q < r of the fit events at q.
    - condition_number_of_threshold: (21) from (20). For 0 < alpha < 1/4,
      C_star = condition_star alpha is the C > 1 with alpha_C = alpha, below
      it alpha_C < alpha and above it alpha_C > alpha (condition_starP of
@@ -30,7 +34,7 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
 From mathcomp Require Import boolp classical_sets functions reals Rstruct.
 From mathcomp Require Import topology Rstruct_topology normedtype.
 From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
-From mathcomp Require Import probability.
+From mathcomp Require Import measurable_realfun probability rat.
 From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.probability Require Import mixture.
 From EllipsoidFitting Require Import PaperMainDefinitions.
@@ -80,6 +84,41 @@ have [Ss Sq] := (uni_loewner_leP d _ S).1 hhi.
 apply/(uni_loewner_leP d _ S); split => // v.
 apply: le_trans (Sq v) _; apply: ler_wpM2r; first exact: pm_sqnorm_ge0.
 by rewrite ler_pM2r.
+Qed.
+
+(* The optimal condition number of a sample is a measurable function of the
+   sample: {data_condition_number < r} is the union over the rationals
+   q < r of the fit events at q, by conditioned_fit_mono. *)
+Lemma measurable_data_condition_number (n d : nat) :
+  measurable_fun [set: paper_main_sample n d] (data_condition_number n d).
+Proof.
+apply: (@measurability _ _ _ _ _ _ (ErealGenInftyO.G (R:=R))).
+  exact: ErealGenInftyO.measurableE.
+move=> _ [_ [r ->] <-]; rewrite setTI.
+set A := (data_condition_number n d @^-1` _).
+have -> : A = \bigcup_(q : rat) [set x | ratr q < r /\
+      universality_conditioned_fit_event n d (ratr q) x].
+  apply/seteqP; split => x; rewrite /A /=.
+  - rewrite interval.in_itv /= => /ereal_inf_lt [_ [c fc <-]].
+    rewrite lte_fin => cr.
+    have [q] := rat_in_itvoo cr; rewrite interval.in_itv /= => /andP[cq qr].
+    exists q => //; split => //.
+    exact: conditioned_fit_mono _ _ _ _ _ (ltW cq) fc.
+  - move=> [q _ [qr fq]]; rewrite interval.in_itv /=.
+    have h : (data_condition_number n d x <= (ratr q)%:E)%E.
+      by apply: ge_ereal_inf; exists (ratr q)%:E => //; exists (ratr q).
+    by apply: (le_lt_trans h); rewrite lte_fin.
+apply: bigcupT_measurable_rat => q.
+have [qr|qr] := ltP (ratr q) r.
+- have -> : [set x | true /\
+      universality_conditioned_fit_event n d (ratr q) x] =
+      universality_conditioned_fit_event n d (ratr q).
+    by apply/seteqP; split => x /=; [case | split].
+  exact: measurable_conditioned_fit_event.
+- have -> : [set x | false /\
+      universality_conditioned_fit_event n d (ratr q) x] = set0.
+    by apply/seteqP; split => x //= [].
+  exact: measurable0.
 Qed.
 
 (* 3. (21) from (20). *)
