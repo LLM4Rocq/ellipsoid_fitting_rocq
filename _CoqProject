@@ -756,4 +756,6 @@ extension/Condition/Sat.v
 extension/Condition/Unsat.v
 extension/Condition/GaussianCone.v
 extension/Condition/Theorem.v
+extension/Condition/Endpoints.v
 extension/ConditionTheorem.v
+extension/ConditionEndpointsTheorem.v
