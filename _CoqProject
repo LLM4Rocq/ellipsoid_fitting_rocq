@@ -741,6 +741,8 @@ extension/Condition/Slices.v
 extension/Condition/GaussianWitness.v
 extension/Condition/GaussianGap.v
 extension/Condition/Cover.v
+extension/Condition/Curve.v
 extension/Condition/Sat.v
 extension/Condition/Unsat.v
 extension/Condition/GaussianCone.v
+extension/Condition/Theorem.v
