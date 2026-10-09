@@ -35,6 +35,15 @@
    third and fourth arguments, every axiom they print is among those of
    check/mixture_assumptions.expected and check/paired_assumptions.expected,
    whose axioms are among those of check/assumptions.expected.
+7. Phase 7. The check files and expected lists of CHECKS_EXACT, those of
+   the axiom checks of phases 5 and 6, are byte-identical to the commit
+   CHECKS_BASELINE. Every axiom report given as an argument has the line
+   "Axioms:" or the line "Closed under the global context"; a report with
+   neither, for example an empty one, is an error, not an empty set of
+   axioms. The definition of tuple_prod, on which the frozen statements of
+   phases 5 and 6 depend, is pinned: the Require commands of TUPLE_PROD
+   and the code of its section tuple_prod must equal their code at
+   CHECKS_BASELINE.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -71,6 +80,16 @@ PHASE6_FROZEN = [
     "extension/PairedStatement.v",
 ]
 PHASE6_BASELINE = "eef46941972935dfaaef689a853f94d7e7d4798c"
+CHECKS_EXACT = [
+    "check/UniversalityAssumptions.v",
+    "check/universality_assumptions.expected",
+    "check/MixtureAssumptions.v",
+    "check/mixture_assumptions.expected",
+    "check/PairedAssumptions.v",
+    "check/paired_assumptions.expected",
+]
+CHECKS_BASELINE = "c3e555eba4d2d3958d76418c21feebcc241510fc"
+TUPLE_PROD = "library/probability/lindeberg.v"
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -119,6 +138,23 @@ def library_imports(text):
             yield root, name
 
 
+def tuple_prod_code(text):
+    """The Require commands of TUPLE_PROD and the code of its section
+    tuple_prod, comments removed and whitespace collapsed."""
+    stripped = strip_comments(text)
+    requires = " ".join(m.group(0) for m in REQUIRE.finditer(stripped))
+    section = re.search(r"Section tuple_prod\..*?End tuple_prod\.", stripped, re.S)
+    return " ".join(requires.split()), " ".join(section.group(0).split()) if section else None
+
+
+def report_complete(text):
+    """An axiom report is complete when it has the line "Axioms:" or the
+    line "Closed under the global context"."""
+    return any(line.rstrip() == "Axioms:" or
+               line.startswith("Closed under the global context")
+               for line in text.splitlines())
+
+
 def axiom_names(text):
     names, header = set(), None
     for line in text.splitlines():
@@ -150,6 +186,19 @@ def main():
     for path in PHASE6_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE6_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE6_BASELINE[:12]}")
+    for path in CHECKS_EXACT:
+        if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
+            failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
+    now = tuple_prod_code((ROOT / TUPLE_PROD).read_text())
+    if now[1] is None:
+        failures.append(f"{TUPLE_PROD}: no section tuple_prod")
+    elif now != tuple_prod_code(at_baseline(CHECKS_BASELINE, TUPLE_PROD)):
+        failures.append(f"{TUPLE_PROD}: the Require commands or the section "
+                        f"tuple_prod differ from {CHECKS_BASELINE[:12]}")
+    for arg in sys.argv[1:]:
+        if not report_complete(Path(arg).read_text()):
+            failures.append(f"{arg}: the axiom report has neither the line "
+                            "Axioms: nor the line Closed under the global context")
     sources = [path for top in ("theories", "library", "extension")
                for path in sorted((ROOT / top).rglob("*.v"))]
     for path in sources:
@@ -213,6 +262,8 @@ def main():
           f"{EXTENSION_BASELINE[:12]}; "
           f"{len(PHASE6_FROZEN)} frozen files of phase 6 unchanged since "
           f"{PHASE6_BASELINE[:12]}; "
+          f"{len(CHECKS_EXACT)} check files and tuple_prod unchanged since "
+          f"{CHECKS_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")

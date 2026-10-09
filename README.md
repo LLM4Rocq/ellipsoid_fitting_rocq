@@ -23,9 +23,13 @@ growing with d.
 
 Each result also states that the events it measures are measurable.
 
-`extension/` proves a second theorem: Theorem 1.2 of Koehler and Sohn,
-which extends the first result to points with independent subgaussian
-coordinates (see below).
+`extension/` proves two more theorems (see below). The first is Theorem 1.2
+of Koehler and Sohn, which extends the first result to points with
+independent subgaussian coordinates. The second, the main result of phase
+6, extends it to i.i.d. points whose law is a finite mixture of product
+laws. Its corollary for the paired law, whose coordinates are dependent in
+pairs, is proved; phase 7 adds a second corollary, for a law whose
+coordinates are coupled by one hidden sign.
 
 ## Status
 
@@ -78,6 +82,37 @@ coordinates (see below).
   (Theorem 1.9, from Theorem 2.3 and Propositions 3.1, 3.3 and 3.4)
   corrects it into an exact, well-conditioned fit. The general tools are
   in `library/`.
+- **A third theorem, proved: finite mixtures of product laws.** The main
+  result of phase 6 extends Theorem 1.2 to i.i.d. points whose law is, at
+  each dimension d, a finite mixture of product laws, with a number of
+  components that may grow with d, under three assumptions (M1)-(M3):
+  in every component the coordinates are independent, of mean 0, variance
+  1 and subgaussian norm at most K, and every coordinate has the same
+  unconditional fourth moment kappa > 1 under the mixture. Both phases
+  hold, with the threshold alpha*(kappa) and the error e*(alpha, kappa) of
+  Theorem 1.2, and so does the small-residual interpolation (Theorem 1.9).
+  The kernel accepts `mixture_theorem : mixture_theorem_statement`
+  (`extension/MixtureTheorem.v`). No matching theorem was found in a
+  targeted literature search; priority is not confirmed. The theorem
+  contains the second one: with one component, its statement implies
+  `universality_statement` (`extension/Mixture/OneComponent.v`).
+- **Its corollaries.** `paired_theorem : paired_statement`
+  (`extension/PairedTheorem.v`): exact fitting for the paired law, whose
+  coordinates come in dependent pairs with density
+  (1 + eps h(x) h(y)) / 12 on [-sqrt 3, sqrt 3]^2, h the rescaled Legendre
+  polynomial P_4, over the whole range -1 <= eps <= 7/3, with constants
+  uniform in eps (the threshold is alpha*(9/5)). Phase 7 adds a third
+  corollary, for the latent-sign law (1/2) lambda_s^(x)d +
+  (1/2) lambda_-s^(x)d, lambda_a = (1 + a h) mu, 0 <= s <= 1, in which one
+  hidden sign couples all the coordinates of a point
+  (`extension/LatentSignStatement.v`).
+- **The statements of phase 6.** `extension/MixtureDefinitions.v`,
+  `MixtureStatement.v`, `PairedDefinitions.v` and `PairedStatement.v` were
+  accepted by the user and are frozen: `make check` checks that their code
+  is unchanged since commit `eef4694`. The two theorems use the same seven
+  axioms as the second one (`check/MixtureAssumptions.v`,
+  `check/PairedAssumptions.v`). `extension/README.md`, section (f),
+  describes the definitions, the statements and the proof.
 
 ## What to read
 
@@ -103,6 +138,15 @@ definitions, in `extension/UniversalityDefinitions.v`, reuse those of
 `theories/PaperMainDefinitions.v` that do not depend on the law of the
 points, and take the law of independent coordinates from the library
 (`tuple_prod`, `library/probability/lindeberg.v`).
+
+The statement of the finite-mixture theorem is
+`extension/MixtureStatement.v`, over the definitions of
+`extension/MixtureDefinitions.v` (the assumptions (M1)-(M3), the
+probability of a mixture sample as an average over the labels of the
+points, the interpolation property); those of its corollaries are
+`extension/PairedStatement.v` and `extension/LatentSignStatement.v`, over
+`extension/PairedDefinitions.v` and `extension/LatentSignDefinitions.v`.
+Each has a comment that reads it.
 
 ## Building
 
@@ -152,15 +196,21 @@ generated`), whose code cannot change. The other modules print none.
   ...), and `theories/A/B.v` is the module `EllipsoidFitting.A.B`. The
   14 subfolders of `Gaussian/` divide its modules further:
   `theories/Gaussian/C/D.v` is the module `EllipsoidFitting.Gaussian.C.D`.
-- `extension/`: the universality theorem, under the logical root
-  `EllipsoidUniversality` and at Stdlib's `R` like `theories/`: its
-  statement and definitions, the theorem (`UniversalityTheorem.v`), the
-  feasibility study `extension/README.md`, and the folders of its proof:
+- `extension/`: the universality theorem, the finite-mixture theorem and
+  its corollaries, under the logical root `EllipsoidUniversality` and at
+  Stdlib's `R` like `theories/`. At the top: the statements and their
+  definitions, and the theorems `UniversalityTheorem.v`
+  (`universality_theorem`), `MixtureTheorem.v` (`mixture_theorem`) and
+  `PairedTheorem.v` (`paired_theorem`). The folders of the proofs:
   `Model/` (the law of the sample and the measurability of the events),
-  `Features/` (the quadratic features of the points), `Unsat/` (the
-  unsatisfiable phase), `Gaussian/` (the Gaussian model) and `Sat/` (the
-  satisfiable phase).
-- `library/`: the library `GaussianAnalysis`, 72 files of general results
+  `Features/` (the quadratic features of the points, and those of a
+  mixture), `Unsat/` (the unsatisfiable phase), `Gaussian/` (the Gaussian
+  model), `Sat/` (the satisfiable phase), `Mixture/` (component laws,
+  samples whose coordinate laws vary with the point, the interpolation and
+  the assembly for mixtures) and `Paired/` (the uniform law, the paired
+  law as a mixture). `extension/README.md` holds the feasibility study of
+  phase 5 and, in its section (f), the description of phase 6.
+- `library/`: the library `GaussianAnalysis`, 75 files of general results
   over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
   and concentration, real matrices and probability; the Fourier analysis
   of anti-concentration (characteristic functions written without complex
@@ -172,7 +222,9 @@ generated`), whose code cannot change. The other modules print none.
   min-max theorem, subgaussian and subexponential variables (Hoeffding,
   Bernstein, Hanson-Wright), the Efron-Stein inequality, the GOE and
   Wigner's semicircle law, restricted isometry, nuclear norms and
-  coverings. The two proofs use the library at Stdlib's `R`: in
+  coverings; and the tools of phase 6: laws given by a density, finite
+  mixtures of probabilities, and the regularity of a mixture of feature
+  laws. The proofs use the library at Stdlib's `R`: in
   `theories/`, `Gaussian/Law/LibraryBridge` identifies the library's
   Gaussian measure with the product law of the statement,
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
@@ -185,15 +237,25 @@ generated`), whose code cannot change. The other modules print none.
   `check/UniversalityAssumptions.v` checks that `universality_theorem`
   proves the frozen statement and prints its axioms;
   `check/universality_assumptions.expected` is the expected output.
+  `check/MixtureAssumptions.v` and `check/PairedAssumptions.v` do the same
+  for `mixture_theorem` and `paired_theorem`, with
+  `check/mixture_assumptions.expected` and
+  `check/paired_assumptions.expected`.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
-  commit in `check/frozen-baseline`, and the statement of the universality
-  theorem and its definitions the same code as at commit `3c6afa1`
-  (comments may differ); that no module of `theories/`, `library/` or
-  `extension/` contains `Admitted`, `Axiom`, `Parameter` or `Conjecture`;
-  that no module of `library/` requires a module of `theories/` or
-  `extension/` or Stdlib's reals; and that the axioms of each theorem are
-  among its expected ones, the second list being part of the first.
+  commit in `check/frozen-baseline`, the statement of the universality
+  theorem and its definitions the same code as at commit `3c6afa1`, and
+  the four statement files of phase 6 the same code as at commit
+  `eef4694` (comments may differ); that the axiom-check files of phases 5
+  and 6 and their expected lists are byte-identical to commit `c3e555e`,
+  and that the Require commands of `library/probability/lindeberg.v` and
+  its section `tuple_prod`, on which the frozen statements depend, have
+  the same code as at that commit; that no module of `theories/`,
+  `library/` or `extension/` contains `Admitted`, `Axiom`, `Parameter` or
+  `Conjecture`; that no module of `library/` requires a module of
+  `theories/` or `extension/` or Stdlib's reals; and that every axiom
+  report is complete and the axioms of each theorem are among its
+  expected ones, each expected list being part of the first.
   `make check` runs it.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
@@ -276,7 +338,8 @@ done, and the second is done in part.
    What it no longer needed is deleted: `theories/` had 632 modules and
    102,415 lines at the tag `phase1`, and has 588 modules and 86,410 lines
    now. The library had 37 files and 21,005 lines at the end of phase 4,
-   and has 72 files and 48,032 lines after phase 5.
+   72 files and 48,032 lines after phase 5, and has 75 files and 48,991
+   lines after phase 6.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -308,4 +371,7 @@ Phase 5 of `AGENTS.md` proved the universality theorem of `extension/`
 in three stages: the unsatisfiable phase at fourth moment 3 (tag
 `stage1`), then the Gaussian model and the unsatisfiable phase for every
 fourth moment (tag `stage2`), then the satisfiable phase (tag `phase5`).
-Its general results are in `library/`.
+Its general results are in `library/`. Phase 6 proved the finite-mixture
+theorem and its corollary for the paired law (tag `phase6`). Phase 7, in
+progress, adds the corollary for the latent-sign law, hardens the checks
+and generalizes two library results.
