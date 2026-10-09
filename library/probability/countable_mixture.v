@@ -35,10 +35,11 @@ From GaussianAnalysis.probability Require Import mixture.
 (*   integrable under every P s with \sum_s p s \int |f| dP_s < +oo, which    *)
 (*   is then integrable under the mixture (from                               *)
 (*   ge0_integral_measure_series and integral_measure_series);                *)
-(* - cmixture_tailE, cmixture_tail_series, cmixture_tail_weights:             *)
-(*   \sum_(s <= m) p s + r_m = 1, and for r_m > 0 the normalized tail         *)
-(*   weights are mixture weights, so that cmixture P with them is the         *)
-(*   normalized tail \sum_(s > m) p s P s / r_m;                              *)
+(* - cmixture_tailE, cmixture_tail_small, cmixture_tail_series,               *)
+(*   cmixture_tail_weights: \sum_(s <= m) p s + r_m = 1, r_m tends to 0,      *)
+(*   and for r_m > 0 the normalized tail weights are mixture weights, so      *)
+(*   that cmixture P with them is the normalized tail                         *)
+(*   \sum_(s > m) p s P s / r_m;                                              *)
 (* - esumZl, esum_fin, esum_tuple_prod: an esum of nonnegative terms          *)
 (*   commutes with a nonnegative factor; over a subset of a finite type it    *)
 (*   is a finite sum; the esum over s : n.-tuple nat of \prod_i a (s_i) is    *)
@@ -206,6 +207,24 @@ have tf : \sum_(s <oo | (m < s)%N) (p s)%:E \is a fin_num.
 split; first by rewrite /cmixture_tail fineK.
 apply: EFin_inj; rewrite EFinD -sumEFin /cmixture_tail fineK //.
 by rewrite (big_mkord xpredT) in hsplit; rewrite hsplit.
+Qed.
+
+(* The tail mass tends to zero: it is at most any eps > 0 from some m on. *)
+Lemma cmixture_tail_small (eps : R) : (0 < eps)%R ->
+  exists m, (cmixture_tail m <= eps)%R.
+Proof.
+move=> e0; apply: contrapT => hno.
+have hgt m : (eps < cmixture_tail m)%R.
+  by rewrite ltNge; apply/negP => h; apply: hno; exists m.
+have hlt m : (\sum_(k < m.+1) p k <= 1 - eps)%R.
+  by have [_ hh] := cmixture_tailE m; have := hgt m; lra.
+have hs0 : (0 <= \sum_(k < 1) p k)%R by apply: sumr_ge0 => k _; exact: p0.
+have : (\sum_(k <oo) (p k)%:E <= (1 - eps)%:E)%E.
+  apply: lime_le; first by apply: is_cvg_nneseries => k _ _; rewrite lee_fin.
+  apply: nearW => n; case: n => [|n].
+    by rewrite big_geq // lee_fin; have := hlt 0%N; lra.
+  by rewrite sumEFin lee_fin big_mkord; exact: hlt.
+by rewrite hp.2 lee_fin; lra.
 Qed.
 
 (* The normalized tail: the weights p s / r_m for s > m, and 0 for s <= m. *)
