@@ -38,8 +38,10 @@
       are independent (latent_side_coordM), from integral_tuple_prod_coord
       and integral_tuple_prod_coordM of library/probability/efron_stein.v.
    4. The statements, for 0 <= s <= 1 and paired_uniform_spec mu.
-      - latent_covariance_at, (10): the law of x_j is mu, by
-        legendre_law_sum; E h(x_j) = (s / 9 - s / 9) / 2 = 0; and for j != k,
+      - latent_marginal_at: for every j < d, dimension one included, the
+        law of x_j is mu, by legendre_law_sum, and
+        E h(x_j) = (s / 9 - s / 9) / 2 = 0.
+      - latent_covariance_at, (10): these two facts, and for j != k,
         E h(x_j) h(x_k) = ((s / 9)^2 + (s / 9)^2) / 2 = s^2 / 81.
       - latent_variance_at, (11): with k_a = 1/2 - a / 48, the coordinates
         under latent_side mu d a have E |x_j| = sqrt 3 k_a, E x_j^2 = 1 and
@@ -513,23 +515,19 @@ Let coord_tnth j (jd : (j < 1 * d)%N) (x : paper_main_sample 1 d) :
   List.nth j (tval x) 0 = tnth x (Ordinal jd).
 Proof. by rewrite (tnth_nth 0) List_nthE. Qed.
 
-(* (10): x_j has the law mu, E h(x_j) = 0 and E h(x_j) h(x_k) = s^2 / 81. *)
-Lemma latent_covariance_at (j k : nat) : (j < d)%N -> (k < d)%N -> j <> k ->
+(* The marginal law, for every coordinate j < d, dimension one included:
+   x_j has the law mu and E h(x_j) = 0. *)
+Lemma latent_marginal_at (j : nat) : (j < d)%N ->
   (forall A : set (measurableTypeR R), measurable A ->
      latent_point_expectation s mu d
        (fun x => \1_A (List.nth j (tval x) 0)) = fine (mu A)) /\
   latent_point_expectation s mu d
-    (fun x => paired_kernel (List.nth j (tval x) 0)) = 0 /\
-  latent_point_expectation s mu d
-    (fun x => paired_kernel (List.nth j (tval x) 0) *
-              paired_kernel (List.nth k (tval x) 0)) = s ^+ 2 / 81%:R.
+    (fun x => paired_kernel (List.nth j (tval x) 0)) = 0.
 Proof.
-move=> jd kd jk.
+move=> jd.
 have jd' : (j < 1 * d)%N by rewrite mul1n.
-have kd' : (k < 1 * d)%N by rewrite mul1n.
-set j' := Ordinal jd'; set k' := Ordinal kd'.
-have jk' : j' != k' by apply/eqP => -[] /jk.
-split; [|split].
+set j' := Ordinal jd'.
+split.
 - move=> A mA.
   have mf : measurable_fun setT (\1_A : RR -> RR) := measurable_indic mA.
   have fi b : (paired_law mu b).-integrable setT (EFin \o (\1_A : RR -> RR)).
@@ -561,6 +559,26 @@ split; [|split].
     by apply/funext => x; rewrite (coord_tnth j jd').
   rewrite (latent_point_expectationE s mu d hs hmu _ mg i1 i2) e1 e2.
   by rewrite (vh _ hsp) (vh _ hsn); field.
+Qed.
+
+(* (10): x_j has the law mu, E h(x_j) = 0 and E h(x_j) h(x_k) = s^2 / 81. *)
+Lemma latent_covariance_at (j k : nat) : (j < d)%N -> (k < d)%N -> j <> k ->
+  (forall A : set (measurableTypeR R), measurable A ->
+     latent_point_expectation s mu d
+       (fun x => \1_A (List.nth j (tval x) 0)) = fine (mu A)) /\
+  latent_point_expectation s mu d
+    (fun x => paired_kernel (List.nth j (tval x) 0)) = 0 /\
+  latent_point_expectation s mu d
+    (fun x => paired_kernel (List.nth j (tval x) 0) *
+              paired_kernel (List.nth k (tval x) 0)) = s ^+ 2 / 81%:R.
+Proof.
+move=> jd kd jk.
+have [hA h0] := latent_marginal_at j jd.
+have jd' : (j < 1 * d)%N by rewrite mul1n.
+have kd' : (k < 1 * d)%N by rewrite mul1n.
+set j' := Ordinal jd'; set k' := Ordinal kd'.
+have jk' : j' != k' by apply/eqP => -[] /jk.
+split => //; split => //.
 have mg : measurable_fun setT (fun x : paper_main_sample 1 d =>
     (paired_kernel (tnth x j') * paired_kernel (tnth x k') : RR)).
   by apply: measurable_funM; exact: measurableT_comp mh (measurable_tnth _).
