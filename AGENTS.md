@@ -1104,6 +1104,41 @@ Gaussian kernel element, is not part of this phase.
    - They follow from the expansions (11) and (13) of
      `notes/gaussian-condition-number-theorem.md`, through the behavior
      of m and v near 0 and near the edge sqrt 2 of the semicircle law.
+5. **R6. The follow-ups of the review of the phase 8 release**
+   (`/srv/ellipsoid-fitting/reviews/phase8-release-review.md`), which the
+   user accepted on 9 October 2026.
+   - **The checker.** An axiom report with the line `Axioms:` must list
+     at least one axiom, and an axiom-free report is accepted only
+     through the line "Closed under the global context".
+   - **The check baseline.** The check files of phases 7 and 8 and their
+     expected lists are compared byte for byte with a89ed1e, as a
+     separate baseline. These are `check/LatentSignAssumptions.v`,
+     `check/CountableAssumptions.v`, `check/ConditionAssumptions.v`,
+     `check/LatentScopeAssumptions.v` and their four `.expected` files.
+     The historical baselines and `check/frozen-baseline` do not change.
+   - **The marginal lemma.** For every j < d, dimension one included,
+     coordinate j of a point of the latent-sign law has law mu and
+     h(x_j) is centered. It is a new lemma beside the frozen scope
+     statement, which does not change.
+   - **Measurability.** `data_condition_number (n d) d` is a measurable
+     function of the sample. The proof goes through the measurable,
+     monotone fit events: the event {C < r} is the union over rational
+     q < r of the fit events at q.
+   - **The documentation** (the review's sections 1.3 to 1.5):
+     - narrow the concentration wording to "these laws do not satisfy
+       dimension-free Gaussian concentration for convex 1-Lipschitz
+       functions", and separate the formal identities from their
+       consequences;
+     - replace "the proofs are ordinary" by "the ordinary arguments of
+       the notes are now formalized", keeping "novelty is not
+       confirmed";
+     - fix the covariance comment of `ConditionStatement.v` (comments
+       only), the rows of `esum_tuple_prod` and `clip_energy`, and the
+       event count in `Condition/Sat.v`.
+   - **The presentation.** `README.md` and `extension/README.md` lead
+     with the optimal condition-number theorem. Countable closure comes
+     next as a generality result, and the latent-sign identities as
+     evidence of persistent dependence.
 
 ### Roles
 
@@ -1139,7 +1174,8 @@ user's decisions.
    expected lists join `make check` on the pattern of
    `check/LatentScopeAssumptions.v`. The user's request permits these
    changes to `scripts/check_sources.py`, `check/` and the `Makefile`, in
-   step 0 and at the end of the phase, and no other.
+   step 0 and at the end of the phase, and the two checker changes of
+   item 5, and no other.
 3. **No new directories.** New files go in existing directories:
    - statement files at the top of `extension/`;
    - proofs in `extension/Countable/`, `extension/Paired/` or
@@ -1167,7 +1203,8 @@ The rules of phase 8 apply.
 - The repository gets no journals or progress files.
 
 Phase 9 is done when the following hold:
-- the four items are proved on `main` against the accepted statements;
+- the four items R1 to R4 are proved on `main` against the accepted
+  statements, and the follow-ups of item 5 are on `main`;
 - their axioms are among the eight expected ones;
 - `make check` passes;
 - the README rows cover every new file;
