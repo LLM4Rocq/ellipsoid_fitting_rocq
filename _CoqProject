@@ -59,6 +59,7 @@ library/comparison/slepian.v
 library/comparison/gordon.v
 library/comparison/escape.v
 library/comparison/cgmt.v
+library/comparison/cone_escape.v
 library/comparison/sudakov.v
 library/comparison/gauss_law.v
 library/comparison/gauss_matrix_law.v
