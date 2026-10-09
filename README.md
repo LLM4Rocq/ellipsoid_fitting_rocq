@@ -27,9 +27,11 @@ Each result also states that the events it measures are measurable.
 of Koehler and Sohn, which extends the first result to points with
 independent subgaussian coordinates. The second, the main result of phase
 6, extends it to i.i.d. points whose law is a finite mixture of product
-laws. Its corollary for the paired law, whose coordinates are dependent in
-pairs, is proved; phase 7 adds a second corollary, for a law whose
-coordinates are coupled by one hidden sign.
+laws. Two corollaries are proved: the theorem of Koehler and Sohn, the
+case of one component, and exact fitting for the paired law, whose
+coordinates are dependent in pairs. Phase 7 states a third, for a law
+whose coordinates are coupled by one hidden sign; its proof is in
+progress.
 
 ## Status
 
@@ -101,11 +103,12 @@ coordinates are coupled by one hidden sign.
   coordinates come in dependent pairs with density
   (1 + eps h(x) h(y)) / 12 on [-sqrt 3, sqrt 3]^2, h the rescaled Legendre
   polynomial P_4, over the whole range -1 <= eps <= 7/3, with constants
-  uniform in eps (the threshold is alpha*(9/5)). Phase 7 adds a third
+  uniform in eps (the threshold is alpha*(9/5)). Phase 7 states a third
   corollary, for the latent-sign law (1/2) lambda_s^(x)d +
   (1/2) lambda_-s^(x)d, lambda_a = (1 + a h) mu, 0 <= s <= 1, in which one
   hidden sign couples all the coordinates of a point
-  (`extension/LatentSignStatement.v`).
+  (`extension/LatentSignStatement.v`); the statement is under the user's
+  review and the proof in progress.
 - **The statements of phase 6.** `extension/MixtureDefinitions.v`,
   `MixtureStatement.v`, `PairedDefinitions.v` and `PairedStatement.v` were
   accepted by the user and are frozen: `make check` checks that their code
@@ -228,7 +231,7 @@ generated`), whose code cannot change. The other modules print none.
   `theories/`, `Gaussian/Law/LibraryBridge` identifies the library's
   Gaussian measure with the product law of the statement,
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
-  and 20 other modules of `theories/` require library files directly, as
+  and 23 other modules of `theories/` require library files directly, as
   do the modules of `extension/`.
   `library/README.md` gives its conventions, its main results and their
   users. Phase 5 added the directories `convex/` and `random_matrix/`.
@@ -253,7 +256,8 @@ generated`), whose code cannot change. The other modules print none.
   the same code as at that commit; that no module of `theories/`,
   `library/` or `extension/` contains `Admitted`, `Axiom`, `Parameter` or
   `Conjecture`; that no module of `library/` requires a module of
-  `theories/` or `extension/` or Stdlib's reals; and that every axiom
+  `theories/` or `extension/`, Stdlib's reals, or MathComp's bridge to them
+  (`Rstruct`, `Rstruct_topology`); and that every axiom
   report is complete and the axioms of each theorem are among its
   expected ones, each expected list being part of the first.
   `make check` runs it.

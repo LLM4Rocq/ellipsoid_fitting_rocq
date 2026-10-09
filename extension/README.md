@@ -18,10 +18,12 @@ Gaussian points.
 - **Its corollaries.** `paired_theorem : paired_statement`
   (`PairedTheorem.v`): exact fitting for the paired law, whose
   coordinates come in dependent pairs, over the whole range
-  -1 <= eps <= 7/3, with constants uniform in eps. Phase 7 adds the
-  latent-sign law, (1/2) lambda_s^(x)d + (1/2) lambda_-s^(x)d with
-  0 <= s <= 1, in which one hidden sign couples all the coordinates of a
-  point (`LatentSignStatement.v`).
+  -1 <= eps <= 7/3, with constants uniform in eps. Phase 7 states a
+  third corollary, after the universality theorem below and the paired
+  law: the latent-sign law, (1/2) lambda_s^(x)d + (1/2) lambda_-s^(x)d
+  with 0 <= s <= 1, in which one hidden sign couples all the coordinates
+  of a point (`LatentSignStatement.v`); the statement is under the user's
+  review and the proof in progress.
 - **The universality theorem** of Koehler and Sohn, for points with
   independent coordinates: `universality_theorem : universality_statement`
   (`UniversalityTheorem.v`), proved in phase 5. The finite-mixture theorem
@@ -904,7 +906,11 @@ fit and the unsatisfiable phase use the mixture of the feature laws.
 - Library: `probability/density_law.v` (laws given by a density),
   `probability/mixture.v` (finite mixtures, total variance, the product of
   copies of a mixture, `mixture_cover`), `convex/feature_mixture.v` (a
-  mixture of regular feature laws is regular, in Hilbert-Schmidt form).
+  mixture of regular feature laws is regular when the covariances of the
+  components spread little in every direction,
+  `sum_i w_i <Sig i - Sigma, T>^2 <= c^2 |T|_F^2`
+  (`mixture_regular_feature_dot`); the Hilbert-Schmidt form
+  `mixture_regular_feature`, which the proof uses, is its corollary).
 - Flat families: the a priori estimates (`Sat/Apriori.v`,
   `Sat/AprioriSparse.v`, `Sat/SparseLimit.v`), the light-tail bound
   (`Sat/OneStage.v`, `Sat/LightTail.v`, `Sat/LightTailBound.v`) and the
