@@ -694,6 +694,8 @@ extension/RobustStatement.v
 extension/LatentTensorization.v
 extension/ContinuousLatent.v
 extension/ConditionEndpoints.v
+extension/ConditionRobustStatement.v
+extension/LatentTensorUpper.v
 extension/Model/Rows.v
 extension/Model/Measurability.v
 extension/Features/Definitions.v
@@ -764,3 +766,5 @@ extension/Condition/Theorem.v
 extension/Condition/Endpoints.v
 extension/ConditionTheorem.v
 extension/ConditionEndpointsTheorem.v
+extension/Condition/RobustCondition.v
+extension/ConditionRobustTheorem.v

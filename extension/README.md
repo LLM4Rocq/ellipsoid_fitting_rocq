@@ -49,7 +49,8 @@ Gaussian points.
   contains it, with one component (`Mixture/OneComponent.v`).
 - **Four complements**, proved in phase 9: `robust_theorem`
   (`RobustTheorem.v`), robustness in total variation at the scale
-  o(d^-2), which a contamination example shows to be needed;
+  o(d^-2), which a contamination example shows cannot be relaxed to
+  O(d^-2) in general;
   `latent_tensor_theorem` (`LatentTensorTheorem.v`), lower bounds on the
   constant of the coordinate tensorization of the variance for the
   latent-sign law, exponential in d for a fixed s > 0;
@@ -94,7 +95,8 @@ laws and its corollary for the paired law; (g) phase 8, countable
 mixtures, the optimal condition number and the scope of the latent-sign
 law; (h) phase 9, robustness in total variation, the tensorization of the
 latent-sign law, a continuous latent mixture and the endpoints of the
-condition-number curve.
+condition-number curve; (i) phase 10, the robustness of the optimal
+condition number and a finite tensorization constant.
 
 ---
 
@@ -1137,10 +1139,10 @@ their novelty is not confirmed.
 | `LatentTensorization.v` | the conditional expectation and variance of a function of a latent-sign point given all coordinates but one, through the conditional density; the tensorization inequality (12) with constant `T`; `latent_tensorization_statement`, the lower bounds (13) and (14) on `T` |
 | `ContinuousLatent.v` | the law (18), a mixture over `a` uniform in `[1, 2]` of two-point product laws; `continuous_latent_statement`: the moments of the components, the average fourth moment 11/6, and total variation one from every countable mixture of product laws for `d >= 2` |
 | `ConditionEndpoints.v` | `condition_endpoints_statement`: (11) near `C = 1`, the leading term of (13) as `C -> oo`, (34) near `alpha = 0` and (35) near `alpha = 1/4`, on the frozen `condition_alpha` and `condition_star` |
-| `Countable/Robust.v`, `RobustTheorem.v` | the transfer of the countable conclusions to point laws `P_d` with `d^2 tv(P_d, nu_d) -> 0`, by the bound `n (tv(P, nu_d) + 2 r_d)` on every measurable set of samples; the contamination by the zero point, at distance `lambda / n`, whose probability of a positive definite fit of value one is `(1 - lambda / n)^n` times that of the family; then `robust_theorem : robust_theorem_statement` |
-| `Paired/Tensorization.v` | under the latent-sign law, `E h(x_j)^2 = 1/9` and `Var sum_j h(x_j) = d/9 + d (d - 1) s^2 / 81`; Hoeffding's inequality for `sum_(k in J) h(x_k)` under each component, with the constant 48; `Var 1{sum_j h(x_j) > 0}` is within `exp (- d s^2 / 1944) / 4` of 1/4, so it tends to 1/4; `P(|sum_(k != j) h(x_k)| <= 1) <= exp (- (d - 1) s^2 / 15552)` for `(d - 1) s >= 18` |
+| `Countable/Robust.v`, `RobustTheorem.v` | the transfer of the countable conclusions to point laws `P_d` with `d^2 tv(P_d, nu_d) -> 0`, by the bound `n (tv(P, nu_d) + 2 r_d)` on every measurable set of samples; the contamination by the zero point, at distance at most `lambda / n`, whose probability of a positive definite fit of value one is `(1 - lambda / n)^n` times that of the family; then `robust_theorem : robust_theorem_statement` |
+| `Paired/Tensorization.v` | under the latent-sign law, `E h(x_j)^2 = 1/9` and `Var sum_j h(x_j) = d/9 + d (d - 1) s^2 / 81`; Hoeffding's inequality for `sum_(k in J) h(x_k)` under each component, with the constant 48; `Var 1{sum_j h(x_j) > 0}` is within `exp (- d s^2 / 1944) / 4` of 1/4, so it tends to 1/4 for fixed `s > 0`; `P(|sum_(k != j) h(x_k)| <= 1) <= exp (- (d - 1) s^2 / 15552)` for `(d - 1) s >= 18` |
 | `Paired/Conditional.v` | the conditional law of one coordinate given the others: the density is affine in `h(x_j)`, with a positive denominator on the box; the conditional expectation is bounded, the conditional variance is nonnegative, does not change under functions of the other coordinates, vanishes when the function does not depend on `x_j`, and is at most 1/4 for 0/1 functions; measurability and the tower property `E [E (g given X_-j)] = E g` |
-| `LatentTensorTheorem.v` | `latent_tensor_theorem : latent_tensorization_statement`: `T >= 1 + (d - 1) s^2 / 9` from `sum_k h(x_k)`, cut off the box; `T >= (1 / (2 d)) exp ((d - 1) s^2 / 15552)` from `1{sum_k h(x_k) > 0}` for `(d - 1) s >= 18` and `exp (- d s^2 / 1944) <= 1/2`; `c = 1/15552`, `c' = 1/2` |
+| `LatentTensorTheorem.v` | `latent_tensor_theorem : latent_tensorization_statement`: `T >= 1 + (d - 1) s^2 / 9` from `sum_k h(x_k) 1{|x_k| <= sqrt 3}`, which truncates `h` outside its one-dimensional support, coordinate by coordinate; `T >= (1 / (2 d)) exp ((d - 1) s^2 / 15552)` from `1{sum_k h(x_k) > 0}` for `(d - 1) s >= 18` and `exp (- d s^2 / 1944) <= 1/2`; `c = 1/15552`, `c' = 1/2` |
 | `Countable/Continuous.v`, `ContinuousLatentTheorem.v` | the components of (18) and their average fourth moment 11/6; for `d >= 2`, a measurable set of points (first two coordinates related by `y = x` or `x y = -1`, first coordinate off a countable set built with `library/probability/atoms.v`) of mass 1 for the law (18) and 0 for every countable mixture of product laws, hence total variation 1; then `continuous_latent_theorem : continuous_latent_statement` |
 | `Condition/Endpoints.v`, `ConditionEndpointsTheorem.v` | `m(0) = 2 sqrt 2 / (3 pi)` and the quadratic remainder of `m` at 0 for the semicircle law; `t_C <= 2 m(0) (C - 1)` near `C = 1`; two-sided bounds on `alpha_C` with an error `O((C - 1)^4)`; the inversion lemma behind (34); the behavior at the edge for (13) and (35); then `condition_endpoints_theorem : condition_endpoints_statement` |
 
@@ -1150,9 +1152,10 @@ commit.
 
 ### Robustness in total variation
 
-`robust_statement` gives the conclusions of `countable_theorem_statement`,
-with the same constants, for i.i.d. points of arbitrary laws `P_d` of a
-point such that `d^2 tv(P_d, nu_d) -> 0`, where `nu_d` is the point law of
+`robust_statement` and `robust_interpolation_statement`, two of the three
+parts of `robust_theorem_statement`, give the conclusions of
+`countable_theorem_statement`, with the same constants, for i.i.d. points
+of arbitrary laws `P_d` of a point such that `d^2 tv(P_d, nu_d) -> 0`, where `nu_d` is the point law of
 an admissible countable family. For a measurable set `E` of samples, the
 probabilities of `E` under `P_d` and under the family differ by at most
 `n (tv(P_d, nu_d) + 2 r_d)`: `tuple_prod_tv`
@@ -1162,13 +1165,17 @@ phase 8 replaces `nu_d` by the point law of a finite family at distance at
 most `r_d <= (d + 1)^-3`, and the coupling of phase 8 compares the
 samples. Since `n_d <= 2 alpha d^2`, the error tends to 0.
 
-The scale `d^-2` cannot be relaxed: contaminating each point with
-probability `lambda / n_d` into the zero point gives laws at distance at
-most `lambda / n_d` from the family, of order `d^-2`, while the
-probability of a positive definite fit of value one becomes
-`(1 - lambda / n_d)^n_d` times that of the family, since a zero point has
-value 0 for every matrix; below the threshold it tends to
-`expR (- lambda) < 1` (`contamination_statement`).
+The condition `o(d^-2)` cannot be replaced by `O(d^-2)` as a general
+guarantee: contaminating each point with probability `lambda / n_d` into
+the zero point gives laws at distance at most `lambda / n_d` from the
+family, of order `d^-2` (the exact distance, by a direct computation that
+is not formalized, is `(lambda / n_d) (1 - nu_d {0})`, smaller when `nu_d`
+has an atom at the zero point), while the probability of a
+positive definite fit of value one becomes `(1 - lambda / n_d)^n_d` times
+that of the family, since a zero point has value 0 for every matrix;
+below the threshold it tends to `expR (- lambda) < 1`
+(`contamination_statement`). The example shows that some perturbations of
+order `d^-2` change the limit, not that every one does.
 
 ### The tensorization of the latent-sign law
 
@@ -1178,8 +1185,10 @@ value 0 for every matrix; below the threshold it tends to
 `f`, where the conditional variance given all coordinates but one is
 defined through the conditional density of that coordinate. Every
 constant `T` of (12) satisfies `T >= 1 + (d - 1) s^2 / 9`: the function
-`f = sum_k h(x_k)`, cut to 0 off the box `[-sqrt 3, sqrt 3]^d`, has
-variance `d/9 + d (d - 1) s^2 / 81`, while by the tower property each
+`f = sum_k h(x_k) 1{|x_k| <= sqrt 3}`, which truncates `h` outside its
+one-dimensional support coordinate by coordinate and agrees with
+`sum_k h(x_k)` on the support of the law, has variance
+`d/9 + d (d - 1) s^2 / 81`, while by the tower property each
 conditional variance has expectation at most `E h(x_j)^2 = 1/9`. For a
 fixed `s > 0` and every large `d`, `T >= (1 / (2 d)) exp ((d - 1) s^2 / 15552)`:
 the indicator `f = 1{sum_k h(x_k) > 0}` has variance close to 1/4, while
@@ -1248,3 +1257,39 @@ expected lists (`scripts/check_sources.py`, rule 13). Each of the four
 theorems uses seven of the eight classical axioms of
 `check/assumptions.expected`, all but `Classical_Prop.classic`, as the
 theorems of phases 5 to 8 do.
+
+## (i) Phase 10: robustness of the optimal condition number, a finite tensorization constant
+
+Phase 10 takes up the proposals of the review of the phase 9 release
+(`reviews/phase9-release-review.md`, on the VM under
+`/srv/ellipsoid-fitting/`): documentation corrections, the robustness of
+the optimal condition number (R7), a finite constant for the tensorization
+of the latent-sign law (T) and reusable identities (I).
+
+### Files
+
+| File | Content |
+|---|---|
+| `ConditionRobustStatement.v` | `robust_condition_statement` and `robust_condition_number_statement`: the threshold (20) and the limit (21) of `ConditionStatement` for i.i.d. points of laws `P_d` with `d^2 tv(P_d, nu_d) -> 0` around an admissible countable family of fourth moment 3; their conjunction `robust_condition_theorem_statement` |
+| `LatentTensorUpper.v` | `latent_tensor_constant s d = 2 ((1 + s) / (1 - 3 s / 7))^d` and `latent_tensor_upper_statement`: the tensorization inequality (12) of `LatentTensorization` with that constant, for `0 <= s <= 1` and every `d` |
+| `Condition/RobustCondition.v`, `ConditionRobustTheorem.v` | the threshold (20) for the samples of `P_d` by `robust_tends` on the measurable fit events; the limit (21) by moving the exceptional set of the family, whose probability changes by at most `n (tv(P_d, nu_d) + 2 r_d)` (`robust_transfer`, `robust_err_small`); then `robust_condition_theorem : robust_condition_theorem_statement` |
+
+The user accepted the two statement files at commit `b26eb1e`; they are
+frozen, and `scripts/check_sources.py` compares their code with that
+commit.
+
+### Robustness of the optimal condition number
+
+`robust_condition_theorem_statement` gives the two conclusions of the
+optimal condition-number theorem for the countable families of fourth
+moment 3, with the samples of laws `P_d` such that
+`d^2 tv(P_d, nu_d) -> 0` in place of those of the family: for every
+`C > 1`, the probability of an exact fit of condition number at most `C`
+tends to 1 if `alpha < alpha_C` and to 0 if `alpha > alpha_C`, and for
+`0 < alpha < 1/4` the optimal condition number tends to `C_star(alpha)` in
+probability. The laws `P_d` need no moment and no tail bound; the fourth
+moment 3 concerns the family. The proof uses only the transfer of phase 9:
+the fit events are measurable, so their limits carry over, and the
+exceptional set of (21) for the family has, for the samples of `P_d`, a
+probability larger by at most `n (tv(P_d, nu_d) + 2 r_d)`, which tends
+to 0.

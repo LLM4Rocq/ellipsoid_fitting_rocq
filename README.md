@@ -103,8 +103,9 @@ and the endpoint expansions of the condition-number curve.
   `robust_theorem` (`extension/RobustTheorem.v`): the conclusions of the
   countable-mixture theorem hold for i.i.d. points of arbitrary laws within
   o(d^-2) in total variation of an admissible family, and the
-  contamination by a point at 0 with probability lambda / n shows that
-  this scale is needed; `latent_tensor_theorem`
+  contamination by a point at 0 with probability lambda / n, at total
+  variation distance at most lambda / n, shows that o(d^-2) cannot be
+  relaxed to O(d^-2) in general; `latent_tensor_theorem`
   (`extension/LatentTensorTheorem.v`): every constant of the coordinate
   tensorization of the variance for the latent-sign law is at least
   1 + (d - 1) s^2 / 9, and for a fixed s > 0 it grows exponentially in d;
