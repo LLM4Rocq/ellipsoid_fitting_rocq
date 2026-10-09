@@ -17,6 +17,9 @@ From GaussianAnalysis.probability Require Import conditioning.
 (* MathComp-Analysis. When f is not such a density, density_prob mu f is mu   *)
 (* itself (density_prob_default), so that density_prob mu f is a probability  *)
 (* for every f; the results below assume prob_density mu f.                   *)
+(* density_law mu f hf is the same probability, built from a proof hf of      *)
+(* prob_density mu f: its value on A is int_A f dmu by definition, with no    *)
+(* fallback.                                                                  *)
 (* - density_probE: density_prob mu f A = int_A f dmu.                        *)
 (* - density_prob_dominates: density_prob mu f is absolutely continuous with  *)
 (*   respect to mu.                                                           *)
@@ -32,12 +35,20 @@ From GaussianAnalysis.probability Require Import conditioning.
 (*   density_prob nu_k f_k, k < n, has the density x |-> prod_k f_k (x_k)     *)
 (*   against tuple_prod nu n. indic_tuple_box: the indicator of a box is the  *)
 (*   product of the indicators of its sides.                                  *)
+(* - density_lawE: density_law mu f hf A = int_A f dmu. density_law_prob:     *)
+(*   density_law mu f hf is density_prob mu f. integral_density_law_prob:     *)
+(*   integrals against the two agree, so every result on density_prob holds   *)
+(*   for density_law. density_law_dominates, ge0_integral_density_law,        *)
+(*   integrable_density_law, integral_density_law, eq_density_law and         *)
+(*   tuple_prod_density_law restate the results above for density_law.        *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*   prob_density mu f == f is measurable, nonnegative everywhere, and of     *)
 (*                        integral one against mu                             *)
 (*   density_prob mu f == the probability with density f against mu, if       *)
 (*                        prob_density mu f, and mu otherwise                 *)
+(*   density_law mu f hf == the probability with density f against mu, for    *)
+(*                          a proof hf of prob_density mu f                   *)
 (* ```                                                                        *)
 (******************************************************************************)
 
@@ -213,6 +224,107 @@ move=> hf hf' ff' A mA; rewrite (density_probE hf').
 by apply: density_prob_ae => //; case: hf'.
 Qed.
 
+(* The constructor with the proof that f is a density: the set function
+   A |-> int_A f dmu itself, with no fallback. *)
+Definition density_law d (T : measurableType d) (R : realType)
+    (mu : probability T R) (f : T -> R) (hf : prob_density mu f) :
+    set T -> \bar R :=
+  fun A => (\int[mu]_(x in A) (f x)%:E)%E.
+Arguments density_law {d T R} mu f hf.
+
+Section density_law_measure.
+Context d (T : measurableType d) (R : realType).
+Variables (mu : probability T R) (f : T -> R) (hf : prob_density mu f).
+Local Notation L := (density_law mu f hf).
+Local Open Scope ereal_scope.
+
+Let mF : measurable_fun [set: T] (fun x => (f x)%:E).
+Proof. by case: hf => mf _ _; exact/measurable_EFinP. Qed.
+
+Let F0 x : 0 <= (f x)%:E.
+Proof. by case: hf => _ f0 _; rewrite lee_fin. Qed.
+
+Let L0 : L set0 = 0.
+Proof. exact: integral_set0. Qed.
+
+Let L_ge0 A : 0 <= L A.
+Proof. by apply: integral_ge0 => x _; exact: F0. Qed.
+
+Let L_sigma_additive : semi_sigma_additive L.
+Proof. exact: semi_sigma_additive_nng_induced mF F0. Qed.
+
+HB.instance Definition _ := isMeasure.Build _ _ _ L L0 L_ge0 L_sigma_additive.
+
+Let L_setT : L [set: T] = 1.
+Proof. by have [_ _ f1] := hf; exact: f1. Qed.
+
+HB.instance Definition _ := @Measure_isProbability.Build _ _ R L L_setT.
+
+Lemma density_lawE A : L A = \int[mu]_(x in A) (f x)%:E.
+Proof. by []. Qed.
+
+End density_law_measure.
+
+Section density_law_integral.
+Context d (T : measurableType d) (R : realType).
+Variables (mu : probability T R) (f : T -> R) (hf : prob_density mu f).
+Local Notation L := (density_law mu f hf).
+Local Open Scope ereal_scope.
+
+(* density_law and density_prob agree when f is a density. *)
+Lemma density_law_prob : L = density_prob mu f.
+Proof. by apply/funext => A; rewrite (density_probE hf). Qed.
+
+Lemma integral_density_law_prob (g : T -> \bar R) D :
+  \int[L]_(x in D) g x = \int[density_prob mu f]_(x in D) g x.
+Proof.
+by apply: eq_measure_integral => A _ _; exact: (esym (density_probE hf A)).
+Qed.
+
+Lemma density_law_dominates : L `<< mu.
+Proof. by rewrite density_law_prob; exact: density_prob_dominates. Qed.
+
+Lemma ge0_integral_density_law (g : T -> \bar R) E : measurable E ->
+  (forall x, 0 <= g x) -> measurable_fun E g ->
+  \int[L]_(x in E) g x = \int[mu]_(x in E) (g x * (f x)%:E).
+Proof.
+move=> mE g0 mg; rewrite integral_density_law_prob.
+exact: (ge0_integral_density_prob hf mE g0 mg).
+Qed.
+
+Lemma integrable_density_law (g : T -> \bar R) E : measurable E ->
+  measurable_fun E g ->
+  L.-integrable E g <-> mu.-integrable E (fun x => g x * (f x)%:E).
+Proof.
+move=> mE mg; have h := integrable_density_prob hf mE mg.
+have e : \int[L]_(x in E) `|g x| =
+    \int[density_prob mu f]_(x in E) `|g x|.
+  exact: integral_density_law_prob.
+split=> [/integrableP[_ gi]|/h/integrableP[_ gi]].
+  by apply/h/integrableP; split => //; rewrite -e.
+by apply/integrableP; split => //; rewrite e.
+Qed.
+
+Lemma integral_density_law (g : T -> \bar R) E : measurable E ->
+  L.-integrable E g ->
+  \int[L]_(x in E) g x = \int[mu]_(x in E) (g x * (f x)%:E).
+Proof.
+move=> mE gi; have mg := measurable_int _ gi.
+rewrite integral_density_law_prob; apply: (integral_density_prob hf mE).
+exact/(integrable_density_prob hf mE mg)/(integrable_density_law mE mg).
+Qed.
+
+End density_law_integral.
+
+Lemma eq_density_law d (T : measurableType d) (R : realType)
+    (mu : probability T R) (f f' : T -> R) (hf : prob_density mu f)
+    (hf' : prob_density mu f') :
+  ae_eq mu [set: T] (fun x => (f x)%:E) (fun x => (f' x)%:E) ->
+  forall A, measurable A -> density_law mu f hf A = density_law mu f' hf' A.
+Proof.
+by move=> ff' A mA; rewrite !density_law_prob; exact: eq_density_prob.
+Qed.
+
 Section tuple_prod_density.
 Context d (T : measurableType d) (R : realType).
 Local Open Scope ereal_scope.
@@ -292,6 +404,23 @@ transitivity (\prod_(k < n) \int[nu k]_t (h k t)%:E); last first.
 apply: eq_bigr => k _; rewrite (density_probE (hf k (ltn_ord k))).
 rewrite [LHS]integral_mkcond; apply: eq_integral => t _.
 by rewrite epatch_indic /= hE EFinM.
+Qed.
+
+Lemma tuple_prod_density_law (nu : nat -> probability T R) (f : nat -> T -> R)
+    (hf : forall k, prob_density (nu k) (f k)) n E : measurable E ->
+  tuple_prod (fun k => density_law (nu k) (f k) (hf k)) n E =
+  \int[tuple_prod nu n]_(x in E) (\prod_(k < n) f k (tnth x k))%:E.
+Proof.
+move=> mE; rewrite -(tuple_prod_density (fun k _ => hf k) mE).
+have fin : tuple_prod (fun k => density_law (nu k) (f k) (hf k)) n
+    [set: n.-tuple T] < +oo.
+  by rewrite probability_setT ltry.
+apply: (measure_tuple_box_unique fin) => // A mA.
+transitivity (\prod_(k < n) density_law (nu k) (f k) (hf k) (A k)).
+  exact: tuple_prod_box.
+transitivity (\prod_(k < n) density_prob (nu k) (f k) (A k)).
+  by apply: eq_bigr => k _; rewrite density_law_prob.
+by symmetry; exact: tuple_prod_box.
 Qed.
 
 End tuple_prod_density.
