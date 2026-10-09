@@ -74,6 +74,12 @@
    7 and 8, are byte-identical to the commit CHECKS_P8_BASELINE, a
    separate baseline; CHECKS_BASELINE and check/frozen-baseline do not
    change.
+12. Phase 9. The code of each file of PHASE9_FROZEN, the statements of the
+   robustness corollary, of the tensorization bounds of the latent-sign
+   law, of the continuous-latent counterexample and of the endpoint
+   expansions of the condition-number curve, and their definitions, must
+   equal its code at the commit PHASE9_BASELINE, at which the user accepted
+   them.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -144,6 +150,14 @@ PHASE8_FROZEN = [
     "extension/LatentSignScope.v",
 ]
 PHASE8_BASELINE = "5442e84ba6cdc9ad69848040ea4483269e578896"
+PHASE9_FROZEN = [
+    "extension/RobustDefinitions.v",
+    "extension/RobustStatement.v",
+    "extension/LatentTensorization.v",
+    "extension/ContinuousLatent.v",
+    "extension/ConditionEndpoints.v",
+]
+PHASE9_BASELINE = "1c05ffcbebc81492639e7f9afc7b3dc2b88021e0"
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -284,6 +298,9 @@ def main():
     for path in PHASE8_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE8_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE8_BASELINE[:12]}")
+    for path in PHASE9_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE9_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE9_BASELINE[:12]}")
     for path in CHECKS_EXACT:
         if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
@@ -373,6 +390,8 @@ def main():
           f"{LATENT_BASELINE[:12]}; "
           f"{len(PHASE8_FROZEN)} frozen files of phase 8 unchanged since "
           f"{PHASE8_BASELINE[:12]}; "
+          f"{len(PHASE9_FROZEN)} frozen files of phase 9 unchanged since "
+          f"{PHASE9_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
