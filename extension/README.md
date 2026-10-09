@@ -95,7 +95,8 @@ laws and its corollary for the paired law; (g) phase 8, countable
 mixtures, the optimal condition number and the scope of the latent-sign
 law; (h) phase 9, robustness in total variation, the tensorization of the
 latent-sign law, a continuous latent mixture and the endpoints of the
-condition-number curve.
+condition-number curve; (i) phase 10, the robustness of the optimal
+condition number and a finite tensorization constant.
 
 ---
 
@@ -1256,3 +1257,39 @@ expected lists (`scripts/check_sources.py`, rule 13). Each of the four
 theorems uses seven of the eight classical axioms of
 `check/assumptions.expected`, all but `Classical_Prop.classic`, as the
 theorems of phases 5 to 8 do.
+
+## (i) Phase 10: robustness of the optimal condition number, a finite tensorization constant
+
+Phase 10 takes up the proposals of the review of the phase 9 release
+(`reviews/phase9-release-review.md`, on the VM under
+`/srv/ellipsoid-fitting/`): documentation corrections, the robustness of
+the optimal condition number (R7), a finite constant for the tensorization
+of the latent-sign law (T) and reusable identities (I).
+
+### Files
+
+| File | Content |
+|---|---|
+| `ConditionRobustStatement.v` | `robust_condition_statement` and `robust_condition_number_statement`: the threshold (20) and the limit (21) of `ConditionStatement` for i.i.d. points of laws `P_d` with `d^2 tv(P_d, nu_d) -> 0` around an admissible countable family of fourth moment 3; their conjunction `robust_condition_theorem_statement` |
+| `LatentTensorUpper.v` | `latent_tensor_constant s d = 2 ((1 + s) / (1 - 3 s / 7))^d` and `latent_tensor_upper_statement`: the tensorization inequality (12) of `LatentTensorization` with that constant, for `0 <= s <= 1` and every `d` |
+| `Condition/RobustCondition.v`, `ConditionRobustTheorem.v` | the threshold (20) for the samples of `P_d` by `robust_tends` on the measurable fit events; the limit (21) by moving the exceptional set of the family, whose probability changes by at most `n (tv(P_d, nu_d) + 2 r_d)` (`robust_transfer`, `robust_err_small`); then `robust_condition_theorem : robust_condition_theorem_statement` |
+
+The user accepted the two statement files at commit `b26eb1e`; they are
+frozen, and `scripts/check_sources.py` compares their code with that
+commit.
+
+### Robustness of the optimal condition number
+
+`robust_condition_theorem_statement` gives the two conclusions of the
+optimal condition-number theorem for the countable families of fourth
+moment 3, with the samples of laws `P_d` such that
+`d^2 tv(P_d, nu_d) -> 0` in place of those of the family: for every
+`C > 1`, the probability of an exact fit of condition number at most `C`
+tends to 1 if `alpha < alpha_C` and to 0 if `alpha > alpha_C`, and for
+`0 < alpha < 1/4` the optimal condition number tends to `C_star(alpha)` in
+probability. The laws `P_d` need no moment and no tail bound; the fourth
+moment 3 concerns the family. The proof uses only the transfer of phase 9:
+the fit events are measurable, so their limits carry over, and the
+exceptional set of (21) for the family has, for the samples of `P_d`, a
+probability larger by at most `n (tv(P_d, nu_d) + 2 r_d)`, which tends
+to 0.

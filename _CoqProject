@@ -766,3 +766,5 @@ extension/Condition/Theorem.v
 extension/Condition/Endpoints.v
 extension/ConditionTheorem.v
 extension/ConditionEndpointsTheorem.v
+extension/Condition/RobustCondition.v
+extension/ConditionRobustTheorem.v
