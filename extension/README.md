@@ -1103,3 +1103,81 @@ axioms with the expected lists (`scripts/check_sources.py`, rule 10).
 Each of the three theorems uses seven of the eight classical axioms of
 `check/assumptions.expected`, all but `Classical_Prop.classic`, as the
 theorems of phases 5 to 7 do.
+
+## (h) Phase 9: robustness, tensorization, a continuous latent mixture, the endpoints of the condition curve
+
+Phase 9 formalizes the four items that phase 8 left out (section 5.3 of
+`notes/three-extensions-plan.md`), by the plan
+`notes/optional-items-plan.md` (on the VM, under `/srv/ellipsoid-fitting/`):
+robustness in total variation with the contamination example (the note's
+(17)), the failure of tensorization for the latent-sign law ((12) to
+(14)), a continuous latent mixture that no countable mixture approximates
+((18)), and the expansions of the condition curve at its endpoints ((11),
+(13), (34), (35)). As for phases 6 and 8, the arguments are ordinary and
+their novelty is not confirmed.
+
+### Files
+
+| File | Content |
+|---|---|
+| `RobustDefinitions.v`, `RobustStatement.v` | the point law of a countable mixture (`robust_point_law`), the total variation distance of two laws of a point (`robust_tv`), the law of `n` i.i.d. points (`robust_sample_law`), the contaminated family; `robust_statement` ((17)), `robust_interpolation_statement`, `contamination_statement` and their conjunction `robust_theorem_statement` |
+| `LatentTensorization.v` | the conditional expectation and variance of a function of a latent-sign point given all coordinates but one, through the conditional density; the tensorization inequality (12) with constant `T`; `latent_tensorization_statement`, the lower bounds (13) and (14) on `T` |
+| `ContinuousLatent.v` | the law (18), a mixture over `a` uniform in `[1, 2]` of two-point product laws; `continuous_latent_statement`: the moments of the components, the average fourth moment 11/6, and total variation one from every countable mixture of product laws for `d >= 2` |
+| `ConditionEndpoints.v` | `condition_endpoints_statement`: (11) near `C = 1`, the leading term of (13) as `C -> oo`, (34) near `alpha = 0` and (35) near `alpha = 1/4`, on the frozen `condition_alpha` and `condition_star` |
+| `Countable/Robust.v`, `RobustTheorem.v` | the transfer of the countable conclusions to point laws `P_d` with `d^2 tv(P_d, nu_d) -> 0`, by the bound `n (tv(P, nu_d) + 2 r_d)` on every measurable set of samples; the contamination by the zero point, at distance `lambda / n`, whose probability of a positive definite fit of value one is `(1 - lambda / n)^n` times that of the family; then `robust_theorem : robust_theorem_statement` |
+| `Condition/Endpoints.v`, `ConditionEndpointsTheorem.v` | `m(0) = 2 sqrt 2 / (3 pi)` and the quadratic remainder of `m` at 0 for the semicircle law; `t_C <= 2 m(0) (C - 1)` near `C = 1`; two-sided bounds on `alpha_C` with an error `O((C - 1)^4)`; the inversion lemma behind (34); the behavior at the edge for (13) and (35); then `condition_endpoints_theorem : condition_endpoints_statement` |
+
+The user accepted the five statement files at commit `1c05ffc`; they are
+frozen, and `scripts/check_sources.py` compares their code with that
+commit.
+
+### Robustness in total variation
+
+`robust_statement` gives the conclusions of `countable_theorem_statement`,
+with the same constants, for i.i.d. points of arbitrary laws `P_d` of a
+point such that `d^2 tv(P_d, nu_d) -> 0`, where `nu_d` is the point law of
+an admissible countable family. For a measurable set `E` of samples, the
+probabilities of `E` under `P_d` and under the family differ by at most
+`n (tv(P_d, nu_d) + 2 r_d)`: `tuple_prod_tv`
+(`library/probability/total_variation.v`) bounds the change for `n`
+i.i.d. points by `n` times the distance for one point, the truncation of
+phase 8 replaces `nu_d` by the point law of a finite family at distance at
+most `r_d <= (d + 1)^-3`, and the coupling of phase 8 compares the
+samples. Since `n_d <= 2 alpha d^2`, the error tends to 0.
+
+The scale `d^-2` cannot be relaxed: contaminating each point with
+probability `lambda / n_d` into the zero point gives laws at distance at
+most `lambda / n_d` from the family, of order `d^-2`, while the
+probability of a positive definite fit of value one becomes
+`(1 - lambda / n_d)^n_d` times that of the family, since a zero point has
+value 0 for every matrix; below the threshold it tends to
+`expR (- lambda) < 1` (`contamination_statement`).
+
+### The endpoints of the condition curve
+
+With `m` and `v` the first and second upper moments of the semicircle law
+on `[-sqrt 2, sqrt 2]` and `mu0 = m(0) = 2 sqrt 2 / (3 pi)`:
+
+- Near `C = 1`, with `u = C - 1`: (11),
+  `|alpha_C - (8 / (9 pi^2)) u^2 (1 - u)| <= K u^4` for small `u`. The
+  route: `alpha_C = v(t) - v(C t) - t^2` at `t = t_C`, and at least that
+  value at every `t >= 0`; `m(t) = mu0 - t/2 + O(t^2)`, from a tent
+  integral and the bound `sqrt 2 / pi` on the density; `t_C <= 2 mu0 u`;
+  then the value at `t = mu0 u / C` gives the lower bound and the Taylor
+  bound of `v` at `t_C` the upper bound, both `mu0^2 u^2 / C + O(u^4)`,
+  and `mu0^2 = 8 / (9 pi^2)`.
+- (34): `u = C_star(alpha) - 1` solves
+  `alpha = mu0^2 u^2 (1 - u) + O(u^4)`. With `b = sqrt alpha / mu0`, the
+  factorization `F(u) - F(w) = (u - w) (u + w - (u^2 + u w + w^2))` of
+  `F(u) = u^2 (1 - u)` at `w = b + b^2 / 2` gives `u = w + O(b^3)`, that
+  is `C_star(alpha) = 1 + (3 pi / (2 sqrt 2)) sqrt alpha
+  + (9 pi^2 / 16) alpha + O(alpha^(3/2))`.
+- As `C -> oo`: `C t_C -> sqrt 2`, and
+  `C (1/4 - alpha_C) -> 2 sqrt 2 mu0 = 8 / (3 pi)`, from
+  `v(-t) = 1/4 + 2 mu0 t + O(t^2)` and `v(w) <= (sqrt 2 - w) m(w)`; (35)
+  follows since `C_star(alpha) -> oo` as `alpha -> 1/4`.
+
+The statements are on the frozen `condition_alpha` and `condition_star`, so
+they describe the limits of `condition_theorem`; as in the note, the limits
+in `C` and `alpha` are taken after the limit in the dimension. The finer
+terms of (13) and (14), in `C^(-7/5)`, are not stated.
