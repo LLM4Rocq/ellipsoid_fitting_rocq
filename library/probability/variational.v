@@ -60,6 +60,15 @@ From mathcomp Require Import lebesgue_integral probability.
 (*   upper_variational_le holds without the positive part,                    *)
 (*   (E X f(X))^2 <= upper_value mu c 0 (E f(X)^2 + c (E f(X))^2)             *)
 (*   (Proposition 5.10 (ii)).                                                 *)
+(* - The energy of a two-sided clip: clip_energy mu C t = s(-t) + s(C t), the *)
+(*   mean squared distance from X to [t, C t] for a symmetric law             *)
+(*   (clip_energyE), and clip_value mu C, its infimum over t >= 0.            *)
+(*   clip_energy_taylor: its derivative in t is 2 (m(-t) - C m(C t));         *)
+(*   clip_value_attained: a point t0 >= 0 where the derivative changes sign   *)
+(*   from <= 0 to >= 0 is a minimum; clip_energy_C, clip_value_nincr:         *)
+(*   nonincreasing in C, with a Lipschitz bound. taylor_nincr, taylor_ndecr:  *)
+(*   a function with a Taylor bound |F(t + h) - F(t) - h g(t)| <= K h^2 is    *)
+(*   monotone where g has a sign (a discrete integration).                    *)
 (* - Tools: Rintegral_sqr_le ((E g)^2 <= E g^2), discriminant_le (a           *)
 (*   quadratic a + 2 b t + k t^2 >= 0 for all t has b^2 <= a k),              *)
 (*   upper_form_ge0 (E f^2 + c (E f)^2 >= 0 for c > -1), integrable_of_sqr,   *)
@@ -94,6 +103,8 @@ From mathcomp Require Import lebesgue_integral probability.
 (*         empirical s == the average of the Dirac masses at the elements     *)
 (*                        of s                                                *)
 (*    empirical_fun g == empirical [seq g i | i <- enum 'I_d]                 *)
+(*  clip_energy mu C t == s(-t) + s(C t)                                      *)
+(*    clip_value mu C == the infimum of clip_energy mu C t over t >= 0        *)
 (* ```                                                                        *)
 (******************************************************************************)
 
@@ -1556,3 +1567,196 @@ by apply: measurable_maxr => //; apply: measurable_funB.
 Qed.
 
 End empirical_variational.
+
+(* ## Monotonicity from a Taylor bound *)
+
+Section taylor_monotone.
+Context {R : realType}.
+
+(* A function with derivative g in the sense of a Taylor bound with a
+   quadratic remainder does not increase where g <= 0: a discrete
+   integration of the bound. *)
+Lemma taylor_nincr (F g : R -> R) (K a b : R) :
+  (forall t h : R, 0 <= h -> `|F (t + h) - F t - h * g t| <= K * h ^+ 2) ->
+  a <= b -> (forall t : R, a <= t -> t < b -> g t <= 0) -> F b <= F a.
+Proof.
+move=> hT ab hg.
+have [-> //|ab'] := eqVneq a b.
+have ablt : a < b by rewrite lt_neqAle ab' ab.
+(* F b - F a <= K (b - a)^2 / N, by N steps of length (b - a) / N *)
+have key N : (0 < N)%N -> F b - F a <= K * (b - a) ^+ 2 / N%:R.
+  move=> N0; have NR : 0 < N%:R :> R by rewrite ltr0n.
+  pose h := (b - a) / N%:R.
+  have h0 : 0 < h by rewrite divr_gt0 // subr_gt0.
+  pose u (k : nat) := F (a + k%:R * h).
+  have uN : u N = F b by rewrite /u /h mulrC divfK ?gt_eqF // addrC subrK.
+  have u0 : u 0%N = F a by rewrite /u mul0r addr0.
+  rewrite -uN -u0 -(telescope_sumr _ (leq0n N)).
+  have -> : K * (b - a) ^+ 2 / N%:R = \sum_(0 <= k < N) (K * h ^+ 2).
+    rewrite sumr_const_nat subn0 /h -mulr_natr.
+    have nz : N%:R != 0 :> R by rewrite pnatr_eq0 -lt0n.
+    by field.
+  apply: ler_sum_nat => k /andP[_ kN].
+  have tk : a <= a + k%:R * h by rewrite lerDl mulr_ge0 // ltW.
+  have tkb : a + k%:R * h < b.
+    have : k%:R * h < N%:R * h by rewrite ltr_pM2r // ltr_nat.
+    have Nh : N%:R * h = b - a by rewrite /h mulrC divfK ?gt_eqF.
+    by rewrite Nh => kh; lra.
+  have gk := hg _ tk tkb.
+  rewrite /u -natr1 mulrDl mul1r addrA.
+  have hb := hT (a + k%:R * h) h (ltW h0).
+  have hg0 : h * g (a + k%:R * h) <= 0 by rewrite mulr_ge0_le0 // ltW.
+  have := ler_norm (F (a + k%:R * h + h) - F (a + k%:R * h) -
+    h * g (a + k%:R * h)).
+  lra.
+rewrite leNgt; apply/negP => Fab.
+have d0 : 0 < F b - F a by rewrite subr_gt0.
+pose N := (archimedean.Num.truncn (K * (b - a) ^+ 2 / (F b - F a))).+1.
+have NR : 0 < N%:R :> R by rewrite ltr0n.
+have := key N isT.
+have : K * (b - a) ^+ 2 / N%:R < F b - F a.
+  have hk :=
+    archimedean.Num.Theory.truncnS_gt (K * (b - a) ^+ 2 / (F b - F a)).
+  rewrite ltr_pdivrMr // in hk; rewrite -/N in hk.
+  by rewrite ltr_pdivrMr //; nra.
+lra.
+Qed.
+
+Lemma taylor_ndecr (F g : R -> R) (K a b : R) :
+  (forall t h : R, 0 <= h -> `|F (t + h) - F t - h * g t| <= K * h ^+ 2) ->
+  a <= b -> (forall t : R, a <= t -> t < b -> 0 <= g t) -> F a <= F b.
+Proof.
+move=> hT ab hg.
+suff : - F b <= - F a by rewrite lerN2.
+apply: (taylor_nincr (F := fun t => - F t) (g := fun t => - g t) (K := K))
+  => //.
+  move=> t h h0.
+  have -> : - F (t + h) - - F t - h * - g t =
+    - (F (t + h) - F t - h * g t) by ring.
+  by rewrite normrN; exact: hT.
+by move=> t ta tb; rewrite oppr_le0; exact: hg.
+Qed.
+
+End taylor_monotone.
+
+(* ## The energy of a clip to [t, C t] *)
+
+Section clip_energy.
+Context {R : realType} (mu : probability (measurableTypeR R) R).
+Hypothesis mu2 :
+  mu.-integrable [set: measurableTypeR R] (EFin \o (fun x => (x : R) ^+ 2)).
+
+Local Notation m := (upper_moment mu 1).
+Local Notation s := (upper_moment mu 2).
+
+(* s(-t) + s(C t): for a symmetric law, the mean squared distance from X
+   to the interval [t, C t] (clip_energyE). *)
+Definition clip_energy (C t : R) : R := s (- t) + s (C * t).
+
+(* Its infimum over t >= 0. *)
+Definition clip_value (C : R) : R :=
+  inf [set clip_energy C t | t in [set t : R | 0 <= t]].
+
+Lemma clip_energy_ge0 (C t : R) : 0 <= clip_energy C t.
+Proof. by rewrite /clip_energy addr_ge0 // upper_moment_ge0. Qed.
+
+Lemma clip_value_le (C t : R) : 0 <= t -> clip_value C <= clip_energy C t.
+Proof.
+move=> t0; apply: ge_inf; last by exists t.
+by exists 0 => _ [u _ <-]; exact: clip_energy_ge0.
+Qed.
+
+Lemma clip_value_ge (C r : R) :
+  (forall t : R, 0 <= t -> r <= clip_energy C t) -> r <= clip_value C.
+Proof.
+move=> h; apply: lb_le_inf; first by exists (clip_energy C 0), 0 => //=.
+by move=> _ [t t0 <-]; exact: h.
+Qed.
+
+(* The derivative in t is 2 (m(-t) - C m(C t)). *)
+Lemma clip_energy_taylor (C t h : R) :
+  `|clip_energy C (t + h) - clip_energy C t -
+    h * (2 * (m (- t) - C * m (C * t)))| <= (1 + C ^+ 2) * h ^+ 2.
+Proof.
+have h1 := upper_moment2_taylor mu2 (- t) (- h).
+have h2 := upper_moment2_taylor mu2 (C * t) (C * h).
+rewrite /clip_energy opprD mulrDr.
+have -> : s (- t + - h) + s (C * t + C * h) - (s (- t) + s (C * t)) -
+    h * (2 * (m (- t) - C * m (C * t))) =
+  (s (- t + - h) - s (- t) + 2 * (- h) * m (- t)) +
+  (s (C * t + C * h) - s (C * t) + 2 * (C * h) * m (C * t)) by ring.
+apply: le_trans (ler_normD _ _) _.
+have -> : (1 + C ^+ 2) * h ^+ 2 = (- h) ^+ 2 + (C * h) ^+ 2.
+  by rewrite sqrrN exprMn; ring.
+exact: lerD h1 h2.
+Qed.
+
+(* A zero t0 of the derivative, with the derivative <= 0 before it and
+   >= 0 after it, is a minimum. *)
+Lemma clip_value_attained (C t0 : R) : 0 <= t0 ->
+  (forall t : R, 0 <= t -> t < t0 -> m (- t) <= C * m (C * t)) ->
+  (forall t : R, t0 <= t -> C * m (C * t) <= m (- t)) ->
+  clip_value C = clip_energy C t0.
+Proof.
+move=> t00 hlo hhi.
+have hT (t h : R) : 0 <= h ->
+    `|clip_energy C (t + h) - clip_energy C t -
+      h * (2 * (m (- t) - C * m (C * t)))| <= (1 + C ^+ 2) * h ^+ 2.
+  by move=> _; exact: clip_energy_taylor.
+apply/eqP; rewrite eq_le; apply/andP; split; first exact: clip_value_le.
+apply: clip_value_ge => t tp.
+have [tt0|t0t] := leP t t0.
+  apply: (taylor_nincr hT tt0) => u tu ut0.
+  by rewrite pmulr_rle0 // subr_le0; apply: hlo => //; exact: le_trans tp tu.
+apply: (taylor_ndecr hT (ltW t0t)) => u tu ut.
+by rewrite pmulr_rge0 // subr_ge0; exact: hhi.
+Qed.
+
+Lemma clip_energy_C (C C' t : R) : 0 <= t -> C <= C' ->
+  0 <= clip_energy C t - clip_energy C' t <=
+    (C' - C) * t * (m (C * t) + m (C' * t)).
+Proof.
+move=> t0 CC.
+have h := upper_moment2_lipschitz mu2 (ler_wpM2r t0 CC).
+have -> : clip_energy C t - clip_energy C' t = s (C * t) - s (C' * t).
+  by rewrite /clip_energy; ring.
+by rewrite (_ : (C' - C) * t = C' * t - C * t) //; ring.
+Qed.
+
+Lemma clip_value_nincr (C C' : R) : C <= C' -> clip_value C' <= clip_value C.
+Proof.
+move=> CC; apply: clip_value_ge => t t0.
+apply: le_trans (clip_value_le C' t0) _.
+by have /andP[h _] := clip_energy_C t0 CC; rewrite -subr_ge0.
+Qed.
+
+End clip_energy.
+
+Section clip_energy_sym.
+Context {R : realType} (mu : probability (measurableTypeR R) R).
+Hypothesis mu2 :
+  mu.-integrable [set: measurableTypeR R] (EFin \o (fun x => (x : R) ^+ 2)).
+Hypothesis musym : forall A : set (measurableTypeR R), measurable A ->
+  mu ((fun x => - x) @^-1` A) = mu A.
+
+(* For a symmetric law, clip_energy is the integral of
+   (t - x)_+^2 + (x - C t)_+^2, the squared distance from x to [t, C t]
+   when 0 <= t <= C t. *)
+Lemma clip_energyE (C t : R) :
+  \int[mu]_x (Num.max (t - (x : R)) 0 ^+ 2 + Num.max ((x : R) - C * t) 0 ^+ 2) =
+  clip_energy mu C t.
+Proof.
+have i0 := integrable_upper_pow mu2 (- t) (isT : (2 <= 2)%N).
+have i1 : mu.-integrable [set: measurableTypeR R]
+    (EFin \o (fun x => Num.max (t - (x : R)) 0 ^+ 2)).
+  have := integrable_sym musym i0.
+  by apply: eq_integrable => // x _ /=; rewrite opprK addrC.
+have i2 := integrable_upper_pow mu2 (C * t) (isT : (2 <= 2)%N).
+rewrite RintegralD //; congr (_ + _).
+have -> : \int[mu]_x Num.max (t - (x : R)) 0 ^+ 2 =
+    \int[mu]_x (Num.max ((- (x : R)) - (- t)) 0 ^+ 2).
+  by apply: eq_Rintegral => x _; rewrite opprK addrC.
+exact: (Rintegral_sym musym i0).
+Qed.
+
+End clip_energy_sym.
