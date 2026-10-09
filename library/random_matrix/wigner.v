@@ -60,6 +60,12 @@ From GaussianAnalysis.random_matrix Require Import goe.
 (*   bound (Boole_inequality), and the event opnorm W >= 3 again; between     *)
 (*   grid points goe_stat_near and semicircle_near. Lemma 5.14 uses it for    *)
 (*   the functions (x - t)_+ and (x - t)_+^2.                                 *)
+(* - wigner_uniform_inf: under the same hypotheses, with t0 <= t1, the        *)
+(*   infimum over t in [t0, t1] of goe_stat (f t) a converges in probability  *)
+(*   to the infimum over t of \int f_t dsigma: for every large d, the samples *)
+(*   where the two differ by at least eps lie in a measurable event of        *)
+(*   probability at most eps. It follows from wigner_uniform at eps / 3, with *)
+(*   inf_adherent; no minimum needs to be attained.                           *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*   goe_stat f a == (1 / d) \sum_i f (spec (goe_mx a) 0 i), the empirical    *)
@@ -1052,6 +1058,72 @@ exists (O `|` \big[setU/set0]_(k < K.+1) B k); split.
   have := lt_le_trans (le_lt_trans ht (le_lt_trans tri
     (ltr_leD (ler_ltD h1 hlt) h2))) e3.
   by rewrite ltxx.
+Qed.
+
+(* The minimum over t in [t0, t1], written as an infimum, of goe_stat (f t)
+   converges in probability to the minimum over t of \int f t dsigma, under
+   the hypotheses of wigner_uniform: outside an event of probability at most
+   eps / 3, every goe_stat (f t) is within eps / 3 of its limit, so the two
+   infima differ by less than 2 eps / 3. No minimum needs to be attained. *)
+Theorem wigner_uniform_inf (f : R -> R -> R) (L t0 t1 : R) : t0 <= t1 ->
+  (forall t, continuous (f t)) ->
+  (forall t x y, t0 <= t <= t1 -> -3 <= x <= 3 -> -3 <= y <= 3 ->
+     `|f t x - f t y| <= L * `|x - y|) ->
+  (forall t s x, t0 <= t <= t1 -> t0 <= s <= t1 -> -3 <= x <= 3 ->
+     `|f t x - f s x| <= L * `|t - s|) ->
+  forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
+  exists A : set 'rV[R]_(d * d), [/\ measurable A,
+    (@gauss R (d * d) A <= eps%:E)%E &
+    [set a | eps <=
+       `|inf [set goe_stat (f t) a | t in [set t | t0 <= t <= t1]] -
+         inf [set \int[sigma]_x f t x | t in [set t | t0 <= t <= t1]]|]
+    `<=` A].
+Proof.
+move=> t01 cf fL ft eps e0.
+have e30 : 0 < eps / 3 by rewrite divr_gt0.
+have [D hD] := wigner_uniform cf fL ft e30.
+exists D => d dD; have [A [mA PA hA]] := hD d dD.
+exists A; split => //.
+  by apply: le_trans PA _; rewrite lee_fin; lra.
+move=> a /= hge; apply: contrapT => nA.
+set I := [set t : R | t0 <= t <= t1] in hge *.
+have I0 : I t0 by rewrite /I /= lexx t01.
+have dev t : I t -> `|goe_stat (f t) a - \int[sigma]_x f t x| < eps / 3.
+  move=> tt; rewrite ltNge; apply/negP => h; apply: nA; apply: hA.
+  by exists t; [exact: tt | exact: h].
+set SL := [set \int[sigma]_x f t x | t in I] in hge *.
+set SE := [set goe_stat (f t) a | t in I] in hge *.
+have lbL t : I t ->
+    \int[sigma]_x f t0 x - `|L| * (t1 - t0) <= \int[sigma]_x f t x.
+  move=> tt; have /andP[tt0 tt1] := tt.
+  have h : `|\int[sigma]_x f t x - \int[sigma]_x f t0 x| <=
+      `|L| * (t1 - t0).
+    apply: semicircle_near (cf t) (cf t0) _ => x hx.
+    apply: le_trans (ft t t0 x tt I0 hx) _.
+    apply: le_trans (ler_wpM2r (normr_ge0 _) (ler_norm L)) _.
+    apply: ler_wpM2l; first exact: normr_ge0.
+    by rewrite ger0_norm ?subr_ge0 // lerD2r.
+  by move: h; rewrite ler_distl => /andP[].
+have hSL : has_inf SL.
+  split; first by exists (\int[sigma]_x f t0 x); exists t0.
+  exists (\int[sigma]_x f t0 x - `|L| * (t1 - t0)) => _ [t tt <-].
+  exact: lbL.
+have mle t : I t -> inf SL <= \int[sigma]_x f t x.
+  by move=> tt; apply: (ge_inf hSL.2); exists t.
+have SElb : lbound SE (inf SL - eps / 3).
+  move=> _ [t tt <-]; have := dev t tt; rewrite ltr_distl => /andP[h1 _].
+  by apply: le_trans (ltW h1); rewrite lerD2r; exact: mle.
+have hSE : has_inf SE.
+  by split; [exists (goe_stat (f t0) a); exists t0 | exists (inf SL - eps / 3)].
+have [_ [t tt <-] ht] := inf_adherent e30 hSL.
+have u1 : inf SE <= goe_stat (f t) a by apply: (ge_inf hSE.2); exists t.
+have l1 : inf SL - eps / 3 <= inf SE by apply: lb_le_inf => //; exact: hSE.1.
+have := dev t tt; rewrite ltr_distl => /andP[_ h2].
+move: hge l1 u1 ht h2.
+set p := inf SE; set q := inf SL; set g := goe_stat (f t) a.
+set u := \int[sigma]_x f t x => hge l1 u1 ht h2.
+have : `|p - q| < eps by rewrite ltr_distl; apply/andP; split; lra.
+by rewrite ltNge hge.
 Qed.
 
 End wigner.
