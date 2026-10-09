@@ -740,6 +740,7 @@ extension/Paired/Law.v
 extension/Paired/Theorem.v
 extension/Paired/LatentSign.v
 extension/Paired/Scope.v
+extension/Paired/Tensorization.v
 extension/Countable/Truncation.v
 extension/Countable/Theorem.v
 extension/CountableTheorem.v
