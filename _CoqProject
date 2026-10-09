@@ -747,6 +747,8 @@ extension/Countable/Theorem.v
 extension/CountableTheorem.v
 extension/Countable/Robust.v
 extension/RobustTheorem.v
+extension/Countable/Continuous.v
+extension/ContinuousLatentTheorem.v
 extension/Condition/Slices.v
 extension/Condition/GaussianWitness.v
 extension/Condition/GaussianGap.v
