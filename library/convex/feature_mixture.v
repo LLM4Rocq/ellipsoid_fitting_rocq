@@ -6,7 +6,7 @@ From mathcomp Require Import measure lebesgue_measure measurable_realfun.
 From mathcomp Require Import numfun lebesgue_integral hoelder probability.
 From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.gaussian Require Import measurable_matrix.
-From GaussianAnalysis.matrix Require Import euclidean opnorm.
+From GaussianAnalysis.matrix Require Import euclidean opnorm real_spectral.
 From GaussianAnalysis.probability Require Import moments mixture.
 From GaussianAnalysis.convex Require Import least_squares feature_moments.
 
@@ -18,21 +18,27 @@ From GaussianAnalysis.convex Require Import least_squares feature_moments.
 (* A |theta|^4 and Var_i (z T z^T) <= tau^2 |T|_F^2 for T symmetric, is a     *)
 (* regular feature (regular_feature of least_squares.v) with covariance       *)
 (* Sigma = sum_i w_i Sig i as soon as opnorm Sigma > 0. The law of total      *)
-(* variance adds to tau^2 the spread c^2 >= sum_i w_i |Sig i - Sigma|_F^2 of  *)
-(* the covariances, because E_i z T z^T - E z T z^T = <(Sig i - Sigma)^T, T>  *)
-(* and Cauchy-Schwarz for the Frobenius product bounds its square by          *)
-(* |T|_F^2 |Sig i - Sigma|_F^2. No structure of Sig i - Sigma is needed.      *)
+(* variance adds to tau^2 the spread c^2 of the covariances: for T            *)
+(* symmetric, E_i z T z^T - E z T z^T = <Sig i - Sigma, T>, so it suffices    *)
+(* that sum_i w_i <Sig i - Sigma, T>^2 <= c^2 |T|_F^2 for every symmetric T.  *)
+(* By Cauchy-Schwarz for the Frobenius product, c^2 >=                        *)
+(* sum_i w_i |Sig i - Sigma|_F^2 is enough. No structure of Sig i - Sigma     *)
+(* is needed.                                                                 *)
 (*                                                                            *)
 (* - moment4_integrable and its corollaries moment4_int_lin,                  *)
 (*   moment4_int_lin2, moment4_int_quad, moment4_Lfun2_quad: under a law with *)
-(*   E <z, theta>^4 <= A |theta|^4 for every theta, the polynomials of degree *)
-(*   at most 4 in the coordinates are integrable (as reg_integrable of        *)
-(*   feature_moments.v for a regular feature);                                *)
+(*   E <z, theta>^4 <= A |theta|^4 for every theta, a measurable g with       *)
+(*   |g z| <= a + b |z|^4 is integrable, so the polynomials of degree at      *)
+(*   most 4 in the coordinates are (as reg_integrable of feature_moments.v    *)
+(*   for a regular feature);                                                  *)
 (* - quad_expectation: E z T z^T = <Sig^T, T> for a law with second-moment    *)
 (*   matrix Sig, that is E <z, theta> <z, theta'> = theta Sig theta'^T;       *)
-(* - mixture_regular_feature: the mixture is a regular feature with           *)
+(* - mixture_regular_feature_dot: the mixture is a regular feature with       *)
 (*   covariance Sigma, any K with A <= K^4 opnorm Sigma^2, and                *)
-(*   sqrt (tau^2 + c^2) in place of tau.                                      *)
+(*   sqrt (tau^2 + c^2) in place of tau, when                                 *)
+(*   sum_i w_i <Sig i - Sigma, T>^2 <= c^2 |T|_F^2 for every symmetric T;     *)
+(* - mixture_regular_feature: the same when                                   *)
+(*   sum_i w_i |Sig i - Sigma|_F^2 <= c^2.                                    *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -74,7 +80,7 @@ rewrite [`|mxdot z z ^+ 2|]ger0_norm ?sqr_ge0 //.
 exact: le_trans (mxdot_sqr_sum z) (ler_norm _).
 Qed.
 
-(* Domination by a + b |z|^4. *)
+(* Domination of |g| by a + b |z|^4. *)
 Lemma moment4_integrable (g : 'rV[R]_N -> R) (a b : R) :
   measurable_fun setT g -> (forall z, `|g z| <= a + b * mxdot z z ^+ 2) ->
   mu.-integrable setT (EFin \o g).
@@ -198,8 +204,10 @@ Let w0 i : 0 <= w i := mixture_weights_ge0 hw i.
 
 Let sum_w : \sum_i w i = 1 := mixture_weights_sum hw.
 
-Theorem mixture_regular_feature :
-  0 < opnorm Sigma -> \sum_i w i * frobenius (Sig i - Sigma) ^+ 2 <= c ^+ 2 ->
+Theorem mixture_regular_feature_dot :
+  0 < opnorm Sigma ->
+  (forall T : 'M[R]_N, T \is symmetricmx ->
+    \sum_i w i * mxdot (Sig i - Sigma) T ^+ 2 <= c ^+ 2 * frobenius T ^+ 2) ->
   A <= K ^+ 4 * opnorm Sigma ^+ 2 ->
   regular_feature K (Num.sqrt (tau ^+ 2 + c ^+ 2)) Sigma mu.
 Proof.
@@ -240,27 +248,44 @@ move=> S0 spread AK; split => //.
       by rewrite !mxE.
     by rewrite mxdot_suml; apply: eq_bigr => i _; rewrite mxdotZl.
   rewrite (variance_mixture hw (fun i => moment4_Lfun2_quad (P4 i) T)).
+  have Tt : T^T = T by apply/symmetricmxP.
   apply: (@le_trans _ _ (\sum_i (w i)%:E * ((tau ^+ 2 * frobenius T ^+ 2 +
-      frobenius (Sig i - Sigma) ^+ 2 * frobenius T ^+ 2)%:E))%E).
+      mxdot (Sig i - Sigma) T ^+ 2)%:E))%E).
     apply: lee_sum => i _; apply: lee_wpmul2l; first by rewrite lee_fin.
     rewrite EFinD; apply: leeD; first exact: PV.
     rewrite hE hEm -EFinB -EFin_expe lee_fin.
     have -> : mxdot (Sig i)^T T - mxdot Sigma^T T = mxdot (Sig i - Sigma)^T T.
       by rewrite raddfB /= mxdotBl.
-    apply: le_trans (mxdot_cauchy_schwarz _ _) _.
-    by rewrite -!frobenius_sqr frobenius_trmx.
+    by rewrite -[in X in X <= _]Tt mxdot_trmx.
   rewrite (eq_bigr (fun i => (w i * (tau ^+ 2 * frobenius T ^+ 2 +
-      frobenius (Sig i - Sigma) ^+ 2 * frobenius T ^+ 2))%:E)); try
+      mxdot (Sig i - Sigma) T ^+ 2))%:E)); try
     by move=> i _; rewrite EFinM.
   have tc : 0 <= tau ^+ 2 + c ^+ 2 by rewrite addr_ge0 ?sqr_ge0.
   rewrite sumEFin lee_fin (sqr_sqrtr tc).
   have -> : \sum_i w i * (tau ^+ 2 * frobenius T ^+ 2 +
-      frobenius (Sig i - Sigma) ^+ 2 * frobenius T ^+ 2) =
+      mxdot (Sig i - Sigma) T ^+ 2) =
       tau ^+ 2 * frobenius T ^+ 2 * \sum_i w i +
-      (\sum_i w i * frobenius (Sig i - Sigma) ^+ 2) * frobenius T ^+ 2.
-    rewrite mulr_sumr mulr_suml -big_split /=; apply: eq_bigr => i _; ring.
-  rewrite sum_w mulr1 mulrDl lerD2l.
-  by apply: ler_wpM2r => //; exact: sqr_ge0.
+      \sum_i w i * mxdot (Sig i - Sigma) T ^+ 2.
+    rewrite mulr_sumr -big_split /=; apply: eq_bigr => i _; ring.
+  by rewrite sum_w mulr1 mulrDl lerD2l; exact: spread.
+Qed.
+
+(* The hypothesis on the spread of the covariances of
+   mixture_regular_feature_dot follows from a bound on
+   sum_i w_i |Sig i - Sigma|_F^2, by Cauchy-Schwarz for the Frobenius
+   product. *)
+Theorem mixture_regular_feature :
+  0 < opnorm Sigma -> \sum_i w i * frobenius (Sig i - Sigma) ^+ 2 <= c ^+ 2 ->
+  A <= K ^+ 4 * opnorm Sigma ^+ 2 ->
+  regular_feature K (Num.sqrt (tau ^+ 2 + c ^+ 2)) Sigma mu.
+Proof.
+move=> S0 spread AK; apply: mixture_regular_feature_dot => // T Ts.
+apply: (@le_trans _ _
+  ((\sum_i w i * frobenius (Sig i - Sigma) ^+ 2) * frobenius T ^+ 2)).
+  rewrite mulr_suml; apply: ler_sum => i _; rewrite -mulrA.
+  apply: ler_wpM2l; first exact: w0.
+  by apply: le_trans (mxdot_cauchy_schwarz _ _) _; rewrite -!frobenius_sqr.
+by apply: ler_wpM2r => //; exact: sqr_ge0.
 Qed.
 
 End mixture_regular.
