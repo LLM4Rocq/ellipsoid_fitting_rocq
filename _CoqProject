@@ -735,12 +735,14 @@ extension/MixtureTheorem.v
 extension/PairedTheorem.v
 extension/LatentSignTheorem.v
 extension/LatentScopeTheorem.v
+extension/LatentTensorTheorem.v
 extension/Paired/Uniform.v
 extension/Paired/Law.v
 extension/Paired/Theorem.v
 extension/Paired/LatentSign.v
 extension/Paired/Scope.v
 extension/Paired/Tensorization.v
+extension/Paired/Conditional.v
 extension/Countable/Truncation.v
 extension/Countable/Theorem.v
 extension/CountableTheorem.v
