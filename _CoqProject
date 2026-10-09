@@ -688,6 +688,11 @@ extension/CountableMixtureStatement.v
 extension/ConditionDefinitions.v
 extension/ConditionStatement.v
 extension/LatentSignScope.v
+extension/RobustDefinitions.v
+extension/RobustStatement.v
+extension/LatentTensorization.v
+extension/ContinuousLatent.v
+extension/ConditionEndpoints.v
 extension/Model/Rows.v
 extension/Model/Measurability.v
 extension/Features/Definitions.v
