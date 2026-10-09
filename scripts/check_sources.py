@@ -80,6 +80,21 @@
    expansions of the condition-number curve, and their definitions, must
    equal its code at the commit PHASE9_BASELINE, at which the user accepted
    them.
+13. Phase 9. check/RobustAssumptions.v, check/LatentTensorAssumptions.v,
+   check/ContinuousLatentAssumptions.v and
+   check/ConditionEndpointsAssumptions.v have the codes ROBUST_CHECK,
+   LATENT_TENSOR_CHECK, CONTINUOUS_LATENT_CHECK and
+   CONDITION_ENDPOINTS_CHECK: they check that robust_theorem proves
+   robust_theorem_statement, latent_tensor_theorem proves
+   latent_tensorization_statement, continuous_latent_theorem proves
+   continuous_latent_statement and condition_endpoints_theorem proves
+   condition_endpoints_statement, and print their axioms. Given their
+   outputs as ninth to twelfth arguments, every axiom they print is among
+   those of check/robust_assumptions.expected,
+   check/latent_tensor_assumptions.expected,
+   check/continuous_latent_assumptions.expected and
+   check/condition_endpoints_assumptions.expected, whose axioms are among
+   those of check/assumptions.expected.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -193,6 +208,26 @@ LATENT_SCOPE_CHECK = (
     "LatentScopeTheorem. Definition latent_scope_theorem_checked : "
     "latent_scope_statement := latent_scope_theorem. "
     "Print Assumptions latent_scope_theorem.")
+ROBUST_CHECK = (
+    "From EllipsoidUniversality Require Import RobustStatement "
+    "RobustTheorem. Definition robust_theorem_checked : "
+    "robust_theorem_statement := robust_theorem. "
+    "Print Assumptions robust_theorem.")
+LATENT_TENSOR_CHECK = (
+    "From EllipsoidUniversality Require Import LatentTensorization "
+    "LatentTensorTheorem. Definition latent_tensor_theorem_checked : "
+    "latent_tensorization_statement := latent_tensor_theorem. "
+    "Print Assumptions latent_tensor_theorem.")
+CONTINUOUS_LATENT_CHECK = (
+    "From EllipsoidUniversality Require Import ContinuousLatent "
+    "ContinuousLatentTheorem. Definition continuous_latent_theorem_checked : "
+    "continuous_latent_statement := continuous_latent_theorem. "
+    "Print Assumptions continuous_latent_theorem.")
+CONDITION_ENDPOINTS_CHECK = (
+    "From EllipsoidUniversality Require Import ConditionEndpoints "
+    "ConditionEndpointsTheorem. Definition condition_endpoints_theorem_checked "
+    ": condition_endpoints_statement := condition_endpoints_theorem. "
+    "Print Assumptions condition_endpoints_theorem.")
 # The theorems of phases 6 and 7: name, check file, its code, expected
 # axioms; their reports are the third, fourth and fifth arguments.
 PHASE6_THEOREMS = [
@@ -212,6 +247,19 @@ PHASE8_THEOREMS = [
      CONDITION_CHECK, "check/condition_assumptions.expected"),
     ("latent-sign scope theorem", "check/LatentScopeAssumptions.v",
      LATENT_SCOPE_CHECK, "check/latent_scope_assumptions.expected"),
+]
+# The theorems of phase 9; their reports are the ninth to twelfth
+# arguments.
+PHASE9_THEOREMS = [
+    ("robustness theorem", "check/RobustAssumptions.v", ROBUST_CHECK,
+     "check/robust_assumptions.expected"),
+    ("tensorization theorem", "check/LatentTensorAssumptions.v",
+     LATENT_TENSOR_CHECK, "check/latent_tensor_assumptions.expected"),
+    ("continuous-latent theorem", "check/ContinuousLatentAssumptions.v",
+     CONTINUOUS_LATENT_CHECK, "check/continuous_latent_assumptions.expected"),
+    ("condition-endpoints theorem", "check/ConditionEndpointsAssumptions.v",
+     CONDITION_ENDPOINTS_CHECK,
+     "check/condition_endpoints_assumptions.expected"),
 ]
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 ASSUMPTION = re.compile(
@@ -360,7 +408,7 @@ def main():
                   "check/universality_assumptions.expected:",
                   ", ".join(sorted(printed)) or "none")
     for k, (name, check, check_code, expected) in enumerate(
-            PHASE6_THEOREMS + PHASE8_THEOREMS):
+            PHASE6_THEOREMS + PHASE8_THEOREMS + PHASE9_THEOREMS):
         if code((ROOT / check).read_text()) != check_code:
             failures.append(f"{check}: code differs from the expected check")
         allowed_k = axiom_names((ROOT / expected).read_text())
@@ -401,7 +449,11 @@ def main():
           + ("; axioms of the latent-sign theorem allowed" if len(sys.argv) > 5 else "")
           + ("; axioms of the countable-mixture theorem allowed" if len(sys.argv) > 6 else "")
           + ("; axioms of the condition-number theorem allowed" if len(sys.argv) > 7 else "")
-          + ("; axioms of the latent-sign scope theorem allowed" if len(sys.argv) > 8 else ""))
+          + ("; axioms of the latent-sign scope theorem allowed" if len(sys.argv) > 8 else "")
+          + ("; axioms of the robustness theorem allowed" if len(sys.argv) > 9 else "")
+          + ("; axioms of the tensorization theorem allowed" if len(sys.argv) > 10 else "")
+          + ("; axioms of the continuous-latent theorem allowed" if len(sys.argv) > 11 else "")
+          + ("; axioms of the condition-endpoints theorem allowed" if len(sys.argv) > 12 else ""))
 
 
 if __name__ == "__main__":

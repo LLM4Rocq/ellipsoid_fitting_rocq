@@ -49,7 +49,11 @@ check: build
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/CountableAssumptions.vo check/CountableAssumptions.v > build/countable_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ConditionAssumptions.vo check/ConditionAssumptions.v > build/condition_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/LatentScopeAssumptions.vo check/LatentScopeAssumptions.v > build/latent_scope_assumptions.txt
-	python3 scripts/check_sources.py build/assumptions.txt build/universality_assumptions.txt build/mixture_assumptions.txt build/paired_assumptions.txt build/latent_sign_assumptions.txt build/countable_assumptions.txt build/condition_assumptions.txt build/latent_scope_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/RobustAssumptions.vo check/RobustAssumptions.v > build/robust_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/LatentTensorAssumptions.vo check/LatentTensorAssumptions.v > build/latent_tensor_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ContinuousLatentAssumptions.vo check/ContinuousLatentAssumptions.v > build/continuous_latent_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ConditionEndpointsAssumptions.vo check/ConditionEndpointsAssumptions.v > build/condition_endpoints_assumptions.txt
+	python3 scripts/check_sources.py build/assumptions.txt build/universality_assumptions.txt build/mixture_assumptions.txt build/paired_assumptions.txt build/latent_sign_assumptions.txt build/countable_assumptions.txt build/condition_assumptions.txt build/latent_scope_assumptions.txt build/robust_assumptions.txt build/latent_tensor_assumptions.txt build/continuous_latent_assumptions.txt build/condition_endpoints_assumptions.txt
 	$(if $(filter yes,$(CITATIONS)),$(EXEC) python3 scripts/stale_citations.py,@true)
 	@echo "make check passed."
 
