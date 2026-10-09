@@ -95,6 +95,10 @@
    check/continuous_latent_assumptions.expected and
    check/condition_endpoints_assumptions.expected, whose axioms are among
    those of check/assumptions.expected.
+14. Phase 10. The code of each file of PHASE10_FROZEN, the statements of
+   the robustness of the optimal condition number and of the finite
+   tensorization constant of the latent-sign law, must equal its code at
+   the commit PHASE10_BASELINE, at which the user accepted them.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -173,6 +177,11 @@ PHASE9_FROZEN = [
     "extension/ConditionEndpoints.v",
 ]
 PHASE9_BASELINE = "1c05ffcbebc81492639e7f9afc7b3dc2b88021e0"
+PHASE10_FROZEN = [
+    "extension/ConditionRobustStatement.v",
+    "extension/LatentTensorUpper.v",
+]
+PHASE10_BASELINE = "b26eb1e0eff32371248c211ece597fc9bc3463f9"
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -349,6 +358,9 @@ def main():
     for path in PHASE9_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE9_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE9_BASELINE[:12]}")
+    for path in PHASE10_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE10_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE10_BASELINE[:12]}")
     for path in CHECKS_EXACT:
         if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
@@ -440,6 +452,8 @@ def main():
           f"{PHASE8_BASELINE[:12]}; "
           f"{len(PHASE9_FROZEN)} frozen files of phase 9 unchanged since "
           f"{PHASE9_BASELINE[:12]}; "
+          f"{len(PHASE10_FROZEN)} frozen files of phase 10 unchanged since "
+          f"{PHASE10_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
