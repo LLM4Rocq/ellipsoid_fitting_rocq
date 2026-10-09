@@ -1,16 +1,41 @@
-# Feasibility study: the universality theorem of Koehler and Sohn
+# Universality and finite mixtures of product laws
 
-This directory holds the feasibility study for extending the formal result
-of this repository (the three theorems of Misiakiewicz and Wen for Gaussian
-points) to Theorem 1.2 of F. Koehler and Y. Sohn, *Universality and sharp
-thresholds for ellipsoid fitting*, arXiv 2608.27372 v1. It has two
-deliverables:
+This directory, under the logical root `EllipsoidUniversality`, holds
+three theorems beyond the three theorems of Misiakiewicz and Wen for
+Gaussian points.
+
+- **The finite-mixture theorem**, the main result of phase 6:
+  `mixture_theorem : mixture_theorem_statement` (`MixtureTheorem.v`).
+  Both phases of Theorem 1.2 of F. Koehler and Y. Sohn, *Universality and
+  sharp thresholds for ellipsoid fitting* (arXiv 2608.27372 v1), and its
+  small-residual interpolation (Theorem 1.9), for i.i.d. points whose law
+  is, at each dimension d, a finite mixture of product laws, with a number
+  of components that may grow with d, under (M1)-(M3): in every component
+  the coordinates are independent, of mean 0, variance 1 and subgaussian
+  norm at most K, and every coordinate has the same unconditional fourth
+  moment kappa > 1 under the mixture. No matching theorem was found in a
+  targeted literature search; priority is not confirmed. Section (f).
+- **Its corollaries.** `paired_theorem : paired_statement`
+  (`PairedTheorem.v`): exact fitting for the paired law, whose
+  coordinates come in dependent pairs, over the whole range
+  -1 <= eps <= 7/3, with constants uniform in eps. Phase 7 adds the
+  latent-sign law, (1/2) lambda_s^(x)d + (1/2) lambda_-s^(x)d with
+  0 <= s <= 1, in which one hidden sign couples all the coordinates of a
+  point (`LatentSignStatement.v`).
+- **The universality theorem** of Koehler and Sohn, for points with
+  independent coordinates: `universality_theorem : universality_statement`
+  (`UniversalityTheorem.v`), proved in phase 5. The finite-mixture theorem
+  contains it, with one component (`Mixture/OneComponent.v`).
+
+Sections (a) to (e) are the feasibility study written before phase 5, for
+extending the formal result of this repository to Theorem 1.2 of Koehler
+and Sohn. It had two deliverables:
 
 1. this plan;
 2. the formal statement of the theorem, in `UniversalityDefinitions.v`
    (definitions only) and `UniversalityStatement.v` (one `Prop`), under the
    logical root `EllipsoidUniversality`, compiled against the library and
-   the frozen definitions. Nothing proves the statement.
+   the frozen definitions. Phase 5 proved it (`UniversalityTheorem.v`).
 
 **How claims are cited.** Lines "l." refer to the paper's LaTeX source
 `arxiv_v1.tex` (6953 lines). The paper numbers its results with one counter
@@ -891,8 +916,13 @@ fit and the unsatisfiable phase use the mixture of the feature laws.
   `Features/Mixture.v`: the mixture feature law, regular with covariance
   `unsat_cov kappa d` under (M3), and the features of a mixture sample,
   i.i.d. with that law.
-- Assemblies: the approximate fit from any regular feature law
-  (`Sat/ApproximateFit.v`), the satisfiable phase (`Sat/Universality.v`),
+- Assemblies: the approximate fit from a feature law
+  (`approximate_fit_law` of `Sat/ApproximateFit.v`), for a family of
+  feature laws `rho d` that are regular features with the covariance
+  `unsat_cov kappa d` and a parameter `tau d` tending to 0, and whose
+  linear forms `<z, mxvec A>` are subexponential with constant
+  `L / sqrt d` whenever `Ls |A|_F <= L`; the satisfiable phase
+  (`Sat/Universality.v`),
   the unsatisfiable phase and Theorem 1.7 (`Unsat/Universality.v`), then
   `Mixture/Theorem.v`.
 - The paired law: `paired_probability_mixture` writes it as a mixture of
@@ -913,3 +943,19 @@ theorems use seven of the eight classical axioms of
 `check/assumptions.expected`, all but `Classical_Prop.classic`, as
 `universality_theorem` does. `Mixture/OneComponent.v` checks that the
 general statement contains the theorem of phase 5.
+
+### The latent-sign corollary (phase 7)
+
+`LatentSignDefinitions.v` defines the latent-sign law by its density
+against the product of the uniform laws: for each point,
+(prod_j (1 + s h(x_j)) + prod_j (1 - s h(x_j))) / 2, the law
+(1/2) lambda_s^(x)d + (1/2) lambda_-s^(x)d with lambda_a = (1 + a h) mu.
+One hidden sign, + or - with probability 1/2, couples all the coordinates
+of a point. `LatentSignStatement.v` states `latent_sign_statement`, the
+four parts of `paired_statement` for this law, for every sequence s with
+0 <= s d <= 1 and constants chosen before s. It is a mixture of two
+product laws whose components, `paired_law mu s` and `paired_law mu (- s)`,
+are component laws with constant 3 and have the fourth moments
+9/5 + 8 s / 35 and 9/5 - 8 s / 35, of mean 9/5. The statement files are
+under the user's review; the proof, from `mixture_theorem`, is item 3 of
+phase 7.
