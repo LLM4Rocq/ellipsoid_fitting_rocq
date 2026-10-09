@@ -52,6 +52,10 @@
    Given its output as fifth argument, every axiom it prints is among those
    of check/latent_sign_assumptions.expected, whose axioms are among those
    of check/assumptions.expected.
+9. Phase 8. The code of each file of PHASE8_FROZEN, the statements of the
+   countable-mixture theorem, of the condition-number theorem and of the
+   scope results on the latent-sign law, and their definitions, must equal
+   its code at the commit PHASE8_BASELINE, at which the user accepted them.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -103,6 +107,14 @@ LATENT_FROZEN = [
     "extension/LatentSignStatement.v",
 ]
 LATENT_BASELINE = "d4de51d11b12b50afa4c96a7fa90b37f9f6b92ee"
+PHASE8_FROZEN = [
+    "extension/CountableMixtureDefinitions.v",
+    "extension/CountableMixtureStatement.v",
+    "extension/ConditionDefinitions.v",
+    "extension/ConditionStatement.v",
+    "extension/LatentSignScope.v",
+]
+PHASE8_BASELINE = "5442e84ba6cdc9ad69848040ea4483269e578896"
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -210,6 +222,9 @@ def main():
     for path in LATENT_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(LATENT_BASELINE, path)):
             failures.append(f"{path}: code differs from {LATENT_BASELINE[:12]}")
+    for path in PHASE8_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE8_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE8_BASELINE[:12]}")
     for path in CHECKS_EXACT:
         if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
@@ -290,6 +305,8 @@ def main():
           f"{CHECKS_BASELINE[:12]}; "
           f"{len(LATENT_FROZEN)} frozen files of phase 7 unchanged since "
           f"{LATENT_BASELINE[:12]}; "
+          f"{len(PHASE8_FROZEN)} frozen files of phase 8 unchanged since "
+          f"{PHASE8_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
