@@ -733,4 +733,6 @@ extension/Paired/Law.v
 extension/Paired/Theorem.v
 extension/Paired/LatentSign.v
 extension/Countable/Truncation.v
+extension/Countable/Theorem.v
+extension/CountableTheorem.v
 extension/Condition/Slices.v
