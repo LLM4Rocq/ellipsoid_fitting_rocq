@@ -679,6 +679,11 @@ extension/PairedDefinitions.v
 extension/PairedStatement.v
 extension/LatentSignDefinitions.v
 extension/LatentSignStatement.v
+extension/CountableMixtureDefinitions.v
+extension/CountableMixtureStatement.v
+extension/ConditionDefinitions.v
+extension/ConditionStatement.v
+extension/LatentSignScope.v
 extension/Model/Rows.v
 extension/Model/Measurability.v
 extension/Features/Definitions.v
@@ -724,3 +729,5 @@ extension/Paired/Uniform.v
 extension/Paired/Law.v
 extension/Paired/Theorem.v
 extension/Paired/LatentSign.v
+extension/Countable/Truncation.v
+extension/Condition/Slices.v
