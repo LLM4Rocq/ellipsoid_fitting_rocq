@@ -34,7 +34,7 @@ The task has two parts.
    rename the remaining modules and group them in folders.
 
 Three agents share the work. Agent 1 coordinates phases 1 to 5; in
-phase 6, agent 3 coordinates (section "Phase 6").
+phases 6 and 7, agent 3 coordinates (sections "Phase 6" and "Phase 7").
 
 ## The invariant
 
@@ -143,8 +143,8 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 5 below are done (`main` 112d6a2, tag `phase5`). The current
-work is phase 6, described after phase 5.
+Phases 1 to 6 below are done (`main` c3e555e, tag `phase6`). The current
+work is phase 7, described after phase 6.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -830,6 +830,108 @@ Phase 6 is done when `mixture_theorem : mixture_theorem_statement` and
 `paired_theorem : paired_statement` are proved on `main`, their axioms
 are among the eight expected ones, `make check` passes, the README rows
 cover every new file, and `main` is tagged `phase6`.
+
+## Phase 7. The phase 6 release: documentation, checks, a third corollary
+
+Phase 6 is done (`main` c3e555e, tag `phase6`). A review of that release,
+`/srv/ellipsoid-fitting/reviews/phase6-release-review.md` (it ends with
+the coordinator's checks of its claims), proposed the four items below,
+and the user accepted all four on 9 October 2026. The roles are those of
+phase 6: agent 3 is the master, assigns the items (its own lane
+included), gives agents 1 and 2 their work in their sessions, merges in
+the `integration` clone, and alone pushes `main` and tags; the
+coordinator assigns no item, verifies pushed commits, keeps GitHub in
+sync and relays the user's decisions. The master keeps its table of
+items, owners and states in
+`/srv/ellipsoid-fitting/runtime/phase7/assignments.md`. New files go in
+existing directories (statement files at the top of `extension/`,
+proofs in `extension/Paired/` or `extension/Mixture/`), so that the Rocq
+servers need no reconnection.
+
+### The items
+
+1. **Documentation.** `README.md` and `extension/README.md` present the
+   finite-mixture theorem as the main result of phase 6: both phases of
+   Theorem 1.2 of Koehler and Sohn for i.i.d. points whose law is a
+   finite mixture of product laws, with a number of components that may
+   grow with `d`, under (M1)-(M3): componentwise mean 0, variance 1 and a
+   uniform `psi_2` bound, and a common unconditional fourth moment
+   `kappa > 1`. The paired law is its corollary, over the whole range
+   `eps` in `[-1, 7/3]`, with constants uniform in `eps`. On novelty, say
+   that no matching theorem was found in a targeted literature search;
+   priority is not confirmed. Fix the stale passages: the opening of
+   `extension/README.md` (line 12, "Nothing proves the statement"); its
+   summary of `approximate_fit_law` (line 894, "from any regular feature
+   law", which omits the covariance `unsat_cov kappa d`, `tau d -> 0` and
+   the subexponential tails); the layout section of `README.md` (75
+   library files, the folders `Mixture/` and `Paired/`, the theorems
+   `mixture_theorem` and `paired_theorem`). In `library/README.md`, the
+   owners of the rows add the hypotheses that the rows leave out:
+   `variance_mixture` needs `X` square integrable under every component,
+   `mixture_cover` measurable sets `E i`, and `moment4_integrable` a bound
+   on `|g z|`.
+2. **Checks.** The user permits these changes to
+   `scripts/check_sources.py` and `check/`, and no other:
+   - the three check files `check/UniversalityAssumptions.v`,
+     `check/MixtureAssumptions.v` and `check/PairedAssumptions.v` and
+     their three expected lists are compared byte for byte with commit
+     c3e555e, a separate baseline; the historical baselines and
+     `check/frozen-baseline` do not change;
+   - an axiom report that has neither an `Axioms:` section nor the line
+     "Closed under the global context" is an error (today `axiom_names`
+     reads an empty report as no axioms);
+   - the definition of `tuple_prod` (`library/probability/lindeberg.v`),
+     on which the frozen statements of phases 5 and 6 depend, is
+     protected: either its code is compared with c3e555e, or a new check
+     file proves a characterization of it that does not depend on its
+     implementation (for example its value on products of measurable
+     sets) and is frozen like the other check files. The master chooses,
+     and says which in the commit message;
+   - the statement files of item 3, once the user accepts them, are
+     frozen with the acceptance commit as a new baseline, and the theorem
+     of item 3 gets an axiom check and an expected list on the pattern of
+     `check/PairedAssumptions.v`, run by `make check`.
+3. **The latent-sign corollary.** For `0 <= s <= 1`, i.i.d. points of law
+   `(1/2) lambda_s^{(x) d} + (1/2) lambda_{-s}^{(x) d}`, where
+   `lambda_a = (1 + a h) mu` is `paired_law mu a` of
+   `extension/Paired/Uniform.v`: one hidden sign couples all the
+   coordinates of a point. The two components have mean 0, variance 1,
+   bounded support and fourth moments `9/5 +- 8 s / 35`
+   (`paired_law_component`, `paired_law_fourth`), so the coordinates have
+   unconditional fourth moment `9/5`, and the theorem follows from
+   `mixture_theorem` with two components. Step 0 as in phase 6: the
+   master writes the statement files, compiles them, pushes `main` and
+   says so in its pane, and the coordinator asks the user to review them.
+   A suggestion for the statement: define the law directly, by its
+   density `(prod_j (1 + s h(x_j)) + prod_j (1 - s h(x_j))) / 2` against
+   the product of `mu`, as `paired_probability` is defined, and let `s`
+   depend on `d`, with the constants chosen before `s`, as `eps` in
+   `paired_statement`. The proof may start before the review.
+4. **Library generalizations.** In `library/convex/feature_mixture.v`,
+   `mixture_regular_feature` under the weaker hypothesis
+   `sum_i w_i <Sig i - Sigma, T>^2 <= c^2 |T|_F^2` for every symmetric
+   `T`; the present theorem keeps its name and statement and becomes a
+   corollary (Cauchy-Schwarz for the Frobenius product). In
+   `library/probability/density_law.v`, a constructor of the law from a
+   function with an explicit proof that it is a density
+   (`prob_density mu f`), with the equations that relate it to
+   `density_prob`.
+
+### Rules for this phase
+
+The rules of phase 6 apply. Nothing changes in `theories/` or in the
+code of the fourteen frozen files (the eight of `theories/`, the two of
+phase 5, the four of phase 6). `universality_theorem`, `mixture_theorem`
+and `paired_theorem` keep building at every commit. Library results are
+stated in the library's vocabulary, every new file has its documentation
+header and its rows, `make check` runs before every commit, builds use
+`JOBS=3`, requests go through `requests/` (the master deletes it at the
+end), and the repository gets no journals or progress files.
+
+Phase 7 is done when the four items are on `main`, the latent-sign
+theorem is proved with its axioms among the eight expected ones,
+`make check` passes, the README rows cover every new file, and `main` is
+tagged `phase7`.
 
 ## Bridging Stdlib's `R` and the library
 
