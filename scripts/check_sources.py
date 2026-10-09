@@ -109,6 +109,10 @@
    check/condition_robust_assumptions.expected and
    check/latent_tensor_upper_assumptions.expected, whose axioms are among
    those of check/assumptions.expected.
+16. Phase 10. The check files and expected lists of CHECKS_EXACT_P9, those
+   of the axiom checks of phase 9, are byte-identical to the commit
+   CHECKS_P9_BASELINE, a separate baseline; CHECKS_BASELINE,
+   CHECKS_P8_BASELINE and check/frozen-baseline do not change.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -165,6 +169,17 @@ CHECKS_EXACT_P8 = [
     "check/latent_scope_assumptions.expected",
 ]
 CHECKS_P8_BASELINE = "a89ed1e6e29e1041a9a108d82f85bc84620bdd3d"
+CHECKS_EXACT_P9 = [
+    "check/RobustAssumptions.v",
+    "check/robust_assumptions.expected",
+    "check/LatentTensorAssumptions.v",
+    "check/latent_tensor_assumptions.expected",
+    "check/ContinuousLatentAssumptions.v",
+    "check/continuous_latent_assumptions.expected",
+    "check/ConditionEndpointsAssumptions.v",
+    "check/condition_endpoints_assumptions.expected",
+]
+CHECKS_P9_BASELINE = "e4c46e12d61a28bed6047968565c8424b505319b"
 TUPLE_PROD = "library/probability/lindeberg.v"
 LATENT_FROZEN = [
     "extension/LatentSignDefinitions.v",
@@ -396,6 +411,9 @@ def main():
     for path in CHECKS_EXACT_P8:
         if (ROOT / path).read_text() != at_baseline(CHECKS_P8_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_P8_BASELINE[:12]}")
+    for path in CHECKS_EXACT_P9:
+        if (ROOT / path).read_text() != at_baseline(CHECKS_P9_BASELINE, path):
+            failures.append(f"{path}: differs from {CHECKS_P9_BASELINE[:12]}")
     now = tuple_prod_code((ROOT / TUPLE_PROD).read_text())
     if now[1] is None:
         failures.append(f"{TUPLE_PROD}: no section tuple_prod")
@@ -476,6 +494,8 @@ def main():
           f"{CHECKS_BASELINE[:12]}; "
           f"{len(CHECKS_EXACT_P8)} check files of phases 7 and 8 unchanged since "
           f"{CHECKS_P8_BASELINE[:12]}; "
+          f"{len(CHECKS_EXACT_P9)} check files of phase 9 unchanged since "
+          f"{CHECKS_P9_BASELINE[:12]}; "
           f"{len(LATENT_FROZEN)} frozen files of phase 7 unchanged since "
           f"{LATENT_BASELINE[:12]}; "
           f"{len(PHASE8_FROZEN)} frozen files of phase 8 unchanged since "
