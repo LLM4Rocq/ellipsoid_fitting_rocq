@@ -6,7 +6,7 @@ From mathcomp Require Import cardinality.
 From mathcomp Require Import measure lebesgue_measure measurable_realfun.
 From mathcomp Require Import numfun lebesgue_integral probability.
 From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
-From GaussianAnalysis.probability Require Import mixture.
+From GaussianAnalysis.probability Require Import lindeberg conditioning mixture.
 
 (**md**************************************************************************)
 (* # Countable mixtures of probabilities                                      *)
@@ -40,17 +40,25 @@ From GaussianAnalysis.probability Require Import mixture.
 (*   and for r_m > 0 the normalized tail weights are mixture weights, so      *)
 (*   that cmixture P with them is the normalized tail                         *)
 (*   \sum_(s > m) p s P s / r_m;                                              *)
-(* - esumZl, esum_fin, esum_tuple_prod: an esum of nonnegative terms          *)
-(*   commutes with a nonnegative factor; over a subset of a finite type it    *)
-(*   is a finite sum; if the esum of a over nat is a real number x, the esum  *)
-(*   over s : n.-tuple nat of \prod_i a (s_i) is x^n;                         *)
+(* - esumZl, esum_fin, esum_tuple_distr, esum_tuple_prod: an esum of        *)
+(*   nonnegative terms commutes with a nonnegative factor; over a subset of a *)
+(*   finite type it is a finite sum; if the esum of a_i over nat is a real    *)
+(*   number x_i for every i < n, the esum over s : n.-tuple nat of            *)
+(*   \prod_i a_i (s_i) is \prod_i x_i (the countable big_tuple_distr), so    *)
+(*   it is x^n when every a_i is a;                                           *)
 (* - label_esum1, label_esum_le: the product weights \prod_i p (s_i) of the   *)
 (*   label tuples have sum one, and sum (1 - r_m)^n over labels_le n m;       *)
 (* - label_coupling, bernoulli_tail: an esum over the label tuples in nat     *)
 (*   and a finite sum over the label tuples in 'I_N, of product weights       *)
 (*   times probabilities, whose weights and probabilities agree on the        *)
 (*   tuples with all labels at most m, differ by at most                      *)
-(*   1 - (1 - r_m)^n <= n r_m on every measurable set.                        *)
+(*   1 - (1 - r_m)^n <= n r_m on every measurable set;                        *)
+(* - tuple_prod_cmixture: n independent draws from a countable mixture: on    *)
+(*   every measurable set A of n-tuples, tuple_prod (fun=> cmixture P hp) n A *)
+(*   is the esum over the label tuples s : n.-tuple nat of \prod_i p (s_i)    *)
+(*   times tuple_prod (fun k => P (s_k)) n A (the countable form of           *)
+(*   tuple_prod_mixture; both sides are measures that agree on boxes, the     *)
+(*   right one written as a countable mixture over nat through pickle).       *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -283,20 +291,20 @@ congr ereal_sup; apply/seteqP; split => y /=.
 by move=> [z [X [finX XS] <-] <-]; exists X => //; rewrite dis.
 Qed.
 
-(* The sum over the n-tuples of labels of the product weights is the n-th
-   power of the sum of the weights. *)
-Lemma esum_tuple_prod (a : nat -> R) (x : R) (n : nat) :
-  (forall k, (0 <= a k)%R) -> \esum_(k in [set: nat]) (a k)%:E = x%:E ->
-  \esum_(s in [set: n.-tuple nat]) (\prod_(i < n) a (tnth s i))%:E =
-  (x ^+ n)%:E.
+(* The esum over the n-tuples of labels of products is the product of the
+   esums over the labels: the countable form of big_tuple_distr. *)
+Lemma esum_tuple_distr (n : nat) (a : 'I_n -> nat -> R) (x : 'I_n -> R) :
+  (forall i k, (0 <= a i k)%R) ->
+  (forall i, \esum_(k in [set: nat]) (a i k)%:E = (x i)%:E) ->
+  \esum_(s in [set: n.-tuple nat]) (\prod_(i < n) a i (tnth s i))%:E =
+  (\prod_(i < n) x i)%:E.
 Proof.
-move=> a0 hx.
-have x0 : (0 <= x)%R.
-  by rewrite -lee_fin -hx; apply: esum_ge0 => k _; rewrite lee_fin.
-elim: n => [|n IH].
+elim: n a x => [|n IH] a x a0 hx.
   have -> : [set: 0.-tuple nat] = [set [tuple]].
     by apply/seteqP; split => s //= _; rewrite tuple0.
-  by rewrite esum_set1 ?big_ord0 ?expr0 // lee_fin big_ord0.
+  by rewrite esum_set1 ?big_ord0 // lee_fin big_ord0.
+have x0 i : (0 <= x i)%R.
+  by rewrite -lee_fin -hx; apply: esum_ge0 => k _; rewrite lee_fin.
 pose e (st : nat * n.-tuple nat) : n.+1.-tuple nat := cons_tuple st.1 st.2.
 have be : set_bij [set: nat * n.-tuple nat] [set: n.+1.-tuple nat] e.
   split; first by move=> st.
@@ -308,22 +316,41 @@ have -> : [set: nat * n.-tuple nat] =
     [set: nat] `*`` (fun=> [set: n.-tuple nat]).
   by apply/seteqP; split => st.
 have hnn (k : nat) (t : n.-tuple nat) : [set: nat] k ->
-    [set: n.-tuple nat] t -> 0 <= (\prod_(i < n.+1) a (tnth (e (k, t)) i))%:E.
+    [set: n.-tuple nat] t ->
+    0 <= (\prod_(i < n.+1) a i (tnth (e (k, t)) i))%:E.
   by move=> _ _; rewrite lee_fin; apply: prodr_ge0 => i _; exact: a0.
 rewrite -(esum_esum (a := fun (k : nat) (t : n.-tuple nat) =>
-  (\prod_(i < n.+1) a (tnth (e (k, t)) i))%:E)) //.
+  (\prod_(i < n.+1) a i (tnth (e (k, t)) i))%:E)) //.
+pose a' (i : 'I_n) (k : nat) := a (lift ord0 i) k.
+pose x' (i : 'I_n) := x (lift ord0 i).
 have hn0 (t : n.-tuple nat) : [set: n.-tuple nat] t ->
-    0 <= (\prod_(i < n) a (tnth t i))%:E.
+    0 <= (\prod_(i < n) a' i (tnth t i))%:E.
   by move=> _; rewrite lee_fin; apply: prodr_ge0 => i _; exact: a0.
 have inner k : \esum_(t in [set: n.-tuple nat])
-    (\prod_(i < n.+1) a (tnth (e (k, t)) i))%:E = (x ^+ n)%:E * (a k)%:E.
-  rewrite -IH muleC -(esumZl (a0 k) hn0); apply: eq_esum => t _.
+    (\prod_(i < n.+1) a i (tnth (e (k, t)) i))%:E =
+    (\prod_(i < n) x' i)%:E * (a ord0 k)%:E.
+  rewrite -(IH a' x'); [by move=> i k0; exact: a0|by move=> i; exact: hx|].
+  rewrite muleC -(esumZl (a0 ord0 k) hn0); apply: eq_esum => t _.
   rewrite big_ord_recl -EFinM; congr (_ * _)%:E.
   by apply: eq_bigr => i _; rewrite /e tnthS.
 rewrite (eq_esum (fun k _ => inner k)).
-have ha0 (k : nat) : [set: nat] k -> 0 <= (a k)%:E.
+have ha0 (k : nat) : [set: nat] k -> 0 <= (a ord0 k)%:E.
   by move=> _; rewrite lee_fin.
-by rewrite (esumZl (exprn_ge0 n x0) ha0) hx -EFinM -exprSr.
+have px0 : (0 <= \prod_(i < n) x' i)%R by apply: prodr_ge0 => i _; exact: x0.
+by rewrite (esumZl px0 ha0) hx -EFinM big_ord_recl mulrC.
+Qed.
+
+(* The sum over the n-tuples of labels of the product weights is the n-th
+   power of the sum of the weights. *)
+Lemma esum_tuple_prod (a : nat -> R) (x : R) (n : nat) :
+  (forall k, (0 <= a k)%R) -> \esum_(k in [set: nat]) (a k)%:E = x%:E ->
+  \esum_(s in [set: n.-tuple nat]) (\prod_(i < n) a (tnth s i))%:E =
+  (x ^+ n)%:E.
+Proof.
+move=> a0 hx.
+have := @esum_tuple_distr n (fun (_ : 'I_n) (k : nat) => a k) (fun _ => x)
+  (fun _ => a0) (fun _ => hx).
+by rewrite prodr_const card_ord.
 Qed.
 
 (* An esum over a subset of a finite type is a finite sum. *)
@@ -537,3 +564,106 @@ by rewrite opprD addrACA subrr add0r ler_norml; apply/andP; split; lra.
 Qed.
 
 End label_weights.
+
+Section tuple_prod_cmixture.
+Context d (T : measurableType d) (R : realType).
+Variables (P : nat -> probability T R) (p : nat -> R).
+Hypothesis hp : cmixture_weights p.
+Variable n : nat.
+Local Open Scope ereal_scope.
+
+(* The weight and the law of the label tuple s. *)
+Let lw (s : n.-tuple nat) : R := \prod_(i < n) p (tnth s i).
+
+Let lQ (s : n.-tuple nat) : probability (n.-tuple T) R :=
+  tuple_prod (fun k => P (nth 0%N s k)) n.
+
+Let lw0 s : (0 <= lw s)%R.
+Proof. by apply: prodr_ge0 => i _; exact: hp.1. Qed.
+
+(* An esum over the label tuples, read through the enumeration pickle. *)
+Let esum_pickle (G : n.-tuple nat -> \bar R) : (forall s, 0 <= G s) ->
+  \esum_(k in [set: nat]) (if pickle_inv k is Some s then G s else 0) =
+  \esum_(s in [set: n.-tuple nat]) G s.
+Proof.
+move=> G0.
+pose pk : n.-tuple nat -> nat := pickle.
+have bij : set_bij [set: n.-tuple nat] (range pk) pk.
+  split.
+  - by move=> s _; exists s.
+  - by move=> s t _ _; exact: (pcan_inj pickleK).
+  - by move=> k [s _ <-]; exists s.
+have hR : \esum_(k in [set: nat]) (if pickle_inv k is Some s then G s else 0) =
+    \esum_(k in range pk) (if pickle_inv k is Some s then G s else 0).
+  rewrite -[in RHS](setTI (range pk)) esum_mkcondr.
+  apply: eq_esum => k _; case: ifPn => // /negP hk.
+  case h : (pickle_inv k) => [s|] //; exfalso; apply: hk.
+  apply/mem_set; exists s => //.
+  by have := @pickle_invK (n.-tuple nat) k; rewrite h.
+rewrite hR (reindex_esum _ _ _ _ bij).
+by apply: eq_esum => s _; rewrite /pk pickleK_inv.
+Qed.
+
+(* The label tuples as a countable mixture indexed by nat. *)
+Let qw (k : nat) : R := if pickle_inv k is Some s then lw s else 0%R.
+
+Let qP (k : nat) : probability (n.-tuple T) R :=
+  if pickle_inv k is Some s then lQ s else lQ [tuple 0%N | _ < n].
+
+Let qw_weights : cmixture_weights qw.
+Proof.
+have qw0 k : (0 <= qw k)%R by rewrite /qw; case: pickle_inv => // s; exact: lw0.
+split => //.
+rewrite nneseries_esumT; first by move=> k; rewrite lee_fin.
+transitivity (\esum_(k in [set: nat])
+    (if pickle_inv k is Some s then (lw s)%:E else 0)).
+  by apply: eq_esum => k _; rewrite /qw; case: pickle_inv.
+rewrite esum_pickle; first by move=> s; rewrite lee_fin.
+exact: label_esum1.
+Qed.
+
+Let cmixture_pickle (A : set (n.-tuple T)) :
+  cmixture qP qw_weights A = \esum_(s in [set: n.-tuple nat]) (lw s)%:E * lQ s A.
+Proof.
+rewrite cmixtureE nneseries_esumT.
+  by move=> k; rewrite mule_ge0 // lee_fin; exact: qw_weights.1.
+rewrite -esum_pickle; first by move=> s; rewrite mule_ge0 // lee_fin.
+by apply: eq_esum => k _; rewrite /qw /qP; case: pickle_inv => //; rewrite mul0e.
+Qed.
+
+(* n independent draws from a countable mixture: the countable form of
+   tuple_prod_mixture. *)
+Lemma tuple_prod_cmixture (A : set (n.-tuple T)) : measurable A ->
+  tuple_prod (fun=> cmixture P hp) n A =
+  \esum_(s in [set: n.-tuple nat])
+    (\prod_(i < n) p (tnth s i))%:E * tuple_prod (fun k => P (nth 0%N s k)) n A.
+Proof.
+move=> mA.
+rewrite -[RHS](cmixture_pickle A).
+apply: (measure_tuple_box_unique (mu1 := tuple_prod (fun=> cmixture P hp) n)
+  (mu2 := cmixture qP qw_weights)) => //.
+  by rewrite (le_lt_trans (probability_le1 _ _)) ?ltry.
+move=> B mB.
+change (tuple_prod (fun=> cmixture P hp) n (tuple_box B) =
+  cmixture qP qw_weights (tuple_box B)).
+rewrite cmixture_pickle tuple_prod_box //.
+pose x (i : 'I_n) := fine (cmixture P hp (B i)).
+pose a (i : 'I_n) (k : nat) := (p k * fine (P k (B i)))%R.
+have fP k i : P k (B i) \is a fin_num by exact: fin_num_measure.
+have a0 i k : (0 <= a i k)%R.
+  by rewrite /a mulr_ge0 ?hp.1 // fine_ge0 // measure_ge0.
+have hx i : \esum_(k in [set: nat]) (a i k)%:E = (x i)%:E.
+  have fx : cmixture P hp (B i) \is a fin_num := fin_num_measure _ _ (mB i).
+  rewrite /x fineK // cmixtureE nneseries_esumT.
+    by move=> k; rewrite mule_ge0 // lee_fin; exact: hp.1.
+  by apply: eq_esum => k _; rewrite /a EFinM fineK.
+transitivity ((\prod_(i < n) x i)%:E).
+  rewrite -prodEFin; apply: eq_bigr => i _.
+  by rewrite /x fineK //; exact: (fin_num_measure _ _ (mB i)).
+rewrite -(esum_tuple_distr a0 hx); apply: eq_esum => s _.
+rewrite /lQ tuple_prod_box // /a big_split /= EFinM; congr (_ * _)%E.
+rewrite -prodEFin; apply: eq_bigr => i _.
+by rewrite (tnth_nth 0%N) fineK.
+Qed.
+
+End tuple_prod_cmixture.
