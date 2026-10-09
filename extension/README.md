@@ -1,9 +1,25 @@
-# Universality and finite mixtures of product laws
+# Beyond Gaussian points: universality, mixtures and the optimal condition number
 
 This directory, under the logical root `EllipsoidUniversality`, holds
 the theorems below, beyond the three theorems of Misiakiewicz and Wen for
 Gaussian points.
 
+- **The optimal condition number**, the main result, proved in phase 8:
+  `condition_theorem : condition_theorem_statement`
+  (`ConditionTheorem.v`). For i.i.d. points whose law is a finite or
+  countable mixture of product laws with coordinates of mean 0, variance 1
+  and subgaussian norm at most K in every component and unconditional
+  fourth moment 3: for every C > 1, an exact fit of condition number at
+  most C exists with probability tending to one if n/d^2 tends to some
+  alpha < alpha_C and to zero if alpha > alpha_C, with alpha_C given by
+  the semicircle law; for 0 < alpha < 1/4, the optimal condition number of
+  the sample tends in probability to C_star(alpha), the inverse of
+  C -> alpha_C. Section (g).
+- **Countable mixtures**, a generality result of phase 8:
+  `countable_theorem : countable_theorem_statement`
+  (`CountableTheorem.v`), the conclusions of the finite-mixture theorem,
+  with its constants, for mixtures with countably many components.
+  Section (g).
 - **The finite-mixture theorem**, the main result of phase 6:
   `mixture_theorem : mixture_theorem_statement` (`MixtureTheorem.v`).
   Both phases of Theorem 1.2 of F. Koehler and Y. Sohn, *Universality and
@@ -15,29 +31,22 @@ Gaussian points.
   norm at most K, and every coordinate has the same unconditional fourth
   moment kappa > 1 under the mixture. No matching theorem was found in a
   targeted literature search; priority is not confirmed. Section (f).
-- **Its corollaries.** `paired_theorem : paired_statement`
+- **Two dependent laws.** `paired_theorem : paired_statement`
   (`PairedTheorem.v`): exact fitting for the paired law, whose
   coordinates come in dependent pairs, over the whole range
-  -1 <= eps <= 7/3, with constants uniform in eps. Phase 7 proves a
-  third corollary, after the universality theorem below and the paired
-  law: `latent_sign_theorem : latent_sign_statement`
-  (`LatentSignTheorem.v`), exact fitting for the latent-sign law
+  -1 <= eps <= 7/3, with constants uniform in eps; and
+  `latent_sign_theorem : latent_sign_statement`
+  (`LatentSignTheorem.v`, phase 7), exact fitting for the latent-sign law
   (1/2) lambda_s^(x)d + (1/2) lambda_-s^(x)d with 0 <= s <= 1, in which
-  one hidden sign couples all the coordinates of a point.
+  one hidden sign couples all the coordinates of a point. Its persistent
+  dependence is the content of `latent_scope_theorem :
+  latent_scope_statement` (`LatentScopeTheorem.v`, phase 8): identities
+  for the covariance of two coordinates and the variance of a convex
+  1-Lipschitz function. Sections (f) and (g).
 - **The universality theorem** of Koehler and Sohn, for points with
   independent coordinates: `universality_theorem : universality_statement`
   (`UniversalityTheorem.v`), proved in phase 5. The finite-mixture theorem
   contains it, with one component (`Mixture/OneComponent.v`).
-- **Three extensions of the finite-mixture theorem**, proved in phase 8:
-  `countable_theorem : countable_theorem_statement`
-  (`CountableTheorem.v`) for countable mixtures;
-  `condition_theorem : condition_theorem_statement`
-  (`ConditionTheorem.v`), the threshold alpha_C of an exact fit of
-  condition number at most C and the limit C_star(alpha) of the optimal
-  condition number, at fourth moment 3; and
-  `latent_scope_theorem : latent_scope_statement`
-  (`LatentScopeTheorem.v`), the covariance and variance computations
-  that place the latent-sign law outside product laws. Section (g).
 
 Sections (a) to (e) are the feasibility study written before phase 5, for
 extending the formal result of this repository to Theorem 1.2 of Koehler
@@ -993,8 +1002,8 @@ statement; it uses the same seven axioms as `paired_theorem`.
 Phase 8 formalizes three extensions of the finite-mixture theorem, from
 `notes/phase6-three-extensions.md` (the note), by the route of
 `notes/three-extensions-plan.md` (on the VM, under
-`/srv/ellipsoid-fitting/`). As for phase 6, the proofs are ordinary and
-their novelty is not confirmed.
+`/srv/ellipsoid-fitting/`). The ordinary arguments of the notes are now
+formalized; as for phase 6, their novelty is not confirmed.
 
 ### Files
 
@@ -1078,10 +1087,11 @@ parameter `s` in `[0, 1]`, through its density
 `mu`, `E h(x_j) = 0`, and `E h(x_j) h(x_k) = s^2 / 81` for distinct `j`
 and `k`, for every `d`: the coupling does not decay with the dimension.
 (11): `F(x) = (|x_1| + ... + |x_d|) / sqrt d`, convex and 1-Lipschitz, has
-variance `1/4 + (d - 1) s^2 / 768`, which grows linearly with `d` for
-`s > 0`. So these laws, for which `latent_sign_statement` holds, satisfy
-no concentration inequality for convex 1-Lipschitz functions with a
-constant independent of `d`.
+variance `1/4 + (d - 1) s^2 / 768`. The theorem asserts these identities
+only. Their consequence: for a fixed `s > 0` the variance grows linearly
+with `d`, so these laws, for which `latent_sign_statement` holds, do not
+satisfy dimension-free Gaussian concentration for convex 1-Lipschitz
+functions.
 
 ### Verification
 

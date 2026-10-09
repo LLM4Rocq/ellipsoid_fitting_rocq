@@ -1649,8 +1649,10 @@ Hypothesis mu2 :
 Local Notation m := (upper_moment mu 1).
 Local Notation s := (upper_moment mu 2).
 
-(* s(-t) + s(C t): for a symmetric law, the mean squared distance from X
-   to the interval [t, C t] (clip_energyE). *)
+(* s(-t) + s(C t): for a symmetric law, the mean of
+   (t - X)_+^2 + (X - C t)_+^2 (clip_energyE), which is the mean squared
+   distance from X to the interval [t, C t] when t <= C t, in particular
+   for C >= 1 and t >= 0. *)
 Definition clip_energy (C t : R) : R := s (- t) + s (C * t).
 
 (* Its infimum over t >= 0. *)
