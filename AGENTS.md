@@ -34,7 +34,7 @@ The task has two parts.
    rename the remaining modules and group them in folders.
 
 Three agents share the work. Agent 1 coordinates phases 1 to 5; in
-phases 6 to 8, agent 3 coordinates (sections "Phase 6" to "Phase 8").
+phases 6 to 9, agent 3 coordinates (sections "Phase 6" to "Phase 9").
 
 ## The invariant
 
@@ -143,8 +143,8 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 7 below are done (`main` 7d0677c, tag `phase7`). The current
-work is phase 8, described after phase 7.
+Phases 1 to 8 below are done (`main` a89ed1e, tag `phase8`). The current
+work is phase 9, described after phase 8.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -1047,6 +1047,131 @@ Phase 8 is done when the following hold:
 - `make check` passes;
 - the README rows cover every new file;
 - `main` is tagged `phase8`.
+
+## Phase 9. The optional items of the three extensions
+
+Phases 1 to 8 are done (`main` a89ed1e, tag `phase8`). On 9 October 2026
+the user asked to formalize the four results that phase 8 left out. They
+are in `/srv/ellipsoid-fitting/notes/phase6-three-extensions.md` (the
+note) and in section 5.3 of
+`/srv/ellipsoid-fitting/notes/three-extensions-plan.md` (the plan), which
+names them R1 to R4 and sketches them. The plan's item R5, an exact
+Gaussian kernel element, is not part of this phase.
+
+1. **R1. Robustness in total variation** (the note's section 3.2).
+   - If arbitrary point laws P~_d satisfy |P~_d - P_d|_TV = o(d^-2) for
+     an admissible finite or countable mixture family (P_d), then
+     independent samples from P~_d inherit all the conclusions of the
+     family. The perturbed laws need not keep the moment or tail
+     assumptions.
+   - The error in the probability of any measurable set of samples is at
+     most n |P~_d - P_d|_TV, which `lindeberg_replacement` gives with an
+     indicator.
+   - The contamination example shows that the scale is necessary. Below
+     the threshold, P~_d = (1 - lambda/n) P_d + (lambda/n) delta_0 has
+     exact fitting probability tending to e^(-lambda), because a point at
+     0 blocks every fit of value one.
+   - New definitions to review: the total variation distance of two laws
+     on R^d, and the law of a sample of n i.i.d. points of an arbitrary
+     law on R^d.
+2. **R2. Tensorization of the latent-sign law** (the note's section 2.3,
+   (12)-(14)).
+   - Define the conditional variance Var(f | X_{-j}) under the
+     latent-sign law through its conditional density, and the
+     tensorization inequality (12) with a constant T_d.
+   - Prove T_d >= 1 + (d - 1) s_d^2 / 9, from f = sum_j h(X_j).
+   - Prove, for fixed s > 0, T_d >= (c' / d) exp(c s^2 (d - 1)) for large
+     d, from f_d = 1{sum_j h(X_j) > 0}, Hoeffding's inequality under each
+     component, and Var f_d -> 1/4.
+3. **R3. The continuous-latent counterexample** (the note's section 3.3,
+   (18)).
+   - The latent parameter a is uniform on [1, 2]. Given a, the
+     coordinates are independent with P(X = a) = 1/(1 + a^2) and
+     P(X = -1/a) = a^2/(1 + a^2).
+   - Each component has mean 0, variance 1, |X| <= 2 and fourth moment
+     a^2 - 1 + a^-2, whose average is 11/6.
+   - For d >= 2, the point law has total variation distance one from
+     every countable mixture of product laws. The pair (X_1, X_2) lives
+     on a finite union of curves with finite sections, a product law
+     charges such a set only through pairs of atoms, and the law of
+     (X_1, X_2) has no atom.
+4. **R4. The endpoint expansions** (the note's (34) and (35)).
+   - (34): C_star^G(alpha) = 1 + (3 pi / (2 sqrt 2)) sqrt alpha
+     + (9 pi^2 / 16) alpha + O(alpha^(3/2)) as alpha -> 0.
+   - (35): C_star^G(alpha) ~ 8 / (3 pi (1/4 - alpha)) as alpha -> 1/4.
+   - Both are stated on `condition_alpha` and `condition_star` of the
+     frozen `ConditionDefinitions.v`.
+   - They follow from the expansions (11) and (13) of
+     `notes/gaussian-condition-number-theorem.md`, through the behavior
+     of m and v near 0 and near the edge sqrt 2 of the semicircle law.
+
+### Roles
+
+As in phases 6 to 8. **Agent 3 is the master.**
+- It assigns the items (its own lane included) and gives agents 1 and 2
+  their work in their sessions.
+- It writes the statement files and freezes them after the user's
+  review.
+- It merges in the `integration` clone and alone pushes `main` and tags.
+- It keeps the table of items, owners and states in
+  `/srv/ellipsoid-fitting/runtime/phase9/assignments.md`.
+
+Agents 1 and 2 take their items from the master. The coordinator assigns
+no item; it verifies pushed commits, keeps GitHub in sync and relays the
+user's decisions.
+
+### Step 0
+
+1. **The plan and the statements.** The master writes a short plan of
+   the four items in `/srv/ellipsoid-fitting/notes/optional-items-plan.md`:
+   the components, lanes, order, risks, and untested estimates. The
+   plan's section 5.3 estimated about 5,500 lines. The master also writes
+   the statement files of the four items at the top of `extension/`, with
+   comments that guide the reviewer as in the frozen files. It compiles
+   them, pushes `main` and says so in its pane; the coordinator asks the
+   user to review them. Items that do not depend on the statement files
+   start at once.
+2. **The freeze.** Once the user accepts the statement files, the master
+   freezes them like the frozen files of phases 5 to 8: their code does
+   not change, only the master edits their comments, and
+   `scripts/check_sources.py` compares them with the acceptance commit as
+   a new baseline. When the theorems exist, their axiom checks and
+   expected lists join `make check` on the pattern of
+   `check/LatentScopeAssumptions.v`. The user's request permits these
+   changes to `scripts/check_sources.py`, `check/` and the `Makefile`, in
+   step 0 and at the end of the phase, and no other.
+3. **No new directories.** New files go in existing directories:
+   - statement files at the top of `extension/`;
+   - proofs in `extension/Countable/`, `extension/Paired/` or
+     `extension/Condition/`;
+   - library results in the existing library directories.
+
+   The Rocq servers then need no reconnection.
+
+### Rules for this phase
+
+The rules of phase 8 apply.
+- Nothing changes in `theories/`, in the code of the twenty-one frozen
+  files (eight in `theories/`, two of phase 5, four of phase 6, two of
+  phase 7, five of phase 8), in the check files and expected lists of
+  phases 1 to 8, or in the pinned section `tuple_prod` of
+  `library/probability/lindeberg.v`.
+- The seven theorems keep building at every commit: `universality_theorem`,
+  `mixture_theorem`, `paired_theorem`, `latent_sign_theorem`,
+  `countable_theorem`, `condition_theorem` and `latent_scope_theorem`.
+- Library results are stated over `R : realType` in the library's
+  vocabulary.
+- Every new file has the documentation header and its README rows.
+- Build with `JOBS=3`, and run `make check` before every commit.
+- Requests between lanes go through `requests/`.
+- The repository gets no journals or progress files.
+
+Phase 9 is done when the following hold:
+- the four items are proved on `main` against the accepted statements;
+- their axioms are among the eight expected ones;
+- `make check` passes;
+- the README rows cover every new file;
+- `main` is tagged `phase9`.
 
 ## Bridging Stdlib's `R` and the library
 
