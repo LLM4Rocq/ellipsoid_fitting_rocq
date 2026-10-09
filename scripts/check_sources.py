@@ -56,6 +56,17 @@
    countable-mixture theorem, of the condition-number theorem and of the
    scope results on the latent-sign law, and their definitions, must equal
    its code at the commit PHASE8_BASELINE, at which the user accepted them.
+10. Phase 8. check/CountableAssumptions.v, check/ConditionAssumptions.v
+   and check/LatentScopeAssumptions.v have the codes COUNTABLE_CHECK,
+   CONDITION_CHECK and LATENT_SCOPE_CHECK: they check that
+   countable_theorem proves countable_theorem_statement, condition_theorem
+   proves condition_theorem_statement and latent_scope_theorem proves
+   latent_scope_statement, and print their axioms. Given their outputs as
+   sixth, seventh and eighth arguments, every axiom they print is among
+   those of check/countable_assumptions.expected,
+   check/condition_assumptions.expected and
+   check/latent_scope_assumptions.expected, whose axioms are among those
+   of check/assumptions.expected.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -135,6 +146,21 @@ LATENT_CHECK = (
     "LatentSignTheorem. Definition latent_sign_theorem_checked : "
     "latent_sign_statement := latent_sign_theorem. "
     "Print Assumptions latent_sign_theorem.")
+COUNTABLE_CHECK = (
+    "From EllipsoidUniversality Require Import CountableMixtureStatement "
+    "CountableTheorem. Definition countable_theorem_checked : "
+    "countable_theorem_statement := countable_theorem. "
+    "Print Assumptions countable_theorem.")
+CONDITION_CHECK = (
+    "From EllipsoidUniversality Require Import ConditionStatement "
+    "ConditionTheorem. Definition condition_theorem_checked : "
+    "condition_theorem_statement := condition_theorem. "
+    "Print Assumptions condition_theorem.")
+LATENT_SCOPE_CHECK = (
+    "From EllipsoidUniversality Require Import LatentSignScope "
+    "LatentScopeTheorem. Definition latent_scope_theorem_checked : "
+    "latent_scope_statement := latent_scope_theorem. "
+    "Print Assumptions latent_scope_theorem.")
 # The theorems of phases 6 and 7: name, check file, its code, expected
 # axioms; their reports are the third, fourth and fifth arguments.
 PHASE6_THEOREMS = [
@@ -144,6 +170,16 @@ PHASE6_THEOREMS = [
      "check/paired_assumptions.expected"),
     ("latent-sign theorem", "check/LatentSignAssumptions.v", LATENT_CHECK,
      "check/latent_sign_assumptions.expected"),
+]
+# The theorems of phase 8; their reports are the sixth, seventh and eighth
+# arguments.
+PHASE8_THEOREMS = [
+    ("countable-mixture theorem", "check/CountableAssumptions.v",
+     COUNTABLE_CHECK, "check/countable_assumptions.expected"),
+    ("condition-number theorem", "check/ConditionAssumptions.v",
+     CONDITION_CHECK, "check/condition_assumptions.expected"),
+    ("latent-sign scope theorem", "check/LatentScopeAssumptions.v",
+     LATENT_SCOPE_CHECK, "check/latent_scope_assumptions.expected"),
 ]
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 ASSUMPTION = re.compile(
@@ -279,7 +315,8 @@ def main():
             print("universality theorem: fewer axioms than "
                   "check/universality_assumptions.expected:",
                   ", ".join(sorted(printed)) or "none")
-    for k, (name, check, check_code, expected) in enumerate(PHASE6_THEOREMS):
+    for k, (name, check, check_code, expected) in enumerate(
+            PHASE6_THEOREMS + PHASE8_THEOREMS):
         if code((ROOT / check).read_text()) != check_code:
             failures.append(f"{check}: code differs from the expected check")
         allowed_k = axiom_names((ROOT / expected).read_text())
@@ -313,7 +350,10 @@ def main():
           + ("; axioms of the universality theorem allowed" if len(sys.argv) > 2 else "")
           + ("; axioms of the mixture theorem allowed" if len(sys.argv) > 3 else "")
           + ("; axioms of the paired theorem allowed" if len(sys.argv) > 4 else "")
-          + ("; axioms of the latent-sign theorem allowed" if len(sys.argv) > 5 else ""))
+          + ("; axioms of the latent-sign theorem allowed" if len(sys.argv) > 5 else "")
+          + ("; axioms of the countable-mixture theorem allowed" if len(sys.argv) > 6 else "")
+          + ("; axioms of the condition-number theorem allowed" if len(sys.argv) > 7 else "")
+          + ("; axioms of the latent-sign scope theorem allowed" if len(sys.argv) > 8 else ""))
 
 
 if __name__ == "__main__":

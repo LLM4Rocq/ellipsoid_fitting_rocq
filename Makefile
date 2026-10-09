@@ -46,7 +46,10 @@ check: build
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/MixtureAssumptions.vo check/MixtureAssumptions.v > build/mixture_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/PairedAssumptions.vo check/PairedAssumptions.v > build/paired_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/LatentSignAssumptions.vo check/LatentSignAssumptions.v > build/latent_sign_assumptions.txt
-	python3 scripts/check_sources.py build/assumptions.txt build/universality_assumptions.txt build/mixture_assumptions.txt build/paired_assumptions.txt build/latent_sign_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/CountableAssumptions.vo check/CountableAssumptions.v > build/countable_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ConditionAssumptions.vo check/ConditionAssumptions.v > build/condition_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/LatentScopeAssumptions.vo check/LatentScopeAssumptions.v > build/latent_scope_assumptions.txt
+	python3 scripts/check_sources.py build/assumptions.txt build/universality_assumptions.txt build/mixture_assumptions.txt build/paired_assumptions.txt build/latent_sign_assumptions.txt build/countable_assumptions.txt build/condition_assumptions.txt build/latent_scope_assumptions.txt
 	$(if $(filter yes,$(CITATIONS)),$(EXEC) python3 scripts/stale_citations.py,@true)
 	@echo "make check passed."
 
