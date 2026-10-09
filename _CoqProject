@@ -740,3 +740,5 @@ extension/CountableTheorem.v
 extension/Condition/Slices.v
 extension/Condition/Cover.v
 extension/Condition/Sat.v
+extension/Condition/Unsat.v
+extension/Condition/GaussianCone.v
