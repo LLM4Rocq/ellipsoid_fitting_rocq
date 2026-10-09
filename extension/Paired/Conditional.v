@@ -36,7 +36,15 @@
       depend on the values off the box (latent_expectation_box), and they
       are monotone (latent_expectation_le); two functions equal on the box
       have the same expectation (latent_expectation_eq); a constant factor
-      comes out (latent_expectationZ). *)
+      comes out (latent_expectationZ).
+   6. For the finite tensorization constant of Paired/TensorUpper:
+      linearity (latent_expectationD, latent_expectation_cst); for g that
+      does not depend on x_j, E g = int g Z dU (latent_expectation_indep);
+      Z Var (g | X_-j) = int (g - E (g | X_-j))^2 rho on the box
+      (latent_cond_variance_mul), hence w Var_mu (g (x with x_j := .)) <=
+      Z Var (g | X_-j) when w <= rho on the support
+      (latent_cond_variance_weight); Z <= w when rho <= w on the support
+      (latent_cond_den_le). *)
 
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
@@ -175,6 +183,10 @@ Proof. by move=> Zn; field. Qed.
 Lemma const_identity {RT : realType} (c Zx : RT) : Zx != 0 ->
   c ^+ 2 * Zx / Zx - (c * Zx / Zx) ^+ 2 = 0.
 Proof. by move=> Zn; field. Qed.
+
+Lemma sqr_dev_bound {RT : realType} (A B m : RT) :
+  A - B ^+ 2 <= A - 2%:R * m * B + m ^+ 2.
+Proof. by have := sqr_ge0 (B - m); nra. Qed.
 
 Lemma quarter_bound {RT : realType} (p : RT) : p - p ^+ 2 <= 4%:R^-1.
 Proof. by have := sqr_ge0 (p - 2%:R^-1); nra. Qed.
@@ -791,6 +803,193 @@ Lemma latent_expectation0 :
 Proof.
 rewrite /latent_point_expectation; under eq_Rintegral do rewrite mul0r.
 by rewrite Rintegral_cst // mul0r.
+Qed.
+
+(* 6. Linearity, and the identities behind finite tensorization constants. *)
+
+Lemma latent_integrable (g : paper_main_sample 1 d -> R) (M : R) :
+  measurable_fun setT (g : _ -> RR) -> (forall z, `|g z| <= M) ->
+  U.-integrable setT (EFin \o (fun z => g z * rho z : RR)).
+Proof. exact: iU. Qed.
+
+Lemma latent_expectationD (u v : paper_main_sample 1 d -> R) (Mu Mv : R) :
+  measurable_fun setT (u : _ -> RR) -> (forall z, `|u z| <= Mu) ->
+  measurable_fun setT (v : _ -> RR) -> (forall z, `|v z| <= Mv) ->
+  latent_point_expectation s mu d (fun x => u x + v x) =
+  latent_point_expectation s mu d u + latent_point_expectation s mu d v.
+Proof.
+move=> mu' uM mv vM; rewrite /latent_point_expectation.
+under eq_Rintegral do rewrite mulrDl.
+exact: (RintegralD measurableT (iU u Mu mu' uM) (iU v Mv mv vM)).
+Qed.
+
+Lemma latent_expectation_cst (c : R) :
+  latent_point_expectation s mu d (fun=> c) = c.
+Proof.
+have m1 : measurable_fun setT (fun _ : paper_main_sample 1 d => (1 : RR)).
+  exact: measurable_cst.
+have b1 (z : paper_main_sample 1 d) : `|(fun=> 1 : RR) z| <= 1 by rewrite normr1.
+have -> : (fun _ : paper_main_sample 1 d => c) = (fun x => c * (fun=> 1) x).
+  by apply/funext => x; rewrite mulr1.
+rewrite (latent_expectationZ c _ 1 m1 b1).
+have hsp : -1 <= s <= 7%:R / 3%:R := latent_param_range s 0 hs.
+have hsn : -1 <= (- s)%R <= 7%:R / 3%:R := latent_param_range s 1 hs.
+have i1 (a : R) : (latent_side mu d a).-integrable setT
+    (EFin \o (fun _ : paper_main_sample 1 d => (1 : RR))).
+  exact: finite_measure_integrable_cst.
+rewrite (latent_point_expectationE s mu d hs hmu _ m1 (i1 s) (i1 (- s)%R)).
+rewrite !Rintegral_cst //.
+rewrite -[X in fine X]/(latent_side mu d s setT) probability_setT /=.
+rewrite -[X in fine X]/(latent_side mu d (- s)%R setT) probability_setT /=.
+by rewrite !mulr1 -[X in _ / X]/(1 + 1) divff ?mulr1 // pnatr_eq0.
+Qed.
+
+(* For g that does not depend on x_j, E_P g = int g Z dU. *)
+Lemma latent_expectation_indep (g : paper_main_sample 1 d -> R) (M : R) :
+  measurable_fun setT (g : _ -> RR) -> (forall z, `|g z| <= M) ->
+  (forall x t, g (rep x t) = g x) ->
+  latent_point_expectation s mu d g = \int[U]_x (g x * Z x : RR).
+Proof.
+move=> mg gM hg.
+have ig := iU g M mg gM.
+rewrite /latent_point_expectation /Rintegral (integral_tuple_prod_set j' ig).
+congr fine; apply: eq_integral => x _.
+transitivity (\int[mu]_t ((g x)%:E * (rho (rep x t) : RR)%:E))%E.
+  by apply: eq_integral => t _; rewrite /= -latent_replace_set hg EFinM.
+rewrite (integralZl measurableT (irho x)).
+have fZ : (\int[mu]_t ((EFin \o (fun y : RR => rho (rep x y) : RR)) t))%E =
+    (Z x)%:E.
+  rewrite /Z /Rintegral fineK //.
+  exact: (integrable_fin_num measurableT (irho x)).
+by rewrite fZ -EFinM.
+Qed.
+
+(* Z Var (g | X_-j) = int (g - E (g | X_-j))^2 rho, on the box. *)
+Lemma latent_cond_variance_mul (g : paper_main_sample 1 d -> R) (M : R) x :
+  measurable_fun setT (g : _ -> RR) -> (forall z, `|g z| <= M) ->
+  latent_box d x ->
+  latent_cond_variance s mu d j g x * Z x =
+  \int[mu]_y ((g (rep x y) - latent_cond_expectation s mu d j g x) ^+ 2 *
+               rho (rep x y) : RR).
+Proof.
+move=> mg gM bx.
+have Z0 : 0 < Z x := latent_cond_den_gt0 x bx.
+have Zn : Z x != 0 := lt0r_neq0 Z0.
+have em : latent_cond_expectation s mu d j g x = N g x / Z x by [].
+set m := N g x / Z x in em.
+have [_ e2] := N_shift g (fun=> - m) M `|m| x mg gM (fun=> erefl).
+have e : latent_cond_variance s mu d j g x = N (fun z => (g z - m) ^+ 2) x / Z x.
+  rewrite /latent_cond_variance !CEE e2.
+  have em' : N g x = m * Z x by rewrite /m divfK.
+  exact: (var_identity _ _ _ _ Zn em').
+by rewrite e divfK // em.
+Qed.
+
+Lemma measurable_latent_cond_den :
+  measurable_fun setT (fun x => \int[mu]_y (rho (rep x y) : RR)).
+Proof.
+have m1 : measurable_fun setT (fun _ : paper_main_sample 1 d => (1 : RR)).
+  exact: measurable_cst.
+have b1 (z : paper_main_sample 1 d) : `|(fun=> 1 : RR) z| <= 1 by rewrite normr1.
+have -> : (fun x => \int[mu]_y (rho (rep x y) : RR)) = (fun x => N (fun=> 1) x).
+  by apply/funext => x; exact: ZN.
+exact: mN m1 b1.
+Qed.
+
+Lemma measurable_latent_replace (y : RR) :
+  measurable_fun setT (fun x : paper_main_sample 1 d => rep x y).
+Proof.
+apply/measurable_fun_tnthP => k.
+apply: (eq_measurable_fun (fun x : paper_main_sample 1 d =>
+  if k == j' then y else tnth x k)).
+  by move=> x _; rewrite /= tnth_latent_replace.
+by case: (k == j'); [exact: measurable_cst | exact: measurable_tnth].
+Qed.
+
+Lemma latent_cond_den_le (w : R) x :
+  (forall y, `|y| <= Num.sqrt 3%:R -> rho (rep x y) <= w) ->
+  \int[mu]_y (rho (rep x y) : RR) <= w.
+Proof.
+move=> hw.
+have iw : mu.-integrable setT (EFin \o (fun _ : RR => w : RR)).
+  exact: finite_measure_integrable_cst.
+have := Rint_le _ _ (irho x) iw hw.
+by rewrite Rintegral_cst // -[X in fine X]/(mu setT) probability_setT /= mulr1.
+Qed.
+
+(* w Var_mu (g (x with x_j := .)) <= Z Var (g | X_-j) when w <= rho on the
+   support. *)
+Lemma latent_cond_variance_weight (g : paper_main_sample 1 d -> R) (M w : R) x :
+  measurable_fun setT (g : _ -> RR) -> (forall z, `|g z| <= M) ->
+  latent_box d x -> 0 <= w ->
+  (forall y, `|y| <= Num.sqrt 3%:R -> w <= rho (rep x y)) ->
+  w * (\int[mu]_y (g (rep x y) ^+ 2 : RR) - (\int[mu]_y (g (rep x y) : RR)) ^+ 2) <=
+  latent_cond_variance s mu d j g x * Z x.
+Proof.
+move=> mg gM bx w0 hw.
+rewrite (latent_cond_variance_mul g M x mg gM bx).
+set m := latent_cond_expectation s mu d j g x.
+have mG : measurable_fun setT (fun y : RR => g (rep x y) : RR).
+  exact: measurableT_comp mg (mrep x).
+have M0 : 0 <= M := bound_ge0 g M x gM.
+have iG : mu.-integrable setT (EFin \o (fun y : RR => g (rep x y) : RR)).
+  exact: (integrable_prob_bounded' _ _ _ mu _ M mG (fun y => gM _)).
+have mG2 : measurable_fun setT (fun y : RR => g (rep x y) ^+ 2 : RR).
+  exact: measurable_funX.
+have iG2 : mu.-integrable setT (EFin \o (fun y : RR => g (rep x y) ^+ 2 : RR)).
+  exact: (integrable_prob_bounded' _ _ _ mu _ (M ^+ 2) mG2
+    (fun y => sq_bound g M gM _)).
+have gmM z : `|g z - m| <= M + `|m|.
+  by apply: le_trans (ler_normB _ _) _; rewrite lerD2r.
+have mGm : measurable_fun setT (fun y : RR => (g (rep x y) - m) ^+ 2 : RR).
+  by apply: measurable_funX; apply: measurable_funB => //; exact: measurable_cst.
+have iGm : mu.-integrable setT (EFin \o (fun y : RR => (g (rep x y) - m) ^+ 2 : RR)).
+  exact: (integrable_prob_bounded' _ _ _ mu _ ((M + `|m|) ^+ 2) mGm
+    (fun y => sq_bound (fun z => g z - m) _ gmM _)).
+have mgm : measurable_fun setT (fun z => (g z - m) ^+ 2 : RR).
+  by apply: measurable_funX; apply: measurable_funB => //; exact: measurable_cst.
+have iGmr := iN (fun z => (g z - m) ^+ 2) _ x mgm (sq_bound _ _ gmM).
+have iwGm : mu.-integrable setT
+    (EFin \o (fun y : RR => w * (g (rep x y) - m) ^+ 2 : RR)).
+  apply: (eq_integrable measurableT _ _ _ (integrableZl measurableT w iGm)).
+  by move=> y _ /=; rewrite EFinM.
+(* w int (G - m)^2 <= int (G - m)^2 rho *)
+have s1 : w * \int[mu]_y ((g (rep x y) - m) ^+ 2 : RR) <=
+    \int[mu]_y ((g (rep x y) - m) ^+ 2 * rho (rep x y) : RR).
+  rewrite -(RintegralZl w measurableT iGm); apply: Rint_le => // y yc.
+  by rewrite mulrC; apply: ler_wpM2l; [exact: sqr_ge0 | exact: hw].
+(* int G^2 - (int G)^2 <= int (G - m)^2 *)
+have i3 : mu.-integrable setT (EFin \o (fun y : RR =>
+    g (rep x y) ^+ 2 + (- (2%:R * m)) * g (rep x y) : RR)).
+  have iZG : mu.-integrable setT
+      (EFin \o (fun y : RR => (- (2%:R * m)) * g (rep x y) : RR)).
+    apply: (eq_integrable measurableT _ _ _
+      (integrableZl measurableT (- (2%:R * m)) iG)).
+    by move=> y _ /=; rewrite EFinM.
+  apply: (eq_integrable measurableT _ _ _ (integrableD measurableT iG2 iZG)).
+  by move=> y _ /=; rewrite EFinD.
+have ic : mu.-integrable setT (EFin \o (fun _ : RR => m ^+ 2 : RR)).
+  exact: finite_measure_integrable_cst.
+have e : \int[mu]_y ((g (rep x y) - m) ^+ 2 : RR) =
+    \int[mu]_y (g (rep x y) ^+ 2 : RR) -
+    2%:R * m * \int[mu]_y (g (rep x y) : RR) + m ^+ 2.
+  transitivity (\int[mu]_y (g (rep x y) ^+ 2 + (- (2%:R * m)) * g (rep x y) +
+      m ^+ 2 : RR)).
+    by apply: eq_Rintegral => y _; ring.
+  have iZG : mu.-integrable setT
+      (EFin \o (fun y : RR => (- (2%:R * m)) * g (rep x y) : RR)).
+    apply: (eq_integrable measurableT _ _ _
+      (integrableZl measurableT (- (2%:R * m)) iG)).
+    by move=> y _ /=; rewrite EFinM.
+  rewrite (RintegralD measurableT i3 ic) (RintegralD measurableT iG2 iZG).
+  rewrite (RintegralZl _ measurableT iG) Rintegral_cst //.
+  rewrite -[X in fine X]/(mu setT) probability_setT /=.
+  by rewrite mulr1 mulNr.
+have s2 : \int[mu]_y (g (rep x y) ^+ 2 : RR) -
+    (\int[mu]_y (g (rep x y) : RR)) ^+ 2 <=
+    \int[mu]_y ((g (rep x y) - m) ^+ 2 : RR).
+  by rewrite e; exact: sqr_dev_bound.
+apply: (le_trans _ s1); exact: (ler_wpM2l w0 s2).
 Qed.
 
 End latent_cond.
