@@ -35,8 +35,12 @@
       i.i.d. points of law P is robust_sample_law n d P: the probability of
       a set A of samples is the probability, under n independent points of
       law P, that the list of the points is the list of the points of some
-      sample in A. For a countable mixture family this is
-      countable_mixture_probability (a lemma of the proof).
+      sample in A. For the point law of a countable mixture family, the
+      proof of RobustStatement does not identify this law with
+      countable_mixture_probability: it compares the two through the
+      truncation of the family (Countable/Robust.v, robust_transfer), and
+      they differ by at most 2 n r_d on every measurable set of samples,
+      where r_d is the tail mass of the truncation.
    4. Closeness at the scale of (17): robust_close w mu P says that
       d^2 times the total variation distance between P d and the point law
       of the family at dimension d tends to 0.
