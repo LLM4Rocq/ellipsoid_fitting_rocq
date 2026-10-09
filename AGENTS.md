@@ -34,7 +34,7 @@ The task has two parts.
    rename the remaining modules and group them in folders.
 
 Three agents share the work. Agent 1 coordinates phases 1 to 5; in
-phases 6 to 9, agent 3 coordinates (sections "Phase 6" to "Phase 9").
+phases 6 to 10, agent 3 coordinates (sections "Phase 6" to "Phase 10").
 
 ## The invariant
 
@@ -143,8 +143,8 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 8 below are done (`main` a89ed1e, tag `phase8`). The current
-work is phase 9, described after phase 8.
+Phases 1 to 9 below are done (`main` e4c46e1, tag `phase9`). The current
+work is phase 10, described after phase 9.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -1209,6 +1209,109 @@ Phase 9 is done when the following hold:
 - `make check` passes;
 - the README rows cover every new file;
 - `main` is tagged `phase9`.
+
+## Phase 10. The follow-ups of the review of the phase 9 release
+
+Phases 1 to 9 are done (`main` e4c46e1, tag `phase9`). A review of the
+phase 9 release, `/srv/ellipsoid-fitting/reviews/phase9-release-review.md`,
+accepts its mathematics. On 9 October 2026 the user accepted its four
+proposals as this phase.
+
+1. **D. Documentation corrections** (the review's section 1).
+   - The contamination is at total variation distance at most lambda / n
+     from the family, not exactly lambda / n: the distance is smaller when
+     the law of the family has an atom at zero.
+   - The comment of `RobustDefinitions.v` should describe what the proof
+     does: a comparison through truncation, not an exact identity between
+     `robust_sample_law` and `countable_mixture_probability`. That file is
+     frozen, so only its comment changes, by the master.
+   - The tensorization rows should say "for fixed s > 0" where Var f_d
+     tends to 1/4, and describe exactly how the test function is truncated
+     coordinate by coordinate.
+2. **R7. Robustness of the optimal condition number** (the review's
+   section 7.1, its first priority). New corollaries of the frozen
+   statements, stated for perturbed point laws P~_d with
+   d^2 tv(P~_d, nu_d) -> 0 around an admissible finite or countable
+   mixture family of fourth moment 3. The perturbed laws need no moment.
+   - The threshold (20): for every fixed C > 1, the probability of a fit
+     of condition number at most C tends to 1 if alpha < alpha_C and to 0
+     if alpha > alpha_C.
+   - The convergence (21) of the optimal data condition number to
+     C_star(alpha), for 0 < alpha < 1/4.
+   - Both follow from the transfer of `Countable/Robust.v` and
+     `condition_theorem`, through the measurable fit events.
+3. **T. A finite tensorization constant** (the review's section 7.3).
+   - For 0 <= s <= 1 the latent-sign law satisfies the tensorization
+     inequality (12) of the frozen `LatentTensorization.v` with
+     T_0 = 2 ((1 + s) / (1 - 3 s / 7))^d.
+   - On the support, (1/2) (1 - 3 s / 7)^d <= rho <= (1 + s)^d, so
+     Var_P f <= U Var_Q f and E_P Var_P(f | X_-j) >= L E_Q Var_Q(f | X_-j),
+     with U and L the two bounds.
+   - Efron-Stein for the product law Q = mu^d then gives T_0 = U / L.
+   - Together with the proved lower bound, this places the optimal
+     constant between two explicit exponentials for every fixed s > 0.
+4. **I. Reusable identities** (the review's section 7.2).
+   - The countable analogue of `tuple_prod_mixture`, and the exact
+     identity between `robust_sample_law` of the point law of a countable
+     family and `countable_mixture_probability`. With it, the transfer
+     bound becomes n tv(P~_d, nu_d), with no truncation term.
+   - A probability wrapper for `cl_point_law d` with its marginal
+     moments.
+   - These are lemmas and need no statement review.
+
+### Roles
+
+As in phases 6 to 9. **Agent 3 is the master.**
+- It assigns the items (its own lane included) and gives agents 1 and 2
+  their work in their sessions.
+- It writes the statement files of R7 and T and freezes them after the
+  user's review.
+- It merges in the `integration` clone and alone pushes `main` and tags.
+- It keeps its table in
+  `/srv/ellipsoid-fitting/runtime/phase10/assignments.md`.
+
+Agents 1 and 2 take their items from the master. The coordinator assigns
+no item; it verifies pushed commits, keeps GitHub in sync and relays the
+user's decisions.
+
+### Step 0
+
+1. **The statements.** The master writes the statement files of R7 and T
+   at the top of `extension/`, using the frozen definitions, with
+   comments that guide the reviewer. It compiles them, pushes `main` and
+   says so in its pane; the coordinator asks the user to review them. D, I
+   and the parts of R7 and T that do not depend on the statements start at
+   once.
+2. **The freeze.** Once the user accepts the statement files, the master
+   freezes them like the frozen files of phases 5 to 9, with the
+   acceptance commit as a new baseline in `scripts/check_sources.py`.
+   When the theorems exist, their axiom checks and expected lists join
+   `make check` on the pattern of `check/RobustAssumptions.v`. The user's
+   request permits these changes to `scripts/check_sources.py`, `check/`
+   and the `Makefile`, in step 0 and at the end of the phase, and no
+   other.
+3. **No new directories.** New files go in existing directories, so the
+   Rocq servers need no reconnection.
+
+### Rules for this phase
+
+The rules of phase 9 apply.
+- Nothing changes in `theories/`, in the code of the twenty-six frozen
+  files, in the check files and expected lists of phases 1 to 9, or in
+  the pinned section `tuple_prod` of `library/probability/lindeberg.v`.
+- The eleven theorems keep building at every commit: those of phases 5 to
+  9 and the main theorem's checks.
+- Every new file has the documentation header and its README rows.
+- Build with `JOBS=3`, and run `make check` before every commit.
+- The repository gets no journals or progress files.
+
+Phase 10 is done when the following hold:
+- D and I are on `main`;
+- the statements of R7 and T are proved on `main`, with their axioms
+  among the eight expected ones;
+- `make check` passes;
+- the README rows cover every new file;
+- `main` is tagged `phase10`.
 
 ## Bridging Stdlib's `R` and the library
 
