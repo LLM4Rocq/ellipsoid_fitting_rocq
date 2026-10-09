@@ -3,6 +3,15 @@
    sections 4.4 and 5.2; the note notes/phase6-three-extensions.md, (20)
    and (21)).
 
+   - condition_statement_holds: (20). Below alpha_C, the satisfiable half
+     condition_sat_witness (Condition/Sat, item Q7) at some C_- in (1, C)
+     with alpha < alpha_(C_-) (condition_alpha_left of Condition/Curve),
+     with the Gaussian witness gaussian_witness (Condition/GaussianWitness,
+     Q3) at C_-. Above alpha_C, the unsatisfiable half condition_unsat_gap
+     (Condition/Unsat, Q8) at some C_+ > C with alpha_(C_+) < alpha
+     (condition_alpha_right), with the Gaussian gap gaussian_gap
+     (Condition/GaussianGap, Q4) at C_+. Both Gaussian inputs take the
+     limit cond_support_goe_cvg (Condition/GaussianCone, Q2).
    - conditioned_fit_mono: the event universality_conditioned_fit_event
      n d c increases with c.
    - condition_number_of_threshold: (21) from (20). For 0 < alpha < 1/4,
@@ -32,7 +41,9 @@ From EllipsoidUniversality Require Import ConditionDefinitions.
 From EllipsoidUniversality Require Import ConditionStatement.
 From EllipsoidUniversality.Features Require Import Mixture.
 From EllipsoidUniversality.Model Require Import Measurability.
-From EllipsoidUniversality.Condition Require Import Curve.
+From EllipsoidUniversality.Condition Require Import Curve GaussianCone.
+From EllipsoidUniversality.Condition Require Import GaussianWitness GaussianGap.
+From EllipsoidUniversality.Condition Require Import Sat Unsat.
 
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
 
@@ -41,7 +52,24 @@ Local Open Scope ring_scope.
 
 Local Notation RR := (R : realType).
 
-(* 1. The fit events increase with the condition number. *)
+(* 1. (20): the two halves at C_- < C and at C_+ > C. *)
+Theorem condition_statement_holds : condition_statement.
+Proof.
+move=> K C alpha K0 C1 a0; split.
+  by move=> n d; exact: measurable_conditioned_fit_event.
+move=> N w mu hfam h4 n hn; split => aC.
+- have [Cm /andP[Cm1 CmC] aCm] := condition_alpha_left _ _ C1 aC.
+  exact: (condition_sat_witness K C Cm alpha K0 Cm1 CmC a0 aCm
+    (gaussian_witness Cm alpha Cm1 a0 aCm (cond_support_goe_cvg Cm Cm1))
+    N w mu hfam h4 n hn).
+- have [Cp CCp aCp] := condition_alpha_right _ _ C1 aC.
+  have Cp1 := lt_trans C1 CCp.
+  exact: (condition_unsat_gap K C Cp alpha K0 C1 CCp a0
+    (gaussian_gap Cp alpha Cp1 a0 aCp (cond_support_goe_cvg Cp Cp1))
+    N w mu hfam h4 n hn).
+Qed.
+
+(* 2. The fit events increase with the condition number. *)
 Lemma conditioned_fit_mono (n d : nat) (c c' : R) (x : paper_main_sample n d) :
   c <= c' -> universality_conditioned_fit_event n d c x ->
   universality_conditioned_fit_event n d c' x.
@@ -54,7 +82,7 @@ apply: le_trans (Sq v) _; apply: ler_wpM2r; first exact: pm_sqnorm_ge0.
 by rewrite ler_pM2r.
 Qed.
 
-(* 2. (21) from (20). *)
+(* 3. (21) from (20). *)
 Theorem condition_number_of_threshold :
   condition_statement -> condition_number_statement.
 Proof.
