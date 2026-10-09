@@ -737,3 +737,4 @@ extension/Countable/Theorem.v
 extension/CountableTheorem.v
 extension/Condition/Slices.v
 extension/Condition/Cover.v
+extension/Condition/Sat.v
