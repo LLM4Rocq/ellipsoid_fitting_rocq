@@ -44,6 +44,14 @@
    phases 5 and 6 depend, is pinned: the Require commands of TUPLE_PROD
    and the code of its section tuple_prod must equal their code at
    CHECKS_BASELINE.
+8. Phase 7. The code of each file of LATENT_FROZEN, the statement of the
+   latent-sign corollary and its definitions, must equal its code at the
+   commit LATENT_BASELINE, at which the user accepted them.
+   check/LatentSignAssumptions.v has the code LATENT_CHECK: it checks that
+   latent_sign_theorem proves latent_sign_statement and prints its axioms.
+   Given its output as fifth argument, every axiom it prints is among those
+   of check/latent_sign_assumptions.expected, whose axioms are among those
+   of check/assumptions.expected.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -90,6 +98,11 @@ CHECKS_EXACT = [
 ]
 CHECKS_BASELINE = "c3e555eba4d2d3958d76418c21feebcc241510fc"
 TUPLE_PROD = "library/probability/lindeberg.v"
+LATENT_FROZEN = [
+    "extension/LatentSignDefinitions.v",
+    "extension/LatentSignStatement.v",
+]
+LATENT_BASELINE = "d4de51d11b12b50afa4c96a7fa90b37f9f6b92ee"
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -105,12 +118,20 @@ PAIRED_CHECK = (
     "PairedTheorem. Definition paired_theorem_checked : "
     "paired_statement := paired_theorem. "
     "Print Assumptions paired_theorem.")
-# The theorems of phase 6: name, check file, its code, expected axioms.
+LATENT_CHECK = (
+    "From EllipsoidUniversality Require Import LatentSignStatement "
+    "LatentSignTheorem. Definition latent_sign_theorem_checked : "
+    "latent_sign_statement := latent_sign_theorem. "
+    "Print Assumptions latent_sign_theorem.")
+# The theorems of phases 6 and 7: name, check file, its code, expected
+# axioms; their reports are the third, fourth and fifth arguments.
 PHASE6_THEOREMS = [
     ("mixture theorem", "check/MixtureAssumptions.v", MIXTURE_CHECK,
      "check/mixture_assumptions.expected"),
     ("paired theorem", "check/PairedAssumptions.v", PAIRED_CHECK,
      "check/paired_assumptions.expected"),
+    ("latent-sign theorem", "check/LatentSignAssumptions.v", LATENT_CHECK,
+     "check/latent_sign_assumptions.expected"),
 ]
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 ASSUMPTION = re.compile(
@@ -186,6 +207,9 @@ def main():
     for path in PHASE6_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE6_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE6_BASELINE[:12]}")
+    for path in LATENT_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(LATENT_BASELINE, path)):
+            failures.append(f"{path}: code differs from {LATENT_BASELINE[:12]}")
     for path in CHECKS_EXACT:
         if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
@@ -264,12 +288,15 @@ def main():
           f"{PHASE6_BASELINE[:12]}; "
           f"{len(CHECKS_EXACT)} check files and tuple_prod unchanged since "
           f"{CHECKS_BASELINE[:12]}; "
+          f"{len(LATENT_FROZEN)} frozen files of phase 7 unchanged since "
+          f"{LATENT_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
           + ("; axioms of the universality theorem allowed" if len(sys.argv) > 2 else "")
           + ("; axioms of the mixture theorem allowed" if len(sys.argv) > 3 else "")
-          + ("; axioms of the paired theorem allowed" if len(sys.argv) > 4 else ""))
+          + ("; axioms of the paired theorem allowed" if len(sys.argv) > 4 else "")
+          + ("; axioms of the latent-sign theorem allowed" if len(sys.argv) > 5 else ""))
 
 
 if __name__ == "__main__":
