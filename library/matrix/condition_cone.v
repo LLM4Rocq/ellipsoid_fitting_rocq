@@ -50,7 +50,8 @@ From GaussianAnalysis.convex Require Import moreau.
 (*   over [0, T].                                                             *)
 (* - cond_slice C, the trace slice {Q in the cone | tr Q = n}, a compact      *)
 (*   convex base of the cone: cond_slice1, cond_slice_spec (eigenvalues in    *)
-(*   [1/C, C]), cond_slice_form, cond_slice_frobenius                         *)
+(*   [1/C, C]), cond_slice_t (between t I and C t I with t in [1/C, 1]),      *)
+(*   cond_slice_form, cond_slice_frobenius                                    *)
 (*   (n <= |Q|_F^2 <= C n), cond_cone_slice (every nonzero point of the cone  *)
 (*   has a positive multiple in the slice); cond_slice_vec, the slice in the  *)
 (*   coordinates of mxvec: cond_slice_vec_closed, cond_slice_vec_convex,      *)
@@ -616,6 +617,33 @@ Definition cond_slice C : set 'M[R]_n :=
 
 Lemma cond_slice1 C : 1 <= C -> cond_slice C 1%:M.
 Proof. by move=> C1; split; [exact: cond_cone1 | rewrite mxtrace1]. Qed.
+
+(* A matrix of the slice is between t I and C t I for some t in [1/C, 1]. *)
+Lemma cond_slice_t C Q : 0 < C -> (0 < n)%N -> cond_slice C Q ->
+  exists2 t : R, C^-1 <= t <= 1 &
+    forall x : 'cV[R]_n, t * mxdot x x <= mxdot x (Q *m x) <= C * t * mxdot x x.
+Proof.
+move=> C0 n0 [[Qs QK] trQ].
+have [t t0 ht] := (cond_coneP C Qs).1 (conj Qs QK).
+have Ssum : \sum_j spec Q 0 j = n%:R by rewrite sum_spec_trace.
+have nR : 0 < n%:R :> R by rewrite ltr0n.
+have h1 : n%:R * t <= n%:R.
+  have St : \sum_(j < n) t = n%:R * t by rewrite sumr_const card_ord mulr_natl.
+  rewrite -St -[X in _ <= X]Ssum; apply: ler_sum => j _.
+  by case/andP: (ht j).
+have h2 : n%:R <= n%:R * (C * t).
+  have St : \sum_(j < n) (C * t) = n%:R * (C * t).
+    by rewrite sumr_const card_ord mulr_natl.
+  rewrite -St -[X in X <= _]Ssum; apply: ler_sum => j _.
+  by case/andP: (ht j).
+exists t.
+  apply/andP; split; last by rewrite -(ler_pM2l nR) mulr1.
+  by rewrite -(ler_pM2l C0) mulfV ?gt_eqF // -(ler_pM2l nR) mulr1.
+have [P Po QE] := spec_decomposition Qs.
+move=> x; apply/andP; split.
+  by move: x; apply/(spectral_form_ge t Po QE) => i; case/andP: (ht i).
+by move: x; apply/(spectral_form_le (C * t) Po QE) => i; case/andP: (ht i).
+Qed.
 
 Lemma cond_slice_spec C Q : 0 < C -> cond_slice C Q ->
   forall i, C^-1 <= spec Q 0 i <= C.
