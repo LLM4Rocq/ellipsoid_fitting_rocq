@@ -39,7 +39,10 @@ show the persistent dependence of the latent-sign law. Phase 9 adds four
 complements: robustness in total variation, the failure of the
 tensorization of the variance for the latent-sign law, a continuous
 latent mixture that no countable mixture of product laws approximates,
-and the endpoint expansions of the condition-number curve.
+and the endpoint expansions of the condition-number curve. Phase 10 makes
+the optimal condition-number theorem robust to perturbations of order
+o(d^-2) in total variation, and bounds the tensorization constant of the
+latent-sign law by an explicit exponential.
 
 ## Status
 
@@ -121,6 +124,23 @@ and the endpoint expansions of the condition-number curve.
   `check/ConditionEndpointsAssumptions.v`). `extension/README.md`, section
   (h), describes them; as for phase 8, the arguments are ordinary and their
   novelty is not confirmed.
+- **The complements of phase 10.** Two theorems, on statements that the
+  user accepted and that are frozen at commit `b26eb1e`
+  (`ConditionRobustStatement.v`, `LatentTensorUpper.v`):
+  `robust_condition_theorem` (`extension/ConditionRobustTheorem.v`): the
+  threshold alpha_C and the limit C_star(alpha) of the optimal
+  condition-number theorem hold for i.i.d. points of arbitrary laws within
+  o(d^-2) in total variation of a countable family of fourth moment 3;
+  `latent_tensor_upper_theorem` (`extension/LatentTensorUpperTheorem.v`):
+  the latent-sign law satisfies the coordinate tensorization of the
+  variance with the constant 2 ((1 + s) / (1 - 3 s / 7))^d, so that, with
+  the lower bounds of phase 9, the best constant lies between two
+  exponentials in d for every fixed s > 0. Both use the same seven axioms
+  as the theorems above (`check/ConditionRobustAssumptions.v`,
+  `check/LatentTensorUpperAssumptions.v`). Phase 10 also proves reusable
+  identities (the law of a sample of a countable mixture, a probability
+  for the continuous latent law) and corrects the documentation of phase 9.
+  `extension/README.md`, section (i), describes them.
 - **The universality theorem, proved.** `extension/` states Theorem 1.2 of
   Koehler and Sohn, *Universality and sharp thresholds for ellipsoid
   fitting* ([arXiv:2608.27372v1](https://arxiv.org/abs/2608.27372v1)): for
@@ -281,8 +301,10 @@ generated`), whose code cannot change. The other modules print none.
   (`latent_scope_theorem`), and those of phase 9: `RobustTheorem.v`
   (`robust_theorem`), `LatentTensorTheorem.v` (`latent_tensor_theorem`),
   `ContinuousLatentTheorem.v` (`continuous_latent_theorem`) and
-  `ConditionEndpointsTheorem.v` (`condition_endpoints_theorem`). The
-  folders of the proofs:
+  `ConditionEndpointsTheorem.v` (`condition_endpoints_theorem`), and
+  those of phase 10: `ConditionRobustTheorem.v`
+  (`robust_condition_theorem`) and `LatentTensorUpperTheorem.v`
+  (`latent_tensor_upper_theorem`). The folders of the proofs:
   `Model/` (the law of the sample and the measurability of the events),
   `Features/` (the quadratic features of the points, and those of a
   mixture), `Unsat/` (the unsatisfiable phase), `Gaussian/` (the Gaussian
@@ -293,9 +315,9 @@ generated`), whose code cannot change. The other modules print none.
   conditional laws), `Countable/` (the truncation of a countable mixture,
   the transfer of the theorem, robustness in total variation and the
   continuous latent mixture) and `Condition/` (the condition-number
-  theorem and the endpoints of its curve). `extension/README.md` holds the
-  feasibility study of phase 5 and, in its sections (f) to (h), the
-  description of phases 6 to 9.
+  theorem, the endpoints of its curve and its robustness).
+  `extension/README.md` holds the feasibility study of phase 5 and, in its
+  sections (f) to (i), the description of phases 6 to 10.
 - `library/`: the library `GaussianAnalysis`, 80 files of general results
   over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
   and concentration, real matrices and probability; the Fourier analysis
@@ -343,6 +365,8 @@ generated`), whose code cannot change. The other modules print none.
   `check/RobustAssumptions.v`, `check/LatentTensorAssumptions.v`,
   `check/ContinuousLatentAssumptions.v` and
   `check/ConditionEndpointsAssumptions.v` for the four theorems of phase 9,
+  and `check/ConditionRobustAssumptions.v` and
+  `check/LatentTensorUpperAssumptions.v` for the two theorems of phase 10,
   with the expected lists of the same names.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
@@ -350,8 +374,9 @@ generated`), whose code cannot change. The other modules print none.
   theorem and its definitions the same code as at commit `3c6afa1`, the
   four statement files of phase 6 the same code as at commit `eef4694`,
   the two of phase 7 the same code as at commit `d4de51d`, the five
-  of phase 8 the same code as at commit `5442e84`, and the five of phase 9
-  the same code as at commit `1c05ffc` (comments may differ); that the
+  of phase 8 the same code as at commit `5442e84`, the five of phase 9
+  the same code as at commit `1c05ffc`, and the two of phase 10 the same
+  code as at commit `b26eb1e` (comments may differ); that the
   axiom-check files of phases 5 and 6 and their expected lists are
   byte-identical to commit `c3e555e`, and those of phases 7 and 8 to
   commit `a89ed1e`; that the Require commands of
@@ -447,8 +472,9 @@ done, and the second is done in part.
    102,415 lines at the tag `phase1`, and has 588 modules and 86,410 lines
    now. The library had 37 files and 21,005 lines at the end of phase 4,
    72 files and 48,032 lines after phase 5, 75 files and 48,991 lines
-   after phase 6, 78 files and 51,203 lines after phase 8, and has 80
-   files and 51,666 lines after phase 9.
+   after phase 6, 78 files and 51,203 lines after phase 8, 80 files and
+   51,666 lines after phase 9, and has 80 files and 51,796 lines after
+   phase 10.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -490,4 +516,7 @@ condition number at fourth moment 3, and the scope of the latent-sign law
 robustness in total variation, the tensorization bounds of the
 latent-sign law, the continuous latent mixture and the endpoint expansions
 of the condition-number curve, and the follow-ups of the review of the
-phase 8 release (tag `phase9`).
+phase 8 release (tag `phase9`). Phase 10 proved the robustness of the
+optimal condition number and a finite tensorization constant, with
+reusable identities and the corrections of the review of the phase 9
+release (tag `phase10`).
