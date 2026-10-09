@@ -7,7 +7,11 @@
    of EXACT must be byte-identical to that commit. The code of each file
    of EXTENSION_FROZEN, the statement of the universality theorem of
    extension/ and its definitions, must equal its code at the commit
-   EXTENSION_BASELINE, the merge that brought them to main.
+   EXTENSION_BASELINE, the merge that brought them to main. The code of
+   each file of PHASE6_FROZEN, the statements of the finite-mixture
+   theorem and of its corollary for the paired law and their definitions,
+   must equal its code at the commit PHASE6_BASELINE, at which the user
+   accepted them.
 2. No module of theories/, library/ or extension/ contains Admitted,
    Axiom, Parameter or Conjecture outside comments.
 3. library/ is independent of the papers and of Stdlib's reals: no module
@@ -60,6 +64,13 @@ EXTENSION_FROZEN = [
     "extension/UniversalityStatement.v",
 ]
 EXTENSION_BASELINE = "3c6afa103ccd56c7d98bc59cb253d5d40d13fda0"
+PHASE6_FROZEN = [
+    "extension/MixtureDefinitions.v",
+    "extension/MixtureStatement.v",
+    "extension/PairedDefinitions.v",
+    "extension/PairedStatement.v",
+]
+PHASE6_BASELINE = "eef46941972935dfaaef689a853f94d7e7d4798c"
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -136,6 +147,9 @@ def main():
     for path in EXTENSION_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(EXTENSION_BASELINE, path)):
             failures.append(f"{path}: code differs from {EXTENSION_BASELINE[:12]}")
+    for path in PHASE6_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE6_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE6_BASELINE[:12]}")
     sources = [path for top in ("theories", "library", "extension")
                for path in sorted((ROOT / top).rglob("*.v"))]
     for path in sources:
@@ -197,6 +211,8 @@ def main():
     print(f"{len(FROZEN)} frozen files unchanged since {commit[:12]}; "
           f"{len(EXTENSION_FROZEN)} frozen files of extension/ unchanged since "
           f"{EXTENSION_BASELINE[:12]}; "
+          f"{len(PHASE6_FROZEN)} frozen files of phase 6 unchanged since "
+          f"{PHASE6_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")

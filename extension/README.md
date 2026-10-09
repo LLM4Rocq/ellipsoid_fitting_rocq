@@ -862,8 +862,12 @@ Theorem 1.9 under (M1)-(M2), for `alpha < 1/2`, with `C` chosen before the
 mixture. `paired_statement` is the corollary for the paired law, with a
 parameter `-1 <= eps d <= 7/3` that may depend on `d`: the threshold
 `alpha*(9/5)`, the error `e*(alpha, 9/5)` and the interpolation estimate.
-The statement files await the user's review; once accepted they are
-frozen like `UniversalityDefinitions.v` and `UniversalityStatement.v`.
+The user accepted the four statement files at commit `eef4694`, with
+the error limit for every `alpha > 0` and the constants `c` and `C` of
+`paired_statement` chosen before `eps`, hence uniform over
+`eps` in `[-1, 7/3]`. They are frozen like `UniversalityDefinitions.v` and
+`UniversalityStatement.v`: their code does not change, and
+`scripts/check_sources.py` compares it with that commit.
 
 ### The proof
 
