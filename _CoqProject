@@ -26,6 +26,7 @@ library/matrix/von_neumann.v
 library/matrix/psd_part.v
 library/matrix/effective_rank.v
 library/matrix/nuclear.v
+library/matrix/condition_cone.v
 library/probability/moments.v
 library/probability/lindeberg.v
 library/probability/subgaussian.v
