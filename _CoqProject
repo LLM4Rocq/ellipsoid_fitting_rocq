@@ -33,6 +33,7 @@ library/probability/subgaussian.v
 library/probability/subgaussian_matrix.v
 library/probability/mixture.v
 library/probability/countable_mixture.v
+library/probability/total_variation.v
 library/probability/efron_stein.v
 library/probability/tuple_rows.v
 library/probability/semicircle_law.v
@@ -739,9 +740,12 @@ extension/Paired/Law.v
 extension/Paired/Theorem.v
 extension/Paired/LatentSign.v
 extension/Paired/Scope.v
+extension/Paired/Tensorization.v
 extension/Countable/Truncation.v
 extension/Countable/Theorem.v
 extension/CountableTheorem.v
+extension/Countable/Robust.v
+extension/RobustTheorem.v
 extension/Condition/Slices.v
 extension/Condition/GaussianWitness.v
 extension/Condition/GaussianGap.v
