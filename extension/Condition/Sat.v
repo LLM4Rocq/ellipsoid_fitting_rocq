@@ -34,8 +34,10 @@
      approximate fit of the mixture features outside an event of
      probability eps / 4; mixture_small_residual corrects it by a Delta
      with opnorm Delta <= e, e the margin of the slices; and cond_at_d
-     concludes outside the union of four events of probability eps / 4
-     each.
+     concludes outside the union of three events of probability at most
+     eps / 4 each: the event of the approximate fit, the event of
+     Theorem 1.9 and the event that every point is zero. The event of
+     the Gaussian witness only serves to choose the slice.
    - condition_sat_witness: the satisfiable half for 1 < C_- < C and
      alpha < condition_alpha C_-, from the Gaussian witness in the trace-d
      slice of the cone of condition number C_- (the statement of item Q3,

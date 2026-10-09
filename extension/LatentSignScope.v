@@ -34,10 +34,12 @@
 
    latent_variance_statement, the note's (11): for d >= 1, the function
    F(x) = (|x_1| + ... + |x_d|) / sqrt d, convex and 1-Lipschitz, has
-   variance E F^2 - (E F)^2 = 1/4 + (d - 1) s^2 / 768. For a fixed s > 0
-   it grows linearly with d, so these laws satisfy no concentration
-   inequality for convex 1-Lipschitz functions with a constant
-   independent of d, while latent_sign_statement holds for them.
+   variance E F^2 - (E F)^2 = 1/4 + (d - 1) s^2 / 768. The statement
+   asserts these identities only. Their consequence, not part of the
+   statement: for a fixed s > 0 the variance grows linearly with d, so
+   these laws do not satisfy dimension-free Gaussian concentration for
+   convex 1-Lipschitz functions (F is convex and 1-Lipschitz), while
+   latent_sign_statement holds for them.
 
    latent_scope_statement is the conjunction of the two.
 

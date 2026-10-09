@@ -14,8 +14,9 @@
    mixtures, countable_mixture_family K w mu), with fourth moment 3 under
    the mixture (mixture_fourth_moment 3, countable_fourth_moment 3): then
    the covariance of the features (x x^T - I) / sqrt d is (2/d) times the
-   identity, and the Gaussian curve alpha_C of ConditionDefinitions
-   applies. The event that the sample has an exact fit of condition number
+   identity on the space of symmetric matrices (in the ambient d * d
+   coordinates, (2/d) times the projection onto the symmetric matrices),
+   and the Gaussian curve alpha_C of ConditionDefinitions applies. The event that the sample has an exact fit of condition number
    at most C is universality_conditioned_fit_event (n d) d C, the event of
    part 1 of mixture_statement with C in place of c, and p -> l is
    paper_main_tends_to.

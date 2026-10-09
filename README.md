@@ -23,18 +23,19 @@ growing with d.
 
 Each result also states that the events it measures are measurable.
 
-`extension/` proves two more theorems (see below). The first is Theorem 1.2
-of Koehler and Sohn, which extends the first result to points with
-independent subgaussian coordinates. The second, the main result of phase
-6, extends it to i.i.d. points whose law is a finite mixture of product
-laws. Two corollaries are proved: the theorem of Koehler and Sohn, the
-case of one component, and exact fitting for the paired law, whose
-coordinates are dependent in pairs. Phase 7 proves a third, for a law
-whose coordinates are coupled by one hidden sign. Phase 8 extends the
-mixture theorem to countable mixtures, finds the threshold for a fit of
-condition number at most C and the limit of the optimal condition number
-at fourth moment 3, and measures how far the latent-sign law is from a
-product law.
+`extension/` goes beyond Gaussian points (see below). Its main result is
+the optimal condition-number theorem of phase 8: for i.i.d. points whose
+law is a finite or countable mixture of product laws with fourth moment 3,
+an exact fit of condition number at most C exists with probability tending
+to one below a threshold alpha_C of n/d^2 and to zero above it, for every
+C > 1, and the optimal condition number of the sample converges to the
+inverse C_star(alpha) of C -> alpha_C. It rests on Theorem 1.2 of Koehler
+and Sohn, which extends the first result to points with independent
+subgaussian coordinates (phase 5), and on its extension to finite mixtures
+of product laws (phase 6), which phase 8 extends to countable mixtures.
+Exact fitting is also proved for two dependent laws, the paired law and
+the latent-sign law (phases 6 and 7), and phase 8 proves identities that
+show the persistent dependence of the latent-sign law.
 
 ## Status
 
@@ -55,7 +56,43 @@ product law.
   (`ClassicalDedekindReals.sig_forall_dec` and `sig_not_dec`).
   `check/assumptions.expected` gives their exact types. Nothing from the
   paper is assumed.
-- **A second theorem, proved.** `extension/` states Theorem 1.2 of
+- **The optimal condition number, proved.** The main result of the
+  extension, from phase 8: `condition_theorem : condition_theorem_statement`
+  (`extension/ConditionTheorem.v`). For i.i.d. points whose law is a finite
+  or countable mixture of product laws, with coordinates of mean 0,
+  variance 1 and subgaussian norm at most K in every component and
+  unconditional fourth moment 3, and n/d^2 -> alpha > 0: for every C > 1,
+  the probability that the sample has an exact fit of condition number at
+  most C tends to 1 if alpha < alpha_C and to 0 if alpha > alpha_C, with
+  alpha_C given by the semicircle law; and for 0 < alpha < 1/4, the
+  optimal condition number of an exact fit tends in probability to
+  C_star(alpha), the inverse of C -> alpha_C. The class contains dependent
+  laws, the number of components may grow with d, and C_star is the
+  optimum for the data, not only a bound.
+- **Countable mixtures.** `countable_theorem : countable_theorem_statement`
+  (`extension/CountableTheorem.v`) is a generality result: the conclusions
+  of the finite-mixture theorem below, with its constants, for mixtures
+  with countably many components.
+- **Persistent dependence.** `latent_scope_theorem : latent_scope_statement`
+  (`extension/LatentScopeTheorem.v`) proves identities for one point of the
+  latent-sign law (below): its coordinates have the uniform law, the
+  features h(x_j) of two coordinates have covariance s^2 / 81 in every
+  dimension, and (|x_1| + ... + |x_d|) / sqrt d has variance
+  1/4 + (d - 1) s^2 / 768. The theorem asserts these identities only.
+  Their consequence, since this function is convex and 1-Lipschitz: for a
+  fixed s > 0, these laws do not satisfy dimension-free Gaussian
+  concentration for convex 1-Lipschitz functions, although exact fitting
+  holds for them.
+- **The statements of phase 8.** `CountableMixtureDefinitions.v`,
+  `CountableMixtureStatement.v`, `ConditionDefinitions.v`,
+  `ConditionStatement.v` and `LatentSignScope.v` (in `extension/`) were
+  accepted by the user and are frozen at commit `5442e84`. The three
+  theorems use the same seven axioms as the theorems below
+  (`check/CountableAssumptions.v`, `check/ConditionAssumptions.v`,
+  `check/LatentScopeAssumptions.v`). `extension/README.md`, section (g),
+  describes them. The ordinary arguments of the notes are now formalized;
+  their novelty is not confirmed.
+- **The universality theorem, proved.** `extension/` states Theorem 1.2 of
   Koehler and Sohn, *Universality and sharp thresholds for ellipsoid
   fitting* ([arXiv:2608.27372v1](https://arxiv.org/abs/2608.27372v1)): for
   points with independent coordinates of mean 0, variance 1, fourth moment
@@ -73,7 +110,7 @@ product law.
   the eight classical axioms of the first theorem
   (`check/universality_assumptions.expected`): it uses seven of them, all
   but excluded middle (`Classical_Prop.classic`).
-- **The proof of the second theorem.** Phase 5 of `AGENTS.md` is its plan,
+- **Its proof.** Phase 5 of `AGENTS.md` is its plan,
   and `extension/README.md` the feasibility study behind it. It follows
   the paper. Above the threshold (`extension/Unsat/`), the least squares
   value of the quadratic features of the points concentrates around its
@@ -87,7 +124,7 @@ product law.
   (Theorem 1.9, from Theorem 2.3 and Propositions 3.1, 3.3 and 3.4)
   corrects it into an exact, well-conditioned fit. The general tools are
   in `library/`.
-- **A third theorem, proved: finite mixtures of product laws.** The main
+- **Finite mixtures of product laws, proved.** The main
   result of phase 6 extends Theorem 1.2 to i.i.d. points whose law is, at
   each dimension d, a finite mixture of product laws, with a number of
   components that may grow with d, under three assumptions (M1)-(M3):
@@ -99,14 +136,14 @@ product law.
   The kernel accepts `mixture_theorem : mixture_theorem_statement`
   (`extension/MixtureTheorem.v`). No matching theorem was found in a
   targeted literature search; priority is not confirmed. The theorem
-  contains the second one: with one component, its statement implies
+  contains the universality theorem: with one component, its statement implies
   `universality_statement` (`extension/Mixture/OneComponent.v`).
-- **Its corollaries.** `paired_theorem : paired_statement`
+- **Exact fitting for two dependent laws.** `paired_theorem : paired_statement`
   (`extension/PairedTheorem.v`): exact fitting for the paired law, whose
   coordinates come in dependent pairs with density
   (1 + eps h(x) h(y)) / 12 on [-sqrt 3, sqrt 3]^2, h the rescaled Legendre
   polynomial P_4, over the whole range -1 <= eps <= 7/3, with constants
-  uniform in eps (the threshold is alpha*(9/5)). Phase 7 adds a third,
+  uniform in eps (the threshold is alpha*(9/5)). Phase 7 adds
   `latent_sign_theorem : latent_sign_statement`
   (`extension/LatentSignTheorem.v`): exact fitting for the latent-sign law
   (1/2) lambda_s^(x)d + (1/2) lambda_-s^(x)d, lambda_a = (1 + a h) mu, in
@@ -118,35 +155,10 @@ product law.
   then `LatentSignDefinitions.v` and `LatentSignStatement.v`, were
   accepted by the user and are frozen: `make check` checks that their code
   is unchanged since commits `eef4694` and `d4de51d`. The three theorems
-  use the same seven axioms as the second one
+  use the same seven axioms as the universality theorem
   (`check/MixtureAssumptions.v`, `check/PairedAssumptions.v`,
   `check/LatentSignAssumptions.v`). `extension/README.md`, section (f),
   describes the definitions, the statements and the proofs.
-- **Phase 8: three extensions, proved.**
-  `countable_theorem : countable_theorem_statement`
-  (`extension/CountableTheorem.v`): the conclusions of the mixture
-  theorem, with its constants, for mixtures with countably many
-  components. `condition_theorem : condition_theorem_statement`
-  (`extension/ConditionTheorem.v`), for finite and countable mixtures of
-  fourth moment 3: for every C > 1, the probability of an exact fit of
-  condition number at most C tends to 1 if n/d^2 tends to some
-  alpha < alpha_C and to 0 if alpha > alpha_C, with alpha_C given by the
-  semicircle law; for 0 < alpha < 1/4, the optimal condition number of an
-  exact fit tends in probability to C_star(alpha), the inverse of
-  C -> alpha_C. `latent_scope_theorem : latent_scope_statement`
-  (`extension/LatentScopeTheorem.v`): for one point of the latent-sign
-  law, the features h(x_j) of two coordinates have covariance s^2 / 81 in
-  every dimension, and the convex 1-Lipschitz function
-  (|x_1| + ... + |x_d|) / sqrt d has variance 1/4 + (d - 1) s^2 / 768.
-  The five statement files (`CountableMixtureDefinitions.v`,
-  `CountableMixtureStatement.v`, `ConditionDefinitions.v`,
-  `ConditionStatement.v`, `LatentSignScope.v`) were accepted by the user
-  and are frozen at commit `5442e84`. The three theorems use the same
-  seven axioms (`check/CountableAssumptions.v`,
-  `check/ConditionAssumptions.v`, `check/LatentScopeAssumptions.v`).
-  `extension/README.md`, section (g), describes them; the proofs are
-  ordinary and their novelty is not confirmed.
-
 ## What to read
 
 The proof is checked by the kernel, so only the statement needs to be read.
