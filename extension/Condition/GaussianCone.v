@@ -40,7 +40,13 @@
      sqrt (1/2 - inf_{t in [0, 3]} clip_energy threshold_law C t), for
      C >= 1.
    - clip_inf_window: the infimum over a window [0, T] that contains a
-     point where clip_value is attained is clip_value. *)
+     point where clip_value is attained is clip_value.
+   - cond_support_goe_cvg, item Q2: for C > 1, cond_support C A / d
+     converges in probability to sqrt (condition_alpha C), with the
+     minimizer t_C in [0, 3] (condition_t_attained) and condition_alphaE
+     of Condition/Curve.v (item Q1). This is the hypothesis hQ2 of the
+     Gaussian witness and of the Gaussian gap (Condition/GaussianWitness
+     and Condition/GaussianGap). *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -60,6 +66,7 @@ From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality Require Import ConditionDefinitions.
 From EllipsoidUniversality.Gaussian Require Import Cones Threshold.
 From EllipsoidUniversality.Gaussian Require Import InProbability Limit.
+From EllipsoidUniversality.Condition Require Import Curve.
 
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
 
@@ -418,4 +425,19 @@ apply/eqP; rewrite eq_le; apply/andP; split.
   by rewrite hv; apply: ge_inf => //; exists t0 => //=; rewrite t00 t0T.
 apply: lb_le_inf; first by exists (clip_energy mu C t0), t0 => //=; rewrite t00.
 by move=> _ [t /andP[t0' _] <-]; exact: clip_value_le.
+Qed.
+
+(* 6. Item Q2: the limit sqrt (condition_alpha C), from the minimizer t_C
+   in [0, 3] and condition_alphaE of Condition/Curve.v (item Q1). *)
+Theorem cond_support_goe_cvg (C : R) : 1 < C ->
+  cvg_prob (fun d => @gauss RR (d * d))
+    (fun d a => cond_support C (vec_mx a : 'M[RR]_d) / d%:R)
+    (Num.sqrt (condition_alpha C)).
+Proof.
+move=> C1.
+have [t0 t3 hv] := condition_t_attained C C1.
+have h03 : 0 <= condition_t C <= 3 by rewrite t0 t3.
+have := cond_support_goe_cvg_inf C (ltW C1).
+by rewrite (clip_inf_window threshold_law C 3 (condition_t C) h03 hv)
+  -(condition_alphaE C C1).
 Qed.

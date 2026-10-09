@@ -417,7 +417,7 @@ Theorem condition_unsat_gap (K C Cp alpha : R) :
    forall eps : R, 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
    exists E : set ((n d).-tuple 'rV[RR]_(d * d)), [/\ measurable E,
      (tuple_prod (fun=> gaussian_feature_law 3%:R d) (n d) E <= eps%:E)%E &
-     forall Z, ~ E Z -> forall (S : 'M[R]_d) (b : R), cond_slice Cp S ->
+     forall Z, ~ E Z -> forall S : 'M[R]_d, cond_slice Cp S -> forall b : R,
        g * (n d)%:R <= \sum_(i < n d) (b - mxdot (tnth Z i) (mxvec S)) ^+ 2]) ->
   forall (N : nat -> nat) (w : nat -> nat -> R)
     (mu : nat -> nat -> nat -> probability (measurableTypeR R) R),
@@ -549,7 +549,7 @@ have key (eps : RR) : 0 < eps -> exists D : nat, forall d, (D <= d)%N ->
       (taug d) (a'b' j) (bs0 j) g1 (hG d d0) EG (g / 2) mEG PEG
       (fun Z nZ => af_value_gap 3%:R (a' j) (b' j) Cp g d (n d) (bs j)
         (af_gam d) Z k1 d0 n0 (a'0 j) (a'b' j) (b'Cp j) (bs0 j) g1
-        (hEG Z nZ)).
+        (fun S b hS => hEG Z nZ S hS b)).
     by move: h; have -> : g / 2 / 2 = g / 4 by field.
   (* the events of Theorem 2.9 for the mixture features *)
   pose rho := mix_feature_law K N w mu hfam d.
