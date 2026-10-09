@@ -736,3 +736,4 @@ extension/Countable/Truncation.v
 extension/Countable/Theorem.v
 extension/CountableTheorem.v
 extension/Condition/Slices.v
+extension/Condition/Cover.v
