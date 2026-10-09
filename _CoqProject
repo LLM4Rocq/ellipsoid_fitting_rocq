@@ -728,9 +728,11 @@ extension/Mixture/Theorem.v
 extension/MixtureTheorem.v
 extension/PairedTheorem.v
 extension/LatentSignTheorem.v
+extension/LatentScopeTheorem.v
 extension/Paired/Uniform.v
 extension/Paired/Law.v
 extension/Paired/Theorem.v
 extension/Paired/LatentSign.v
+extension/Paired/Scope.v
 extension/Countable/Truncation.v
 extension/Condition/Slices.v
