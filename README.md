@@ -29,9 +29,8 @@ independent subgaussian coordinates. The second, the main result of phase
 6, extends it to i.i.d. points whose law is a finite mixture of product
 laws. Two corollaries are proved: the theorem of Koehler and Sohn, the
 case of one component, and exact fitting for the paired law, whose
-coordinates are dependent in pairs. Phase 7 states a third, for a law
-whose coordinates are coupled by one hidden sign; its proof is in
-progress.
+coordinates are dependent in pairs. Phase 7 proves a third, for a law
+whose coordinates are coupled by one hidden sign.
 
 ## Status
 
@@ -103,19 +102,22 @@ progress.
   coordinates come in dependent pairs with density
   (1 + eps h(x) h(y)) / 12 on [-sqrt 3, sqrt 3]^2, h the rescaled Legendre
   polynomial P_4, over the whole range -1 <= eps <= 7/3, with constants
-  uniform in eps (the threshold is alpha*(9/5)). Phase 7 states a third
-  corollary, for the latent-sign law (1/2) lambda_s^(x)d +
-  (1/2) lambda_-s^(x)d, lambda_a = (1 + a h) mu, 0 <= s <= 1, in which one
-  hidden sign couples all the coordinates of a point
-  (`extension/LatentSignStatement.v`); the statement is under the user's
-  review and the proof in progress.
-- **The statements of phase 6.** `extension/MixtureDefinitions.v`,
-  `MixtureStatement.v`, `PairedDefinitions.v` and `PairedStatement.v` were
+  uniform in eps (the threshold is alpha*(9/5)). Phase 7 adds a third,
+  `latent_sign_theorem : latent_sign_statement`
+  (`extension/LatentSignTheorem.v`): exact fitting for the latent-sign law
+  (1/2) lambda_s^(x)d + (1/2) lambda_-s^(x)d, lambda_a = (1 + a h) mu, in
+  which one hidden sign couples all the coordinates of a point, for every
+  s in [0, 1], possibly depending on d, with constants uniform in s (the
+  threshold is again alpha*(9/5)).
+- **The statements of phases 6 and 7.** `extension/MixtureDefinitions.v`,
+  `MixtureStatement.v`, `PairedDefinitions.v` and `PairedStatement.v`, and
+  then `LatentSignDefinitions.v` and `LatentSignStatement.v`, were
   accepted by the user and are frozen: `make check` checks that their code
-  is unchanged since commit `eef4694`. The two theorems use the same seven
-  axioms as the second one (`check/MixtureAssumptions.v`,
-  `check/PairedAssumptions.v`). `extension/README.md`, section (f),
-  describes the definitions, the statements and the proof.
+  is unchanged since commits `eef4694` and `d4de51d`. The three theorems
+  use the same seven axioms as the second one
+  (`check/MixtureAssumptions.v`, `check/PairedAssumptions.v`,
+  `check/LatentSignAssumptions.v`). `extension/README.md`, section (f),
+  describes the definitions, the statements and the proofs.
 
 ## What to read
 
@@ -203,16 +205,18 @@ generated`), whose code cannot change. The other modules print none.
   its corollaries, under the logical root `EllipsoidUniversality` and at
   Stdlib's `R` like `theories/`. At the top: the statements and their
   definitions, and the theorems `UniversalityTheorem.v`
-  (`universality_theorem`), `MixtureTheorem.v` (`mixture_theorem`) and
-  `PairedTheorem.v` (`paired_theorem`). The folders of the proofs:
+  (`universality_theorem`), `MixtureTheorem.v` (`mixture_theorem`),
+  `PairedTheorem.v` (`paired_theorem`) and `LatentSignTheorem.v`
+  (`latent_sign_theorem`). The folders of the proofs:
   `Model/` (the law of the sample and the measurability of the events),
   `Features/` (the quadratic features of the points, and those of a
   mixture), `Unsat/` (the unsatisfiable phase), `Gaussian/` (the Gaussian
   model), `Sat/` (the satisfiable phase), `Mixture/` (component laws,
   samples whose coordinate laws vary with the point, the interpolation and
   the assembly for mixtures) and `Paired/` (the uniform law, the paired
-  law as a mixture). `extension/README.md` holds the feasibility study of
-  phase 5 and, in its section (f), the description of phase 6.
+  law and the latent-sign law as mixtures). `extension/README.md` holds the
+  feasibility study of phase 5 and, in its section (f), the description of
+  phases 6 and 7.
 - `library/`: the library `GaussianAnalysis`, 75 files of general results
   over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
   and concentration, real matrices and probability; the Fourier analysis
@@ -240,16 +244,18 @@ generated`), whose code cannot change. The other modules print none.
   `check/UniversalityAssumptions.v` checks that `universality_theorem`
   proves the frozen statement and prints its axioms;
   `check/universality_assumptions.expected` is the expected output.
-  `check/MixtureAssumptions.v` and `check/PairedAssumptions.v` do the same
-  for `mixture_theorem` and `paired_theorem`, with
-  `check/mixture_assumptions.expected` and
-  `check/paired_assumptions.expected`.
+  `check/MixtureAssumptions.v`, `check/PairedAssumptions.v` and
+  `check/LatentSignAssumptions.v` do the same for `mixture_theorem`,
+  `paired_theorem` and `latent_sign_theorem`, with the expected lists
+  `check/mixture_assumptions.expected`, `check/paired_assumptions.expected`
+  and `check/latent_sign_assumptions.expected`.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality
-  theorem and its definitions the same code as at commit `3c6afa1`, and
-  the four statement files of phase 6 the same code as at commit
-  `eef4694` (comments may differ); that the axiom-check files of phases 5
+  theorem and its definitions the same code as at commit `3c6afa1`, the
+  four statement files of phase 6 the same code as at commit `eef4694`,
+  and the two of phase 7 the same code as at commit `d4de51d` (comments
+  may differ); that the axiom-check files of phases 5
   and 6 and their expected lists are byte-identical to commit `c3e555e`,
   and that the Require commands of `library/probability/lindeberg.v` and
   its section `tuple_prod`, on which the frozen statements depend, have
@@ -376,6 +382,6 @@ in three stages: the unsatisfiable phase at fourth moment 3 (tag
 `stage1`), then the Gaussian model and the unsatisfiable phase for every
 fourth moment (tag `stage2`), then the satisfiable phase (tag `phase5`).
 Its general results are in `library/`. Phase 6 proved the finite-mixture
-theorem and its corollary for the paired law (tag `phase6`). Phase 7, in
-progress, adds the corollary for the latent-sign law, hardens the checks
-and generalizes two library results.
+theorem and its corollary for the paired law (tag `phase6`). Phase 7
+proved the corollary for the latent-sign law, hardened the checks and
+generalized two library results (tag `phase7`).

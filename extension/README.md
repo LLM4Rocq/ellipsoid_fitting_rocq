@@ -18,12 +18,12 @@ Gaussian points.
 - **Its corollaries.** `paired_theorem : paired_statement`
   (`PairedTheorem.v`): exact fitting for the paired law, whose
   coordinates come in dependent pairs, over the whole range
-  -1 <= eps <= 7/3, with constants uniform in eps. Phase 7 states a
+  -1 <= eps <= 7/3, with constants uniform in eps. Phase 7 proves a
   third corollary, after the universality theorem below and the paired
-  law: the latent-sign law, (1/2) lambda_s^(x)d + (1/2) lambda_-s^(x)d
-  with 0 <= s <= 1, in which one hidden sign couples all the coordinates
-  of a point (`LatentSignStatement.v`); the statement is under the user's
-  review and the proof in progress.
+  law: `latent_sign_theorem : latent_sign_statement`
+  (`LatentSignTheorem.v`), exact fitting for the latent-sign law
+  (1/2) lambda_s^(x)d + (1/2) lambda_-s^(x)d with 0 <= s <= 1, in which
+  one hidden sign couples all the coordinates of a point.
 - **The universality theorem** of Koehler and Sohn, for points with
   independent coordinates: `universality_theorem : universality_statement`
   (`UniversalityTheorem.v`), proved in phase 5. The finite-mixture theorem
@@ -855,6 +855,8 @@ paired law of `notes/paired-dependent-sat.md`. The plan is
 | `Paired/Uniform.v` | the uniform law, the range of `h`, the laws `(1 + a h) mu` for `-1 <= a <= 7/3` |
 | `Paired/Law.v` | the paired law as a finite mixture of product laws |
 | `Paired/Theorem.v`, `PairedTheorem.v` | `paired_of_mixture`, then `paired_theorem : paired_statement` |
+| `LatentSignDefinitions.v`, `LatentSignStatement.v` | the latent-sign law (`latent_probability`) and `latent_sign_statement` (phase 7), frozen |
+| `Paired/LatentSign.v`, `LatentSignTheorem.v` | the latent-sign law as a mixture of two product laws, `latent_sign_of_mixture`, then `latent_sign_theorem : latent_sign_statement` |
 
 The modules `Mixture/Theorem` and `Paired/Theorem` are required by their
 full names (`Require Import EllipsoidUniversality.Mixture.Theorem`), since
@@ -962,6 +964,14 @@ four parts of `paired_statement` for this law, for every sequence s with
 0 <= s d <= 1 and constants chosen before s. It is a mixture of two
 product laws whose components, `paired_law mu s` and `paired_law mu (- s)`,
 are component laws with constant 3 and have the fourth moments
-9/5 + 8 s / 35 and 9/5 - 8 s / 35, of mean 9/5. The statement files are
-under the user's review; the proof, from `mixture_theorem`, is item 3 of
-phase 7.
+9/5 + 8 s / 35 and 9/5 - 8 s / 35, of mean 9/5. The user accepted the
+two statement files at commit `d4de51d`, with s in [0, 1] allowed to
+depend on d and the constants chosen before s; they are frozen, and
+`scripts/check_sources.py` compares their code with that commit.
+`latent_probability_mixture` (`Paired/LatentSign.v`) writes the law as
+the mixture of the two product laws with weights 1/2, as
+`paired_probability_mixture` does for the paired law;
+`latent_sign_of_mixture` derives `latent_sign_statement` from
+`mixture_theorem_statement`, and `latent_sign_theorem` proves it.
+`check/LatentSignAssumptions.v` checks that it proves the frozen
+statement; it uses the same seven axioms as `paired_theorem`.
