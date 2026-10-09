@@ -34,7 +34,7 @@ The task has two parts.
    rename the remaining modules and group them in folders.
 
 Three agents share the work. Agent 1 coordinates phases 1 to 5; in
-phases 6 and 7, agent 3 coordinates (sections "Phase 6" and "Phase 7").
+phases 6 to 8, agent 3 coordinates (sections "Phase 6" to "Phase 8").
 
 ## The invariant
 
@@ -143,8 +143,8 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 6 below are done (`main` c3e555e, tag `phase6`). The current
-work is phase 7, described after phase 6.
+Phases 1 to 7 below are done (`main` 7d0677c, tag `phase7`). The current
+work is phase 8, described after phase 7.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -932,6 +932,121 @@ Phase 7 is done when the four items are on `main`, the latent-sign
 theorem is proved with its axioms among the eight expected ones,
 `make check` passes, the README rows cover every new file, and `main` is
 tagged `phase7`.
+
+## Phase 8. Countable mixtures and the optimal condition number
+
+Phases 1 to 7 are done (`main` 7d0677c, tag `phase7`). Phase 8
+formalizes the three extensions of the finite-mixture theorem in
+`/srv/ellipsoid-fitting/notes/phase6-three-extensions.md` (the note),
+written on the user's machine on 9 October 2026: ordinary proofs, with
+novelty unconfirmed. It follows the plan of agent 3,
+`/srv/ellipsoid-fitting/notes/three-extensions-plan.md` (the plan), which
+the user launched on 9 October 2026 without the optional items of its
+section 5.3. The plan's sections 2 (the formal route), 4 (the statement
+files), 5 (components, files and lanes), 6 (order), 7 (risks) and 8
+(about 9,900 lines, an untested estimate) are the plan of this phase.
+This section fixes the roles and the rules; where they differ, this
+section wins.
+
+The three tracks:
+
+1. **Countable mixtures** (items L1, K2, K3):
+   `countable_theorem : countable_theorem_statement`, the conclusions of
+   the frozen mixture theorem, with its constants, for countably many
+   components. The proof truncates the tail as in the note's section 3,
+   replacing it by the product of its coordinate marginals, and transfers
+   the conclusions by the coupling of label tuples.
+2. **The optimal condition number at fourth moment three** (L2 to L5, Q1
+   to Q9): `condition_theorem : condition_theorem_statement`. It gives
+   the threshold alpha_C for every fixed C > 1 and alpha != alpha_C (the
+   note's (20)), and the convergence of the optimal data condition number
+   to C_star^G(alpha) for 0 < alpha < 1/4 ((21)), for finite and
+   countable mixtures. The route avoids the note's cited black boxes. The
+   CGMT of `library/comparison/cgmt.v` gives the Gaussian witness and the
+   gap. Theorem 2.9 with its barrier (`af_conc`) works on each two-sided
+   slice of a finite cover, and the slice is chosen deterministically from
+   the Gaussian centers.
+3. **The scope of the latent-sign law** (S1): the covariance (10) and the
+   variance (11) of the note.
+
+Not in this phase: the robustness corollary (17), the tensorization
+bounds (13)-(14), the continuous-latent counterexample (18), the endpoint
+expansions (34)-(35) and an exact Gaussian kernel element (the plan's
+items R1 to R5).
+
+### Roles
+
+As in phases 6 and 7. **Agent 3 is the master.**
+- It assigns the items (its own lane included) and gives agents 1 and 2
+  their work in their sessions.
+- It writes the statement files and freezes them after the user's
+  review, and it creates the new directories.
+- It merges in the `integration` clone and alone pushes `main` and tags.
+- It keeps the table of items, owners and states in
+  `/srv/ellipsoid-fitting/runtime/phase8/assignments.md`.
+
+Its starting point is the plan's lane proposal:
+- A: L1, L4, K2, K3, Q6, Q7;
+- B: L5, Q3, Q4, Q8, S1;
+- C: L2, L3, Q1, Q2, Q5, Q9.
+
+Agents 1 and 2 take their items from the master. The coordinator assigns
+no item; it verifies pushed commits, keeps GitHub in sync and relays the
+user's decisions.
+
+### Step 0
+
+1. **The statements.** The master writes the five statement files of the
+   plan's section 4: `CountableMixtureDefinitions.v`,
+   `CountableMixtureStatement.v`, `ConditionDefinitions.v`,
+   `ConditionStatement.v` and `LatentSignScope.v`, at the top of
+   `extension/`. Their comments guide the reviewer, as in the frozen
+   files. It compiles them, pushes `main` and says so in its pane; the
+   coordinator asks the user to review them, with the choices of the
+   plan's section 4.6. Items that do not depend on the statement files
+   start at once (wave 1 of the plan's section 6).
+2. **The freeze.** Once the user accepts the files, the master freezes
+   them like the frozen files of phases 5 to 7: their code does not
+   change, only the master edits their comments, and
+   `scripts/check_sources.py` compares them with the acceptance commit as
+   a new baseline. When the theorems exist,
+   `check/CountableAssumptions.v`, `check/ConditionAssumptions.v` and
+   `check/LatentScopeAssumptions.v` join `make check` on the pattern of
+   `check/LatentSignAssumptions.v`, each with an expected list of the
+   eight classical axioms. The user's launch permits these changes to
+   `scripts/check_sources.py`, `check/` and the `Makefile`, in step 0 and
+   at the end of the phase, and no other.
+3. **The directories and the servers.** The master creates
+   `extension/Countable/` and `extension/Condition/`, each with the header
+   of its first file, in the same push as the statement files. The user
+   then reconnects the three Rocq servers (`/mcp`) once.
+
+### Rules for this phase
+
+The rules of phase 6 apply.
+- Nothing changes in `theories/`, in the code of the sixteen frozen files
+  (eight in `theories/`, two of phase 5, four of phase 6, two of phase 7),
+  in the check files and expected lists of phases 1 to 7, or in the
+  pinned section `tuple_prod` of `library/probability/lindeberg.v`.
+- `universality_theorem`, `mixture_theorem`, `paired_theorem` and
+  `latent_sign_theorem` keep building at every commit. A generalized
+  lemma keeps its old statement under its old name; for example
+  `approximate_fit_law` and `af_at_d`, which item Q6 generalizes.
+- Library results are stated over `R : realType` in the library's
+  vocabulary. Nothing in `library/` mentions ellipsoid fitting.
+- Every new file has the documentation header and its README rows.
+- Build with `JOBS=3`, and run `make check` before every commit.
+- Requests between lanes go through `requests/`, which the master
+  deletes at the end.
+- The repository gets no journals or progress files.
+
+Phase 8 is done when the following hold:
+- `countable_theorem`, `condition_theorem` and the scope results of
+  `LatentSignScope.v` are proved on `main`;
+- their axioms are among the eight expected ones;
+- `make check` passes;
+- the README rows cover every new file;
+- `main` is tagged `phase8`.
 
 ## Bridging Stdlib's `R` and the library
 
