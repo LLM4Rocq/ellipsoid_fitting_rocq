@@ -59,6 +59,13 @@ Gaussian points.
   distance one from every countable mixture of product laws; and
   `condition_endpoints_theorem` (`ConditionEndpointsTheorem.v`), the
   expansions of the condition-number curve at its endpoints. Section (h).
+- **Two complements**, proved in phase 10: `robust_condition_theorem`
+  (`ConditionRobustTheorem.v`), the threshold and the limit of the optimal
+  condition-number theorem for laws within o(d^-2) in total variation of a
+  countable family of fourth moment 3; and `latent_tensor_upper_theorem`
+  (`LatentTensorUpperTheorem.v`), the tensorization of the variance for
+  the latent-sign law with the constant 2 ((1 + s) / (1 - 3 s / 7))^d.
+  Section (i).
 
 Sections (a) to (e) are the feasibility study written before phase 5, for
 extending the formal result of this repository to Theorem 1.2 of Koehler
@@ -1143,7 +1150,7 @@ their novelty is not confirmed.
 | `Paired/Tensorization.v` | under the latent-sign law, `E h(x_j)^2 = 1/9` and `Var sum_j h(x_j) = d/9 + d (d - 1) s^2 / 81`; Hoeffding's inequality for `sum_(k in J) h(x_k)` under each component, with the constant 48; `Var 1{sum_j h(x_j) > 0}` is within `exp (- d s^2 / 1944) / 4` of 1/4, so it tends to 1/4 for fixed `s > 0`; `P(|sum_(k != j) h(x_k)| <= 1) <= exp (- (d - 1) s^2 / 15552)` for `(d - 1) s >= 18` |
 | `Paired/Conditional.v` | the conditional law of one coordinate given the others: the density is affine in `h(x_j)`, with a positive denominator on the box; the conditional expectation is bounded, the conditional variance is nonnegative, does not change under functions of the other coordinates, vanishes when the function does not depend on `x_j`, and is at most 1/4 for 0/1 functions; measurability and the tower property `E [E (g given X_-j)] = E g`; in phase 10, linearity of the latent expectation, `E g = int g Z dQ` for `g` that does not depend on `x_j` (`latent_expectation_indep`), `Z Var (g given X_-j) = int (g - E (g given X_-j))^2 rho` on the box, and its lower bound `w Var_mu` when `w <= rho` on the support |
 | `LatentTensorTheorem.v` | `latent_tensor_theorem : latent_tensorization_statement`: `T >= 1 + (d - 1) s^2 / 9` from `sum_k h(x_k) 1{|x_k| <= sqrt 3}`, which truncates `h` outside its one-dimensional support, coordinate by coordinate; `T >= (1 / (2 d)) exp ((d - 1) s^2 / 15552)` from `1{sum_k h(x_k) > 0}` for `(d - 1) s >= 18` and `exp (- d s^2 / 1944) <= 1/2`; `c = 1/15552`, `c' = 1/2` |
-| `Countable/Continuous.v`, `ContinuousLatentTheorem.v` | the components of (18) and their average fourth moment 11/6; for `d >= 2`, a measurable set of points (first two coordinates related by `y = x` or `x y = -1`, first coordinate off a countable set built with `library/probability/atoms.v`) of mass 1 for the law (18) and 0 for every countable mixture of product laws, hence total variation 1; then `continuous_latent_theorem : continuous_latent_statement` |
+| `Countable/Continuous.v`, `ContinuousLatentTheorem.v` | the components of (18) and their average fourth moment 11/6; for `d >= 2`, a measurable set of points (first two coordinates related by `y = x` or `x y = -1`, first coordinate off a countable set built with `library/probability/atoms.v`) of mass 1 for the law (18) and 0 for every countable mixture of product laws, hence total variation 1; then `continuous_latent_theorem : continuous_latent_statement`; in phase 10, the probability `cl_law d` with the values of `cl_point_law d`, the integral formula `integral_cl_law` for nonnegative measurable functions and its coordinate form, and the coordinate moments 0, 1 and 11/6 (`cl_law_mean`, `cl_law_second_moment`, `cl_law_fourth_moment`) |
 | `Condition/Endpoints.v`, `ConditionEndpointsTheorem.v` | `m(0) = 2 sqrt 2 / (3 pi)` and the quadratic remainder of `m` at 0 for the semicircle law; `t_C <= 2 m(0) (C - 1)` near `C = 1`; two-sided bounds on `alpha_C` with an error `O((C - 1)^4)`; the inversion lemma behind (34); the behavior at the edge for (13) and (35); then `condition_endpoints_theorem : condition_endpoints_statement` |
 
 The user accepted the five statement files at commit `1c05ffc`; they are
@@ -1322,5 +1329,17 @@ products of the components. With it, `rob_nu_sample` identifies the law
 of a sample of `n` i.i.d. points of the point law of a countable family
 with `countable_mixture_probability`, and `robust_transfer_tv` bounds the
 change of the probability of any measurable set of samples, for points of
-law `P`, by `n tv(P, nu_d)`, with no truncation term.
+law `P`, by `n tv(P, nu_d)`, with no truncation term. `cl_law d`
+(`Countable/Continuous.v`) is the law (18) as a probability, with the
+values of the frozen `cl_point_law d`, an integral formula for nonnegative
+measurable functions, and the moments 0, 1 and 11/6 of every coordinate.
+
+### Verification
+
+`make check` compiles `check/ConditionRobustAssumptions.v` and
+`check/LatentTensorUpperAssumptions.v`, which check that the two theorems
+prove the frozen statements, and compares their axioms with the expected
+lists (`scripts/check_sources.py`, rule 15). Each of the two theorems uses
+seven of the eight classical axioms of `check/assumptions.expected`, all
+but `Classical_Prop.classic`, as the theorems of phases 5 to 9 do.
 
