@@ -743,6 +743,8 @@ extension/Paired/Scope.v
 extension/Countable/Truncation.v
 extension/Countable/Theorem.v
 extension/CountableTheorem.v
+extension/Countable/Robust.v
+extension/RobustTheorem.v
 extension/Condition/Slices.v
 extension/Condition/GaussianWitness.v
 extension/Condition/GaussianGap.v
