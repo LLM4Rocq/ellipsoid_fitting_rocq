@@ -677,6 +677,8 @@ extension/MixtureDefinitions.v
 extension/MixtureStatement.v
 extension/PairedDefinitions.v
 extension/PairedStatement.v
+extension/LatentSignDefinitions.v
+extension/LatentSignStatement.v
 extension/Model/Rows.v
 extension/Model/Measurability.v
 extension/Features/Definitions.v
