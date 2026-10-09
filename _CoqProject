@@ -34,6 +34,7 @@ library/probability/subgaussian_matrix.v
 library/probability/mixture.v
 library/probability/countable_mixture.v
 library/probability/total_variation.v
+library/probability/atoms.v
 library/probability/efron_stein.v
 library/probability/tuple_rows.v
 library/probability/semicircle_law.v
