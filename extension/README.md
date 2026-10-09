@@ -47,6 +47,17 @@ Gaussian points.
   independent coordinates: `universality_theorem : universality_statement`
   (`UniversalityTheorem.v`), proved in phase 5. The finite-mixture theorem
   contains it, with one component (`Mixture/OneComponent.v`).
+- **Four complements**, proved in phase 9: `robust_theorem`
+  (`RobustTheorem.v`), robustness in total variation at the scale
+  o(d^-2), which a contamination example shows to be needed;
+  `latent_tensor_theorem` (`LatentTensorTheorem.v`), lower bounds on the
+  constant of the coordinate tensorization of the variance for the
+  latent-sign law, exponential in d for a fixed s > 0;
+  `continuous_latent_theorem` (`ContinuousLatentTheorem.v`), a mixture
+  over a continuous parameter of product laws that is at total variation
+  distance one from every countable mixture of product laws; and
+  `condition_endpoints_theorem` (`ConditionEndpointsTheorem.v`), the
+  expansions of the condition-number curve at its endpoints. Section (h).
 
 Sections (a) to (e) are the feasibility study written before phase 5, for
 extending the formal result of this repository to Theorem 1.2 of Koehler
@@ -81,7 +92,9 @@ that the extension would need to change; (e) the formal statement and the
 choices made in it; (f) phase 6, the theorem for finite mixtures of product
 laws and its corollary for the paired law; (g) phase 8, countable
 mixtures, the optimal condition number and the scope of the latent-sign
-law.
+law; (h) phase 9, robustness in total variation, the tensorization of the
+latent-sign law, a continuous latent mixture and the endpoints of the
+condition-number curve.
 
 ---
 
@@ -1125,6 +1138,10 @@ their novelty is not confirmed.
 | `ContinuousLatent.v` | the law (18), a mixture over `a` uniform in `[1, 2]` of two-point product laws; `continuous_latent_statement`: the moments of the components, the average fourth moment 11/6, and total variation one from every countable mixture of product laws for `d >= 2` |
 | `ConditionEndpoints.v` | `condition_endpoints_statement`: (11) near `C = 1`, the leading term of (13) as `C -> oo`, (34) near `alpha = 0` and (35) near `alpha = 1/4`, on the frozen `condition_alpha` and `condition_star` |
 | `Countable/Robust.v`, `RobustTheorem.v` | the transfer of the countable conclusions to point laws `P_d` with `d^2 tv(P_d, nu_d) -> 0`, by the bound `n (tv(P, nu_d) + 2 r_d)` on every measurable set of samples; the contamination by the zero point, at distance `lambda / n`, whose probability of a positive definite fit of value one is `(1 - lambda / n)^n` times that of the family; then `robust_theorem : robust_theorem_statement` |
+| `Paired/Tensorization.v` | under the latent-sign law, `E h(x_j)^2 = 1/9` and `Var sum_j h(x_j) = d/9 + d (d - 1) s^2 / 81`; Hoeffding's inequality for `sum_(k in J) h(x_k)` under each component, with the constant 48; `Var 1{sum_j h(x_j) > 0}` is within `exp (- d s^2 / 1944) / 4` of 1/4, so it tends to 1/4; `P(|sum_(k != j) h(x_k)| <= 1) <= exp (- (d - 1) s^2 / 15552)` for `(d - 1) s >= 18` |
+| `Paired/Conditional.v` | the conditional law of one coordinate given the others: the density is affine in `h(x_j)`, with a positive denominator on the box; the conditional expectation is bounded, the conditional variance is nonnegative, does not change under functions of the other coordinates, vanishes when the function does not depend on `x_j`, and is at most 1/4 for 0/1 functions; measurability and the tower property `E [E (g given X_-j)] = E g` |
+| `LatentTensorTheorem.v` | `latent_tensor_theorem : latent_tensorization_statement`: `T >= 1 + (d - 1) s^2 / 9` from `sum_k h(x_k)`, cut off the box; `T >= (1 / (2 d)) exp ((d - 1) s^2 / 15552)` from `1{sum_k h(x_k) > 0}` for `(d - 1) s >= 18` and `exp (- d s^2 / 1944) <= 1/2`; `c = 1/15552`, `c' = 1/2` |
+| `Countable/Continuous.v`, `ContinuousLatentTheorem.v` | the components of (18) and their average fourth moment 11/6; for `d >= 2`, a measurable set of points (first two coordinates related by `y = x` or `x y = -1`, first coordinate off a countable set built with `library/probability/atoms.v`) of mass 1 for the law (18) and 0 for every countable mixture of product laws, hence total variation 1; then `continuous_latent_theorem : continuous_latent_statement` |
 | `Condition/Endpoints.v`, `ConditionEndpointsTheorem.v` | `m(0) = 2 sqrt 2 / (3 pi)` and the quadratic remainder of `m` at 0 for the semicircle law; `t_C <= 2 m(0) (C - 1)` near `C = 1`; two-sided bounds on `alpha_C` with an error `O((C - 1)^4)`; the inversion lemma behind (34); the behavior at the edge for (13) and (35); then `condition_endpoints_theorem : condition_endpoints_statement` |
 
 The user accepted the five statement files at commit `1c05ffc`; they are
@@ -1152,6 +1169,45 @@ probability of a positive definite fit of value one becomes
 `(1 - lambda / n_d)^n_d` times that of the family, since a zero point has
 value 0 for every matrix; below the threshold it tends to
 `expR (- lambda) < 1` (`contamination_statement`).
+
+### The tensorization of the latent-sign law
+
+`latent_tensorization_statement` concerns the coordinate tensorization
+(12) of the variance for one point of the latent-sign law:
+`Var f <= T sum_j E Var(f | X_k, k != j)` for every bounded measurable
+`f`, where the conditional variance given all coordinates but one is
+defined through the conditional density of that coordinate. Every
+constant `T` of (12) satisfies `T >= 1 + (d - 1) s^2 / 9`: the function
+`f = sum_k h(x_k)`, cut to 0 off the box `[-sqrt 3, sqrt 3]^d`, has
+variance `d/9 + d (d - 1) s^2 / 81`, while by the tower property each
+conditional variance has expectation at most `E h(x_j)^2 = 1/9`. For a
+fixed `s > 0` and every large `d`, `T >= (1 / (2 d)) exp ((d - 1) s^2 / 15552)`:
+the indicator `f = 1{sum_k h(x_k) > 0}` has variance close to 1/4, while
+its conditional variance given the coordinates other than `j` vanishes
+unless `|sum_(k != j) h(x_k)| <= 1`, an event of probability
+`exp (- (d - 1) s^2 / 15552)` at most, by Hoeffding's inequality under each
+sign component. So the constants of (12) grow with `d` whenever `d s^2` is
+unbounded, exponentially for a fixed `s > 0`, although
+`latent_sign_statement` holds for these laws.
+
+### A continuous latent mixture
+
+`continuous_latent_statement` concerns the law (18): `a` is uniform on
+`[1, 2]` and, given `a`, the coordinates of a point are independent,
+equal to `a` with probability `1 / (1 + a^2)` and to `-1/a` with
+probability `a^2 / (1 + a^2)`. Each component has mean 0, variance 1,
+values at most 2 in absolute value and fourth moment `a^2 - 1 + a^-2`,
+whose average over `a` is 11/6; so (M2) holds for the components and (M3)
+with `kappa = 11/6`. For `d >= 2`, the point law of (18) is at total
+variation distance one from every countable mixture of product laws,
+with any coordinate laws. The first two coordinates of a point of (18)
+satisfy `y = x` or `x y = -1`, a relation whose sections have at most two
+points. A product law charges the set of related pairs only above the
+countable set of first coordinates whose section holds an atom of the
+second coordinate law (`library/probability/atoms.v`), and the first
+coordinate of (18) avoids every countable set almost surely. So the
+transfer of `robust_statement` does not reach (18): its distance to every
+countable family is 1, not `o(d^-2)`.
 
 ### The endpoints of the condition curve
 
@@ -1181,3 +1237,14 @@ The statements are on the frozen `condition_alpha` and `condition_star`, so
 they describe the limits of `condition_theorem`; as in the note, the limits
 in `C` and `alpha` are taken after the limit in the dimension. The finer
 terms of (13) and (14), in `C^(-7/5)`, are not stated.
+
+### Verification
+
+`make check` compiles `check/RobustAssumptions.v`,
+`check/LatentTensorAssumptions.v`, `check/ContinuousLatentAssumptions.v`
+and `check/ConditionEndpointsAssumptions.v`, which check that the four
+theorems prove the frozen statements, and compares their axioms with the
+expected lists (`scripts/check_sources.py`, rule 13). Each of the four
+theorems uses seven of the eight classical axioms of
+`check/assumptions.expected`, all but `Classical_Prop.classic`, as the
+theorems of phases 5 to 8 do.

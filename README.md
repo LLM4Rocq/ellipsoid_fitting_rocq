@@ -35,7 +35,11 @@ subgaussian coordinates (phase 5), and on its extension to finite mixtures
 of product laws (phase 6), which phase 8 extends to countable mixtures.
 Exact fitting is also proved for two dependent laws, the paired law and
 the latent-sign law (phases 6 and 7), and phase 8 proves identities that
-show the persistent dependence of the latent-sign law.
+show the persistent dependence of the latent-sign law. Phase 9 adds four
+complements: robustness in total variation, the failure of the
+tensorization of the variance for the latent-sign law, a continuous
+latent mixture that no countable mixture of product laws approximates,
+and the endpoint expansions of the condition-number curve.
 
 ## Status
 
@@ -92,6 +96,30 @@ show the persistent dependence of the latent-sign law.
   `check/LatentScopeAssumptions.v`). `extension/README.md`, section (g),
   describes them. The ordinary arguments of the notes are now formalized;
   their novelty is not confirmed.
+- **The complements of phase 9.** Four theorems, on statements that the
+  user accepted and that are frozen at commit `1c05ffc`
+  (`RobustDefinitions.v`, `RobustStatement.v`, `LatentTensorization.v`,
+  `ContinuousLatent.v`, `ConditionEndpoints.v`, in `extension/`):
+  `robust_theorem` (`extension/RobustTheorem.v`): the conclusions of the
+  countable-mixture theorem hold for i.i.d. points of arbitrary laws within
+  o(d^-2) in total variation of an admissible family, and the
+  contamination by a point at 0 with probability lambda / n shows that
+  this scale is needed; `latent_tensor_theorem`
+  (`extension/LatentTensorTheorem.v`): every constant of the coordinate
+  tensorization of the variance for the latent-sign law is at least
+  1 + (d - 1) s^2 / 9, and for a fixed s > 0 it grows exponentially in d;
+  `continuous_latent_theorem` (`extension/ContinuousLatentTheorem.v`): a
+  mixture over a continuous parameter of product laws whose components
+  satisfy (M2) and (M3) is at total variation distance one from every
+  countable mixture of product laws in dimension d >= 2;
+  `condition_endpoints_theorem` (`extension/ConditionEndpointsTheorem.v`):
+  the expansions of alpha_C near C = 1 and as C -> oo, and of C_star near
+  alpha = 0 and alpha = 1/4. The four theorems use the same seven axioms
+  as the theorems above (`check/RobustAssumptions.v`,
+  `check/LatentTensorAssumptions.v`, `check/ContinuousLatentAssumptions.v`,
+  `check/ConditionEndpointsAssumptions.v`). `extension/README.md`, section
+  (h), describes them; as for phase 8, the arguments are ordinary and their
+  novelty is not confirmed.
 - **The universality theorem, proved.** `extension/` states Theorem 1.2 of
   Koehler and Sohn, *Universality and sharp thresholds for ellipsoid
   fitting* ([arXiv:2608.27372v1](https://arxiv.org/abs/2608.27372v1)): for
@@ -248,20 +276,26 @@ generated`), whose code cannot change. The other modules print none.
   (`universality_theorem`), `MixtureTheorem.v` (`mixture_theorem`),
   `PairedTheorem.v` (`paired_theorem`), `LatentSignTheorem.v`
   (`latent_sign_theorem`), `CountableTheorem.v` (`countable_theorem`),
-  `ConditionTheorem.v` (`condition_theorem`) and `LatentScopeTheorem.v`
-  (`latent_scope_theorem`). The folders of the proofs:
+  `ConditionTheorem.v` (`condition_theorem`), `LatentScopeTheorem.v`
+  (`latent_scope_theorem`), and those of phase 9: `RobustTheorem.v`
+  (`robust_theorem`), `LatentTensorTheorem.v` (`latent_tensor_theorem`),
+  `ContinuousLatentTheorem.v` (`continuous_latent_theorem`) and
+  `ConditionEndpointsTheorem.v` (`condition_endpoints_theorem`). The
+  folders of the proofs:
   `Model/` (the law of the sample and the measurability of the events),
   `Features/` (the quadratic features of the points, and those of a
   mixture), `Unsat/` (the unsatisfiable phase), `Gaussian/` (the Gaussian
   model), `Sat/` (the satisfiable phase), `Mixture/` (component laws,
   samples whose coordinate laws vary with the point, the interpolation and
   the assembly for mixtures), `Paired/` (the uniform law, the paired
-  law and the latent-sign law as mixtures, and the scope of the latter),
-  `Countable/` (the truncation of a countable mixture and the transfer of
-  the theorem) and `Condition/` (the condition-number theorem).
-  `extension/README.md` holds the feasibility study of phase 5 and, in its
-  sections (f) and (g), the description of phases 6 to 8.
-- `library/`: the library `GaussianAnalysis`, 78 files of general results
+  law and the latent-sign law as mixtures, the scope of the latter and its
+  conditional laws), `Countable/` (the truncation of a countable mixture,
+  the transfer of the theorem, robustness in total variation and the
+  continuous latent mixture) and `Condition/` (the condition-number
+  theorem and the endpoints of its curve). `extension/README.md` holds the
+  feasibility study of phase 5 and, in its sections (f) to (h), the
+  description of phases 6 to 9.
+- `library/`: the library `GaussianAnalysis`, 80 files of general results
   over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
   and concentration, real matrices and probability; the Fourier analysis
   of anti-concentration (characteristic functions written without complex
@@ -280,7 +314,9 @@ generated`), whose code cannot change. The other modules print none.
   condition number (its distance by Hoffman-Wielandt and its support
   function by Moreau), the clip energy of a symmetric law, the uniform
   semicircle law for families of linear statistics of the GOE, and the
-  convex Gaussian min-max theorem on cones. The proofs use the library at Stdlib's `R`: in
+  convex Gaussian min-max theorem on cones; and those of phase 9: the total
+  variation distance and its bound for products, and the atoms of a finite
+  measure. The proofs use the library at Stdlib's `R`: in
   `theories/`, `Gaussian/Law/LibraryBridge` identifies the library's
   Gaussian measure with the product law of the statement,
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
@@ -302,18 +338,25 @@ generated`), whose code cannot change. The other modules print none.
   `check/LatentScopeAssumptions.v` for the three theorems of phase 8, with
   `check/countable_assumptions.expected`,
   `check/condition_assumptions.expected` and
-  `check/latent_scope_assumptions.expected`.
+  `check/latent_scope_assumptions.expected`; and
+  `check/RobustAssumptions.v`, `check/LatentTensorAssumptions.v`,
+  `check/ContinuousLatentAssumptions.v` and
+  `check/ConditionEndpointsAssumptions.v` for the four theorems of phase 9,
+  with the expected lists of the same names.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality
   theorem and its definitions the same code as at commit `3c6afa1`, the
   four statement files of phase 6 the same code as at commit `eef4694`,
-  the two of phase 7 the same code as at commit `d4de51d`, and the five
-  of phase 8 the same code as at commit `5442e84` (comments may differ); that the axiom-check files of phases 5
-  and 6 and their expected lists are byte-identical to commit `c3e555e`,
-  and that the Require commands of `library/probability/lindeberg.v` and
-  its section `tuple_prod`, on which the frozen statements depend, have
-  the same code as at that commit; that no module of `theories/`,
+  the two of phase 7 the same code as at commit `d4de51d`, the five
+  of phase 8 the same code as at commit `5442e84`, and the five of phase 9
+  the same code as at commit `1c05ffc` (comments may differ); that the
+  axiom-check files of phases 5 and 6 and their expected lists are
+  byte-identical to commit `c3e555e`, and those of phases 7 and 8 to
+  commit `a89ed1e`; that the Require commands of
+  `library/probability/lindeberg.v` and its section `tuple_prod`, on which
+  the frozen statements depend, have the same code as at commit `c3e555e`;
+  that no module of `theories/`,
   `library/` or `extension/` contains `Admitted`, `Axiom`, `Parameter` or
   `Conjecture`; that no module of `library/` requires a module of
   `theories/` or `extension/`, Stdlib's reals, or MathComp's bridge to them
@@ -403,7 +446,8 @@ done, and the second is done in part.
    102,415 lines at the tag `phase1`, and has 588 modules and 86,410 lines
    now. The library had 37 files and 21,005 lines at the end of phase 4,
    72 files and 48,032 lines after phase 5, 75 files and 48,991 lines
-   after phase 6, and has 78 files and 51,203 lines after phase 8.
+   after phase 6, 78 files and 51,203 lines after phase 8, and has 80
+   files and 51,666 lines after phase 9.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -441,4 +485,8 @@ proved the corollary for the latent-sign law, hardened the checks and
 generalized two library results (tag `phase7`). Phase 8 proved the three
 extensions of the mixture theorem: countable mixtures, the optimal
 condition number at fourth moment 3, and the scope of the latent-sign law
-(tag `phase8`).
+(tag `phase8`). Phase 9 proved four complements of these extensions,
+robustness in total variation, the tensorization bounds of the
+latent-sign law, the continuous latent mixture and the endpoint expansions
+of the condition-number curve, and the follow-ups of the review of the
+phase 8 release (tag `phase9`).
