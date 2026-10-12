@@ -776,6 +776,7 @@ extension/ConditionEndpointsTheorem.v
 extension/Condition/RobustCondition.v
 extension/ConditionRobustTheorem.v
 extension/ConditionKappa/Scalar.v
+extension/ConditionKappa/Compatibility.v
 extension/ConditionKappa/Cone.v
 extension/ConditionKappa/Geometry.v
 extension/ConditionKappa/Curve.v
