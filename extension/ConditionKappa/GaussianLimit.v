@@ -847,3 +847,224 @@ apply: lb_le_inf; first by exists (universality_s (- 0 - m)%R +
 move=> _ [t /andP[t0 _] <-].
 by apply: ge_inf => //; exists t.
 Qed.
+
+(* 5. M4: the shifted clipping energy converges uniformly in mu. *)
+
+(* A finite union of negligible families is negligible. *)
+Lemma negligible_bigcup (n : nat) (E : nat -> forall d, set 'rV[RR]_(d * d)) :
+  (forall k, (k <= n)%N -> negligible (fun d => gauss (d * d)) (E k)) ->
+  negligible (fun d => gauss (d * d))
+    (fun d => \bigcup_(k in [set k | (k <= n)%N]) E k d).
+Proof.
+elim: n => [|n IH] h.
+  apply: negligibleW (h 0%N (leqnn 0)) _; exists 0%N => d _ a [k /= k0 Ea].
+  by move: k0; rewrite leqn0 => /eqP k0; rewrite k0 in Ea.
+have h1 := IH (fun k kn => h k (leqW kn)).
+apply: negligibleW (negligibleU h1 (h n.+1 (leqnn _))) _.
+exists 0%N => d _ a [k /= kn Ea].
+have [kn'|kn'] := leqP k n; first by left; exists k.
+right; have -> : n.+1 = k by apply/eqP; rewrite eqn_leq kn kn'.
+exact: Ea.
+Qed.
+
+(* The infima of two pointwise close families are close. *)
+Lemma inf_close (I : set R) (F G : R -> R) (delta : R) : I !=set0 ->
+  (forall t, I t -> 0 <= F t) -> (forall t, I t -> 0 <= G t) ->
+  (forall t, I t -> `|F t - G t| <= delta) ->
+  `|inf [set F t | t in I] - inf [set G t | t in I]| <= delta.
+Proof.
+move=> [t0 It0] F0 G0 FG.
+have lbF : has_lbound [set F t | t in I] by exists 0 => _ [t It <-]; exact: F0.
+have lbG : has_lbound [set G t | t in I] by exists 0 => _ [t It <-]; exact: G0.
+have h1 : inf [set F t | t in I] - delta <= inf [set G t | t in I].
+  apply: lb_le_inf; first by exists (G t0), t0.
+  move=> _ [t It <-]; have := FG t It; rewrite ler_distl => /andP[_ h].
+  have : inf [set F t | t in I] <= F t by apply: ge_inf => //; exists t.
+  by lra.
+have h2 : inf [set G t | t in I] - delta <= inf [set F t | t in I].
+  apply: lb_le_inf; first by exists (F t0), t0.
+  move=> _ [t It <-]; have := FG t It; rewrite ler_distl => /andP[h _].
+  have : inf [set G t | t in I] <= G t by apply: ge_inf => //; exists t.
+  by lra.
+by rewrite ler_distl; apply/andP; split; lra.
+Qed.
+
+(* The mean over the eigenvalues of W and the integral against the
+   semicircle law are Lipschitz in the shift m. *)
+Lemma goe_stat_shift_lipschitz d (a : 'rV[RR]_(d * d)) (C B Bm m m' t : R) :
+  (0 < d)%N -> 1 <= C -> opnorm (goe_mx a) <= 3 -> 0 <= t <= B ->
+  `|m| <= Bm -> `|m'| <= Bm ->
+  `|goe_stat (shift_fun C m t) a - goe_stat (shift_fun C m' t) a| <=
+  2 * ((1 + C) * B + 2 * (3 + Bm)) * (1 + C) * `|m - m'|.
+Proof.
+move=> d0 C1 ho ht hm hm'.
+have dR : 0 < d%:R :> RR by rewrite ltr0n.
+rewrite /goe_stat -mulrBl -sumrB normrM [`|_^-1|]ger0_norm ?invr_ge0 ?ler0n //.
+rewrite ler_pdivrMr //.
+apply: le_trans (ler_norm_sum _ _ _) _.
+have -> : 2 * ((1 + C) * B + 2 * (3 + Bm)) * (1 + C) * `|m - m'| * d%:R =
+    \sum_(i < d) 2 * ((1 + C) * B + 2 * (3 + Bm)) * (1 + C) * `|m - m'|.
+  by rewrite sumr_const card_ord mulr_natr.
+apply: ler_sum => i _.
+have hx : -3 <= spec (goe_mx a) 0 i <= 3.
+  rewrite -ler_norml.
+  exact: le_trans (spec_le_opnorm i (goe_mx_symmetric a)) ho.
+have := shift_fun_lipschitz C1 ht ht hx hx hm hm'.
+by rewrite !subrr normr0 !add0r.
+Qed.
+
+Lemma shift_integral_lipschitz (C B Bm m m' t : R) : 1 <= C -> 0 <= t <= B ->
+  `|m| <= Bm -> `|m'| <= Bm ->
+  `|\int[semicircle_prob 2]_x shift_fun C m t x -
+    \int[semicircle_prob 2]_x shift_fun C m' t x| <=
+  2 * ((1 + C) * B + 2 * (3 + Bm)) * (1 + C) * `|m - m'|.
+Proof.
+move=> C1 ht hm hm'.
+apply: semicircle_near;
+  [exact: shift_fun_continuous|exact: shift_fun_continuous|].
+move=> x hx; have := shift_fun_lipschitz C1 ht ht hx hx hm hm'.
+by rewrite !subrr normr0 !add0r.
+Qed.
+
+Section uniform_shift.
+Variables (C c M : R).
+Hypotheses (C1 : 1 <= C) (M0 : 0 < M).
+
+Local Notation B := (3 + `|c| * M).
+Local Notation L := (2 * ((1 + C) * (3 + `|c| * M) + 2 * (3 + `|c| * M)) *
+  (1 + C)).
+
+(* Outside a negligible event, on opnorm W <= 3, the infimum over t in
+   [0, B] of the mean of shift_fun C (c mu) t over the eigenvalues of W is
+   within eta of its limit, uniformly in mu in [0, M]: wigner_uniform_inf
+   at the points of a finite net, and the Lipschitz bounds in mu. *)
+Lemma shift_inf_unif (eta : R) : 0 < eta ->
+  negligible (fun d => gauss (d * d))
+    (fun d => [set a : 'rV[RR]_(d * d) | opnorm (goe_mx a) <= 3 /\
+      exists2 mu : R, 0 <= mu <= M &
+        eta <= `|inf [set goe_stat (shift_fun C (c * mu)%R t) a |
+                      t in [set t : R | 0 <= t <= B]] -
+                 inf [set \int[semicircle_prob 2]_x
+                        shift_fun C (c * mu)%R t x |
+                      t in [set t : R | 0 <= t <= B]]|]).
+Proof.
+move=> e0.
+have cM0 : 0 <= `|c| * M by rewrite mulr_ge0 ?normr_ge0 // ltW.
+have B0 : 0 <= B by rewrite addr_ge0 ?ler0n.
+have C0 : 0 <= 1 + C by apply: addr_ge0 => //; apply: le_trans C1.
+have L0 : 0 <= L.
+  apply: mulr_ge0 => //; apply: mulr_ge0; first exact: ler0n.
+  by apply: addr_ge0; [exact: mulr_ge0|apply: mulr_ge0; [exact: ler0n|
+    exact: addr_ge0]].
+have e3 : 0 < eta / 3 by rewrite divr_gt0.
+have hx0 := archimedean.Num.Theory.truncnS_gt (L * `|c| * M / (eta / 3)).
+move: (archimedean.Num.truncn (L * `|c| * M / (eta / 3))).+1 hx0 => N hx0.
+have NR : 0 < N%:R :> RR.
+  apply: le_lt_trans hx0; rewrite divr_ge0 ?(ltW e3) //.
+  apply: mulr_ge0; last exact: ltW.
+  by apply: mulr_ge0 => //; exact: normr_ge0.
+have hN : L * `|c| * M / N%:R <= eta / 3.
+  rewrite ltr_pdivrMr // in hx0.
+  by rewrite ler_pdivrMr //; apply: ltW; rewrite [_ * N%:R]mulrC.
+pose mu k := k%:R * M / N%:R.
+have mu0 k : (k <= N)%N -> 0 <= mu k <= M.
+  move=> kN; rewrite /mu divr_ge0 ?mulr_ge0 ?ler0n ?(ltW M0) //=.
+  rewrite ler_pdivrMr // mulrC ler_wpM2l ?(ltW M0) //.
+  by rewrite ler_nat.
+have cmu (x : R) : 0 <= x <= M -> `|c * x| <= `|c| * M.
+  move=> /andP[x0 xM]; rewrite normrM [`|x|]ger0_norm //.
+  by rewrite ler_wpM2l ?normr_ge0.
+pose F k d := [set a : 'rV[RR]_(d * d) | eta / 3 <=
+  `|inf [set goe_stat (shift_fun C (c * mu k)%R t) a |
+        t in [set t : R | 0 <= t <= B]] -
+    inf [set \int[semicircle_prob 2]_x shift_fun C (c * mu k)%R t x |
+        t in [set t : R | 0 <= t <= B]]|].
+have hF k : (k <= N)%N -> negligible (fun d => gauss (d * d)) (F k).
+  move=> kN eps p0.
+  have m0 : 0 < Num.min (eta / 3) eps by rewrite lt_min e3 p0.
+  have hm := cmu _ (mu0 k kN).
+  have hx (t x y : R) : 0 <= t <= B -> -3 <= x <= 3 -> -3 <= y <= 3 ->
+      `|shift_fun C (c * mu k)%R t x - shift_fun C (c * mu k)%R t y| <=
+      L * `|x - y|.
+    move=> ht hx hy.
+    have := shift_fun_lipschitz C1 ht ht hx hy hm hm.
+    by rewrite !subrr normr0 add0r addr0.
+  have ht (t s x : R) : 0 <= t <= B -> 0 <= s <= B -> -3 <= x <= 3 ->
+      `|shift_fun C (c * mu k)%R t x - shift_fun C (c * mu k)%R s x| <=
+      L * `|t - s|.
+    move=> h1 h2 h3.
+    have := shift_fun_lipschitz C1 h1 h2 h3 h3 hm hm.
+    by rewrite !subrr normr0 !addr0.
+  have [D hD] := @wigner_uniform_inf RR (shift_fun C (c * mu k)%R) L 0 B B0
+    (fun t => @shift_fun_continuous C (c * mu k)%R t) hx ht _ m0.
+  exists D => d dD; have [A [mA PA hA]] := hD d dD.
+  exists A; split => //.
+    by apply: le_trans PA _; rewrite lee_fin ge_min lexx orbT.
+  move=> a /= h; apply: hA => /=; apply: le_trans h.
+  by rewrite ge_min lexx.
+apply: negligibleW (negligible_bigcup hF) _.
+exists 1%N => d d1 a /= [ho [m hm hge]].
+have mN0 : 0 <= m * N%:R / M.
+  by case/andP: hm => m0 _; rewrite divr_ge0 ?mulr_ge0 ?ler0n // ltW.
+have /andP[k1 k2] := archimedean.Num.Theory.truncn_itv mN0.
+move: (archimedean.Num.truncn (m * N%:R / M)) k1 k2 => k k1 k2.
+have kN : (k <= N)%N.
+  rewrite -(ler_nat RR); apply: le_trans k1 _.
+  case/andP: hm => _ mM.
+  by rewrite ler_pdivrMr // mulrC ler_wpM2l ?ler0n.
+have hk : `|m - mu k| <= M / N%:R.
+  have -> : m - mu k = (m * N%:R / M - k%:R) * (M / N%:R).
+    rewrite /mu; have Mn : M != 0 by rewrite gt_eqF.
+    have Nn : N%:R != 0 :> RR by rewrite gt_eqF.
+    by field.
+  rewrite normrM [`|M / _|]ger0_norm ?divr_ge0 ?ler0n ?(ltW M0) //.
+  rewrite -[X in _ <= X]mul1r ler_wpM2r ?divr_ge0 ?ler0n ?(ltW M0) //.
+  rewrite ger0_norm ?subr_ge0 //.
+  have : (k.+1%:R : RR) = k%:R + 1 by rewrite -addn1 natrD.
+  by lra.
+have [Fk|nFk] := pselect (F k d a); first by exists k.
+exfalso; move: nFk; rewrite /F /= => /negP; rewrite -ltNge => hlt.
+have hmk := mu0 k kN.
+have hcm := cmu _ hm; have hck := cmu _ hmk.
+have lip : L * `|c * m - c * mu k| <= eta / 3.
+  rewrite -mulrBr normrM mulrA; apply: le_trans hN.
+  rewrite -mulrA -[X in _ <= X]mulrA [X in _ <= X]mulrA.
+  have := ler_wpM2l (mulr_ge0 L0 (normr_ge0 c)) hk.
+  by rewrite !mulrA.
+have h1 : `|inf [set goe_stat (shift_fun C (c * m)%R t) a |
+      t in [set t : R | 0 <= t <= B]] -
+    inf [set goe_stat (shift_fun C (c * mu k)%R t) a |
+      t in [set t : R | 0 <= t <= B]]| <= eta / 3.
+  apply: le_trans lip; apply: inf_close.
+  - by exists 0; rewrite /= lexx B0.
+  - move=> t _; rewrite /goe_stat divr_ge0 ?ler0n //.
+    by apply: sumr_ge0 => i _; rewrite /shift_fun exprn_even_ge0.
+  - move=> t _; rewrite /goe_stat divr_ge0 ?ler0n //.
+    by apply: sumr_ge0 => i _; rewrite /shift_fun exprn_even_ge0.
+  - by move=> t ht; exact: goe_stat_shift_lipschitz.
+have h3 : `|inf [set \int[semicircle_prob 2]_x shift_fun C (c * mu k)%R t x |
+      t in [set t : R | 0 <= t <= B]] -
+    inf [set \int[semicircle_prob 2]_x shift_fun C (c * m)%R t x |
+      t in [set t : R | 0 <= t <= B]]| <= eta / 3.
+  apply: le_trans lip; rewrite distrC; apply: inf_close.
+  - by exists 0; rewrite /= lexx B0.
+  - move=> t _; apply: Rintegral_ge0 => x _.
+    by rewrite /shift_fun exprn_even_ge0.
+  - move=> t _; apply: Rintegral_ge0 => x _.
+    by rewrite /shift_fun exprn_even_ge0.
+  - by move=> t ht; exact: shift_integral_lipschitz.
+move: hge h1 hlt h3.
+set p := inf [set goe_stat (shift_fun C (c * m)%R t) a |
+  t in [set t : R | 0 <= t <= B]].
+set q := inf [set goe_stat (shift_fun C (c * mu k)%R t) a |
+  t in [set t : R | 0 <= t <= B]].
+set u := inf [set \int[semicircle_prob 2]_x shift_fun C (c * mu k)%R t x |
+  t in [set t : R | 0 <= t <= B]].
+set v := inf [set \int[semicircle_prob 2]_x shift_fun C (c * m)%R t x |
+  t in [set t : R | 0 <= t <= B]].
+clearbody p q u v => hge h1 hlt h3.
+have t1 := ler_distD q p v; have t2 := ler_distD u q v.
+by lra.
+Qed.
+
+End uniform_shift.
