@@ -27,7 +27,8 @@ From GaussianAnalysis.probability Require Import variational.
 (*   admissible q; clip_residual_profile: E[w q_{a,t}] = 0.                   *)
 (* - clip_optimal: if moreover a = c E q_{a,t} (a fixed point), q_{a,t}       *)
 (*   maximizes V_c over the admissible profiles. clip_objective_profile:      *)
-(*   V_c(q_{a,t}) = E[X q_{a,t}(X)]; clip_objectiveE:                         *)
+(*   V_c(q_{a,t}) = E[X q_{a,t}(X)]; clip_objective_radial:                   *)
+(*   V_c(q_{a,t}) = E[q_{a,t}(X)^2] + c (E q_{a,t}(X))^2; clip_objectiveE:    *)
 (*   V_c(q_{a,t}) = J(l) - J(u), with J(w) = s(w) + w m(w).                   *)
 (* - clip_energy_shiftE: s(-t - a) + s(C t + a) = E (X - a - q_{a,t}(X))^2,   *)
 (*   the mean squared distance from X - a to [t, C t].                        *)
@@ -39,6 +40,10 @@ From GaussianAnalysis.probability Require Import variational.
 (*   clip_dual_ge: V_c(q_{a,t}) <= D(b) for every b if c >= 0;                *)
 (*   clip_dual_window: 0 <= E q_{a,t} and                                     *)
 (*   min(1, 1 + c)^2 (E q_{a,t})^2 <= sigma2.                                 *)
+(* - clip_objective_add: for bounded measurable q and h, V_c(q + h) is        *)
+(*   V_c(q) + 2 E[(X - c E q(X) - q(X)) h(X)] - E[h(X)^2] - c (E h(X))^2;     *)
+(*   clip_admissible_le: a profile admissible for C is admissible for every   *)
+(*   C' >= C.                                                                 *)
 (* - Tools: clip_profile_mean, E q_{a,t} = t + m(l) - m(u);                   *)
 (*   clip_energy_shift_min, t minimizes t' |-> s(-t' - a) + s(C t' + a);      *)
 (*   clip_dual_profile, clip_dual_lower; clip_res_sqE, the expansion of       *)
@@ -76,6 +81,15 @@ Definition clip_profile (C a t : R) (x : R) : R :=
 Definition clip_admissible (C : R) : set (measurableTypeR R -> R) :=
   [set q | measurable_fun [set: measurableTypeR R] q /\
      exists2 t : R, 0 <= t & forall x, t <= q x <= C * t].
+
+(* A profile admissible for C is admissible for every C' >= C. *)
+Lemma clip_admissible_le (C C' : R) (q : measurableTypeR R -> R) :
+  C <= C' -> clip_admissible C q -> clip_admissible C' q.
+Proof.
+move=> CC [mq [t t0 hq]]; split => //; exists t => // x.
+have /andP[h1 h2] := hq x; rewrite h1 /=.
+by apply: le_trans h2 _; rewrite ler_wpM2r.
+Qed.
 
 End clip_profile_def.
 
@@ -430,6 +444,50 @@ move: (\int[mu]_x ((x : R) ^+ 2))
 by ring.
 Qed.
 
+(* The expansion of V_c around a bounded measurable q, in a bounded
+   measurable direction h: V_c(q + h) = V_c(q)
+   + 2 E[(X - c E q - q(X)) h(X)] - (E h^2 + c (E h)^2). *)
+Lemma clip_objective_add (c : R) (q h : measurableTypeR R -> R) (B B' : R) :
+  measurable_fun [set: measurableTypeR R] q ->
+  measurable_fun [set: measurableTypeR R] h ->
+  (forall x, `|q x| <= B) -> (forall x, `|h x| <= B') ->
+  clip_objective mu c (fun x => q x + h x) =
+  clip_objective mu c q
+  + 2 * \int[mu]_x (((x : R) - c * \int[mu]_y q y - q x) * h x)
+  - (\int[mu]_x (h x ^+ 2) + c * (\int[mu]_x h x) ^+ 2).
+Proof.
+move=> mq mh qB hB.
+have iq := clip_integrable_bounded mq qB.
+have ih := clip_integrable_bounded mh hB.
+have ixq := clip_integrable_id_bounded mq qB.
+have ixh := clip_integrable_id_bounded mh hB.
+have iq2 := clip_integrable_sq mq qB.
+have ih2 := clip_integrable_sq mh hB.
+have iqh := clip_integrable_mul mq mh qB hB.
+have i2qh := integrableZ_R 2 iqh.
+have iq2qh := integrableD_R iq2 i2qh.
+set a := c * \int[mu]_y q y.
+have iah := integrableZ_R a ih.
+have ixah := integrableB_R ixh iah.
+have J1 : \int[mu]_x ((x : R) * (q x + h x)) =
+    \int[mu]_x ((x : R) * q x) + \int[mu]_x ((x : R) * h x).
+  by rewrite -RintegralD //; apply: eq_Rintegral => x _ /=; ring.
+have J2 : \int[mu]_x ((q x + h x) ^+ 2) =
+    \int[mu]_x (q x ^+ 2) + 2 * \int[mu]_x (q x * h x) + \int[mu]_x (h x ^+ 2).
+  rewrite -RintegralZl // -RintegralD // -RintegralD //.
+  by apply: eq_Rintegral => x _ /=; ring.
+have J3 : \int[mu]_x (q x + h x) = \int[mu]_x q x + \int[mu]_x h x.
+  by rewrite RintegralD.
+have J4 : \int[mu]_x (((x : R) - a - q x) * h x) =
+    \int[mu]_x ((x : R) * h x) - a * \int[mu]_x h x - \int[mu]_x (q x * h x).
+  have -> : (fun x : measurableTypeR R => ((x : R) - a - q x) * h x) =
+      (fun x => ((x : R) * h x - a * h x) - q x * h x).
+    by apply/funext => x; ring.
+  by rewrite RintegralB // RintegralB // RintegralZl.
+rewrite /clip_objective J1 J2 J3 J4 /a.
+by ring.
+Qed.
+
 (* 1. The first-order inequality under the balance m(-ell) = C m(u). *)
 
 Section clip_first_order.
@@ -560,6 +618,16 @@ rewrite /clip_objective; move: h (fixpt).
 move: (\int[mu]_x ((x : R) * q x)) (\int[mu]_x q x) (\int[mu]_x (q x ^+ 2)).
 move=> X M Q h fp; rewrite fp in h.
 by rewrite expr2; lra.
+Qed.
+
+(* The radial identity V_c(q) = E q^2 + c (E q)^2. *)
+Lemma clip_objective_radial :
+  clip_objective mu c q = \int[mu]_x (q x ^+ 2) + c * (\int[mu]_x q x) ^+ 2.
+Proof.
+have hv := clip_objective_profile.
+rewrite hv; move: hv; rewrite /clip_objective.
+move: (\int[mu]_x ((x : R) * q x)) (\int[mu]_x q x) (\int[mu]_x (q x ^+ 2)).
+by move=> X M Q hv; lra.
 Qed.
 
 (* q maximizes V_c over the admissible profiles. *)
