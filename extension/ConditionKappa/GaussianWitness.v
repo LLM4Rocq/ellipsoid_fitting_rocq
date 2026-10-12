@@ -12,14 +12,17 @@
    sqrt (a0 d) <= |T S|_F <= sqrt (max(1, 1 + c) C d) on the base, in place
    of sqrt d and sqrt (C d); they may depend on C, kappa and alpha.
 
-   Interface I1, a hypothesis here until item M5 (GaussianLimit, lane A)
-   lands: for C > 1,
+   Interface I1, a hypothesis of the lemmas here: for C > 1,
      cvg_prob (fun d => gauss (d * d))
        (fun d a => sigma_{C,kappa}(vec_mx a) / d)
        (sqrt (condition_kappa_alpha C kappa)),
    the hypothesis hQ2 of Condition/GaussianWitness.v with sigma_{C,kappa}
    in place of cond_support C and alpha(C, kappa) in place of
-   condition_alpha C.
+   condition_alpha C. I1 is kcond_support_cvg of GaussianLimit.v
+   (item M5). gaussian_kappa_witness keeps it as a hypothesis, and so does
+   condition_kappa_sat of Sat.v, which applies the witness;
+   condition_kappa_statement_of_I3 of Theorem.v discharges it with
+   kcond_support_cvg.
 
    Output, interface I4 (the witness), for item D1 (Sat): for 1 < Cm and
    0 < alpha < alpha(Cm, kappa), some c0 >= 0 such that, for every n with
@@ -352,7 +355,8 @@ End kwitness.
 (* Item G1, the witness, in the form that the satisfiable half (item D1,
    Sat) takes as its hypothesis: below alpha(C, kappa), with the constant
    c0 = 162 max(1, 1 + c) C. The hypothesis on kcond_support is
-   interface I1, the limit of item M5. *)
+   interface I1, kcond_support_cvg of GaussianLimit.v, which
+   condition_kappa_statement_of_I3 of Theorem.v supplies. *)
 Theorem gaussian_kappa_witness (kappa C alpha : R) :
   1 < kappa -> 1 < C -> 0 < alpha -> alpha < condition_kappa_alpha C kappa ->
   cvg_prob (fun d => @gauss RR (d * d))

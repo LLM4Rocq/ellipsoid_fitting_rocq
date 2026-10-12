@@ -4,7 +4,7 @@
    Condition/Unsat.v, which treats kappa = 3; Condition/Cover.v and
    Condition/Slices.v are reused as they are.
 
-   Result to prove here: for K > 0, kappa > 1, C > 1 and
+   The result: for K > 0, kappa > 1, C > 1 and 0 < alpha with
    alpha(C, kappa) < alpha, every finite mixture family with
    mixture_family K N w mu and mixture_fourth_moment kappa N w mu, and every
    n with n/d^2 -> alpha, the probability of
@@ -12,14 +12,14 @@
    every alpha > alpha(C, kappa), alpha >= 1/2 included.
 
    Interfaces used.
-   - I3, from item S3 (Curve, lane C): the analogue of condition_alpha_right
-     of Condition/Curve.v for alpha(C, kappa), which gives some Cp > C with
-     alpha(Cp, kappa) < alpha.
-   - I4 (the gap), from item G1 (GaussianGap), at Cp: the hypothesis of
-     condition_unsat_gap of Condition/Unsat.v with
-     gaussian_feature_law kappa d, uniform in the intercept; see the header
-     of GaussianGap. Until G1 lands, the first conditional lemma takes it
-     as a hypothesis.
+   - I3, in the form of condition_kappa_alpha_right of Curve.v (item S3):
+     the analogue of condition_alpha_right of Condition/Curve.v for
+     alpha(C, kappa), which gives some Cp > C with alpha(Cp, kappa) < alpha.
+   - I4 (the gap) at Cp: the hypothesis of condition_unsat_gap of
+     Condition/Unsat.v with gaussian_feature_law kappa d, uniform in the
+     intercept; see the header of GaussianGap. condition_kappa_unsat_gap
+     takes it as a hypothesis, and condition_kappa_unsat supplies it by
+     gaussian_kappa_gap of GaussianGap.v (item G1).
    Constants by their role, as in Sat: the regularity constant of the
    mixture features depends on kappa, the 3^(1/4) of the Gaussian
    regularity bound does not.
@@ -36,7 +36,10 @@
    2. condition_kappa_unsat: the result above, from interface I3 (the
       analogue of condition_alpha_right) and interface I1 for every
       C' > 1, through gaussian_kappa_gap (GaussianGap, item G1) at Cp. Both
-      interfaces are explicit hypotheses until items S3 and M5 land. *)
+      hypotheses stay explicit here and are discharged where (20) is
+      assembled: I1 by kcond_support_cvg of GaussianLimit.v in
+      condition_kappa_statement_of_I3 of Theorem.v, and I3 by
+      condition_kappa_alpha_right of Curve.v in ConditionKappaTheorem.v. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
