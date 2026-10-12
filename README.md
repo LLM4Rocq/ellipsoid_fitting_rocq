@@ -375,11 +375,13 @@ generated`), whose code cannot change. The other modules print none.
   four statement files of phase 6 the same code as at commit `eef4694`,
   the two of phase 7 the same code as at commit `d4de51d`, the five
   of phase 8 the same code as at commit `5442e84`, the five of phase 9
-  the same code as at commit `1c05ffc`, and the two of phase 10 the same
-  code as at commit `b26eb1e` (comments may differ); that the
+  the same code as at commit `1c05ffc`, the two of phase 10 the same
+  code as at commit `b26eb1e`, and the four of phase 11 the same code as
+  at commit `c5f41c4` (comments may differ); that the
   axiom-check files of phases 5 and 6 and their expected lists are
   byte-identical to commit `c3e555e`, those of phases 7 and 8 to commit
-  `a89ed1e`, and those of phase 9 to commit `e4c46e1`; that the Require
+  `a89ed1e`, those of phase 9 to commit `e4c46e1`, and those of phase 10
+  to commit `eda8a06`; that the Require
   commands of
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which
   the frozen statements depend, have the same code as at commit `c3e555e`;

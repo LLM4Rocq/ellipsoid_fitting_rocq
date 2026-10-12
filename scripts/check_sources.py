@@ -113,6 +113,16 @@
    of the axiom checks of phase 9, are byte-identical to the commit
    CHECKS_P9_BASELINE, a separate baseline; CHECKS_BASELINE,
    CHECKS_P8_BASELINE and check/frozen-baseline do not change.
+17. Phase 11. The code of each file of PHASE11_FROZEN, the definitions of
+   the condition-number curve at every fourth moment and the statements of
+   the curve, of the threshold theorem at every fourth moment and of its
+   robustness, must equal its code at the commit PHASE11_BASELINE, at which
+   the user accepted them.
+18. Phase 11. The check files and expected lists of CHECKS_EXACT_P10, those
+   of the axiom checks of phase 10, are byte-identical to the commit
+   CHECKS_P10_BASELINE, a separate baseline; CHECKS_BASELINE,
+   CHECKS_P8_BASELINE, CHECKS_P9_BASELINE and check/frozen-baseline do not
+   change.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -180,6 +190,13 @@ CHECKS_EXACT_P9 = [
     "check/condition_endpoints_assumptions.expected",
 ]
 CHECKS_P9_BASELINE = "e4c46e12d61a28bed6047968565c8424b505319b"
+CHECKS_EXACT_P10 = [
+    "check/ConditionRobustAssumptions.v",
+    "check/condition_robust_assumptions.expected",
+    "check/LatentTensorUpperAssumptions.v",
+    "check/latent_tensor_upper_assumptions.expected",
+]
+CHECKS_P10_BASELINE = "eda8a0651798999ec6b9f677532107aae60b0623"
 TUPLE_PROD = "library/probability/lindeberg.v"
 LATENT_FROZEN = [
     "extension/LatentSignDefinitions.v",
@@ -207,6 +224,13 @@ PHASE10_FROZEN = [
     "extension/LatentTensorUpper.v",
 ]
 PHASE10_BASELINE = "b26eb1e0eff32371248c211ece597fc9bc3463f9"
+PHASE11_FROZEN = [
+    "extension/ConditionKappaDefinitions.v",
+    "extension/ConditionKappaCurveStatement.v",
+    "extension/ConditionKappaStatement.v",
+    "extension/ConditionKappaRobustStatement.v",
+]
+PHASE11_BASELINE = "c5f41c44e5bc2622f6dfd940c654553503e9eb1d"
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -405,6 +429,9 @@ def main():
     for path in PHASE10_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE10_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE10_BASELINE[:12]}")
+    for path in PHASE11_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE11_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE11_BASELINE[:12]}")
     for path in CHECKS_EXACT:
         if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
@@ -414,6 +441,9 @@ def main():
     for path in CHECKS_EXACT_P9:
         if (ROOT / path).read_text() != at_baseline(CHECKS_P9_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_P9_BASELINE[:12]}")
+    for path in CHECKS_EXACT_P10:
+        if (ROOT / path).read_text() != at_baseline(CHECKS_P10_BASELINE, path):
+            failures.append(f"{path}: differs from {CHECKS_P10_BASELINE[:12]}")
     now = tuple_prod_code((ROOT / TUPLE_PROD).read_text())
     if now[1] is None:
         failures.append(f"{TUPLE_PROD}: no section tuple_prod")
@@ -496,6 +526,8 @@ def main():
           f"{CHECKS_P8_BASELINE[:12]}; "
           f"{len(CHECKS_EXACT_P9)} check files of phase 9 unchanged since "
           f"{CHECKS_P9_BASELINE[:12]}; "
+          f"{len(CHECKS_EXACT_P10)} check files of phase 10 unchanged since "
+          f"{CHECKS_P10_BASELINE[:12]}; "
           f"{len(LATENT_FROZEN)} frozen files of phase 7 unchanged since "
           f"{LATENT_BASELINE[:12]}; "
           f"{len(PHASE8_FROZEN)} frozen files of phase 8 unchanged since "
@@ -504,6 +536,8 @@ def main():
           f"{PHASE9_BASELINE[:12]}; "
           f"{len(PHASE10_FROZEN)} frozen files of phase 10 unchanged since "
           f"{PHASE10_BASELINE[:12]}; "
+          f"{len(PHASE11_FROZEN)} frozen files of phase 11 unchanged since "
+          f"{PHASE11_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers and of Stdlib's reals"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
