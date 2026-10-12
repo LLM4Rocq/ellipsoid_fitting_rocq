@@ -3,8 +3,10 @@
    and 6; lane B). The model is Condition/GaussianGap.v, which treats
    kappa = 3.
 
-   Setting, constants and interface I1 (a hypothesis until item M5 lands)
-   as in GaussianWitness.
+   Setting, constants and interface I1 as in GaussianWitness. I1 is a
+   hypothesis of the lemmas here and of condition_kappa_unsat of Unsat.v,
+   which applies the gap; condition_kappa_statement_of_I3 of Theorem.v
+   discharges it with kcond_support_cvg of GaussianLimit.v (item M5).
 
    Output, interface I4 (the gap), for item D2 (Unsat): for 1 < Cp and
    alpha(Cp, kappa) < alpha, some g > 0 such that, for every n with
@@ -435,7 +437,8 @@ End kgap.
    Unsat) takes as its hypothesis: above alpha(C, kappa), with
    g = a0 l^2 / (64 alpha), a0 = min(1, 1 + c) and
    l = sqrt alpha - sqrt alpha(C, kappa). The hypothesis on kcond_support
-   is interface I1, the limit of item M5. *)
+   is interface I1, kcond_support_cvg of GaussianLimit.v, which
+   condition_kappa_statement_of_I3 of Theorem.v supplies. *)
 Theorem gaussian_kappa_gap (kappa C alpha : R) :
   1 < kappa -> 1 < C -> 0 < alpha -> condition_kappa_alpha C kappa < alpha ->
   cvg_prob (fun d => @gauss RR (d * d))

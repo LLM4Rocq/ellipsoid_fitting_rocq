@@ -41,7 +41,8 @@
      finite_robust_condition_kappa_number_statement, through fin_cfamily
      and fin_cfourth.
    - condition_kappa_robust_holds : condition_kappa_theorem_statement ->
-     condition_kappa_robust_theorem_statement. *)
+     condition_kappa_robust_theorem_statement. ConditionKappaRobustTheorem.v
+     applies it to condition_kappa_theorem. *)
 
 From Stdlib Require Import Reals List.
 From HB Require Import structures.

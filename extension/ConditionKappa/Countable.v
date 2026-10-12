@@ -3,8 +3,10 @@
    (notes/phase11-plan.md, section 5; lane B). The model is
    Condition/Countable.v, which treats kappa = 3.
 
-   Proved here, as implications, so that they do not wait for the proofs
-   of the finite statements.
+   Proved here, as implications from the finite statements.
+   ConditionKappaTheorem.v applies them to the finite statements (20) and
+   (21) that it proves, which gives the countable conjuncts of
+   condition_kappa_theorem.
    - countable_condition_kappa_holds : condition_kappa_statement ->
      countable_condition_kappa_statement, (20) at fourth moment kappa for
      countable mixtures. The measurability of

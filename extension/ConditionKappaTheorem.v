@@ -4,13 +4,16 @@
 
    condition_kappa_statement_of_I3 (ConditionKappa/Theorem) proves (20) for
    finite mixtures from the two halves of items D1 and D2, with interface
-   I1 from item M5 and the three forms of interface I3 from item S3
-   (condition_kappa_alpha_left, condition_kappa_alpha_half,
-   condition_kappa_alpha_right of ConditionKappa/Curve);
+   I1 discharged there by kcond_support_cvg (ConditionKappa/GaussianLimit,
+   item M5); the three forms of interface I3 are supplied here by
+   condition_kappa_alpha_left, condition_kappa_alpha_half and
+   condition_kappa_alpha_right (ConditionKappa/Curve, item S3).
    condition_kappa_number_of_threshold derives (21) from it with the inverse
-   of the curve (condition_kappa_inverse_holds). The countable versions
-   follow from the finite ones by the truncation of the family and the
-   coupling of samples (ConditionKappa/Countable, item A2). *)
+   of the curve, supplied here by condition_kappa_inverse_holds
+   (ConditionKappa/Curve). The countable versions follow from the finite
+   ones by countable_condition_kappa_holds and
+   countable_condition_kappa_number_holds, through the truncation of the
+   family and the coupling of samples (ConditionKappa/Countable, item A2). *)
 
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From EllipsoidUniversality Require Import ConditionKappaStatement.

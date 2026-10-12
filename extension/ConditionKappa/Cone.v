@@ -4,8 +4,8 @@
    notes/general-fourth-moment-condition-plan.md, section 4.1; lane B).
 
    This file holds the single shared definition of the cone T K_C, of its
-   base and of its support function. Items M5 (lane A) and G1 (lane B)
-   import it.
+   base and of its support function. GaussianLimit (item M5, lane A),
+   GaussianWitness and GaussianGap (item G1, lane B) import it.
 
    Setting. kappa > 1, c = (kappa - 3) / 2 > -1 (cone_shift kappa) and
    a0 = min(1, 1 + c). For C > 1, K_C = cond_cone C and cond_slice C, its
@@ -59,7 +59,8 @@
       kcond_cone_vec kappa C d. kcond_support_ge0, kcond_support_le: it lies
       in [0, |A|_F]. kcond_support3: at kappa = 3 it is cond_support C.
       Its limit, sigma_{C,kappa} / d -> sqrt alpha(C, kappa) in probability
-      under gauss (d * d), is item M5 (lane A). *)
+      under gauss (d * d), interface I1, is kcond_support_cvg of
+      GaussianLimit (item M5). *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.

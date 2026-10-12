@@ -4,22 +4,24 @@
    Condition/Sat.v, which treats kappa = 3; Condition/Cover.v and
    Condition/Slices.v are reused as they are.
 
-   Result to prove here: for K > 0, kappa > 1, C > 1 and
+   The result: for K > 0, kappa > 1, C > 1 and
    0 < alpha < alpha(C, kappa), every finite mixture family with
    mixture_family K N w mu and mixture_fourth_moment kappa N w mu, and every
    n with n/d^2 -> alpha, the probability of
    universality_conditioned_fit_event (n d) d C tends to 1.
 
    Interfaces used.
-   - I3, from item S3 (Curve, lane C): the analogue of condition_alpha_left
-     of Condition/Curve.v for alpha(C, kappa), which gives some Cm with
-     1 < Cm < C and alpha < alpha(Cm, kappa); and
+   - I3, in the forms of condition_kappa_alpha_left and
+     condition_kappa_alpha_half of Curve.v (item S3): the analogue of
+     condition_alpha_left of Condition/Curve.v for alpha(C, kappa), which
+     gives some Cm with 1 < Cm < C and alpha < alpha(Cm, kappa); and
      alpha(Cm, kappa) < alpha*(kappa) < 1/2, which gives the alpha < 1/2 of
      the mixture interpolation (in place of condition_alpha_le).
-   - I4 (the witness), from item G1 (GaussianWitness), at Cm: the
-     hypothesis of condition_sat_witness of Condition/Sat.v with
-     gaussian_feature_law kappa d; see the header of GaussianWitness.
-     Until G1 lands, the first conditional lemma takes it as a hypothesis.
+   - I4 (the witness) at Cm: the hypothesis of condition_sat_witness of
+     Condition/Sat.v with gaussian_feature_law kappa d; see the header of
+     GaussianWitness. condition_kappa_sat_witness takes it as a
+     hypothesis, and condition_kappa_sat supplies it by
+     gaussian_kappa_witness of GaussianWitness.v (item G1).
    Constants by their role: the constant Kf = 2^10 K^2 / sqrt (3 - 1) of
    Condition/Sat.v is that of mix_feature_regular at the data fourth
    moment and becomes 2^10 K^2 / sqrt (kappa - 1); the 3^(1/4) of the
@@ -41,8 +43,12 @@
    3. condition_kappa_sat: the result above, from interface I3 (the
       analogue of condition_alpha_left and alpha(C', kappa) < 1/2 for every
       C' > 1) and interface I1 for every C' > 1, through
-      gaussian_kappa_witness (GaussianWitness, item G1) at Cm. The three
-      interfaces are explicit hypotheses until items S3 and M5 land. *)
+      gaussian_kappa_witness (GaussianWitness, item G1) at Cm. These
+      three hypotheses stay explicit here and are discharged where (20) is
+      assembled: I1 by kcond_support_cvg of GaussianLimit.v in
+      condition_kappa_statement_of_I3 of Theorem.v, and the two forms of I3
+      by condition_kappa_alpha_left and condition_kappa_alpha_half of
+      Curve.v in ConditionKappaTheorem.v. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.

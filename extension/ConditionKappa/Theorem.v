@@ -4,7 +4,7 @@
    lane C). The model is
    Condition/Theorem.v, which treats kappa = 3.
 
-   Results to prove here.
+   Results.
    - (20) at kappa: for K > 0, kappa > 1, C > 1 and alpha > 0, the
      conditioned fit event is measurable, and its probability tends to 1
      if alpha < alpha(C, kappa) (item D1, Sat) and to 0 if
@@ -16,14 +16,22 @@
      by measurable_data_condition_number of Condition/Theorem.v) within eps
      of C_star outside a measurable set of small probability.
 
-   Interface used: I3, from item S3 (Curve, lane C): the analogue of
-   condition_starP of Condition/Curve.v for C_star(alpha, kappa) on
-   0 < alpha < alpha*(kappa): 1 < C_star, alpha(C_star, kappa) = alpha,
-   alpha(C, kappa) < alpha for 1 < C < C_star, and
-   alpha < alpha(C, kappa) for C_star < C.
+   The inverse of the curve: conjunct (e) of the curve statement,
+   condition_kappa_inverse kappa, for 0 < alpha < alpha*(kappa):
+   1 < C_star, alpha(C_star, kappa) = alpha, and, for C > 1,
+   alpha < alpha(C, kappa) iff C_star < C. It plays the role of
+   condition_starP of Condition/Curve.v; the remaining part of
+   condition_starP, alpha(C, kappa) < alpha for 1 < C < C_star, is
+   condition_kappa_below, from the definition of C_star as a greatest
+   lower bound.
 
-   Proved, as implications until items S3 (Curve) and M5 (GaussianLimit)
-   are on main.
+   Proved, as implications. Their hypotheses are discharged as follows:
+   interface I1 by kcond_support_cvg of GaussianLimit.v (item M5), in
+   condition_kappa_statement_of_I3 below; the three forms of interface I3
+   and the inverse by condition_kappa_alpha_left,
+   condition_kappa_alpha_half, condition_kappa_alpha_right and
+   condition_kappa_inverse_holds of Curve.v (item S3), in
+   ConditionKappaTheorem.v.
    - condition_kappa_statement_holds: condition_kappa_statement, from the
      three forms of interface I3 that items D1 and D2 take (the analogues
      of condition_alpha_left and condition_alpha_right, and
@@ -39,8 +47,9 @@
      kappa (the frozen conjunct (e) of the curve statement) for every
      kappa > 1. Above C_star, alpha < alpha(C, kappa) by (e). Below it,
      alpha(C, kappa) < alpha because C_star is the greatest lower bound of
-     the C > 1 with alpha <= alpha(C, kappa). The rest is the proof of
-     condition_number_of_threshold of Condition/Theorem.v. *)
+     the C > 1 with alpha <= alpha(C, kappa) (condition_kappa_below). The
+     rest is the proof of condition_number_of_threshold of
+     Condition/Theorem.v. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -98,7 +107,8 @@ exact: (condition_kappa_unsat K kappa C alpha K0 k1 C1 a0 aC
   (hright kappa k1) (hI1 kappa k1) N w mu hfam h4 n hn).
 Qed.
 
-(* Interface I1 is item M5, kcond_support_cvg. *)
+(* (20) at kappa under interface I3 alone: interface I1 is
+   kcond_support_cvg of GaussianLimit.v (item M5). *)
 Theorem condition_kappa_statement_of_I3 :
   (forall kappa : R, 1 < kappa ->
      forall C' alpha' : R, 1 < C' -> alpha' < condition_kappa_alpha C' kappa ->
