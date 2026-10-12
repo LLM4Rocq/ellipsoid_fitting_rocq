@@ -24,11 +24,16 @@
      condition number is within eps of C_star(alpha, kappa); on E the two
      laws of samples differ by at most n d tv(P d, nu_d) <= delta / 2
      (robust_transfer_tv, robust_tv_small).
-   - finite_point_lawE, finite_robust_close: a finite family (N, w, mu) is
-     the countable family (fin_cw N w, fin_cmu N mu) of Countable/Theorem,
-     whose point law is robust_point_law (finite_weights (N d) (w d))
-     (mu d) d, the reference law of the finite statements; so the
-     closeness of P to the finite family is that to the countable one.
+   - finite_point_lawE, finite_robust_close: a finite family (N, w, mu)
+     lifts to the admissible countable family (fin_cw N w, fin_cmu N mu) of
+     Countable/Theorem, as countable_of_finite does. The weights are
+     extended by zero (fin_cw), and the inactive component laws, s >= N d,
+     are filled with the admissible laws mu d 0 j (fin_cmu), so that the
+     lift is admissible (fin_cfamily); zero weights alone would keep the
+     point law but not make the family admissible. The point law of the
+     lift is robust_point_law (finite_weights (N d) (w d)) (mu d) d, the
+     reference law of the finite statements, so the closeness of P to the
+     finite family is that to the lift.
    - finite_robust_condition_kappa_holds : robust_condition_kappa_statement
      -> finite_robust_condition_kappa_statement and
      finite_robust_condition_kappa_number_holds :
@@ -178,7 +183,8 @@ rewrite ler_norml => /andP[_ h] PE.
 exact: (robust_number_arith _ _ _ _ h PE hr).
 Qed.
 
-(* 3. The finite reference families, as countable families. *)
+(* 3. The finite reference families, lifted to admissible countable
+   families. *)
 
 Lemma finite_point_lawE (N : nat -> nat) (w : nat -> nat -> R)
     (mu : nat -> nat -> nat -> probability (measurableTypeR R) R) d
