@@ -790,3 +790,4 @@ extension/ConditionKappa/Unsat.v
 extension/ConditionKappa/Countable.v
 extension/ConditionKappa/Robust.v
 extension/ConditionKappa/Theorem.v
+extension/ConditionKappaCurveTheorem.v
