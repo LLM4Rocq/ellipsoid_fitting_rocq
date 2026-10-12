@@ -697,6 +697,9 @@ extension/ConditionEndpoints.v
 extension/ConditionRobustStatement.v
 extension/LatentTensorUpper.v
 extension/ConditionKappaDefinitions.v
+extension/ConditionKappaCurveStatement.v
+extension/ConditionKappaStatement.v
+extension/ConditionKappaRobustStatement.v
 extension/Model/Rows.v
 extension/Model/Measurability.v
 extension/Features/Definitions.v
