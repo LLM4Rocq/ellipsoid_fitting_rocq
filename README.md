@@ -365,9 +365,12 @@ generated`), whose code cannot change. The other modules print none.
   `check/RobustAssumptions.v`, `check/LatentTensorAssumptions.v`,
   `check/ContinuousLatentAssumptions.v` and
   `check/ConditionEndpointsAssumptions.v` for the four theorems of phase 9,
-  and `check/ConditionRobustAssumptions.v` and
+  `check/ConditionRobustAssumptions.v` and
   `check/LatentTensorUpperAssumptions.v` for the two theorems of phase 10,
-  with the expected lists of the same names.
+  and `check/ConditionKappaCurveAssumptions.v`,
+  `check/ConditionKappaAssumptions.v` and
+  `check/ConditionKappaRobustAssumptions.v` for the three theorems of
+  phase 11, with the expected lists of the same names.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality

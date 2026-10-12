@@ -123,6 +123,20 @@
    CHECKS_P10_BASELINE, a separate baseline; CHECKS_BASELINE,
    CHECKS_P8_BASELINE, CHECKS_P9_BASELINE and check/frozen-baseline do not
    change.
+19. Phase 11. check/ConditionKappaCurveAssumptions.v,
+   check/ConditionKappaAssumptions.v and
+   check/ConditionKappaRobustAssumptions.v have the codes
+   CONDITION_KAPPA_CURVE_CHECK, CONDITION_KAPPA_CHECK and
+   CONDITION_KAPPA_ROBUST_CHECK: they check that
+   condition_kappa_curve_theorem proves condition_kappa_curve_statement,
+   condition_kappa_theorem proves condition_kappa_theorem_statement and
+   condition_kappa_robust_theorem proves
+   condition_kappa_robust_theorem_statement, and print their axioms. Given
+   their outputs as fifteenth to seventeenth arguments, every axiom they
+   print is among those of check/condition_kappa_curve_assumptions.expected,
+   check/condition_kappa_assumptions.expected and
+   check/condition_kappa_robust_assumptions.expected, whose axioms are
+   among those of check/assumptions.expected.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -296,6 +310,21 @@ LATENT_TENSOR_UPPER_CHECK = (
     "LatentTensorUpperTheorem. Definition latent_tensor_upper_theorem_checked "
     ": latent_tensor_upper_statement := latent_tensor_upper_theorem. "
     "Print Assumptions latent_tensor_upper_theorem.")
+CONDITION_KAPPA_CURVE_CHECK = (
+    "From EllipsoidUniversality Require Import ConditionKappaCurveStatement "
+    "ConditionKappaCurveTheorem. Definition condition_kappa_curve_theorem_checked "
+    ": condition_kappa_curve_statement := condition_kappa_curve_theorem. "
+    "Print Assumptions condition_kappa_curve_theorem.")
+CONDITION_KAPPA_CHECK = (
+    "From EllipsoidUniversality Require Import ConditionKappaStatement "
+    "ConditionKappaTheorem. Definition condition_kappa_theorem_checked "
+    ": condition_kappa_theorem_statement := condition_kappa_theorem. "
+    "Print Assumptions condition_kappa_theorem.")
+CONDITION_KAPPA_ROBUST_CHECK = (
+    "From EllipsoidUniversality Require Import ConditionKappaRobustStatement "
+    "ConditionKappaRobustTheorem. Definition condition_kappa_robust_theorem_checked "
+    ": condition_kappa_robust_theorem_statement := condition_kappa_robust_theorem. "
+    "Print Assumptions condition_kappa_robust_theorem.")
 # The theorems of phases 6 and 7: name, check file, its code, expected
 # axioms; their reports are the third, fourth and fifth arguments.
 PHASE6_THEOREMS = [
@@ -337,6 +366,18 @@ PHASE10_THEOREMS = [
     ("tensorization upper bound", "check/LatentTensorUpperAssumptions.v",
      LATENT_TENSOR_UPPER_CHECK,
      "check/latent_tensor_upper_assumptions.expected"),
+]
+# The theorems of phase 11; their reports are the fifteenth to seventeenth
+# arguments.
+PHASE11_THEOREMS = [
+    ("condition-number curve at kappa",
+     "check/ConditionKappaCurveAssumptions.v", CONDITION_KAPPA_CURVE_CHECK,
+     "check/condition_kappa_curve_assumptions.expected"),
+    ("condition-number theorem at kappa", "check/ConditionKappaAssumptions.v",
+     CONDITION_KAPPA_CHECK, "check/condition_kappa_assumptions.expected"),
+    ("robust condition-number theorem at kappa",
+     "check/ConditionKappaRobustAssumptions.v", CONDITION_KAPPA_ROBUST_CHECK,
+     "check/condition_kappa_robust_assumptions.expected"),
 ]
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 ASSUMPTION = re.compile(
@@ -498,7 +539,7 @@ def main():
                   ", ".join(sorted(printed)) or "none")
     for k, (name, check, check_code, expected) in enumerate(
             PHASE6_THEOREMS + PHASE8_THEOREMS + PHASE9_THEOREMS
-            + PHASE10_THEOREMS):
+            + PHASE10_THEOREMS + PHASE11_THEOREMS):
         if code((ROOT / check).read_text()) != check_code:
             failures.append(f"{check}: code differs from the expected check")
         allowed_k = axiom_names((ROOT / expected).read_text())
@@ -553,7 +594,10 @@ def main():
           + ("; axioms of the continuous-latent theorem allowed" if len(sys.argv) > 11 else "")
           + ("; axioms of the condition-endpoints theorem allowed" if len(sys.argv) > 12 else "")
           + ("; axioms of the robust condition-number theorem allowed" if len(sys.argv) > 13 else "")
-          + ("; axioms of the tensorization upper bound allowed" if len(sys.argv) > 14 else ""))
+          + ("; axioms of the tensorization upper bound allowed" if len(sys.argv) > 14 else "")
+          + ("; axioms of the condition-number curve at kappa allowed" if len(sys.argv) > 15 else "")
+          + ("; axioms of the condition-number theorem at kappa allowed" if len(sys.argv) > 16 else "")
+          + ("; axioms of the robust condition-number theorem at kappa allowed" if len(sys.argv) > 17 else ""))
 
 
 if __name__ == "__main__":
