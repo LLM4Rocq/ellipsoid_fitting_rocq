@@ -31,6 +31,9 @@
      The measurability is measurable_conditioned_fit_event of
      Model/Measurability; the two limits are condition_kappa_sat (Sat)
      and condition_kappa_unsat (Unsat).
+   - condition_kappa_statement_of_I3: the same with interface I1
+     discharged by kcond_support_cvg of GaussianLimit (item M5), so that
+     only the three forms of I3 remain as hypotheses.
    - condition_kappa_number_of_threshold: condition_kappa_statement ->
      condition_kappa_number_statement, given condition_kappa_inverse
      kappa (the frozen conjunct (e) of the curve statement) for every
@@ -60,7 +63,8 @@ From EllipsoidUniversality.Features Require Import Mixture.
 From EllipsoidUniversality.Model Require Import Measurability.
 From EllipsoidUniversality.Gaussian Require Import InProbability.
 Require Import EllipsoidUniversality.Condition.Theorem.
-From EllipsoidUniversality.ConditionKappa Require Import Cone Sat Unsat.
+From EllipsoidUniversality.ConditionKappa Require Import Cone GaussianLimit.
+From EllipsoidUniversality.ConditionKappa Require Import Sat Unsat.
 
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
 
@@ -92,6 +96,23 @@ move=> N w mu hfam h4 n hn; split => aC.
     (hhalf kappa k1) (hI1 kappa k1) N w mu hfam h4 n hn).
 exact: (condition_kappa_unsat K kappa C alpha K0 k1 C1 a0 aC
   (hright kappa k1) (hI1 kappa k1) N w mu hfam h4 n hn).
+Qed.
+
+(* Interface I1 is item M5, kcond_support_cvg. *)
+Theorem condition_kappa_statement_of_I3 :
+  (forall kappa : R, 1 < kappa ->
+     forall C' alpha' : R, 1 < C' -> alpha' < condition_kappa_alpha C' kappa ->
+     exists2 Cm : R, 1 < Cm < C' & alpha' < condition_kappa_alpha Cm kappa) ->
+  (forall kappa : R, 1 < kappa ->
+     forall C' : R, 1 < C' -> condition_kappa_alpha C' kappa < 2^-1) ->
+  (forall kappa : R, 1 < kappa ->
+     forall C' alpha' : R, 1 < C' -> condition_kappa_alpha C' kappa < alpha' ->
+     exists2 Cp : R, C' < Cp & condition_kappa_alpha Cp kappa < alpha') ->
+  condition_kappa_statement.
+Proof.
+move=> hleft hhalf hright.
+apply: (condition_kappa_statement_holds hleft hhalf hright).
+by move=> kappa k1 C' C1'; exact: kcond_support_cvg.
 Qed.
 
 (* 2. (21) at kappa, from (20) and the inverse of the curve. *)
