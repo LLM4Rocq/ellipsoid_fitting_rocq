@@ -5,9 +5,11 @@
    the curve is
    (notes/general-fourth-moment-condition-plan.md, section 2; the plan
    notes/phase11-plan.md, section 4). Every definition is concrete and is
-   meant to be read by the reviewer; the comments of the three statement
-   files of phase 11 read the statements. This module reuses universality_m,
-   universality_s and the semicircle integral of UniversalityDefinitions.
+   meant to be read by the reviewer; the comments of
+   ConditionKappaCurveStatement, ConditionKappaStatement and
+   ConditionKappaRobustStatement read the statements. This module reuses
+   universality_m, universality_s and the semicircle integral of
+   UniversalityDefinitions.
    The statements also reuse universality_conditioned_fit_event,
    universality_alpha_star, data_condition_number (ConditionDefinitions),
    robust_point_law and finite_weights (RobustDefinitions).
