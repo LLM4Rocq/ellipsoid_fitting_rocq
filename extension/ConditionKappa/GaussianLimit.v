@@ -467,3 +467,383 @@ exact: kappa_sup_gap_bounds.
 Qed.
 
 End kappa_comparison.
+
+(* 3. M4: the duality in mu, deterministic. A_mu = H - c mu I, and
+   P(A) = |A|_F^2 - cond_dist C A is the maximum of 2 <A, S> - |S|_F^2
+   over S in K_C (cond_value_ge, cond_value_le). *)
+
+Section duality.
+Variables (C : R) (d : nat).
+Hypotheses (C1 : 1 <= C) (d0 : (0 < d)%N).
+Implicit Types (A H S Y : 'M[R]_d).
+
+Lemma cond_value_ge A S : A \is symmetricmx -> cond_cone C S ->
+  2 * mxdot A S - mxdot S S <= mxdot A A - cond_dist C A.
+Proof.
+move=> As KS; have [t t0 ht] := cond_energy_le As KS.
+have := @cond_dist_le _ d C t A t0.
+have -> : 2 * mxdot A S - mxdot S S = mxdot A A - mxdot (A - S) (A - S).
+  by rewrite mxdotBl !mxdotBr (mxdotC S A); ring.
+by lra.
+Qed.
+
+Lemma cond_value_le A Y : A \is symmetricmx -> cond_cone C Y ->
+  (forall S, cond_cone C S -> mxdot (A - Y) (S - Y) <= 0) ->
+  mxdot A A - cond_dist C A <= 2 * mxdot A Y - mxdot Y Y.
+Proof.
+move=> As KY hY.
+suff : mxdot A A - (2 * mxdot A Y - mxdot Y Y) <= cond_dist C A by lra.
+apply: cond_dist_ge => t t0.
+have Kt := @cond_clip_cone _ d C t A C1 t0.
+have hS := hY _ Kt.
+rewrite -(@cond_clip_energy _ d C t A C1 t0 As).
+move: (cond_clip C t A) hS => S hS.
+have := mxdot_ge0 (S - Y).
+rewrite !mxdotBl !mxdotBr in hS *.
+rewrite ?(mxdotC S A) ?(mxdotC Y A) ?(mxdotC Y S) in hS *.
+by lra.
+Qed.
+
+Lemma scalar_mx_dot (k : R) A : mxdot (k%:M : 'M[R]_d) A = k * \tr A.
+Proof. by rewrite -scalemx1 mxdotZl mxdot1l. Qed.
+
+(* Phi-bar_H(S) = 2 <H - c mu I, S> - |S|_F^2 + c d mu^2
+   - c d (tr S / d - mu)^2. *)
+Lemma trace_quad_split (c mu : R) H S :
+  trace_quad c H S =
+  2 * mxdot (H - (c * mu)%:M) S - mxdot S S + c * d%:R * mu ^+ 2 -
+  c * d%:R * (\tr S / d%:R - mu) ^+ 2.
+Proof.
+have dn : d%:R != 0 :> RR by rewrite pnatr_eq0 -lt0n.
+rewrite /trace_quad mxdotBl scalar_mx_dot.
+by field.
+Qed.
+
+Lemma shift_sym H (m : R) : H \is symmetricmx -> H - m%:M \is symmetricmx.
+Proof.
+move=> Hs; apply/symmetricmxP; rewrite linearB /= tr_scalar_mx.
+by move/symmetricmxP: Hs => ->.
+Qed.
+
+Section kappa_duality.
+Variable kappa : R.
+Hypothesis k1 : 1 < kappa.
+Hypothesis C0 : 0 <= C.
+
+Local Notation c := (cone_shift kappa).
+Local Notation argmax H := (kappa_argmax kappa C H).
+Local Notation Pv A := (mxdot A A - cond_dist C A).
+
+(* For c <= 0, P(A_mu) + c d mu^2 <= max_K Phi-bar_H for every mu. *)
+Lemma kappa_dual_le (mu : R) H : H \is symmetricmx -> c <= 0 ->
+  Pv (H - (c * mu)%:M) + c * d%:R * mu ^+ 2 <= trace_quad c H (argmax H).
+Proof.
+move=> Hs c0.
+have As := shift_sym (c * mu)%R Hs.
+suff : Pv (H - (c * mu)%:M) <= trace_quad c H (argmax H) - c * d%:R * mu ^+ 2.
+  by lra.
+suff : mxdot (H - (c * mu)%:M) (H - (c * mu)%:M) -
+    (trace_quad c H (argmax H) - c * d%:R * mu ^+ 2) <=
+    cond_dist C (H - (c * mu)%:M) by lra.
+apply: cond_dist_ge => t t0.
+have Kt := @cond_clip_cone _ d C t (H - (c * mu)%:M) C1 t0.
+rewrite -(@cond_clip_energy _ d C t (H - (c * mu)%:M) C1 t0 As).
+have hge := kappa_argmax_ge k1 C0 H Kt.
+have pen := mulr_ge0 (ltW (a0_gt0 k1))
+  (mxdot_ge0 (cond_clip C t (H - (c * mu)%:M) - argmax H)).
+rewrite (trace_quad_split c mu H) in hge.
+have hsq := mulr_le0_ge0 (mulr_le0_ge0 c0 (ler0n _ d))
+  (sqr_ge0 (\tr (cond_clip C t (H - (c * mu)%:M)) / d%:R - mu)).
+move: (cond_clip C t (H - (c * mu)%:M)) hge pen hsq => S hge pen hsq.
+move: (H - (c * mu)%:M) hge => A hge.
+rewrite mxdotBl !mxdotBr (mxdotC S A).
+by lra.
+Qed.
+
+(* For c >= 0, max_K Phi-bar_H <= P(A_mu) + c d mu^2 for every mu. *)
+Lemma kappa_dual_ge (mu : R) H : H \is symmetricmx -> 0 <= c ->
+  trace_quad c H (argmax H) <= Pv (H - (c * mu)%:M) + c * d%:R * mu ^+ 2.
+Proof.
+move=> Hs c0.
+have As := shift_sym (c * mu)%R Hs.
+have [KX _] := kappa_argmaxP k1 C0 H.
+have hv := cond_value_ge As KX.
+have hsq := mulr_ge0 (mulr_ge0 c0 (ler0n _ d))
+  (sqr_ge0 (\tr (argmax H) / d%:R - mu)).
+rewrite (trace_quad_split c mu H).
+by lra.
+Qed.
+
+(* At mu = tr X / d, max_K Phi-bar_H = P(H - c mu I) + c d mu^2. *)
+Lemma kappa_dual_eq H : H \is symmetricmx ->
+  trace_quad c H (argmax H) =
+  Pv (H - (c * (\tr (argmax H) / d%:R))%:M) +
+  c * d%:R * (\tr (argmax H) / d%:R) ^+ 2.
+Proof.
+move=> Hs.
+have As := shift_sym (c * (\tr (argmax H) / d%:R))%R Hs.
+have [KX hX] := kappa_argmaxP k1 C0 H.
+have h1 := cond_value_ge As KX.
+have h2 : Pv (H - (c * (\tr (argmax H) / d%:R))%:M) <=
+    2 * mxdot (H - (c * (\tr (argmax H) / d%:R))%:M) (argmax H) -
+    mxdot (argmax H) (argmax H).
+  apply: cond_value_le => // S KS.
+  have -> : H - (c * (\tr (argmax H) / d%:R))%:M - argmax H =
+      H - argmax H - (c * (\tr (argmax H) / d%:R)) *: 1%:M.
+    by rewrite -scalemx1 addrAC.
+  exact: hX.
+rewrite (trace_quad_split c (\tr (argmax H) / d%:R)%R H).
+rewrite subrr expr0n /= mulr0 subr0.
+by apply/eqP; rewrite eq_le; apply/andP; split; lra.
+Qed.
+
+End kappa_duality.
+End duality.
+
+(* 4. M4: the shifted clipping energy. *)
+
+(* shift_fun C m t x = dist(x / sqrt 2 - m, [t, C t])^2 when C >= 1 and
+   t >= 0 (shift_funE): at an eigenvalue x of W, the summand of
+   cond_energy C t (H - m I). *)
+Definition shift_fun (C m t x : R) : R :=
+  (Num.max (Num.max (t - (x / Num.sqrt 2 - m)) ((x / Num.sqrt 2 - m) - C * t))
+     0 ^+ 2)%R.
+
+Lemma shift_funE (C m t x : R) : 1 <= C -> 0 <= t ->
+  shift_fun C m t x = itv_dist t (C * t) (x / Num.sqrt 2 - m) ^+ 2.
+Proof.
+by move=> C1 t0; rewrite /shift_fun (itv_dist_maxE C t _ C1 t0).
+Qed.
+
+Lemma shift_fun_continuous (C m t : R) : continuous (shift_fun C m t).
+Proof.
+move=> x; rewrite /shift_fun.
+apply: (@continuous_comp _ _ _ (fun y : R => Num.max (Num.max
+  (t - (y / Num.sqrt 2 - m)) ((y / Num.sqrt 2 - m) - C * t)) 0)
+  (fun y => y ^+ 2)); last exact: exprn_continuous.
+apply: continuous_max; last exact: cvg_cst.
+apply: continuous_max.
+  by apply: cvgB; [exact: cvg_cst|apply: cvgB;
+    [apply: cvgM; [exact: cvg_id|exact: cvg_cst]|exact: cvg_cst]].
+by apply: cvgB; [apply: cvgB;
+  [apply: cvgM; [exact: cvg_id|exact: cvg_cst]|exact: cvg_cst]|exact: cvg_cst].
+Qed.
+
+(* The Lipschitz bound in t, x and m together. *)
+Lemma shift_fun_lipschitz (C Bt Bm m m' t s x y : R) : 1 <= C ->
+  0 <= t <= Bt -> 0 <= s <= Bt -> -3 <= x <= 3 -> -3 <= y <= 3 ->
+  `|m| <= Bm -> `|m'| <= Bm ->
+  `|shift_fun C m t x - shift_fun C m' s y| <=
+  2 * ((1 + C) * Bt + 2 * (3 + Bm)) * (1 + C) *
+  (`|t - s| + `|x - y| + `|m - m'|).
+Proof.
+move=> C1 /andP[t0 tB] /andP[s0 sB] /andP[x1 x2] /andP[y1 y2] hm hm'.
+rewrite !shift_funE //.
+have s1 : 1 <= Num.sqrt 2 :> RR := sqrt2_ge1.
+have i0 : 0 < (Num.sqrt 2 : RR)^-1 by rewrite invr_gt0 (lt_le_trans ltr01).
+have i1 : (Num.sqrt 2 : RR)^-1 <= 1 by rewrite invf_le1 ?(lt_le_trans ltr01).
+have hsc (z : R) : -3 <= z <= 3 -> `|z / Num.sqrt 2| <= 3.
+  move=> /andP[z1 z2]; rewrite normrM [`|_^-1|]ger0_norm ?(ltW i0) //.
+  have : `|z| <= 3 by rewrite ler_norml z1 z2.
+  by move=> h; apply: le_trans (ler_pM (normr_ge0 _) (ltW i0) h i1) _;
+    rewrite mulr1.
+have hp : `|x / Num.sqrt 2 - m| <= 3 + Bm.
+  apply: le_trans (ler_normB _ _) _.
+  by apply: lerD => //; apply: hsc; rewrite x1 x2.
+have hq : `|y / Num.sqrt 2 - m'| <= 3 + Bm.
+  apply: le_trans (ler_normB _ _) _.
+  by apply: lerD => //; apply: hsc; rewrite y1 y2.
+have hpq : `|(x / Num.sqrt 2 - m) - (y / Num.sqrt 2 - m')| <=
+    `|x - y| + `|m - m'|.
+  have -> : (x / Num.sqrt 2 - m) - (y / Num.sqrt 2 - m') =
+      (x - y) / Num.sqrt 2 - (m - m') by ring.
+  apply: le_trans (ler_normB _ _) _; apply: lerD => //.
+  rewrite normrM [`|_^-1|]ger0_norm ?(ltW i0) //.
+  by apply: le_trans (ler_pM (normr_ge0 _) (ltW i0) (lexx _) i1) _;
+    rewrite mulr1.
+move: (x / Num.sqrt 2 - m) (y / Num.sqrt 2 - m') hp hq hpq => p q hp hq hpq.
+have tC : t <= C * t by rewrite ler_peMl.
+have sC : s <= C * s by rewrite ler_peMl.
+have hu : `|itv_dist t (C * t) p - itv_dist s (C * s) q| <=
+    (1 + C) * `|t - s| + `|x - y| + `|m - m'|.
+  apply: le_trans (ler_distD (itv_dist s (C * s) p) _ _) _.
+  have h1 := itv_dist_shift t (C * t) s (C * s) p.
+  have h2 := itv_dist_lipschitz p q sC.
+  rewrite -mulrBr normrM [`|C|]ger0_norm ?(le_trans ler01) // in h1.
+  by lra.
+have ub (a b z : R) : itv_dist a b z <= `|a| + `|b| + 2 * `|z|.
+  exact: itv_dist_le.
+have u0 := itv_dist_ge0 t (C * t) p; have v0 := itv_dist_ge0 s (C * s) q.
+have u1 := ub t (C * t) p; have v1 := ub s (C * s) q.
+rewrite (ger0_norm t0) (ger0_norm (mulr_ge0 (le_trans ler01 C1) t0)) in u1.
+rewrite (ger0_norm s0) (ger0_norm (mulr_ge0 (le_trans ler01 C1) s0)) in v1.
+move: (itv_dist t (C * t) p) (itv_dist s (C * s) q) u0 v0 u1 v1 hu.
+move=> u v u0 v0 u1 v1 hu.
+rewrite subr_sqr normrM.
+have hU : `|u + v| <= 2 * ((1 + C) * Bt + 2 * (3 + Bm)).
+  rewrite ger0_norm ?addr_ge0 //.
+  have h1 : C * t <= C * Bt by rewrite ler_wpM2l // (le_trans ler01).
+  have h2 : C * s <= C * Bt by rewrite ler_wpM2l // (le_trans ler01).
+  by lra.
+have hd0 := normr_ge0 (u - v).
+have L0 : 0 <= 2 * ((1 + C) * Bt + 2 * (3 + Bm)).
+  by apply: le_trans hU; exact: normr_ge0.
+have hfac : `|u - v| <= (1 + C) * (`|t - s| + `|x - y| + `|m - m'|).
+  have := normr_ge0 (x - y); have := normr_ge0 (m - m'); move: hu; nra.
+apply: le_trans (ler_pM (normr_ge0 _) (normr_ge0 _) hfac hU) _.
+by rewrite [X in X <= _]mulrC mulrA.
+Qed.
+
+(* int ((a - y)_+^2 + (y - b)_+^2) dnu(y) = s(-a) + s(b), for the
+   symmetric law nu of radius sqrt 2 (as clip_energyE of
+   library/probability/variational.v, for any two endpoints). *)
+Lemma threshold_clip_integral (a b : R) :
+  \int[threshold_law]_y (Num.max (a - y) 0 ^+ 2 + Num.max (y - b) 0 ^+ 2) =
+  universality_s (- a)%R + universality_s b.
+Proof.
+have i0 := integrable_upper_pow threshold_law2 (- a) (isT : (2 <= 2)%N).
+have i1 : threshold_law.-integrable [set: measurableTypeR R]
+    (EFin \o (fun y => Num.max (a - (y : R)) 0 ^+ 2)).
+  have := integrable_sym threshold_law_sym i0.
+  by apply: eq_integrable => // y _ /=; rewrite opprK addrC.
+have i2 := integrable_upper_pow threshold_law2 b (isT : (2 <= 2)%N).
+rewrite RintegralD // !universality_sE; congr (_ + _).
+have -> : \int[threshold_law]_y Num.max (a - (y : R)) 0 ^+ 2 =
+    \int[threshold_law]_y (Num.max ((- (y : R)) - (- a)) 0 ^+ 2).
+  by apply: eq_Rintegral => y _; rewrite opprK addrC.
+exact: (Rintegral_sym threshold_law_sym i0).
+Qed.
+
+(* The integral of shift_fun against the semicircle law of radius 2. *)
+Lemma shift_fun_integral (C m t : R) : 1 <= C -> 0 <= t ->
+  \int[semicircle_prob 2]_x shift_fun C m t x =
+  universality_s (- t - m)%R + universality_s (C * t + m)%R.
+Proof.
+move=> C1 t0.
+rewrite -opprD -threshold_clip_integral /Rintegral.
+have s2 : 0 < (Num.sqrt (2%:R : R))^-1 by rewrite invr_gt0 sqrtr_gt0 ltr0n.
+pose g (y : R) := Num.max (t + m - y) 0 ^+ 2 + Num.max (y - (C * t + m)) 0 ^+ 2.
+have g0 y : 0 <= g y by rewrite addr_ge0 // exprn_even_ge0.
+have := @ge0_integral_semicircle_scale RR 2 (Num.sqrt 2%:R)^-1
+  (fun y => (g y)%:E) (ltr0n RR 2) s2.
+have q2 : (Num.sqrt (2%:R : R))^-1 * 2 = Num.sqrt 2%:R.
+  have e : Num.sqrt (2%:R : R) ^+ 2 = 2 by rewrite sqr_sqrtr ?ler0n.
+  by rewrite -{2}e expr2 mulrA mulVf ?mul1r // gt_eqF ?sqrtr_gt0 ?ltr0n.
+rewrite q2 => h; rewrite -h.
+- by move=> y; rewrite lee_fin.
+- apply/measurable_EFinP; apply: measurable_funD; apply: measurable_funX.
+    apply: measurable_maxr; last exact: measurable_cst.
+    by apply: measurable_funB; [exact: measurable_cst|exact: measurable_id].
+  apply: measurable_maxr; last exact: measurable_cst.
+  by apply: measurable_funB; [exact: measurable_id|exact: measurable_cst].
+- congr fine; apply: eq_integral => x _; congr EFin.
+  rewrite (shift_funE m x C1 t0) (itv_dist_sqrE C t _ C1 t0) /g.
+  by congr (_ + _); congr (Num.max _ 0 ^+ 2); ring.
+Qed.
+
+(* The spectrum of H - m I with H = W / sqrt 2. *)
+Lemma spec_shift n (A : 'M[R]_n) (w : R) : A \is symmetricmx ->
+  spec (A - w%:M) = spec A - const_mx w.
+Proof.
+move=> As; have [P Po E] := spec_shift_decomposition w As.
+rewrite E spec_conj_diag // => i j ij.
+rewrite !mxE lerD2r.
+by have := spec_decr A ij; rewrite !mxE.
+Qed.
+
+Lemma cond_energy_shift_goe d (a : 'rV[RR]_(d * d)) (C m t : R) :
+  (0 < d)%N -> 1 <= C -> 0 <= t ->
+  cond_energy C t (goe_half a - m%:M) = d%:R * goe_stat (shift_fun C m t) a.
+Proof.
+move=> d0 C1 t0.
+have i0 : 0 <= (Num.sqrt (2%:R : RR))^-1 by rewrite invr_ge0 sqrtr_ge0.
+rewrite /cond_energy spec_shift ?goe_half_symmetric //.
+rewrite /goe_half (spec_scale (goe_mx_symmetric a) i0) /goe_stat.
+have dn : d%:R != 0 :> RR by rewrite gt_eqF ?ltr0n.
+rewrite [RHS]mulrC divfK //; apply: eq_bigr => i _.
+rewrite (shift_funE m _ C1 t0).
+by congr (itv_dist _ _ _ ^+ 2); rewrite !mxE mulrC.
+Qed.
+
+(* On opnorm W <= 3 and for 3 + |m| <= B, cond_dist C (H - m I) / d is
+   the infimum over t in [0, B] of the mean of shift_fun C m t over the
+   eigenvalues of W. *)
+Lemma cond_dist_shift_goe d (a : 'rV[RR]_(d * d)) (C m B : R) :
+  (0 < d)%N -> 1 <= C -> opnorm (goe_mx a) <= 3 -> 3 + `|m| <= B ->
+  cond_dist C (goe_half a - m%:M) / d%:R =
+  inf [set goe_stat (shift_fun C m t) a | t in [set t : R | 0 <= t <= B]].
+Proof.
+move=> d0 C1 ho hB.
+have dR : 0 < d%:R :> RR by rewrite ltr0n.
+have B0 : 0 <= B by apply: le_trans hB; rewrite addr_ge0 ?ler0n ?normr_ge0.
+have i0 : 0 <= (Num.sqrt (2%:R : RR))^-1 by rewrite invr_ge0 sqrtr_ge0.
+have hV i : spec (goe_half a - m%:M) 0 i <= B.
+  rewrite spec_shift ?goe_half_symmetric // /goe_half.
+  rewrite (spec_scale (goe_mx_symmetric a) i0) !mxE.
+  have s1 := sqrt2_ge1.
+  have i1 : (Num.sqrt (2%:R : RR))^-1 <= 1.
+    by rewrite invf_le1 ?(lt_le_trans ltr01).
+  have h := spec_le_opnorm i (goe_mx_symmetric a).
+  have h2 : `|(Num.sqrt 2%:R)^-1 * spec (goe_mx a) 0 i| <= 3.
+    rewrite normrM ger0_norm //.
+    apply: le_trans (ler_pM i0 (normr_ge0 _) i1 (le_trans h ho)) _.
+    by rewrite mul1r.
+  rewrite !mxE in h2.
+  move: h2; rewrite ler_norml => /andP[_ h2].
+  by have := ler_norm (- m); rewrite normrN; lra.
+rewrite (cond_dist_itv C1 B0 hV).
+have -> : [set cond_energy C t (goe_half a - m%:M) |
+    t in [set t : R | 0 <= t <= B]] =
+    [set d%:R * goe_stat (shift_fun C m t) a | t in [set t : R | 0 <= t <= B]].
+  by apply: eq_imagel => t /andP[t0 _]; rewrite cond_energy_shift_goe.
+rewrite inf_mulr //.
+- by exists 0; rewrite /= lexx B0.
+- move=> t /andP[t0 _]; rewrite /goe_stat divr_ge0 ?ler0n //.
+  by apply: sumr_ge0 => i _; rewrite /shift_fun exprn_even_ge0.
+- by rewrite mulrC mulKf // gt_eqF.
+Qed.
+
+(* The window of the limit: for sqrt 2 + |m| <= B, the infimum over
+   t >= 0 of s(-t - m) + s(C t + m) is attained in [0, B]. *)
+Lemma clip_shift_window (C m B : R) : 1 <= C -> Num.sqrt 2 + `|m| <= B ->
+  inf [set universality_s (- t - m)%R + universality_s (C * t + m)%R |
+       t in [set t : R | 0 <= t <= B]] =
+  inf [set universality_s (- t - m)%R + universality_s (C * t + m)%R |
+       t in [set t : R | 0 <= t]].
+Proof.
+move=> C1 hB.
+have s0 : 0 <= Num.sqrt 2 :> RR by exact: sqrtr_ge0.
+have B0 : 0 <= B by apply: le_trans hB; rewrite addr_ge0 ?normr_ge0.
+have g0 t : 0 <= universality_s (- t - m)%R + universality_s (C * t + m)%R.
+  by rewrite addr_ge0 // universality_sE upper_moment_ge0.
+have lb1 : has_lbound [set universality_s (- t - m)%R +
+    universality_s (C * t + m)%R | t in [set t : R | 0 <= t <= B]].
+  by exists 0 => _ [t _ <-].
+have lb2 : has_lbound [set universality_s (- t - m)%R +
+    universality_s (C * t + m)%R | t in [set t : R | 0 <= t]].
+  by exists 0 => _ [t _ <-].
+apply/eqP; rewrite eq_le; apply/andP; split.
+  apply: lb_le_inf; first by exists (universality_s (- 0 - m)%R +
+    universality_s (C * 0 + m)%R), 0 => //=; rewrite lexx.
+  move=> _ [t t0 <-].
+  have [tB|Bt] := leP t B.
+    by apply: ge_inf => //; exists t => //=; rewrite t0 tB.
+  apply: le_trans (_ : universality_s (- B - m)%R +
+    universality_s (C * B + m)%R <= _).
+    by apply: ge_inf => //; exists B => //=; rewrite B0 lexx.
+  have hCB : Num.sqrt 2%:R <= C * B + m.
+    have := ler_norm (- m); rewrite normrN.
+    have : B <= C * B by rewrite ler_peMl.
+    by lra.
+  rewrite (universality_s_out (C * B + m)%R hCB) addr0.
+  have hab : - t - m <= - B - m by lra.
+  have := upper_moment2_lipschitz threshold_law2 hab.
+  rewrite -!universality_sE => /andP[h1 _].
+  have := universality_sE (C * t + m)%R.
+  have := upper_moment_ge0 threshold_law 2 (C * t + m)%R.
+  by lra.
+apply: lb_le_inf; first by exists (universality_s (- 0 - m)%R +
+  universality_s (C * 0 + m)%R), 0 => //=; rewrite lexx B0.
+move=> _ [t /andP[t0 _] <-].
+by apply: ge_inf => //; exists t.
+Qed.
