@@ -34,7 +34,13 @@
    - condition_kappa_integral_holds: conjunct (c) of the curve statement,
      condition_kappa_integral kappa for kappa > 1:
        alpha(C, kappa) = (3 pi)^-1 int_[ell, u] (2 - z^2)^(3/2) dz,
-     with -sqrt 2 < ell < u (condition_kappa_ell_spec). *)
+     with -sqrt 2 < ell < u (condition_kappa_ell_spec).
+   - sc2_A_derive, condition_kappa_alpha_arcsine: the arcsine evaluation,
+     a supporting lemma. With
+       A(z) = arcsin (z / sqrt 2) / (2 pi)
+              + z (5 - z^2) sqrt (2 - z^2) / (12 pi),
+     A' = (2 - z^2)^(3/2) / (3 pi) on ]-sqrt 2, sqrt 2[ (is_derive1_asin),
+     so alpha(C, kappa) = A(u) - A(ell) for C > 1 and kappa > 1. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
@@ -196,7 +202,8 @@ Qed.
 
 (* J(w) = int x (x - w)_+ dnu, psi(w) = int x 1_{x >= w} dnu, and the
    target derivative phi(w) = (2 - w^2)_+^(3/2) / (3 pi). *)
-Definition sc2_J (w : R) : R := \int[mu]_x (x * Num.max (x - w) 0 * sc2_dens x).
+Definition sc2_J (w : R) : R :=
+  \int[mu]_x (x * Num.max (x - w) 0 * sc2_dens x).
 Definition sc2_psi (w : R) : R :=
   \int[mu]_x (x * (if w <= x then 1 else 0) * sc2_dens x).
 Definition sc2_phi (w : R) : R := Num.sqrt (2 - w ^+ 2) ^+ 3 / (3 * pi).
@@ -491,6 +498,90 @@ Qed.
 
 End semicircle_J.
 
+(* The arcsine primitive of phi. *)
+
+Section arcsine.
+Context {R : realType}.
+
+(* A(z) = arcsin (z / sqrt 2) / (2 pi)
+          + z (5 - z^2) sqrt (2 - z^2) / (12 pi). *)
+Definition sc2_A (z : R) : R :=
+  (2 * pi)^-1 * asin ((Num.sqrt 2)^-1 * z) +
+  (12 * pi)^-1 * ((5 * z - z ^+ 3) * Num.sqrt (2 - z ^+ 2)).
+
+Lemma sc2_A_derive (z : R) : - Num.sqrt 2 < z < Num.sqrt 2 ->
+  is_derive z 1 sc2_A (sc2_phi z).
+Proof.
+move=> /andP[z1 z2].
+have r0 : 0 < Num.sqrt 2 :> R by rewrite sqrtr_gt0 ltr0n.
+have rn : Num.sqrt 2 != 0 :> R by rewrite gt_eqF.
+have r2 : Num.sqrt 2 ^+ 2 = 2 :> R by rewrite sqr_sqrtr // ler0n.
+have pn : pi != 0 :> R by rewrite gt_eqF // pi_gt0.
+(* the positive quantities *)
+have zs : z ^+ 2 < 2.
+  rewrite -r2 -[z ^+ 2]real_normK ?num_real //.
+  by rewrite ltr_pXn2r // ?nnegrE // ?normr_ge0 ?ltW // ltr_norml z1 z2.
+have u0 : 0 < 2 - z ^+ 2 by rewrite subr_gt0.
+set s := Num.sqrt (2 - z ^+ 2).
+have s0 : 0 < s by rewrite sqrtr_gt0.
+have s2 : s ^+ 2 = 2 - z ^+ 2 by rewrite sqr_sqrtr // ltW.
+(* the arcsine part *)
+have y1 : -1 < (Num.sqrt 2)^-1 * z < 1.
+  by rewrite mulrC ltr_pdivlMr // ltr_pdivrMr // mulN1r mul1r z1 z2.
+have dlin : is_derive z 1 (fun y : R => (Num.sqrt 2)^-1 * y) (Num.sqrt 2)^-1.
+  have := is_deriveZ (Num.sqrt 2)^-1 (is_derive_id z (1 : R)).
+  by move=> h; apply: (is_derive_eq h); rewrite /GRing.scale /= mulr1.
+have dasin := @is_derive1_comp R asin (fun y : R => (Num.sqrt 2)^-1 * y) z _ _
+  (is_derive1_asin y1) dlin.
+set t := Num.sqrt (1 - ((Num.sqrt 2)^-1 * z) ^+ 2) in dasin.
+have tE : t = s / Num.sqrt 2.
+  have q1 : 1 - ((Num.sqrt 2)^-1 * z) ^+ 2 = (2 - z ^+ 2) / 2.
+    by rewrite exprMn exprVn r2; field.
+  have t0 : 0 <= t := sqrtr_ge0 _.
+  have st0 : 0 <= s / Num.sqrt 2 by rewrite divr_ge0 // ltW.
+  apply/eqP; rewrite -(eqrXn2 (isT : (0 < 2)%N) t0 st0).
+  by rewrite /t q1 sqr_sqrtr ?divr_ge0 ?ltW // expr_div_n s2 r2.
+(* the algebraic part *)
+have du : is_derive z 1 (fun y : R => 2 - y ^+ 2) (- (2 * z)).
+  have := is_deriveB (is_derive_cst (2 : R) z 1)
+    (@is_deriveX _ _ (@id R) 2 z 1 1 (is_derive_id z 1)).
+  have -> : (cst (2 : R) - (@id R) ^+ 2) = (fun y : R => 2 - y ^+ 2).
+    by apply/funext => y.
+  move=> h; apply: (is_derive_eq h).
+  by rewrite /GRing.scale /= sub0r mulr1 expr1.
+have dsq := @is_derive1_comp R Num.sqrt (fun y : R => 2 - y ^+ 2) z _ _
+  (is_derive1_sqrt u0) du.
+have dp : is_derive z 1 (fun y : R => 5 * y - y ^+ 3) (5 - 3 * z ^+ 2).
+  have h1 := is_derive_id z (1 : R).
+  have h3 : is_derive z 1 (@GRing.exp R ^~ 3) (3%:R *: z ^+ 2 *: 1).
+    by apply: DeriveDef; [exact: exprn_derivable|exact: exp_derive].
+  have h := is_deriveB (is_deriveZ 5 h1) h3.
+  have -> : (fun y : R => 5 * y - y ^+ 3) = 5 \*: id - (@GRing.exp R ^~ 3).
+    by apply/funext => y.
+  apply: (is_derive_eq h).
+  by rewrite /GRing.scale /= !mulr1.
+have dA := is_deriveD (is_deriveZ (2 * pi)^-1 dasin)
+  (is_deriveZ (12 * pi)^-1 (is_deriveM dp dsq)).
+have -> : sc2_A = (2 * pi)^-1 \*: (asin \o (fun y : R => (Num.sqrt 2)^-1 * y))
+    + (12 * pi)^-1 \*: ((fun y : R => 5 * y - y ^+ 3) *
+                        (Num.sqrt \o (fun y : R => 2 - y ^+ 2))).
+  by apply/funext => y.
+apply: (is_derive_eq dA).
+rewrite /GRing.scale /= tE -/s /sc2_phi -/s.
+have sn : s != 0 by rewrite gt_eqF.
+have key : (2 * pi)^-1 * ((s / Num.sqrt 2)^-1 * (Num.sqrt 2)^-1) +
+    (12 * pi)^-1 * ((5 * z - z ^+ 3) * ((2 * s)^-1 * - (2 * z)) +
+                    s * (5 - 3 * z ^+ 2)) =
+    s ^+ 3 / (3 * pi) +
+    (s ^+ 2 + z ^+ 2 - 2) * (z ^+ 2 - 4 * s ^+ 2 - 3) / (12 * pi * s).
+  by move: (pi : R) pn => p pn; field.
+rewrite key.
+have -> : s ^+ 2 + z ^+ 2 - 2 = 0 by rewrite s2; ring.
+by rewrite !mul0r addr0.
+Qed.
+
+End arcsine.
+
 (* 3. Conjunct (c) of the curve statement, at Stdlib's R. *)
 
 Local Notation RR := (R : realType).
@@ -539,3 +630,37 @@ apply: continuous_compact_integrable; first exact: segment_compact.
 by apply: continuous_subspaceT; exact: continuous_sqrt2_cube.
 Qed.
 
+(* The arcsine evaluation: alpha(C, kappa) = A(u) - A(ell). *)
+Lemma condition_kappa_alpha_arcsine (C kappa : R) : 1 < C -> 1 < kappa ->
+  condition_kappa_alpha C kappa =
+  sc2_A (condition_kappa_u C kappa) - sc2_A (condition_kappa_ell C kappa).
+Proof.
+move=> C1 k1.
+have [u0 us _ _] := condition_kappa_u_spec C kappa C1 k1.
+have /andP[le lu] := condition_kappa_ell_spec C kappa C1 k1.
+rewrite /condition_kappa_alpha !condition_kappa_JE (sc2_J_integral _ _ lu).
+set l := condition_kappa_ell C kappa in le lu *.
+set u := condition_kappa_u C kappa in u0 us lu *.
+have inI (x : RR) : l <= x <= u -> - Num.sqrt 2%:R < x < Num.sqrt 2%:R.
+  move=> /andP[a b]; apply/andP; split; first exact: lt_le_trans a.
+  exact: le_lt_trans us.
+have dA (x : RR) : l <= x <= u -> is_derive x 1 (@sc2_A RR) (sc2_phi x).
+  by move=> xI; apply: sc2_A_derive; exact: inI.
+have cA (x : RR) : l <= x <= u -> {for x, continuous (@sc2_A RR)}.
+  move=> xI; apply: differentiable_continuous; apply/derivable1_diffP.
+  exact: (@ex_derive _ _ _ _ _ _ _ (dA x xI)).
+have cf : {within `[l, u], continuous (@sc2_phi RR)}.
+  by apply: continuous_subspaceT; exact: continuous_sc2_phi.
+have dF : derivable_oo_LRcontinuous (@sc2_A RR) l u.
+  split.
+  - move=> x; rewrite in_itv /= => /andP[a b].
+    by apply: (@ex_derive _ _ _ _ _ _ _ (dA x _)); rewrite !ltW.
+  - by apply: cvg_at_right_filter; apply: cA; rewrite lexx ltW.
+  - by apply: cvg_at_left_filter; apply: cA; rewrite lexx ltW.
+have F'f : {in `]l, u[, (@sc2_A RR)^`() =1 (@sc2_phi RR)}.
+  move=> x; rewrite in_itv /= => /andP[a b].
+  have xI : l <= x <= u by rewrite !ltW.
+  by rewrite derive1E (@derive_val _ _ _ _ _ _ _ (dA x xI)).
+have ftc := continuous_FTC2 lu cf dF F'f.
+by rewrite /Rintegral ftc /=.
+Qed.
