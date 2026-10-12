@@ -15,7 +15,8 @@ From GaussianAnalysis.probability Require Import variational.
 (* sigma2 = E X^2, reals c > -1 and C >= 1, and a profile q, let              *)
 (*   V_c(q) = 2 E[X q(X)] - E[q(X)^2] - c (E q(X))^2.                         *)
 (* A profile is admissible for C when it is measurable with t <= q <= C t     *)
-(* for some t >= 0. For a real a and t >= 0, the clipped profile              *)
+(* for some t >= 0, and admissible almost everywhere when these bounds        *)
+(* hold mu-almost everywhere. For a real a and t >= 0, the clipped profile    *)
 (*   q_{a,t}(x) = min (max (x - a) t) (C t)                                   *)
 (* is admissible; with l = t + a and u = C t + a it is                        *)
 (* t + (x - l)_+ - (x - u)_+, and q_{a,t}(x) is the point of [t, C t]         *)
@@ -44,6 +45,16 @@ From GaussianAnalysis.probability Require Import variational.
 (*   V_c(q) + 2 E[(X - c E q(X) - q(X)) h(X)] - E[h(X)^2] - c (E h(X))^2;     *)
 (*   clip_admissible_le: a profile admissible for C is admissible for every   *)
 (*   C' >= C.                                                                 *)
+(* - For every law mu and all reals c and C: two measurable profiles equal    *)
+(*   almost everywhere have the same objective (clip_objective_ae_eq). If     *)
+(*   t <= q <= C t mu-almost everywhere, the clipped profile                  *)
+(*   min(max(q, t), C t) is admissible for C (clip_ae_admissible), equals q   *)
+(*   almost everywhere (clip_ae_eq) and has the objective of q                *)
+(*   (clip_ae_objective). So V_c takes the same values on the two classes     *)
+(*   (clip_objective_ae_set) and has the same supremum on them                *)
+(*   (clip_value_ae). clip_admissible_ae_integrable: if mu has a finite       *)
+(*   second moment, the three integrands of V_c are integrable on the         *)
+(*   almost-everywhere class.                                                 *)
 (* - Tools: clip_profile_mean, E q_{a,t} = t + m(l) - m(u);                   *)
 (*   clip_energy_shift_min, t minimizes t' |-> s(-t' - a) + s(C t' + a);      *)
 (*   clip_dual_profile, clip_dual_lower; clip_res_sqE, the expansion of       *)
@@ -53,6 +64,8 @@ From GaussianAnalysis.probability Require Import variational.
 (* ```                                                                        *)
 (*         clip_profile C a t x == min (max (x - a) t) (C t)                  *)
 (*        clip_admissible C q == q measurable, t <= q <= C t, some t >= 0     *)
+(*  clip_admissible_ae mu C q == q measurable, t <= q <= C t mu-a.e.,         *)
+(*                               some t >= 0                                  *)
 (*      clip_objective mu c q == 2 E[X q] - E[q^2] - c (E q)^2                *)
 (*   clip_energy_shift mu C a t == s(-t - a) + s(C t + a)                     *)
 (*         clip_dual mu c C b == E X^2 + c (1 + c) b^2                        *)
@@ -100,6 +113,12 @@ Context {R : realType} (mu : probability (measurableTypeR R) R).
 Definition clip_objective (c : R) (q : measurableTypeR R -> R) : R :=
   2 * \int[mu]_x ((x : R) * q x) - \int[mu]_x (q x ^+ 2)
   - c * (\int[mu]_x q x) ^+ 2.
+
+(* The profiles admissible for C almost everywhere: measurable, with
+   t <= q <= C t mu-almost everywhere for some t >= 0. *)
+Definition clip_admissible_ae (C : R) : set (measurableTypeR R -> R) :=
+  [set q | measurable_fun [set: measurableTypeR R] q /\
+     exists2 t : R, 0 <= t & {ae mu, forall x, t <= q x <= C * t}].
 
 (* s(-t - a) + s(C t + a), the mean squared distance from X - a to
    [t, C t] for a symmetric law. *)
@@ -910,3 +929,152 @@ Qed.
 End clip_first_order.
 
 End clip_integrals.
+
+Section clip_ae.
+Context {R : realType} (mu : probability (measurableTypeR R) R).
+
+Local Notation integrable f :=
+  (mu.-integrable [set: measurableTypeR R] (EFin \o f)).
+
+(* An admissible profile is admissible almost everywhere. *)
+Lemma clip_admissible_ae_sub (C : R) :
+  clip_admissible C `<=` clip_admissible_ae mu C.
+Proof. by move=> q [mq [t t0 hq]]; split => //; exists t => //; exact: aeW. Qed.
+
+(* If t <= q <= C t almost everywhere, then t <= C t, since mu is a
+   probability. *)
+Lemma clip_ae_le (C t : R) (q : measurableTypeR R -> R) :
+  {ae mu, forall x, t <= q x <= C * t} -> t <= C * t.
+Proof.
+move=> hq.
+have muT : (0 < mu [set: measurableTypeR R])%E by rewrite probability_setT lte01.
+have [x /andP[h1 h2]] :=
+  @filter_ex _ _ (ae_properfilter_algebraOfSetsType muT) _ hq.
+exact: le_trans h1 h2.
+Qed.
+
+(* Two measurable profiles equal almost everywhere have the same
+   objective. *)
+Lemma clip_objective_ae_eq (c : R) (q q' : measurableTypeR R -> R) :
+  measurable_fun [set: measurableTypeR R] q ->
+  measurable_fun [set: measurableTypeR R] q' ->
+  {ae mu, forall x, q x = q' x} ->
+  clip_objective mu c q = clip_objective mu c q'.
+Proof.
+move=> mq mq' hq.
+have E (f g : measurableTypeR R -> R) :
+    measurable_fun [set: measurableTypeR R] f ->
+    measurable_fun [set: measurableTypeR R] g ->
+    {ae mu, forall x, f x = g x} -> \int[mu]_x f x = \int[mu]_x g x.
+  move=> mf mg hfg; rewrite /Rintegral; congr fine.
+  apply: ae_eq_integral => //; [exact: measurableT_comp|exact: measurableT_comp|].
+  by apply: filterS hfg => x /= -> _.
+have mx : measurable_fun [set: measurableTypeR R]
+    (fun x : measurableTypeR R => (x : R)) by exact: measurable_id.
+rewrite /clip_objective.
+have -> : \int[mu]_x q x = \int[mu]_x q' x by exact: E.
+have -> : \int[mu]_x ((x : R) * q x) = \int[mu]_x ((x : R) * q' x).
+  apply: E; [exact: measurable_funM|exact: measurable_funM|].
+  by apply: filterS hq => x ->.
+have -> // : \int[mu]_x (q x ^+ 2) = \int[mu]_x (q' x ^+ 2).
+apply: E; [exact: measurable_funX|exact: measurable_funX|].
+by apply: filterS hq => x ->.
+Qed.
+
+(* A measurable function equal almost everywhere to an integrable one is
+   integrable. *)
+Let integrable_ae_eq (f g : measurableTypeR R -> R) :
+  measurable_fun [set: measurableTypeR R] f ->
+  {ae mu, forall x, f x = g x} -> integrable g -> integrable f.
+Proof.
+move=> mf fg /integrableP[mg gi]; apply/integrableP; split.
+  exact: measurableT_comp.
+have -> : (\int[mu]_(x in [set: measurableTypeR R]) `|(EFin \o f) x|)%E =
+    (\int[mu]_(x in [set: measurableTypeR R]) `|(EFin \o g) x|)%E.
+  apply: ae_eq_integral => //.
+  - by apply: measurableT_comp => //; exact: measurableT_comp.
+  - exact: measurableT_comp.
+  - by apply: filterS fg => x /= -> _.
+exact: gi.
+Qed.
+
+Section clip_ae_profile.
+Variables (C t : R) (q : measurableTypeR R -> R).
+Hypotheses (mq : measurable_fun [set: measurableTypeR R] q) (t0 : 0 <= t).
+Hypothesis hq : {ae mu, forall x, t <= q x <= C * t}.
+
+(* The clipped profile min(max(q, t), C t) is admissible for C. *)
+Lemma clip_ae_admissible :
+  clip_admissible C (fun x => Num.min (Num.max (q x) t) (C * t)).
+Proof.
+have ct := clip_ae_le hq.
+split.
+  apply: measurable_minr; last exact: measurable_cst.
+  by apply: measurable_maxr => //; exact: measurable_cst.
+exists t => // x; apply/andP; split.
+  by rewrite le_min ct le_max lexx orbT.
+by rewrite ge_min lexx orbT.
+Qed.
+
+(* It equals q almost everywhere. *)
+Lemma clip_ae_eq : {ae mu, forall x, Num.min (Num.max (q x) t) (C * t) = q x}.
+Proof.
+by apply: filterS hq => x /andP[h1 h2]; rewrite (max_idPl h1) (min_idPl h2).
+Qed.
+
+(* It has the objective of q. *)
+Lemma clip_ae_objective (c : R) :
+  clip_objective mu c (fun x => Num.min (Num.max (q x) t) (C * t)) =
+  clip_objective mu c q.
+Proof.
+apply: clip_objective_ae_eq => //; first by case: clip_ae_admissible.
+exact: clip_ae_eq.
+Qed.
+
+End clip_ae_profile.
+
+(* V_c takes the same values on the profiles admissible almost everywhere
+   as on the admissible profiles, so the two problems have the same
+   value. *)
+Lemma clip_objective_ae_set (c C : R) :
+  [set clip_objective mu c q | q in clip_admissible_ae mu C] =
+  [set clip_objective mu c q | q in clip_admissible C].
+Proof.
+apply/seteqP; split => _ [q hq <-].
+  case: hq => mq [t t0 hq].
+  exists (fun x => Num.min (Num.max (q x) t) (C * t)).
+    exact: clip_ae_admissible.
+  exact: clip_ae_objective.
+by exists q => //; exact: clip_admissible_ae_sub.
+Qed.
+
+Lemma clip_value_ae (c C : R) :
+  sup [set clip_objective mu c q | q in clip_admissible_ae mu C] =
+  sup [set clip_objective mu c q | q in clip_admissible C].
+Proof. by rewrite clip_objective_ae_set. Qed.
+
+(* The three integrands of V_c are integrable at a profile admissible
+   almost everywhere, when mu has a finite second moment. *)
+Lemma clip_admissible_ae_integrable (C : R) (q : measurableTypeR R -> R) :
+  mu.-integrable [set: measurableTypeR R] (EFin \o (fun x => (x : R) ^+ 2)) ->
+  clip_admissible_ae mu C q ->
+  [/\ integrable q, integrable (fun x => (x : R) * q x) &
+      integrable (fun x => q x ^+ 2)].
+Proof.
+move=> mu2 [mq [t t0 hq]].
+have hA := clip_ae_admissible mq t0 hq.
+have [B B0 qB] := clip_admissible_bounded hA.
+case: (hA) => mq' _.
+have e := clip_ae_eq hq.
+split.
+- apply: (integrable_ae_eq mq _ (clip_integrable_bounded mu2 mq' qB)).
+  by apply: filterS e => x ->.
+- apply: (integrable_ae_eq _ _ (clip_integrable_id_bounded mu2 mq' qB)).
+    by apply: measurable_funM => //; exact: measurable_id.
+  by apply: filterS e => x ->.
+- apply: (integrable_ae_eq _ _ (clip_integrable_sq mu2 mq' qB)).
+    exact: measurable_funX.
+  by apply: filterS e => x ->.
+Qed.
+
+End clip_ae.

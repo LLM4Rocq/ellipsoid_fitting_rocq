@@ -27,8 +27,18 @@
      variational problem, attained at q_s, since q_s maximizes V_c
      (clip_optimal); condition_kappa_variational_holds: conjunct (b) of
      the frozen curve statement.
-   - Interface I2 (used by item M4, GaussianLimit, lane A). The dual
-     function below is
+   - The almost-everywhere class, for all reals C and kappa: on the
+     measurable profiles q with t <= q <= C t nu-almost everywhere for
+     some t >= 0 (clip_admissible_ae threshold_law C), the frozen
+     objective is V_c (condition_kappa_objective_aeE), and its least upper
+     bound over them is condition_kappa_value C kappa
+     (condition_kappa_value_ae), by clip_objective_ae_set of
+     clip_profile.v: the clipped profile min(max(q, t), C t) is
+     admissible, equals q almost everywhere and has the value of q.
+     condition_kappa_alpha_ae: for C > 1 and kappa > 1, alpha(C, kappa) is
+     also the value of the problem with almost-everywhere bounds.
+   - Interface I2, used by kappa_quad_close of GaussianLimit (item M4).
+     The dual function below is
        condition_kappa_dual C kappa mu
          = 1/2 + c (1 + c) mu^2 - inf_(t >= 0) (v(-t - c mu) + v(C t + c mu)),
      the limit of (1/d) (|Pi_K(H - c mu I)|_F^2 + c d mu^2) for
@@ -74,7 +84,9 @@
      0 < alpha(C, kappa) < alpha*(kappa); condition_kappa_range_holds:
      conjunct (d) of the frozen curve statement.
    - Interface I3, in the forms that condition_kappa_sat and
-     condition_kappa_unsat (Sat, Unsat) take as hypotheses:
+     condition_kappa_unsat (Sat, Unsat) take as hypotheses, and that
+     ConditionKappaTheorem.v supplies to condition_kappa_statement_of_I3
+     (Theorem):
      condition_kappa_alpha_left (if alpha' < alpha(C', kappa), some Cm in
      ]1, C'[ has alpha' < alpha(Cm, kappa)), condition_kappa_alpha_right
      (if alpha(C', kappa) < alpha', some Cp > C' has alpha(Cp, kappa) <
@@ -358,6 +370,49 @@ End kappa_profile.
 Theorem condition_kappa_variational_holds (kappa : R) : 1 < kappa ->
   condition_kappa_variational kappa.
 Proof. by move=> k1 C C1; exact: condition_kappa_value_alpha. Qed.
+
+(* The profiles admissible almost everywhere under nu: the measurable q
+   with t <= q <= C t nu-almost everywhere for some t >= 0
+   (clip_admissible_ae threshold_law C). On them the frozen objective is
+   V_c, and its least upper bound over them is condition_kappa_value C
+   kappa, for all reals C and kappa. *)
+Lemma condition_kappa_objective_aeE (C kappa : R) (q : R -> R) :
+  clip_admissible_ae threshold_law C q ->
+  condition_kappa_objective kappa q =
+  clip_objective threshold_law ((kappa - 3%:R) / 2%:R) q.
+Proof.
+move=> hq.
+have [i1 i2 i3] := clip_admissible_ae_integrable threshold_law2 hq.
+by rewrite /condition_kappa_objective /clip_objective !threshold_integralE.
+Qed.
+
+Lemma condition_kappa_value_ae (C kappa : R) :
+  sup [set condition_kappa_objective kappa q
+      | q in clip_admissible_ae threshold_law C] =
+  condition_kappa_value C kappa.
+Proof.
+rewrite /condition_kappa_value; congr sup.
+have E (P : set (measurableTypeR R -> R)) :
+    P `<=` clip_admissible_ae threshold_law C ->
+    [set condition_kappa_objective kappa q | q in P] =
+    [set clip_objective threshold_law ((kappa - 3%:R) / 2%:R) q | q in P].
+  move=> PA; apply/seteqP; split => _ [q hq <-]; exists q => //;
+    by rewrite (condition_kappa_objective_aeE _ _ _ (PA q hq)).
+rewrite (E _ (fun q hq => hq)).
+rewrite (E (condition_kappa_profile C) (@clip_admissible_ae_sub _ threshold_law C)).
+exact: clip_objective_ae_set.
+Qed.
+
+(* For C > 1 and kappa > 1, alpha(C, kappa) is also the value of the
+   problem with almost-everywhere bounds. *)
+Lemma condition_kappa_alpha_ae (C kappa : R) : 1 < C -> 1 < kappa ->
+  condition_kappa_alpha C kappa =
+  sup [set condition_kappa_objective kappa q
+      | q in clip_admissible_ae threshold_law C].
+Proof.
+move=> C1 k1; rewrite condition_kappa_value_ae.
+exact: condition_kappa_value_alpha.
+Qed.
 
 Section kappa_curve.
 Variable kappa : R.
@@ -1056,7 +1111,9 @@ Qed.
 (* Interface I3, in the forms of condition_kappa_sat and
    condition_kappa_unsat: below alpha(C', kappa) there is a smaller Cm with
    alpha' < alpha(Cm, kappa); above it there is a larger Cp with
-   alpha(Cp, kappa) < alpha'; and alpha(C', kappa) < 1/2. *)
+   alpha(Cp, kappa) < alpha'; and alpha(C', kappa) < 1/2.
+   ConditionKappaTheorem.v supplies the three lemmas to
+   condition_kappa_statement_of_I3. *)
 Lemma condition_kappa_alpha_left (C' alpha' : R) : 1 < C' ->
   alpha' < alpha C' -> exists2 Cm : R, 1 < Cm < C' & alpha' < alpha Cm.
 Proof.

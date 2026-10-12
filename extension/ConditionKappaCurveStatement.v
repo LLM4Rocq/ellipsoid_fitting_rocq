@@ -52,9 +52,11 @@
      (1, oo) only.
    - (b) uses everywhere bounds t <= q <= C t; that the same value arises
      when the bounds hold only almost everywhere under nu is a supporting
-     lemma, not part of the statement. The arcsine evaluation
-     A(u) - A(ell), with A(z) = arcsin(z / sqrt 2) / (2 pi)
-     + z (5 - z^2) sqrt (2 - z^2) / (12 pi), is a supporting lemma too.
+     lemma, not part of the statement (condition_kappa_value_ae and
+     condition_kappa_alpha_ae of ConditionKappa/Curve.v). The arcsine
+     evaluation A(u) - A(ell), with A(z) = arcsin(z / sqrt 2) / (2 pi)
+     + z (5 - z^2) sqrt (2 - z^2) / (12 pi), is a supporting lemma too
+     (condition_kappa_alpha_arcsine of ConditionKappa/Integral.v).
    - The statement makes no claim on the dependence in kappa
      (monotonicity, uniformity as kappa decreases to 1) or on the rates at
      the endpoints.
