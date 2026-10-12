@@ -46,7 +46,14 @@
        (P(H - c mu I) + c d mu^2) / d within three errors of
        condition_kappa_dual C kappa mu (interface I2), and the squeeze
        kappa_quad_close uses the three facts of item S2 below.
-   - M5. |Pi_{T K_C} G|_F^2 = d max_K Phi_H, and interface I1 below.
+   - M5, proved: kcond_support_cvg, interface I1 below. For a closed
+     convex cone K of row vectors, the maximum over K of 2 <z, y> - |y|^2
+     is |Pi_K(z)|^2, attained at Pi_K(z) (cone_proj_value). On T K_C,
+     2 <A, T S> - |T S|_F^2 = Phi_G(S) with G the symmetric part of A
+     (kappa_obj_vec), and Phi_(sqrt d H)(sqrt d S) = d Phi_H(S)
+     (kappa_objZ), so sigma_{C,kappa}(vec_mx a)^2 = |Pi_{T K_C} G|_F^2
+     = d sup_K Phi_H (kcond_support_sqr, from kcond_support_proj of Cone).
+     M3 and M4 then give sup_K Phi_H / d -> alpha(C, kappa).
 
    Interface I2 (from item S2, Curve, lane C; used by M4). With
    c = (kappa - 3) / 2, condition_kappa_dual C kappa mu of Curve is
@@ -63,7 +70,8 @@
    GaussianGap, lane B). sigma_{C,kappa} is the support function of Cone
    (item B1, lane B),
      sigma_{C,kappa}(A) = sup { <A, T S> : S in K_C, |T S|_F <= 1 },
-   with the unit ball after T. M5 proves, for C > 1 and kappa > 1,
+   with the unit ball after T. M5 (kcond_support_cvg) proves, for C > 1
+   and kappa > 1,
      cvg_prob (fun d => gauss (d * d))
        (fun d a => sigma_{C,kappa}(vec_mx a) / d)
        (sqrt (condition_kappa_alpha C kappa)),
@@ -85,7 +93,8 @@ From GaussianAnalysis Require Import euclidean real_spectral opnorm.
 From GaussianAnalysis Require Import psd_part measurable_matrix von_neumann.
 From GaussianAnalysis Require Import variational gauss goe wigner goe_rotation.
 From GaussianAnalysis Require Import semicircle_law gauss_smoothing.
-From GaussianAnalysis Require Import condition_cone trace_projection.
+From GaussianAnalysis Require Import moreau condition_cone trace_projection.
+From EllipsoidFitting Require Import PaperMainDefinitions.
 From EllipsoidUniversality Require Import UniversalityDefinitions.
 From EllipsoidUniversality Require Import ConditionKappaDefinitions.
 From EllipsoidUniversality.Gaussian Require Import Cones Threshold.
@@ -1307,3 +1316,143 @@ by move: hge; lra.
 Qed.
 
 End kappa_spectral.
+
+(* 7. M5: the support function of T K_C. *)
+
+(* For a closed convex cone K of row vectors, the maximum over K of
+   2 <z, y> - |y|^2 is |Pi_K(z)|^2, attained at Pi_K(z). *)
+Lemma cone_proj_value N (K : set 'rV[RR]_N) (z : 'rV[RR]_N) :
+  closed K -> K 0 ->
+  (forall x y (t : RR), K x -> K y -> 0 <= t <= 1 -> K (x + t *: (y - x))) ->
+  (forall y (k : RR), K y -> 0 <= k -> K (k *: y)) ->
+  [/\ K (proj K z),
+      forall y, K y -> 2 * mxdot z y - mxdot y y <=
+        mxdot (proj K z) (proj K z) &
+      2 * mxdot z (proj K z) - mxdot (proj K z) (proj K z) =
+      mxdot (proj K z) (proj K z)].
+Proof.
+move=> Kc K0 Kcvx Kcone.
+have Kn : K !=set0 by exists 0.
+have [Kp hp] := projP Kc Kn Kcvx z.
+move: (proj K z) Kp hp => p Kp hp.
+have h0 := hp 0 K0.
+have h2 := hp (2 *: p) (Kcone p 2 Kp (ler0n _ 2)).
+rewrite sub0r mxdotNr oppr_le0 in h0.
+have e2 : 2 *: p - p = p by rewrite scaler_nat mulr2n addrK.
+rewrite e2 in h2.
+have e : mxdot z p = mxdot p p.
+  have : mxdot (z - p) p = 0 by apply/eqP; rewrite eq_le h2 h0.
+  by rewrite mxdotBl => /eqP; rewrite subr_eq0 => /eqP.
+split => //.
+  move=> y Ky; have := hp y Ky; have := mxdot_ge0 (y - p).
+  rewrite !mxdotBl !mxdotBr ?(mxdotC y p) ?(mxdotC p z) e.
+  by lra.
+by rewrite e; lra.
+Qed.
+
+Section kappa_support.
+Variables (kappa C : R).
+Hypotheses (k1 : 1 < kappa) (C1 : 1 < C).
+
+Local Notation c := (cone_shift kappa).
+
+Let C0 : 0 <= C := ltW (lt_trans ltr01 C1).
+
+(* Phi_H is quadratic: Phi_{k H}(k S) = k^2 Phi_H(S). *)
+Lemma kappa_objZ d (k : R) (H S : 'M[R]_d) :
+  kappa_obj kappa (k *: H) (k *: S) = k ^+ 2 * kappa_obj kappa H S.
+Proof.
+rewrite /kappa_obj cone_mapZ diag_partZ !mxdotZl !mxdotZr.
+by rewrite expr2; ring.
+Qed.
+
+(* 2 <A, T S> - |T S|_F^2 = Phi_G(S) with G the symmetric part of A, in
+   the coordinates of mxvec. *)
+Lemma kappa_obj_vec d (a : 'rV[RR]_(d * d)) (S : 'M[R]_d) :
+  S \is symmetricmx ->
+  2 * mxdot a (mxvec (cone_map kappa S)) -
+    mxdot (mxvec (cone_map kappa S)) (mxvec (cone_map kappa S)) =
+  kappa_obj kappa (goe_part (vec_mx a)) S.
+Proof.
+move=> Ss.
+have TS : paper_main_symmetric (cone_map kappa S).
+  by apply: cone_map_sym; apply/paper_symmetricP.
+have e1 : mxdot a (mxvec (cone_map kappa S)) =
+    mxdot (goe_part (vec_mx a)) (cone_map kappa S).
+  rewrite -[in LHS](vec_mxK a) -mxdot_vec_mx !mxvecK.
+  by rewrite -!pairing_mxdot pairing_goe_part.
+have e2 : mxdot (mxvec (cone_map kappa S)) (mxvec (cone_map kappa S)) =
+    mxdot S S + c * mxdot (diag_part S) (diag_part S).
+  rewrite -mxdot_vec_mx !mxvecK -!pairing_mxdot pairing_cone_map ?(ltW k1) //.
+  by rewrite !pairing_mxdot mxdot_diag_parts.
+by rewrite e1 e2 /kappa_obj; ring.
+Qed.
+
+(* sigma_{C,kappa}(A)^2 = |Pi_{T K_C}(A)|_F^2 = d sup_K Phi_H, with
+   A = vec_mx a and H = goe_half a. *)
+Lemma kcond_support_sqr d (a : 'rV[RR]_(d * d)) : (0 < d)%N ->
+  kcond_support kappa C (vec_mx a : 'M[RR]_d) ^+ 2 =
+  d%:R * sup [set kappa_obj kappa (goe_half a) S | S in cond_cone C].
+Proof.
+move=> d0.
+have dR : 0 < d%:R :> RR by rewrite ltr0n.
+have sd : 0 < Num.sqrt (d%:R : RR) by rewrite sqrtr_gt0.
+have sdn : Num.sqrt (d%:R : RR) != 0 by rewrite gt_eqF.
+have sd2 : Num.sqrt (d%:R : RR) ^+ 2 = d%:R by rewrite sqr_sqrtr ?ler0n.
+rewrite (kcond_support_proj kappa C d a k1 C0) frobenius_sqr.
+have [Kp hmax heq] := cone_proj_value a (kcond_cone_vec_closed kappa C d k1 C0)
+  (kcond_cone_vec0 kappa C d) (@kcond_cone_vec_convex kappa C d)
+  (@kcond_cone_vecZ kappa C d).
+move: (proj (kcond_cone_vec kappa C d) a) Kp hmax heq => p Kp hmax heq.
+have hG S : cond_cone C S ->
+    d%:R * kappa_obj kappa (goe_half a) S =
+    2 * mxdot a (mxvec (cone_map kappa (Num.sqrt d%:R *: S))) -
+    mxdot (mxvec (cone_map kappa (Num.sqrt d%:R *: S)))
+          (mxvec (cone_map kappa (Num.sqrt d%:R *: S))).
+  move=> [Ss _].
+  have Ss' : Num.sqrt d%:R *: S \is symmetricmx.
+    by apply/symmetricmxP; rewrite linearZ /=; move/symmetricmxP: Ss => ->.
+  by rewrite (kappa_obj_vec a Ss') goe_part_half // kappa_objZ sd2.
+have ub : ubound [set kappa_obj kappa (goe_half a) S | S in cond_cone C]
+    (mxdot p p / d%:R).
+  move=> _ [S KS <-]; rewrite ler_pdivlMr // mulrC (hG S KS).
+  apply: hmax; exists (Num.sqrt d%:R *: S) => //.
+  exact: cond_coneZ (ltW sd) KS.
+have [S0 KS0 pS0] := Kp.
+have K1 : cond_cone C ((Num.sqrt d%:R)^-1 *: S0).
+  by apply: cond_coneZ => //; rewrite invr_ge0 ltW.
+have att : kappa_obj kappa (goe_half a) ((Num.sqrt d%:R)^-1 *: S0) =
+    mxdot p p / d%:R.
+  apply: (mulfI (_ : d%:R != 0)); first by rewrite gt_eqF.
+  rewrite (hG _ K1) scalerA mulfV // scale1r pS0 heq.
+  by rewrite mulrC divfK // gt_eqF.
+have -> : sup [set kappa_obj kappa (goe_half a) S | S in cond_cone C] =
+    mxdot p p / d%:R.
+  apply/eqP; rewrite eq_le; apply/andP; split.
+    by apply: ge_sup ub; exists (mxdot p p / d%:R), ((Num.sqrt d%:R)^-1 *: S0).
+  apply: sup_upper_bound; last by exists ((Num.sqrt d%:R)^-1 *: S0).
+  split; first by exists (mxdot p p / d%:R), ((Num.sqrt d%:R)^-1 *: S0).
+  by exists (mxdot p p / d%:R).
+by rewrite mulrC divfK // gt_eqF.
+Qed.
+
+(* Item M5, interface I1: sigma_{C,kappa}(vec_mx a) / d ->
+   sqrt alpha(C, kappa) in probability, for kappa > 1 and C > 1. *)
+Theorem kcond_support_cvg :
+  cvg_prob (fun d => @gauss RR (d * d))
+    (fun d a => kcond_support kappa C (vec_mx a : 'M[RR]_d) / d%:R)
+    (Num.sqrt (condition_kappa_alpha C kappa)).
+Proof.
+have h := cvg_probD (kappa_sup_gap_cvg k1 C0) (kappa_quad_sup_cvg k1 C1).
+rewrite add0r in h.
+have := cvg_prob_sqrt h.
+apply: cvg_prob_eq; exists 1%N => d d1 a.
+have dR : 0 < d%:R :> RR by rewrite ltr0n.
+rewrite -mulrDl subrK.
+have k0 := kcond_support_ge0 kappa C d (vec_mx a : 'M[RR]_d).
+rewrite -[RHS]ger0_norm ?divr_ge0 ?ler0n // -sqrtr_sqr expr_div_n.
+rewrite (kcond_support_sqr a d1) expr2 -mulf_div divff ?mul1r //.
+by rewrite gt_eqF.
+Qed.
+
+End kappa_support.
