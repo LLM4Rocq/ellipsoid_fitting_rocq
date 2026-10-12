@@ -784,4 +784,6 @@ extension/ConditionKappa/GaussianWitness.v
 extension/ConditionKappa/GaussianGap.v
 extension/ConditionKappa/Sat.v
 extension/ConditionKappa/Unsat.v
+extension/ConditionKappa/Countable.v
+extension/ConditionKappa/Robust.v
 extension/ConditionKappa/Theorem.v
