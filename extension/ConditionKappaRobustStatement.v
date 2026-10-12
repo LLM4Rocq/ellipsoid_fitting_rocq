@@ -52,8 +52,13 @@
    ConditionRobustStatement with the changes of ConditionKappaStatement:
    the quantifier over kappa > 1, countable_fourth_moment kappa,
    alpha(C, kappa), C_star(alpha, kappa) and alpha < alpha*(kappa). The
-   last two state the finite case explicitly, although a finite family is
-   the countable one with weights zero from N d on. As in
+   last two state the finite case explicitly. A finite family becomes an
+   admissible countable one only if the weights are extended by zero and
+   the inactive component laws, s >= N d, are filled with admissible laws,
+   as countable_of_finite of Countable/Theorem.v does:
+   countable_mixture_family asks every component law to be admissible.
+   Extending the weights by zero alone preserves the point law nu_d but
+   does not make the family admissible. As in
    ConditionRobustStatement, the measurability of the fit event is not
    repeated, the closeness is d^2 tv -> 0, the fourth moment kappa concerns
    the reference family, not P d, and there is no constant to choose.

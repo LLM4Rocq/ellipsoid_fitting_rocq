@@ -42,7 +42,8 @@
       points of the optimal profile of part 4: with
       mu = (C - 1) m(u) / (1 + c) and t = (u - ell) / (C - 1), the profile
       q(z) = min (max (z - c mu, t), C t) has int q dnu = mu, and
-      ell = t + c mu, u = C t + c mu.
+      ell = t + c mu, u = C t + c mu (supporting lemmas of item S2, not
+      conjuncts of the curve statement).
    2. The curve. J(w) = v(w) + w m(w) and
         alpha(C, kappa) = J(ell_{C,kappa}) - J(u_{C,kappa}),
       which equals 1 / (3 pi) times the integral of (2 - z^2)^(3/2) over
@@ -50,9 +51,11 @@
       (a conjunct of the curve statement). For fixed kappa,
       C |-> alpha(C, kappa) is continuous and strictly increasing on
       (1, oo), from 0 to alpha*(kappa) = universality_alpha_star kappa.
-      At kappa = 3, c = r = 0,
-      u = C t_C, ell = t_C and alpha(C, 3) = condition_alpha C of
-      ConditionDefinitions (conjuncts of the curve statement).
+      At kappa = 3, c = r = 0. Two conjuncts of the curve statement relate
+      the curve to ConditionDefinitions: alpha(C, 3) = condition_alpha C
+      for C > 1, and C_star(alpha, 3) = condition_star alpha for
+      0 < alpha < 1/4. The cutoff identities u = C t_C and ell = t_C are
+      supporting lemmas (item S4), not conjuncts.
    3. C_star(alpha, kappa), for 0 < alpha < alpha*(kappa): the inverse of
       C |-> alpha(C, kappa), written as the greatest lower bound of the
       C > 1 with alpha <= alpha(C, kappa), as condition_star is. It is the
@@ -64,11 +67,12 @@
       (measurable_fun on measurableTypeR R) and t <= q(z) <= C t for every
       real z, for some t >= 0: a profile of condition ratio at most C,
       q = 0 included (t = 0). It is bounded, so the three integrals of V_c
-      are finite. The value is the least upper
-      bound of V_c over the admissible profiles; for C > 1 and kappa > 1 it
-      is attained at the profile of part 1 and equals alpha(C, kappa) (a
-      conjunct of the curve statement). This is the limit problem of the
-      Gaussian side: (1/d) times the maximum of
+      are finite. The value is the least upper bound of V_c over the
+      admissible profiles. Conjunct (b) of the curve statement asserts only
+      that it equals alpha(C, kappa) for C > 1 and kappa > 1; that it is
+      attained at the profile of part 1 is a supporting lemma (item S2).
+      This is the limit problem of the Gaussian side: (1/d) times the
+      maximum of
       2 <G / sqrt d, T_kappa S> - |S|_F^2 - c |diag S|_F^2 over the
       symmetric S of condition number at most C, T_kappa the map
       cone_map kappa of Gaussian/Cones.v; that limit is a step of the
