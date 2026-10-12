@@ -22,31 +22,42 @@
      bounds of M2 (kappa_sup_gap_bounds), |D|_F^2 = d diag_var X
      (diag_dev_sqr), |E|_F^2 <= 2 e^2 |diag H|_F^2 + 2 c^2 |D|_F^2 and
      |<diag H, diag X>| <= |diag H|_F |H|_F / a0.
-   - M4. (1/d) max_K Phi-bar_H -> alpha(C, kappa) in probability. The route
-     is section 3.3 of the plan: the duality in mu,
-       max_K Phi-bar_H = opt_mu (|Pi_K(H - c mu I)|_F^2 + c d mu^2),
-     a maximum for c < 0 and a minimum for c > 0, attained at
-     mu = tr(X) / d (mu = 0 at c = 0); the windows 0 <= mu <= M = 3 / a0
-     and 0 <= t <= B = 3 + |c| M on the event |W|_op <= 3, for the random
-     and for the limiting optimizers; the three limits, uniform in mu in
-     [0, M]: the trace term 2 c mu tr(H) / d, |H|_F^2 / d -> 1/2
-     (goe_sqnorm_half of Condition/GaussianCone.v), and the shifted
-     clipping energy (1/d) inf_t sum_i dist(lambda_i(H) - c mu, [t, C t])^2
-     (wigner_uniform_inf on [0, B] at the points of a net in mu, and a
-     Lipschitz bound in mu); and the identification of the limit by
-     interface I2.
+   - M4, proved: kappa_quad_sup_cvg, (1/d) sup_K Phi-bar_H ->
+     alpha(C, kappa) in probability, for C > 1 and kappa > 1. The route is
+     section 3.3 of the plan, with P(A) = |A|_F^2 - cond_dist C A, the
+     maximum of 2 <A, S> - |S|_F^2 over S in K_C (cond_value_ge,
+     cond_value_le).
+     - The duality in mu (section 3): P(H - c mu I) + c d mu^2 is at most
+       max_K Phi-bar_H for c <= 0 (kappa_dual_le) and at least it for
+       c >= 0 (kappa_dual_ge), for every mu, with equality at
+       mu = tr X / d (kappa_dual_eq), for every c.
+     - The windows: 0 <= tr X / d <= M = 1 / a0 when |H|_F^2 / d <= 1
+       (kappa_argmax_trace_window), and t in [0, B], B = 3 + |c| M, on
+       opnorm W <= 3 (cond_dist_shift_goe, which writes
+       cond_dist C (H - c mu I) / d as the infimum over t in [0, B] of the
+       mean of shift_fun C (c mu) t over the eigenvalues of W).
+     - The three limits, uniform in mu in [0, M]: the trace term
+       2 c mu tr H / d (goe_half_trace_cvg), |H|_F^2 / d -> 1/2
+       (goe_half_sqnorm_cvg), and the shifted clipping energy
+       (shift_inf_unif: wigner_uniform_inf at the points of a net in mu,
+       and Lipschitz bounds in mu).
+     - The identification: quad_shift_norm and kappa_dual_window, from
+       shift_fun_integral and clip_shift_window, give
+       (P(H - c mu I) + c d mu^2) / d within three errors of
+       condition_kappa_dual C kappa mu (interface I2), and the squeeze
+       kappa_quad_close uses the three facts of item S2 below.
    - M5. |Pi_{T K_C} G|_F^2 = d max_K Phi_H, and interface I1 below.
 
    Interface I2 (from item S2, Curve, lane C; used by M4). With
    c = (kappa - 3) / 2, condition_kappa_dual C kappa mu of Curve is
-     1/2 + c (1 + c) mu^2 - inf_(t >= 0) (v(-t - c mu) + v(C t + c mu)),
-   the limit of (1/d) (|Pi_K(H - c mu I)|_F^2 + c d mu^2). Item S2 proves,
-   for C > 1 and kappa > 1: some mu* with 0 <= mu* <= 1 / (sqrt 2 a0) <= M
-   and condition_kappa_dual C kappa mu* = condition_kappa_alpha C kappa;
-   if kappa <= 3, condition_kappa_dual C kappa mu <= condition_kappa_alpha
-   C kappa for every mu; if 3 <= kappa, condition_kappa_alpha C kappa <=
-   condition_kappa_dual C kappa mu for every mu. Until S2 lands, M4 may take
-   these three facts as hypotheses.
+     1/2 + c (1 + c) mu^2 - inf_(t >= 0) (v(-t - c mu) + v(C t + c mu)).
+   Item S2 proves, for C > 1 and kappa > 1, the three facts that M4 uses:
+   some mu0 with 0 <= mu0 <= 1 / (sqrt 2 a0) and
+   condition_kappa_dual C kappa mu0 = condition_kappa_alpha C kappa
+   (condition_kappa_dual_opt); if kappa <= 3, condition_kappa_dual C kappa
+   mu <= condition_kappa_alpha C kappa for every mu
+   (condition_kappa_dual_le); if 3 <= kappa, the reverse inequality
+   (condition_kappa_dual_ge).
 
    Interface I1 (the output of M5; used by item G1, GaussianWitness and
    GaussianGap, lane B). sigma_{C,kappa} is the support function of Cone
@@ -1068,3 +1079,231 @@ by lra.
 Qed.
 
 End uniform_shift.
+
+(* 6. M4: the limit of (1/d) sup_K Phi-bar_H. *)
+
+(* The normalized dual expression: (P(H - c mu I) + c d mu^2) / d. *)
+Lemma quad_shift_norm (C : R) d (H : 'M[R]_d) (c mu : R) : (0 < d)%N ->
+  (mxdot (H - (c * mu)%:M) (H - (c * mu)%:M) - cond_dist C (H - (c * mu)%:M) +
+     c * d%:R * mu ^+ 2) / d%:R =
+  mxdot H H / d%:R - 2 * c * mu * (\tr H / d%:R) + c * (1 + c) * mu ^+ 2 -
+  cond_dist C (H - (c * mu)%:M) / d%:R.
+Proof.
+move=> d0; have dn : d%:R != 0 :> RR by rewrite pnatr_eq0 -lt0n.
+rewrite mxdotBl !mxdotBr (mxdotC H ((c * mu)%:M)) !scalar_mx_dot mxtrace_scalar.
+by rewrite -mulr_natr; field.
+Qed.
+
+(* The two squeezes of the duality, for c <= 0 and for c >= 0. *)
+Lemma squeeze_max (V Q0 qs al e : R) : Q0 <= V -> qs <= al ->
+  `|Q0 - al| <= e -> `|V - qs| <= e -> `|V - al| <= e.
+Proof.
+move=> h1 h2; rewrite !ler_norml => /andP[h3 h4] /andP[h5 h6].
+by apply/andP; split; lra.
+Qed.
+
+Lemma squeeze_min (V Q0 qs al e : R) : V <= Q0 -> al <= qs ->
+  `|Q0 - al| <= e -> `|V - qs| <= e -> `|V - al| <= e.
+Proof.
+move=> h1 h2; rewrite !ler_norml => /andP[h3 h4] /andP[h5 h6].
+by apply/andP; split; lra.
+Qed.
+
+Section kappa_spectral.
+Variables (kappa C : R).
+Hypotheses (k1 : 1 < kappa) (C1 : 1 < C).
+
+Local Notation c := (cone_shift kappa).
+Local Notation a0 := (Num.min 1 (1 + cone_shift kappa)).
+
+Let C1' : 1 <= C := ltW C1.
+Let C0 : 0 <= C := ltW (lt_trans ltr01 C1).
+
+(* The window of mu = tr X / d: if |H|_F^2 / d <= 1, then
+   0 <= tr X / d <= 1 / a0. *)
+Lemma kappa_argmax_trace_window d (H : 'M[R]_d) : (0 < d)%N ->
+  mxdot H H / d%:R <= 1 ->
+  0 <= \tr (kappa_argmax kappa C H) / d%:R <= a0^-1.
+Proof.
+move=> d0 hH.
+have a0p := a0_gt0 k1.
+have dR : 0 < d%:R :> RR by rewrite ltr0n.
+have sd : 0 < Num.sqrt (d%:R : RR) by rewrite sqrtr_gt0.
+apply/andP; split.
+  by rewrite divr_ge0 ?ler0n // kappa_argmax_tr_ge0.
+have h1 := trace_le_diag (kappa_argmax kappa C H) d0.
+have h2 := frobenius_diag_le (kappa_argmax kappa C H).
+have h3 := kappa_argmax_norm k1 C0 H.
+have h4 : frobenius H / Num.sqrt d%:R <= 1.
+  rewrite -(ler_pXn2r (n := 2)) ?nnegrE ?divr_ge0 ?frobenius_ge0 ?sqrtr_ge0 //.
+  by rewrite expr1n expr_div_n frobenius_sqr sqr_sqrtr ?ler0n.
+apply: le_trans (ler_norm _) _.
+rewrite normrM [`|_^-1|]ger0_norm ?invr_ge0 ?ler0n //.
+apply: le_trans h1 _.
+apply: (@le_trans _ _ (frobenius (kappa_argmax kappa C H) / Num.sqrt d%:R)).
+  by apply: ler_wpM2r; [rewrite invr_ge0 sqrtr_ge0|exact: h2].
+apply: (@le_trans _ _ (frobenius H / Num.sqrt d%:R / a0)).
+  rewrite mulrAC; apply: ler_wpM2r; first by rewrite invr_ge0 sqrtr_ge0.
+  exact: h3.
+rewrite -[X in _ <= X]mul1r; apply: ler_wpM2r => //.
+by rewrite invr_ge0 ltW.
+Qed.
+
+(* Interface I2 at mu in [0, 1 / a0]: condition_kappa_dual C kappa mu is
+   1/2 + c (1 + c) mu^2 minus the infimum over t in [0, B] of the integral
+   of shift_fun C (c mu) t against the semicircle law of radius 2. *)
+Lemma kappa_dual_window (mu : R) : 0 <= mu <= a0^-1 ->
+  condition_kappa_dual C kappa mu =
+  2^-1 + c * (1 + c) * mu ^+ 2 -
+  inf [set \int[semicircle_prob 2]_x shift_fun C (c * mu)%R t x |
+       t in [set t : R | 0 <= t <= 3 + `|c| * a0^-1]].
+Proof.
+move=> /andP[m0 mM].
+have hB : Num.sqrt 2 + `|c * mu| <= 3 + `|c| * a0^-1.
+  apply: lerD.
+    have h : Num.sqrt 2 < 3 / 2 :> RR.
+      rewrite -(@ltr_pXn2r _ 2) ?nnegrE ?sqrtr_ge0 ?divr_ge0 // sqr_sqrtr //.
+      by rewrite expr_div_n; lra.
+    by lra.
+  by rewrite normrM [`|mu|]ger0_norm // ler_wpM2l ?normr_ge0.
+rewrite /condition_kappa_dual -cone_shiftE; congr (_ - _).
+rewrite -(clip_shift_window C1' hB); congr inf.
+by apply: eq_imagel => t /andP[t0 _]; rewrite (shift_fun_integral _ C1' t0).
+Qed.
+
+(* The deterministic squeeze: on the good event, (1/d) sup_K Phi-bar_H is
+   within 3 del of alpha(C, kappa). The duality of section 3 at
+   mu = tr X / d, which lies in [0, 1 / a0] (kappa_argmax_trace_window),
+   and at the optimizer mu0 of interface I2 (condition_kappa_dual_opt),
+   with the inequalities condition_kappa_dual_le and _ge of item S2. *)
+Lemma kappa_quad_close d (a : 'rV[RR]_(d * d)) (del : R) : (0 < d)%N ->
+  opnorm (goe_mx a) <= 3 ->
+  `|mxdot (goe_half a) (goe_half a) / d%:R - 2^-1| <= Num.min 2^-1 del ->
+  `|\tr (goe_half a) / d%:R| <= del / (2 * `|c| * a0^-1 + 1) ->
+  (forall mu, 0 <= mu <= a0^-1 ->
+     `|inf [set goe_stat (shift_fun C (c * mu)%R t) a |
+            t in [set t : R | 0 <= t <= 3 + `|c| * a0^-1]] -
+       inf [set \int[semicircle_prob 2]_x shift_fun C (c * mu)%R t x |
+            t in [set t : R | 0 <= t <= 3 + `|c| * a0^-1]]| <= del) ->
+  `|sup [set trace_quad c (goe_half a) S | S in cond_cone C] / d%:R -
+    condition_kappa_alpha C kappa| <= 3 * del.
+Proof.
+move=> d0 ho hH htr hD.
+have a0p := a0_gt0 k1.
+have M0 : 0 < a0^-1 by rewrite invr_gt0.
+have dR : 0 < d%:R :> RR by rewrite ltr0n.
+have Hs := goe_half_symmetric a.
+have den : 0 < 2 * `|c| * a0^-1 + 1.
+  by rewrite ltr_pwDr // mulr_ge0 ?mulr_ge0 ?ler0n ?normr_ge0 // ltW.
+have hdel : `|mxdot (goe_half a) (goe_half a) / d%:R - 2^-1| <= del.
+  by apply: le_trans hH _; rewrite ge_min lexx orbT.
+have hQ mu : 0 <= mu <= a0^-1 ->
+    `|(mxdot (goe_half a - (c * mu)%:M) (goe_half a - (c * mu)%:M) -
+       cond_dist C (goe_half a - (c * mu)%:M) + c * d%:R * mu ^+ 2) / d%:R -
+      condition_kappa_dual C kappa mu| <= 3 * del.
+  move=> hmu; have /andP[m0 mM] := hmu.
+  have hBm : 3 + `|c * mu| <= 3 + `|c| * a0^-1.
+    by rewrite lerD2l normrM [`|mu|]ger0_norm // ler_wpM2l ?normr_ge0.
+  rewrite quad_shift_norm // (kappa_dual_window hmu).
+  rewrite (cond_dist_shift_goe d0 C1' ho hBm).
+  have h1 := hD mu hmu.
+  have h2 : `|2 * c * mu * (\tr (goe_half a) / d%:R)| <= del.
+    have hc' (x : R) : `|2 * x * mu| <= 2 * `|x| * a0^-1.
+      rewrite normrM normrM ger0_norm ?ler0n // [`|mu|]ger0_norm //.
+      by rewrite -!mulrA ler_wpM2l ?ler0n // ler_wpM2l ?normr_ge0.
+    have hc := hc' (cone_shift kappa).
+    rewrite ler_pdivlMr // in htr.
+    rewrite normrM.
+    have := normr_ge0 (2 * c * mu); have := normr_ge0 (\tr (goe_half a) / d%:R).
+    by nra.
+  move: h1 h2 hdel; rewrite !ler_norml => /andP[h1 h1'] /andP[h2 h2']
+    /andP[h3 h3'].
+  by apply/andP; split; lra.
+rewrite (kappa_argmax_quad_sup k1 C0 (goe_half a)).
+have hH1 : mxdot (goe_half a) (goe_half a) / d%:R <= 1.
+  move: hH; rewrite ler_norml => /andP[_ h].
+  have : Num.min 2^-1 del <= 2^-1 by rewrite ge_min lexx.
+  by lra.
+have hw := kappa_argmax_trace_window d0 hH1.
+have heq := kappa_dual_eq C1' d0 k1 C0 Hs.
+have [mu0 [m00 m01 hq0]] := condition_kappa_dual_opt C kappa C1 k1.
+have hmu0 : 0 <= mu0 <= a0^-1.
+  rewrite m00 /=; apply: le_trans m01 _.
+  rewrite -cone_shiftD1 mul1r invfM ler_piMl ?invr_ge0 ?(ltW a0p) //.
+  rewrite invf_le1 ?sqrtr_gt0 ?ltr0n //.
+  exact: sqrt2_ge1.
+have hQ0 := hQ mu0 hmu0; have hQs := hQ _ hw.
+rewrite hq0 in hQ0.
+rewrite heq.
+have dinv : 0 <= d%:R^-1 :> RR by rewrite invr_ge0 ltW.
+have [k3|k3] := leP kappa 3.
+  have c0 : c <= 0.
+    by rewrite cone_shiftE pmulr_lle0 ?invr_gt0 ?ltr0n // subr_le0.
+  have hle := ler_wpM2r dinv (kappa_dual_le C1' d0 k1 C0 mu0 Hs c0).
+  rewrite heq in hle.
+  have hal := condition_kappa_dual_le C kappa C1 k1 k3
+    (\tr (kappa_argmax kappa C (goe_half a)) / d%:R)%R.
+  exact: squeeze_max hle hal hQ0 hQs.
+have c0 : 0 <= c.
+  by rewrite cone_shiftE pmulr_lge0 ?invr_gt0 ?ltr0n // subr_ge0 ltW.
+have hge := ler_wpM2r dinv (kappa_dual_ge d0 k1 C0 mu0 Hs c0).
+rewrite heq in hge.
+have hal := condition_kappa_dual_ge C kappa C1 k1 (ltW k3)
+  (\tr (kappa_argmax kappa C (goe_half a)) / d%:R)%R.
+exact: squeeze_min hge hal hQ0 hQs.
+Qed.
+
+(* Item M4: (1/d) sup_K Phi-bar_H -> alpha(C, kappa) in probability. *)
+Theorem kappa_quad_sup_cvg :
+  cvg_prob (fun d => gauss (d * d))
+    (fun d a => sup [set trace_quad c (goe_half a) S | S in cond_cone C] /
+       d%:R)
+    (condition_kappa_alpha C kappa).
+Proof.
+move=> eta e0.
+have a0p := a0_gt0 k1.
+have M0 : 0 < a0^-1 by rewrite invr_gt0.
+have del0 : 0 < eta / 6 by rewrite divr_gt0.
+have m0 : 0 < Num.min 2^-1 (eta / 6).
+  by rewrite lt_min del0 andbT invr_gt0 ltr0n.
+have den : 0 < 2 * `|c| * a0^-1 + 1.
+  by rewrite ltr_pwDr // mulr_ge0 ?mulr_ge0 ?ler0n ?normr_ge0 // ltW.
+have q0 : 0 < eta / 6 / (2 * `|c| * a0^-1 + 1) by rewrite divr_gt0.
+have s3 : 2 * Num.sqrt 2 < 3 :> R.
+  have s2 : Num.sqrt 2 < 3 / 2 :> R.
+    rewrite -(@ltr_pXn2r _ 2) ?nnegrE ?sqrtr_ge0 ?divr_ge0 // sqr_sqrtr //.
+    by rewrite expr_div_n; lra.
+  by lra.
+have n1 : negligible (fun d => gauss (d * d))
+    (fun d => [set a : 'rV[RR]_(d * d) | 3 <= opnorm (goe_mx a)]).
+  apply: negligible_measurable => [d|eps p0].
+    exact: measurable_goe_opnorm.
+  have [D hD] := goe_opnorm_tail_small s3 p0.
+  by exists D => d dD; exact: hD.
+have n2 := goe_half_sqnorm_cvg m0.
+have n3 := goe_half_trace_cvg q0.
+have n4 := shift_inf_unif (cone_shift kappa) C1' M0 del0.
+apply: negligibleW (negligibleU (negligibleU (negligibleU n1 n2) n3) n4) _.
+exists 1%N => d d1 a /= hge.
+have [h1|h1] := leP 3 (opnorm (goe_mx a)); first by left; left; left.
+have [h2|h2] := leP (Num.min 2^-1 (eta / 6))
+  `|mxdot (goe_half a) (goe_half a) / d%:R - 2^-1|.
+  by left; left; right.
+have [h3|h3] := leP (eta / 6 / (2 * `|c| * a0^-1 + 1))
+  `|\tr (goe_half a) / d%:R - 0|.
+  by left; right.
+right; split; first exact: ltW.
+apply: contrapT => hn.
+have hD mu : 0 <= mu <= a0^-1 ->
+    `|inf [set goe_stat (shift_fun C (c * mu)%R t) a |
+           t in [set t : R | 0 <= t <= 3 + `|c| * a0^-1]] -
+      inf [set \int[semicircle_prob 2]_x shift_fun C (c * mu)%R t x |
+           t in [set t : R | 0 <= t <= 3 + `|c| * a0^-1]]| <= eta / 6.
+  move=> hmu; rewrite leNgt; apply/negP => hlt; apply: hn.
+  by exists mu => //; exact: ltW.
+rewrite subr0 in h3.
+have := kappa_quad_close d1 (ltW h1) (ltW h2) (ltW h3) hD.
+by move: hge; lra.
+Qed.
+
+End kappa_spectral.
