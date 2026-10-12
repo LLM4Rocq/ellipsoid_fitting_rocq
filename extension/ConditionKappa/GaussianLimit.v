@@ -9,8 +9,8 @@
    H = G / sqrt d, and W = goe_mx a = sqrt 2 H, of spectral edge 2. X(H) is
    the maximizer of the surrogate objective Phi-bar_H on K_C (item M1).
 
-   Results to prove here.
-   - M3, proved. H = goe_half a = goe_mx a / sqrt 2, and
+   Results proved here.
+   - M3. H = goe_half a = goe_mx a / sqrt 2, and
      G = sqrt d H (goe_part_half). kappa_diag_var_cvg: diag_var X(H) -> 0
      in probability (kappa_argmax_diag_var_tail of Geometry, which is
      goe_diag_var_tail of library/random_matrix/goe_rotation.v for
@@ -22,7 +22,7 @@
      bounds of M2 (kappa_sup_gap_bounds), |D|_F^2 = d diag_var X
      (diag_dev_sqr), |E|_F^2 <= 2 e^2 |diag H|_F^2 + 2 c^2 |D|_F^2 and
      |<diag H, diag X>| <= |diag H|_F |H|_F / a0.
-   - M4, proved: kappa_quad_sup_cvg, (1/d) sup_K Phi-bar_H ->
+   - M4: kappa_quad_sup_cvg, (1/d) sup_K Phi-bar_H ->
      alpha(C, kappa) in probability, for C > 1 and kappa > 1. The route is
      section 3.3 of the plan, with P(A) = |A|_F^2 - cond_dist C A, the
      maximum of 2 <A, S> - |S|_F^2 over S in K_C (cond_value_ge,
@@ -46,7 +46,7 @@
        (P(H - c mu I) + c d mu^2) / d within three errors of
        condition_kappa_dual C kappa mu (interface I2), and the squeeze
        kappa_quad_close uses the three facts of item S2 below.
-   - M5, proved: kcond_support_cvg, interface I1 below. For a closed
+   - M5: kcond_support_cvg, interface I1 below. For a closed
      convex cone K of row vectors, the maximum over K of 2 <z, y> - |y|^2
      is |Pi_K(z)|^2, attained at Pi_K(z) (cone_proj_value). On T K_C,
      2 <A, T S> - |T S|_F^2 = Phi_G(S) with G the symmetric part of A
