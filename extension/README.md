@@ -4,17 +4,25 @@ This directory, under the logical root `EllipsoidUniversality`, holds
 the theorems below, beyond the three theorems of Misiakiewicz and Wen for
 Gaussian points.
 
-- **The optimal condition number**, the main result, proved in phase 8:
-  `condition_theorem : condition_theorem_statement`
-  (`ConditionTheorem.v`). For i.i.d. points whose law is a finite or
+- **The optimal condition number**, the main result, proved at fourth
+  moment 3 in phase 8 and at every fourth moment kappa > 1 in phase 11:
+  `condition_kappa_theorem : condition_kappa_theorem_statement`
+  (`ConditionKappaTheorem.v`). For i.i.d. points whose law is a finite or
   countable mixture of product laws with coordinates of mean 0, variance 1
   and subgaussian norm at most K in every component and unconditional
-  fourth moment 3: for every C > 1, an exact fit of condition number at
-  most C exists with probability tending to one if n/d^2 tends to some
-  alpha < alpha_C and to zero if alpha > alpha_C, with alpha_C given by
-  the semicircle law; for 0 < alpha < 1/4, the optimal condition number of
-  the sample tends in probability to C_star(alpha), the inverse of
-  C -> alpha_C. Section (g).
+  fourth moment kappa > 1: for every C > 1, an exact fit of condition
+  number at most C exists with probability tending to one if n/d^2 tends
+  to some alpha < alpha(C, kappa) and to zero if alpha > alpha(C, kappa);
+  for 0 < alpha < alpha*(kappa), the optimal condition number of the
+  sample tends in probability to C_star(alpha, kappa), the inverse of
+  C -> alpha(C, kappa). The curve alpha(C, kappa) is the value of a
+  variational problem over the semicircle law, and
+  `condition_kappa_curve_theorem : condition_kappa_curve_statement`
+  (`ConditionKappaCurveTheorem.v`) proves its properties. At kappa = 3 it
+  is the curve alpha_C of phase 8, with alpha*(3) = 1/4, and the new
+  statement implies that of the phase 8 theorem
+  `condition_theorem : condition_theorem_statement`
+  (`ConditionTheorem.v`). Sections (g) and (j).
 - **Countable mixtures**, a generality result of phase 8:
   `countable_theorem : countable_theorem_statement`
   (`CountableTheorem.v`), the conclusions of the finite-mixture theorem,
@@ -66,6 +74,13 @@ Gaussian points.
   (`LatentTensorUpperTheorem.v`), the tensorization of the variance for
   the latent-sign law with the constant 2 ((1 + s) / (1 - 3 s / 7))^d.
   Section (i).
+- **Robustness at every fourth moment**, proved in phase 11:
+  `condition_kappa_robust_theorem : condition_kappa_robust_theorem_statement`
+  (`ConditionKappaRobustTheorem.v`), the threshold and the limit of the
+  optimal condition-number theorem at fourth moment kappa for laws within
+  o(d^-2) in total variation of a finite or countable family. Its
+  statement implies that of `robust_condition_theorem` of phase 10.
+  Section (j).
 
 Sections (a) to (e) are the feasibility study written before phase 5, for
 extending the formal result of this repository to Theorem 1.2 of Koehler
@@ -103,7 +118,9 @@ mixtures, the optimal condition number and the scope of the latent-sign
 law; (h) phase 9, robustness in total variation, the tensorization of the
 latent-sign law, a continuous latent mixture and the endpoints of the
 condition-number curve; (i) phase 10, the robustness of the optimal
-condition number and a finite tensorization constant.
+condition number and a finite tensorization constant; (j) phase 11, the
+optimal condition number at every fourth moment kappa > 1, with its
+countable and robust versions.
 
 ---
 
@@ -1343,3 +1360,162 @@ lists (`scripts/check_sources.py`, rule 15). Each of the two theorems uses
 seven of the eight classical axioms of `check/assumptions.expected`, all
 but `Classical_Prop.classic`, as the theorems of phases 5 to 9 do.
 
+## (j) Phase 11: the optimal condition number at every fourth moment
+
+Phase 11 extends the optimal condition-number theorem of phase 8 from
+fourth moment 3 to every fixed fourth moment kappa > 1, with its
+countable and robust versions. It follows the math plan
+`notes/general-fourth-moment-condition-plan.md` and the plan
+`notes/phase11-plan.md`, with the amendments of the user's review
+`reviews/phase11-plan-review.md` (on the VM, under
+`/srv/ellipsoid-fitting/`). The ordinary arguments of the math plan are
+now formalized; as for phases 8 to 10, their novelty is not confirmed.
+
+Notation. `c = (kappa - 3) / 2 > -1` (`cone_shift kappa`) and
+`a0 = min(1, 1 + c)`. `T = cone_map kappa` (`Gaussian/Cones.v`)
+multiplies the diagonal of a matrix by `sqrt (1 + c)`. `K_C = cond_cone C`
+is the cone of the symmetric matrices `S` with `t I <= S <= C t I` for
+some `t >= 0` (`library/matrix/condition_cone.v`). `nu` is the semicircle
+law on `[-sqrt 2, sqrt 2]`, `m(w) = int (z - w)_+ dnu` and
+`v(w) = int (z - w)_+^2 dnu` are its upper moments (`universality_m`,
+`universality_s`), and `J(w) = v(w) + w m(w)`.
+
+### Files
+
+| File | Content |
+|---|---|
+| `ConditionKappaDefinitions.v` | the curve: `L(u) = (u + r (C - 1)^2 m(u)) / C` and `F(u) = m(-L(u)) - C m(u)` with `r = (kappa - 3) / (kappa - 1)` (`condition_kappa_L`, `condition_kappa_F`); the root `u = condition_kappa_u C kappa`, the least upper bound of the `u` in `[0, sqrt 2]` with `F(u) <= 0`; `ell = L(u)` (`condition_kappa_ell`); `J` (`condition_kappa_J`); `alpha(C, kappa) = J(ell) - J(u)` (`condition_kappa_alpha`); its inverse `C_star(alpha, kappa)`, the greatest lower bound of the `C > 1` with `alpha <= alpha(C, kappa)` (`condition_kappa_star`); the variational problem: `V_c(q) = 2 int z q dnu - int q^2 dnu - c (int q dnu)^2` (`condition_kappa_objective`), the admissible profiles for `C`, measurable with `t <= q <= C t` for some `t >= 0` (`condition_kappa_profile`), and the least upper bound of `V_c` over them (`condition_kappa_value`) |
+| `ConditionKappaCurveStatement.v` | for every `kappa > 1` and `C > 1`: (a) `condition_kappa_root`: `0 < u < sqrt 2`, `-sqrt 2 < ell < u`, `F(u) = 0`, and `u` is the only zero of `F` in `[0, sqrt 2]`; (b) `condition_kappa_variational`: `alpha(C, kappa) = condition_kappa_value C kappa`; (c) `condition_kappa_integral`: `alpha(C, kappa) = (1 / (3 pi)) int_[ell, u] (2 - z^2)^(3/2) dz`; (d) `condition_kappa_range`: `0 < alpha(C, kappa) < alpha*(kappa)`, strict increase and continuity in `C` on `(1, oo)`, the limits 0 at 1 and `alpha*(kappa)` at infinity; (e) `condition_kappa_inverse`: for `0 < alpha < alpha*(kappa)`, `C_star(alpha, kappa) > 1`, `alpha(C_star, kappa) = alpha`, and for `C > 1`, `alpha < alpha(C, kappa)` if and only if `C_star < C`; (f) `condition_kappa_three`: `alpha(C, 3) = condition_alpha C` for `C > 1` and `C_star(alpha, 3) = condition_star alpha` for `0 < alpha < 1/4`; their conjunction `condition_kappa_curve_statement` |
+| `ConditionKappaStatement.v` | for `kappa > 1`, `K > 0`, the finite families with `mixture_family K N w mu` and `mixture_fourth_moment kappa N w mu` (or the countable families with `countable_mixture_family K w mu` and `countable_fourth_moment kappa w mu`) and `n / d^2 -> alpha > 0`: `condition_kappa_statement`, (20) at fourth moment `kappa` (for `C > 1`, the fit event of condition number at most `C` is measurable, and its probability tends to 1 if `alpha < alpha(C, kappa)` and to 0 if `alpha > alpha(C, kappa)`); `condition_kappa_number_statement`, (21) for `0 < alpha < alpha*(kappa)` (for every `eps, delta > 0` and every large `d`, the optimal condition number is within `eps` of `C_star(alpha, kappa)` outside a measurable set of samples of probability at most `delta`); their countable versions; and their conjunction `condition_kappa_theorem_statement` |
+| `ConditionKappaRobustStatement.v` | the two conclusions of `ConditionKappaStatement` for `n` i.i.d. points of arbitrary laws `P_d` with `d^2 tv(P_d, nu_d) -> 0` (`robust_close`): around a countable family of fourth moment `kappa` (`robust_condition_kappa_statement`, `robust_condition_kappa_number_statement`), and around a finite family, whose point law `nu_d` is taken with the weights `finite_weights (N d) (w d)` (`finite_robust_condition_kappa_statement`, `finite_robust_condition_kappa_number_statement`); their conjunction `condition_kappa_robust_theorem_statement` |
+| `ConditionKappa/Scalar.v` | `m` is strictly decreasing below `sqrt 2` (`kappa_m_lt`). For `C > 1` and `kappa > 1`: `F` is strictly increasing on `]-oo, sqrt 2]` (`condition_kappa_F_lt`) and Lipschitz (`condition_kappa_F_lip`), with `F(0) < 0 < F(sqrt 2)` (`condition_kappa_F0`, `condition_kappa_Fsq2`); so `0 < u < sqrt 2`, `F(u) = 0` and `u` is the only zero of `F` in `[0, sqrt 2]` (`condition_kappa_u_spec`), and `-sqrt 2 < ell < u` (`condition_kappa_ell_spec`); `condition_kappa_root_holds`, conjunct (a) |
+| `ConditionKappa/Curve.v` | for `C > 1` and `kappa > 1`: the optimal profile `q_s(z) = min (max (z - c mu_s) t_s) (C t_s)` (`condition_kappa_opt`), with mean `mu_s = (C - 1) m(u) / (1 + c)` and level `t_s = (u - ell) / (C - 1) > 0`, satisfies `ell = t_s + c mu_s`, `u = C t_s + c mu_s`, the balance `m(-ell) = C m(u)` and `E q_s = mu_s`; `V_c(q_s) = alpha(C, kappa)`, and `q_s` maximizes `V_c` over the admissible profiles (`condition_kappa_value_alpha`; conjunct (b), `condition_kappa_variational_holds`). The dual form, used by `GaussianLimit.v`: `D(mu) = 1/2 + c (1 + c) mu^2 - inf_(t >= 0) (v(-t - c mu) + v(C t + c mu))` (`condition_kappa_dual`) equals `alpha(C, kappa)` at some `mu0` in `[0, 1 / (sqrt 2 a0)]` (`condition_kappa_dual_opt`), is at most `alpha(C, kappa)` for every `mu` if `kappa <= 3` (`condition_kappa_dual_le`), and at least `alpha(C, kappa)` for every `mu` if `kappa >= 3` (`condition_kappa_dual_ge`). For `kappa > 1`: `V_c(q) <= alpha(C, kappa)` for every profile `q` admissible for `C > 1` (`condition_kappa_alpha_ub`) and `V_c(q) <= alpha*(kappa)` for every admissible profile (`condition_kappa_V_le_star`); `C -> alpha(C, kappa)` is strictly increasing on `(1, oo)` (`condition_kappa_alpha_lt`), locally Lipschitz and continuous (`condition_kappa_alpha_lip`, `condition_kappa_alpha_cont`), at most `(C - 1)^2 / (1 + c)` (`condition_kappa_alpha_near1`), with the limits 0 at 1 and `alpha*(kappa)` at infinity (`condition_kappa_alpha_lim1`, `condition_kappa_alpha_liminf`), and `0 < alpha(C, kappa) < alpha*(kappa)`; conjunct (d), `condition_kappa_range_holds`. Interface I3: `condition_kappa_alpha_left` and `condition_kappa_alpha_right`, the analogues of `condition_alpha_left` and `condition_alpha_right` of `Condition/Curve.v`, and `alpha(C, kappa) < 1/2` (`condition_kappa_alpha_half`); conjunct (e), `condition_kappa_inverse_holds` |
+| `ConditionKappa/Integral.v` | `J(w) = int z (z - w)_+ dnu(z)` (`condition_kappa_JE`) has the derivative `-(2 - w^2)_+^(3/2) / (3 pi)` at every real `w` (`sc2_J_derive`), so `J(a) - J(b)` is the Lebesgue integral of `(2 - z^2)_+^(3/2) / (3 pi)` over `[a, b]` for `a < b` (`sc2_J_integral`); conjunct (c), `condition_kappa_integral_holds`, for `kappa > 1`; for `C > 1` and `kappa > 1`, `alpha(C, kappa) = A(u) - A(ell)` with `A(z) = arcsin (z / sqrt 2) / (2 pi) + z (5 - z^2) sqrt (2 - z^2) / (12 pi)` (`condition_kappa_alpha_arcsine`) |
+| `ConditionKappa/Compatibility.v` | at `kappa = 3`, for `C > 1`: `m(-t_C) = C m(C t_C)` (`condition_t_root`), `u = C t_C` and `ell = t_C`, so `alpha(C, 3) = condition_alpha C` (`condition_kappa_alpha3`); `C_star(alpha, 3) = condition_star alpha` for every `alpha` (`condition_kappa_star3`); conjunct (f), `condition_kappa_three_holds`. `condition_theorem_of_kappa` and `robust_condition_theorem_of_kappa`: the statements of this phase imply `condition_theorem_statement` (phase 8) and `robust_condition_theorem_statement` (phase 10) |
+| `ConditionKappa/Geometry.v` | for `kappa > 1` and `C >= 0`, with `Phi_H(S) = 2 <H, T S> - \|S\|_F^2 - c \|diag S\|_F^2` (`kappa_obj`) and the surrogate `Phi-bar_H(S) = 2 <H, S> - \|S\|_F^2 - (c / d) (tr S)^2` (`trace_quad`): the surrogate maximizer `X(H) = kappa_argmax kappa C H` is the only maximizer of `Phi-bar_H` on `K_C`, with `Phi-bar_H(S) + a0 \|S - X\|_F^2 <= Phi-bar_H(X)`; it is symmetric and positive semidefinite, `\|X\|_F <= \|H\|_F / a0`, it is `1 / a0`-Lipschitz in `H` and equivariant under orthogonal conjugation, and `X(H)` is a measurable function of `a` for `H = goe_mx a / sqrt 2`, with a tail bound for its diagonal variance under `gauss (d * d)` (`kappa_argmax_diag_var_tail`, from `goe_diag_var_tail`). The comparison, for every `c > -1`: `Phi_H(X) <= sup_K Phi_H <= Phi_H(X) + \|E\|_F^2 / a0` with `E = (sqrt (1 + c) - 1) diag H - c (diag X - (tr X / d) I)` (`kappa_argmax_sup`), and the value correction `Phi_H(S) - Phi-bar_H(S) = 2 (sqrt (1 + c) - 1) <diag H, diag S> - c \|diag S - (tr S / d) I\|_F^2` (`kappa_obj_quad`) |
+| `ConditionKappa/Cone.v` | for `kappa > 1` and `C > 1` (some lemmas need less): the cone `T K_C` of row vectors (`kcond_cone_vec`), closed and convex, its base, the image under `T` of the trace-`d` slice (`kcond_slice_vec`), and the support function `sigma_{C,kappa}(A) = sup { <A, T S> : S in K_C, \|T S\|_F <= 1 }` (`kcond_support`); `a0 \|S\|_F^2 <= \|T S\|_F^2 <= max(1, 1 + c) \|S\|_F^2` (`kcond_frobenius`), so the base lies between the radii `sqrt (a0 d)` and `sqrt (max(1, 1 + c) C d)`; the hypotheses of `cone_escape_zero_tail` and `cone_escape_lower_tail` for these sets; `sigma_{C,kappa}(A)` is the norm of the projection of `A` onto `T K_C` (`kcond_support_proj`), lies in `[0, \|A\|_F]`, and equals `cond_support C A` at `kappa = 3` (`kcond_support3`) |
+| `ConditionKappa/GaussianLimit.v` | for `kappa > 1`, `a` of law `gauss (d * d)` and `H = G / sqrt d`, with `G` the symmetric part of `vec_mx a` (diagonal variance 1, off-diagonal variance 1/2): for `C >= 0`, the diagonal variance `diag_var X(H)` of the surrogate maximizer, `tr H / d` and `(sup_K Phi_H - sup_K Phi-bar_H) / d` tend to 0 in probability (`kappa_diag_var_cvg`, `goe_half_trace_cvg`, `kappa_sup_gap_cvg`); for `C > 1`, `(1/d) sup_K Phi-bar_H -> alpha(C, kappa)` in probability (`kappa_quad_sup_cvg`); and interface I1, `kcond_support_cvg`: `sigma_{C,kappa}(vec_mx a) / d -> sqrt alpha(C, kappa)` in probability, since `sigma_{C,kappa}(vec_mx a)^2 = d sup_K Phi_H` (`kcond_support_sqr`) |
+| `ConditionKappa/GaussianWitness.v` | `gaussian_kappa_witness`: for `kappa > 1`, `C > 1` and `0 < alpha < alpha(C, kappa)`, given interface I1 at `C`, there is `c0 >= 0` such that, for every `n` with `n / d^2 -> alpha` and every large `d`, outside a measurable set of probability at most 1/4 under the law of `n` Gaussian features of `gaussian_feature_law kappa d`, some `S` of the trace-`d` slice of `K_C` has `sum_i <Z_i, mxvec S>^2 <= c0` (the proof takes `c0 = 162 max(1, 1 + c) C`), by `cone_escape_zero_tail` on `T K_C` |
+| `ConditionKappa/GaussianGap.v` | `gaussian_kappa_gap`: for `kappa > 1`, `C > 1` and `0 < alpha` with `alpha(C, kappa) < alpha`, given interface I1 at `C`, there is `g > 0` such that, for every `n` with `n / d^2 -> alpha`, every `eps > 0` and every large `d`, outside a measurable set of probability at most `eps` under the law of `n` Gaussian features of `gaussian_feature_law kappa d`, every `S` of the trace-`d` slice of `K_C` and every real `b` have `g n <= sum_i (b - <Z_i, mxvec S>)^2`, by `cone_escape_lower_tail` on `T K_C` with `n - 1` centered rows |
+| `ConditionKappa/Sat.v` | `condition_kappa_sat`: for `K > 0`, `kappa > 1`, `C > 1`, `0 < alpha < alpha(C, kappa)`, a finite family with `mixture_family K N w mu` and `mixture_fourth_moment kappa N w mu`, and `n / d^2 -> alpha`, the probability of an exact fit of condition number at most `C` tends to 1. Its hypotheses are interface I3 in the forms of `condition_kappa_alpha_left` and `condition_kappa_alpha_half` (for every `C' > 1` and `alpha' < alpha(C', kappa)`, some `1 < C_- < C'` with `alpha' < alpha(C_-, kappa)`; and `alpha(C', kappa) < 1/2` for every `C' > 1`), and interface I1 for every `C' > 1`. `condition_kappa_sat_cover` and `condition_kappa_sat_witness` are `condition_sat_cover` and `condition_sat_witness` at fourth moment `kappa`. The proof is that of `Condition/Sat.v` at fourth moment `kappa`: the cover of `Condition/Cover.v`, Theorem 2.9 with its barrier on each slice, the regularity constant `2^10 K^2 / sqrt (kappa - 1)` of the mixture features, the Gaussian witness at `C_-`, and the small-residual interpolation |
+| `ConditionKappa/Unsat.v` | `condition_kappa_unsat`: for `K > 0`, `kappa > 1`, `C > 1` and `alpha > 0` with `alpha > alpha(C, kappa)` (`alpha >= 1/2` included), the same families and `n / d^2 -> alpha`, the probability tends to 0. Its hypotheses are interface I3 in the form of `condition_kappa_alpha_right` (for every `C' > 1` and `alpha' > alpha(C', kappa)`, some `C_+ > C'` with `alpha(C_+, kappa) < alpha'`), and interface I1 for every `C' > 1`. `condition_kappa_unsat_gap` is `condition_unsat_gap` at fourth moment `kappa`. The proof is that of `Condition/Unsat.v` at fourth moment `kappa`, with the Gaussian gap at `C_+` |
+| `ConditionKappa/Theorem.v` | `condition_kappa_statement_holds`: `condition_kappa_statement` from the three forms of interface I3 and interface I1, each for every `kappa > 1`, through `measurable_conditioned_fit_event`, `condition_kappa_sat` and `condition_kappa_unsat`; `condition_kappa_statement_of_I3`: the same with I1 discharged by `kcond_support_cvg` of `GaussianLimit.v`, so that its hypotheses are the three forms of I3, for every `kappa > 1` and `C' > 1` (if `alpha' < alpha(C', kappa)`, some `Cm` in `(1, C')` has `alpha' < alpha(Cm, kappa)`; `alpha(C', kappa) < 1/2`; if `alpha(C', kappa) < alpha'`, some `Cp > C'` has `alpha(Cp, kappa) < alpha'`); `condition_kappa_number_of_threshold`: (20) implies (21), given conjunct (e) for every `kappa > 1`, as `condition_number_of_threshold` does at `kappa = 3`, with `alpha(C, kappa) < alpha` for `1 < C < C_star(alpha, kappa)` from the definition of `C_star` as a greatest lower bound (`condition_kappa_below`) |
+| `ConditionKappa/Countable.v` | `countable_condition_kappa_holds`, `countable_condition_kappa_number_holds`: the finite statements (20) and (21) at fourth moment `kappa` imply the countable ones, through the truncation of `Countable/Truncation.v`, a finite family with the same `K` and fourth moment `kappa`, and the coupling of samples |
+| `ConditionKappa/Robust.v` | for a countable family with `countable_mixture_family K w mu`, laws `P_d` with `d^2 tv(P_d, nu_d) -> 0` and `n / d^2 -> alpha > 0`: `n tv(P_d, nu_d) -> 0` (`robust_tv_small`), so the limits of the probabilities of measurable sets of samples carry over to the samples of `P_d` (`robust_tends_tv`, from `robust_transfer_tv`); the countable statements imply the robust ones (`robust_condition_kappa_holds`, `robust_condition_kappa_number_holds`); a finite family lifts to the admissible countable family (`fin_cw N w`, `fin_cmu N mu`) of `countable_of_finite`: the weights are extended by zero and the inactive component laws, `s >= N d`, are filled with admissible laws (`fin_cfamily`, `fin_cfourth`); the lift has the point law `robust_point_law (finite_weights (N d) (w d)) (mu d) d` (`finite_point_lawE`, `finite_robust_close`), which gives the finite robust statements; `condition_kappa_robust_holds`: `condition_kappa_theorem_statement` implies `condition_kappa_robust_theorem_statement` |
+| `ConditionKappaCurveTheorem.v` | `condition_kappa_curve_theorem : condition_kappa_curve_statement`, from the conjuncts `condition_kappa_root_holds` (`Scalar.v`), `condition_kappa_variational_holds`, `condition_kappa_range_holds` and `condition_kappa_inverse_holds` (`Curve.v`), `condition_kappa_integral_holds` (`Integral.v`) and `condition_kappa_three_holds` (`Compatibility.v`) |
+| `ConditionKappaTheorem.v` | `condition_kappa_theorem : condition_kappa_theorem_statement`: (20) by `condition_kappa_statement_of_I3` with the three forms of I3 of `Curve.v` (`condition_kappa_alpha_left`, `condition_kappa_alpha_half`, `condition_kappa_alpha_right`), (21) by `condition_kappa_number_of_threshold` with `condition_kappa_inverse_holds`, and the countable versions by `countable_condition_kappa_holds` and `countable_condition_kappa_number_holds` (`Countable.v`) |
+| `ConditionKappaRobustTheorem.v` | `condition_kappa_robust_theorem : condition_kappa_robust_theorem_statement`, by `condition_kappa_robust_holds` (`Robust.v`) applied to `condition_kappa_theorem` |
+
+The user accepted the four statement files at commit `c5f41c4`; they are
+frozen, and `scripts/check_sources.py` compares their code with that
+commit.
+
+### The curve
+
+For `C > 1` and `kappa > 1`, `alpha(C, kappa)` is the value of a
+variational problem over the semicircle law: the least upper bound of
+`V_c(q)` over the measurable profiles `q` with `t <= q <= C t` for some
+`t >= 0`. This is the limit problem of the Gaussian side below. The
+maximizer is a clip, `q(z) = min (max (z - c mu) t) (C t)`, with clipping
+points `ell = t + c mu` and `u = C t + c mu`. It is characterized by two
+equations: the balance `m(-ell) = C m(u)`, the first-order condition in
+`t`, and the fixed point `mu = E q`, which accounts for the term
+`c (E q)^2`. Eliminating `t` and `mu` gives `ell = L(u)` and `F(u) = 0`.
+`F` is strictly increasing on `[0, sqrt 2]`, negative at 0 and positive at
+`sqrt 2`, so `u` exists and is unique without an implicit function theorem
+(`Scalar.v`). The value of the clip is `J(ell) - J(u)`, and the general
+facts on clipped profiles (`library/probability/clip_profile.v`, for a
+symmetric law with a finite second moment) show that it is the maximum
+(`Curve.v`). Since `J' = -(2 - w^2)^(3/2) / (3 pi)` on
+`[-sqrt 2, sqrt 2]`, `alpha(C, kappa)` is `(1 / (3 pi))` times the
+integral of `(2 - z^2)^(3/2)` over `[ell, u]`, which an arcsine formula
+evaluates (`Integral.v`). For fixed `kappa`, the curve is strictly
+increasing in `C`: adding a small multiple of an indicator to the optimal
+profile at `C` gives a profile admissible for `C' > C` with a larger
+value. It is locally Lipschitz, tends to 0 as `C -> 1` and to
+`alpha*(kappa)` as `C -> oo`, through explicit profiles whose values tend
+to `alpha*(kappa)`, and its inverse `C_star(alpha, kappa)` is
+characterized by order (`Curve.v`). At `kappa = 3`, `c = r = 0`,
+`L(u) = u / C`, `u = C t_C` and `ell = t_C`, and the curve and its inverse
+are those of phase 8 (`Compatibility.v`).
+
+### The Gaussian limit
+
+The Gaussian side needs interface I1: for `C > 1`,
+`sigma_{C,kappa}(A) / d -> sqrt alpha(C, kappa)` in probability, for a
+`d x d` matrix `A` with independent standard Gaussian entries. With `H`
+the symmetric part of `A` divided by `sqrt d`,
+`sigma_{C,kappa}(A)^2 = d sup_K Phi_H`, where
+`Phi_H(S) = 2 <H, T S> - |S|_F^2 - c |diag S|_F^2` (`GaussianLimit.v`,
+from the projection onto the closed convex cone `T K_C`). At `kappa = 3`,
+`T` is the identity, `c = 0`, and the maximum of `2 <H, S> - |S|_F^2`
+over `K_C` is `|H|_F^2 - dist(H, K_C)^2`, a function of the spectrum of
+`H` that phase 8 computed by Hoffman-Wielandt. For `kappa != 3`, `T`
+rescales the diagonal and `c |diag S|_F^2` penalizes it, so this
+computation does not apply. The route replaces `Phi_H` by the surrogate
+`Phi-bar_H(S) = 2 <H, S> - |S|_F^2 - (c / d) (tr S)^2`, which penalizes
+the trace instead and is invariant under orthogonal conjugation:
+
+- `Phi-bar_H` has a unique maximizer `X(H)` on `K_C`: it is the projection
+  onto a transformed cone after a map that rescales the trace direction
+  (`library/matrix/trace_projection.v`, `Geometry.v`).
+- The two maxima differ by at most `|E|_F^2 / a0` plus a value
+  correction, with `E = (sqrt (1 + c) - 1) diag H - c D` and
+  `D = diag X - (tr X / d) I` (`Geometry.v`). Both are `o(d)` in
+  probability, because `|diag H|_F / sqrt d -> 0` and the diagonal
+  variance of `X(H)` tends to 0, by the rotation invariance of the GOE
+  (`goe_diag_var_tail` of `library/random_matrix/goe_rotation.v`).
+- The maximum of `Phi-bar_H` is a dual problem in the trace mean `mu`:
+  it equals `P(H - c mu I) + c d mu^2` at `mu = tr X / d`, and is bounded
+  by it on one side for every `mu`, according to the sign of `c`. Here
+  `P(B)` is the squared norm of the projection of `B` onto `K_C`, which
+  phase 8 computes through the eigenvalues. The limit of
+  `(P(H - c mu I) + c d mu^2) / d` is the dual form of the curve
+  (`Curve.v`), uniformly in `mu` on a window, by the uniform semicircle
+  law for the GOE at the points of a net in `mu` and Lipschitz bounds in
+  `mu`.
+
+### The data side
+
+The data side follows the files of phase 8 for `kappa = 3` (`Condition/`),
+which it reuses where they do not depend on `kappa` (`Condition/Cover.v`,
+`Condition/Slices.v`). The Gaussian features of fourth moment `kappa`
+satisfy `Z (mxvec S)^T = sqrt (2 / d) A (mxvec (T S))^T` for `S` symmetric
+and a Gaussian matrix `A`, so the convex Gaussian min-max theorem on cones
+(`library/comparison/cone_escape.v`) applies to `T K_C` and its base, and
+gives the Gaussian witness below `alpha(C, kappa)` and the Gaussian gap
+above it. The condition number is always measured on `S`, before `T`.
+Universality is that of phase 8: Theorem 2.9 with its barrier on each
+slice of a finite cover, with the regularity constant of the mixture
+features at fourth moment `kappa`; the Gaussian constants, such as the
+`3^(1/4)` of the regularity bound, do not change. Below the threshold, the
+approximate fit at some `C_- < C` with `alpha < alpha(C_-, kappa)` is
+corrected into an exact fit of condition number at most `C`; above it, an
+exact fit would give a value below the Gaussian gap at some `C_+ > C`.
+(21) follows from (20) as at `kappa = 3`, since the fit events increase
+with the condition number.
+
+### Countable mixtures and perturbations
+
+The countable statements follow from the finite ones by the truncation of
+phase 8 (`Countable.v`). The robust statements follow from the countable
+ones by `robust_transfer_tv` of phase 10, whose bound `n tv(P_d, nu_d)`
+tends to 0 when `d^2 tv(P_d, nu_d) -> 0` and `n / d^2 -> alpha`
+(`Robust.v`). The reference family may be countable or finite; a finite
+family enters through its admissible countable lift, as in
+`countable_of_finite`: the weights are extended by zero and the inactive
+component laws are filled with admissible laws, and the lift has the same
+point law. The laws `P_d` need no moment and no tail bound; the fourth
+moment `kappa` concerns the family. At `kappa = 3` the statements of this
+phase imply those of phases 8 and 10 (`Compatibility.v`).
+
+### Verification
+
+`make check` compiles `check/ConditionKappaCurveAssumptions.v`,
+`check/ConditionKappaAssumptions.v` and
+`check/ConditionKappaRobustAssumptions.v`, which check that the three
+theorems prove the frozen statements, and compares their axioms with the
+expected lists (`scripts/check_sources.py`, rule 19). Each of the three
+theorems uses seven of the eight classical axioms of
+`check/assumptions.expected`, all but `Classical_Prop.classic`, as the
+theorems of phases 5 to 10 do.

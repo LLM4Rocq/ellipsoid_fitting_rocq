@@ -24,12 +24,14 @@ growing with d.
 Each result also states that the events it measures are measurable.
 
 `extension/` goes beyond Gaussian points (see below). Its main result is
-the optimal condition-number theorem of phase 8: for i.i.d. points whose
-law is a finite or countable mixture of product laws with fourth moment 3,
-an exact fit of condition number at most C exists with probability tending
-to one below a threshold alpha_C of n/d^2 and to zero above it, for every
-C > 1, and the optimal condition number of the sample converges to the
-inverse C_star(alpha) of C -> alpha_C. It rests on Theorem 1.2 of Koehler
+the optimal condition-number theorem, proved at fourth moment 3 in phase 8
+and at every fourth moment kappa > 1 in phase 11: for i.i.d. points whose
+law is a finite or countable mixture of product laws with fourth moment
+kappa, an exact fit of condition number at most C exists with probability
+tending to one below a threshold alpha(C, kappa) of n/d^2 and to zero
+above it, for every C > 1, and the optimal condition number of the sample
+converges to the inverse C_star(alpha, kappa) of C -> alpha(C, kappa). It
+rests on Theorem 1.2 of Koehler
 and Sohn, which extends the first result to points with independent
 subgaussian coordinates (phase 5), and on its extension to finite mixtures
 of product laws (phase 6), which phase 8 extends to countable mixtures.
@@ -42,7 +44,9 @@ latent mixture that no countable mixture of product laws approximates,
 and the endpoint expansions of the condition-number curve. Phase 10 makes
 the optimal condition-number theorem robust to perturbations of order
 o(d^-2) in total variation, and bounds the tensorization constant of the
-latent-sign law by an explicit exponential.
+latent-sign law by an explicit exponential. Phase 11 extends the optimal
+condition-number theorem, with its robust form, to every fourth moment
+kappa > 1.
 
 ## Status
 
@@ -76,6 +80,34 @@ latent-sign law by an explicit exponential.
   C_star(alpha), the inverse of C -> alpha_C. The class contains dependent
   laws, the number of components may grow with d, and C_star is the
   optimum for the data, not only a bound.
+- **At every fourth moment, proved.** Phase 11 extends this theorem to
+  every fourth moment kappa > 1:
+  `condition_kappa_theorem : condition_kappa_theorem_statement`
+  (`extension/ConditionKappaTheorem.v`), for the same mixtures with
+  unconditional fourth moment kappa in place of 3. With m and v the first
+  and second upper moments of the semicircle law on [-sqrt 2, sqrt 2] and
+  J(w) = v(w) + w m(w), the threshold is the curve
+  alpha(C, kappa) = J(ell) - J(u), where -sqrt 2 < ell < u < sqrt 2 are
+  the two clipping points of the optimal profile of a variational problem
+  over the semicircle law. For every C > 1, the probability of an exact
+  fit of condition number at most C tends to 1 if alpha < alpha(C, kappa)
+  and to 0 if alpha > alpha(C, kappa) (the threshold (20)); for
+  0 < alpha < alpha*(kappa), the optimal condition number tends in
+  probability to C_star(alpha, kappa), the inverse of C -> alpha(C, kappa)
+  (the limit (21)). Both hold for finite and countable mixtures.
+  `condition_kappa_curve_theorem : condition_kappa_curve_statement`
+  (`extension/ConditionKappaCurveTheorem.v`) proves the properties of the
+  curve: u is the only zero in [0, sqrt 2] of an explicit function F,
+  alpha(C, kappa) is the value of the variational problem and 1/(3 pi)
+  times the integral of (2 - z^2)^(3/2) over [ell, u], and
+  C -> alpha(C, kappa) is continuous and strictly increasing on (1, oo),
+  from 0 to alpha*(kappa), with the inverse C_star(alpha, kappa).
+  `condition_kappa_robust_theorem : condition_kappa_robust_theorem_statement`
+  (`extension/ConditionKappaRobustTheorem.v`) proves (20) and (21) for
+  i.i.d. points of arbitrary laws within o(d^-2) in total variation of a
+  finite or countable family of fourth moment kappa. At kappa = 3 the
+  curve and its inverse are alpha_C and C_star(alpha), and the statements
+  of phase 11 imply those of phases 8 and 10.
 - **Countable mixtures.** `countable_theorem : countable_theorem_statement`
   (`extension/CountableTheorem.v`) is a generality result: the conclusions
   of the finite-mixture theorem below, with its constants, for mixtures
@@ -141,6 +173,16 @@ latent-sign law by an explicit exponential.
   identities (the law of a sample of a countable mixture, a probability
   for the continuous latent law) and corrects the documentation of phase 9.
   `extension/README.md`, section (i), describes them.
+- **The statements of phase 11.** `ConditionKappaDefinitions.v`,
+  `ConditionKappaCurveStatement.v`, `ConditionKappaStatement.v` and
+  `ConditionKappaRobustStatement.v` (in `extension/`) were accepted by the
+  user and are frozen at commit `c5f41c4`. The three theorems use the same
+  seven axioms as the theorems above
+  (`check/ConditionKappaCurveAssumptions.v`,
+  `check/ConditionKappaAssumptions.v`,
+  `check/ConditionKappaRobustAssumptions.v`). `extension/README.md`,
+  section (j), describes them. The ordinary arguments of the math plan are
+  now formalized; their novelty is not confirmed.
 - **The universality theorem, proved.** `extension/` states Theorem 1.2 of
   Koehler and Sohn, *Universality and sharp thresholds for ellipsoid
   fitting* ([arXiv:2608.27372v1](https://arxiv.org/abs/2608.27372v1)): for
@@ -304,7 +346,11 @@ generated`), whose code cannot change. The other modules print none.
   `ConditionEndpointsTheorem.v` (`condition_endpoints_theorem`), and
   those of phase 10: `ConditionRobustTheorem.v`
   (`robust_condition_theorem`) and `LatentTensorUpperTheorem.v`
-  (`latent_tensor_upper_theorem`). The folders of the proofs:
+  (`latent_tensor_upper_theorem`), and those of phase 11:
+  `ConditionKappaCurveTheorem.v` (`condition_kappa_curve_theorem`),
+  `ConditionKappaTheorem.v` (`condition_kappa_theorem`) and
+  `ConditionKappaRobustTheorem.v` (`condition_kappa_robust_theorem`). The
+  folders of the proofs:
   `Model/` (the law of the sample and the measurability of the events),
   `Features/` (the quadratic features of the points, and those of a
   mixture), `Unsat/` (the unsatisfiable phase), `Gaussian/` (the Gaussian
@@ -314,11 +360,14 @@ generated`), whose code cannot change. The other modules print none.
   law and the latent-sign law as mixtures, the scope of the latter and its
   conditional laws), `Countable/` (the truncation of a countable mixture,
   the transfer of the theorem, robustness in total variation and the
-  continuous latent mixture) and `Condition/` (the condition-number
-  theorem, the endpoints of its curve and its robustness).
+  continuous latent mixture), `Condition/` (the condition-number
+  theorem, the endpoints of its curve and its robustness) and
+  `ConditionKappa/` (the condition-number theorem at every fourth moment
+  kappa > 1: the curve, the Gaussian limit, the Gaussian witness and gap,
+  the two halves of the threshold, and the countable and robust versions).
   `extension/README.md` holds the feasibility study of phase 5 and, in its
-  sections (f) to (i), the description of phases 6 to 10.
-- `library/`: the library `GaussianAnalysis`, 80 files of general results
+  sections (f) to (j), the description of phases 6 to 11.
+- `library/`: the library `GaussianAnalysis`, 82 files of general results
   over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
   and concentration, real matrices and probability; the Fourier analysis
   of anti-concentration (characteristic functions written without complex
@@ -339,7 +388,10 @@ generated`), whose code cannot change. The other modules print none.
   semicircle law for families of linear statistics of the GOE, and the
   convex Gaussian min-max theorem on cones; and those of phase 9: the total
   variation distance and its bound for products, and the atoms of a finite
-  measure. The proofs use the library at Stdlib's `R`: in
+  measure; and those of phase 11: the maximizer of a trace-penalized
+  quadratic on a closed convex set of matrices, and the problem over
+  clipped profiles of a symmetric law, with its dual form. The proofs use
+  the library at Stdlib's `R`: in
   `theories/`, `Gaussian/Law/LibraryBridge` identifies the library's
   Gaussian measure with the product law of the statement,
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
@@ -479,8 +531,8 @@ done, and the second is done in part.
    now. The library had 37 files and 21,005 lines at the end of phase 4,
    72 files and 48,032 lines after phase 5, 75 files and 48,991 lines
    after phase 6, 78 files and 51,203 lines after phase 8, 80 files and
-   51,666 lines after phase 9, and has 80 files and 51,796 lines after
-   phase 10.
+   51,666 lines after phase 9, 80 files and 51,796 lines after phase 10,
+   and has 82 files and 53,142 lines after phase 11.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -525,4 +577,7 @@ of the condition-number curve, and the follow-ups of the review of the
 phase 8 release (tag `phase9`). Phase 10 proved the robustness of the
 optimal condition number and a finite tensorization constant, with
 reusable identities and the corrections of the review of the phase 9
-release (tag `phase10`).
+release (tag `phase10`). Phase 11 proved the optimal condition number
+at every fourth moment kappa > 1, for finite and countable mixtures and
+their perturbations in total variation, with the properties of its curve
+(tag `phase11`).
