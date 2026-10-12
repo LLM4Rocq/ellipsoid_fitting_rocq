@@ -34,7 +34,20 @@
       and -1/a of the first coordinate avoid cl_null for all a off a
       countable, Lebesgue-null set (cl_set_point_law, by ae_eq_integral and
       countable_lebesgue_measure0). With both laws in [0, 1], the total
-      variation distance is 1. *)
+      variation distance is 1.
+   6. The law (18) as a probability (phase 10, item I2). cl_law d is a copy
+      of cl_point_law d with the structure of a probability on
+      d.-tuple (measurableTypeR R), equal to it on every set (cl_lawE). Its
+      sigma-additivity comes from that of the integrand, a finite sum of
+      weighted Dirac masses at the points of (18), through
+      integral_nneseries. integral_cl_law: the integral of a nonnegative
+      measurable f against cl_law d is the integral over a in [1, 2] of the
+      sum over the sign patterns v of the weights times f at the point (by
+      simple functions and monotone convergence, as integral_kcomp of
+      kernel.v). integral_cl_law_coord: for a function of the coordinate j
+      the sum over v reduces to the two values of that coordinate.
+      cl_law_mean, cl_law_second_moment, cl_law_fourth_moment: every
+      coordinate has mean 0, second moment 1 and fourth moment 11/6. *)
 
 From Stdlib Require Import Reals List.
 From HB Require Import structures.
@@ -52,6 +65,7 @@ From EllipsoidUniversality Require Import RobustDefinitions ContinuousLatent.
 
 Import Order.TTheory GRing.Theory Num.Def Num.Theory.
 Import numFieldTopology.Exports numFieldNormedType.Exports.
+Import HBNNSimple.
 
 Local Open Scope ring_scope.
 Local Open Scope classical_set_scope.
@@ -94,8 +108,9 @@ Section cl_fourth.
 Context {R' : realType}.
 Local Notation mu := (@lebesgue_measure R').
 
-Lemma cl_fourth_integral :
-  \int[mu]_(a in `[1, 2%:R]) (a ^+ 2 - 1 + a ^- 2) = 11%:R / 6%:R :> R'.
+Lemma cl_fourth_integralE :
+  (\int[mu]_(a in `[1%R, 2%:R%R]) ((a : R') ^+ 2 - 1 + (a : R') ^- 2)%:E)%E =
+  (11%:R / 6%:R : R')%:E.
 Proof.
 pose F (y : R') := 3%:R^-1 * y ^+ 3 - y - y^-1.
 pose f (y : R') := y ^+ 2 - 1 + y ^- 2.
@@ -121,7 +136,7 @@ have pos (y : R') : y \in `]1, 2%:R[%R -> y != 0.
   by rewrite in_itv /= => /andP[y1 _]; rewrite gt_eqF // (lt_trans ltr01 y1).
 have n1 : (1 : R') != 0 by rewrite oner_eq0.
 have n2 : (2%:R : R') != 0 by rewrite pnatr_eq0.
-rewrite /Rintegral (@continuous_FTC2 _ _ F).
+rewrite (@continuous_FTC2 _ _ F).
 - by rewrite ltr1n.
 - apply: continuous_in_subspaceT => y; rewrite inE /= in_itv /= => /andP[y1 _].
   by apply: cf; rewrite gt_eqF // (lt_le_trans ltr01 y1).
@@ -131,8 +146,12 @@ rewrite /Rintegral (@continuous_FTC2 _ _ F).
   + by apply: cvg_at_left_filter; exact: cF.
 - move=> y y12.
   by rewrite derive1E (@derive_val _ _ _ _ _ _ _ (dF y (pos y y12))).
-- by rewrite /= /F; field.
+- by rewrite -EFinB /F; congr EFin; field.
 Qed.
+
+Lemma cl_fourth_integral :
+  \int[mu]_(a in `[1, 2%:R]) (a ^+ 2 - 1 + a ^- 2) = 11%:R / 6%:R :> R'.
+Proof. by rewrite /Rintegral cl_fourth_integralE. Qed.
 
 (* The weights and the coordinate values of max a 1 are continuous in a. *)
 Lemma cl_weight_continuous (b : bool) :
@@ -472,4 +491,280 @@ split.
 - exact: cl_fourth_integral.
 - case=> [|[|d']] // _; split; first exact: cl_point_law_setT.
   by move=> w mu w0 w1; exact: cl_tv.
+Qed.
+
+(* 6. The law (18) as a probability, with the moments of its coordinates
+   (phase 10, item I2). *)
+
+Lemma measurable_cl_pt d (v : d.-tuple bool) :
+  measurable_fun [set: RT] (fun a : RT => cl_pt d a v).
+Proof.
+apply/measurable_fun_tnthP => j.
+apply: (eq_measurable_fun (fun a : RT => (cl_val a (tnth v j) : RT))).
+  by move=> a _; rewrite /= /cl_pt tnth_mktuple.
+exact: continuous_measurable_fun (@cl_val_continuous RR (tnth v j)).
+Qed.
+
+Section cl_law.
+Variable d : nat.
+
+(* A copy of cl_point_law d that carries the structure of a probability. *)
+Definition cl_law : set (d.-tuple RT) -> \bar R := cl_point_law d.
+
+Lemma cl_lawE (A : set (d.-tuple RT)) : cl_law A = cl_point_law d A.
+Proof. by []. Qed.
+
+Lemma cl_law0 : cl_law set0 = 0%E.
+Proof.
+rewrite cl_lawE cl_point_lawE; apply: integral0_eq => a _.
+by rewrite /cl_int big1 // => v _; rewrite indicE in_set0 mule0.
+Qed.
+
+Lemma cl_law_ge0 (A : set (d.-tuple RT)) : (0 <= cl_law A)%E.
+Proof.
+by rewrite cl_lawE cl_point_lawE; apply: integral_ge0 => a _; exact: cl_int_ge0.
+Qed.
+
+Lemma cl_law_sigma_additive : semi_sigma_additive cl_law.
+Proof.
+move=> F mF tF mUF.
+have hI (x : d.-tuple RT) :
+    (((\1_(\bigcup_k F k) x : R))%:E = \sum_(k <oo) ((\1_(F k) x : R))%:E)%E.
+  transitivity (\d_x (\bigcup_k F k) : \bar R); first by rewrite diracE indicE.
+  rewrite (@measure_bigcup _ _ _ (@dirac _ _ x R) [set: nat] F
+    (fun i _ => mF i) tF).
+  rewrite (eq_eseriesl (P := fun i => i \in [set: nat]) (Q := xpredT)).
+    by move=> i; rewrite in_setT.
+  by apply: eq_eseriesr => k _; rewrite indicE; exact: diracE.
+have hU : cl_law (\bigcup_k F k) = (\sum_(k <oo) cl_law (F k))%E.
+  rewrite cl_lawE cl_point_lawE.
+  transitivity (\sum_(k <oo) \int[@lebesgue_measure R]_(a in `[1%R, 2%:R%R])
+      cl_int d (F k) a)%E; last first.
+    by apply: eq_eseriesr => k _; rewrite cl_lawE cl_point_lawE.
+  rewrite -integral_nneseries //.
+  - by move=> k; apply: measurable_funTS; exact: measurable_cl_int.
+  - by move=> k a _; exact: cl_int_ge0.
+  - apply: eq_integral => a _.
+    rewrite /cl_int nneseries_sum.
+      move=> v k _; apply: mule_ge0; rewrite lee_fin ?indicE ?ler0n //.
+      by apply: prodr_ge0 => j _; exact: cl_weight_ge0.
+    apply: eq_bigr => v _.
+    rewrite nneseriesZl; first by move=> k _; rewrite lee_fin indicE ler0n.
+    by rewrite hI.
+rewrite [X in _ --> X]hU.
+apply/cvg_closeP; split; last by rewrite closeE.
+by apply: is_cvg_nneseries => k _; rewrite cl_law_ge0.
+Qed.
+
+HB.instance Definition _ := isMeasure.Build _ _ _ cl_law
+  cl_law0 cl_law_ge0 cl_law_sigma_additive.
+
+HB.instance Definition _ :=
+  @Measure_isProbability.Build _ _ R cl_law (cl_point_law_setT d).
+
+End cl_law.
+
+(* The integral of a nonnegative measurable function of a point of (18). *)
+Lemma integral_cl_law d (f : d.-tuple RT -> \bar R) :
+  (forall x, 0 <= f x)%E -> measurable_fun [set: d.-tuple RT] f ->
+  (\int[cl_law d]_x f x =
+   \int[@lebesgue_measure R]_(a in `[1%R, 2%:R%R])
+     \sum_(v : d.-tuple bool)
+       (\prod_(j < d) cl_weight a (tnth v j))%:E * f (cl_pt d a v))%E.
+Proof.
+move=> f0 mf.
+pose W (a : R) (v : d.-tuple bool) : R := \prod_(j < d) cl_weight a (tnth v j).
+have W0 a v : (0 <= W a v)%R by apply: prodr_ge0 => j _; exact: cl_weight_ge0.
+have mW v : measurable_fun [set: RT] (fun a : RT => (W a v : RR)).
+  apply: measurable_prod => j _.
+  exact: continuous_measurable_fun (@cl_weight_continuous RR (tnth v j)).
+have mG (g : d.-tuple RT -> \bar R) : measurable_fun [set: d.-tuple RT] g ->
+    measurable_fun [set: RT]
+      (fun a : RT => (\sum_(v : d.-tuple bool) (W a v)%:E * g (cl_pt d a v))%E).
+  move=> mg; apply: emeasurable_sum => v; apply: emeasurable_funM.
+    exact/measurable_EFinP.
+  exact: measurableT_comp mg (measurable_cl_pt d v).
+(* Nonnegative simple functions: linearity from the indicators. *)
+have hS (h : {nnsfun (d.-tuple RT) >-> R}) :
+    (\int[cl_law d]_x (h x)%:E =
+     \int[@lebesgue_measure R]_(a in `[1%R, 2%:R%R])
+       \sum_(v : d.-tuple bool) (W a v)%:E * (h (cl_pt d a v))%:E)%E.
+  have fh := @fimfunP _ _ h.
+  have h0 r : r \in range h -> (0 <= r)%R.
+    by move=> /set_mem [x _ <-]; exact: fun_ge0.
+  rewrite integralT_nnsfun sintegralE fsbigop.fsbig_finite //.
+  set S := fset_set (range h).
+  have hS0 r : r \in S -> (0 <= r)%R by rewrite in_fset_set // => /h0.
+  transitivity (\int[@lebesgue_measure R]_(a in `[1%R, 2%:R%R])
+      \sum_(r <- S) r%:E * cl_int d (h @^-1` [set r]) a)%E.
+    rewrite ge0_integral_sum.
+    - exact: measurable_itv.
+    - move=> r; apply: measurable_funeM; apply: measurable_funTS.
+      by apply: measurable_cl_int; exact: measurable_funPTI.
+    - move=> r a _; have [r0|r0] := leP 0%R r.
+        by rewrite mule_ge0 // ?lee_fin // cl_int_ge0.
+      rewrite preimage_nnfun0 //.
+      by rewrite /cl_int big1 ?mule0 // => v _; rewrite indicE in_set0 mule0.
+    - rewrite big_seq [RHS]big_seq; apply: eq_bigr => r hr.
+      have mhr : measurable (h @^-1` [set r]) by exact: measurable_funPTI.
+      rewrite ge0_integralZl //.
+      + by apply: measurable_funTS; exact: measurable_cl_int.
+      + by move=> a _; exact: cl_int_ge0.
+      + by rewrite lee_fin hS0.
+      + by congr (_ * _)%E; exact: (cl_point_lawE d (h @^-1` [set r])).
+  apply: eq_integral => a _.
+  have hc r : cl_int d (h @^-1` [set r]) a =
+      (\sum_v W a v * \1_(h @^-1` [set r]) (cl_pt d a v))%:E.
+    by rewrite /cl_int -sumEFin; apply: eq_bigr => v _; rewrite EFinM.
+  under eq_bigr do rewrite hc -EFinM.
+  rewrite sumEFin.
+  transitivity ((\sum_v W a v * h (cl_pt d a v))%:E); last first.
+    by rewrite -sumEFin; apply: eq_bigr => v _; rewrite EFinM.
+  congr EFin.
+  under eq_bigr do rewrite mulr_sumr.
+  rewrite exchange_big /=; apply: eq_bigr => v _.
+  rewrite [in RHS]fimfunE fsbigop.fsbig_finite // mulr_sumr.
+  by apply: eq_bigr => r _; rewrite mulrCA.
+(* Monotone limits of simple functions. *)
+pose f_ := nnsfun_approx measurableT mf.
+have cf x : ((f_ n x)%:E @[n --> \oo] --> f x)%E.
+  by apply: cvg_nnsfun_approx => // y _; exact: f0.
+transitivity (limn (fun n => \int[cl_law d]_x (f_ n x)%:E))%E.
+  rewrite -monotone_convergence //.
+  - by move=> n; exact/measurable_EFinP.
+  - by move=> n x _; rewrite lee_fin.
+  - by move=> x _ m n mn; rewrite lee_fin; exact/lefP/nd_nnsfun_approx.
+  - by apply: eq_integral => x _; apply/esym/cvg_lim => //; exact: cf.
+have hlim : (fun n => \int[cl_law d]_x (f_ n x)%:E)%E =
+    (fun n => \int[@lebesgue_measure R]_(a in `[1%R, 2%:R%R])
+      \sum_(v : d.-tuple bool) (W a v)%:E * (f_ n (cl_pt d a v))%:E)%E.
+  by apply/funext => n; rewrite hS.
+rewrite hlim -monotone_convergence //.
+- move=> n; apply: measurable_funTS.
+  by apply: (mG (fun y => (f_ n y)%:E)); exact/measurable_EFinP.
+- by move=> n a _; apply: sume_ge0 => v _; rewrite mule_ge0 // lee_fin.
+- move=> a _ m n mn; apply: lee_sum => v _.
+  apply: lee_wpmul2l; first by rewrite lee_fin.
+  by rewrite lee_fin; exact/lefP/nd_nnsfun_approx.
+- apply: eq_integral => a _; apply/cvg_lim => //.
+  apply: cvg_nnesum => [v _|v _].
+    by apply: nearW => n; rewrite mule_ge0 // lee_fin.
+  by apply: cvgeZl => //; exact: cf.
+Qed.
+
+(* The integral of a nonnegative function of the coordinate j. *)
+Lemma integral_cl_law_coord d (j : 'I_d) (g : R -> R) :
+  (forall t, 0 <= g t) -> measurable_fun [set: RT] (g : RT -> RR) ->
+  (\int[cl_law d]_x (g (tnth x j))%:E =
+   \int[@lebesgue_measure R]_(a in `[1%R, 2%:R%R])
+     (\sum_(b : bool) cl_weight a b * g (cl_value a b))%:E)%E.
+Proof.
+move=> g0 mg.
+rewrite integral_cl_law.
+- by move=> x; rewrite lee_fin.
+- by apply/measurable_EFinP; exact: measurableT_comp mg (measurable_tnth j).
+apply: eq_integral => a; rewrite inE /= in_itv /= => /andP[a1 _].
+have hv (v : d.-tuple bool) :
+    ((\prod_(i < d) cl_weight a (tnth v i))%:E * (g (tnth (cl_pt d a v) j))%:E)%E =
+    (\prod_(i < d) (if i == j then cl_weight a (tnth v i) * g (cl_value a (tnth v i))
+                    else cl_weight a (tnth v i)))%:E.
+  rewrite -EFinM /cl_pt tnth_mktuple /cl_val max_l //; congr EFin.
+  rewrite [X in X * _](bigD1 j) //= [RHS](bigD1 j) //= eqxx mulrAC.
+  by congr (_ * _); apply: eq_bigr => i ij; rewrite (negbTE ij).
+rewrite (eq_bigr _ (fun v _ => hv v)) sumEFin; congr EFin.
+rewrite (big_tuple_distr (fun i b => if i == j then cl_weight a b * g (cl_value a b)
+                                      else cl_weight a b)).
+rewrite (bigD1 j) //= eqxx [X in _ * X]big1 ?mulr1 // => i ij.
+by rewrite (negbTE ij) big_bool /= cl_weight_sum.
+Qed.
+
+(* The coordinates have mean 0, second moment 1 and fourth moment 11/6. *)
+Lemma cl_law_mean d (j : 'I_d) :
+  ('E_(cl_law d)[fun x => (tnth x j : R)] = 0)%E.
+Proof.
+rewrite unlock integralE.
+have mP : measurable_fun [set: RT] ((fun t : R => maxr t 0) : RT -> RR).
+  exact: measurable_maxr.
+have mN : measurable_fun [set: RT] ((fun t : R => maxr (- t) 0) : RT -> RR).
+  by apply: measurable_maxr => //; exact: measurableT_comp.
+(* Both parts of the coordinate integrate a / (1 + a^2) over [1, 2]. *)
+have hpos : (\int[cl_law d]_x (fun x0 => (tnth x0 j : R)%:E)^\+ x =
+    \int[@lebesgue_measure R]_(a in `[1%R, 2%:R%R])
+      ((a : R) / (1 + (a : R) ^+ 2))%:E)%E.
+  transitivity (\int[cl_law d]_x (maxr (tnth x j : R) 0)%:E)%E.
+    by apply: eq_integral => x _; rewrite funeposE EFin_max.
+  rewrite (integral_cl_law_coord _ j (fun t => maxr t 0)) //; last first.
+    apply: eq_integral => a; rewrite inE /= in_itv /= => /andP[a1 _].
+    have a0 : (0 < (a : R))%R by apply: lt_le_trans a1.
+    congr EFin; rewrite big_bool /= /cl_weight /cl_value /=.
+    have -> : maxr (a : R) 0 = a by apply/max_idPl; exact: ltW.
+    have -> : maxr (- (a : R)^-1) 0 = 0.
+      by apply/max_idPr; rewrite oppr_le0 invr_ge0 ltW.
+    by rewrite mulr0 addr0 mulrC.
+  by move=> t; rewrite le_max lexx orbT.
+have hneg : (\int[cl_law d]_x (fun x0 => (tnth x0 j : R)%:E)^\- x =
+    \int[@lebesgue_measure R]_(a in `[1%R, 2%:R%R])
+      ((a : R) / (1 + (a : R) ^+ 2))%:E)%E.
+  transitivity (\int[cl_law d]_x (maxr (- (tnth x j : R)) 0)%:E)%E.
+    by apply: eq_integral => x _; rewrite funenegE -EFinN EFin_max.
+  rewrite (integral_cl_law_coord _ j (fun t => maxr (- t) 0)) //; last first.
+    apply: eq_integral => a; rewrite inE /= in_itv /= => /andP[a1 _].
+    have a0 : (0 < (a : R))%R by apply: lt_le_trans a1.
+    congr EFin; rewrite big_bool /= /cl_weight /cl_value /=.
+    have -> : maxr (- (a : R)) 0 = 0 by apply/max_idPr; rewrite oppr_le0 ltW.
+    have -> : maxr (- - (a : R)^-1) 0 = (a : R)^-1.
+      by rewrite opprK; apply/max_idPl; rewrite invr_ge0 ltW.
+    have an : (a : R) != 0 by rewrite gt_eqF.
+    have hn : 1 + (a : R) ^+ 2 != 0 by rewrite gt_eqF // ltr_pwDl // sqr_ge0.
+    by rewrite mulr0 add0r; field.
+  by move=> t; rewrite le_max lexx orbT.
+rewrite hpos hneg subee //.
+(* That integral is finite: its integrand lies in [0, 1]. *)
+have mw : measurable_fun [set: RT]
+    (fun a : RT => ((a : R) / (1 + (a : R) ^+ 2)) : RR).
+  apply: measurable_funM => //.
+  exact: continuous_measurable_fun (@cl_weight_continuous RR true).
+have h01 (a : R) : 1 <= a -> (0 <= a / (1 + a ^+ 2) <= 1)%R.
+  move=> a1; have a0 : (0 <= a)%R by apply: le_trans a1.
+  have hp : (0 < 1 + a ^+ 2)%R by rewrite ltr_pwDl // sqr_ge0.
+  rewrite divr_ge0 ?(ltW hp) //= ler_pdivrMr // mul1r.
+  apply: le_trans (_ : a <= a ^+ 2) _; first by rewrite expr2 ler_peMl.
+  by rewrite lerDr.
+rewrite ge0_fin_numE; last first.
+  apply: (@le_lt_trans _ _ 1%E); last exact: ltry.
+  rewrite -cl_int_cst1; apply: ge0_le_integral => //.
+  - move=> a ha; have /andP[a1 _] : (1 <= (a : R) <= 2%:R)%R.
+      by move: ha => /=; rewrite in_itv.
+    by rewrite lee_fin; case/andP: (h01 a a1).
+  - by apply/measurable_EFinP; exact: measurable_funTS.
+  - move=> a ha; have /andP[a1 _] : (1 <= (a : R) <= 2%:R)%R.
+      by move: ha => /=; rewrite in_itv.
+    by rewrite lee_fin; case/andP: (h01 a a1).
+apply: integral_ge0 => a ha.
+have /andP[a1 _] : (1 <= (a : R) <= 2%:R)%R by move: ha => /=; rewrite in_itv.
+by rewrite lee_fin; case/andP: (h01 a a1).
+Qed.
+
+Lemma cl_law_second_moment d (j : 'I_d) :
+  ('E_(cl_law d)[fun x => ((tnth x j : R) ^+ 2)%R] = 1)%E.
+Proof.
+have mX k : measurable_fun [set: RT] ((fun t : R => t ^+ k) : RT -> RR).
+  exact: continuous_measurable_fun (@exprn_continuous RR k).
+rewrite unlock (integral_cl_law_coord _ j (fun t => t ^+ 2)) //; last first.
+  rewrite -cl_int_cst1; apply: eq_integral => a; rewrite inE /= in_itv /= => ha.
+  by have [_ _ h2 _ _] := cl_component a ha; rewrite -h2.
+by move=> t; exact: sqr_ge0.
+Qed.
+
+Lemma cl_law_fourth_moment d (j : 'I_d) :
+  ('E_(cl_law d)[fun x => ((tnth x j : R) ^+ 4)%R] =
+   ((11%:R / 6%:R)%R)%:E)%E.
+Proof.
+have mX k : measurable_fun [set: RT] ((fun t : R => t ^+ k) : RT -> RR).
+  exact: continuous_measurable_fun (@exprn_continuous RR k).
+rewrite unlock (integral_cl_law_coord _ j (fun t => t ^+ 4)) //; last first.
+  rewrite -(@cl_fourth_integralE RR); apply: eq_integral => a.
+  rewrite inE /= in_itv /= => ha.
+  by have [_ _ _ h4 _] := cl_component a ha; rewrite -h4.
+by move=> t; rewrite exprn_even_ge0.
 Qed.

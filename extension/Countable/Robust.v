@@ -22,6 +22,14 @@
      with its constants. The samples are read as lists of points by
      robust_points, whose image of a measurable set is measurable
      (robust_points_image, measurable_robust_image).
+   - rob_nu_sample, the exact identity (phase 10, item I): for every
+     measurable set E of samples, the samples of n i.i.d. points of law
+     nu_d have the law countable_mixture_probability, by
+     tuple_prod_cmixture of library/probability/countable_mixture.v and
+     tuple_prod_rows. Hence robust_transfer_tv: the samples of law P and
+     those of the family differ by at most n tv(P, nu_d) on E, with no
+     truncation term (tuple_prod_tv). The proofs of the statements above
+     keep the route through the truncation.
    - contamination_holds : contamination_statement.
      (a) The contaminated components s < N keep their laws, with weights
      multiplied by 1 - lambda / n, and the component N, the zero point, has
@@ -316,6 +324,43 @@ apply: le_trans (ler_distD (fine Y) _ _) _.
 rewrite [`|fine Y - fine Z|]distrC.
 apply: le_trans (lerD (le_trans h1 hn) h2) _.
 by rewrite le_eqVlt; apply/orP; left; apply/eqP; ring.
+Qed.
+
+(* The exact identity: the samples of n i.i.d. points of the point law nu_d
+   of the countable family have the law countable_mixture_probability. *)
+Lemma rob_nu_sample n d (E : set (paper_main_sample n d)) : measurable E ->
+  robust_sample_law n d (rob_nu d) E =
+  countable_mixture_probability (w d) (mu d) n d E.
+Proof.
+move=> mE.
+have mB := measurable_robust_image n d E mE.
+rewrite /robust_sample_law /rob_nu (tuple_prod_cmixture _ _ mB).
+rewrite /countable_mixture_probability; apply: eq_esum => s _; congr (_ * _)%E.
+rewrite /countable_labelled_law -[in RHS](robust_points_preimage n d E).
+rewrite -(tuple_prod_rows _ mB).
+have -> : tuple_prod (fun k => tuple_prod (mu d (nth 0%N s k)) d) n =
+    tuple_prod (fun i => tuple_prod (fun j =>
+      mu d (nth 0%N s ((i * d + j) %/ d)) ((i * d + j) %% d)) d) n.
+  apply: eq_tuple_prod => i hi; apply: eq_tuple_prod => j hj.
+  have d0 : (0 < d)%N by apply: leq_ltn_trans (leq0n j) hj.
+  by rewrite divnMDl // divn_small // addn0 modnMDl modn_small.
+by [].
+Qed.
+
+(* The transfer without truncation terms: on every measurable set of
+   samples, the samples of n i.i.d. points of law P and those of the
+   family differ by at most n tv(P, nu_d). *)
+Lemma robust_transfer_tv n d (P : probability (pt d) RR)
+    (E : set (paper_main_sample n d)) : measurable E ->
+  (`|robust_sample_law n d P E -
+     countable_mixture_probability (w d) (mu d) n d E| <=
+   (n%:R * tv_dist P (rob_nu d))%:E)%E.
+Proof.
+move=> mE.
+have mB := measurable_robust_image n d E mE.
+rewrite -rob_nu_sample //.
+have h := tuple_prod_tv (fun=> P) (fun=> rob_nu d) mB.
+by rewrite sumr_const card_ord -mulr_natl in h.
 Qed.
 
 (* The probabilities of the countable family are finite. *)

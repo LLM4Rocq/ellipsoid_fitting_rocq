@@ -99,6 +99,20 @@
    the robustness of the optimal condition number and of the finite
    tensorization constant of the latent-sign law, must equal its code at
    the commit PHASE10_BASELINE, at which the user accepted them.
+15. Phase 10. check/ConditionRobustAssumptions.v and
+   check/LatentTensorUpperAssumptions.v have the codes
+   CONDITION_ROBUST_CHECK and LATENT_TENSOR_UPPER_CHECK: they check that
+   robust_condition_theorem proves robust_condition_theorem_statement and
+   latent_tensor_upper_theorem proves latent_tensor_upper_statement, and
+   print their axioms. Given their outputs as thirteenth and fourteenth
+   arguments, every axiom they print is among those of
+   check/condition_robust_assumptions.expected and
+   check/latent_tensor_upper_assumptions.expected, whose axioms are among
+   those of check/assumptions.expected.
+16. Phase 10. The check files and expected lists of CHECKS_EXACT_P9, those
+   of the axiom checks of phase 9, are byte-identical to the commit
+   CHECKS_P9_BASELINE, a separate baseline; CHECKS_BASELINE,
+   CHECKS_P8_BASELINE and check/frozen-baseline do not change.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -155,6 +169,17 @@ CHECKS_EXACT_P8 = [
     "check/latent_scope_assumptions.expected",
 ]
 CHECKS_P8_BASELINE = "a89ed1e6e29e1041a9a108d82f85bc84620bdd3d"
+CHECKS_EXACT_P9 = [
+    "check/RobustAssumptions.v",
+    "check/robust_assumptions.expected",
+    "check/LatentTensorAssumptions.v",
+    "check/latent_tensor_assumptions.expected",
+    "check/ContinuousLatentAssumptions.v",
+    "check/continuous_latent_assumptions.expected",
+    "check/ConditionEndpointsAssumptions.v",
+    "check/condition_endpoints_assumptions.expected",
+]
+CHECKS_P9_BASELINE = "e4c46e12d61a28bed6047968565c8424b505319b"
 TUPLE_PROD = "library/probability/lindeberg.v"
 LATENT_FROZEN = [
     "extension/LatentSignDefinitions.v",
@@ -237,6 +262,16 @@ CONDITION_ENDPOINTS_CHECK = (
     "ConditionEndpointsTheorem. Definition condition_endpoints_theorem_checked "
     ": condition_endpoints_statement := condition_endpoints_theorem. "
     "Print Assumptions condition_endpoints_theorem.")
+CONDITION_ROBUST_CHECK = (
+    "From EllipsoidUniversality Require Import ConditionRobustStatement "
+    "ConditionRobustTheorem. Definition robust_condition_theorem_checked "
+    ": robust_condition_theorem_statement := robust_condition_theorem. "
+    "Print Assumptions robust_condition_theorem.")
+LATENT_TENSOR_UPPER_CHECK = (
+    "From EllipsoidUniversality Require Import LatentTensorUpper "
+    "LatentTensorUpperTheorem. Definition latent_tensor_upper_theorem_checked "
+    ": latent_tensor_upper_statement := latent_tensor_upper_theorem. "
+    "Print Assumptions latent_tensor_upper_theorem.")
 # The theorems of phases 6 and 7: name, check file, its code, expected
 # axioms; their reports are the third, fourth and fifth arguments.
 PHASE6_THEOREMS = [
@@ -269,6 +304,15 @@ PHASE9_THEOREMS = [
     ("condition-endpoints theorem", "check/ConditionEndpointsAssumptions.v",
      CONDITION_ENDPOINTS_CHECK,
      "check/condition_endpoints_assumptions.expected"),
+]
+# The theorems of phase 10; their reports are the thirteenth and
+# fourteenth arguments.
+PHASE10_THEOREMS = [
+    ("robust condition-number theorem", "check/ConditionRobustAssumptions.v",
+     CONDITION_ROBUST_CHECK, "check/condition_robust_assumptions.expected"),
+    ("tensorization upper bound", "check/LatentTensorUpperAssumptions.v",
+     LATENT_TENSOR_UPPER_CHECK,
+     "check/latent_tensor_upper_assumptions.expected"),
 ]
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 ASSUMPTION = re.compile(
@@ -367,6 +411,9 @@ def main():
     for path in CHECKS_EXACT_P8:
         if (ROOT / path).read_text() != at_baseline(CHECKS_P8_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_P8_BASELINE[:12]}")
+    for path in CHECKS_EXACT_P9:
+        if (ROOT / path).read_text() != at_baseline(CHECKS_P9_BASELINE, path):
+            failures.append(f"{path}: differs from {CHECKS_P9_BASELINE[:12]}")
     now = tuple_prod_code((ROOT / TUPLE_PROD).read_text())
     if now[1] is None:
         failures.append(f"{TUPLE_PROD}: no section tuple_prod")
@@ -420,7 +467,8 @@ def main():
                   "check/universality_assumptions.expected:",
                   ", ".join(sorted(printed)) or "none")
     for k, (name, check, check_code, expected) in enumerate(
-            PHASE6_THEOREMS + PHASE8_THEOREMS + PHASE9_THEOREMS):
+            PHASE6_THEOREMS + PHASE8_THEOREMS + PHASE9_THEOREMS
+            + PHASE10_THEOREMS):
         if code((ROOT / check).read_text()) != check_code:
             failures.append(f"{check}: code differs from the expected check")
         allowed_k = axiom_names((ROOT / expected).read_text())
@@ -446,6 +494,8 @@ def main():
           f"{CHECKS_BASELINE[:12]}; "
           f"{len(CHECKS_EXACT_P8)} check files of phases 7 and 8 unchanged since "
           f"{CHECKS_P8_BASELINE[:12]}; "
+          f"{len(CHECKS_EXACT_P9)} check files of phase 9 unchanged since "
+          f"{CHECKS_P9_BASELINE[:12]}; "
           f"{len(LATENT_FROZEN)} frozen files of phase 7 unchanged since "
           f"{LATENT_BASELINE[:12]}; "
           f"{len(PHASE8_FROZEN)} frozen files of phase 8 unchanged since "
@@ -467,7 +517,9 @@ def main():
           + ("; axioms of the robustness theorem allowed" if len(sys.argv) > 9 else "")
           + ("; axioms of the tensorization theorem allowed" if len(sys.argv) > 10 else "")
           + ("; axioms of the continuous-latent theorem allowed" if len(sys.argv) > 11 else "")
-          + ("; axioms of the condition-endpoints theorem allowed" if len(sys.argv) > 12 else ""))
+          + ("; axioms of the condition-endpoints theorem allowed" if len(sys.argv) > 12 else "")
+          + ("; axioms of the robust condition-number theorem allowed" if len(sys.argv) > 13 else "")
+          + ("; axioms of the tensorization upper bound allowed" if len(sys.argv) > 14 else ""))
 
 
 if __name__ == "__main__":
