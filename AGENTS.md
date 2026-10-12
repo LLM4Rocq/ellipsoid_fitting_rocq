@@ -34,7 +34,7 @@ The task has two parts.
    rename the remaining modules and group them in folders.
 
 Three agents share the work. Agent 1 coordinates phases 1 to 5; in
-phases 6 to 10, agent 3 coordinates (sections "Phase 6" to "Phase 10").
+phases 6 to 11, agent 3 coordinates (sections "Phase 6" to "Phase 11").
 
 ## The invariant
 
@@ -143,8 +143,9 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 9 below are done (`main` e4c46e1, tag `phase9`). The current
-work is phase 10, described after phase 9.
+Phases 1 to 10 below are done: tag `phase10` is at eda8a06, and `main`
+8039877 also pins the eight check files of phase 9. The current work is
+phase 11, described after phase 10.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -1312,6 +1313,196 @@ Phase 10 is done when the following hold:
 - `make check` passes;
 - the README rows cover every new file;
 - `main` is tagged `phase10`.
+
+## Phase 11. The optimal condition number at every fourth moment
+
+Phases 1 to 10 are done: tag `phase10` is at eda8a06, and `main` 8039877
+also pins the eight check files of phase 9. Phase 11 extends the optimal
+condition-number theorem of phase 8 from fourth moment 3 to every fixed
+fourth moment kappa > 1. Three documents guide it:
+
+- **The math plan,**
+  `/srv/ellipsoid-fitting/notes/general-fourth-moment-condition-plan.md`,
+  written on the user's machine on 12 October 2026, holds the mathematics.
+- **The plan,** `/srv/ellipsoid-fitting/notes/phase11-plan.md`, written by
+  the coordinator, is the formal plan.
+- **The review,** `/srv/ellipsoid-fitting/reviews/phase11-plan-review.md`,
+  is the user's review of the plan. The user approved the plan on 12
+  October 2026 with the review's amendments, which the plan incorporates.
+
+The plan of this phase is the plan's sections 3 (the route), 4 (the
+statement files), 5 (ownership and items), 6 (order, interfaces and
+checkpoint), 7 (risks), 8 (about 7,000 lines, an untested estimate) and 9
+(done criteria and release order). This section fixes the roles and the
+rules; where they differ, this section wins.
+
+The three results, with c = (kappa - 3)/2 and the curve alpha(C, kappa) of
+the math plan's section 2:
+
+1. **The curve.** Take C > 1 and kappa > 1.
+   - The root u of the math plan is the unique zero of its function F.
+   - alpha(C, kappa) is the value of the constrained semicircle
+     variational problem, and it equals
+     (1/(3 pi)) int_ell^u (2 - z^2)^(3/2) dz.
+   - For fixed kappa, it is continuous and strictly increasing in C, from
+     0 to alpha*(kappa).
+   - Its inverse C_star(alpha, kappa) is characterized by order.
+   - At kappa = 3 it is `condition_alpha` (for C > 1), and its inverse is
+     `condition_star` (for 0 < alpha < 1/4).
+2. **The data theorem.** Take finite and countable mixtures of fourth
+   moment kappa, mixture-averaged as in the frozen statements.
+   - The probability of an exact fit of condition number at most C tends
+     to 1 if alpha < alpha(C, kappa), and to 0 if alpha > alpha(C, kappa).
+   - For 0 < alpha < alpha*(kappa), the optimal data condition number
+     tends to C_star(alpha, kappa) in probability.
+3. **Robustness.** Both conclusions hold for i.i.d. points of laws P_d
+   with d^2 tv(P_d, nu_d) -> 0, where nu_d is the point law of such a
+   countable family, or of such a finite family through `finite_weights`.
+
+Not in this phase:
+- the critical point alpha = alpha(C, kappa);
+- uniformity as kappa -> 1;
+- monotonicity in kappa;
+- endpoint rates and the asymptotic for small C - 1 (the math plan's
+  section 8).
+
+### Roles
+
+As in phases 6 to 10. **Agent 3 is the master.**
+- It assigns the items (its own lane included) and gives agents 1 and 2
+  their work in their sessions.
+- It writes the statement files and freezes them after the user's
+  review, and it creates the new directory.
+- It merges in the `integration` clone and alone pushes `main` and tags.
+- It keeps the table of items, owners and states in
+  `/srv/ellipsoid-fitting/runtime/phase11/assignments.md`.
+
+Its starting point is the plan's lane proposal:
+- **A:** M1 to M5 (the surrogate maximizer, the Gaussian comparison, the
+  spectral limit);
+- **B:** B1, G1, D1, D2, A2, A3 (the shared transformed cone, the Gaussian
+  witness and gap, the two data directions, the countable and robust
+  versions);
+- **C:** step 0, S1 to S5 (the curve), A1, A4, the checks and the release.
+
+The shared files have the owners of the plan's section 5:
+- `library/probability/variational.v`: lane C in this phase;
+- a new library module for the general form of M1: lane A;
+- `extension/ConditionKappa/Cone.v`, the single definition of the
+  transformed cone and of its support function: lane B.
+
+Agents 1 and 2 take their items from the master. The coordinator assigns
+no item; it verifies pushed commits, keeps GitHub in sync and relays the
+user's decisions.
+
+### Step 0
+
+1. **The launch.**
+   - The master fast-forwards `lane/c` and `integration` to `main`, and
+     records the ownership in its table.
+   - It gives M1 and M2 to agent 1 and B1 to agent 2. These need no
+     statement file.
+   - It creates `extension/ConditionKappa/` with the headers of its first
+     files (`Geometry.v`, `Cone.v`, `Scalar.v`), registers them in
+     `_CoqProject` and pushes `main`.
+   - The user then reconnects the three Rocq servers (`/mcp`) once.
+2. **The definitions and the interfaces.**
+   - The master writes `extension/ConditionKappaDefinitions.v` and the
+     interfaces I1 to I4 of the plan's section 6, in the headers of the
+     files that consume them, and pushes `main`.
+   - S1, S2 and G1 start from this push.
+   - Each interface gets its precise type from the first conditional
+     lemma that takes it as a hypothesis. A comment alone does not fix
+     normalizations or quantifiers.
+3. **The statements.**
+   - The master writes `ConditionKappaCurveStatement.v`,
+     `ConditionKappaStatement.v` and `ConditionKappaRobustStatement.v` at
+     the top of `extension/`. Their comments guide the reviewer, as in the
+     frozen files.
+   - It compiles them, pushes `main` and says so in its pane.
+   - The coordinator asks the user to review the four files.
+4. **The checks.** The user's launch permits changes to
+   `scripts/check_sources.py`, `check/` and the `Makefile` at the three
+   moments below, and no other.
+   - **The freeze**, once the user accepts the four statement files:
+     - the master freezes them like the frozen files of phases 5 to 10:
+       their code does not change, and only the master edits their
+       comments;
+     - `scripts/check_sources.py` compares them with the acceptance commit,
+       as a new baseline;
+     - in the same commit, the two check files and the two expected lists
+       of phase 10 are compared byte for byte with eda8a06, as a separate
+       baseline.
+   - **The axiom checks.** When the theorems exist, a commit P adds three
+     check files, `check/ConditionKappaCurveAssumptions.v`,
+     `check/ConditionKappaAssumptions.v` and
+     `check/ConditionKappaRobustAssumptions.v`, on the pattern of
+     `check/ConditionRobustAssumptions.v`, and `make check` runs them.
+     - Each has an expected list of seven axioms: the eight of
+       `check/assumptions.expected` without `Classical_Prop.classic`.
+       Fewer are allowed.
+     - Every older expected list stays unchanged.
+   - **The pin.** A later commit compares those six files byte for byte
+     with P, as a separate baseline, keeping every older one. The tag
+     `phase11` goes on that checked commit (the plan's section 9).
+5. **The checkpoint.** When S2 and M2 are on `main`, the master says so in
+   its pane.
+   - The coordinator inspects their proofs as well as their statements:
+     - the scalar duality for both signs of c and for c = 0;
+     - the coercivity for every c > -1;
+     - both terms of the comparison of objective values;
+     - the axiom reports.
+   - The coordinator re-estimates M3 to M5 and reports to the user.
+   - Independent items continue meanwhile. A defect is fixed before
+     downstream work relies on the affected result.
+
+### Rules for this phase
+
+The rules of phase 10 apply.
+- **Unchanged files.** Nothing changes in:
+  - `theories/`;
+  - the code of the twenty-eight frozen files;
+  - the check files and expected lists of phases 1 to 10;
+  - the pinned section `tuple_prod` of `library/probability/lindeberg.v`.
+- **Theorems that keep building.** The fourteen theorems that
+  `make check` checks keep building at every commit.
+  - A generalized lemma keeps its old statement under its old name.
+  - This holds in particular for the lemmas of `extension/Condition/`
+    that the kappa = 3 theorems use.
+- **No unproved step.** No commit contains `Admitted`, `Axiom` or
+  `Parameter`.
+  - A lane that needs a result not yet proved states it as an explicit
+    hypothesis of its lemma, as `GaussianWitness.v` took the limit of
+    `GaussianCone.v` in phase 8.
+  - The lane removes the hypothesis when the result lands.
+- **Lane A's quota.** Lane A commits M1 to M5 in small, self-contained
+  steps. If its account is throttled, the master reassigns the next item
+  rather than wait.
+- **Robustness** uses `robust_transfer_tv` and its exact bound.
+- **Constants** are changed by their role. The data fourth moment and the
+  transformed base change; Gaussian constants such as the `3^(1/4)` of the
+  regularity bound do not.
+- **Library results** are stated over `R : realType` in the library's
+  vocabulary. Nothing in `library/` mentions ellipsoid fitting. Generic
+  lemmas use the second moment of the law, not the semicircle's 1/2.
+- **Documentation.** Every new file has the documentation header and its
+  README rows, with the actual hypotheses.
+- **Building.** Build with `JOBS=3`, and run `make check` before every
+  commit.
+- **Requests** between lanes go through `requests/`, which the master
+  deletes at the end.
+- **No journals.** The repository gets no journals or progress files.
+
+Phase 11 is done when the following hold:
+- the three theorems prove the accepted statements on `main`. Their names
+  are fixed in step 0; the plan proposes `condition_kappa_curve_theorem`,
+  `condition_kappa_theorem` and `condition_kappa_robust_theorem`;
+- their axioms are among the seven of their expected lists;
+- the kappa = 3 implications of item A4 are proved;
+- the phase 10 files are pinned to eda8a06, and the six new files to P;
+- `make check` passes;
+- the README rows cover every new file;
+- `main` is tagged `phase11` at the checked pin commit.
 
 ## Bridging Stdlib's `R` and the library
 
