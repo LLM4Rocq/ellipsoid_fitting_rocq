@@ -1,8 +1,7 @@
 (* The root of the condition-number curve at fourth moment kappa, at
    Stdlib's R: item S1 of phase 11 (notes/phase11-plan.md, section 5; the
    math plan notes/general-fourth-moment-condition-plan.md, section 3, S1;
-   lane C). The definitions are those of the definition file of phase 11,
-   at the top of extension/.
+   lane C). The definitions are those of ConditionKappaDefinitions.
 
    Setting. m and v are universality_m and universality_s, the upper
    moments of the semicircle law nu on [-sqrt 2, sqrt 2]. For kappa > 1 and

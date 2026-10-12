@@ -697,6 +697,10 @@ extension/ContinuousLatent.v
 extension/ConditionEndpoints.v
 extension/ConditionRobustStatement.v
 extension/LatentTensorUpper.v
+extension/ConditionKappaDefinitions.v
+extension/ConditionKappaCurveStatement.v
+extension/ConditionKappaStatement.v
+extension/ConditionKappaRobustStatement.v
 extension/Model/Rows.v
 extension/Model/Measurability.v
 extension/Features/Definitions.v
@@ -774,3 +778,10 @@ extension/ConditionRobustTheorem.v
 extension/ConditionKappa/Scalar.v
 extension/ConditionKappa/Cone.v
 extension/ConditionKappa/Geometry.v
+extension/ConditionKappa/Curve.v
+extension/ConditionKappa/GaussianLimit.v
+extension/ConditionKappa/GaussianWitness.v
+extension/ConditionKappa/GaussianGap.v
+extension/ConditionKappa/Sat.v
+extension/ConditionKappa/Unsat.v
+extension/ConditionKappa/Theorem.v
