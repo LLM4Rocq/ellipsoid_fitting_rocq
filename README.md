@@ -435,8 +435,9 @@ generated`), whose code cannot change. The other modules print none.
   at commit `c5f41c4` (comments may differ); that the
   axiom-check files of phases 5 and 6 and their expected lists are
   byte-identical to commit `c3e555e`, those of phases 7 and 8 to commit
-  `a89ed1e`, those of phase 9 to commit `e4c46e1`, and those of phase 10
-  to commit `eda8a06`; that the Require
+  `a89ed1e`, those of phase 9 to commit `e4c46e1`, those of phase 10 to
+  commit `eda8a06`, and those of phase 11 to commit `d29b278`; that the
+  Require
   commands of
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which
   the frozen statements depend, have the same code as at commit `c3e555e`;
