@@ -9,9 +9,13 @@
 
    Setting. K > 0 and alpha > 0 as in ConditionStatement. (w, mu) is an
    admissible countable mixture family of fourth moment 3
-   (countable_mixture_family K w mu and countable_fourth_moment 3 w mu; a
-   finite family is the countable one with weights zero from N d on), and
+   (countable_mixture_family K w mu and countable_fourth_moment 3 w mu), and
    nu_d = robust_point_law (w d) (mu d) d is the law of one of its points.
+   For a finite family (N, w, mu), extending the weights by zero
+   (finite_weights) preserves the point law nu_d; an admissible countable
+   family also requires filling the inactive component laws, s >= N d,
+   with admissible laws, as fin_cmu of Countable/Theorem.v does, since
+   countable_mixture_family asks every component law to be admissible.
    P d is an arbitrary law of a point of R^d, with no moment or tail
    assumption, such that d^2 tv(P d, nu_d) -> 0 (robust_close w mu P), as in
    RobustStatement. The sample consists of n d i.i.d. points of law P d,
