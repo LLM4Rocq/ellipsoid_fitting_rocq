@@ -61,6 +61,7 @@ library/random_matrix/goe_rotation.v
 library/random_matrix/wigner.v
 library/random_matrix/restricted_isometry.v
 library/random_matrix/matrix_series.v
+library/random_matrix/goe_entries.v
 library/comparison/normal_mgf.v
 library/comparison/chi_square.v
 library/comparison/normal_linear.v
@@ -820,5 +821,6 @@ applications/PerceptronSignTheorem.v
 applications/SatVarianceDefinitions.v
 applications/SatVarianceStatement.v
 applications/SKGap/Ising.v
+applications/SKGap/Disorder.v
 applications/Perceptron/Pressure.v
 applications/RandomSAT/Model.v
