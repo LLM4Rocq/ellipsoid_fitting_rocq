@@ -9,12 +9,13 @@ From GaussianApplications Require Import SatVarianceDefinitions.
 (* # Random k-SAT: the variance of the lifetime                               *)
 (*                                                                            *)
 (* Part of target T7 of phase 12 (see Model.v). A Rocq formalization of the   *)
-(* credited argument of the lemmas 'Deletion variance bound' and 'Pivotal     *)
-(* pairs' of 'A limiting satisfiability threshold for every fixed clause      *)
-(* size' (family 235 of the OpenAI math collection, revision 1581d4cbd,       *)
-(* source/sections/concentration.tex), in the recursive form of the Lean      *)
-(* development of the collection, which this file follows                     *)
-(* (lean/OAI/Probability/RandomSAT):                                          *)
+(* variance step of the credited argument of the proposition 'Polynomial      *)
+(* concentration' of 'A limiting satisfiability threshold for every fixed     *)
+(* clause size' (family 235 of the OpenAI math collection, revision           *)
+(* 1581d4cbd, source/sections/concentration.tex), in the recursive form of    *)
+(* the Lean development of the collection, which replaces the lemmas          *)
+(* 'Deletion variance bound' and 'Pivotal pairs' of the manuscript and which  *)
+(* this file follows (lean/OAI/Probability/RandomSAT):                        *)
 (* Lean: clauseAverage (ClauseProcess.lean, line 148)                         *)
 (* Lean: survival (ClauseProcess.lean, line 152)                              *)
 (* Lean: survival_le_geometric (Variance.lean, line 135)                      *)
@@ -47,11 +48,11 @@ From GaussianApplications Require Import SatVarianceDefinitions.
 (*                                                                            *)
 (* The manuscript omits the clause i, bounds Var V by the sum over i of E     *)
 (* (V^(-i) - V)^2 (the omission form of the Efron-Stein inequality,           *)
-(* efron_stein_omission in library/probability/efron_stein_omission.v), and   *)
-(* counts the pairs of pivotal times. The recursion here inserts a clause in  *)
-(* front instead, as the Lean development does, and gives a bound of the same *)
-(* form: 2 M times the sum over the M prefixes of the mean of min(M q, 1),    *)
-(* with q the killing probability.                                            *)
+(* efron_stein_omission in library/probability/efron_stein_omission.v, which  *)
+(* the proof of T7 does not use), and counts the pairs of pivotal times. The  *)
+(* recursion here inserts a clause in front instead, as the Lean development  *)
+(* does, and gives a bound of the same form: 2 M times the sum over the M     *)
+(* prefixes of the mean of min(M q, 1), with q the killing probability.       *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -101,7 +102,8 @@ Qed.
 
 Lemma survival0_set m : survival m (set0 : {set asg}) = 0.
 Proof.
-rewrite /survival /tuple_avg (eq_unif_mean (g := fun=> 0)) /unif_mean ?big1 ?mulr0 //.
+rewrite /survival /tuple_avg (eq_unif_mean (g := fun=> 0)) /unif_mean
+  ?big1 ?mulr0 //.
 by move=> t; rewrite restrictE (_ : [set x in _ | _] = set0) ?alive0 //;
   apply/setP => x; rewrite !inE.
 Qed.
@@ -129,7 +131,8 @@ Qed.
 Lemma kill_le1 S : kill S <= 1.
 Proof.
 apply: unif_mean_le => // c.
-by have := alive_le1 (R := R) S; have := alive_ge0 (R := R) (add_clause S c); lra.
+by have := alive_le1 (R := R) S;
+  have := alive_ge0 (R := R) (add_clause S c); lra.
 Qed.
 
 Lemma kill0 : kill set0 = 0.
@@ -232,7 +235,8 @@ Lemma bool_diff_sqr (a b : bool) :
 Proof. by case: a; case: b => //= _; rewrite ?subrr ?subr0 ?expr0n ?expr1n. Qed.
 
 Lemma pivot_sqr S (c : C) :
-  (alive S - alive (add_clause S c)) ^+ 2 = alive S - alive (add_clause S c) :> R.
+  (alive S - alive (add_clause S c)) ^+ 2 =
+    alive S - alive (add_clause S c) :> R.
 Proof.
 rewrite /alive bool_diff_sqr //; apply/implyP => h.
 by apply: contra_neq h => ->; rewrite add_clause0.
@@ -384,7 +388,8 @@ rewrite /second; apply: ler_unif_mean => c /=.
 have -> : unif_mean (fun t : m.-tuple C =>
     alive (add_clause S c) + life (add_clause S c) t) - c0 =
   - unif_mean (fun t : m.-tuple C => delay S c t).
-  by rewrite /delay unif_meanB !unif_meanD !unif_mean_cst // /c0 /life_mean; ring.
+  by rewrite /delay unif_meanB !unif_meanD !unif_mean_cst // /c0 /life_mean;
+    ring.
 by rewrite sqrrN; exact: unif_mean_sqr_le.
 Qed.
 

@@ -1,5 +1,6 @@
 From HB Require Import structures.
-From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum reals.
+From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum
+  reals.
 From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.probability Require Import finite_mean.
 From GaussianApplications.RandomSAT Require Import Model Pivotal Replacement.
@@ -55,7 +56,8 @@ From GaussianApplications Require Import SatVarianceDefinitions.
 (* the first. The manuscript bounds the binomial weights by (k M / n)^d / d!; *)
 (* here, as in the Lean development, the replacement differences are summed   *)
 (* under the binomial mean of the cap M (binom_rep_sum_le), which gives the   *)
-(* term g M p.                                                                *)
+(* term g M p instead of the manuscript's (k M / n) e^(k M / n) g; at M =     *)
+(* 2^(k+1) n this removes the factor e^(k 2^(k+1)) from the constant.         *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -116,7 +118,8 @@ Qed.
 Lemma binom_mean_id p m : binom_mean p m (fun d => d%:R) = m%:R * p.
 Proof.
 elim: m => [|m IH] /=; first by rewrite mul0r.
-have -> : binom_mean p m (fun d => d.+1%:R) = binom_mean p m (fun d => 1 + d%:R).
+have -> : binom_mean p m (fun d => d.+1%:R) =
+    binom_mean p m (fun d => 1 + d%:R).
   by apply: eq_binom_mean => d _; rewrite -nat1r.
 by rewrite binom_meanD binom_mean_cst IH -nat1r; ring.
 Qed.
@@ -165,7 +168,8 @@ Proof.
 move=> P0 P1.
 have sh : \sum_(0 <= j < l) P (j + b)%N = \sum_(b <= j < l + b) P j.
   by rewrite -{2}(add0n b) big_addn addnK.
-rewrite sumrB -(big_mkord xpredT P) -(big_mkord xpredT (fun j => P (j + b)%N)) sh.
+rewrite sumrB -(big_mkord xpredT P)
+  -(big_mkord xpredT (fun j => P (j + b)%N)) sh.
 have e1 : \sum_(0 <= j < l + b) P j =
     \sum_(0 <= j < b) P j + \sum_(b <= j < l + b) P j.
   by rewrite (big_cat_nat (n := b)) ?leq_addl.
@@ -253,7 +257,8 @@ Proof.
 apply/existsP/orP => [[i]|[P0|/existsP[j Pj]]]; last 2 first.
 - by exists ord0.
 - by exists (lift ord0 j).
-by case: (unliftP ord0 i) => [j ->|->] Pi; [right; apply/existsP; exists j|left].
+by case: (unliftP ord0 i) => [j ->|->] Pi;
+  [right; apply/existsP; exists j|left].
 Qed.
 
 Lemma sat_cabsent k (s : asg1) (d : clause n k) :
@@ -285,7 +290,8 @@ Definition del_ok (s : asg) (c : C1) : bool :=
   if csplit c is inl d then clause_sat s d else true.
 
 Definition era_ok (s : asg) (c : C1) : bool :=
-  match csplit c with inl d => clause_sat s d | inr (q, _) => clause_sat s q end.
+  match csplit c with inl d => clause_sat s d
+  | inr (q, _) => clause_sat s q end.
 
 Definition deleted (S : {set asg}) (t : seq C1) : {set asg} :=
   [set s in S | all (del_ok s) t].
@@ -366,7 +372,8 @@ End erasure.
 Lemma csplit_absent n k (d : clause n k.+1) : csplit (cabsent d) = inl d.
 Proof. exact: (cjoinK (inl d)). Qed.
 
-Lemma csplit_present n k (q : clause n k) b : csplit (cpresent q b) = inr (q, b).
+Lemma csplit_present n k (q : clause n k) b :
+  csplit (cpresent q b) = inr (q, b).
 Proof. exact: (cjoinK (inr (q, b))). Qed.
 
 (* Means over consecutive blocks of clauses, and their commutation. *)
@@ -396,7 +403,8 @@ Proof.
 rewrite /clause_avg /tuple_avg.
 rewrite (unif_mean_comm (fun (c : clause n r) (u : t.-tuple (clause n k)) =>
   f (restrict (add_clause S c) u))).
-by apply: eq_unif_mean => u; apply: eq_unif_mean => c; rewrite restrict_add_clause.
+by apply: eq_unif_mean => u; apply: eq_unif_mean => c;
+  rewrite restrict_add_clause.
 Qed.
 
 Lemma ler_tuple_avg_cst k t (f : {set asg} -> R) (c : R) S :
@@ -479,7 +487,8 @@ congr (_ * _ + _ * _).
   rewrite /clause_avg; apply: eq_unif_mean => d; apply: eq_unif_mean => t /=.
   by rewrite erased_cons csplit_absent.
 rewrite /clause_avg; apply: eq_unif_mean => q.
-under eq_unif_mean do under eq_unif_mean do rewrite /= erased_cons csplit_present.
+under eq_unif_mean do under eq_unif_mean do
+  rewrite /= erased_cons csplit_present.
 by apply: unif_mean_cst; rewrite card_bool.
 Qed.
 
@@ -615,7 +624,8 @@ Lemma head_forced_mean_le m :
 Proof.
 have g1 := g_ge1 a0 hg.
 apply: le_trans (_ : del_mean k m [set: asg] - era_mean k m [set: asg] <= _).
-  rewrite /head_forced /del_mean /era_mean -unif_meanB; apply: ler_unif_mean => t.
+  rewrite /head_forced /del_mean /era_mean -unif_meanB;
+    apply: ler_unif_mean => t.
   exact: head_forced_ind.
 rewrite (del_mean_binom kn).
 apply: le_trans (lerB (lexx _) (era_mean_replacement k1 kn a0 hsmall hg m _)) _.
@@ -660,12 +670,14 @@ Section renaming.
 Variables (N k : nat) (sg : {perm 'I_N}).
 Local Notation asg := {ffun 'I_N -> bool}.
 
-Definition rename_ffun (c : {ffun 'I_N -> option bool}) : {ffun 'I_N -> option bool} :=
+Definition rename_ffun (c : {ffun 'I_N -> option bool}) :
+    {ffun 'I_N -> option bool} :=
   [ffun i => c (sg i)].
 
 Lemma proper_rename (c : clause N k) : proper_clause k (rename_ffun (val c)).
 Proof.
-rewrite /proper_clause; apply/eqP; rewrite -[RHS](card_support_clause c) /support.
+rewrite /proper_clause; apply/eqP;
+  rewrite -[RHS](card_support_clause c) /support.
 have -> : [set i | rename_ffun (val c) i != None] =
     sg @^-1: [set i | val c i != None].
   by apply/setP => i; rewrite !inE ffunE.
@@ -693,7 +705,8 @@ Qed.
 
 End renaming.
 
-Lemma rename_clause_bij N k (sg : {perm 'I_N}) : bijective (@rename_clause N k sg).
+Lemma rename_clause_bij N k (sg : {perm 'I_N}) :
+  bijective (@rename_clause N k sg).
 Proof.
 exists (@rename_clause N k (sg^-1)%g) => c; apply: val_inj; apply/ffunP => i;
   by rewrite /= !ffunE ?permK ?permKV.
@@ -704,7 +717,8 @@ Context {R : realType} (n k : nat).
 Local Notation asg1 := {ffun 'I_n.+1 -> bool}.
 Local Notation C1 := (clause n.+1 k.+1).
 
-Definition rename_tuple m (sg : {perm 'I_n.+1}) (t : m.-tuple C1) : m.-tuple C1 :=
+Definition rename_tuple m (sg : {perm 'I_n.+1}) (t : m.-tuple C1) :
+    m.-tuple C1 :=
   map_tuple (rename_clause sg) t.
 
 Lemma rename_tuple_bij m sg : bijective (@rename_tuple m sg).
@@ -729,7 +743,8 @@ Lemma forced_rename m sg (t : m.-tuple C1) i :
   (i \in forced (restrict [set: asg1] (rename_tuple sg t))) =
   (sg i \in forced (restrict [set: asg1] t)).
 Proof.
-set S := restrict [set: asg1] t; set S' := restrict [set: asg1] (rename_tuple sg t).
+set S := restrict [set: asg1] t;
+  set S' := restrict [set: asg1] (rename_tuple sg t).
 have hS (s : asg1) : (s \in S') = (rename_asg (sg^-1)%g s \in S).
   exact: mem_restrict_rename.
 have hS' (s : asg1) : (rename_asg sg s \in S') = (s \in S).
@@ -746,7 +761,8 @@ by rewrite permK.
 Qed.
 
 Lemma forced_coord_mean m (i : 'I_n.+1) :
-  unif_mean (fun t : m.-tuple C1 => (i \in forced (restrict [set: asg1] t))%:R) =
+  unif_mean (fun t : m.-tuple C1 =>
+    (i \in forced (restrict [set: asg1] t))%:R) =
   head_forced (R := R) n k m.
 Proof.
 pose sg : {perm 'I_n.+1} := tperm ord0 i.

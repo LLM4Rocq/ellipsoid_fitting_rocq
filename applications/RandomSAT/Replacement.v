@@ -34,9 +34,10 @@ From GaussianApplications Require Import SatVarianceDefinitions.
 (*   With kfrac b v r = 'C(b, r) / ('C(v, r) 2^r), the killing probability of *)
 (*   a nonempty S is kfrac #|forced S| n k (killE_forced): the q_r(H) = (b)_r *)
 (*   / (2^r (v)_r) of the manuscript.                                         *)
-(* - Bounds on kfrac: kfrac b v r <= (b / v)^r (kfrac_le_pow), the recursion  *)
-(*   in r (kfrac_succ) and its lower bound (kfrac_succ_lower), and kfrac b v  *)
-(*   r <= 1 / (v + 1) when b <= r, for few forced variables (kfrac_small).    *)
+(* - Bounds on kfrac: kfrac b v r <= (b / (2 v))^r for b, r <= v and v > 0    *)
+(*   (kfrac_le_pow), the recursion in r (kfrac_succ) and its lower bound      *)
+(*   (kfrac_succ_lower), and kfrac b v r <= 1 / (v + 1) when b <= r and 1 <=  *)
+(*   r < v, for few forced variables (kfrac_small).                           *)
 (* - kill_replacement, the lemma 'Replacing a (k-1)-clause': for 1 <= r < v,  *)
 (*   a > 0 with 1 / (v + 1) <= a^-r and g >= 2 (r + 1) a, the probability     *)
 (*   that a block of g independent clauses of size r + 1 empties S is at      *)
@@ -70,7 +71,8 @@ Definition frozen (S : {set asg}) (s0 : asg) : {set 'I_n} :=
 Definition forced (S : {set asg}) : {set 'I_n} :=
   [set i | (S != set0) && [exists b, [forall s in S, s i == b]]].
 
-Lemma forced_frozen (S : {set asg}) (s0 : asg) : s0 \in S -> forced S = frozen S s0.
+Lemma forced_frozen (S : {set asg}) (s0 : asg) :
+  s0 \in S -> forced S = frozen S s0.
 Proof.
 move=> s0S; apply/setP => i; rewrite !inE.
 have -> /= : S != set0 by apply/set0Pn; exists s0.
@@ -99,7 +101,8 @@ by have := opp s sS; rewrite (opp s0 s0S) => -[] /negbLR <-; rewrite negbK.
 Qed.
 
 Lemma frozen_kills k (S : {set asg}) (s0 : asg) (c : clause n k) : s0 \in S ->
-  (forall i, val c i != None -> (i \in frozen S s0) /\ val c i = Some (~~ s0 i)) ->
+  (forall i, val c i != None ->
+    (i \in frozen S s0) /\ val c i = Some (~~ s0 i)) ->
   add_clause S c = set0.
 Proof.
 move=> s0S h; apply/setP => s; rewrite !inE; apply/negP => /andP[sS].
@@ -113,7 +116,8 @@ Qed.
 Definition opp_ffun (s0 : asg) (A : {set 'I_n}) : {ffun 'I_n -> option bool} :=
   [ffun i => if i \in A then Some (~~ s0 i) else None].
 
-Lemma proper_opp k s0 (A : {set 'I_n}) : #|A| = k -> proper_clause k (opp_ffun s0 A).
+Lemma proper_opp k s0 (A : {set 'I_n}) :
+  #|A| = k -> proper_clause k (opp_ffun s0 A).
 Proof.
 move=> Ak; rewrite /proper_clause -Ak; apply/eqP; apply: eq_card => i.
 by rewrite !inE ffunE; case: (i \in A).
@@ -162,7 +166,8 @@ Proof.
 move=> S0.
 have e : (fun c : clause n k => alive S - alive (add_clause S c) : R) =1
     (fun c : clause n k => (add_clause S c == set0)%:R : R).
-  by move=> c; rewrite /alive S0; case: (add_clause S c == set0); rewrite /= ?subr0 ?subrr.
+  by move=> c; rewrite /alive S0; case: (add_clause S c == set0);
+    rewrite /= ?subr0 ?subrr.
 rewrite /kill (eq_unif_mean e) unif_mean_indicator card_kills // card_clause.
 by rewrite /kfrac natrM natrX.
 Qed.
@@ -359,7 +364,8 @@ have a1 : 1 <= a * (b%:R / (2 * v%:R)).
 have hq := kfrac_succ_lower rb rv; rewrite -/x -/q in hq.
 have r0 : 0 < r.+1%:R :> R by rewrite ltr0n.
 have hd : 2 * x <= g%:R * q.
-  apply: le_trans (_ : 2 * r.+1%:R * a * (x * (b%:R / (2 * v%:R)) / r.+1%:R) <= _).
+  apply: le_trans
+    (_ : 2 * r.+1%:R * a * (x * (b%:R / (2 * v%:R)) / r.+1%:R) <= _).
     have -> : 2 * r.+1%:R * a * (x * (b%:R / (2 * v%:R)) / r.+1%:R) =
         2 * x * (a * (b%:R / (2 * v%:R))) * (r.+1%:R / r.+1%:R) by ring.
     rewrite divff ?gt_eqF // mulr1.
@@ -391,7 +397,8 @@ have e0 : 0 <= a^-1 ^+ r by rewrite exprn_ge0 // invr_ge0 ltW.
 have C0 : (0 < #|{: clause v r}|)%N by rewrite card_clause_gt0 // ltnW.
 have C1 : (0 < #|{: clause v r.+1}|)%N by rewrite card_clause_gt0.
 have [->|S0] := eqVneq S set0.
-  by rewrite (kill0 C0) survival0_set sub0r subr0 (le_trans _ ler01) // oppr_le0.
+  by rewrite (kill0 C0) survival0_set sub0r subr0 (le_trans _ ler01) //
+    oppr_le0.
 have bv : (#|forced S| <= v)%N by rewrite -[X in (_ <= X)%N]card_ord max_card.
 rewrite killE_forced //.
 apply: le_trans (replacement_numeric r1 rv bv a0 hsmall hg) _.

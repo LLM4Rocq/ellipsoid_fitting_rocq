@@ -1,7 +1,8 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum reals.
 From mathcomp Require Import sequences exp.
-From GaussianApplications Require Import SatVarianceDefinitions SatVarianceStatement.
+From GaussianApplications Require Import
+  SatVarianceDefinitions SatVarianceStatement.
 From GaussianApplications.RandomSAT Require Import Variance.
 
 (**md**************************************************************************)
@@ -10,17 +11,19 @@ From GaussianApplications.RandomSAT Require Import Variance.
 (* Target T7 of phase 12. sat_variance_theorem proves sat_variance_statement  *)
 (* of SatVarianceStatement.v: for every realType R and k >= 3, there is C > 0 *)
 (* with sat_capped_var R n k <= C n^(1 + 2/k) for every n >= k + 1, the power *)
-(* being powR. It is sat_variance_bound of RandomSAT/Variance.v, with C = 8   *)
+(* being powR. It is sat_variance_bound of RandomSAT/Variance.v, the          *)
+(* existential form of sat_variance_bound_explicit, whose constant is C = 8   *)
 (* 4^(k+1) k (3 k + 2^(k+2)); the headers of the files of RandomSAT describe  *)
 (* the proof.                                                                 *)
 (*                                                                            *)
 (* A Rocq formalization of the credited argument of the proposition           *)
 (* 'Polynomial concentration' of 'A limiting satisfiability threshold for     *)
 (* every fixed clause size' (family 235 of the OpenAI math collection,        *)
-(* revision 1581d4cbd, source/sections/concentration.tex), with the lemmas    *)
-(* before it and the proposition 'Integrated forcing' of                      *)
-(* source/sections/forcing.tex. The proof follows the route of the Lean       *)
-(* development of the collection, in lean/OAI/Probability/RandomSAT:          *)
+(* revision 1581d4cbd, source/sections/concentration.tex) and of the          *)
+(* proposition 'Integrated forcing' of source/sections/forcing.tex, with the  *)
+(* variance step of the Lean development of the collection in place of the    *)
+(* lemmas 'Deletion variance bound' and 'Pivotal pairs'. The proof follows    *)
+(* the route of that development, in lean/OAI/Probability/RandomSAT:          *)
 (* Lean: variance_capped (Concentration.lean, line 80)                        *)
 (* The manuscript bounds Var(V_n) through the omission of one clause; the     *)
 (* Lean development and the proof here use a recursion over the clauses,      *)

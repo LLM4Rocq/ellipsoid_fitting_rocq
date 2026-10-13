@@ -3,7 +3,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum reals.
 From mathcomp Require Import archimedean exp.
 From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
 From GaussianAnalysis.probability Require Import finite_mean.
-From GaussianApplications.RandomSAT Require Import Model Pivotal Replacement Forcing.
+From GaussianApplications.RandomSAT Require Import
+  Model Pivotal Replacement Forcing.
 From GaussianApplications Require Import SatVarianceDefinitions.
 
 (**md**************************************************************************)
@@ -23,22 +24,24 @@ From GaussianApplications Require Import SatVarianceDefinitions.
 (*                                                                            *)
 (* - trunc_le_forced: if M <= c^k, then min(M kill k S, 1) <= c b / n, with b *)
 (*   the number of forced variables of S, since the killing probability is at *)
-(*   most (b / n)^k (kfrac_le_pow).                                           *)
+(*   most (b / (2 n))^k <= (b / n)^k (kfrac_le_pow).                          *)
 (* - sat_capped_varE: sat_capped_var R n k, the variance of the statistic of  *)
 (*   the statement, is life_var k (sat_cap k n) of the set of all assignments *)
 (*   (sat_prefix_lenE of Model.v).                                            *)
-(* - sat_variance_bound: for K >= 3 and N >= K + 1, sat_capped_var R N K <= C *)
-(*   N^(1 + 2/K), with C = 8 4^(K+1) K (3 K + 2^(K+2)). The proof takes a =   *)
-(*   N^(1/K), the block g = floor(2 K a) + 1 <= 3 K a and c = 4 a, so that    *)
-(*   the cap M = 2^(K+1) N is at most c^K; life_var_le_occ of Pivotal.v,      *)
-(*   trunc_le_forced, forced_frac_head and integrated_head_forcing of         *)
-(*   Forcing.v then bound the variance by 2 M c (g M p + (M + 1) M p          *)
-(*   a^-(K-1)), with p = K / N, and N a^-(K-1) = a, N a^2 = N^(1 + 2/K).      *)
+(* - sat_variance_bound_explicit: for K >= 3 and N >= K + 1, sat_capped_var R *)
+(*   N K <= C N^(1 + 2/K), with C = 8 4^(K+1) K (3 K + 2^(K+2));              *)
+(*   sat_variance_bound is its existential form, the form of the statement.   *)
+(*   The proof takes a = N^(1/K), the block g = floor(2 K a) + 1 <= 3 K a and *)
+(*   c = 4 a, so that the cap M = 2^(K+1) N is at most c^K; life_var_le_occ   *)
+(*   of Pivotal.v, trunc_le_forced, forced_frac_head and                      *)
+(*   integrated_head_forcing of Forcing.v then bound the variance by 2 M c (g *)
+(*   M p + (M + 1) M p a^-(K-1)), with p = K / N, and N a^-(K-1) = a, N a^2 = *)
+(*   N^(1 + 2/K).                                                             *)
 (*                                                                            *)
 (* The statement and the manuscript bound Var(V_n) by C n^(1 + 2/k); the Lean *)
 (* theorem bounds the variance of the lifetime by a constant times n          *)
 (* (n^(1/k))^2, with a block of size ceil(2 k n^(1/k)). The constant here is  *)
-(* explicit and holds for every n >= k + 1.                                   *)
+(* explicit (sat_variance_bound_explicit) and holds for every n >= k + 1.     *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -136,7 +139,8 @@ Qed.
 Lemma root_err : n.+1%:R * a^-1 ^+ k = a.
 Proof.
 have a0 := root_gt0.
-by rewrite -root_pow exprVn exprSr -mulrA mulrCA mulfV ?mulr1 // expf_neq0 // gt_eqF.
+by rewrite -root_pow exprVn exprSr -mulrA mulrCA mulfV ?mulr1 //
+  expf_neq0 // gt_eqF.
 Qed.
 
 Lemma root_sqr : n.+1%:R * a ^+ 2 = n.+1%:R `^ (1 + 2 / k.+1%:R).
@@ -188,18 +192,17 @@ rewrite mulrA; apply: le_trans (ler_wpM2l hm0 hS') _.
 by rewrite le_eqVlt; apply/orP; left; apply/eqP; rewrite mE; ring.
 Qed.
 
-Theorem sat_variance_bound K : (3 <= K)%N ->
-  exists C : R, 0 < C /\ forall N, (K.+1 <= N)%N ->
-    sat_capped_var R N K <= C * N%:R `^ (1 + 2 / K%:R).
+(* The bound with its explicit constant. *)
+Theorem sat_variance_bound_explicit K N : (3 <= K)%N -> (K.+1 <= N)%N ->
+  sat_capped_var R N K <=
+    8 * 4 ^+ K.+1 * K%:R * (3 * K%:R + 2 ^+ K.+2) * N%:R `^ (1 + 2 / K%:R).
 Proof.
-move=> K3.
+move=> K3 KN.
+have -> : 8 * 4 ^+ K.+1 = 8 * 2 ^+ K.+1 * 2 ^+ K.+1 :> R.
+  by rewrite -mulrA -exprMn -natrM.
 pose C : R := 8 * 2 ^+ K.+1 * 2 ^+ K.+1 * K%:R * (3 * K%:R + 2 ^+ K.+2).
-have K0 : (0 < K)%N by apply: leq_trans K3.
-exists C; split.
-  have h1 : 0 < 3 * K%:R + 2 ^+ K.+2 :> R.
-    by rewrite ltr_wpDl ?exprn_gt0 // mulr_ge0 ?ler0n.
-  by rewrite /C !mulr_gt0 ?exprn_gt0 ?ltr0n.
-case: K K3 K0 @C => [//|k] K3 _ C N KN.
+rewrite -/C.
+case: K K3 @C KN => [//|k] K3 C KN.
 case: N KN => [//|n] KN.
 have k1 : (1 <= k)%N by move: K3; rewrite ltnS; apply: leq_trans.
 have kn : (k < n)%N by move: KN; rewrite !ltnS.
@@ -250,6 +253,19 @@ have := variance_arith (ltr0Sn R n) (ltW a0) (ler0n _ k.+1) e0 t0 m1 mE
   (root_err n k) gle hV' hint.
 rewrite (root_sqr n k) => /le_trans; apply.
 by rewrite /C [2 ^+ k.+3]exprS lexx.
+Qed.
+
+(* The existential form, the form of the statement. *)
+Theorem sat_variance_bound K : (3 <= K)%N ->
+  exists C : R, 0 < C /\ forall N, (K.+1 <= N)%N ->
+    sat_capped_var R N K <= C * N%:R `^ (1 + 2 / K%:R).
+Proof.
+move=> K3; have K0 : (0 < K)%N by apply: leq_trans K3.
+exists (8 * 4 ^+ K.+1 * K%:R * (3 * K%:R + 2 ^+ K.+2)); split.
+  have h1 : 0 < 3 * K%:R + 2 ^+ K.+2 :> R.
+    by rewrite ltr_wpDl ?exprn_gt0 // mulr_ge0 ?ler0n.
+  by rewrite !mulr_gt0 ?exprn_gt0 ?ltr0n.
+by move=> N KN; exact: sat_variance_bound_explicit.
 Qed.
 
 End sat_variance.
