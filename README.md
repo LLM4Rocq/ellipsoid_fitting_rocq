@@ -48,6 +48,10 @@ latent-sign law by an explicit exponential. Phase 11 extends the optimal
 condition-number theorem, with its robust form, to every fourth moment
 kappa > 1.
 
+`applications/` (phase 12) formalizes, over an arbitrary `R : realType`,
+seven theorems of manuscripts of the OpenAI math collection whose proofs
+reuse the library (see below).
+
 ## Status
 
 - **Proved.** The kernel accepts `ellipsoid_fitting_main : main_statement`
@@ -108,6 +112,28 @@ kappa > 1.
   finite or countable family of fourth moment kappa. At kappa = 3 the
   curve and its inverse are alpha_C and C_star(alpha), and the statements
   of phase 11 imply those of phases 8 and 10.
+- **Seven theorems of the OpenAI math collection (phase 12), proved.**
+  `applications/` proves, over an arbitrary `R : realType` and from the
+  library, the frozen statements of seven targets, which the user accepted
+  at commits `fc76edf` and `0d5afba`: `matrix_series_theorem` (T1, the
+  moment bound E tr (sum_j g_j H_j)^(2q) <= (2q - 1)!! opnorm(S)^(q-1) tr S
+  of a Gaussian matrix series and its rectangular corollary),
+  `tensor_packing_theorem` (T2, tensor packing in finite dimensions, with
+  C = 30000), `goe_edge_theorem` (T3, E lambda_max(W) <= 2 for the GOE,
+  with the tails exp (- d t^2 / 4)), `sk_gap_theorem` (T4, the spectral gap
+  (1 - 2 beta)/2 of the heat-bath dynamics of the Sherrington-Kirkpatrick
+  model for beta < 1/2, on measurable good-disorder events of probability
+  tending to one, uniformly in the scale s in [0, 1] and in the field, with
+  the covariance bound), `psd_splitting_theorem` (T5, the orthogonal
+  splitting of positive semidefinite matrices), `perceptron_sign_theorem`
+  (T6, the sign/Gaussian comparison |E_sign p_N - E_Gauss p_N| <= C M
+  N^(-3/2) for the pressure of the Ising perceptron) and
+  `sat_variance_theorem` (T7, Var(V_n) = O_k(n^(1 + 2/k)) for the capped
+  satisfiable prefix of random k-SAT). Each uses only the three axioms of
+  `boolp` (`check/MatrixSeriesAssumptions.v` to
+  `check/SatVarianceAssumptions.v`). Each file is a Rocq formalization of
+  a credited argument; `applications/README.md` lists the manuscripts and
+  the main results.
 - **Countable mixtures.** `countable_theorem : countable_theorem_statement`
   (`extension/CountableTheorem.v`) is a generality result: the conclusions
   of the finite-mixture theorem below, with its constants, for mixtures
@@ -367,7 +393,7 @@ generated`), whose code cannot change. The other modules print none.
   the two halves of the threshold, and the countable and robust versions).
   `extension/README.md` holds the feasibility study of phase 5 and, in its
   sections (f) to (j), the description of phases 6 to 11.
-- `library/`: the library `GaussianAnalysis`, 82 files of general results
+- `library/`: the library `GaussianAnalysis`, 94 files of general results
   over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
   and concentration, real matrices and probability; the Fourier analysis
   of anti-concentration (characteristic functions written without complex
@@ -563,7 +589,8 @@ done, and the second is done in part.
    72 files and 48,032 lines after phase 5, 75 files and 48,991 lines
    after phase 6, 78 files and 51,203 lines after phase 8, 80 files and
    51,666 lines after phase 9, 80 files and 51,796 lines after phase 10,
-   and has 82 files and 53,142 lines after phase 11.
+   82 files and 53,142 lines after phase 11, and has 94 files and 58,525
+   lines after phase 12.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -611,4 +638,6 @@ reusable identities and the corrections of the review of the phase 9
 release (tag `phase10`). Phase 11 proved the optimal condition number
 at every fourth moment kappa > 1, for finite and countable mixtures and
 their perturbations in total variation, with the properties of its curve
-(tag `phase11`).
+(tag `phase11`). Phase 12 formalized in `applications/` seven theorems of
+manuscripts of the OpenAI math collection whose proofs reuse the library,
+with twelve new library files (tag `phase12`).
