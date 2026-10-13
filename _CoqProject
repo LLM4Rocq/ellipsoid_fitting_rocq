@@ -21,6 +21,7 @@ library/matrix/real_spectral.v
 library/matrix/whitening.v
 library/matrix/opnorm.v
 library/matrix/lambda_max.v
+library/matrix/psd_splitting.v
 library/matrix/nets.v
 library/matrix/random_opnorm.v
 library/matrix/covering.v
@@ -804,6 +805,7 @@ applications/MatrixSeriesTheorem.v
 applications/GoeEdgeStatement.v
 applications/GoeEdgeTheorem.v
 applications/PsdSplittingStatement.v
+applications/PsdSplittingTheorem.v
 applications/SKGap/Ising.v
 applications/Perceptron/Pressure.v
 applications/RandomSAT/Model.v
