@@ -3,10 +3,11 @@
 ## Conformance review of the phase 12 files (13 October 2026)
 
 Asked by the master on 13 October 2026: every file that phase 12 added or
-changed under `applications/` and `library/` on main d2cdf2c, against the
-rules of AGENTS.md, section Phase 12 (Provenance, Sources, Documentation,
-Library and applications). Line numbers are those of main d2cdf2c. Each
-README row was compared with the Rocq statement of the results it names.
+changed under `applications/` and `library/` on main, against the rules
+of AGENTS.md, section Phase 12 (Provenance, Sources, Documentation,
+Library and applications), up to main 88a5dd4, which proves the seven
+targets. Line numbers are those of main 88a5dd4. Each README row was
+compared with the Rocq statement of the results it names.
 
 Lane B's own files are fixed on lane/b, in the commit that adds this
 file: the headers of `library/probability/efron_stein_omission.v` (the
@@ -120,7 +121,7 @@ optional, line 25: "The manuscript bounds the third derivative of the
 normalized pressure by bounded Gibbs moments" becomes "The manuscript
 bounds this third derivative by bounded Gibbs moments".
 
-### `library/README.md` (rows of lanes A and C), lines 111, 142, 211 and 213
+### `library/README.md` (rows of lanes A and C), lines 111, 142, 212 and 214
 
 Rule (3), the rows and the proved statements:
 
@@ -135,29 +136,16 @@ Rule (3), the rows and the proved statements:
   and `almost_orthogonal_card_le` assume `0 <= eta`. "Almost orthogonal
   families: if `<v_a, v_a> <= 1`" becomes "Almost orthogonal families:
   if `eta >= 0`, `<v_a, v_a> <= 1`".
-- Line 211 (`probability/log_partition.v`, lane A): "For a finite type
+- Line 212 (`probability/log_partition.v`, lane A): "For a finite type
   `X`" becomes "For a nonempty finite type `X`".
-- Line 213 (`probability/rademacher_lindeberg.v`, lane A), optional:
+- Line 214 (`probability/rademacher_lindeberg.v`, lane A), optional:
   `derive_le_cmp` assumes `a <= b` and `g`, `k` differentiable on all of
   `R`. "The mean value inequality `\|g b - g a\| <= k b - k a` when
   `\|g'\| <= k'` on `[a, b]`" becomes "The mean value inequality
   `\|g b - g a\| <= k b - k a` for `a <= b` and `g`, `k` differentiable
   everywhere with `\|g'\| <= k'` on `[a, b]`".
 
-### `applications/README.md` (the master's Targets table), lines 58, 60 and 61
-
-Rule (3): the library files of three targets are missing or wrong.
-
-- Line 58, T4: library files `matrix/spectral_gap.v` (now empty).
-- Line 60, T6: library files `probability/log_partition.v`,
-  `probability/rademacher_lindeberg.v` (now empty).
-- Line 61, T7: `probability/finite_mean.v` instead of
-  `probability/efron_stein_omission.v`, which the proof does not use. If
-  the table should keep it, write "`probability/finite_mean.v`
-  (`probability/efron_stein_omission.v`, the deletion variance bound in
-  general form, is not used by the proof)".
-
-### `library/random_matrix/goe_entries.v` (lane A, T4b), lines 49-51, main e9ee840
+### `library/random_matrix/goe_entries.v` (lane A, T4b), lines 49-51
 
 Rule (4): the header describes the model beyond the citation ("the row
 sums of the disorder; the proposition itself is in
@@ -168,10 +156,10 @@ applications/SKGap/Disorder.v"). Proposed, from line 49:
 > the proposition itself belongs to target T4. It follows the TeX, not a
 > Lean module of the collection.
 
-Rule (3), optional, in `library/README.md` (main e9ee840): the row of
-line 375 says that the three union events are measurable; its results
-could also list `measurable_goe_diag_max`, `measurable_goe_offdiag_max`
-and `measurable_goe_row_max`. The row of line 374 could say "A Rocq
+Rule (3), optional, in `library/README.md`: the row of line 377 says
+that the three union events are measurable; its results could also list
+`measurable_goe_diag_max`, `measurable_goe_offdiag_max` and
+`measurable_goe_row_max`. The row of line 376 could say "A Rocq
 formalization of the credited argument" instead of "A formalization of an
 argument", as the header does.
 
@@ -180,7 +168,28 @@ rules (1) and (2) (delta fixed instead of n^(-1/4), and the cubic row
 sums left out), and its row matches `sk_good_disorder`,
 `sk_good_disorder_measurable` and `sk_good_disorder_prob`.
 
-### Still to review
+### T4a: `applications/README.md`, line 85, and `library/README.md`, line 215
 
-The files of T4a (`applications/SKGap/TwoSpin.v`, `Poincare.v`,
-`SKGapTheorem.v`) when they land on main.
+The T4a files reached main at 88a5dd4. The headers of
+`applications/SKGap/TwoSpin.v`, `Poincare.v`, `Spectral.v`,
+`applications/SKGapTheorem.v` and `library/probability/finite_gap.v` meet
+rules (1), (2) and (4): each cites the lemma or proposition, the title,
+the family, the revision and the source file, calls the file a Rocq
+formalization of the credited argument, and names the Lean module it
+follows or says that it follows none; the differences with the TeX and
+the Lean module (the polynomial certificate, the constants t_0 and C_0,
+the explicit tolerance for every n) are stated. The rows of `Spectral.v`,
+`TwoSpin.v`, `SKGapTheorem.v` and `finite_gap.v` match the proved
+statements. Two points:
+
+- `applications/README.md`, line 85 (`SKGap/Poincare.v`, lane C), rule
+  (3): `ising_cov_from_gap` assumes `0 < k`. "From `k Var_nu <= E` for all
+  `f`: `opnorm Cov_nu(x) <= 1 / k`." becomes "For `k > 0`, from
+  `k Var_nu(f) <= E(f)` for all `f`: `opnorm Cov_nu(x) <= 1 / k`."
+- `library/README.md`, line 215 (`probability/finite_gap.v`, lane A),
+  optional: "A formalization of an argument of family 227" could be "A
+  Rocq formalization of the credited argument of family 227", as the
+  header says.
+
+The review is complete: every file that phase 12 added or changed under
+`applications/` and `library/` up to main 88a5dd4 has been checked.
