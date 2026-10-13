@@ -52,6 +52,8 @@ library/probability/conditioning.v
 library/probability/density_law.v
 library/probability/hanson_wright.v
 library/probability/measurable_minimizer.v
+library/probability/log_partition.v
+library/probability/rademacher_lindeberg.v
 library/random_matrix/goe.v
 library/random_matrix/goe_edge.v
 library/random_matrix/goe_rotation.v
@@ -813,6 +815,7 @@ applications/SKGapDefinitions.v
 applications/SKGapStatement.v
 applications/PerceptronSignDefinitions.v
 applications/PerceptronSignStatement.v
+applications/PerceptronSignTheorem.v
 applications/SatVarianceDefinitions.v
 applications/SatVarianceStatement.v
 applications/SKGap/Ising.v
