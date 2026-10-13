@@ -34,7 +34,7 @@ The task has two parts.
    rename the remaining modules and group them in folders.
 
 Three agents share the work. Agent 1 coordinates phases 1 to 5; in
-phases 6 to 11, agent 3 coordinates (sections "Phase 6" to "Phase 11").
+phases 6 to 12, agent 3 coordinates (sections "Phase 6" to "Phase 12").
 
 ## The invariant
 
@@ -143,9 +143,9 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 10 below are done: tag `phase10` is at eda8a06, and `main`
-8039877 also pins the eight check files of phase 9. The current work is
-phase 11, described after phase 10.
+Phases 1 to 11 below are done: tag `phase11` is at 48ecb60, and
+`main` a6d542f adds the follow-ups of the review of the phase 11
+release. The current work is phase 12, described after phase 11.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -1503,6 +1503,255 @@ Phase 11 is done when the following hold:
 - `make check` passes;
 - the README rows cover every new file;
 - `main` is tagged `phase11` at the checked pin commit.
+
+## Phase 12. Library-reuse targets from the OpenAI math collection
+
+Phases 1 to 11 are done (tag `phase11` at 48ecb60; `main` a6d542f).
+Phase 12 formalizes, over `R : realType`, seven complete theorems from
+manuscripts of the OpenAI math collection whose proofs reuse this
+library. The new files are Rocq formalizations of credited arguments:
+each cites its manuscript and, where it follows one, a Lean module of the
+collection. Four documents guide the phase:
+
+- **The candidates review,**
+  `/srv/ellipsoid-fitting/reviews/rocq-library-reuse-candidates-2026-10-13.md`,
+  is the user's review of the candidates. It fixes the targets and warns
+  against unmeasured estimates.
+- **The plan,** `/srv/ellipsoid-fitting/notes/phase12-plan.md`, written by
+  the coordinator, is the formal plan.
+- **The plan review,**
+  `/srv/ellipsoid-fitting/reviews/phase12-plan-review.md`, is the user's
+  review of the plan, with the user's decisions. The user approved the
+  plan on 13 October 2026 with the review's amendments, which the plan
+  incorporates.
+- **The sources,** `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`,
+  are the TeX of the cited manuscripts and two Lean directories of the
+  collection (`openai/math` at 1581d4cbd, Apache License 2.0).
+
+The plan of this phase is the plan's sections 3 (the targets), 4 (step 0),
+5 (ownership and items), 6 (order and checkpoint), 8 (risks) and 9 (done
+criteria). This section fixes the roles and the rules; where they differ,
+this section wins.
+
+The targets, with the plan's precise statements:
+
+1. **T1. Gaussian matrix series** (family 154). For symmetric H_j,
+   S = sum_j H_j^2 and g of law `gauss r`:
+   E tr((sum_j g_j H_j)^(2q)) <= (2q - 1)!! opnorm(S)^(q-1) tr S for every
+   q >= 1. The rectangular corollary follows by the symmetric dilation,
+   with no ambient dimension in the bound.
+2. **T2. Tensor packing** (154), in finite dimensions.
+3. **T3. Sharp GOE upper edge** (227): E lambda_max(`goe_mx a`) <= 2, and
+   P(lambda_max >= 2 + t) <= exp(-d t^2/4) for every t >= 0, for W and
+   -W. `lambda_max` is a library definition, frozen with T3.
+4. **T4. SK spectral gap** (227). Take 0 <= beta < 1/2 and
+   kappa = (1 - 2 beta)/2. There are measurable events E_n of probability
+   tending to one on which kappa Var_nu(f) <= E(f) for every f, uniformly
+   over s in [0, 1] and fields theta. Here nu is the Ising law with
+   interaction s J(a) and field theta, and E is the per-site heat-bath
+   Dirichlet form. The covariance bound opnorm Cov_nu(x) <= kappa^(-1) is
+   a corollary.
+5. **T5. Orthogonal splitting** of L >= 1 positive semidefinite matrices
+   (126): projections, possibly zero, that sum to the identity, with
+   constant 2^(L-1) and the overlaps summed over ordered pairs.
+6. **T6. Sign/Gaussian comparison** for the Ising perceptron pressure
+   (222): |E_sign p_N - E_Gauss p_N| <= C M N^(-3/2) for N >= 1 and f of
+   class C^3 with f, f', f'' and f''' bounded. C depends only on the four
+   bounds, uniformly in M and N.
+7. **T7. Capped variance** for random k-SAT (235): the largest
+   satisfiable prefix length V_n up to the cap 2^(k+1) n has
+   Var(V_n) = O_k(n^(1 + 2/k)).
+
+Not in this phase:
+- T8, the compressibility lemma of 239, is deferred. Its note may be
+  prepared meanwhile, outside the repository; it does not delay the
+  release.
+- The candidates review's longer projects (096, 140, the field concavity
+  and the repair of 222, 139, 097) and its classical inputs (093, 117,
+  326, 102).
+
+### Roles
+
+As in phases 6 to 11. **Agent 3 is the master.**
+- It assigns the items (its own lane included) and gives agents 1 and 2
+  their work in their sessions.
+- It creates `applications/`, writes the statement and definitions files
+  and `library/matrix/lambda_max.v`, and freezes them after the user's
+  review.
+- It merges in the `integration` clone and alone pushes `main` and tags.
+- It keeps the table of items, owners and states in
+  `/srv/ellipsoid-fitting/runtime/phase12/assignments.md`.
+
+Its starting point is the plan's lane proposal:
+- **A:** T1, then T2 and T6;
+- **B:** T3, then T4b (the good-disorder event) and T7;
+- **C:** step 0, T5, T4a (the deterministic gap), the T4 assembly, the
+  checks and the release.
+
+Agents 1 and 2 take their items from the master. The coordinator assigns
+no item; it verifies pushed commits, keeps GitHub in sync, relays the
+user's decisions and runs the measurement checkpoint.
+
+### Step 0
+
+1. **The handoffs.** Before the launch, each agent wrote a handoff,
+   `/srv/ellipsoid-fitting/runtime/<clone>/phase12-handoff.md`, merged
+   `main` into its lane branch, and had its context cleared, as the user
+   decided. Read your handoff after this file and the plan.
+2. **The infrastructure.** The user's launch permits this commit
+   (item 4).
+   - The master creates `applications/` (logical root
+     `GaussianApplications`), with its README and the headers of its
+     first files.
+   - `_CoqProject` gets `-Q applications GaussianApplications` and every
+     new `.v` file, in the block of its directory. The root alone builds
+     nothing.
+   - The `Makefile` gets the pattern rule `applications/%.vo`.
+   - `scripts/check_sources.py` changes in four ways:
+     - its scan for `Admitted`, `Axiom`, `Parameter` and `Conjecture`
+       covers `applications/`;
+     - the import rules of `library/` apply to `applications/`: no
+       module of Stdlib's real analysis, neither `Rstruct` nor
+       `Rstruct_topology`, and nothing of `EllipsoidFitting` or
+       `EllipsoidUniversality`;
+     - no module of `library/` requires a module of
+       `GaussianApplications`;
+     - an omitted axiom report is a failure: the checker requires one
+       report per theorem of its table, 17 now and 24 after commit P.
+   - `scripts/stale_citations.py` scans `applications/`, and skips
+     external Lean references marked explicitly. The plan proposes the
+     marker `Lean:`.
+   - The master mutation-tests these rules in a scratch copy outside the
+     repository, and lists the mutations in the commit message (the
+     plan's section 4.2).
+   - It pushes `main`, and the three lanes merge it. Only then does the
+     user reconnect the three Rocq servers (`/mcp`).
+   - Work that needs no statement file starts at once: T1's trace
+     recursion, T3's comparison and T5's two-matrix estimate.
+3. **The statements.**
+   - The master writes the statement files at the top of `applications/`
+     in two batches. Batch 1 holds T1, T3 and T5, with
+     `library/matrix/lambda_max.v`. Batch 2 holds T2, T4, T6 and T7, each
+     with its definitions file.
+   - T4's definitions (`SKGapDefinitions.v`) are settled first. T4a and
+     T4b begin work that depends on them only after they are frozen. If a
+     lane is waiting for them, the master sends them for review ahead of
+     the rest of batch 2.
+   - The master compiles each batch, pushes `main` and says so in its
+     pane. The coordinator asks the user to review the batch, with the
+     list of library definitions its statements depend on.
+   - Comments guide the reviewer and give the provenance (see the rules).
+4. **The checks.** The user's launch permits changes to
+   `scripts/check_sources.py`, `scripts/stale_citations.py`, `check/` and
+   the `Makefile` at the following moments, and no other. Every existing
+   baseline and pin is kept, and each change is mutation-tested in a
+   scratch copy (the plan's section 4).
+   - **The infrastructure commit** of item 2.
+   - **Each freeze.** Once the user accepts a batch, the master freezes
+     its statement and definitions files like the frozen files of phases
+     5 to 11. Their code is compared with the acceptance commit, as a new
+     baseline, and only the master edits their comments. The master also
+     protects every library definition that the statements unfold to and
+     that is not yet protected. It either pins the definition's section,
+     as the section `tuple_prod` is pinned, or freezes a check file that
+     proves a characterization independent of its implementation. The
+     commit message says which. A characterization states, in the frozen
+     check file, a property that determines the object, not a lemma
+     name: for `gauss n`, its value on measurable boxes as the product of
+     the standard normal probabilities of the sides (`gauss_unique` can
+     prove that this determines the measure).
+   - **The axiom checks.** When the theorems exist, a commit P adds one
+     check file per target in `check/`, on the pattern of
+     `check/ConditionKappaAssumptions.v`: a definition whose type is the
+     frozen statement and whose body is the theorem, then
+     `Print Assumptions`. `scripts/check_sources.py` fixes their code.
+     Each has an expected list of the seven axioms of phase 11 (the eight
+     of `check/assumptions.expected` without `Classical_Prop.classic`).
+     Fewer are allowed, and every older expected list stays unchanged.
+     The checker then requires all 24 reports.
+   - **The pin.** A later commit compares the new check files and
+     expected lists byte for byte with P, as a separate baseline. The tag
+     `phase12` goes on that checked commit.
+5. **The checkpoint.** When T1, T3 and T5 are on `main`, the master says
+   so in its pane.
+   - The coordinator records, for each, the lines added, the hours and
+     the new definitions. It also inspects the proofs: statements,
+     hypotheses actually used and axiom reports.
+   - It assesses the two-spin argument of T4 separately, since T1, T3 and
+     T5 say little about it.
+   - It then estimates the remaining items and reports to the user.
+   - The checkpoint blocks nothing: work continues meanwhile.
+
+### Rules for this phase
+
+The rules of phase 11 apply.
+- **Unchanged files.** Nothing changes in:
+  - `theories/` and `extension/`;
+  - the code of the frozen files of phases 1 to 11;
+  - the check files and expected lists of phases 1 to 11;
+  - the pinned section `tuple_prod` of `library/probability/lindeberg.v`.
+
+  The 17 theorems that `make check` checks keep building at every
+  commit.
+- **Ownership.** Files keep their owners of phase 5. These new files take
+  the owners of the plan's section 5:
+  - `library/matrix/lambda_max.v`: lane C;
+  - `library/random_matrix/goe_edge.v` and
+    `library/probability/efron_stein_omission.v`: lane B;
+  - `library/matrix/tensor_packing.v`: lane A;
+  - `applications/`: as the master assigns.
+
+  One file has one owner at a time.
+- **Library and applications.**
+  - `library/` statements and definitions are general, over
+    `R : realType`, in the library's vocabulary. None is about the SK
+    model, perceptrons, SAT or sign matrices. Library comments may cite
+    the sources.
+  - `applications/` is also over `realType`. It requires only `library/`
+    and MathComp, never Stdlib's reals or MathComp's bridges to them.
+    Dependencies flow only from `applications/` to `library/`.
+  - Every new `.v` file is registered in `_CoqProject` in the commit that
+    adds it.
+- **Provenance.** Every new file's header cites the manuscript (title and
+  family number), its section or lemma, the collection revision
+  1581d4cbd, and any Lean module whose argument the file follows, after
+  the marker `Lean:`. It calls the file a Rocq formalization of the
+  credited argument. Nothing is copied from the Lean code.
+- **Sources.**
+  - The TeX of the collection is the mathematical source. Lean sources
+    may be read for routes and conventions.
+  - Where the frozen statement, the TeX and a Lean statement differ, the
+    file header says so.
+  - If a manuscript step fails, the lane stops and reports to the master,
+    who reports to the user. A change of a frozen statement or
+    definition, or a fall-back to an implication with explicit
+    hypotheses, is the user's decision.
+- **No unproved step.** No commit contains `Admitted`, `Axiom` or
+  `Parameter`. During the work, a missing result may be an explicit
+  hypothesis of a lemma; it is removed when the result lands.
+- **Quotas.** Lanes commit in small, self-contained steps. If an account
+  is throttled, the master reassigns the next item rather than wait.
+- **Documentation.** Every new file has the documentation header and its
+  README rows (`library/README.md` or `applications/README.md`), with the
+  actual hypotheses.
+- **Building.** Build with `JOBS=3`, and run `make check` before every
+  commit.
+- **Requests** between lanes go through `requests/`, which the master
+  deletes at the end.
+- **No journals.** The repository gets no journals or progress files.
+  The handoffs and the master's table live in
+  `/srv/ellipsoid-fitting/runtime/`.
+
+Phase 12 is done when the following hold:
+- T1 to T7 prove their accepted statements on `main`;
+- their check files verify the frozen statements, and their axioms are
+  among the seven of their expected lists;
+- the checker requires all 24 reports, and the commit messages record the
+  mutation tests;
+- the new check files are pinned to P;
+- `make check` passes;
+- the README rows cover every new file;
+- `main` is tagged `phase12` at the checked pin commit.
 
 ## Bridging Stdlib's `R` and the library
 
