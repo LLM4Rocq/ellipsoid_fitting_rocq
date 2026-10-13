@@ -157,7 +157,30 @@ Rule (3): the library files of three targets are missing or wrong.
   (`probability/efron_stein_omission.v`, the deletion variance bound in
   general form, is not used by the proof)".
 
+### `library/random_matrix/goe_entries.v` (lane A, T4b), lines 49-51, main e9ee840
+
+Rule (4): the header describes the model beyond the citation ("the row
+sums of the disorder; the proposition itself is in
+applications/SKGap/Disorder.v"). Proposed, from line 49:
+
+> revision 1581d4cbd, file appendices/entropy.tex), for the diagonal
+> entries, the off-diagonal entries and the row sums of the GOE matrix;
+> the proposition itself belongs to target T4. It follows the TeX, not a
+> Lean module of the collection.
+
+Rule (3), optional, in `library/README.md` (main e9ee840): the row of
+line 375 says that the three union events are measurable; its results
+could also list `measurable_goe_diag_max`, `measurable_goe_offdiag_max`
+and `measurable_goe_row_max`. The row of line 374 could say "A Rocq
+formalization of the credited argument" instead of "A formalization of an
+argument", as the header does.
+
+`applications/SKGap/Disorder.v` (T4b): no finding. Its header meets
+rules (1) and (2) (delta fixed instead of n^(-1/4), and the cubic row
+sums left out), and its row matches `sk_good_disorder`,
+`sk_good_disorder_measurable` and `sk_good_disorder_prob`.
+
 ### Still to review
 
-The files of T4b (agent 1) and of T4a (`applications/SKGap/TwoSpin.v`,
-`Poincare.v`, `SKGapTheorem.v`) when they land on main.
+The files of T4a (`applications/SKGap/TwoSpin.v`, `Poincare.v`,
+`SKGapTheorem.v`) when they land on main.
