@@ -33,11 +33,14 @@ From GaussianAnalysis.random_matrix Require Import goe goe_rotation.
 (* goe_mx_offdiag_max_tail, goe_mx_row_max_tail); their events are measurable *)
 (* (measurable_goe_diag_max and the next two).                                *)
 (*                                                                            *)
-(* Two general facts are proved on the way: removing the diagonal of a square *)
-(* matrix A costs at most max_i |A_ii| in operator norm (opnorm_sub_diag_le,  *)
-(* from opnorm_diag_mx_le), and the union bound                               *)
+(* Three general facts are proved on the way: removing the diagonal of a      *)
+(* square matrix A costs at most max_i |A_ii| in operator norm                *)
+(* (opnorm_sub_diag_le, from opnorm_diag_mx_le); the union bound              *)
 (* mu (\bigcup_i F i) <= \sum_i mu (F i) for a measure mu, a finite index     *)
-(* type and measurable sets F i (measure_bigcup_fin_le).                      *)
+(* type and measurable sets F i (measure_bigcup_fin_le); and                  *)
+(* x^k exp (- x c) <= 6 / (c^3 x) for c > 0, x >= 1 and k <= 2                *)
+(* (exprn_expRN_le), so that such tails, times at most d^2 events, are of     *)
+(* order 1 / d.                                                               *)
 (*                                                                            *)
 (* Part of target T4 of phase 12: a Rocq formalization of the credited        *)
 (* argument of the proof of the proposition 'Good disorder'                   *)
@@ -118,6 +121,34 @@ by apply: leeD.
 Qed.
 
 End union_bound.
+
+Section exp_poly.
+Context {R : realType}.
+
+(* x^k exp (- x c) <= 6 / (c^3 x) for c > 0, x >= 1 and k <= 2. *)
+Lemma exprn_expRN_le (c x : R) (k : nat) : 0 < c -> 1 <= x -> (k <= 2)%N ->
+  x ^+ k * expR (- (x * c)) <= 6 / c ^+ 3 / x.
+Proof.
+move=> c0 x1 k2.
+have x0 : 0 < x by apply: lt_le_trans x1.
+have y0 : 0 <= x * c by rewrite mulr_ge0 // ltW.
+have e : (x * c) ^+ 3 / 6 <= expR (x * c).
+  have := expR_ge1Dxn 2 y0; rewrite (_ : 3`!%:R = 6 :> R) //.
+  by move=> h; apply: le_trans h; rewrite lerDr.
+have xk : x ^+ k <= x ^+ 2.
+  case: k k2 => [|[|[|]]] //= _; rewrite ?expr0 ?expr1.
+    by rewrite exprn_ege1.
+  by rewrite expr2 ler_peMl // (le_trans ler01 x1).
+rewrite -mulrA -invfM expRN.
+have E0 : 0 < expR (x * c) := expR_gt0 _.
+have Ei : 0 <= (expR (x * c))^-1 by rewrite invr_ge0 ltW.
+apply: le_trans (ler_wpM2r Ei xk) _.
+rewrite ler_pdivlMr ?mulr_gt0 ?exprn_gt0 // mulrAC ler_pdivrMr //.
+have -> : x ^+ 2 * (c ^+ 3 * x) = (x * c) ^+ 3 by ring.
+by move: e; move: (x * c) => y; move: (expR y) => E h; lra.
+Qed.
+
+End exp_poly.
 
 Section goe_entries.
 Context {R : realType} (d : nat).

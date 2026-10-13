@@ -52,9 +52,9 @@ From GaussianApplications Require Import SKGapDefinitions.
 (* - |W_ij| >= s for some i != j, of probability at most                      *)
 (*   2 n^2 exp (- n s^2 / 2), by Gaussian tails and a union bound.            *)
 (*                                                                            *)
-(* As n^k exp (- n c) <= 6 / (c^3 n) for k <= 2 and n >= 1 (exprn_expRN_le),  *)
-(* the four probabilities sum to at most K / n, with K depending only on beta *)
-(* and delta.                                                                 *)
+(* As n^k exp (- n c) <= 6 / (c^3 n) for c > 0, k <= 2 and n >= 1             *)
+(* (exprn_expRN_le of random_matrix/goe_entries.v), the four probabilities    *)
+(* sum to at most K / n, with K depending only on beta and delta.             *)
 (*                                                                            *)
 (* The manuscript lets delta = n^(-1/4) tend to zero. Here delta > 0 is       *)
 (* fixed, which is what the assembly of T4 uses, and no rate is needed. The   *)
@@ -186,29 +186,6 @@ apply: measurableI; first apply: measurableI.
   apply: fin_bigcap_measurable => [|j _].
     exact: cardinality.finite_finset.
   by apply: mI; apply: measurableT_comp (mJ i j); exact: normr_measurable.
-Qed.
-
-(* x^k exp (- x c) <= 6 / (c^3 x) for x >= 1 and k <= 2. *)
-Lemma exprn_expRN_le (c x : R) (k : nat) : 0 < c -> 1 <= x -> (k <= 2)%N ->
-  x ^+ k * expR (- (x * c)) <= 6 / c ^+ 3 / x.
-Proof.
-move=> c0 x1 k2.
-have x0 : 0 < x by apply: lt_le_trans x1.
-have y0 : 0 <= x * c by rewrite mulr_ge0 // ltW.
-have e : (x * c) ^+ 3 / 6 <= expR (x * c).
-  have := expR_ge1Dxn 2 y0; rewrite (_ : 3`!%:R = 6 :> R) //.
-  by move=> h; apply: le_trans h; rewrite lerDr.
-have xk : x ^+ k <= x ^+ 2.
-  case: k k2 => [|[|[|]]] //= _; rewrite ?expr0 ?expr1.
-    by rewrite exprn_ege1.
-  by rewrite expr2 ler_peMl // (le_trans ler01 x1).
-rewrite -mulrA -invfM expRN.
-have E0 : 0 < expR (x * c) := expR_gt0 _.
-have Ei : 0 <= (expR (x * c))^-1 by rewrite invr_ge0 ltW.
-apply: le_trans (ler_wpM2r Ei xk) _.
-rewrite ler_pdivlMr ?mulr_gt0 ?exprn_gt0 // mulrAC ler_pdivrMr //.
-have -> : x ^+ 2 * (c ^+ 3 * x) = (x * c) ^+ 3 by ring.
-by move: e; move: (x * c) => y; move: (expR y) => E h; lra.
 Qed.
 
 (* The probability of the good disorder tends to one: the four failure
