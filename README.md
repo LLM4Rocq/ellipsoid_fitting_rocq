@@ -445,12 +445,13 @@ generated`), whose code cannot change. The other modules print none.
   of phase 8 the same code as at commit `5442e84`, the five of phase 9
   the same code as at commit `1c05ffc`, the two of phase 10 the same
   code as at commit `b26eb1e`, the four of phase 11 the same code as
-  at commit `c5f41c4`, and the three accepted statement files of
-  `applications/` (batch 1 of phase 12) the same code as at commit
+  at commit `c5f41c4`, the three accepted statement files of
+  `applications/` of batch 1 of phase 12 the same code as at commit
   `fc76edf`, as the section `lambda_max` of
-  `library/matrix/lambda_max.v` with its Require commands (comments may
-  differ); that `check/ApplicationsDefinitions.v` has its fixed code; that
-  the
+  `library/matrix/lambda_max.v` with its Require commands, and the seven
+  statement and definitions files of batch 2 the same code as at commit
+  `0d5afba` (comments may differ); that `check/ApplicationsDefinitions.v`
+  has its fixed code; that the
   axiom-check files of phases 5 and 6 and their expected lists are
   byte-identical to commit `c3e555e`, those of phases 7 and 8 to commit
   `a89ed1e`, those of phase 9 to commit `e4c46e1`, those of phase 10 to

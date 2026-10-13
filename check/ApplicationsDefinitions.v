@@ -1,6 +1,7 @@
 (* The library definitions that the frozen statements of applications/
    unfold to, characterized by properties that determine them (phase 12,
-   the freeze of batch 1; AGENTS.md, section Phase 12, step 0, item 4).
+   the freezes of batches 1 and 2; AGENTS.md, section Phase 12, step 0,
+   item 4).
 
    Each lemma states its property in this file, with MathComp's and
    MathComp-Analysis's vocabulary, and make check compiles the file: a

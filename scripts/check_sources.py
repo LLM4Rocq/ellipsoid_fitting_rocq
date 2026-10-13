@@ -172,6 +172,16 @@
    not exist is an error. make check deletes the reports before it
    compiles the check files, so a report is never reused from an earlier
    run.
+23. Phase 12, the freeze of batch 2. The code of each file of
+   PHASE12_B2_FROZEN, the statements of the tensor packing, of the
+   spectral gap of the SK heat-bath dynamics, of the sign/Gaussian
+   comparison for the Ising perceptron and of the capped variance for
+   random k-SAT, with the definitions files of the last three, must equal
+   its code at the commit PHASE12_B2_BASELINE, at which the user accepted
+   them. The library definitions that these files unfold to (mxdot,
+   frobenius, opnorm, goe_mx, gauss and the measurable structure of
+   matrices) are those of rule 22, protected by
+   check/ApplicationsDefinitions.v.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -295,6 +305,16 @@ PHASE12_B1_FROZEN = [
     "applications/PsdSplittingStatement.v",
 ]
 PHASE12_B1_BASELINE = "fc76edfc953cac79f4fa258a3228cb536784cded"
+PHASE12_B2_FROZEN = [
+    "applications/TensorPackingStatement.v",
+    "applications/SKGapDefinitions.v",
+    "applications/SKGapStatement.v",
+    "applications/PerceptronSignDefinitions.v",
+    "applications/PerceptronSignStatement.v",
+    "applications/SatVarianceDefinitions.v",
+    "applications/SatVarianceStatement.v",
+]
+PHASE12_B2_BASELINE = "0d5afbac072113544fd4c46451a7b6397b7344b3"
 LAMBDA_MAX = "library/matrix/lambda_max.v"
 APPLICATIONS_DEFINITIONS = "check/ApplicationsDefinitions.v"
 APPLICATIONS_DEFINITIONS_CHECK = (
@@ -608,6 +628,9 @@ def main():
     for path in PHASE12_B1_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE12_B1_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE12_B1_BASELINE[:12]}")
+    for path in PHASE12_B2_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE12_B2_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE12_B2_BASELINE[:12]}")
     for path in CHECKS_EXACT:
         if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
@@ -749,6 +772,8 @@ def main():
           f"{PHASE11_BASELINE[:12]}; "
           f"{len(PHASE12_B1_FROZEN)} frozen files of phase 12 and the section "
           f"lambda_max unchanged since {PHASE12_B1_BASELINE[:12]}; "
+          f"{len(PHASE12_B2_FROZEN)} frozen files of phase 12 unchanged since "
+          f"{PHASE12_B2_BASELINE[:12]}; "
           f"the characterizations of {APPLICATIONS_DEFINITIONS} unchanged; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers, of applications/ "

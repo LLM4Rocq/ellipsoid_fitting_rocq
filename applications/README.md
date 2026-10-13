@@ -60,8 +60,10 @@ the sources are in `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`.
 | T6. Sign/Gaussian comparison for the Ising perceptron pressure | The free energy of the Ising random perceptron (222), Theorem ext:sign | `PerceptronSignDefinitions.v`, `PerceptronSignStatement.v` | | `Perceptron/` |
 | T7. Capped variance for random k-SAT | A limiting satisfiability threshold for every fixed clause size (235), Proposition "Polynomial concentration" | `SatVarianceDefinitions.v`, `SatVarianceStatement.v` | `probability/efron_stein_omission.v` | `RandomSAT/` |
 
-The files of a target are added when its work starts; the statement files
-are reviewed in two batches (T1, T3 and T5, then T2, T4, T6 and T7).
+The files of a target are added when its work starts. The statement files
+were reviewed in two batches and are frozen: T1, T3 and T5 with
+`library/matrix/lambda_max.v`, accepted at `fc76edf`, then T2, T4, T6 and
+T7, accepted at `0d5afba`.
 
 ## Main results
 
