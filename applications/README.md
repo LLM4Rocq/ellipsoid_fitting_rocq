@@ -58,7 +58,7 @@ the sources are in `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`.
 | T4. Spectral gap of the SK heat-bath dynamics for beta < 1/2 | the same (227) | `SKGapDefinitions.v`, `SKGapStatement.v` | `matrix/spectral_gap.v`, `probability/finite_gap.v`, `random_matrix/goe_entries.v` | `SKGap/` |
 | T5. Orthogonal splitting of positive semidefinite matrices | Exponential PSD rank of positively shifted matching matrices (126), lemma "Orthogonal splitting" | `PsdSplittingStatement.v` | `matrix/psd_splitting.v` | |
 | T6. Sign/Gaussian comparison for the Ising perceptron pressure | The free energy of the Ising random perceptron (222), Theorem ext:sign | `PerceptronSignDefinitions.v`, `PerceptronSignStatement.v` | `probability/rademacher_lindeberg.v`, `probability/log_partition.v` | `Perceptron/` |
-| T7. Capped variance for random k-SAT | A limiting satisfiability threshold for every fixed clause size (235), Proposition "Polynomial concentration" | `SatVarianceDefinitions.v`, `SatVarianceStatement.v` | `probability/finite_mean.v` (`probability/efron_stein_omission.v`, the deletion variance bound in general form, is not used by the proof) | `RandomSAT/` |
+| T7. Capped variance for random k-SAT | A limiting satisfiability threshold for every fixed clause size (235), Proposition "Polynomial concentration" | `SatVarianceDefinitions.v`, `SatVarianceStatement.v` | `probability/finite_mean.v`; `probability/efron_stein_omission.v`, the general form of the manuscript's lemma 'Deletion variance bound', is not used by the proof | `RandomSAT/` |
 
 The files of a target are added when its work starts. The statement files
 were reviewed in two batches and are frozen: T1, T3 and T5 with
