@@ -806,6 +806,13 @@ applications/GoeEdgeStatement.v
 applications/GoeEdgeTheorem.v
 applications/PsdSplittingStatement.v
 applications/PsdSplittingTheorem.v
+applications/TensorPackingStatement.v
+applications/SKGapDefinitions.v
+applications/SKGapStatement.v
+applications/PerceptronSignDefinitions.v
+applications/PerceptronSignStatement.v
+applications/SatVarianceDefinitions.v
+applications/SatVarianceStatement.v
 applications/SKGap/Ising.v
 applications/Perceptron/Pressure.v
 applications/RandomSAT/Model.v
