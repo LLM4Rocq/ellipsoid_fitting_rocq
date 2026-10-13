@@ -430,7 +430,13 @@ generated`), whose code cannot change. The other modules print none.
   and `check/ConditionKappaCurveAssumptions.v`,
   `check/ConditionKappaAssumptions.v` and
   `check/ConditionKappaRobustAssumptions.v` for the three theorems of
-  phase 11, with the expected lists of the same names.
+  phase 11, and `check/MatrixSeriesAssumptions.v`,
+  `check/TensorPackingAssumptions.v`, `check/GoeEdgeAssumptions.v`,
+  `check/SKGapAssumptions.v`, `check/PsdSplittingAssumptions.v`,
+  `check/PerceptronSignAssumptions.v` and `check/SatVarianceAssumptions.v`
+  for the seven theorems of `applications/` (phase 12), with the expected
+  lists of the same names (`check/matrix_series_assumptions.expected` and
+  so on).
   `check/ApplicationsDefinitions.v` states a characterization of each
   library definition that the frozen statements of `applications/` unfold
   to (`mxdot`, `frobenius`, `opnorm`, `psdmx`, `goe_mx`, the measurable
@@ -467,7 +473,7 @@ generated`), whose code cannot change. The other modules print none.
   Stdlib's reals, or MathComp's bridge to them (`Rstruct`,
   `Rstruct_topology`), and no module of `library/` a module of
   `applications/`; and that it is given exactly the report of each theorem
-  of its table (17), by path and in order, every report exists and is
+  of its table (24), by path and in order, every report exists and is
   complete, and the axioms of each theorem are among its expected ones,
   each expected list being part of the first. `make check` deletes the
   reports before it regenerates them, then runs it.

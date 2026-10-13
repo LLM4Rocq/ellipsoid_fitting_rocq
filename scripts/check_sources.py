@@ -150,8 +150,8 @@
    GaussianApplications. An omitted axiom report is an error: the script
    takes exactly one report per theorem of its table, in the order of
    THEOREMS (the main theorem, the universality theorem, then those of
-   PHASE6_THEOREMS to PHASE11_THEOREMS, 17 in all), and a missing or extra
-   report makes it fail.
+   PHASE6_THEOREMS to PHASE12_THEOREMS, 24 in all since rule 24), and a
+   missing or extra report makes it fail.
 22. Phase 12, the freeze of batch 1. The code of each file of
    PHASE12_B1_FROZEN, the statements of the Gaussian matrix series, of the
    sharp upper edge of the GOE and of the orthogonal splitting of positive
@@ -182,6 +182,17 @@
    frobenius, opnorm, goe_mx, gauss and the measurable structure of
    matrices) are those of rule 22, protected by
    check/ApplicationsDefinitions.v.
+24. Phase 12, the axiom checks. The seven check files of PHASE12_THEOREMS,
+   check/MatrixSeriesAssumptions.v to check/SatVarianceAssumptions.v, have
+   the codes of PHASE12_CHECKS: each checks that the theorem of a target
+   (matrix_series_theorem, tensor_packing_theorem, goe_edge_theorem,
+   sk_gap_theorem, psd_splitting_theorem, perceptron_sign_theorem,
+   sat_variance_theorem) proves its frozen statement, and prints its
+   axioms. Given their outputs as the eighteenth to twenty-fourth
+   arguments, every axiom they print is among those of the expected list
+   of the target, check/<target>_assumptions.expected, whose axioms are
+   among those of check/assumptions.expected. The script then takes 24
+   reports, one per theorem of THEOREMS.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -490,12 +501,60 @@ PHASE11_THEOREMS = [
      "check/ConditionKappaRobustAssumptions.v", CONDITION_KAPPA_ROBUST_CHECK,
      "check/condition_kappa_robust_assumptions.expected"),
 ]
+# The axiom checks of phase 12: the code of each check file.
+PHASE12_CHECKS = {
+    "MatrixSeries": ("From GaussianApplications Require Import MatrixSeriesStatement "
+        "MatrixSeriesTheorem. Definition matrix_series_theorem_checked "
+        ": matrix_series_statement := matrix_series_theorem. "
+        "Print Assumptions matrix_series_theorem."),
+    "TensorPacking": ("From GaussianApplications Require Import TensorPackingStatement "
+        "TensorPackingTheorem. Definition tensor_packing_theorem_checked "
+        ": tensor_packing_statement := tensor_packing_theorem. "
+        "Print Assumptions tensor_packing_theorem."),
+    "GoeEdge": ("From GaussianApplications Require Import GoeEdgeStatement "
+        "GoeEdgeTheorem. Definition goe_edge_theorem_checked "
+        ": goe_edge_statement := goe_edge_theorem. "
+        "Print Assumptions goe_edge_theorem."),
+    "SKGap": ("From GaussianApplications Require Import SKGapStatement "
+        "SKGapTheorem. Definition sk_gap_theorem_checked "
+        ": sk_gap_statement := sk_gap_theorem. "
+        "Print Assumptions sk_gap_theorem."),
+    "PsdSplitting": ("From GaussianApplications Require Import PsdSplittingStatement "
+        "PsdSplittingTheorem. Definition psd_splitting_theorem_checked "
+        ": psd_splitting_statement := psd_splitting_theorem. "
+        "Print Assumptions psd_splitting_theorem."),
+    "PerceptronSign": ("From GaussianApplications Require Import PerceptronSignStatement "
+        "PerceptronSignTheorem. Definition perceptron_sign_theorem_checked "
+        ": perceptron_sign_statement := perceptron_sign_theorem. "
+        "Print Assumptions perceptron_sign_theorem."),
+    "SatVariance": ("From GaussianApplications Require Import SatVarianceStatement "
+        "SatVarianceTheorem. Definition sat_variance_theorem_checked "
+        ": sat_variance_statement := sat_variance_theorem. "
+        "Print Assumptions sat_variance_theorem."),
+}
+PHASE12_THEOREMS = [
+    ("Gaussian matrix series theorem", "check/MatrixSeriesAssumptions.v", PHASE12_CHECKS["MatrixSeries"],
+     "check/matrix_series_assumptions.expected"),
+    ("tensor packing theorem", "check/TensorPackingAssumptions.v", PHASE12_CHECKS["TensorPacking"],
+     "check/tensor_packing_assumptions.expected"),
+    ("GOE edge theorem", "check/GoeEdgeAssumptions.v", PHASE12_CHECKS["GoeEdge"],
+     "check/goe_edge_assumptions.expected"),
+    ("SK spectral gap theorem", "check/SKGapAssumptions.v", PHASE12_CHECKS["SKGap"],
+     "check/sk_gap_assumptions.expected"),
+    ("orthogonal splitting theorem", "check/PsdSplittingAssumptions.v", PHASE12_CHECKS["PsdSplitting"],
+     "check/psd_splitting_assumptions.expected"),
+    ("perceptron comparison theorem", "check/PerceptronSignAssumptions.v", PHASE12_CHECKS["PerceptronSign"],
+     "check/perceptron_sign_assumptions.expected"),
+    ("k-SAT variance theorem", "check/SatVarianceAssumptions.v", PHASE12_CHECKS["SatVariance"],
+     "check/sat_variance_assumptions.expected"),
+]
 # Every theorem whose axiom report the script takes, in the order of its
 # arguments, and the path of its report: the arguments must be exactly the
 # paths of REPORTS.
 THEOREMS = (["main theorem", "universality theorem"]
             + [name for name, _, _, _ in PHASE6_THEOREMS + PHASE8_THEOREMS
-               + PHASE9_THEOREMS + PHASE10_THEOREMS + PHASE11_THEOREMS])
+               + PHASE9_THEOREMS + PHASE10_THEOREMS + PHASE11_THEOREMS
+               + PHASE12_THEOREMS])
 REPORTS = [
     "build/assumptions.txt",
     "build/universality_assumptions.txt",
@@ -514,6 +573,13 @@ REPORTS = [
     "build/condition_kappa_curve_assumptions.txt",
     "build/condition_kappa_assumptions.txt",
     "build/condition_kappa_robust_assumptions.txt",
+    "build/matrix_series_assumptions.txt",
+    "build/tensor_packing_assumptions.txt",
+    "build/goe_edge_assumptions.txt",
+    "build/sk_gap_assumptions.txt",
+    "build/psd_splitting_assumptions.txt",
+    "build/perceptron_sign_assumptions.txt",
+    "build/sat_variance_assumptions.txt",
 ]
 assert len(REPORTS) == len(THEOREMS)
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
@@ -728,7 +794,7 @@ def main():
                   ", ".join(sorted(printed)) or "none")
     for k, (name, check, check_code, expected) in enumerate(
             PHASE6_THEOREMS + PHASE8_THEOREMS + PHASE9_THEOREMS
-            + PHASE10_THEOREMS + PHASE11_THEOREMS):
+            + PHASE10_THEOREMS + PHASE11_THEOREMS + PHASE12_THEOREMS):
         if code((ROOT / check).read_text()) != check_code:
             failures.append(f"{check}: code differs from the expected check")
         allowed_k = axiom_names((ROOT / expected).read_text())

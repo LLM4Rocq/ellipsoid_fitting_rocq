@@ -51,7 +51,14 @@ REPORTS = build/assumptions.txt \
 	build/latent_tensor_upper_assumptions.txt \
 	build/condition_kappa_curve_assumptions.txt \
 	build/condition_kappa_assumptions.txt \
-	build/condition_kappa_robust_assumptions.txt
+	build/condition_kappa_robust_assumptions.txt \
+	build/matrix_series_assumptions.txt \
+	build/tensor_packing_assumptions.txt \
+	build/goe_edge_assumptions.txt \
+	build/sk_gap_assumptions.txt \
+	build/psd_splitting_assumptions.txt \
+	build/perceptron_sign_assumptions.txt \
+	build/sat_variance_assumptions.txt
 
 .PHONY: all build check citations clean FORCE
 
@@ -87,6 +94,13 @@ check: build
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ConditionKappaCurveAssumptions.vo check/ConditionKappaCurveAssumptions.v > build/condition_kappa_curve_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ConditionKappaAssumptions.vo check/ConditionKappaAssumptions.v > build/condition_kappa_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ConditionKappaRobustAssumptions.vo check/ConditionKappaRobustAssumptions.v > build/condition_kappa_robust_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/MatrixSeriesAssumptions.vo check/MatrixSeriesAssumptions.v > build/matrix_series_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/TensorPackingAssumptions.vo check/TensorPackingAssumptions.v > build/tensor_packing_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/GoeEdgeAssumptions.vo check/GoeEdgeAssumptions.v > build/goe_edge_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/SKGapAssumptions.vo check/SKGapAssumptions.v > build/sk_gap_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/PsdSplittingAssumptions.vo check/PsdSplittingAssumptions.v > build/psd_splitting_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/PerceptronSignAssumptions.vo check/PerceptronSignAssumptions.v > build/perceptron_sign_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/SatVarianceAssumptions.vo check/SatVarianceAssumptions.v > build/sat_variance_assumptions.txt
 	python3 scripts/check_sources.py $(REPORTS)
 	$(if $(filter yes,$(CITATIONS)),$(EXEC) python3 scripts/stale_citations.py,@true)
 	@echo "make check passed."
