@@ -104,7 +104,8 @@ Lemma restrict_sub n k (S : {set {ffun 'I_n -> bool}}) (s : seq (clause n k)) :
   restrict S s \subset S.
 Proof. by rewrite restrictE; apply/subsetP => x; rewrite inE => /andP[]. Qed.
 
-Lemma restrict_mono n k (S T : {set {ffun 'I_n -> bool}}) (s : seq (clause n k)) :
+Lemma restrict_mono n k (S T : {set {ffun 'I_n -> bool}})
+    (s : seq (clause n k)) :
   S \subset T -> restrict S s \subset restrict T s.
 Proof.
 move=> /subsetP ST; rewrite !restrictE; apply/subsetP => x.
@@ -211,7 +212,8 @@ Qed.
 
 Lemma sum_ltn_ord M V : (V <= M)%N -> (\sum_(j < M) (j < V)%N)%N = V.
 Proof.
-elim: M V => [|M IH] V VM; first by rewrite big_ord0; move: VM; rewrite leqn0 => /eqP.
+elim: M V => [|M IH] V VM; first by rewrite big_ord0; move: VM;
+  rewrite leqn0 => /eqP.
 rewrite big_ord_recr /=; case: (leqP V M) => [VM'|MV].
   by rewrite IH // addn0.
 have -> : V = M.+1 by apply/eqP; rewrite eqn_leq VM MV.
@@ -268,7 +270,8 @@ Lemma prepend_lift n b (c : {ffun 'I_n -> option bool}) j :
   prepend b c (lift ord0 j) = c j.
 Proof. by rewrite ffunE liftK. Qed.
 
-Lemma ftail_prepend n b (c : {ffun 'I_n -> option bool}) : ftail (prepend b c) = c.
+Lemma ftail_prepend n b (c : {ffun 'I_n -> option bool}) :
+  ftail (prepend b c) = c.
 Proof. by apply/ffunP => j; rewrite ffunE prepend_lift. Qed.
 
 Lemma prepend_ftail n (c : {ffun 'I_n.+1 -> option bool}) :
@@ -283,7 +286,8 @@ Lemma card_support n (c : {ffun 'I_n -> option bool}) :
 Proof. by rewrite -sum1dep_card big_mkcond. Qed.
 
 Lemma card_support_prepend n b (c : {ffun 'I_n -> option bool}) :
-  #|[set i | prepend b c i != None]| = ((b != None) + #|[set i | c i != None]|)%N.
+  #|[set i | prepend b c i != None]| =
+    ((b != None) + #|[set i | c i != None]|)%N.
 Proof.
 rewrite !card_support big_ord_recl prepend0; congr addn.
 by apply: eq_bigr => j _; rewrite prepend_lift.
@@ -318,13 +322,15 @@ Proof.
 by move=> e; apply: proper_ftail; rewrite e /= add1n; exact: valP.
 Qed.
 
-Definition csplit n k (c : clause n.+1 k.+1) : clause n k.+1 + clause n k * bool :=
+Definition csplit n k (c : clause n.+1 k.+1) :
+    clause n k.+1 + clause n k * bool :=
   match val c ord0 as o return val c ord0 = o -> _ with
   | None => fun e => inl (exist _ (ftail (val c)) (proper_ftail_None e))
   | Some b => fun e => inr (exist _ (ftail (val c)) (proper_ftail_Some e), b)
   end erefl.
 
-Definition cjoin n k (x : clause n k.+1 + clause n k * bool) : clause n.+1 k.+1 :=
+Definition cjoin n k (x : clause n k.+1 + clause n k * bool) :
+    clause n.+1 k.+1 :=
   match x with
   | inl c => cabsent c
   | inr (c, b) => cpresent c b
@@ -333,10 +339,12 @@ Definition cjoin n k (x : clause n k.+1 + clause n k * bool) : clause n.+1 k.+1 
 Lemma cjoinK n k : cancel (@cjoin n k) (@csplit n k).
 Proof.
 move=> [c|[c b]]; rewrite /csplit /=.
-- move: (@proper_ftail_None n k.+1 (cabsent c)) (@proper_ftail_Some n k (cabsent c)).
+- move: (@proper_ftail_None n k.+1 (cabsent c))
+    (@proper_ftail_Some n k (cabsent c)).
   rewrite /= prepend0 => p _; congr inl; apply: val_inj => /=.
   exact: ftail_prepend.
-- move: (@proper_ftail_None n k.+1 (cpresent c b)) (@proper_ftail_Some n k (cpresent c b)).
+- move: (@proper_ftail_None n k.+1 (cpresent c b))
+    (@proper_ftail_Some n k (cpresent c b)).
   rewrite /= prepend0 => _ p; congr (inr (_, _)); apply: val_inj => /=.
   exact: ftail_prepend.
 Qed.
@@ -406,7 +414,8 @@ Lemma unif_mean_clause_split (R : realType) n k (f : clause n.+1 k.+1 -> R) :
   unif_mean f =
   (1 - k.+1%:R / n.+1%:R) * unif_mean (fun c : clause n k.+1 => f (cabsent c)) +
   k.+1%:R / n.+1%:R *
-    unif_mean (fun c : clause n k => unif_mean (fun b : bool => f (cpresent c b))).
+    unif_mean (fun c : clause n k =>
+      unif_mean (fun b : bool => f (cpresent c b))).
 Proof.
 move=> kn.
 rewrite -(unif_mean_bij f (@cjoin_bij n k)) unif_mean_sum_type /=.
