@@ -39,6 +39,7 @@ library/probability/countable_mixture.v
 library/probability/total_variation.v
 library/probability/atoms.v
 library/probability/efron_stein.v
+library/probability/efron_stein_omission.v
 library/probability/tuple_rows.v
 library/probability/semicircle_law.v
 library/probability/variational.v
