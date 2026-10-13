@@ -56,6 +56,7 @@ library/probability/hanson_wright.v
 library/probability/measurable_minimizer.v
 library/probability/log_partition.v
 library/probability/rademacher_lindeberg.v
+library/probability/finite_gap.v
 library/random_matrix/goe.v
 library/random_matrix/goe_edge.v
 library/random_matrix/goe_rotation.v
@@ -824,6 +825,7 @@ applications/SatVarianceStatement.v
 applications/SatVarianceTheorem.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
+applications/SKGap/Spectral.v
 applications/Perceptron/Pressure.v
 applications/RandomSAT/Model.v
 applications/RandomSAT/Pivotal.v
