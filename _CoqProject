@@ -819,6 +819,11 @@ applications/PerceptronSignStatement.v
 applications/PerceptronSignTheorem.v
 applications/SatVarianceDefinitions.v
 applications/SatVarianceStatement.v
+applications/SatVarianceTheorem.v
 applications/SKGap/Ising.v
 applications/Perceptron/Pressure.v
 applications/RandomSAT/Model.v
+applications/RandomSAT/Pivotal.v
+applications/RandomSAT/Replacement.v
+applications/RandomSAT/Forcing.v
+applications/RandomSAT/Variance.v
