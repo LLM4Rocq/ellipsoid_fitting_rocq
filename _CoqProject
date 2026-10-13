@@ -817,6 +817,7 @@ applications/TensorPackingStatement.v
 applications/TensorPackingTheorem.v
 applications/SKGapDefinitions.v
 applications/SKGapStatement.v
+applications/SKGapTheorem.v
 applications/PerceptronSignDefinitions.v
 applications/PerceptronSignStatement.v
 applications/PerceptronSignTheorem.v
@@ -826,6 +827,8 @@ applications/SatVarianceTheorem.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
 applications/SKGap/Spectral.v
+applications/SKGap/TwoSpin.v
+applications/SKGap/Poincare.v
 applications/Perceptron/Pressure.v
 applications/RandomSAT/Model.v
 applications/RandomSAT/Pivotal.v

@@ -24,16 +24,6 @@ From GaussianAnalysis.matrix Require Import euclidean real_spectral opnorm.
 (* revision 1581d4cbd), appendices/entropy.tex, proposition 'Gap and          *)
 (* covariance under scaled interactions and fields'.                          *)
 (******************************************************************************)
-(* # Two bounds for real symmetric matrices                                   *)
-(*                                                                            *)
-(* - psd_square_gap: a gap from the square. If B is symmetric and positive    *)
-(*   semidefinite and k x^T B x <= |B x|^2 for every x, then k |x|^2 <= x^T B *)
-(*   x for every x orthogonal to the kernel of B. In the eigenbasis of B, the *)
-(*   hypothesis says that every eigenvalue is 0 or at least k.                *)
-(* - opnorm_row_sum: the Schur test for symmetric matrices. If B is          *)
-(*   symmetric and sum_j |B_ij| <= rho for every row i, with rho >= 0, then  *)
-(*   opnorm B <= rho.                                                         *)
-(******************************************************************************)
 
 Set Implicit Arguments.
 Unset Strict Implicit.
