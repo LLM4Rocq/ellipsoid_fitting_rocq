@@ -152,6 +152,36 @@
    THEOREMS (the main theorem, the universality theorem, then those of
    PHASE6_THEOREMS to PHASE11_THEOREMS, 17 in all), and a missing or extra
    report makes it fail.
+22. Phase 12, the freeze of batch 1. The code of each file of
+   PHASE12_B1_FROZEN, the statements of the Gaussian matrix series, of the
+   sharp upper edge of the GOE and of the orthogonal splitting of positive
+   semidefinite matrices, must equal its code at the commit
+   PHASE12_B1_BASELINE, at which the user accepted them. The definition of
+   lambda_max, on which the second depends, is pinned: the Require
+   commands of LAMBDA_MAX and the code of its section lambda_max must equal
+   their code at PHASE12_B1_BASELINE; the lemmas after the section may
+   change. The other library definitions that these statements unfold to
+   are protected by check/ApplicationsDefinitions.v, which states a
+   characterization of each (mxdot, frobenius, opnorm, psdmx, goe_mx, the
+   measurable structure of matrices, and gauss through its values on
+   boxes, which determine it), has the code APPLICATIONS_DEFINITIONS_CHECK,
+   and is compiled by make check. The reports are identified by their
+   paths: the arguments must be exactly the paths of REPORTS, one per
+   theorem of THEOREMS, in that order, so that a missing, extra,
+   duplicated or substituted report is an error, and a report that does
+   not exist is an error. make check deletes the reports before it
+   compiles the check files, so a report is never reused from an earlier
+   run.
+23. Phase 12, the freeze of batch 2. The code of each file of
+   PHASE12_B2_FROZEN, the statements of the tensor packing, of the
+   spectral gap of the SK heat-bath dynamics, of the sign/Gaussian
+   comparison for the Ising perceptron and of the capped variance for
+   random k-SAT, with the definitions files of the last three, must equal
+   its code at the commit PHASE12_B2_BASELINE, at which the user accepted
+   them. The library definitions that these files unfold to (mxdot,
+   frobenius, opnorm, goe_mx, gauss and the measurable structure of
+   matrices) are those of rule 22, protected by
+   check/ApplicationsDefinitions.v.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -269,6 +299,63 @@ PHASE11_FROZEN = [
     "extension/ConditionKappaRobustStatement.v",
 ]
 PHASE11_BASELINE = "c5f41c44e5bc2622f6dfd940c654553503e9eb1d"
+PHASE12_B1_FROZEN = [
+    "applications/MatrixSeriesStatement.v",
+    "applications/GoeEdgeStatement.v",
+    "applications/PsdSplittingStatement.v",
+]
+PHASE12_B1_BASELINE = "fc76edfc953cac79f4fa258a3228cb536784cded"
+PHASE12_B2_FROZEN = [
+    "applications/TensorPackingStatement.v",
+    "applications/SKGapDefinitions.v",
+    "applications/SKGapStatement.v",
+    "applications/PerceptronSignDefinitions.v",
+    "applications/PerceptronSignStatement.v",
+    "applications/SatVarianceDefinitions.v",
+    "applications/SatVarianceStatement.v",
+]
+PHASE12_B2_BASELINE = "0d5afbac072113544fd4c46451a7b6397b7344b3"
+LAMBDA_MAX = "library/matrix/lambda_max.v"
+APPLICATIONS_DEFINITIONS = "check/ApplicationsDefinitions.v"
+APPLICATIONS_DEFINITIONS_CHECK = (
+    'From HB Require Import structures. From mathcomp Require Import '
+    'all_ssreflect_compat ssralg ssrnum matrix. From mathcomp Require '
+    'Import sesquilinear boolp classical_sets functions. From mathcomp '
+    'Require Import reals ereal topology normedtype sequences exp. From '
+    'mathcomp Require Import measure lebesgue_measure lebesgue_integral. '
+    'From mathcomp Require Import measurable_realfun probability. From '
+    'GaussianAnalysis.gaussian Require Import measurable_matrix gauss. '
+    'From GaussianAnalysis.matrix Require Import euclidean opnorm '
+    'psd_part. From GaussianAnalysis.random_matrix Require Import goe. '
+    'Import GRing.Theory Num.Theory. Local Open Scope ring_scope. Local '
+    'Open Scope classical_set_scope. Lemma mxdot_characterization (R : '
+    "realType) m n (A B : 'M[R]_(m, n)) : mxdot A B = \\sum_i \\sum_j A i j "
+    '* B i j. Proof. by []. Qed. Lemma frobenius_characterization (R : '
+    "realType) m n (A : 'M[R]_(m, n)) : frobenius A = Num.sqrt (\\sum_i "
+    '\\sum_j A i j ^+ 2). Proof. by rewrite /frobenius '
+    'mxdot_characterization; under eq_bigr do under eq_bigr do rewrite '
+    '-expr2. Qed. Lemma opnorm_characterization (R : realType) m n (A : '
+    "'M[R]_(m, n)) : opnorm A = sup [set frobenius (A *m x) | x in [set x "
+    ": 'cV[R]_n | frobenius x <= 1]]. Proof. by []. Qed. Lemma "
+    "psdmx_characterization (R : realType) n (A : 'M[R]_n) : psdmx A <-> "
+    "A \\is symmetricmx /\\ forall x : 'cV[R]_n, 0 <= (x^T *m A *m x) 0 0. "
+    'Proof. by split => -[As Ap]; split => // x; have := Ap x; rewrite '
+    'mxdot_colE mulmxA. Qed. Lemma goe_mx_characterization (R : realType) '
+    "d (a : 'rV[R]_(d * d)) : goe_mx a = (Num.sqrt (2 * d%:R))^-1 *: "
+    '(vec_mx a + (vec_mx a)^T). Proof. by []. Qed. Lemma '
+    'matrix_measurable_characterization {dT} (T : measurableType dT) m n '
+    ": @measurable _ 'M[T]_(m, n) = <<s [set [set M : 'M[T]_(m, n) | "
+    "forall i j, A i j (M i j)] | A in [set A : 'I_m -> 'I_n -> set T | "
+    'forall i j, measurable (A i j)]] >>. Proof. exact: '
+    'measurable_mxboxes. Qed. Lemma gauss_characterization (R : realType) '
+    "n (A : 'I_n -> set R) : (forall i, measurable (A i)) -> gauss n [set "
+    "x : 'rV[R]_n | forall i, A i (x 0 i)] = (\\prod_(i < n) normal_prob 0 "
+    '1 (A i))%E. Proof. exact: gauss_box. Qed. Lemma gauss_determined (R '
+    ": realType) n (P : {measure set 'rV[R]_n -> \\bar R}) : (forall A : "
+    "'I_n -> set R, (forall i, measurable (A i)) -> P [set x : 'rV[R]_n | "
+    'forall i, A i (x 0 i)] = (\\prod_(i < n) normal_prob 0 1 (A i))%E) -> '
+    'forall X, measurable X -> P X = gauss n X. Proof. exact: '
+    'gauss_unique. Qed.')
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -404,10 +491,31 @@ PHASE11_THEOREMS = [
      "check/condition_kappa_robust_assumptions.expected"),
 ]
 # Every theorem whose axiom report the script takes, in the order of its
-# arguments: one report per theorem is required.
+# arguments, and the path of its report: the arguments must be exactly the
+# paths of REPORTS.
 THEOREMS = (["main theorem", "universality theorem"]
             + [name for name, _, _, _ in PHASE6_THEOREMS + PHASE8_THEOREMS
                + PHASE9_THEOREMS + PHASE10_THEOREMS + PHASE11_THEOREMS])
+REPORTS = [
+    "build/assumptions.txt",
+    "build/universality_assumptions.txt",
+    "build/mixture_assumptions.txt",
+    "build/paired_assumptions.txt",
+    "build/latent_sign_assumptions.txt",
+    "build/countable_assumptions.txt",
+    "build/condition_assumptions.txt",
+    "build/latent_scope_assumptions.txt",
+    "build/robust_assumptions.txt",
+    "build/latent_tensor_assumptions.txt",
+    "build/continuous_latent_assumptions.txt",
+    "build/condition_endpoints_assumptions.txt",
+    "build/condition_robust_assumptions.txt",
+    "build/latent_tensor_upper_assumptions.txt",
+    "build/condition_kappa_curve_assumptions.txt",
+    "build/condition_kappa_assumptions.txt",
+    "build/condition_kappa_robust_assumptions.txt",
+]
+assert len(REPORTS) == len(THEOREMS)
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 APPLICATIONS = "GaussianApplications"
 ASSUMPTION = re.compile(
@@ -435,13 +543,27 @@ def library_imports(text):
             yield root, name
 
 
+def section_code(text, name):
+    """The Require commands of a source and the code of its section name,
+    comments removed and whitespace collapsed."""
+    stripped = strip_comments(text)
+    requires = " ".join(m.group(0) for m in REQUIRE.finditer(stripped))
+    section = re.search(rf"Section {name}\..*?End {name}\.", stripped, re.S)
+    return " ".join(requires.split()), " ".join(section.group(0).split()) if section else None
+
+
 def tuple_prod_code(text):
     """The Require commands of TUPLE_PROD and the code of its section
     tuple_prod, comments removed and whitespace collapsed."""
-    stripped = strip_comments(text)
-    requires = " ".join(m.group(0) for m in REQUIRE.finditer(stripped))
-    section = re.search(r"Section tuple_prod\..*?End tuple_prod\.", stripped, re.S)
-    return " ".join(requires.split()), " ".join(section.group(0).split()) if section else None
+    return section_code(text, "tuple_prod")
+
+
+def read_report(path):
+    """The text of an axiom report, or the empty string if it is missing."""
+    try:
+        return Path(path).read_text()
+    except OSError:
+        return ""
 
 
 def report_complete(text):
@@ -503,6 +625,12 @@ def main():
     for path in PHASE11_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE11_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE11_BASELINE[:12]}")
+    for path in PHASE12_B1_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE12_B1_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE12_B1_BASELINE[:12]}")
+    for path in PHASE12_B2_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE12_B2_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE12_B2_BASELINE[:12]}")
     for path in CHECKS_EXACT:
         if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
@@ -524,6 +652,15 @@ def main():
     elif now != tuple_prod_code(at_baseline(CHECKS_BASELINE, TUPLE_PROD)):
         failures.append(f"{TUPLE_PROD}: the Require commands or the section "
                         f"tuple_prod differ from {CHECKS_BASELINE[:12]}")
+    now = section_code((ROOT / LAMBDA_MAX).read_text(), "lambda_max")
+    if now[1] is None:
+        failures.append(f"{LAMBDA_MAX}: no section lambda_max")
+    elif now != section_code(at_baseline(PHASE12_B1_BASELINE, LAMBDA_MAX), "lambda_max"):
+        failures.append(f"{LAMBDA_MAX}: the Require commands or the section "
+                        f"lambda_max differ from {PHASE12_B1_BASELINE[:12]}")
+    if code((ROOT / APPLICATIONS_DEFINITIONS).read_text()) != APPLICATIONS_DEFINITIONS_CHECK:
+        failures.append(f"{APPLICATIONS_DEFINITIONS}: code differs from "
+                        "APPLICATIONS_DEFINITIONS_CHECK")
     reports = sys.argv[1:]
     if len(reports) != len(THEOREMS):
         missing = THEOREMS[len(reports):]
@@ -531,7 +668,16 @@ def main():
             f"{len(reports)} axiom reports given, {len(THEOREMS)} required, "
             "one per theorem"
             + (": no report for the " + ", the ".join(missing) if missing else ""))
+    for k, (arg, path) in enumerate(zip(reports, REPORTS)):
+        if arg != path:
+            failures.append(f"argument {k + 1}: {arg} given where the report of "
+                            f"the {THEOREMS[k]}, {path}, is required")
+    for arg in sorted({a for a in reports if reports.count(a) > 1}):
+        failures.append(f"{arg}: given {reports.count(arg)} times")
     for arg in reports:
+        if not Path(arg).exists():
+            failures.append(f"{arg}: no such axiom report")
+            continue
         if not report_complete(Path(arg).read_text()):
             failures.append(f"{arg}: the axiom report has neither the line "
                             "Axioms: with at least one axiom nor the line "
@@ -565,14 +711,14 @@ def main():
         failures.append(f"check/universality_assumptions.expected: {name} "
                         "is not among check/assumptions.expected")
     if len(sys.argv) > 1:
-        printed = axiom_names(Path(sys.argv[1]).read_text())
+        printed = axiom_names(read_report(sys.argv[1]))
         for name in sorted(printed - allowed):
             failures.append(f"main theorem: {name} is not among check/assumptions.expected")
         if not failures and printed != allowed:
             print("main theorem: fewer axioms than check/assumptions.expected:",
                   ", ".join(sorted(printed)) or "none")
     if len(sys.argv) > 2:
-        printed = axiom_names(Path(sys.argv[2]).read_text())
+        printed = axiom_names(read_report(sys.argv[2]))
         for name in sorted(printed - allowed_universality):
             failures.append(f"universality theorem: {name} is not among "
                             "check/universality_assumptions.expected")
@@ -589,7 +735,7 @@ def main():
         for ax in sorted(allowed_k - allowed):
             failures.append(f"{expected}: {ax} is not among check/assumptions.expected")
         if len(sys.argv) > 3 + k:
-            printed = axiom_names(Path(sys.argv[3 + k]).read_text())
+            printed = axiom_names(read_report(sys.argv[3 + k]))
             for ax in sorted(printed - allowed_k):
                 failures.append(f"{name}: {ax} is not among {expected}")
             if not failures and printed != allowed_k:
@@ -624,6 +770,11 @@ def main():
           f"{PHASE10_BASELINE[:12]}; "
           f"{len(PHASE11_FROZEN)} frozen files of phase 11 unchanged since "
           f"{PHASE11_BASELINE[:12]}; "
+          f"{len(PHASE12_B1_FROZEN)} frozen files of phase 12 and the section "
+          f"lambda_max unchanged since {PHASE12_B1_BASELINE[:12]}; "
+          f"{len(PHASE12_B2_FROZEN)} frozen files of phase 12 unchanged since "
+          f"{PHASE12_B2_BASELINE[:12]}; "
+          f"the characterizations of {APPLICATIONS_DEFINITIONS} unchanged; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers, of applications/ "
           f"and of Stdlib's reals; "
