@@ -52,6 +52,7 @@ library/random_matrix/goe.v
 library/random_matrix/goe_rotation.v
 library/random_matrix/wigner.v
 library/random_matrix/restricted_isometry.v
+library/random_matrix/matrix_series.v
 library/comparison/normal_mgf.v
 library/comparison/chi_square.v
 library/comparison/normal_linear.v
