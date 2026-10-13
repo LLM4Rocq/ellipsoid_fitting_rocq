@@ -487,7 +487,8 @@ generated`), whose code cannot change. The other modules print none.
   axiom-check files of phases 5 and 6 and their expected lists are
   byte-identical to commit `c3e555e`, those of phases 7 and 8 to commit
   `a89ed1e`, those of phase 9 to commit `e4c46e1`, those of phase 10 to
-  commit `eda8a06`, and those of phase 11 to commit `d29b278`; that the
+  commit `eda8a06`, those of phase 11 to commit `d29b278`, and those of
+  phase 12 to commit `495929a` (commit P); that the
   Require
   commands of
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which

@@ -193,6 +193,10 @@
    of the target, check/<target>_assumptions.expected, whose axioms are
    among those of check/assumptions.expected. The script then takes 24
    reports, one per theorem of THEOREMS.
+25. Phase 12, the pin. The check files and expected lists of
+   CHECKS_EXACT_P12, those of the axiom checks of phase 12 (rule 24), are
+   byte-identical to the commit CHECKS_P12_BASELINE (commit P), a separate
+   baseline; the older baselines and check/frozen-baseline do not change.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -276,6 +280,23 @@ CHECKS_EXACT_P11 = [
     "check/condition_kappa_robust_assumptions.expected",
 ]
 CHECKS_P11_BASELINE = "d29b278ff7300472a0b572a66cfd335ae262509c"
+CHECKS_EXACT_P12 = [
+    "check/MatrixSeriesAssumptions.v",
+    "check/matrix_series_assumptions.expected",
+    "check/TensorPackingAssumptions.v",
+    "check/tensor_packing_assumptions.expected",
+    "check/GoeEdgeAssumptions.v",
+    "check/goe_edge_assumptions.expected",
+    "check/SKGapAssumptions.v",
+    "check/sk_gap_assumptions.expected",
+    "check/PsdSplittingAssumptions.v",
+    "check/psd_splitting_assumptions.expected",
+    "check/PerceptronSignAssumptions.v",
+    "check/perceptron_sign_assumptions.expected",
+    "check/SatVarianceAssumptions.v",
+    "check/sat_variance_assumptions.expected",
+]
+CHECKS_P12_BASELINE = "495929a550250684dcad654988436af67f808210"
 TUPLE_PROD = "library/probability/lindeberg.v"
 LATENT_FROZEN = [
     "extension/LatentSignDefinitions.v",
@@ -712,6 +733,9 @@ def main():
     for path in CHECKS_EXACT_P11:
         if (ROOT / path).read_text() != at_baseline(CHECKS_P11_BASELINE, path):
             failures.append(f"{path}: differs from {CHECKS_P11_BASELINE[:12]}")
+    for path in CHECKS_EXACT_P12:
+        if (ROOT / path).read_text() != at_baseline(CHECKS_P12_BASELINE, path):
+            failures.append(f"{path}: differs from {CHECKS_P12_BASELINE[:12]}")
     now = tuple_prod_code((ROOT / TUPLE_PROD).read_text())
     if now[1] is None:
         failures.append(f"{TUPLE_PROD}: no section tuple_prod")
@@ -826,6 +850,8 @@ def main():
           f"{CHECKS_P10_BASELINE[:12]}; "
           f"{len(CHECKS_EXACT_P11)} check files of phase 11 unchanged since "
           f"{CHECKS_P11_BASELINE[:12]}; "
+          f"{len(CHECKS_EXACT_P12)} check files of phase 12 unchanged since "
+          f"{CHECKS_P12_BASELINE[:12]}; "
           f"{len(LATENT_FROZEN)} frozen files of phase 7 unchanged since "
           f"{LATENT_BASELINE[:12]}; "
           f"{len(PHASE8_FROZEN)} frozen files of phase 8 unchanged since "
