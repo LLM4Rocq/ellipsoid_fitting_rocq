@@ -13,8 +13,10 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (* random elements of finite sets as finite averages, without measure theory. *)
 (*                                                                            *)
 (* - Linearity, monotonicity and constants (unif_meanD, unif_meanZ,           *)
-(*   unif_mean_sum, ler_unif_mean, unif_mean_cst), invariance under           *)
-(*   bijections (unif_mean_bij, unif_var_bij).                                *)
+(*   unif_mean_sum, ler_unif_mean, unif_mean_cst), extensionality             *)
+(*   (eq_unif_mean, eq_unif_var), invariance under bijections (unif_mean_bij, *)
+(*   unif_var_bij), and the mean of the indicator of a predicate as the       *)
+(*   proportion of the elements that satisfy it (unif_mean_indicator).        *)
 (* - Fubini: the mean over T1 * T2 is the iterated mean (unif_mean_pair,      *)
 (*   unif_mean_comm); the mean over m.+1.-tuple T is the mean over the head   *)
 (*   of the mean over the tail (unif_mean_tuple_cons), and the mean of a      *)
@@ -69,6 +71,13 @@ Lemma eq_unif_mean (T : finType) (f g : T -> R) :
   f =1 g -> unif_mean f = unif_mean g.
 Proof. by move=> fg; rewrite /unif_mean (eq_bigr _ (fun x _ => fg x)). Qed.
 
+Lemma eq_unif_var (T : finType) (f g : T -> R) :
+  f =1 g -> unif_var f = unif_var g.
+Proof.
+move=> fg; rewrite /unif_var (eq_unif_mean fg).
+by apply: eq_unif_mean => x; rewrite fg.
+Qed.
+
 Lemma unif_mean_cst (T : finType) (c : R) : (0 < #|T|)%N ->
   unif_mean (fun _ : T => c) = c.
 Proof.
@@ -117,6 +126,16 @@ Lemma unif_mean_ge0 (T : finType) (f : T -> R) :
 Proof.
 move=> f0; rewrite /unif_mean mulr_ge0 ?invr_ge0 ?ler0n //.
 by apply: sumr_ge0 => x _; exact: f0.
+Qed.
+
+(* The mean of an indicator is the proportion of the elements where it
+   holds. *)
+Lemma unif_mean_indicator (T : finType) (P : pred T) :
+  unif_mean (fun x => (P x)%:R) = #|[set x | P x]|%:R / #|T|%:R.
+Proof.
+rewrite /unif_mean mulrC; congr (_ / _).
+rewrite -sum1dep_card natr_sum [RHS]big_mkcond /=.
+by apply: eq_bigr => x _; case: (P x).
 Qed.
 
 Lemma unif_mean_le (T : finType) (f : T -> R) (c : R) : (0 < #|T|)%N ->
