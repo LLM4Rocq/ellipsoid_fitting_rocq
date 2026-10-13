@@ -70,3 +70,4 @@ hypotheses. The lanes add their rows.
 
 | File | Result | Informal statement |
 |---|---|---|
+| `GoeEdgeTheorem.v` | `goe_edge_theorem` | Proves `goe_edge_statement` (T3): for every `R : realType`, `d >= 1`, `a` of law `gauss (d * d)` and `W = goe_mx a`, the map `a \|-> lambda_max W` is measurable and integrable, `E lambda_max W <= 2`, `P(lambda_max W >= 2 + t)` and `P(lambda_max (- W) >= 2 + t)` are at most `exp (- d t^2 / 4)`, and `P(opnorm W >= 2 + t) <= 2 exp (- d t^2 / 4)`, for every `t >= 0`. From `library/random_matrix/goe_edge.v`. |

@@ -50,6 +50,7 @@ library/probability/density_law.v
 library/probability/hanson_wright.v
 library/probability/measurable_minimizer.v
 library/random_matrix/goe.v
+library/random_matrix/goe_edge.v
 library/random_matrix/goe_rotation.v
 library/random_matrix/wigner.v
 library/random_matrix/restricted_isometry.v
@@ -798,6 +799,7 @@ extension/ConditionKappaRobustTheorem.v
 
 applications/MatrixSeriesStatement.v
 applications/GoeEdgeStatement.v
+applications/GoeEdgeTheorem.v
 applications/PsdSplittingStatement.v
 applications/SKGap/Ising.v
 applications/Perceptron/Pressure.v
