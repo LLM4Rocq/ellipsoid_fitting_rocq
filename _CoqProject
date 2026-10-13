@@ -31,6 +31,7 @@ library/matrix/effective_rank.v
 library/matrix/nuclear.v
 library/matrix/condition_cone.v
 library/matrix/trace_projection.v
+library/matrix/tensor_packing.v
 library/probability/moments.v
 library/probability/lindeberg.v
 library/probability/subgaussian.v
@@ -807,6 +808,7 @@ applications/GoeEdgeTheorem.v
 applications/PsdSplittingStatement.v
 applications/PsdSplittingTheorem.v
 applications/TensorPackingStatement.v
+applications/TensorPackingTheorem.v
 applications/SKGapDefinitions.v
 applications/SKGapStatement.v
 applications/PerceptronSignDefinitions.v
