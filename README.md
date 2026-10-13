@@ -399,6 +399,14 @@ generated`), whose code cannot change. The other modules print none.
   do the modules of `extension/`.
   `library/README.md` gives its conventions, its main results and their
   users. Phase 5 added the directories `convex/` and `random_matrix/`.
+- `applications/`: Rocq formalizations of theorems of manuscripts of the
+  OpenAI math collection (`openai/math` at revision 1581d4cbd) whose proofs
+  reuse the library, under the logical root `GaussianApplications` and over
+  an arbitrary `R : realType` like `library/` (phase 12). Each file cites
+  the manuscript, the lemma it formalizes and the Lean module of the
+  collection whose argument it follows, if any. The statement files are at
+  the top, the proofs in folders by target. `applications/README.md`
+  gives its rules, its targets and its main results.
 - `check/Assumptions.v`: prints the axioms of the main theorem.
   `check/assumptions.expected` is the expected output.
   `check/UniversalityAssumptions.v` checks that `universality_theorem`
@@ -442,13 +450,15 @@ generated`), whose code cannot change. The other modules print none.
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which
   the frozen statements depend, have the same code as at commit `c3e555e`;
   that no module of `theories/`,
-  `library/` or `extension/` contains `Admitted`, `Axiom`, `Parameter` or
-  `Conjecture`; that no module of `library/` requires a module of
-  `theories/` or `extension/`, Stdlib's reals, or MathComp's bridge to them
-  (`Rstruct`, `Rstruct_topology`); and that every axiom
-  report is complete and the axioms of each theorem are among its
-  expected ones, each expected list being part of the first.
-  `make check` runs it.
+  `library/`, `extension/` or `applications/` contains `Admitted`, `Axiom`,
+  `Parameter` or `Conjecture`; that no module of `library/` or
+  `applications/` requires a module of `theories/` or `extension/`,
+  Stdlib's reals, or MathComp's bridge to them (`Rstruct`,
+  `Rstruct_topology`), and no module of `library/` a module of
+  `applications/`; and that it is given one axiom report per theorem of
+  its table (17), every report is complete, and the axioms of each
+  theorem are among its expected ones, each expected list being part of
+  the first. `make check` runs it.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
 - `scripts/unused.py`: lists the declarations of `theories/` that the main
@@ -456,10 +466,12 @@ generated`), whose code cannot change. The other modules print none.
   them. Its docstring says how it decides. On the current tree it lists
   nothing.
 - `scripts/stale_citations.py`: lists the names that the comments of
-  `theories/`, `library/` and `extension/` cite but that no declaration
-  defines, from the `.glob` files of a build and of the installed
-  libraries. `make citations` runs it, and `make check` fails on a stale
-  citation (`CITATIONS=no` skips it).
+  `theories/`, `library/`, `extension/` and `applications/` cite but that
+  no declaration defines, from the `.glob` files of a build and of the
+  installed libraries. The rest of a comment line after the marker `Lean:`
+  is not checked: it cites the Lean sources of the collection. `make
+  citations` runs it, and `make check` fails on a stale citation
+  (`CITATIONS=no` skips it).
 
 ## Where the proof comes from
 

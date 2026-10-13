@@ -1,16 +1,19 @@
 # Build and check the proof of the main theorems.
 #
-#   make build    compile library/, theories/ and extension/ with JOBS
-#                 parallel jobs
-#   make theories/Foo.vo, make library/dir/foo.vo, make extension/Dir/Foo.vo
+#   make build    compile library/, theories/, extension/ and applications/
+#                 with JOBS parallel jobs
+#   make theories/Foo.vo, make library/dir/foo.vo, make extension/Dir/Foo.vo,
+#   make applications/Foo.vo
 #                 compile one module and what it requires, not what
 #                 depends on it: for iteration; it does not replace make check
 #   make check    build, then run scripts/check_sources.py: the axioms of the
 #                 main theorem are among those of check/assumptions.expected,
 #                 those of the universality theorem among those of
-#                 check/universality_assumptions.expected, the frozen files
-#                 are unchanged, and library/ depends neither on the papers
-#                 nor on Stdlib's reals; unless CITATIONS=no, it also runs
+#                 check/universality_assumptions.expected, and likewise for
+#                 every theorem of its table, one report each; the frozen
+#                 files are unchanged; library/ and applications/ depend
+#                 neither on the papers nor on Stdlib's reals, and library/
+#                 not on applications/; unless CITATIONS=no, it also runs
 #                 scripts/stale_citations.py (see make citations)
 #   make citations
 #                 list the names that comments cite but that nothing defines
@@ -36,7 +39,7 @@ Makefile.rocq: _CoqProject
 build: Makefile.rocq
 	$(EXEC) $(MAKE) -f Makefile.rocq -j $(JOBS)
 
-theories/%.vo library/%.vo extension/%.vo: Makefile.rocq FORCE
+theories/%.vo library/%.vo extension/%.vo applications/%.vo: Makefile.rocq FORCE
 	$(EXEC) $(MAKE) -f Makefile.rocq -j $(JOBS) $@
 
 check: build

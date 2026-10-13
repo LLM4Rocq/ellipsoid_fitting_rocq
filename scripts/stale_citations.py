@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
-"""List the names that comments of theories/, library/ and extension/ cite
-but that nothing defines.
+"""List the names that comments of theories/, library/, extension/ and
+applications/ cite but that nothing defines.
 
 A comment that names a lemma, a definition or a module goes stale when the
 name is deleted or renamed. This script compares the identifiers that occur
 in the comments with the names that exist: the declarations and references
-recorded in the .glob files of a build of theories/, library/ and
-extension/, the declarations recorded in the .glob files of the installed
-libraries (found through `rocq -where` or `coqc -where`; the check is
-weaker without them), and the module names of theories/, library/ and
-extension/.
+recorded in the .glob files of a build of theories/, library/, extension/
+and applications/, the declarations recorded in the .glob files of the
+installed libraries (found through `rocq -where` or `coqc -where`; the
+check is weaker without them), the module names of these four directories,
+the names of their folders and the logical roots of _CoqProject.
+
+External references are not checked: on a comment line, the text after
+the marker `Lean:` is skipped. The headers of applications/ cite the
+modules and declarations of the Lean sources of the OpenAI math
+collection this way, one reference per line, for example
+`Lean: goe_norm_tail (Matrices/GoeMatrixQuadCoeff.lean)`.
 
 An identifier counts as a citation when it looks like a Rocq name rather
 than a word of the prose: it contains two underscores or more, or it
@@ -45,6 +51,9 @@ ACCEPTED = {
 }
 
 IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_']*")
+# The marker of an external reference and the rest of its line.
+EXTERNAL = re.compile(r"Lean:[^\n]*")
+ROOTS = re.compile(r"^-[QR]\s+\S+\s+(\S+)", re.M)
 CAMEL = re.compile(r"^[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+$")
 
 
@@ -108,7 +117,8 @@ def main():
 
     sources = sorted(list((ROOT / "theories").rglob("*.v")) +
                      list((ROOT / "library").rglob("*.v")) +
-                     list((ROOT / "extension").rglob("*.v")))
+                     list((ROOT / "extension").rglob("*.v")) +
+                     list((ROOT / "applications").rglob("*.v")))
     known = set()
     for v in sources:
         g = v.with_suffix(".glob")
@@ -123,6 +133,10 @@ def main():
     for v in sources:
         parts = v.relative_to(ROOT).with_suffix("").parts[1:]
         modules.update({v.stem, "/".join(parts), ".".join(parts)})
+        modules.update(parts[:-1])
+    project = ROOT / "_CoqProject"
+    if project.exists():
+        modules.update(ROOTS.findall(project.read_text()))
 
     prefixes = {}
     for name in known:
@@ -135,6 +149,7 @@ def main():
         text = v.read_text(errors="replace")
         seen = set()
         for lineno, comment in comments(text):
+            comment = EXTERNAL.sub(lambda m: " " * len(m.group(0)), comment)
             for m in IDENT.finditer(comment):
                 tok = m.group(0)
                 if tok in known or tok in modules or tok in ACCEPTED:

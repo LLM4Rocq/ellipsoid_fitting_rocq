@@ -142,6 +142,16 @@
    CHECKS_P11_BASELINE, a separate baseline; CHECKS_BASELINE,
    CHECKS_P8_BASELINE, CHECKS_P9_BASELINE, CHECKS_P10_BASELINE and
    check/frozen-baseline do not change.
+21. Phase 12. Rule 2 also covers applications/, the directory of the
+   logical root GaussianApplications. Rule 3 applies to applications/ as
+   to library/: no module of applications/ requires a module of
+   EllipsoidFitting or EllipsoidUniversality, Stdlib's real analysis or
+   MathComp's bridge to it. No module of library/ requires a module of
+   GaussianApplications. An omitted axiom report is an error: the script
+   takes exactly one report per theorem of its table, in the order of
+   THEOREMS (the main theorem, the universality theorem, then those of
+   PHASE6_THEOREMS to PHASE11_THEOREMS, 17 in all), and a missing or extra
+   report makes it fail.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -393,7 +403,13 @@ PHASE11_THEOREMS = [
      "check/ConditionKappaRobustAssumptions.v", CONDITION_KAPPA_ROBUST_CHECK,
      "check/condition_kappa_robust_assumptions.expected"),
 ]
+# Every theorem whose axiom report the script takes, in the order of its
+# arguments: one report per theorem is required.
+THEOREMS = (["main theorem", "universality theorem"]
+            + [name for name, _, _, _ in PHASE6_THEOREMS + PHASE8_THEOREMS
+               + PHASE9_THEOREMS + PHASE10_THEOREMS + PHASE11_THEOREMS])
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
+APPLICATIONS = "GaussianApplications"
 ASSUMPTION = re.compile(
     r"(?:\A|(?<=\.))\s*(?:#\[[^\]]*\]\s*)?(?:Local\s+|Global\s+)?"
     r"(Admitted\s*\.|Axioms?\b|Parameters?\b|Conjecture\b)")
@@ -508,24 +524,34 @@ def main():
     elif now != tuple_prod_code(at_baseline(CHECKS_BASELINE, TUPLE_PROD)):
         failures.append(f"{TUPLE_PROD}: the Require commands or the section "
                         f"tuple_prod differ from {CHECKS_BASELINE[:12]}")
-    for arg in sys.argv[1:]:
+    reports = sys.argv[1:]
+    if len(reports) != len(THEOREMS):
+        missing = THEOREMS[len(reports):]
+        failures.append(
+            f"{len(reports)} axiom reports given, {len(THEOREMS)} required, "
+            "one per theorem"
+            + (": no report for the " + ", the ".join(missing) if missing else ""))
+    for arg in reports:
         if not report_complete(Path(arg).read_text()):
             failures.append(f"{arg}: the axiom report has neither the line "
                             "Axioms: with at least one axiom nor the line "
                             "Closed under the global context")
-    sources = [path for top in ("theories", "library", "extension")
+    sources = [path for top in ("theories", "library", "extension", "applications")
                for path in sorted((ROOT / top).rglob("*.v"))]
     for path in sources:
         for match in ASSUMPTION.finditer(strip_comments(path.read_text())):
             failures.append(f"{path.relative_to(ROOT)}: {match.group(1).strip()}")
     library = sorted((ROOT / "library").rglob("*.v"))
-    for path in library:
+    applications = sorted((ROOT / "applications").rglob("*.v"))
+    for path in library + applications:
         for root, name in library_imports(path.read_text()):
             full = f"{root}.{name}" if root else name
             last = full.split(".")[-1]
             stdlib = root.startswith(("Stdlib", "Coq")) or not root
             if PAPERS & set(full.split(".")):
                 failures.append(f"{path.relative_to(ROOT)}: requires {full} of a paper")
+            elif path in library and APPLICATIONS in full.split("."):
+                failures.append(f"{path.relative_to(ROOT)}: requires {full} of applications/")
             elif stdlib and (STDLIB_REALS.match(last) or "Reals" in full.split(".")):
                 failures.append(f"{path.relative_to(ROOT)}: requires Stdlib's {full}")
             elif last in MATHCOMP_BRIDGE:
@@ -599,7 +625,11 @@ def main():
           f"{len(PHASE11_FROZEN)} frozen files of phase 11 unchanged since "
           f"{PHASE11_BASELINE[:12]}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
-          f"{len(library)} library modules independent of the papers and of Stdlib's reals"
+          f"{len(library)} library modules independent of the papers, of applications/ "
+          f"and of Stdlib's reals; "
+          f"{len(applications)} modules of applications/ independent of the papers "
+          f"and of Stdlib's reals; "
+          f"{len(reports)} axiom reports, one per theorem"
           + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
           + ("; axioms of the universality theorem allowed" if len(sys.argv) > 2 else "")
           + ("; axioms of the mixture theorem allowed" if len(sys.argv) > 3 else "")

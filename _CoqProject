@@ -1,6 +1,7 @@
 -Q library GaussianAnalysis
 -Q theories EllipsoidFitting
 -Q extension EllipsoidUniversality
+-Q applications GaussianApplications
 -arg -w -arg -notation-overridden
 -arg -w -arg -ambiguous-paths
 -arg -w -arg -notation-incompatible-prefix
@@ -793,3 +794,10 @@ extension/ConditionKappa/Theorem.v
 extension/ConditionKappaCurveTheorem.v
 extension/ConditionKappaTheorem.v
 extension/ConditionKappaRobustTheorem.v
+
+applications/MatrixSeriesStatement.v
+applications/GoeEdgeStatement.v
+applications/PsdSplittingStatement.v
+applications/SKGap/Ising.v
+applications/Perceptron/Pressure.v
+applications/RandomSAT/Model.v
