@@ -431,6 +431,11 @@ generated`), whose code cannot change. The other modules print none.
   `check/ConditionKappaAssumptions.v` and
   `check/ConditionKappaRobustAssumptions.v` for the three theorems of
   phase 11, with the expected lists of the same names.
+  `check/ApplicationsDefinitions.v` states a characterization of each
+  library definition that the frozen statements of `applications/` unfold
+  to (`mxdot`, `frobenius`, `opnorm`, `psdmx`, `goe_mx`, the measurable
+  structure of matrices, and `gauss` through its values on boxes, which
+  determine it); `make check` compiles it.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality
@@ -439,8 +444,13 @@ generated`), whose code cannot change. The other modules print none.
   the two of phase 7 the same code as at commit `d4de51d`, the five
   of phase 8 the same code as at commit `5442e84`, the five of phase 9
   the same code as at commit `1c05ffc`, the two of phase 10 the same
-  code as at commit `b26eb1e`, and the four of phase 11 the same code as
-  at commit `c5f41c4` (comments may differ); that the
+  code as at commit `b26eb1e`, the four of phase 11 the same code as
+  at commit `c5f41c4`, and the three accepted statement files of
+  `applications/` (batch 1 of phase 12) the same code as at commit
+  `fc76edf`, as the section `lambda_max` of
+  `library/matrix/lambda_max.v` with its Require commands (comments may
+  differ); that `check/ApplicationsDefinitions.v` has its fixed code; that
+  the
   axiom-check files of phases 5 and 6 and their expected lists are
   byte-identical to commit `c3e555e`, those of phases 7 and 8 to commit
   `a89ed1e`, those of phase 9 to commit `e4c46e1`, those of phase 10 to
@@ -455,10 +465,11 @@ generated`), whose code cannot change. The other modules print none.
   `applications/` requires a module of `theories/` or `extension/`,
   Stdlib's reals, or MathComp's bridge to them (`Rstruct`,
   `Rstruct_topology`), and no module of `library/` a module of
-  `applications/`; and that it is given one axiom report per theorem of
-  its table (17), every report is complete, and the axioms of each
-  theorem are among its expected ones, each expected list being part of
-  the first. `make check` runs it.
+  `applications/`; and that it is given exactly the report of each theorem
+  of its table (17), by path and in order, every report exists and is
+  complete, and the axioms of each theorem are among its expected ones,
+  each expected list being part of the first. `make check` deletes the
+  reports before it regenerates them, then runs it.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
 - `scripts/unused.py`: lists the declarations of `theories/` that the main

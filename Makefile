@@ -13,7 +13,11 @@
 #                 every theorem of its table, one report each; the frozen
 #                 files are unchanged; library/ and applications/ depend
 #                 neither on the papers nor on Stdlib's reals, and library/
-#                 not on applications/; unless CITATIONS=no, it also runs
+#                 not on applications/; check/ApplicationsDefinitions.v
+#                 checks the characterizations of the library definitions
+#                 that the frozen statements of applications/ unfold to;
+#                 the reports are deleted and regenerated at every run;
+#                 unless CITATIONS=no, it also runs
 #                 scripts/stale_citations.py (see make citations)
 #   make citations
 #                 list the names that comments cite but that nothing defines
@@ -28,6 +32,26 @@ JOBS ?= 4
 # CITATIONS=no makes "make check" skip scripts/stale_citations.py, which
 # fails when a comment cites a name that nothing defines.
 CITATIONS ?= yes
+
+# The axiom reports of the check target, one per theorem of the table of
+# scripts/check_sources.py, in its order (REPORTS there).
+REPORTS = build/assumptions.txt \
+	build/universality_assumptions.txt \
+	build/mixture_assumptions.txt \
+	build/paired_assumptions.txt \
+	build/latent_sign_assumptions.txt \
+	build/countable_assumptions.txt \
+	build/condition_assumptions.txt \
+	build/latent_scope_assumptions.txt \
+	build/robust_assumptions.txt \
+	build/latent_tensor_assumptions.txt \
+	build/continuous_latent_assumptions.txt \
+	build/condition_endpoints_assumptions.txt \
+	build/condition_robust_assumptions.txt \
+	build/latent_tensor_upper_assumptions.txt \
+	build/condition_kappa_curve_assumptions.txt \
+	build/condition_kappa_assumptions.txt \
+	build/condition_kappa_robust_assumptions.txt
 
 .PHONY: all build check citations clean FORCE
 
@@ -44,6 +68,8 @@ theories/%.vo library/%.vo extension/%.vo applications/%.vo: Makefile.rocq FORCE
 
 check: build
 	mkdir -p build
+	rm -f $(REPORTS) build/applications_definitions.txt
+	$(EXEC) rocq compile -noglob -w -notation-overridden -w -ambiguous-paths -w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library GaussianAnalysis -o build/ApplicationsDefinitions.vo check/ApplicationsDefinitions.v > build/applications_definitions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -o build/Assumptions.vo check/Assumptions.v > build/assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/UniversalityAssumptions.vo check/UniversalityAssumptions.v > build/universality_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/MixtureAssumptions.vo check/MixtureAssumptions.v > build/mixture_assumptions.txt
@@ -61,7 +87,7 @@ check: build
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ConditionKappaCurveAssumptions.vo check/ConditionKappaCurveAssumptions.v > build/condition_kappa_curve_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ConditionKappaAssumptions.vo check/ConditionKappaAssumptions.v > build/condition_kappa_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ConditionKappaRobustAssumptions.vo check/ConditionKappaRobustAssumptions.v > build/condition_kappa_robust_assumptions.txt
-	python3 scripts/check_sources.py build/assumptions.txt build/universality_assumptions.txt build/mixture_assumptions.txt build/paired_assumptions.txt build/latent_sign_assumptions.txt build/countable_assumptions.txt build/condition_assumptions.txt build/latent_scope_assumptions.txt build/robust_assumptions.txt build/latent_tensor_assumptions.txt build/continuous_latent_assumptions.txt build/condition_endpoints_assumptions.txt build/condition_robust_assumptions.txt build/latent_tensor_upper_assumptions.txt build/condition_kappa_curve_assumptions.txt build/condition_kappa_assumptions.txt build/condition_kappa_robust_assumptions.txt
+	python3 scripts/check_sources.py $(REPORTS)
 	$(if $(filter yes,$(CITATIONS)),$(EXEC) python3 scripts/stale_citations.py,@true)
 	@echo "make check passed."
 
