@@ -20,6 +20,7 @@ library/matrix/euclidean.v
 library/matrix/real_spectral.v
 library/matrix/whitening.v
 library/matrix/opnorm.v
+library/matrix/lambda_max.v
 library/matrix/nets.v
 library/matrix/random_opnorm.v
 library/matrix/covering.v
