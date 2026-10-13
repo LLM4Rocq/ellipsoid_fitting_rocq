@@ -22,6 +22,7 @@ library/matrix/whitening.v
 library/matrix/opnorm.v
 library/matrix/lambda_max.v
 library/matrix/psd_splitting.v
+library/matrix/spectral_gap.v
 library/matrix/nets.v
 library/matrix/random_opnorm.v
 library/matrix/covering.v
@@ -55,12 +56,14 @@ library/probability/hanson_wright.v
 library/probability/measurable_minimizer.v
 library/probability/log_partition.v
 library/probability/rademacher_lindeberg.v
+library/probability/finite_gap.v
 library/random_matrix/goe.v
 library/random_matrix/goe_edge.v
 library/random_matrix/goe_rotation.v
 library/random_matrix/wigner.v
 library/random_matrix/restricted_isometry.v
 library/random_matrix/matrix_series.v
+library/random_matrix/goe_entries.v
 library/comparison/normal_mgf.v
 library/comparison/chi_square.v
 library/comparison/normal_linear.v
@@ -814,6 +817,7 @@ applications/TensorPackingStatement.v
 applications/TensorPackingTheorem.v
 applications/SKGapDefinitions.v
 applications/SKGapStatement.v
+applications/SKGapTheorem.v
 applications/PerceptronSignDefinitions.v
 applications/PerceptronSignStatement.v
 applications/PerceptronSignTheorem.v
@@ -821,6 +825,10 @@ applications/SatVarianceDefinitions.v
 applications/SatVarianceStatement.v
 applications/SatVarianceTheorem.v
 applications/SKGap/Ising.v
+applications/SKGap/Disorder.v
+applications/SKGap/Spectral.v
+applications/SKGap/TwoSpin.v
+applications/SKGap/Poincare.v
 applications/Perceptron/Pressure.v
 applications/RandomSAT/Model.v
 applications/RandomSAT/Pivotal.v
