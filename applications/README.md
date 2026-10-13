@@ -70,3 +70,4 @@ hypotheses. The lanes add their rows.
 
 | File | Result | Informal statement |
 |---|---|---|
+| `MatrixSeriesTheorem.v` | `matrix_series_theorem` | Proves `matrix_series_statement` (T1). (a) For symmetric `H_1, ..., H_r` in `'M[R]_n`, `S = \sum_j H_j H_j` and `g` of law `gauss r`, `E tr (\sum_j g_j H_j)^(2q) <= (2q - 1)!! opnorm S^(q-1) tr S` for every `q >= 1` (`gauss_mx_series_moment`). (b) For `B_1, ..., B_r` in `'M[R]_(m, p)` and every `q >= 1`, `E opnorm (\sum_j g_j B_j) <= ((2q - 1)!! sigma^(2(q-1)) tau)^(1/(2q))`, with `sigma^2 = max (opnorm (\sum_j B_j B_j^T), opnorm (\sum_j B_j^T B_j))` and `tau = 2 tr (\sum_j B_j B_j^T)` (`gauss_mx_series_opnorm`). (c) With `C = 5`: if `sigma^2 <= sqrt d` and `tau <= 2 d` for a real `d >= 1`, then `E opnorm (\sum_j g_j B_j) <= 5 sqrt (sqrt d) sqrt (ln (2 + d))` (`gauss_mx_series_opnorm_log`). The expectations are integrals in the extended reals. Axioms: three of `boolp`. |

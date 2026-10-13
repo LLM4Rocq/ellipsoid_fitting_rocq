@@ -798,6 +798,7 @@ extension/ConditionKappaTheorem.v
 extension/ConditionKappaRobustTheorem.v
 
 applications/MatrixSeriesStatement.v
+applications/MatrixSeriesTheorem.v
 applications/GoeEdgeStatement.v
 applications/PsdSplittingStatement.v
 applications/SKGap/Ising.v
