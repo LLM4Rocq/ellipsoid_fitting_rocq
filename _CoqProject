@@ -33,6 +33,7 @@ library/matrix/nuclear.v
 library/matrix/condition_cone.v
 library/matrix/trace_projection.v
 library/matrix/tensor_packing.v
+library/matrix/psd_factorization.v
 library/probability/moments.v
 library/probability/lindeberg.v
 library/probability/subgaussian.v
@@ -103,6 +104,8 @@ library/fourier/gauss_factor.v
 library/fourier/charfun_rV.v
 library/fourier/small_ball.v
 library/fourier/inversion.v
+library/fourier/boolean_fourier.v
+library/fourier/product_smoothing.v
 library/analysis/min_superadditive.v
 library/combinatorics/binomial_bounds.v
 
@@ -831,6 +834,9 @@ applications/SatVarianceTheorem.v
 applications/SatThresholdDefinitions.v
 applications/SatThresholdStatement.v
 applications/MinSuperadditiveStatement.v
+applications/MinSuperadditiveTheorem.v
+applications/PsdNormalizationStatement.v
+applications/ProductSmoothingStatement.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
 applications/SKGap/Spectral.v
