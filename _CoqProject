@@ -44,6 +44,8 @@ library/probability/atoms.v
 library/probability/efron_stein.v
 library/probability/efron_stein_omission.v
 library/probability/finite_mean.v
+library/probability/binomial_mean.v
+library/probability/commuting_operators.v
 library/probability/tuple_rows.v
 library/probability/semicircle_law.v
 library/probability/variational.v
