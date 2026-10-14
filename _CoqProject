@@ -33,6 +33,7 @@ library/matrix/nuclear.v
 library/matrix/condition_cone.v
 library/matrix/trace_projection.v
 library/matrix/tensor_packing.v
+library/matrix/psd_factorization.v
 library/probability/moments.v
 library/probability/lindeberg.v
 library/probability/subgaussian.v
@@ -834,6 +835,8 @@ applications/SatThresholdDefinitions.v
 applications/SatThresholdStatement.v
 applications/MinSuperadditiveStatement.v
 applications/MinSuperadditiveTheorem.v
+applications/PsdNormalizationStatement.v
+applications/ProductSmoothingStatement.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
 applications/SKGap/Spectral.v
