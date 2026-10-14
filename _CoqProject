@@ -826,6 +826,9 @@ applications/PerceptronSignTheorem.v
 applications/SatVarianceDefinitions.v
 applications/SatVarianceStatement.v
 applications/SatVarianceTheorem.v
+applications/SatThresholdDefinitions.v
+applications/SatThresholdStatement.v
+applications/MinSuperadditiveStatement.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
 applications/SKGap/Spectral.v
