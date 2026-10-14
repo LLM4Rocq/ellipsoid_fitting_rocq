@@ -833,6 +833,7 @@ applications/SatVarianceTheorem.v
 applications/SatThresholdDefinitions.v
 applications/SatThresholdStatement.v
 applications/MinSuperadditiveStatement.v
+applications/MinSuperadditiveTheorem.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
 applications/SKGap/Spectral.v
