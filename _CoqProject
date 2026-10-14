@@ -101,6 +101,8 @@ library/fourier/gauss_factor.v
 library/fourier/charfun_rV.v
 library/fourier/small_ball.v
 library/fourier/inversion.v
+library/analysis/min_superadditive.v
+library/combinatorics/binomial_bounds.v
 
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
@@ -835,3 +837,4 @@ applications/RandomSAT/Pivotal.v
 applications/RandomSAT/Replacement.v
 applications/RandomSAT/Forcing.v
 applications/RandomSAT/Variance.v
+applications/PsdRank/Main.v
