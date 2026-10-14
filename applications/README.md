@@ -85,8 +85,9 @@ general statements of the library files are reviewed with their batch as
 compiled `Prop` definitions; they are accepted, not frozen. The main
 statement of the PSD rank theorem of family 126 (`PsdRankDefinitions.v`,
 `PsdRankStatement.v`) is written and reviewed in phase 13 (batch 3) and
-proved in phase 14; its folder `PsdRank/` holds the skeleton of the final
-step of its proof.
+proved in phase 14; its folder `PsdRank/` holds sanity lemmas for its
+definitions (`Model.v`) and the skeleton of the final step of its proof
+(`Main.v`).
 
 ## Main results
 
@@ -115,3 +116,4 @@ hypotheses. The lanes add their rows.
 | `SKGapTheorem.v` | `sk_gap_theorem` | Proves `sk_gap_statement` (T4) with the events `E_n = sk_good_disorder n beta (sk_gap_tol beta)` of `SKGap/Disorder.v`: measurable, of probability tending to one under `gauss (n * n)`, and on them, for every `n`, `s` in `[0, 1]` and field `theta`, `(1 - 2 beta)/2 Var_nu(f) <= E(f)` for every `f` and `opnorm Cov_nu(x) <= 2 / (1 - 2 beta)`. Axioms: three of `boolp`. |
 | `MinSuperadditiveTheorem.v` | `min_superadditive_theorem` | Proves `min_superadditive_statement` (T12): for every `R : realType`, `u : nat -> R`, `A >= 0`, `beta > 0` and `N`, if `u (r + s) >= min (u r, u s) - A min (r, s)^(-beta)` for all comparable `r, s >= N` (`r <= 3 s`, `s <= 3 r`) and `u (s + 1) >= u s - A s^(-beta)` for all `s >= N`, then `u n >= u s - A (1 + E) s^(-beta)` for `s >= max (N, 2)` and `n >= s^2`, with `E = 3^beta / ((3/2)^beta - 1)`; and if `\|u n\| <= M` for all `n`, then `u` converges and its limit satisfies the same bound. From `min_superadditive_tail`, `min_superadditive_cvgn` and `min_superadditive_lim_ge` of `library/analysis/min_superadditive.v`. Axioms: three of `boolp`. |
 | `PsdNormalizationTheorem.v` | `psd_normalization_theorem` | Proves `psd_normalization_statement` (T10): for every `R : realType`, finite types `I`, `J` with `J` nonempty, positive semidefinite `F i`, `G j` in `'M[R]_r` and `m` with `\tr (F i *m G j) <= m` for all `i`, `j`, there are positive semidefinite `F' i`, `G' j` of the same size with the same pairings, `\tr (F' i) <= m` and `\tr (G' j) <= r`. From `psd_normalization` of `library/matrix/psd_factorization.v`. The size is kept by a compression to the range of the column factors, where the manuscript restricts to their span. Axioms: three of `boolp`. |
+| `PsdRank/Model.v` | `crossing_odd`, `shifted_matching_mx_ge`, `card_kn_edges`, `shifted_matching_one_factorization`, `psd_rank_statementE` | Sanity lemmas for the definitions of the PSD main statement (`PsdRankDefinitions.v`), not frozen. For every `n`, every odd set `U` and every perfect matching `M` of `K_n`, `\|M cap delta(U)\|` is odd (`\|U\| = sum_(e in M) \|e cap U\|`), so every entry of `A_n(rho)` is at least `rho`. `K_n` has `'C(n, 2)` edges, and `A_n(1)` has a PSD factorization of size `'C(n, 2)`, by the diagonal matrices indexed by the edges with entries `1_(e in delta(U))` for a row and `1_(e in M)` for a column: the exclusion of `rho = 1` in `psd_rank_statement` is necessary. `psd_rank_statementE`: `psd_rank_statement` is equivalent to its form with the factors written out. |
