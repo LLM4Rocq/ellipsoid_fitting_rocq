@@ -28,6 +28,15 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (*   for every c (unif_var_le), (E f)^2 <= E f^2 (unif_mean_sqr_le), and the  *)
 (*   law of total variance for a pair and for the head of a tuple             *)
 (*   (unif_var_pair, unif_var_tuple_cons).                                    *)
+(* - The general statements of phase 13, compiled Prop definitions for review *)
+(*   with batch 1; their proofs follow their acceptance. The union bound      *)
+(*   (unif_mean_union_statement), the complement of an event                  *)
+(*   (unif_mean_indicatorN_statement), Markov's inequality                    *)
+(*   (unif_mean_markov_statement), the bound of a mean by a cutoff t >= 0 and *)
+(*   the probability of the event f >= t (unif_mean_cutoff_statement),        *)
+(*   Chebyshev's inequality (unif_chebyshev_statement), and the independence  *)
+(*   of the coordinates of a uniform tuple in a set J of positions            *)
+(*   (unif_mean_tuple_prod_set_statement).                                    *)
 (*                                                                            *)
 (* This file is part of target T7 of phase 12: a Rocq formalization of the    *)
 (* finite means of the credited argument of the proposition 'Polynomial       *)
@@ -41,6 +50,17 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (* Lean: uniformMean (FiniteMean.lean, line 17)                               *)
 (* Lean: uniformVariance (FiniteMean.lean, line 107)                          *)
 (* Lean: uniformVariance_fin_succ (Variance.lean, line 322)                   *)
+(*                                                                            *)
+(* The statements of phase 13 belong to target T9 of phase 13, the limiting   *)
+(* threshold of the same manuscript: they are the finite means of the lemma   *)
+(* 'Bounds on the centers' (source/sections/anchors.tex) and the Chebyshev    *)
+(* step of the proposition 'Polynomial concentration', and follow these       *)
+(* declarations of the Lean development:                                      *)
+(* Lean: uniformProbability_exists_le (CenterBounds.lean, line 18)            *)
+(* Lean: uniformMean_lower_tail (CenterBounds.lean, line 82)                  *)
+(* Lean: uniformMean_upper_cutoff (CenterBounds.lean, line 92)                *)
+(* Lean: uniformProbability_forall_mem (CenterBounds.lean, line 216)          *)
+(* Lean: uniform_chebyshev (Concentration.lean, line 94)                      *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*   unif_mean f == #|T|^-1 * \sum_(x : T) f x, the mean of f : T -> R        *)
@@ -311,3 +331,44 @@ exact: (esym (unif_var_bij f (@bij_tuple_cons T m))).
 Qed.
 
 End unif_mean.
+
+(* The general statements of phase 13, for review. *)
+
+(* The union bound: the probability that one of the events P i holds is at
+   most the sum of their probabilities. *)
+Definition unif_mean_union_statement : Prop :=
+  forall (R : realFieldType) (T I : finType) (P : I -> pred T),
+  unif_mean (fun x => [exists i, P i x]%:R : R) <=
+  \sum_i unif_mean (fun x => (P i x)%:R : R).
+
+(* The complement of an event. *)
+Definition unif_mean_indicatorN_statement : Prop :=
+  forall (R : realFieldType) (T : finType) (P : pred T), (0 < #|T|)%N ->
+  unif_mean (fun x => (~~ P x)%:R : R) = 1 - unif_mean (fun x => (P x)%:R : R).
+
+(* Markov's inequality for a nonnegative f; t may have any sign. *)
+Definition unif_mean_markov_statement : Prop :=
+  forall (R : realFieldType) (T : finType) (f : T -> R) (t : R),
+  (forall x, 0 <= f x) ->
+  t * unif_mean (fun x => (t <= f x)%R%:R : R) <= unif_mean f.
+
+(* A bound by a cutoff: if f <= M, then E f <= t + M P(f >= t) for t >= 0. *)
+Definition unif_mean_cutoff_statement : Prop :=
+  forall (R : realFieldType) (T : finType) (f : T -> R) (M t : R),
+  0 <= t -> (forall x, f x <= M) ->
+  unif_mean f <= t + M * unif_mean (fun x => (t <= f x)%R%:R : R).
+
+(* Chebyshev's inequality. *)
+Definition unif_chebyshev_statement : Prop :=
+  forall (R : realFieldType) (T : finType) (f : T -> R) (t : R), 0 < t ->
+  unif_mean (fun x => (t <= `|f x - unif_mean f|)%R%:R : R) <=
+  unif_var f / t ^+ 2.
+
+(* The coordinates of a uniform tuple in a set J are independent: the mean
+   of a product over J is the product of the means. *)
+Definition unif_mean_tuple_prod_set_statement : Prop :=
+  forall (R : realFieldType) (T : finType) (m : nat) (J : {set 'I_m})
+         (g : T -> R),
+  (0 < #|T|)%N ->
+  unif_mean (fun t : m.-tuple T => \prod_(i in J) g (tnth t i)) =
+  unif_mean g ^+ #|J|.
