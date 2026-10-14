@@ -25,8 +25,9 @@ statement, the TeX and a Lean statement differ, the header says so.
   `scripts/check_sources.py` also rejects a module of `library/` that
   requires a module of `GaussianApplications`. General mathematics goes to
   `library/`, stated without the models of the manuscripts (the SK model,
-  perceptrons, SAT, sign matrices); this directory holds the developments
-  specific to a model.
+  perceptrons, SAT and its clauses, sign matrices, matching matrices and
+  their cells, odd cuts, the parity system); this directory holds the
+  developments specific to a model.
 - **Statements and theorems.** The statement files at the top of the
   directory (`XStatement.v`, with their definitions in `XDefinitions.v`
   where needed) fix what the user reviewed. Once the user accepts them they
@@ -64,6 +65,28 @@ The files of a target are added when its work starts. The statement files
 were reviewed in two batches and are frozen: T1, T3 and T5 with
 `library/matrix/lambda_max.v`, accepted at `fc76edf`, then T2, T4, T6 and
 T7, accepted at `0d5afba`.
+
+## Targets of phase 13
+
+The plan is `/srv/ellipsoid-fitting/notes/phase13-plan.md` (sections 2
+and 3); the sources are in `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`.
+
+| Target | Manuscript (family) | Statement files | Library files | Proof folder |
+|---|---|---|---|---|
+| T9. The satisfiability threshold of random k-SAT, for every k >= 3 | A Limiting Satisfiability Threshold for Every Fixed Clause Size (235), Theorem thm:main | `SatThresholdDefinitions.v`, `SatThresholdStatement.v` | `probability/commuting_operators.v`, `probability/binomial_mean.v`, `probability/finite_mean.v`, `analysis/min_superadditive.v` | `RandomSAT/` |
+| T10. Exact normalization of PSD factors | Exponential PSD rank of positively shifted matching matrices (126), lemma "Normalization of PSD factors" | `PsdNormalizationStatement.v` | `matrix/psd_factorization.v` | |
+| T11. Product smoothing of matrix squares | the same (126), theorem "Fourier smoothing of matrix squares" | `ProductSmoothingStatement.v` | `fourier/boolean_fourier.v`, `fourier/product_smoothing.v`, `matrix/psd_splitting.v` | |
+| T12. Convergence from approximate minimum inequalities | A Limiting Satisfiability Threshold for Every Fixed Clause Size (235), lemma "Balanced comparisons" | `MinSuperadditiveStatement.v` | `analysis/min_superadditive.v` | |
+
+The files of a target are added when its work starts. The statement files
+are reviewed in batches: T9 and T12 with the general statements of the SAT
+side (batch 1), then T10 and T11 with those of the PSD side (batch 2). The
+general statements of the library files are reviewed with their batch as
+compiled `Prop` definitions; they are accepted, not frozen. The main
+statement of the PSD rank theorem of family 126 (`PsdRankDefinitions.v`,
+`PsdRankStatement.v`) is written and reviewed in phase 13 (batch 3) and
+proved in phase 14; its folder `PsdRank/` holds the skeleton of the final
+step of its proof.
 
 ## Main results
 

@@ -103,6 +103,8 @@ library/fourier/small_ball.v
 library/fourier/inversion.v
 library/fourier/boolean_fourier.v
 library/fourier/product_smoothing.v
+library/analysis/min_superadditive.v
+library/combinatorics/binomial_bounds.v
 
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
@@ -837,3 +839,4 @@ applications/RandomSAT/Pivotal.v
 applications/RandomSAT/Replacement.v
 applications/RandomSAT/Forcing.v
 applications/RandomSAT/Variance.v
+applications/PsdRank/Main.v
