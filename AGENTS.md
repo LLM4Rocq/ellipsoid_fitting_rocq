@@ -34,7 +34,7 @@ The task has two parts.
    rename the remaining modules and group them in folders.
 
 Three agents share the work. Agent 1 coordinates phases 1 to 5; in
-phases 6 to 12, agent 3 coordinates (sections "Phase 6" to "Phase 12").
+phases 6 to 13, agent 3 coordinates (sections "Phase 6" to "Phase 13").
 
 ## The invariant
 
@@ -143,9 +143,8 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 11 below are done: tag `phase11` is at 48ecb60, and
-`main` a6d542f adds the follow-ups of the review of the phase 11
-release. The current work is phase 12, described after phase 11.
+Phases 1 to 12 below are done: tag `phase12` is at 9046883. The
+current work is phase 13, described after phase 12.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -1752,6 +1751,340 @@ Phase 12 is done when the following hold:
 - `make check` passes;
 - the README rows cover every new file;
 - `main` is tagged `phase12` at the checked pin commit.
+
+## Phase 13. The SAT threshold, the PSD pilot and reusable library modules
+
+Phases 1 to 12 are done (tag `phase12` at 9046883). Phase 13 completes
+the main theorem of one manuscript of the OpenAI math collection and
+starts a second, with their general mathematics as explicit library
+deliverables. Five documents guide it:
+
+- **The direction,** `/srv/ellipsoid-fitting/reviews/phase13-direction.md`,
+  is the user's text of 14 October 2026. The success criterion it sets,
+  two completed applications supported by useful, independently
+  reviewable mathematical modules, is met at the end of phase 14. Its
+  point 4 (upstream contributions) is replaced by decision D6.
+- **The plan,** `/srv/ellipsoid-fitting/notes/phase13-plan.md`, written by
+  the coordinator.
+- **The plan review,**
+  `/srv/ellipsoid-fitting/reviews/phase13-plan-review.md`, is the user's
+  review: it approves the plan with decisions D1 to D12 and six
+  amendments, which the plan incorporates.
+- **The maps,** `/srv/ellipsoid-fitting/notes/phase13-maps/`, are
+  background: the SAT and PSD routes, draft statements (the PSD drafts in
+  `psd-draft/` compile and follow the user's decisions), item sizes, the
+  audit checklist of the PSD manuscript, the repository rules. Where they
+  differ from the plan (file names, directories, owners, constants), the
+  plan wins.
+- **The sources,** `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`:
+  the TeX of the manuscripts, and the Lean directories `RandomSAT` and
+  `Combinatorics/MatchingPSD` of the collection (`openai/math` at
+  1581d4cbd, Apache License 2.0).
+
+The plan of this phase is the plan's sections 2 (the targets), 3 (the
+library deliverables), 4 (step 0), 5 (ownership and items), 6 (order,
+checkpoint, audit and gate), 9 (risks) and 11 (done criteria). This
+section fixes the roles and the rules; where they differ, this section
+wins.
+
+The targets, with the plan's precise statements:
+
+1. **T9. The SAT threshold** ("A Limiting Satisfiability Threshold for
+   Every Fixed Clause Size", family 235). For every k >= 3 there is
+   alpha > 0 such that the probability that floor(c n) independent uniform
+   proper k-clauses on n variables are satisfiable tends to 1 for
+   0 <= c < alpha and to 0 for c > alpha. It is stated over the frozen T7
+   definitions.
+2. **T10. The exact normalization of PSD factors** ("Exponential PSD
+   rank of positively shifted matching matrices", family 126, Lemma
+   "Normalization of PSD factors"). A general statement: factors of the
+   same size with the same pairings, row traces at most m and column
+   traces at most r.
+3. **T11. Product smoothing of matrix squares** (126, Theorem "Fourier
+   smoothing of matrix squares"). A general statement with shared
+   witnesses: one global sum-of-squares family, with one row dimension
+   for all histories and branches, carries the averaged potential
+   estimate. A tuple of positive product weight, chosen from the same
+   family, carries the Fourier coefficient estimate. Finite laws mu_i and
+   nu_i, lambda > 0, frequencies in `'M['F_2]_(t, a)`.
+4. **T12. Convergence from approximate minimum inequalities** (235, Lemma
+   "Balanced comparisons"). For a real sequence with
+   u(r + s) >= min(u r, u s) - A min(r, s)^(-beta) for comparable sizes
+   and the neighbor step, a finite-size lower bound for every beta > 0;
+   if the sequence is bounded, it converges, and its limit satisfies the
+   same bound. The constant is Lean's, 3^beta / ((3/2)^beta - 1), larger
+   than the manuscript's.
+
+The PSD main statement (126, `introduction.tex` lines 37-44) is written,
+reviewed and frozen in this phase (batch 3), with K after the real type
+and before rho. Its proof is phase 14, which the user authorizes
+separately.
+
+Not in this phase:
+- the proof of the PSD main theorem, the PSD duality and the corollary on
+  affine semidefinite lifts, which belong to phase 14;
+- Hall's theorem: the SAT proof uses a minimal unsatisfiable core
+  instead;
+- Fourier analysis on general finite abelian groups;
+- T8, still deferred;
+- any upstream submission (D6).
+
+### Roles
+
+As in phases 6 to 12. **Agent 3 is the master.**
+- It assigns the items (its own lane included) and gives agents 1 and 2
+  their work in their sessions.
+- It assembles the statement batches, writes the statement and
+  definitions files at the top of `applications/`, records the acceptance
+  inventory, and freezes the batches after the user's review.
+- It creates the new directories.
+- It merges in the `integration` clone and alone pushes `main` and tags.
+- It keeps the table of items, owners and states in
+  `/srv/ellipsoid-fitting/runtime/phase13/assignments.md`.
+
+Its starting point is the plan's lane proposal:
+- **A:** the Boolean Fourier and T11 definitions first (P0), then the
+  Boolean Fourier analysis (P2) and T11 (P3). This is the critical path.
+- **B:** packet S's statements first (S0), then the commuting operators,
+  the binomial means, the SAT application and T9.
+- **C:** step 0 and the batches, T12 once the infrastructure is merged,
+  T10, the PSD main statement, the skeleton of its final step (P6), the
+  checks and the release.
+
+Agents 1 and 2 take their items from the master. The coordinator assigns
+no item. It verifies pushed commits, keeps GitHub in sync, relays the
+user's decisions, and runs the checkpoint and the audit of the PSD
+manuscript.
+
+### Step 0
+
+1. **The handoffs.** Before the launch, each agent wrote a handoff,
+   `/srv/ellipsoid-fitting/runtime/<clone>/phase13-handoff.md`, merged
+   `main` into its lane branch, and had its context cleared after the
+   coordinator read the handoff, as the user decided. Read your handoff
+   after this file and the plan.
+2. **The infrastructure.** The user's launch permits this commit (item
+   5).
+   - The master creates `library/analysis/`, `library/combinatorics/` and
+     `applications/PsdRank/`, each with the header of its first file,
+     registered in `_CoqProject`, and their rows in the READMEs.
+   - No script change is needed: the checks scan subdirectories, and the
+     pattern rule `library/%.vo` covers them. Mutation tests confirm it.
+   - The master pushes `main`, and every lane merges it. Then the user
+     reconnects the three Rocq servers (`/mcp`), and the coordinator
+     confirms it to the master. Until then, no lane uses a Rocq server on
+     a file of the new directories; work in existing directories (lane A
+     in `fourier/`, lane B in `probability/`) continues meanwhile.
+3. **The statements.** Three batches.
+   - **Who writes what.** Each lane writes, as the first commit of its
+     item, the definitions and the `_statement` definitions of its own
+     library files. The master merges these commits, adds the statement
+     files at the top of `applications/`, compiles the batch, pushes
+     `main` and says so in its pane. The coordinator asks the user to
+     review it, with the list of the library definitions its statements
+     unfold to.
+   - **Batch 1:** T9 (`SatThresholdDefinitions.v`,
+     `SatThresholdStatement.v`) and T12 (`MinSuperadditiveStatement.v`),
+     with packet S from lane B.
+   - **Batch 2:** T10 (`PsdNormalizationStatement.v`) and T11
+     (`ProductSmoothingStatement.v`), with the definitions T11 unfolds to
+     and packet P's statements of `boolean_fourier.v` from lane A, and
+     packet P's statements of `psd_factorization.v` from the master.
+   - **Batch 3:** the PSD main statement (`PsdRankDefinitions.v`,
+     `PsdRankStatement.v`), as soon as `psd_factorization` is on `main`.
+     It goes to the user with the full PSD audit, and is accepted only
+     after it, unless the user explicitly defers that acceptance. Only
+     the statement and the definitions it uses are frozen; variants and
+     the corollary's definitions stay in an unfrozen file.
+4. **The general statements.** Packets S and P hold the general
+   statements that the targets use, written as compiled `Prop`-valued
+   definitions (`Definition foo_statement : Prop := ...`) in their library
+   files.
+   - They are reviewed with their batch, accepted, not frozen. A
+     `Prop` definition asserts nothing, so no `Admitted` is needed.
+   - **The acceptance inventory.** At each acceptance, the master records
+     in the checker, in the commit of the freeze, one entry per accepted
+     statement: the full acceptance commit hash, the path, the declaration
+     name, and the full proposition as `Print` shows it at that commit,
+     with its section parameters and hypotheses. The inventory stays with
+     the permanent checks.
+   - An application proof that uses a general statement waits for its
+     acceptance; for example, the SAT tails (A2) use Chebyshev's
+     inequality of packet S. A library proof may start before, at the
+     lane's risk.
+   - A `_statement` definition is kept until its acceptance, even if its
+     proof is ready earlier. When the proof lands after acceptance, the
+     lemma is stated with the accepted text, and the `_statement`
+     definition is deleted in the same commit, whose message says so.
+     Comments outside the defining file cite the lemma, not the
+     `_statement` name; the deletion commit removes every remaining
+     citation of it, or the stale-citation check fails. A proof that took
+     the statement as a hypothesis replaces it by the lemma; in another
+     lane's file, its owner does it first and the master merges the two
+     together.
+   - A change to an accepted statement goes back to the user.
+5. **The checks.** The user's launch permits changes to
+   `scripts/check_sources.py`, `check/` and the `Makefile` at the moments
+   below, and no other. Every existing baseline and pin is kept. Each
+   change is mutation-tested in a scratch copy under the ignored `build/`
+   of the master's clone, and the commit message lists the mutations.
+   - **The infrastructure commit** of item 2, if it needs a change.
+   - **Each freeze.**
+     - Once the user accepts a batch, its files are frozen like the
+       frozen files of phases 5 to 12. Their code is compared with the
+       acceptance commit, as a new baseline, and only the master edits
+       their comments.
+     - The project-defined notions used by the frozen statements and by
+       the accepted packets are protected by a new code-fixed check file,
+       `check/Phase13Definitions.v`, with characterizations that determine
+       each object and write out every library definition they mention,
+       down to MathComp definitions. Proof bodies are not frozen;
+       existing protections are reused.
+     - Freeze 1 creates it, for packet S (for example `unif_mean`,
+       `binomial_mean`, `meet_avg`). Freeze 2 extends it with what T11 and
+       packet P use (the F_2 pairing, the Boolean character, the Fourier
+       coefficient, the block degree and distance, low block degree,
+       `prob_vec`, `prod_avg`, `weighted_gram`, `smoothing_hyps`). Freeze
+       3 extends it with `psd_factorization`. Each freeze extends the
+       file without altering it: the checker keeps each earlier freeze's
+       constant and requires it as an unchanged prefix.
+     - `make check` compiles that file as it compiles
+       `check/ApplicationsDefinitions.v`. Its output is deleted before
+       regeneration and is a required output, checked separately from the
+       theorem reports.
+   - **The axiom checks.** When the theorems exist, a commit P adds one
+     check file per target, on the pattern of
+     `check/SatVarianceAssumptions.v`: a definition whose type is the
+     frozen statement and whose body is the theorem, then
+     `Print Assumptions`.
+     - Each has an expected list of the seven axioms of phases 11 and 12,
+       so `Classical_Prop.classic` is not allowed; fewer are allowed.
+       Older lists are unchanged.
+     - The checker requires all 28 theorem axiom reports.
+     - The same commit adds `check/LibraryStatements.v`, code-fixed. It
+       states every proposition of the acceptance inventory in full and
+       proves each by its library lemma. The checker requires that every
+       inventory entry is covered. `make check` compiles it into a second
+       required output, deleted before regeneration.
+     - Mutation tests, besides those of phase 12: `Classical_Prop.classic`
+       in a new target or its list; a missing, a duplicated and a
+       substituted report; an accepted statement omitted from
+       `LibraryStatements.v`; a packet definition changed while the text
+       of `LibraryStatements.v` stays the same; after a successful build,
+       the compile command of either auxiliary check file deleted while
+       its old output still exists. The definition mutations are repeated
+       after freeze 3.
+   - **The pin.** A later commit compares ten new files byte for byte
+     with P, as a separate baseline: the four theorem check files, their
+     four expected lists, `check/Phase13Definitions.v` and
+     `check/LibraryStatements.v`. The tag `phase13` goes on that checked
+     commit.
+6. **The checkpoint, the audit and the skeleton.**
+   - **The checkpoint** does not stop any work. When the Boolean Fourier
+     definitions and lemmas, T12 and the SAT library modules are on
+     `main`, the master says so in its pane. The coordinator records
+     lines, hours and new definitions, inspects the proofs and
+     re-estimates the rest.
+   - **The PSD audit** (coordinator) runs alongside unrelated SAT and
+     library work and does not stop it. Its relevant findings accompany
+     the review before freeze 2 (the parity and final-step items, since
+     freeze 2 fixes the Boolean encoding) and before freeze 3 (the full
+     audit).
+   - **The skeleton P6** compiles the final step of the PSD theorem
+     against explicit hypotheses for local averaging and the parity
+     functional, and names each of them. Compiling it does not validate
+     those hypotheses. It may be missing from the phase 13 tag.
+   - Both the full audit and the skeleton are required before the user
+     authorizes phase 14.
+
+### Rules for this phase
+
+The rules of phase 12 apply.
+- **Unchanged files.** Nothing changes in:
+  - `theories/` and `extension/`;
+  - the code of the 42 frozen files of phases 1 to 12;
+  - the check files and expected lists of phases 1 to 12;
+  - the pinned sections `tuple_prod` of
+    `library/probability/lindeberg.v` and `lambda_max` of
+    `library/matrix/lambda_max.v`;
+  - the code of `check/ApplicationsDefinitions.v`.
+
+  The 24 theorems that `make check` checks keep building at every
+  commit. T7's frozen definitions are reused, never edited.
+- **Ownership.** Files keep their owners of phases 5 and 12. The new
+  files take the owners of the plan's section 5. One file has one owner
+  at a time. Each lane registers its new files in `_CoqProject` in the
+  commit that adds them, and coordinates merge conflicts there with the
+  master.
+- **Library and applications.**
+  - `library/` results are general, over `R : realType` or a weaker
+    structure when that is enough; combinatorial results are over finite
+    types with no field.
+  - No model appears in `library/`: not the SK model, perceptrons, SAT
+    and its clauses, sign matrices, matching matrices and their cells,
+    odd cuts or the parity system. Before the release, a lane other than
+    its author reviews each new library file for this.
+  - A general result enters the library only if a proof of this phase or
+    of the planned phase 14 uses it.
+  - Before adding a lemma, search MathComp, MathComp-Analysis and the
+    library for it, and use the weakest suitable structure. Each general
+    module ends with an example that does not depend on an application.
+- **Upstream (D6).** No upstream pull request or other external
+  submission or contact, for MathComp or MathComp-Analysis. Agents push
+  only their branch to the hub. Internal API checks, design notes and
+  examples remain allowed; an upstream submission package is not a
+  deliverable.
+- **Provenance.** Every new file's header cites the manuscript (title
+  and family number), its section or lemma, the collection revision
+  1581d4cbd, and any Lean module whose argument the file follows, after
+  the marker `Lean:`. It calls the file a Rocq formalization of the
+  credited argument. Nothing is copied from the Lean code. The header
+  states each departure:
+  - the minimal unsatisfiable core instead of Hall's theorem;
+  - T12's comparable-size hypothesis and its constant, larger than the
+    manuscript's;
+  - the route of T10;
+  - the shared witnesses, the weighted laws and lambda > 0 of T11.
+- **Sources.** The TeX of the collection is the mathematical source; the
+  Lean sources may be read for routes and conventions. If a manuscript
+  step fails, the lane stops and reports to the master, who reports to
+  the user.
+- **No unproved step.** No commit contains `Admitted`, `Axiom` or
+  `Parameter`. During the work, a missing result may be an explicit
+  hypothesis of a lemma; it is removed when the result lands.
+- **Quotas.** Lanes commit in small, self-contained steps. If an account
+  is throttled, the master reassigns the next item rather than wait. If
+  lane A is throttled, T11 moves to the first free lane: lane B after T9,
+  or lane C once its step 0 work is done.
+- **Documentation.** Every new file has the documentation header and its
+  README rows, with the actual hypotheses.
+- **Building.** Build with `JOBS=3`, and run `make check` before every
+  commit.
+- **Requests** between lanes go through `requests/`, which the master
+  deletes at the end.
+- **No journals.** The repository gets no journals or progress files.
+  The handoffs and the master's table live in
+  `/srv/ellipsoid-fitting/runtime/`.
+
+Phase 13 is done when the following hold:
+- T9, T10, T11 and T12 prove their frozen statements on `main`;
+- their check files verify the frozen statements, and their axioms are
+  among the seven of their expected lists;
+- the checker requires all 28 theorem axiom reports and the two
+  auxiliary outputs;
+- every entry of the acceptance inventory is proved with its full
+  accepted proposition, and `check/LibraryStatements.v` covers every
+  entry. An accepted statement of an optional item that is not proved at
+  the release is withdrawn, with the user's agreement;
+- the definitions used by the frozen statements and the accepted packets
+  are protected in `check/Phase13Definitions.v`;
+- the PSD main statement is accepted and frozen, unless the user deferred
+  that acceptance;
+- the commit messages record the mutation tests;
+- the ten new check files and expected lists are pinned to P;
+- `make check` passes;
+- the README rows cover every new file;
+- `main` is tagged `phase13` at the checked pin commit.
 
 ## Bridging Stdlib's `R` and the library
 
