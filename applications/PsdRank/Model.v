@@ -17,9 +17,13 @@ From GaussianApplications Require Import PsdRankDefinitions PsdRankStatement.
 (* Lean: cut_degree_identity, crossingCount_pos (FiniteFactorization.lean)    *)
 (* Lean: exists_diagonal_factorization (FiniteFactorization.lean, line 69)    *)
 (*                                                                            *)
+(* - matching_count: |U| = sum_(e in M) |e cap U| for every set U of        *)
+(*   vertices and every perfect matching M; card_perfect_matching: M has n/2  *)
+(*   edges.                                                                   *)
 (* - crossing_odd: a perfect matching crosses an odd set an odd number of     *)
-(*   times, since |U| = sum_(e in M) |e cap U|.                               *)
-(* - shifted_matching_mx_ge: every entry of A_n(rho) is at least rho.         *)
+(*   times; crossing_le: at most n times.                                     *)
+(* - shifted_matching_mx_ge, shifted_matching_mx_le: every entry of A_n(rho)  *)
+(*   is at least rho, and at most n if rho <= 1.                              *)
 (* - card_kn_edges: K_n has 'C(n, 2) edges.                                   *)
 (* - shifted_matching_one_factorization: A_n(1) has a PSD factorization of    *)
 (*   size 'C(n, 2), by the diagonal matrices indexed by the edges with the    *)
@@ -37,7 +41,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
-Import GRing.Theory Num.Theory.
+Import Order.TTheory GRing.Theory Num.Theory.
 Local Open Scope ring_scope.
 
 Section model.
@@ -49,24 +53,46 @@ Definition kn_edges := {e : {set 'I_n} | kn_edge e}.
 Lemma card_kn_edges : #|{: kn_edges}| = 'C(n, 2).
 Proof. by rewrite card_sig -cardsE card_draws card_ord. Qed.
 
+(* Double counting: every vertex lies in exactly one edge of M, so
+   |U| = sum_(e in M) |e cap U| for every set U of vertices. *)
+Lemma matching_count (M : perfect_matching n) (U : {set 'I_n}) :
+  #|U| = (\sum_(e in val M) #|e :&: U|)%N.
+Proof.
+case: M => M /= /andP[_ /forallP Mcov]; rewrite -sum1_card.
+transitivity (\sum_(v in U) \sum_(e in M) (v \in e : nat))%N.
+  apply: eq_bigr => v _; rewrite -(eqP (Mcov v)) -sum1_card.
+  rewrite big_mkcond [RHS]big_mkcond /=.
+  by apply: eq_bigr => e _; rewrite inE; case: (e \in M); case: (v \in e).
+rewrite exchange_big /=; apply: eq_bigr => e _.
+rewrite -sum1_card big_mkcond [RHS]big_mkcond /=.
+by apply: eq_bigr => v _; rewrite inE; case: (v \in e); case: (v \in U).
+Qed.
+
+(* A perfect matching of K_n has n / 2 edges. *)
+Lemma card_perfect_matching (M : perfect_matching n) : (#|val M|).*2 = n.
+Proof.
+have h := matching_count M [set: 'I_n]; rewrite cardsT card_ord in h.
+rewrite [RHS]h; case: M {h} => M /= /andP[/forall_inP Medge _].
+rewrite -muln2 -sum_nat_const; apply: eq_bigr => e eM.
+by rewrite setIT (eqP (Medge e eM)).
+Qed.
+
+Lemma crossing_le (U : odd_set n) (M : perfect_matching n) :
+  (crossing U M <= n)%N.
+Proof.
+apply: leq_trans (subset_leq_card (subsetIl _ _)) _.
+by rewrite -[X in (_ <= X)%N](card_perfect_matching M) -addnn leq_addr.
+Qed.
+
 Lemma crossing_odd (U : odd_set n) (M : perfect_matching n) :
   odd (crossing U M).
 Proof.
-case: U => U oddU; case: M => M pM; rewrite /crossing /=.
-move: pM => /andP[/forall_inP Medge /forallP Mcov].
+have sumU := matching_count M (val U).
+case: U sumU => U oddU /= sumU; case: M sumU => M pM /= sumU.
+rewrite /crossing /=; move: pM => /andP[/forall_inP Medge _].
 have cut : M :&: edge_cut U = [set e in M | #|e :&: U| == 1]%N.
   apply/setP => e; rewrite !inE; case eM: (e \in M) => //=.
   by rewrite (Medge e eM).
-(* |U| = sum_(v in U) |{e in M | v in e}| = sum_(e in M) |e cap U| *)
-have sumU : #|U| = (\sum_(e in M) #|e :&: U|)%N.
-  rewrite -sum1_card.
-  transitivity (\sum_(v in U) \sum_(e in M) (v \in e : nat))%N.
-    apply: eq_bigr => v _; rewrite -(eqP (Mcov v)) -sum1_card.
-    rewrite big_mkcond [RHS]big_mkcond /=.
-    by apply: eq_bigr => e _; rewrite inE; case: (e \in M); case: (v \in e).
-  rewrite exchange_big /=; apply: eq_bigr => e _.
-  rewrite -sum1_card big_mkcond [RHS]big_mkcond /=.
-  by apply: eq_bigr => v _; rewrite inE; case: (v \in e); case: (v \in U).
 have oddsum (A : {set {set 'I_n}}) (f : {set 'I_n} -> nat) :
     odd (\sum_(e in A) f e) = odd (\sum_(e in A) (odd (f e) : nat)).
   apply: (big_ind2 (fun a b => odd a = odd b)) => //.
@@ -91,6 +117,16 @@ Lemma shifted_matching_mx_ge (R : realType) (rho : R) (U : odd_set n)
 Proof.
 rewrite /shifted_matching_mx lerDr subr_ge0 ler1n.
 by have := crossing_odd U M; case: (crossing U M).
+Qed.
+
+Lemma shifted_matching_mx_le (R : realType) (rho : R) (U : odd_set n)
+    (M : perfect_matching n) :
+  rho <= 1 -> shifted_matching_mx rho U M <= n%:R.
+Proof.
+move=> r1; rewrite /shifted_matching_mx -addrA.
+apply: le_trans (_ : (crossing U M)%:R + 0 <= _).
+  by rewrite lerD2l addrC subr_le0.
+by rewrite addr0 ler_nat crossing_le.
 Qed.
 
 Lemma shifted_matching_one_factorization (R : realType) :
