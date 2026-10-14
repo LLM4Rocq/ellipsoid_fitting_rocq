@@ -393,7 +393,7 @@ generated`), whose code cannot change. The other modules print none.
   the two halves of the threshold, and the countable and robust versions).
   `extension/README.md` holds the feasibility study of phase 5 and, in its
   sections (f) to (j), the description of phases 6 to 11.
-- `library/`: the library `GaussianAnalysis`, 94 files of general results
+- `library/`: the library `GaussianAnalysis`, 96 files of general results
   over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
   and concentration, real matrices and probability; the Fourier analysis
   of anti-concentration (characteristic functions written without complex
@@ -424,15 +424,19 @@ generated`), whose code cannot change. The other modules print none.
   and 23 other modules of `theories/` require library files directly, as
   do the modules of `extension/`.
   `library/README.md` gives its conventions, its main results and their
-  users. Phase 5 added the directories `convex/` and `random_matrix/`.
+  users. Phase 5 added the directories `convex/` and `random_matrix/`,
+  phase 13 `analysis/` (real sequences) and `combinatorics/` (finite
+  combinatorics with no field).
 - `applications/`: Rocq formalizations of theorems of manuscripts of the
   OpenAI math collection (`openai/math` at revision 1581d4cbd) whose proofs
   reuse the library, under the logical root `GaussianApplications` and over
-  an arbitrary `R : realType` like `library/` (phase 12). Each file cites
-  the manuscript, the lemma it formalizes and the Lean module of the
-  collection whose argument it follows, if any. The statement files are at
-  the top, the proofs in folders by target. `applications/README.md`
-  gives its rules, its targets and its main results.
+  an arbitrary `R : realType` like `library/` (phases 12 and 13). Each
+  file cites the manuscript, the lemma it formalizes and the Lean module of
+  the collection whose argument it follows, if any. The statement files are
+  at the top, the proofs in folders by target (`SKGap/`, `Perceptron/`,
+  `RandomSAT/`, and `PsdRank/` for the PSD rank theorem of phase 14).
+  `applications/README.md` gives its rules, its targets and its main
+  results.
 - `check/Assumptions.v`: prints the axioms of the main theorem.
   `check/assumptions.expected` is the expected output.
   `check/UniversalityAssumptions.v` checks that `universality_theorem`
