@@ -837,6 +837,7 @@ applications/MinSuperadditiveStatement.v
 applications/MinSuperadditiveTheorem.v
 applications/PsdNormalizationStatement.v
 applications/ProductSmoothingStatement.v
+applications/ProductSmoothingTheorem.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
 applications/SKGap/Spectral.v

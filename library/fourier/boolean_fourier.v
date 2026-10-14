@@ -78,6 +78,11 @@ From mathcomp Require Import matrix.
 (* - blk_distE, blk_dist_eq0, blk_distC, blk_dist_triangle,                   *)
 (*   blk_dist_translate, blk_deg_col_mx and blk_dist_col_mx: the block degree *)
 (*   and the block distance.                                                  *)
+(* - fcoefZ, fcoef_mulmxl, fcoef_entry, fcoef_mxcol and fcoef_indicator: the  *)
+(*   coefficient of a scaled function and of A *m f y, an entry of a          *)
+(*   coefficient as the coefficient of the entry, the coefficients of a block *)
+(*   column \mxcol_i B_i y as the block column of the coefficients, and the   *)
+(*   coefficients of y |-> [y = y0] c v, which are 2^(-t a) chi_p (y0) c v.   *)
 (* - card_cube_neq0, sum_bchar_freq, eq_fcoef, card_col_mx and sum_col_mx:    *)
 (*   the number of points is nonzero in R, the orthogonality of the           *)
 (*   characters as functions of the frequency, a coefficient depends only on  *)
@@ -684,6 +689,55 @@ by rewrite bchar_col_mx scalerA.
 Qed.
 
 End blocks_proofs.
+
+(* Coefficients of scalings, of products by constant matrices, of entries,
+   of block columns and of indicators of points. *)
+Section coefficient_tools.
+Variables (R : numFieldType) (t a : nat).
+Local Notation cube := 'M['F_2]_(t, a).
+Implicit Types p q y : cube.
+
+Lemma fcoefZ (V : lmodType R) (c : R) (f : cube -> V) p :
+  fcoef (fun y => c *: f y) p = c *: fcoef f p.
+Proof.
+rewrite /fcoef [RHS]scalerA mulrC -scalerA [X in _ = _ *: X]scaler_sumr.
+by congr (_ *: _); apply: eq_bigr => y _; rewrite !scalerA mulrC.
+Qed.
+
+Lemma fcoef_mulmxl m n k (A : 'M[R]_(m, n)) (f : cube -> 'M[R]_(n, k)) p :
+  fcoef (fun y => A *m f y) p = A *m fcoef f p.
+Proof.
+by rewrite -[RHS]mulmx1 -fcoef_mulmx; apply: eq_fcoef => y; rewrite mulmx1.
+Qed.
+
+Lemma fcoef_entry m n (f : cube -> 'M[R]_(m, n)) p i j :
+  (fcoef f p) i j = fcoef (fun y => f y i j : R^o) p.
+Proof.
+rewrite /fcoef mxE summxE; congr (_ * _); apply: eq_bigr => y _.
+by rewrite mxE.
+Qed.
+
+Lemma fcoef_mxcol (s : nat) (p_ : 'I_s -> nat) k
+    (B : forall i, cube -> 'M[R]_(p_ i, k)) p :
+  fcoef (fun y => \mxcol_i B i y) p = \mxcol_i fcoef (B i) p.
+Proof.
+apply/matrixP => u v; rewrite [RHS]mxE !fcoef_entry.
+have E : (fun y => (\mxcol_i B i y) u v : R^o) =1
+    (fun y => B (tagnat.sig1 u) y (tagnat.sig2 u) v : R^o).
+  by move=> y; rewrite mxE.
+exact: (@eq_fcoef t a R R^o _ _ p E).
+Qed.
+
+Lemma fcoef_indicator (V : lmodType R) (y0 : cube) (c : R) (v : V) p :
+  fcoef (fun y => ((y0 == y)%:R * c) *: v) p =
+    ((#|{: cube}|%:R)^-1 * bchar R p y0 * c) *: v.
+Proof.
+rewrite /fcoef (bigD1 y0) //= eqxx mul1r big1 => [y /negbTE|].
+  by rewrite eq_sym => ->; rewrite mul0r scale0r scaler0.
+by rewrite addr0 !scalerA.
+Qed.
+
+End coefficient_tools.
 
 (* Examples: on one bit, the nonzero character is y |-> (-1)^y; the
    coefficients of a character are 1 at its frequency and 0 elsewhere. *)
