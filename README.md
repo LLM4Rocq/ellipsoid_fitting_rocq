@@ -464,9 +464,12 @@ generated`), whose code cannot change. The other modules print none.
   `check/TensorPackingAssumptions.v`, `check/GoeEdgeAssumptions.v`,
   `check/SKGapAssumptions.v`, `check/PsdSplittingAssumptions.v`,
   `check/PerceptronSignAssumptions.v` and `check/SatVarianceAssumptions.v`
-  for the seven theorems of `applications/` (phase 12), with the expected
-  lists of the same names (`check/matrix_series_assumptions.expected` and
-  so on).
+  for the seven theorems of `applications/` (phase 12), and
+  `check/SatThresholdAssumptions.v`, `check/PsdNormalizationAssumptions.v`,
+  `check/ProductSmoothingAssumptions.v` and
+  `check/MinSuperadditiveAssumptions.v` for the four theorems of phase 13
+  (T9 to T12), with the expected lists of the same names
+  (`check/matrix_series_assumptions.expected` and so on).
   `check/ApplicationsDefinitions.v` states a characterization of each
   library definition that the frozen statements of `applications/` unfold
   to (`mxdot`, `frobenius`, `opnorm`, `psdmx`, `goe_mx`, the measurable
@@ -483,6 +486,11 @@ generated`), whose code cannot change. The other modules print none.
   `smoothing_hyps`, `weighted_gram` and `psd_factorization`, and freeze 3
   `psd_eval` and `psd_eval_cone`. `make check` compiles it into
   `build/phase13_definitions.txt`, a required output.
+  `check/LibraryStatements.v` states in full each general statement of the
+  library that the user accepted in phase 13, the 70 entries of the
+  acceptance inventory of `scripts/check_sources.py`, and proves each by
+  its library lemma; `make check` compiles it into
+  `build/library_statements.txt`, a second required output.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality
@@ -522,10 +530,14 @@ generated`), whose code cannot change. The other modules print none.
   `applications/` requires a module of `theories/` or `extension/`,
   Stdlib's reals, or MathComp's bridge to them (`Rstruct`,
   `Rstruct_topology`), and no module of `library/` a module of
-  `applications/`; and that it is given exactly the report of each theorem
-  of its table (24), by path and in order, every report exists and is
+  `applications/`; that it is given exactly the report of each theorem
+  of its table (28), by path and in order, every report exists and is
   complete, and the axioms of each theorem are among its expected ones,
-  each expected list being part of the first. `make check` deletes the
+  each expected list being part of the first, and those of phase 13 part
+  of the seven of `check/sat_variance_assumptions.expected` (without
+  `Classical_Prop.classic`); and that `check/LibraryStatements.v` has its
+  fixed code, states the recorded proposition of each entry of the
+  inventory, and has a complete report within the same seven axioms. `make check` deletes the
   reports before it regenerates them, then runs it.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
