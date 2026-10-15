@@ -28,15 +28,17 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (*   for every c (unif_var_le), (E f)^2 <= E f^2 (unif_mean_sqr_le), and the  *)
 (*   law of total variance for a pair and for the head of a tuple             *)
 (*   (unif_var_pair, unif_var_tuple_cons).                                    *)
-(* - The general statements of phase 13, compiled Prop definitions for review *)
-(*   with batch 1; their proofs follow their acceptance. The union bound      *)
-(*   (unif_mean_union_statement), the complement of an event                  *)
-(*   (unif_mean_indicatorN_statement), Markov's inequality                    *)
-(*   (unif_mean_markov_statement), the bound of a mean by a cutoff t >= 0 and *)
-(*   the probability of the event f >= t (unif_mean_cutoff_statement),        *)
-(*   Chebyshev's inequality (unif_chebyshev_statement), and the independence  *)
-(*   of the coordinates of a uniform tuple in a set J of positions            *)
-(*   (unif_mean_tuple_prod_set_statement).                                    *)
+(* - Bounds, for target T9 of phase 13: the union bound (unif_mean_union),    *)
+(*   the complement of an event (unif_mean_indicatorN), Markov's inequality   *)
+(*   (unif_mean_markov), the bound of a mean by a cutoff t >= 0 and the       *)
+(*   probability of the event f >= t (unif_mean_cutoff), Chebyshev's          *)
+(*   inequality (unif_chebyshev), and the independence of the coordinates of  *)
+(*   a uniform tuple (unif_mean_tuple_prod_ord), in particular of the         *)
+(*   coordinates in a set J of positions (unif_mean_tuple_prod_set; the       *)
+(*   example unif_mean_fair_bits). Each of these statements, except           *)
+(*   unif_mean_tuple_prod_ord, is also a compiled Prop definition, named      *)
+(*   after its lemma with the suffix _statement, for review with batch 1 of   *)
+(*   phase 13; these definitions go once the statements are accepted.         *)
 (*                                                                            *)
 (* This file is part of target T7 of phase 12: a Rocq formalization of the    *)
 (* finite means of the credited argument of the proposition 'Polynomial       *)
@@ -51,7 +53,7 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (* Lean: uniformVariance (FiniteMean.lean, line 107)                          *)
 (* Lean: uniformVariance_fin_succ (Variance.lean, line 322)                   *)
 (*                                                                            *)
-(* The statements of phase 13 belong to target T9 of phase 13, the limiting   *)
+(* The bounds of phase 13 belong to target T9 of phase 13, the limiting       *)
 (* threshold of the same manuscript: they are the finite means of the lemma   *)
 (* 'Bounds on the centers' (source/sections/anchors.tex) and the Chebyshev    *)
 (* step of the proposition 'Polynomial concentration', and follow these       *)
@@ -73,7 +75,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
-Import GRing.Theory Num.Theory.
+Import Order.TTheory GRing.Theory Num.Theory.
 Local Open Scope ring_scope.
 
 Section unif_mean.
@@ -372,3 +374,102 @@ Definition unif_mean_tuple_prod_set_statement : Prop :=
   (0 < #|T|)%N ->
   unif_mean (fun t : m.-tuple T => \prod_(i in J) g (tnth t i)) =
   unif_mean g ^+ #|J|.
+
+Section unif_mean_bounds.
+Variable R : realFieldType.
+
+(* The union bound. *)
+Lemma unif_mean_union (T I : finType) (P : I -> pred T) :
+  unif_mean (fun x => [exists i, P i x]%:R : R) <=
+  \sum_i unif_mean (fun x => (P i x)%:R : R).
+Proof.
+rewrite -unif_mean_sum; apply: ler_unif_mean => x.
+case: existsP => [[i Pi]|_]; last by apply: sumr_ge0 => i _; exact: ler0n.
+rewrite (bigD1 i) //= Pi lerDl; apply: sumr_ge0 => j _; exact: ler0n.
+Qed.
+
+(* The complement of an event. *)
+Lemma unif_mean_indicatorN (T : finType) (P : pred T) : (0 < #|T|)%N ->
+  unif_mean (fun x => (~~ P x)%:R : R) = 1 - unif_mean (fun x => (P x)%:R : R).
+Proof.
+move=> T0; rewrite -[X in X - _](unif_mean_cst (1 : R) T0) -unif_meanB.
+by apply: eq_unif_mean => x; case: (P x); rewrite ?subrr ?subr0.
+Qed.
+
+(* Markov's inequality for a nonnegative f; t may have any sign. *)
+Lemma unif_mean_markov (T : finType) (f : T -> R) (t : R) :
+  (forall x, 0 <= f x) ->
+  t * unif_mean (fun x => (t <= f x)%R%:R : R) <= unif_mean f.
+Proof.
+move=> f0; rewrite -unif_meanZ; apply: ler_unif_mean => x.
+by case: (lerP t (f x)) => h; rewrite ?mulr1 ?mulr0.
+Qed.
+
+(* A bound by a cutoff: if f <= M, then E f <= t + M P(f >= t) for t >= 0. *)
+Lemma unif_mean_cutoff (T : finType) (f : T -> R) (M t : R) :
+  0 <= t -> (forall x, f x <= M) ->
+  unif_mean f <= t + M * unif_mean (fun x => (t <= f x)%R%:R : R).
+Proof.
+move=> t0 fM; have [T0|T0] := posnP #|T|.
+  have e (g : T -> R) : unif_mean g = 0 by rewrite /unif_mean T0 invr0 mul0r.
+  by rewrite !e mulr0 addr0.
+rewrite -unif_meanZ -[X in _ <= X + _](unif_mean_cst t T0) -unif_meanD.
+apply: ler_unif_mean => x; case: (lerP t (f x)) => h /=.
+  by rewrite mulr1 -[f x]add0r lerD.
+by rewrite mulr0 addr0 ltW.
+Qed.
+
+(* Chebyshev's inequality. *)
+Lemma unif_chebyshev (T : finType) (f : T -> R) (t : R) : 0 < t ->
+  unif_mean (fun x => (t <= `|f x - unif_mean f|)%R%:R : R) <=
+  unif_var f / t ^+ 2.
+Proof.
+move=> t0; rewrite ler_pdivlMr ?exprn_gt0 // -unif_meanZr /unif_var.
+apply: ler_unif_mean => x.
+case: (lerP t `|f x - unif_mean f|) => h; rewrite ?mul1r ?mul0r ?sqr_ge0 //.
+rewrite -[(f x - unif_mean f) ^+ 2]real_normK ?num_real //.
+by rewrite lerXn2r // ?nnegrE ?normr_ge0 // ltW.
+Qed.
+
+(* The coordinates of a uniform tuple are independent: the mean of a product
+   of functions of the coordinates is the product of the means. *)
+Lemma unif_mean_tuple_prod_ord (T : finType) m (g : 'I_m -> T -> R) :
+  unif_mean (fun t : m.-tuple T => \prod_(i < m) g i (tnth t i)) =
+  \prod_(i < m) unif_mean (g i).
+Proof.
+elim: m g => [|m IH] g; first by rewrite unif_mean_tuple0 !big_ord0.
+rewrite unif_mean_tuple_cons big_ord_recl -unif_meanZr.
+apply: eq_unif_mean => x /=; rewrite -(IH (fun i => g (lift ord0 i))).
+rewrite -unif_meanZ; apply: eq_unif_mean => t.
+rewrite big_ord_recl; congr (_ * _).
+by apply: eq_bigr => i _; rewrite tnthS.
+Qed.
+
+Lemma unif_mean_tuple_prod_set (T : finType) m (J : {set 'I_m}) (g : T -> R) :
+  (0 < #|T|)%N ->
+  unif_mean (fun t : m.-tuple T => \prod_(i in J) g (tnth t i)) =
+  unif_mean g ^+ #|J|.
+Proof.
+move=> T0; pose h i y := if i \in J then g y else 1.
+transitivity (unif_mean (fun t : m.-tuple T => \prod_(i < m) h i (tnth t i))).
+  by apply: eq_unif_mean => t; rewrite big_mkcond.
+rewrite unif_mean_tuple_prod_ord -prodr_const [RHS]big_mkcond /=.
+by apply: eq_bigr => i _; rewrite /h; case: (i \in J); rewrite ?unif_mean_cst.
+Qed.
+
+End unif_mean_bounds.
+
+(* An example: for m independent fair bits, the probability that the bits
+   at the positions of J are all 1 is 2^-#|J|. *)
+Example unif_mean_fair_bits (R : realFieldType) m (J : {set 'I_m}) :
+  unif_mean (fun t : m.-tuple bool => \prod_(i in J) (tnth t i)%:R : R) =
+  2^-1 ^+ #|J|.
+Proof.
+rewrite (@unif_mean_tuple_prod_set R bool m J (fun b => b%:R)) ?card_bool //.
+congr (_ ^+ _).
+rewrite unif_mean_indicator card_bool.
+have -> : #|[set b : bool | b]| = 1%N.
+  rewrite (_ : [set b : bool | b] = [set true]) ?cards1 //.
+  by apply/setP => -[]; rewrite !inE.
+by rewrite div1r.
+Qed.
