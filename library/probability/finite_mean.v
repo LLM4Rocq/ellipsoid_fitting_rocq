@@ -35,10 +35,10 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (*   inequality (unif_chebyshev), and the independence of the coordinates of  *)
 (*   a uniform tuple (unif_mean_tuple_prod_ord), in particular of the         *)
 (*   coordinates in a set J of positions (unif_mean_tuple_prod_set; the       *)
-(*   example unif_mean_fair_bits). Each of these statements, except           *)
-(*   unif_mean_tuple_prod_ord, is also a compiled Prop definition, named      *)
-(*   after its lemma with the suffix _statement, for review with batch 1 of   *)
-(*   phase 13; these definitions go once the statements are accepted.         *)
+(*   example unif_mean_fair_bits). Each of these statements is also a         *)
+(*   compiled Prop definition, named after its lemma with the suffix          *)
+(*   _statement, for review with batch 1 of phase 13; these definitions go    *)
+(*   once the statements are accepted.                                        *)
 (*                                                                            *)
 (* This file is part of target T7 of phase 12: a Rocq formalization of the    *)
 (* finite means of the credited argument of the proposition 'Polynomial       *)
@@ -63,6 +63,11 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (* Lean: uniformMean_upper_cutoff (CenterBounds.lean, line 92)                *)
 (* Lean: uniformProbability_forall_mem (CenterBounds.lean, line 216)          *)
 (* Lean: uniform_chebyshev (Concentration.lean, line 94)                      *)
+(*                                                                            *)
+(* Three of these statements drop a hypothesis of their Lean versions, and    *)
+(* are proved without it: unif_mean_markov holds for t of any sign, where     *)
+(* Lean assumes 0 <= t; unif_mean_cutoff and unif_chebyshev hold for an empty *)
+(* T, where they read 0 <= t and 0 <= 0, while Lean assumes T nonempty.       *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*   unif_mean f == #|T|^-1 * \sum_(x : T) f x, the mean of f : T -> R        *)
@@ -366,8 +371,15 @@ Definition unif_chebyshev_statement : Prop :=
   unif_mean (fun x => (t <= `|f x - unif_mean f|)%R%:R : R) <=
   unif_var f / t ^+ 2.
 
-(* The coordinates of a uniform tuple in a set J are independent: the mean
-   of a product over J is the product of the means. *)
+(* The coordinates of a uniform tuple are independent: the mean of a
+   product of functions of the coordinates is the product of the means. *)
+Definition unif_mean_tuple_prod_ord_statement : Prop :=
+  forall (R : realFieldType) (T : finType) (m : nat) (g : 'I_m -> T -> R),
+  unif_mean (fun t : m.-tuple T => \prod_(i < m) g i (tnth t i)) =
+  \prod_(i < m) unif_mean (g i).
+
+(* In particular, the coordinates in a set J of positions are independent:
+   the mean of a product over J is the product of the means. *)
 Definition unif_mean_tuple_prod_set_statement : Prop :=
   forall (R : realFieldType) (T : finType) (m : nat) (J : {set 'I_m})
          (g : T -> R),
