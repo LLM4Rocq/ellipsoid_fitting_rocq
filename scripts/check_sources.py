@@ -222,6 +222,15 @@
    proposition as Print shows it at that commit, with its section
    parameters. Each entry must name a full commit at which that file
    defines that name, and no two entries name the same statement.
+27. Phase 13, the freeze of batch 2. The code of each file of
+   PHASE13_B2_FROZEN, the statements of the exact normalization of PSD
+   factors and of the product smoothing of matrix squares, must equal its
+   code at the commit PHASE13_B2_BASELINE, at which the user accepted them.
+   check/Phase13Definitions.v is extended, by its freeze 2 code in
+   PHASE13_DEFINITIONS_FREEZES, with the definitions that these statements
+   and packet P unfold to (bdot, bchar, blk_deg, blk_dist, fcoef,
+   low_blk_deg, prob_vec, prod_avg, smoothing_hyps, weighted_gram and
+   psd_factorization); INVENTORY gains the statements of packet P.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -378,6 +387,11 @@ PHASE13_B1_FROZEN = [
     "applications/MinSuperadditiveStatement.v",
 ]
 PHASE13_B1_BASELINE = "46e45c84b99a50663205933ae501da029dd66098"
+PHASE13_B2_FROZEN = [
+    "applications/PsdNormalizationStatement.v",
+    "applications/ProductSmoothingStatement.v",
+]
+PHASE13_B2_BASELINE = "46e45c84b99a50663205933ae501da029dd66098"
 LAMBDA_MAX = "library/matrix/lambda_max.v"
 APPLICATIONS_DEFINITIONS = "check/ApplicationsDefinitions.v"
 APPLICATIONS_DEFINITIONS_CHECK = (
@@ -460,6 +474,86 @@ PHASE13_DEFINITIONS_FREEZES = [
     'e) (E : C -> {set T}) (f : {set T} -> R) (S : {set T}) : meet_avg '
     'E f S = (#|C|%:R)^-1 * \\sum_(c : C) f (S :&: E c). Proof. by []. Q'
     'ed. Print Assumptions meet_avg_characterization.'),
+    # freeze 2 (batch 2): the definitions of freeze 1, then bdot, bchar,
+    # blk_deg, blk_dist, fcoef, low_blk_deg, prob_vec, prod_avg,
+    # smoothing_hyps, weighted_gram, psd_factorization
+    (
+    'From HB Require Import structures. From mathcomp Require Import al'
+    'l_ssreflect_compat ssralg ssrnum. From GaussianAnalysis.probabilit'
+    'y Require Import finite_mean binomial_mean. From GaussianAnalysis.'
+    'probability Require Import commuting_operators. Import GRing.Theor'
+    'y Num.Theory. Local Open Scope ring_scope. Lemma unif_mean_charact'
+    'erization (R : realFieldType) (T : finType) (f : T -> R) : unif_me'
+    'an f = (#|T|%:R)^-1 * \\sum_(x : T) f x. Proof. by []. Qed. Lemma u'
+    'nif_var_characterization (R : realFieldType) (T : finType) (f : T '
+    '-> R) : unif_var f = (#|T|%:R)^-1 * \\sum_(x : T) (f x - (#|T|%:R)^'
+    '-1 * \\sum_(y : T) f y) ^+ 2. Proof. by []. Qed. Lemma binomial_mea'
+    'n_characterization (R : numDomainType) (m : nat) (p : R) (f : nat '
+    '-> R) : binomial_mean m p f = \\sum_(j < m.+1) (p ^+ j * (1 - p) ^+'
+    " (m - j) *+ 'C(m, j)) * f j. Proof. by []. Qed. Lemma linear_op_ch"
+    'aracterization (R : numDomainType) (X : Type) (A : (X -> R) -> X -'
+    '> R) : linear_op A <-> (forall (f g : X -> R) (x : X), A (fun y =>'
+    ' f y + g y) x = A f x + A g x) /\\ (forall (a : R) (f : X -> R) (x '
+    ': X), A (fun y => a * f y) x = a * A f x). Proof. by []. Qed. Lemm'
+    'a monotone_op_characterization (R : numDomainType) (X : Type) (A :'
+    ' (X -> R) -> X -> R) : monotone_op A <-> forall f g : X -> R, (for'
+    'all y, f y <= g y) -> forall x, A f x <= A g x. Proof. by []. Qed.'
+    ' Lemma meet_avg_characterization (R : realFieldType) (T C : finTyp'
+    'e) (E : C -> {set T}) (f : {set T} -> R) (S : {set T}) : meet_avg '
+    'E f S = (#|C|%:R)^-1 * \\sum_(c : C) f (S :&: E c). Proof. by []. Q'
+    'ed. Print Assumptions meet_avg_characterization. From mathcomp Req'
+    'uire Import zmodp matrix reals. From GaussianAnalysis.fourier Requ'
+    'ire Import boolean_fourier product_smoothing. From GaussianAnalysi'
+    's.matrix Require Import psd_part psd_factorization. Lemma bdot_cha'
+    "racterization (t a : nat) (p y : 'M['F_2]_(t, a)) : bdot p y = \\su"
+    'm_(i < t) \\sum_(j < a) p i j * y i j. Proof. by []. Qed. Lemma bch'
+    "ar_characterization (R : pzRingType) (t a : nat) (p y : 'M['F_2]_("
+    't, a)) : bchar R p y = (-1) ^+ nat_of_ord (\\sum_(i < t) \\sum_(j < '
+    'a) p i j * y i j). Proof. by []. Qed. Lemma blk_deg_characterizati'
+    "on (t a : nat) (p : 'M['F_2]_(t, a)) : blk_deg p = #|[set i : 'I_t"
+    ' | row i p != 0]|. Proof. by []. Qed. Lemma blk_dist_characterizat'
+    "ion (t a : nat) (p q : 'M['F_2]_(t, a)) : blk_dist p q = #|[set i "
+    ": 'I_t | row i p != row i q]|. Proof. by []. Qed. Lemma fcoef_char"
+    'acterization (R : numFieldType) (t a : nat) (V : lmodType R) (f : '
+    "'M['F_2]_(t, a) -> V) (p : 'M['F_2]_(t, a)) : fcoef f p = (#|{: 'M"
+    "['F_2]_(t, a)}|%:R)^-1 *: \\sum_(y : 'M['F_2]_(t, a)) (-1) ^+ nat_o"
+    'f_ord (\\sum_(i < t) \\sum_(j < a) p i j * y i j) *: f y. Proof. by '
+    '[]. Qed. Lemma low_blk_deg_characterization (R : numFieldType) (t '
+    "a : nat) (V : lmodType R) (D : nat) (f : 'M['F_2]_(t, a) -> V) : l"
+    "ow_blk_deg D f <-> forall p : 'M['F_2]_(t, a), (D < #|[set i : 'I_"
+    "t | row i p != 0%R]|)%N -> (#|{: 'M['F_2]_(t, a)}|%:R)^-1 *: \\sum_"
+    "(y : 'M['F_2]_(t, a)) (-1) ^+ nat_of_ord (\\sum_(i < t) \\sum_(j < a"
+    ') p i j * y i j) *: f y = 0. Proof. by []. Qed. Lemma prob_vec_cha'
+    'racterization (R : numDomainType) (T : finType) (w : T -> R) : pro'
+    'b_vec w <-> (forall x, 0 <= w x) /\\ \\sum_x w x = 1. Proof. by []. '
+    'Qed. Lemma prod_avg_characterization (R : numDomainType) (X M : fi'
+    "nType) (t a : nat) (V : lmodType R) (pi : 'I_t -> M -> 'rV['F_2]_a"
+    " -> X -> R) (F : t.-tuple X -> V) (m : t.-tuple M) (y : 'M['F_2]_("
+    't, a)) : prod_avg pi F m y = \\sum_(x : t.-tuple X) (\\prod_(i < t) '
+    'pi i (tnth m i) (row i y) (tnth x i)) *: F x. Proof. by []. Qed. L'
+    'emma smoothing_hyps_characterization (R : numDomainType) (X M : fi'
+    "nType) (t a : nat) (mu : 'I_t -> X -> R) (nu : 'I_t -> M -> R) (pi"
+    " : 'I_t -> M -> 'rV['F_2]_a -> X -> R) (theta : R) : smoothing_hyp"
+    's mu nu pi theta <-> [/\\ forall i, (forall x, 0 <= mu i x) /\\ \\sum'
+    '_x mu i x = 1, forall i, (forall m, 0 <= nu i m) /\\ \\sum_m nu i m '
+    '= 1, forall i m y, (forall x, 0 <= pi i m y x) /\\ \\sum_x pi i m y '
+    'x = 1, forall i y x, \\sum_m nu i m * pi i m y x = mu i x & forall '
+    'i y (g : X -> R), \\sum_m nu i m * (\\sum_x pi i m y x * g x - \\sum_'
+    'x mu i x * g x) ^+ 2 <= theta * \\sum_x mu i x * g x ^+ 2]. Proof. '
+    'by []. Qed. Lemma weighted_gram_characterization (R : numFieldType'
+    ") (t a r : nat) (lambda : R) (Rw : nat) (H : 'M['F_2]_(t, a) -> 'M"
+    "[R]_(Rw, r)) (q : 'M['F_2]_(t, a)) : weighted_gram lambda H q = \\s"
+    "um_(p : 'M['F_2]_(t, a)) lambda ^+ #|[set i : 'I_t | row i q != ro"
+    "w i p]| *: (((#|{: 'M['F_2]_(t, a)}|%:R)^-1 *: \\sum_(y : 'M['F_2]_"
+    '(t, a)) (-1) ^+ nat_of_ord (\\sum_(i < t) \\sum_(j < a) p i j * y i '
+    "j) *: H y) *m ((#|{: 'M['F_2]_(t, a)}|%:R)^-1 *: \\sum_(y : 'M['F_2"
+    ']_(t, a)) (-1) ^+ nat_of_ord (\\sum_(i < t) \\sum_(j < a) p i j * y '
+    'i j) *: H y)^T). Proof. by []. Qed. Lemma psd_factorization_charac'
+    'terization (R : realType) (I J : finType) (A : I -> J -> R) (r : n'
+    "at) : psd_factorization A r <-> exists (F : I -> 'M[R]_r) (G : J -"
+    "> 'M[R]_r), [/\\ forall i, psdmx (F i), forall j, psdmx (G j) & for"
+    'all i j, A i j = \\tr (F i *m G j)]. Proof. by []. Qed. Print Assum'
+    'ptions psd_factorization_characterization.'),
 ]
 # The general statements accepted by the user: (acceptance commit, path,
 # name of the Prop definition, the proposition as Print shows it).
@@ -596,6 +690,102 @@ INVENTORY = [
      'library/probability/commuting_operators.v',
      'iter_meet_avg_statement',
      'forall (R : realFieldType) (T C : finType) (E : C -> {set T}) (m : nat) (f : {set T} -> R) (S : {set T}), @iter ({set T} -> R) m (@meet_avg R T C E) f S = @unif_mean R (tuple_tuple_of__canonical__fintype_Finite m C) (fun t : m.-tuple C => f (S :&: \\bigcap_(c <- t) E c))'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'bchar_algebra_statement',
+     "fun (t a : nat) (R : pzRingType) => [/\\ forall y : matrix 'F_2 t a, @bchar t a R 0 y = 1, forall p q y : matrix 'F_2 t a, @bchar t a R (p + q) y = @bchar t a R p y * @bchar t a R q y, forall p y : matrix 'F_2 t a, @bchar t a R p y = @bchar t a R y p & forall p y : matrix 'F_2 t a, @bchar t a R p y = 1 \\/ @bchar t a R p y = -1]"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'bchar_orthogonal_statement',
+     "fun (t a : nat) (R : pzRingType) => forall p q : matrix 'F_2 t a, \\sum_y @bchar t a R p y * @bchar t a R q y = (if p == q then #|{: matrix 'F_2 t a}|%:R else 0)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'bchar_delta_statement',
+     "fun (t a : nat) (R : pzRingType) => forall (i : 'I_t) (j : 'I_a) (y : matrix 'F_2 t a), @bchar t a R (@delta_mx (fintype_ordinal__canonical__GRing_PzSemiRing (Zp_trunc (pdiv 2))) t a i j) y = (-1) ^+ nat_of_ord (y i j)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'blk_dist_metric_statement',
+     "fun t a : nat => [/\\ forall p q : matrix 'F_2 t a, @blk_dist t a p q = @blk_deg t a (p + q), forall p q : matrix 'F_2 t a, @blk_dist t a p q = 0%N <-> p = q, forall p q : matrix 'F_2 t a, @blk_dist t a p q = @blk_dist t a q p, forall p q s : matrix 'F_2 t a, (@blk_dist t a p s <= @blk_dist t a p q + @blk_dist t a q s)%N & forall p q s : matrix 'F_2 t a, @blk_dist t a (p + s) (q + s) = @blk_dist t a p q]"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'fcoef_inversion_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (V : lmodType R) (f : matrix 'F_2 t a -> V) (y : matrix 'F_2 t a), f y = \\sum_p @bchar t a R p y *: @fcoef t a R V f p"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'fcoef_expansion_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (V : lmodType R) (c : matrix 'F_2 t a -> V) (q : matrix 'F_2 t a), @fcoef t a R V (fun y : matrix 'F_2 t a => \\sum_p @bchar t a R p y *: c p) q = c q"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'fcoef_plancherel_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (V W Z : lmodType R) (b : V -> W -> Z), (forall w : W, linear (b^~ w)) -> (forall v : V, linear (b v)) -> forall (f : matrix 'F_2 t a -> V) (g : matrix 'F_2 t a -> W), #|{: matrix 'F_2 t a}|%:R^-1 *: \\sum_y b (f y) (g y) = \\sum_p b (@fcoef t a R V f p) (@fcoef t a R W g p)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'fcoef_linear_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (V : lmodType R) (c : R) (f g : matrix 'F_2 t a -> V) (p : matrix 'F_2 t a), @fcoef t a R V (fun y : matrix 'F_2 t a => c *: f y + g y) p = c *: @fcoef t a R V f p + @fcoef t a R V g p"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'fcoef_comp_linear_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (V W : lmodType R) (h : V -> W), linear h -> forall (f : matrix 'F_2 t a -> V) (p : matrix 'F_2 t a), @fcoef t a R W (fun y : matrix 'F_2 t a => h (f y)) p = h (@fcoef t a R V f p)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'fcoef_mulmx_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (m n k l : nat) (A : matrix R m n) (f : matrix 'F_2 t a -> matrix R n k) (B : matrix R k l) (p : matrix 'F_2 t a), @fcoef t a R (matrix_matrix__canonical__GRing_Lmodule R m l) (fun y : matrix 'F_2 t a => A *m f y *m B) p = A *m @fcoef t a R (matrix_matrix__canonical__GRing_Lmodule R n k) f p *m B"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'fcoef_norm_le_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (f : matrix 'F_2 t a -> R^o) (c : R) (p : matrix 'F_2 t a), (forall y : matrix 'F_2 t a, `|f y : R| <= c) -> `|@fcoef t a R (GRing.GRing_regular__canonical__GRing_Lmodule R) f p : R| <= c"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'fcoef_translate_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (V : lmodType R) (f : matrix 'F_2 t a -> V) (p q : matrix 'F_2 t a), @fcoef t a R V (fun y : matrix 'F_2 t a => @bchar t a R q y *: f y) (p + q) = @fcoef t a R V f p"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'low_blk_deg_expansion_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (V : lmodType R) (D : nat) (f : matrix 'F_2 t a -> V), @low_blk_deg t a R V D f <-> (forall y : matrix 'F_2 t a, f y = \\sum_(p | (@blk_deg t a p <= D)%N) @bchar t a R p y *: @fcoef t a R V f p)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'low_blk_deg_translate_statement',
+     "fun (t a : nat) (R : numFieldType) => forall (V : lmodType R) (D : nat) (f : matrix 'F_2 t a -> V) (q : matrix 'F_2 t a), (forall p : matrix 'F_2 t a, (D < @blk_dist t a p q)%N -> @fcoef t a R V f p = 0) -> @low_blk_deg t a R V D (fun y : matrix 'F_2 t a => @bchar t a R q y *: f y)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'blk_dist_row_statement',
+     "forall (a : nat) (s z : matrix 'F_2 1 a), @blk_dist 1 a s z = (s != z)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'bchar_col_mx_statement',
+     "fun t1 t2 a : nat => forall (R : pzRingType) (p1 y1 : matrix 'F_2 t1 a) (p2 y2 : matrix 'F_2 t2 a), @bchar (t1 + t2) a R (@col_mx 'F_2 t1 t2 a p1 p2) (@col_mx 'F_2 t1 t2 a y1 y2) = @bchar t1 a R p1 y1 * @bchar t2 a R p2 y2"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'blk_col_mx_statement',
+     "fun t1 t2 a : nat => forall (p1 q1 : matrix 'F_2 t1 a) (p2 q2 : matrix 'F_2 t2 a), @blk_deg (t1 + t2) a (@col_mx 'F_2 t1 t2 a p1 p2) = (@blk_deg t1 a p1 + @blk_deg t2 a p2)%N /\\ @blk_dist (t1 + t2) a (@col_mx 'F_2 t1 t2 a p1 p2) (@col_mx 'F_2 t1 t2 a q1 q2) = (@blk_dist t1 a p1 q1 + @blk_dist t2 a p2 q2)%N"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/fourier/boolean_fourier.v',
+     'fcoef_col_mx_statement',
+     "fun t1 t2 a : nat => forall (R : numFieldType) (V : lmodType R) (f : matrix 'F_2 (t1 + t2) a -> V) (p1 : matrix 'F_2 t1 a) (p2 : matrix 'F_2 t2 a), @fcoef (t1 + t2) a R V f (@col_mx 'F_2 t1 t2 a p1 p2) = @fcoef t1 a R V (fun y1 : matrix 'F_2 t1 a => @fcoef t2 a R V (fun y2 : matrix 'F_2 t2 a => f (@col_mx 'F_2 t1 t2 a y1 y2)) p2) p1"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_factorization.v',
+     'psd_factorization_ge0_statement',
+     'forall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat), @psd_factorization R I J A r -> forall (i : I) (j : J), 0 <= A i j'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_factorization.v',
+     'psd_factorization_size_gt0_statement',
+     'forall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat), @psd_factorization R I J A r -> (exists (i : I) (j : J), A i j != 0) -> (0 < r)%N'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_factorization.v',
+     'psd_factorization_restrict_statement',
+     "forall (R : realType) (I J I' J' : finType) (A : I -> J -> R) (r : nat) (f : I' -> I) (g : J' -> J), @psd_factorization R I J A r -> @psd_factorization R I' J' (fun (i : I') (j : J') => A (f i) (g j)) r"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_factorization.v',
+     'psd_factorization_widen_statement',
+     'forall (R : realType) (I J : finType) (A : I -> J -> R) (r s : nat), (r <= s)%N -> @psd_factorization R I J A r -> @psd_factorization R I J A s'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_factorization.v',
+     'psd_factorization_shift_statement',
+     'forall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat) (rho : R), 0 <= rho -> @psd_factorization R I J A r -> @psd_factorization R I J (fun (i : I) (j : J) => A i j + rho) r.+1'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_factorization.v',
+     'psd_factorization_nonneg_statement',
+     "forall (R : realType) (I J : finType) (r : nat) (a : I -> 'I_r -> R) (b : J -> 'I_r -> R), (forall (i : I) (k : 'I_r), 0 <= a i k) -> (forall (j : J) (k : 'I_r), 0 <= b j k) -> @psd_factorization R I J (fun (i : I) (j : J) => \\sum_(k < r) a i k * b j k) r"),
 ]
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
@@ -954,6 +1144,9 @@ def main():
     for path in PHASE13_B1_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE13_B1_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE13_B1_BASELINE[:12]}")
+    for path in PHASE13_B2_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE13_B2_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE13_B2_BASELINE[:12]}")
     if code((ROOT / PHASE13_DEFINITIONS).read_text()) != PHASE13_DEFINITIONS_FREEZES[-1]:
         failures.append(f"{PHASE13_DEFINITIONS}: code differs from the last code "
                         "of PHASE13_DEFINITIONS_FREEZES")
@@ -1123,6 +1316,8 @@ def main():
           f"{PHASE12_B2_BASELINE[:12]}; "
           f"{len(PHASE13_B1_FROZEN)} frozen files of batch 1 of phase 13 unchanged since "
           f"{PHASE13_B1_BASELINE[:12]}; "
+          f"{len(PHASE13_B2_FROZEN)} frozen files of batch 2 of phase 13 unchanged since "
+          f"{PHASE13_B2_BASELINE[:12]}; "
           f"the characterizations of {APPLICATIONS_DEFINITIONS} unchanged; "
           f"the characterizations of {PHASE13_DEFINITIONS} at freeze "
           f"{len(PHASE13_DEFINITIONS_FREEZES)}, compiled; "

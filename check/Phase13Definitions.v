@@ -71,3 +71,103 @@ Lemma meet_avg_characterization (R : realFieldType) (T C : finType)
 Proof. by []. Qed.
 
 Print Assumptions meet_avg_characterization.
+
+(* Freeze 2, the definitions that T11 and packet P (batch 2) unfold to:
+   - bdot, bchar, blk_deg, blk_dist, fcoef and low_blk_deg
+     (fourier/boolean_fourier.v): the F_2 pairing, the character
+     (-1)^(p . y), the number of nonzero rows, the number of differing rows,
+     the Fourier coefficient normalized by the number of points, and the
+     vanishing of the coefficients of block degree larger than D;
+   - prob_vec, prod_avg, smoothing_hyps and weighted_gram
+     (fourier/product_smoothing.v);
+   - psd_factorization (matrix/psd_factorization.v), through psdmx.
+   T10 and T11 also name psdmx, and T11 names frobenius;
+   check/ApplicationsDefinitions.v protects both, and mxdot, which their
+   definitions use. *)
+
+From mathcomp Require Import zmodp matrix reals.
+From GaussianAnalysis.fourier Require Import boolean_fourier product_smoothing.
+From GaussianAnalysis.matrix Require Import psd_part psd_factorization.
+
+Lemma bdot_characterization (t a : nat) (p y : 'M['F_2]_(t, a)) :
+  bdot p y = \sum_(i < t) \sum_(j < a) p i j * y i j.
+Proof. by []. Qed.
+
+Lemma bchar_characterization (R : pzRingType) (t a : nat)
+    (p y : 'M['F_2]_(t, a)) :
+  bchar R p y = (-1) ^+ nat_of_ord (\sum_(i < t) \sum_(j < a) p i j * y i j).
+Proof. by []. Qed.
+
+Lemma blk_deg_characterization (t a : nat) (p : 'M['F_2]_(t, a)) :
+  blk_deg p = #|[set i : 'I_t | row i p != 0]|.
+Proof. by []. Qed.
+
+Lemma blk_dist_characterization (t a : nat) (p q : 'M['F_2]_(t, a)) :
+  blk_dist p q = #|[set i : 'I_t | row i p != row i q]|.
+Proof. by []. Qed.
+
+Lemma fcoef_characterization (R : numFieldType) (t a : nat) (V : lmodType R)
+    (f : 'M['F_2]_(t, a) -> V) (p : 'M['F_2]_(t, a)) :
+  fcoef f p = (#|{: 'M['F_2]_(t, a)}|%:R)^-1 *:
+    \sum_(y : 'M['F_2]_(t, a))
+      (-1) ^+ nat_of_ord (\sum_(i < t) \sum_(j < a) p i j * y i j) *: f y.
+Proof. by []. Qed.
+
+Lemma low_blk_deg_characterization (R : numFieldType) (t a : nat)
+    (V : lmodType R) (D : nat) (f : 'M['F_2]_(t, a) -> V) :
+  low_blk_deg D f <->
+  forall p : 'M['F_2]_(t, a),
+    (D < #|[set i : 'I_t | row i p != 0%R]|)%N ->
+    (#|{: 'M['F_2]_(t, a)}|%:R)^-1 *:
+      \sum_(y : 'M['F_2]_(t, a))
+        (-1) ^+ nat_of_ord (\sum_(i < t) \sum_(j < a) p i j * y i j) *: f y
+    = 0.
+Proof. by []. Qed.
+
+Lemma prob_vec_characterization (R : numDomainType) (T : finType)
+    (w : T -> R) :
+  prob_vec w <-> (forall x, 0 <= w x) /\ \sum_x w x = 1.
+Proof. by []. Qed.
+
+Lemma prod_avg_characterization (R : numDomainType) (X M : finType)
+    (t a : nat) (V : lmodType R) (pi : 'I_t -> M -> 'rV['F_2]_a -> X -> R)
+    (F : t.-tuple X -> V) (m : t.-tuple M) (y : 'M['F_2]_(t, a)) :
+  prod_avg pi F m y =
+  \sum_(x : t.-tuple X)
+    (\prod_(i < t) pi i (tnth m i) (row i y) (tnth x i)) *: F x.
+Proof. by []. Qed.
+
+Lemma smoothing_hyps_characterization (R : numDomainType) (X M : finType)
+    (t a : nat) (mu : 'I_t -> X -> R) (nu : 'I_t -> M -> R)
+    (pi : 'I_t -> M -> 'rV['F_2]_a -> X -> R) (theta : R) :
+  smoothing_hyps mu nu pi theta <->
+  [/\ forall i, (forall x, 0 <= mu i x) /\ \sum_x mu i x = 1,
+      forall i, (forall m, 0 <= nu i m) /\ \sum_m nu i m = 1,
+      forall i m y, (forall x, 0 <= pi i m y x) /\ \sum_x pi i m y x = 1,
+      forall i y x, \sum_m nu i m * pi i m y x = mu i x &
+      forall i y (g : X -> R),
+        \sum_m nu i m * (\sum_x pi i m y x * g x - \sum_x mu i x * g x) ^+ 2
+          <= theta * \sum_x mu i x * g x ^+ 2].
+Proof. by []. Qed.
+
+Lemma weighted_gram_characterization (R : numFieldType) (t a r : nat)
+    (lambda : R) (Rw : nat) (H : 'M['F_2]_(t, a) -> 'M[R]_(Rw, r))
+    (q : 'M['F_2]_(t, a)) :
+  weighted_gram lambda H q =
+  \sum_(p : 'M['F_2]_(t, a))
+    lambda ^+ #|[set i : 'I_t | row i q != row i p]| *:
+      (((#|{: 'M['F_2]_(t, a)}|%:R)^-1 *: \sum_(y : 'M['F_2]_(t, a))
+          (-1) ^+ nat_of_ord (\sum_(i < t) \sum_(j < a) p i j * y i j) *: H y)
+       *m ((#|{: 'M['F_2]_(t, a)}|%:R)^-1 *: \sum_(y : 'M['F_2]_(t, a))
+          (-1) ^+ nat_of_ord (\sum_(i < t) \sum_(j < a) p i j * y i j) *: H y)^T).
+Proof. by []. Qed.
+
+Lemma psd_factorization_characterization (R : realType) (I J : finType)
+    (A : I -> J -> R) (r : nat) :
+  psd_factorization A r <->
+  exists (F : I -> 'M[R]_r) (G : J -> 'M[R]_r),
+    [/\ forall i, psdmx (F i), forall j, psdmx (G j) &
+        forall i j, A i j = \tr (F i *m G j)].
+Proof. by []. Qed.
+
+Print Assumptions psd_factorization_characterization.
