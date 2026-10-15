@@ -1,6 +1,7 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum ssrint zmodp.
 From mathcomp Require Import matrix.
+From GaussianAnalysis.matrix Require Import euclidean.
 
 (**md**************************************************************************)
 (* # Real Fourier analysis on Boolean products                                *)
@@ -9,7 +10,7 @@ From mathcomp Require Import matrix.
 (* each, and is a group under addition. A frequency p and a point y have the  *)
 (* F_2 pairing p . y = \sum_i \sum_j p_ij y_ij and the character              *)
 (* chi_p (y) = (-1)^(p . y), with the values 1 and -1 in any ring. A function *)
-(* f with values in a module V over a number field R has the Fourier          *)
+(* f with values in a module V over a numFieldType R has the Fourier          *)
 (* coefficients                                                               *)
 (*   fcoef f p = 2^(-t a) \sum_y chi_p (y) f (y),                             *)
 (* normalized by the number 2^(t a) of points, so that the inversion formula  *)
@@ -66,10 +67,14 @@ From mathcomp Require Import matrix.
 (*   signF2D: (-1)^(u + v) = (-1)^u (-1)^v for u and v in 'F_2, in any ring.  *)
 (* - linear0_prop, linearD_prop, linearZ_prop and linear_sum_prop: a map that *)
 (*   satisfies the predicate linear sends 0 to 0 and commutes with sums and   *)
-(*   scalings.                                                                *)
-(* - bdotC, bdotDl, bdotDr, bdot0l, bdot_delta and bdot_col_mx: the pairing   *)
-(*   is symmetric and bilinear, bdot p (delta_mx i j) = p i j, and it adds    *)
-(*   along col_mx.                                                            *)
+(*   scalings. The statements take plain maps with this predicate, not the    *)
+(*   structure {linear U -> W}, so that a bilinear map is a curried function  *)
+(*   with one hypothesis for each argument, and a map such as                 *)
+(*   H |-> A *m H *m B needs no instance.                                     *)
+(* - bdotE, bdotC, bdotDl, bdotDr, bdot0l, bdot_delta and bdot_col_mx: the    *)
+(*   pairing is mxdot of matrix/euclidean.v at 'F_2 (bdotE), so it is         *)
+(*   symmetric and bilinear and bdot p (delta_mx i j) = p i j, by the lemmas  *)
+(*   on mxdot; it adds along col_mx.                                          *)
 (* - bchar0, bcharD, bcharC, bcharDr, bchar_sign and bchar_sqr: the character *)
 (*   algebra; bchar_int: the characters in R are the images of the characters *)
 (*   in int; sum_bchar_int and sum_bchar: \sum_y chi_p (y) is 2^(t a) if      *)
@@ -108,7 +113,7 @@ From mathcomp Require Import matrix.
 (*   the points, Y_1 x ... x Y_t with each Y_i identified with (F_2)^a, are   *)
 (*   both 'M['F_2]_(t, a), with the block p_i as the row i of p;              *)
 (* - the coefficients are defined for functions with values in any module     *)
-(*   over a number field, where the manuscript has real matrices, and the     *)
+(*   over a numFieldType, where the manuscript has real matrices, and the     *)
 (*   characters with values in any ring.                                      *)
 (*                                                                            *)
 (* ```                                                                        *)
@@ -349,31 +354,24 @@ Variables t a : nat.
 Local Notation cube := 'M['F_2]_(t, a).
 Implicit Types p q s y z : cube.
 
+(* The pairing is mxdot of matrix/euclidean.v at 'F_2. *)
+Lemma bdotE p y : bdot p y = mxdot p y.
+Proof. by []. Qed.
+
 Lemma bdotC p y : bdot p y = bdot y p.
-Proof. by apply: eq_bigr => i _; apply: eq_bigr => j _; rewrite mulrC. Qed.
+Proof. by rewrite !bdotE mxdotC. Qed.
 
 Lemma bdotDl p q y : bdot (p + q) y = bdot p y + bdot q y.
-Proof.
-rewrite /bdot -big_split /=; apply: eq_bigr => i _.
-by rewrite -big_split /=; apply: eq_bigr => j _; rewrite mxE mulrDl.
-Qed.
+Proof. by rewrite !bdotE mxdotDl. Qed.
 
 Lemma bdotDr p y z : bdot p (y + z) = bdot p y + bdot p z.
-Proof. by rewrite bdotC bdotDl !(bdotC p). Qed.
+Proof. by rewrite !bdotE mxdotDr. Qed.
 
 Lemma bdot0l y : bdot 0 y = 0.
-Proof.
-by rewrite /bdot big1 // => i _; rewrite big1 // => j _; rewrite mxE mul0r.
-Qed.
+Proof. by rewrite bdotE mxdot0l. Qed.
 
 Lemma bdot_delta p i j : bdot p (delta_mx i j) = p i j.
-Proof.
-rewrite /bdot (bigD1 i) //= [X in _ + X]big1 => [i' Hi'|].
-  by rewrite big1 // => j' _; rewrite mxE (negbTE Hi') mulr0.
-rewrite addr0 (bigD1 j) //= big1 => [j' Hj'|].
-  by rewrite mxE eqxx (negbTE Hj') mulr0.
-by rewrite mxE !eqxx mulr1 addr0.
-Qed.
+Proof. by rewrite bdotE mxdot_delta. Qed.
 
 Section characters_proofs.
 Variable R : pzRingType.

@@ -5,6 +5,7 @@ From mathcomp Require Import ring_tactic field_tactic.
 From GaussianAnalysis.matrix Require Import euclidean real_spectral psd_part.
 From GaussianAnalysis.matrix Require Import psd_splitting psd_duality.
 From GaussianAnalysis.fourier Require Import boolean_fourier.
+From GaussianAnalysis.probability Require Import finite_mean.
 
 (**md**************************************************************************)
 (* # Product smoothing of matrix squares                                      *)
@@ -85,6 +86,11 @@ From GaussianAnalysis.fourier Require Import boolean_fourier.
 (* - contraction_ge0, contraction_mx: theta >= 0, and the variance hypothesis *)
 (*   for matrices; prod_avg_cons: the product average along its first         *)
 (*   coordinate.                                                              *)
+(*                                                                            *)
+(* Two examples: after the definitions, the uniform law of a nonempty finite  *)
+(* type is a probability vector (prob_vec_uniform); at the end of the file,   *)
+(* constant channels pi i m z = mu i satisfy smoothing_hyps mu nu pi 0 for    *)
+(* all probability vectors mu i and nu i (smoothing_hyps_const).              *)
 (*                                                                            *)
 (* A Rocq formalization of the credited argument of the theorem 'Fourier      *)
 (* smoothing of matrix squares' of 'Exponential PSD rank of positively        *)
@@ -405,13 +411,7 @@ Lemma sum_tuple_cons (V : nmodType) (T : finType) m
     (f : m.+1.-tuple T -> V) :
   \sum_(x : m.+1.-tuple T) f x =
   \sum_(x0 : T) \sum_(x : m.-tuple T) f [tuple of x0 :: x].
-Proof.
-rewrite pair_bigA /=.
-rewrite (reindex (fun p : T * m.-tuple T => [tuple of p.1 :: p.2])) //=.
-exists (fun x => (thead x, [tuple of behead x])) => [[x0 x] _|x _] /=.
-  by congr pair; apply: val_inj.
-by rewrite [RHS]tuple_eta.
-Qed.
+Proof. by rewrite pair_bigA (reindex _ (onW_bij _ (@bij_tuple_cons T m))). Qed.
 
 Lemma prod_tuple_cons (T : finType) m (F : 'I_m.+1 -> T -> R) (x0 : T)
     (x : m.-tuple T) :
@@ -1191,3 +1191,15 @@ by exists m, Rw, (H m); split.
 Qed.
 
 End product_smoothing_theorem.
+
+(* An example of the hypotheses: constant channels pi i m z = mu i, which
+   average to mu i under any law nu i and have no variance term. *)
+Example smoothing_hyps_const (R : numDomainType) (X M : finType) (t a : nat)
+    (mu : 'I_t -> X -> R) (nu : 'I_t -> M -> R) :
+  (forall i, prob_vec (mu i)) -> (forall i, prob_vec (nu i)) ->
+  smoothing_hyps mu nu (fun i (_ : M) (_ : 'rV['F_2]_a) => mu i) 0.
+Proof.
+move=> mu1 nu1; split=> [i|i|i m y|i y x|i y g]; [exact: mu1|exact: nu1|
+  exact: mu1|by rewrite -mulr_suml (nu1 i).2 mul1r|].
+by under eq_bigr do rewrite subrr expr2 !mulr0; rewrite big1 // mul0r.
+Qed.
