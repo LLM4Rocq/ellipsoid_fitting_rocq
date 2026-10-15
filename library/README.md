@@ -43,7 +43,7 @@ is the place to start.
 | `convex/` | self-concordant barriers and the log-determinant barrier, minimizers of least squares objectives with a barrier, the Lindeberg replacement for barrier-regularized least squares with regular features and the removal of the barrier and of the ridge, projections onto closed convex sets and Moreau's decomposition for closed convex cones |
 | `random_matrix/` | the Gaussian orthogonal ensemble: the Schwinger-Dyson equation for its moments, the operator norm, Wigner's semicircle law, and the invariance of its law under orthogonal conjugation, with the diagonal of equivariant matrix functions; the restricted isometry of matrices with independent subexponential columns (Adamczak, Litvak, Pajor and Tomczak-Jaegermann) and the norms of sparse combinations of subgaussian vectors; the trace moments and the operator norm of Gaussian matrix series, and the sharp upper edge of the GOE (its largest eigenvalue has mean at most 2 and Gaussian tails above it) |
 | `analysis/` | real sequences: the convergence of bounded sequences that satisfy approximate minimum inequalities, with an explicit finite-size bound |
-| `combinatorics/` | finite combinatorics with no field: bounds on binomial coefficients |
+| `combinatorics/` | finite combinatorics: bounds on binomial coefficients in nat, with no field, and on the partial sums of a row of Pascal's triangle over a realType |
 
 ## Main results
 
