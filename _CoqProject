@@ -837,7 +837,11 @@ applications/SatThresholdTheorem.v
 applications/MinSuperadditiveStatement.v
 applications/MinSuperadditiveTheorem.v
 applications/PsdNormalizationStatement.v
+applications/PsdNormalizationTheorem.v
 applications/ProductSmoothingStatement.v
+applications/ProductSmoothingTheorem.v
+applications/PsdRankDefinitions.v
+applications/PsdRankStatement.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
 applications/SKGap/Spectral.v
@@ -856,4 +860,5 @@ applications/RandomSAT/Interpolation.v
 applications/RandomSAT/Transfer.v
 applications/RandomSAT/CenterComparison.v
 applications/RandomSAT/Threshold.v
+applications/PsdRank/Model.v
 applications/PsdRank/Main.v
