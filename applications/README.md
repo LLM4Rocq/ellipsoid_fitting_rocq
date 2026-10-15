@@ -81,13 +81,14 @@ and 3); the sources are in `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`.
 The files of a target are added when its work starts. The statement files
 were reviewed in batches: T9 and T12 with the general statements of the SAT
 side (batch 1), then T10 and T11 with those of the PSD side (batch 2). The
-user accepted them on 15 October 2026, at commit `46e45c8`; batches 1 and
-2 are frozen. The general statements of the library files were reviewed with
+user accepted them on 15 October 2026, at commit `46e45c8`, and they are
+frozen. The general statements of the library files were reviewed with
 their batch as compiled `Prop` definitions; they are accepted, not frozen,
 and `scripts/check_sources.py` records them in its acceptance inventory.
 The main statement of the PSD rank theorem of family 126
 (`PsdRankDefinitions.v`, `PsdRankStatement.v`) was written and reviewed in
-phase 13 (batch 3), accepted at the same commit, and is proved in phase 14;
+phase 13 (batch 3), accepted and frozen with the others, and is proved in
+phase 14;
 its folder `PsdRank/` holds sanity lemmas for its
 definitions (`Model.v`) and the skeleton of the final step of its proof
 (`Main.v`).

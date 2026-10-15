@@ -480,8 +480,9 @@ generated`), whose code cannot change. The other modules print none.
   extends it; freeze 1 covers `unif_mean`, `unif_var`, `binomial_mean`,
   `linear_op`, `monotone_op` and `meet_avg`, freeze 2 `bdot`, `bchar`,
   `blk_deg`, `blk_dist`, `fcoef`, `low_blk_deg`, `prob_vec`, `prod_avg`,
-  `smoothing_hyps`, `weighted_gram` and `psd_factorization`. `make check`
-  compiles it into `build/phase13_definitions.txt`, a required output.
+  `smoothing_hyps`, `weighted_gram` and `psd_factorization`, and freeze 3
+  `psd_eval` and `psd_eval_cone`. `make check` compiles it into
+  `build/phase13_definitions.txt`, a required output.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality
@@ -496,9 +497,10 @@ generated`), whose code cannot change. The other modules print none.
   `fc76edf`, as the section `lambda_max` of
   `library/matrix/lambda_max.v` with its Require commands, and the seven
   statement and definitions files of batch 2 the same code as at commit
-  `0d5afba`, and the three statement files of batch 1 of phase 13 and the
-  two of batch 2 the same code as at commit `46e45c8`, at which the user
-  accepted the statements of phase 13 (comments may differ); that `check/ApplicationsDefinitions.v`
+  `0d5afba`, and the three statement files of batch 1 of phase 13, the two
+  of batch 2 and the two of batch 3 the same code as at commit `46e45c8`,
+  at which the user accepted the statements of phase 13 (comments may
+  differ); that `check/ApplicationsDefinitions.v`
   has its fixed code, and `check/Phase13Definitions.v` the code of its
   last freeze, the code of each earlier freeze being a prefix of it; that
   each entry of the acceptance inventory, the general statements of the

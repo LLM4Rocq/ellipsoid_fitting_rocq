@@ -171,3 +171,31 @@ Lemma psd_factorization_characterization (R : realType) (I J : finType)
 Proof. by []. Qed.
 
 Print Assumptions psd_factorization_characterization.
+
+(* Freeze 3, the definitions that the statements of P4, accepted with batch
+   3, unfold to, besides psdmx and mxdot, which
+   check/ApplicationsDefinitions.v protects:
+   - psd_eval (matrix/psd_duality.v): the row of the trace pairings
+     tr (F G_j) of F with the matrices G_j;
+   - psd_eval_cone (matrix/psd_duality.v): the set of these rows for the
+     positive semidefinite F.
+   The PSD rank statement of batch 3 unfolds to the definitions of
+   applications/PsdRankDefinitions.v, which freeze 3 fixes as a file, and
+   to psd_factorization, which freeze 2 protects; the statements of item X
+   unfold to no project definition. *)
+
+From mathcomp Require Import classical_sets.
+From GaussianAnalysis.matrix Require Import psd_duality.
+
+Lemma psd_eval_characterization (R : realType) (n N : nat)
+    (G : 'I_N -> 'M[R]_n) (F : 'M[R]_n) :
+  psd_eval G F = \row_j \tr (F *m G j).
+Proof. by []. Qed.
+
+Lemma psd_eval_cone_characterization (R : realType) (n N : nat)
+    (G : 'I_N -> 'M[R]_n) :
+  psd_eval_cone G =
+  [set \row_j \tr (F *m G j) | F in [set F : 'M[R]_n | psdmx F]]%classic.
+Proof. by []. Qed.
+
+Print Assumptions psd_eval_cone_characterization.

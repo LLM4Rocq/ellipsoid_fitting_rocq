@@ -231,6 +231,15 @@
    and packet P unfold to (bdot, bchar, blk_deg, blk_dist, fcoef,
    low_blk_deg, prob_vec, prod_avg, smoothing_hyps, weighted_gram and
    psd_factorization); INVENTORY gains the statements of packet P.
+28. Phase 13, the freeze of batch 3. The code of each file of
+   PHASE13_B3_FROZEN, the definitions and the statement of the exponential
+   PSD rank of the shifted matching matrices, must equal its code at the
+   commit PHASE13_B3_BASELINE, at which the user accepted them. Their
+   project definitions are psdmx (check/ApplicationsDefinitions.v) and
+   psd_factorization (check/Phase13Definitions.v, freeze 2). The third
+   freeze of check/Phase13Definitions.v adds psd_eval and psd_eval_cone,
+   which the statements of P4 unfold to, and INVENTORY gains the accepted
+   statements of item X and of P4, reviewed with batch 3.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -392,6 +401,11 @@ PHASE13_B2_FROZEN = [
     "applications/ProductSmoothingStatement.v",
 ]
 PHASE13_B2_BASELINE = "46e45c84b99a50663205933ae501da029dd66098"
+PHASE13_B3_FROZEN = [
+    "applications/PsdRankDefinitions.v",
+    "applications/PsdRankStatement.v",
+]
+PHASE13_B3_BASELINE = "46e45c84b99a50663205933ae501da029dd66098"
 LAMBDA_MAX = "library/matrix/lambda_max.v"
 APPLICATIONS_DEFINITIONS = "check/ApplicationsDefinitions.v"
 APPLICATIONS_DEFINITIONS_CHECK = (
@@ -554,6 +568,92 @@ PHASE13_DEFINITIONS_FREEZES = [
     "> 'M[R]_r), [/\\ forall i, psdmx (F i), forall j, psdmx (G j) & for"
     'all i j, A i j = \\tr (F i *m G j)]. Proof. by []. Qed. Print Assum'
     'ptions psd_factorization_characterization.'),
+    # freeze 3 (batch 3)
+    (
+    'From HB Require Import structures. From mathcomp Require Import al'
+    'l_ssreflect_compat ssralg ssrnum. From GaussianAnalysis.probabilit'
+    'y Require Import finite_mean binomial_mean. From GaussianAnalysis.'
+    'probability Require Import commuting_operators. Import GRing.Theor'
+    'y Num.Theory. Local Open Scope ring_scope. Lemma unif_mean_charact'
+    'erization (R : realFieldType) (T : finType) (f : T -> R) : unif_me'
+    'an f = (#|T|%:R)^-1 * \\sum_(x : T) f x. Proof. by []. Qed. Lemma u'
+    'nif_var_characterization (R : realFieldType) (T : finType) (f : T '
+    '-> R) : unif_var f = (#|T|%:R)^-1 * \\sum_(x : T) (f x - (#|T|%:R)^'
+    '-1 * \\sum_(y : T) f y) ^+ 2. Proof. by []. Qed. Lemma binomial_mea'
+    'n_characterization (R : numDomainType) (m : nat) (p : R) (f : nat '
+    '-> R) : binomial_mean m p f = \\sum_(j < m.+1) (p ^+ j * (1 - p) ^+'
+    " (m - j) *+ 'C(m, j)) * f j. Proof. by []. Qed. Lemma linear_op_ch"
+    'aracterization (R : numDomainType) (X : Type) (A : (X -> R) -> X -'
+    '> R) : linear_op A <-> (forall (f g : X -> R) (x : X), A (fun y =>'
+    ' f y + g y) x = A f x + A g x) /\\ (forall (a : R) (f : X -> R) (x '
+    ': X), A (fun y => a * f y) x = a * A f x). Proof. by []. Qed. Lemm'
+    'a monotone_op_characterization (R : numDomainType) (X : Type) (A :'
+    ' (X -> R) -> X -> R) : monotone_op A <-> forall f g : X -> R, (for'
+    'all y, f y <= g y) -> forall x, A f x <= A g x. Proof. by []. Qed.'
+    ' Lemma meet_avg_characterization (R : realFieldType) (T C : finTyp'
+    'e) (E : C -> {set T}) (f : {set T} -> R) (S : {set T}) : meet_avg '
+    'E f S = (#|C|%:R)^-1 * \\sum_(c : C) f (S :&: E c). Proof. by []. Q'
+    'ed. Print Assumptions meet_avg_characterization. From mathcomp Req'
+    'uire Import zmodp matrix reals. From GaussianAnalysis.fourier Requ'
+    'ire Import boolean_fourier product_smoothing. From GaussianAnalysi'
+    's.matrix Require Import psd_part psd_factorization. Lemma bdot_cha'
+    "racterization (t a : nat) (p y : 'M['F_2]_(t, a)) : bdot p y = \\su"
+    'm_(i < t) \\sum_(j < a) p i j * y i j. Proof. by []. Qed. Lemma bch'
+    "ar_characterization (R : pzRingType) (t a : nat) (p y : 'M['F_2]_("
+    't, a)) : bchar R p y = (-1) ^+ nat_of_ord (\\sum_(i < t) \\sum_(j < '
+    'a) p i j * y i j). Proof. by []. Qed. Lemma blk_deg_characterizati'
+    "on (t a : nat) (p : 'M['F_2]_(t, a)) : blk_deg p = #|[set i : 'I_t"
+    ' | row i p != 0]|. Proof. by []. Qed. Lemma blk_dist_characterizat'
+    "ion (t a : nat) (p q : 'M['F_2]_(t, a)) : blk_dist p q = #|[set i "
+    ": 'I_t | row i p != row i q]|. Proof. by []. Qed. Lemma fcoef_char"
+    'acterization (R : numFieldType) (t a : nat) (V : lmodType R) (f : '
+    "'M['F_2]_(t, a) -> V) (p : 'M['F_2]_(t, a)) : fcoef f p = (#|{: 'M"
+    "['F_2]_(t, a)}|%:R)^-1 *: \\sum_(y : 'M['F_2]_(t, a)) (-1) ^+ nat_o"
+    'f_ord (\\sum_(i < t) \\sum_(j < a) p i j * y i j) *: f y. Proof. by '
+    '[]. Qed. Lemma low_blk_deg_characterization (R : numFieldType) (t '
+    "a : nat) (V : lmodType R) (D : nat) (f : 'M['F_2]_(t, a) -> V) : l"
+    "ow_blk_deg D f <-> forall p : 'M['F_2]_(t, a), (D < #|[set i : 'I_"
+    "t | row i p != 0%R]|)%N -> (#|{: 'M['F_2]_(t, a)}|%:R)^-1 *: \\sum_"
+    "(y : 'M['F_2]_(t, a)) (-1) ^+ nat_of_ord (\\sum_(i < t) \\sum_(j < a"
+    ') p i j * y i j) *: f y = 0. Proof. by []. Qed. Lemma prob_vec_cha'
+    'racterization (R : numDomainType) (T : finType) (w : T -> R) : pro'
+    'b_vec w <-> (forall x, 0 <= w x) /\\ \\sum_x w x = 1. Proof. by []. '
+    'Qed. Lemma prod_avg_characterization (R : numDomainType) (X M : fi'
+    "nType) (t a : nat) (V : lmodType R) (pi : 'I_t -> M -> 'rV['F_2]_a"
+    " -> X -> R) (F : t.-tuple X -> V) (m : t.-tuple M) (y : 'M['F_2]_("
+    't, a)) : prod_avg pi F m y = \\sum_(x : t.-tuple X) (\\prod_(i < t) '
+    'pi i (tnth m i) (row i y) (tnth x i)) *: F x. Proof. by []. Qed. L'
+    'emma smoothing_hyps_characterization (R : numDomainType) (X M : fi'
+    "nType) (t a : nat) (mu : 'I_t -> X -> R) (nu : 'I_t -> M -> R) (pi"
+    " : 'I_t -> M -> 'rV['F_2]_a -> X -> R) (theta : R) : smoothing_hyp"
+    's mu nu pi theta <-> [/\\ forall i, (forall x, 0 <= mu i x) /\\ \\sum'
+    '_x mu i x = 1, forall i, (forall m, 0 <= nu i m) /\\ \\sum_m nu i m '
+    '= 1, forall i m y, (forall x, 0 <= pi i m y x) /\\ \\sum_x pi i m y '
+    'x = 1, forall i y x, \\sum_m nu i m * pi i m y x = mu i x & forall '
+    'i y (g : X -> R), \\sum_m nu i m * (\\sum_x pi i m y x * g x - \\sum_'
+    'x mu i x * g x) ^+ 2 <= theta * \\sum_x mu i x * g x ^+ 2]. Proof. '
+    'by []. Qed. Lemma weighted_gram_characterization (R : numFieldType'
+    ") (t a r : nat) (lambda : R) (Rw : nat) (H : 'M['F_2]_(t, a) -> 'M"
+    "[R]_(Rw, r)) (q : 'M['F_2]_(t, a)) : weighted_gram lambda H q = \\s"
+    "um_(p : 'M['F_2]_(t, a)) lambda ^+ #|[set i : 'I_t | row i q != ro"
+    "w i p]| *: (((#|{: 'M['F_2]_(t, a)}|%:R)^-1 *: \\sum_(y : 'M['F_2]_"
+    '(t, a)) (-1) ^+ nat_of_ord (\\sum_(i < t) \\sum_(j < a) p i j * y i '
+    "j) *: H y) *m ((#|{: 'M['F_2]_(t, a)}|%:R)^-1 *: \\sum_(y : 'M['F_2"
+    ']_(t, a)) (-1) ^+ nat_of_ord (\\sum_(i < t) \\sum_(j < a) p i j * y '
+    'i j) *: H y)^T). Proof. by []. Qed. Lemma psd_factorization_charac'
+    'terization (R : realType) (I J : finType) (A : I -> J -> R) (r : n'
+    "at) : psd_factorization A r <-> exists (F : I -> 'M[R]_r) (G : J -"
+    "> 'M[R]_r), [/\\ forall i, psdmx (F i), forall j, psdmx (G j) & for"
+    'all i j, A i j = \\tr (F i *m G j)]. Proof. by []. Qed. Print Assum'
+    'ptions psd_factorization_characterization. From mathcomp Require I'
+    'mport classical_sets. From GaussianAnalysis.matrix Require Import '
+    'psd_duality. Lemma psd_eval_characterization (R : realType) (n N :'
+    " nat) (G : 'I_N -> 'M[R]_n) (F : 'M[R]_n) : psd_eval G F = \\row_j "
+    '\\tr (F *m G j). Proof. by []. Qed. Lemma psd_eval_cone_characteriz'
+    "ation (R : realType) (n N : nat) (G : 'I_N -> 'M[R]_n) : psd_eval_"
+    "cone G = [set \\row_j \\tr (F *m G j) | F in [set F : 'M[R]_n | psdm"
+    'x F]]%classic. Proof. by []. Qed. Print Assumptions psd_eval_cone_'
+    'characterization.'),
 ]
 # The general statements accepted by the user: (acceptance commit, path,
 # name of the Prop definition, the proposition as Print shows it).
@@ -786,6 +886,58 @@ INVENTORY = [
      'library/matrix/psd_factorization.v',
      'psd_factorization_nonneg_statement',
      "forall (R : realType) (I J : finType) (r : nat) (a : I -> 'I_r -> R) (b : J -> 'I_r -> R), (forall (i : I) (k : 'I_r), 0 <= a i k) -> (forall (j : J) (k : 'I_r), 0 <= b j k) -> @psd_factorization R I J (fun (i : I) (j : J) => \\sum_(k < r) a i k * b j k) r"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/combinatorics/binomial_bounds.v',
+     'central_bin_le_statement',
+     "forall n : nat, (3 * n).+1 * 'C(2 * n, n) ^ 2 <= 16 ^ n"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/combinatorics/binomial_bounds.v',
+     'central_bin_ge_statement',
+     "forall n : nat, 0 < n -> 16 ^ n <= 4 * n * 'C(2 * n, n) ^ 2"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/combinatorics/binomial_bounds.v',
+     'half_bin_ge_statement',
+     "forall h : nat, 4 ^ h <= 2 * h.+1 * 'C(h, h./2) ^ 2"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/combinatorics/binomial_bounds.v',
+     'leq_bin_half_statement',
+     "forall n k : nat, 'C(n, k) <= 'C(n, n./2)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/combinatorics/binomial_bounds.v',
+     'bin_near_half_statement',
+     "forall h g T : nat, 6 * T <= h -> h <= 2 * (g + T) -> 2 * g <= h + 2 * T -> 'C(h, h./2) <= 2 ^ T.+1 * 'C(h, g)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/combinatorics/binomial_bounds.v',
+     'bin_sqr_central_statement',
+     "forall u j : nat, j <= u -> 'C(u, j) ^ 2 * 'C(2 * u, u) = 'C(2 * j, j) * 'C(2 * (u - j), u - j) * 'C(2 * u, 2 * j)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/combinatorics/binomial_bounds.v',
+     'bin_sqr_ratio_statement',
+     "forall u j : nat, j <= u -> 'C(u, j) ^ 4 * j.+1 * (u - j).+1 <= 4 * u.+1 * 'C(2 * u, 2 * j) ^ 2"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/combinatorics/binomial_bounds.v',
+     'bin_partial_sum_statement',
+     "forall (R : realType) (N M : nat), M <= N -> ((\\sum_(j < M.+1) 'C(N, nat_of_ord j)%:R : R) <= ((@expR R 1 * N%:R / M%:R) ^+ M : R))%R"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_duality.v',
+     'psd_eval_cone_closed_statement',
+     "forall (R : realType) (n N : nat) (G : 'I_N -> matrix R n n), (forall j : 'I_N, @psdmx R n (G j)) -> @closed (matrix_matrix__canonical__topology_structure_Topological 1 N (numFieldTopology.Real_sort__canonical__topology_structure_Topological R)) (@psd_eval_cone R n N G)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_duality.v',
+     'psdmx_dual_statement',
+     'forall (R : realType) (n : nat) (S : matrix R n n), S \\is symmetricmx -> @psdmx R n S <-> (forall F : matrix R n n, @psdmx R n F -> 0 <= \\tr (F *m S))'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_duality.v',
+     'psd_farkas_statement',
+     "forall (R : realType) (n N : nat) (G : 'I_N -> matrix R n n) (y : matrix R 1 N), (forall j : 'I_N, @psdmx R n (G j)) -> @psd_eval_cone R n N G y <-> (forall c : matrix R 1 N, @psdmx R n (\\sum_j c 0 j *: G j) -> 0 <= @mxdot R 1 N c y)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_duality.v',
+     'psd_slack_certificate_statement',
+     'forall (R : realType) (n : nat) (I : finType) (B : I -> matrix R n n) (s : I -> R) (i0 : I), (forall i : I, @psdmx R n (B i)) -> s i0 = 0 -> (exists2 A : matrix R n n, @psdmx R n A & forall i : I, \\tr (A *m B i) = s i) <-> (forall w : I -> R, \\sum_i w i = 1 -> @psdmx R n (\\sum_i w i *: B i) -> 0 <= \\sum_i w i * s i)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/matrix/psd_duality.v',
+     'psd_slack_certificate_affine_statement',
+     "forall (R : realType) (n m : nat) (I : finType) (C : 'I_m -> matrix R n n) (c : 'I_m -> R) (D : matrix R n n) (d : R) (B : I -> matrix R n n) (i0 : I), (forall i : I, @psdmx R n (B i)) -> (forall (i : I) (l : 'I_m), \\tr (C l *m B i) = c l) -> (forall X : matrix R n n, @psdmx R n X -> (forall l : 'I_m, \\tr (C l *m X) = c l) -> 0 <= \\tr (D *m X) + d) -> \\tr (D *m B i0) + d = 0 -> exists2 A : matrix R n n, @psdmx R n A & forall i : I, \\tr (A *m B i) = \\tr (D *m B i) + d"),
 ]
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
@@ -1147,6 +1299,9 @@ def main():
     for path in PHASE13_B2_FROZEN:
         if code((ROOT / path).read_text()) != code(at_baseline(PHASE13_B2_BASELINE, path)):
             failures.append(f"{path}: code differs from {PHASE13_B2_BASELINE[:12]}")
+    for path in PHASE13_B3_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE13_B3_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE13_B3_BASELINE[:12]}")
     if code((ROOT / PHASE13_DEFINITIONS).read_text()) != PHASE13_DEFINITIONS_FREEZES[-1]:
         failures.append(f"{PHASE13_DEFINITIONS}: code differs from the last code "
                         "of PHASE13_DEFINITIONS_FREEZES")
@@ -1318,6 +1473,8 @@ def main():
           f"{PHASE13_B1_BASELINE[:12]}; "
           f"{len(PHASE13_B2_FROZEN)} frozen files of batch 2 of phase 13 unchanged since "
           f"{PHASE13_B2_BASELINE[:12]}; "
+          f"{len(PHASE13_B3_FROZEN)} frozen files of batch 3 of phase 13 unchanged since "
+          f"{PHASE13_B3_BASELINE[:12]}; "
           f"the characterizations of {APPLICATIONS_DEFINITIONS} unchanged; "
           f"the characterizations of {PHASE13_DEFINITIONS} at freeze "
           f"{len(PHASE13_DEFINITIONS_FREEZES)}, compiled; "
