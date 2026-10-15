@@ -2,7 +2,7 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat fingroup perm ssralg ssrnum
   reals.
 From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
-From GaussianAnalysis.probability Require Import finite_mean.
+From GaussianAnalysis.probability Require Import finite_mean binomial_mean.
 From GaussianApplications.RandomSAT Require Import Model Pivotal Replacement.
 From GaussianApplications Require Import SatVarianceDefinitions.
 
@@ -15,7 +15,6 @@ From GaussianApplications Require Import SatVarianceDefinitions.
 (* OpenAI math collection, revision 1581d4cbd, source/sections/forcing.tex),  *)
 (* following the Lean development of the collection                           *)
 (* (lean/OAI/Probability/RandomSAT):                                          *)
-(* Lean: binomialMean (Binomial.lean, line 17)                                *)
 (* Lean: binomial_replacement_sum_le (Binomial.lean, line 162)                *)
 (* Lean: head_forced_reduction (Forcing.lean, line 88)                        *)
 (* Lean: deletedMean_eq_binomial (Forcing.lean, line 239)                     *)
@@ -26,8 +25,8 @@ From GaussianApplications Require Import SatVarianceDefinitions.
 (*                                                                            *)
 (* The clauses have size k.+1 and n.+1 variables, with k < n.                 *)
 (*                                                                            *)
-(* - binom_mean p m f is the mean of f over a binomial number of successes in *)
-(*   m trials of probability p, defined by its recursion on the first trial.  *)
+(* - binomial_mean m p f, of binomial_mean.v, is the mean of f over a         *)
+(*   binomial number of successes in m trials of probability p.               *)
 (*   binom_rep_sum_le sums the replacement differences rep_diff P g j d = P   *)
 (*   (j - d) - P (j + (g - 1) d) of a nonincreasing P with values in [0, 1],  *)
 (*   by telescoping (sum_shift_diff_le).                                      *)
@@ -67,96 +66,15 @@ Unset Printing Implicit Defensive.
 Import Order.TTheory GRing.Theory Num.Theory.
 Local Open Scope ring_scope.
 
-(* The mean of f over a binomial number of successes in m trials of
-   probability p, by its recursion on the first trial. *)
-Section binom_mean.
+(* The replacement differences, summed under binomial means. *)
+Section binom_replacement.
 Context {R : realType}.
 
-Fixpoint binom_mean (p : R) (m : nat) (f : nat -> R) : R :=
-  if m is m'.+1 then
-    (1 - p) * binom_mean p m' f + p * binom_mean p m' (fun d => f d.+1)
-  else f 0%N.
-
-Lemma eq_binom_mean p m (f g : nat -> R) :
-  (forall d, (d <= m)%N -> f d = g d) -> binom_mean p m f = binom_mean p m g.
+Lemma binomial_meanB m (p : R) (f g : nat -> R) :
+  binomial_mean m p (fun d => f d - g d) =
+  binomial_mean m p f - binomial_mean m p g.
 Proof.
-elim: m f g => [|m IH] f g fg /=; first exact: fg.
-by rewrite (IH f g) ?(IH (fun d => f d.+1) (fun d => g d.+1)) // => d dm;
-  apply: fg; rewrite ?ltnS // ltnW.
-Qed.
-
-Lemma binom_mean_cst p m (c : R) : binom_mean p m (fun=> c) = c.
-Proof. by elim: m => //= m ->; ring. Qed.
-
-Lemma binom_meanD p m (f g : nat -> R) :
-  binom_mean p m (fun d => f d + g d) = binom_mean p m f + binom_mean p m g.
-Proof. by elim: m f g => //= m IH f g; rewrite !IH; ring. Qed.
-
-Lemma binom_meanZ p m (c : R) (f : nat -> R) :
-  binom_mean p m (fun d => c * f d) = c * binom_mean p m f.
-Proof. by elim: m f => //= m IH f; rewrite !IH; ring. Qed.
-
-Lemma binom_meanN p m (f : nat -> R) :
-  binom_mean p m (fun d => - f d) = - binom_mean p m f.
-Proof.
-rewrite -mulN1r -binom_meanZ; apply: eq_binom_mean => d _; by rewrite mulN1r.
-Qed.
-
-Lemma binom_meanB p m (f g : nat -> R) :
-  binom_mean p m (fun d => f d - g d) = binom_mean p m f - binom_mean p m g.
-Proof. by rewrite binom_meanD binom_meanN. Qed.
-
-Lemma ler_binom_mean p m (f g : nat -> R) : 0 <= p -> p <= 1 ->
-  (forall d, (d <= m)%N -> f d <= g d) -> binom_mean p m f <= binom_mean p m g.
-Proof.
-move=> p0 p1; elim: m f g => [|m IH] f g fg /=; first exact: fg.
-apply: lerD; apply: ler_wpM2l; rewrite ?subr_ge0 //; apply: IH => d dm.
-  by apply: fg; rewrite ltnW.
-by apply: fg.
-Qed.
-
-Lemma binom_mean_id p m : binom_mean p m (fun d => d%:R) = m%:R * p.
-Proof.
-elim: m => [|m IH] /=; first by rewrite mul0r.
-have -> : binom_mean p m (fun d => d.+1%:R) =
-    binom_mean p m (fun d => 1 + d%:R).
-  by apply: eq_binom_mean => d _; rewrite -nat1r.
-by rewrite binom_meanD binom_mean_cst IH -nat1r; ring.
-Qed.
-
-(* More trials give more successes. *)
-Lemma binom_mean_trials_le p m (f : nat -> R) : 0 <= p -> p <= 1 ->
-  {homo f : d d' / (d <= d')%N >-> d <= d'} ->
-  binom_mean p m f <= binom_mean p m.+1 f.
-Proof.
-move=> p0 p1 hf /=.
-have h : binom_mean p m f <= binom_mean p m (fun d => f d.+1).
-  by apply: ler_binom_mean => // d _; apply: hf.
-by have := ler_wpM2l p0 h; lra.
-Qed.
-
-Lemma binom_mean_trials p m m' (f : nat -> R) : 0 <= p -> p <= 1 ->
-  {homo f : d d' / (d <= d')%N >-> d <= d'} -> (m <= m')%N ->
-  binom_mean p m f <= binom_mean p m' f.
-Proof.
-move=> p0 p1 hf; elim: m' => [|m' IH]; first by rewrite leqn0 => /eqP ->.
-rewrite leq_eqVlt => /orP[/eqP -> //|]; rewrite ltnS => mm.
-exact: le_trans (IH mm) (binom_mean_trials_le _ p0 p1 hf).
-Qed.
-
-Lemma binom_mean_sum p m (I : finType) (F : I -> nat -> R) :
-  binom_mean p m (fun d => \sum_i F i d) = \sum_i binom_mean p m (F i).
-Proof.
-elim: m F => [|m IH] F //=; rewrite IH (IH (fun i d => F i d.+1)).
-by rewrite !mulr_sumr -big_split.
-Qed.
-
-Lemma unif_mean_binom_mean (T : finType) p m (f : nat -> T -> R) :
-  unif_mean (fun x => binom_mean p m (fun d => f d x)) =
-  binom_mean p m (fun d => unif_mean (f d)).
-Proof.
-elim: m f => [|m IH] f //=; rewrite unif_meanD !unif_meanZ IH.
-by rewrite (IH (fun d => f d.+1)).
+by rewrite /binomial_mean -sumrB; apply: eq_bigr => j _; rewrite mulrBr.
 Qed.
 
 (* Telescoping: sum_(j < l) (P j - P (j + b)) <= b for P with values in
@@ -219,20 +137,23 @@ Qed.
 Lemma binom_rep_sum_le (P : nat -> R) p g M : 0 <= p -> p <= 1 ->
   {homo P : x y / (x <= y)%N >-> y <= x} ->
   (forall j, 0 <= P j) -> (forall j, P j <= 1) -> (1 <= g)%N ->
-  \sum_(j < M.+1) binom_mean p j (rep_diff P g j) <= g%:R * M%:R * p.
+  \sum_(j < M.+1) binomial_mean j p (rep_diff P g j) <= g%:R * M%:R * p.
 Proof.
-move=> p0 p1 hP P0 P1 g1.
-apply: le_trans (_ : \sum_(j < M.+1) binom_mean p M (rep_diff P g j) <= _).
-  apply: ler_sum => j _; apply: binom_mean_trials => //.
+move=> p0 p1 hP P0 P1 g1; have p01 : 0 <= p <= 1 by rewrite p0 p1.
+apply: le_trans (_ : \sum_(j < M.+1) binomial_mean M p (rep_diff P g j) <= _).
+  apply: ler_sum => j _; apply: binomial_mean_trials => //.
     exact: rep_diff_mono.
   by rewrite -ltnS.
-rewrite -binom_mean_sum.
-apply: le_trans (_ : binom_mean p M (fun d => g%:R * d%:R) <= _).
-  by apply: ler_binom_mean => // d _; exact: rep_diff_sum_le.
-by rewrite binom_meanZ binom_mean_id mulrA.
+have -> : \sum_(j < M.+1) binomial_mean M p (rep_diff P g j) =
+    binomial_mean M p (fun d => \sum_(j < M.+1) rep_diff P g j d).
+  rewrite /binomial_mean exchange_big; apply: eq_bigr => d _.
+  by rewrite mulr_sumr.
+apply: le_trans (_ : binomial_mean M p (fun d => g%:R * d%:R) <= _).
+  by apply: ler_binomial_mean => // d _; exact: rep_diff_sum_le.
+by rewrite binomial_meanZ binomial_mean_id mulrA.
 Qed.
 
-End binom_mean.
+End binom_replacement.
 
 (* The first variable of an assignment on n.+1 variables, and the rest. *)
 Section assignment_split.
@@ -496,15 +417,15 @@ Qed.
    number of them, are dropped, and the others are uniform k.+1-clauses on
    the remaining n variables. *)
 Lemma del_mean_binom m S :
-  del_mean m S = binom_mean p m (fun d => survival k.+1 (m - d) S).
+  del_mean m S = binomial_mean m p (fun d => survival k.+1 (m - d) S).
 Proof.
 elim: m S => [|m IH] S.
-  by rewrite del_mean0 /= /survival tuple_avg0.
-rewrite del_meanS /=; congr (_ * _ + _ * _).
+  by rewrite del_mean0 binomial_mean0 /survival tuple_avg0.
+rewrite del_meanS binomial_meanS /=; congr (_ * _ + _ * _).
   rewrite /clause_avg (eq_unif_mean (fun c => IH (add_clause S c))).
-  rewrite unif_mean_binom_mean; apply: eq_binom_mean => d dm.
+  rewrite unif_mean_binomial_mean; apply: eq_binomial_mean => d dm.
   by rewrite subSn // /survival tuple_avgS.
-by rewrite IH; apply: eq_binom_mean => d dm; rewrite subSS.
+by rewrite IH; apply: eq_binomial_mean => d dm; rewrite subSS.
 Qed.
 
 End erasure_means.
@@ -566,23 +487,27 @@ Proof. by move=> C0; rewrite /clause_avg unif_meanB unif_mean_cst. Qed.
 (* Erasing the first variable and replacing each shortened clause by a block
    of g clauses of size k.+1. *)
 Lemma era_mean_replacement m (S : {set asg}) :
-  binom_mean p m (fun d => survival k.+1 (m - d + g * d) S - d%:R * eps) <=
+  binomial_mean m p (fun d => survival k.+1 (m - d + g * d) S - d%:R * eps) <=
   era_mean (R := R) k m S.
 Proof.
 elim: m S => [|m IH] S.
-  by rewrite era_mean0 /= subn0 muln0 addn0 mul0r subr0 /survival tuple_avg0.
-rewrite (era_meanS kn) /=.
+  rewrite era_mean0 binomial_mean0 /= subn0 muln0 addn0 mul0r subr0.
+  by rewrite /survival tuple_avg0.
+rewrite (era_meanS kn) binomial_meanS /=.
 have p0 := p_ge0 (R := R) n k; have p1 := p_le1 (R := R) kn.
+have p01 : 0 <= p <= 1 by rewrite p0 p1.
 apply: lerD; apply: ler_wpM2l; rewrite ?subr_ge0 //.
-- apply: le_trans (_ : clause_avg k.+1 (fun T => binom_mean p m
+- apply: le_trans (_ : clause_avg k.+1 (fun T => binomial_mean m p
       (fun d => survival k.+1 (m - d + g * d) T - d%:R * eps)) S <= _).
-    rewrite /clause_avg unif_mean_binom_mean; apply: ler_binom_mean => // d dm.
+    rewrite /clause_avg unif_mean_binomial_mean.
+    apply: ler_binomial_mean => // d dm.
     rewrite unif_meanB unif_mean_cst // lerD2r subSn // addSn.
     by rewrite {1}/survival tuple_avgS.
   by apply: ler_clause_avg => T; exact: IH.
-- apply: le_trans (_ : clause_avg k (fun T => binom_mean p m
+- apply: le_trans (_ : clause_avg k (fun T => binomial_mean m p
       (fun d => survival k.+1 (m - d + g * d) T - d%:R * eps)) S <= _).
-    rewrite /clause_avg unif_mean_binom_mean; apply: ler_binom_mean => // d dm.
+    rewrite /clause_avg unif_mean_binomial_mean.
+    apply: ler_binomial_mean => // d dm.
     rewrite unif_meanB unif_mean_cst // subSS mulnSr addnA -nat1r mulrDl mul1r.
     rewrite opprD addrA lerD2r.
     exact: clause_avg_short_survival.
@@ -620,7 +545,7 @@ Definition head_forced m : R :=
     (ord0 \in forced (restrict [set: asg1] t))%:R).
 
 Lemma head_forced_mean_le m :
-  head_forced m <= binom_mean p m (rep_diff P g m) + m%:R * p * eps.
+  head_forced m <= binomial_mean m p (rep_diff P g m) + m%:R * p * eps.
 Proof.
 have g1 := g_ge1 a0 hg.
 apply: le_trans (_ : del_mean k m [set: asg] - era_mean k m [set: asg] <= _).
@@ -629,7 +554,7 @@ apply: le_trans (_ : del_mean k m [set: asg] - era_mean k m [set: asg] <= _).
   exact: head_forced_ind.
 rewrite (del_mean_binom kn).
 apply: le_trans (lerB (lexx _) (era_mean_replacement k1 kn a0 hsmall hg m _)) _.
-rewrite -binom_meanB.
+rewrite -binomial_meanB.
 have e d : (d <= m)%N ->
     P (m - d) - (survival k.+1 (m - d + g * d) [set: asg] - d%:R * eps) =
     rep_diff P g m d + eps * d%:R.
@@ -637,7 +562,7 @@ have e d : (d <= m)%N ->
   have -> : (m - d + g * d = m + (g - 1) * d)%N.
     by rewrite -{1}(subnK g1) mulnDl mul1n addnCA subnK // addnC.
   by ring.
-rewrite (eq_binom_mean p e) binom_meanD binom_meanZ binom_mean_id.
+rewrite (eq_binomial_mean p e) binomial_meanD binomial_meanZ binomial_mean_id.
 by rewrite -/p -/eps lerD2l mulrC mulrA.
 Qed.
 
@@ -648,7 +573,7 @@ have g1 := g_ge1 a0 hg.
 have p0 : 0 <= p := p_ge0 (R := R) n k.
 have p1 : p <= 1 := p_le1 (R := R) kn.
 have e0 : 0 <= eps by rewrite exprn_ge0 // invr_ge0 ltW.
-apply: le_trans (_ : \sum_(j < M.+1) (binom_mean p j (rep_diff P g j) +
+apply: le_trans (_ : \sum_(j < M.+1) (binomial_mean j p (rep_diff P g j) +
     j%:R * p * eps) <= _).
   by apply: ler_sum => j _; exact: head_forced_mean_le.
 rewrite big_split /=; apply: lerD.

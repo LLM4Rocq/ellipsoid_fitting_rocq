@@ -71,6 +71,14 @@ From GaussianAnalysis.fourier Require Import boolean_fourier product_smoothing.
 (*   out, with no square root of lambda.                                      *)
 (* - t, a and r may be 0, where the manuscript has t, a, r >= 1, and B > 0 is *)
 (*   not assumed: the hypotheses force B >= 0, and the degenerate cases hold. *)
+(* - theta >= 0 is not assumed: for t >= 1 the contraction of smoothing_hyps  *)
+(*   at g = 1 forces it, and for t = 0 it is not needed.                      *)
+(* - The channels pi i m z are probability vectors for every m of M, not only *)
+(*   where nu i m > 0, and (a) holds for every tuple m, including the tuples  *)
+(*   of weight 0.                                                             *)
+(* - For lambda <= sqrt 2 a family with one branch already satisfies (b) and  *)
+(*   (c), by Plancherel (an argument of the review, not formalized); the      *)
+(*   statement has content for larger lambda, the range the application uses. *)
 (******************************************************************************)
 
 Import GRing.Theory Num.Theory.

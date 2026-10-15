@@ -14,11 +14,6 @@ From GaussianAnalysis.probability Require Import finite_mean.
 (* binomial weight C(m, j) p^j (1-p)^(m-j). The definition makes sense for    *)
 (* every p; the order statements assume 0 <= p <= 1.                          *)
 (*                                                                            *)
-(* The lemmas below prove the general statements of this file. Each statement *)
-(* is also a compiled Prop definition, named after its lemma with the suffix  *)
-(* _statement, for review with batch 1 of phase 13; these definitions go once *)
-(* the statements are accepted.                                               *)
-(*                                                                            *)
 (* - The recursion on the first trial and the value at m = 0 (binomial_meanS, *)
 (*   binomial_mean0), extensionality on j <= m (eq_binomial_mean), constants, *)
 (*   additivity and homogeneity (binomial_mean_cst, binomial_meanD,           *)
@@ -83,104 +78,16 @@ Definition binomial_mean (m : nat) (p : R) (f : nat -> R) : R :=
 
 End binomial_mean.
 
-(* The general statements, for review. *)
-
-(* No trial: the value at 0. *)
-Definition binomial_mean0_statement : Prop :=
-  forall (R : numDomainType) (p : R) (f : nat -> R),
-  binomial_mean 0 p f = f 0%N.
-
-(* The recursion on the first trial: it fails with probability 1 - p, and
-   succeeds with probability p, which shifts the count by one. *)
-Definition binomial_meanS_statement : Prop :=
-  forall (R : numDomainType) (m : nat) (p : R) (f : nat -> R),
-  binomial_mean m.+1 p f =
-  (1 - p) * binomial_mean m p f + p * binomial_mean m p (fun j => f j.+1).
-
-(* Only the values of f at j <= m count. *)
-Definition eq_binomial_mean_statement : Prop :=
-  forall (R : numDomainType) (m : nat) (p : R) (f g : nat -> R),
-  (forall j, (j <= m)%N -> f j = g j) ->
-  binomial_mean m p f = binomial_mean m p g.
-
-(* The weights sum to one, for every p. *)
-Definition binomial_mean_cst_statement : Prop :=
-  forall (R : numDomainType) (m : nat) (p c : R),
-  binomial_mean m p (fun=> c) = c.
-
-Definition binomial_meanD_statement : Prop :=
-  forall (R : numDomainType) (m : nat) (p : R) (f g : nat -> R),
-  binomial_mean m p (fun j => f j + g j) =
-  binomial_mean m p f + binomial_mean m p g.
-
-Definition binomial_meanZ_statement : Prop :=
-  forall (R : numDomainType) (m : nat) (p c : R) (f : nat -> R),
-  binomial_mean m p (fun j => c * f j) = c * binomial_mean m p f.
-
-(* Monotonicity: for p in [0, 1] the weights are nonnegative. *)
-Definition ler_binomial_mean_statement : Prop :=
-  forall (R : numDomainType) (m : nat) (p : R) (f g : nat -> R),
-  0 <= p <= 1 -> (forall j, (j <= m)%N -> f j <= g j) ->
-  binomial_mean m p f <= binomial_mean m p g.
-
-(* The mean of the number of successes. *)
-Definition binomial_mean_id_statement : Prop :=
-  forall (R : numDomainType) (m : nat) (p : R),
-  binomial_mean m p (fun j => j%:R) = m%:R * p.
-
-(* The variance of the number of successes. *)
-Definition binomial_mean_sqr_dev_statement : Prop :=
-  forall (R : numDomainType) (m : nat) (p : R),
-  binomial_mean m p (fun j => (j%:R - m%:R * p) ^+ 2) = m%:R * p * (1 - p).
-
-(* Chebyshev's inequality for the number of successes. *)
-Definition binomial_chebyshev_statement : Prop :=
-  forall (R : realFieldType) (m : nat) (p t : R),
-  0 <= p <= 1 -> 0 < t ->
-  binomial_mean m p (fun j => (t <= `|j%:R - m%:R * p|)%R%:R) <=
-  m%:R * p * (1 - p) / t ^+ 2.
-
-(* Keeping only the event that all m trials succeed, of probability
-   p ^+ m. *)
-Definition binomial_mean_last_statement : Prop :=
-  forall (R : numDomainType) (m : nat) (p : R) (f : nat -> R),
-  0 <= p <= 1 -> (forall j, (j <= m)%N -> 0 <= f j) ->
-  p ^+ m * f m <= binomial_mean m p f.
-
-(* More trials give more successes: the mean of a nondecreasing f is
-   nondecreasing in the number of trials. *)
-Definition binomial_mean_trials_statement : Prop :=
-  forall (R : numDomainType) (m m' : nat) (p : R) (f : nat -> R),
-  0 <= p <= 1 -> {homo f : i j / (i <= j)%N >-> i <= j} -> (m <= m')%N ->
-  binomial_mean m p f <= binomial_mean m' p f.
-
-(* Fubini with the uniform law of a finite type. *)
-Definition unif_mean_binomial_mean_statement : Prop :=
-  forall (R : realFieldType) (T : finType) (m : nat) (p : R)
-         (f : nat -> T -> R),
-  unif_mean (fun x => binomial_mean m p (fun j => f j x)) =
-  binomial_mean m p (fun j => unif_mean (f j)).
-
-(* The bridge to MathComp-Analysis: the weights are those of binomial_pmf,
-   and binomial_mean is the integral against the binomial law
-   binomial_prob, which is the Dirac mass at 0 when p is not in [0, 1]. *)
-Definition binomial_meanE_statement : Prop :=
-  forall (R : realType) (m : nat) (p : R) (f : nat -> R),
-  binomial_mean m p f = \sum_(j < m.+1) binomial_pmf m p j * f j.
-
-Definition integral_binomial_mean_statement : Prop :=
-  forall (R : realType) (m : nat) (p : R) (f : nat -> R),
-  0 <= p <= 1 ->
-  (\int[binomial_prob m p]_j (f j)%:E = (binomial_mean m p f)%:E)%E.
-
 Section binomial_mean_theory.
 Context {R : numDomainType}.
 Implicit Types (m : nat) (p c : R) (f g : nat -> R).
 
+(* No trial: the value at 0. *)
 Lemma binomial_mean0 p f : binomial_mean 0 p f = f 0%N.
 Proof. by rewrite /binomial_mean big_ord1 !expr0 mul1r bin0 mulr1n mul1r. Qed.
 
-(* The recursion on the first trial. *)
+(* The recursion on the first trial: it fails with probability 1 - p, and
+   succeeds with probability p, which shifts the count by one. *)
 Lemma binomial_meanS m p f :
   binomial_mean m.+1 p f =
   (1 - p) * binomial_mean m p f + p * binomial_mean m p (fun j => f j.+1).
@@ -196,6 +103,7 @@ rewrite mulr_sumr; apply: eq_bigr => i _; rewrite /bump /= add1n.
 by rewrite -(subnSK (ltn_ord i)) [(1 - p) ^+ _.+1]exprS; ring.
 Qed.
 
+(* Only the values of f at j <= m count. *)
 Lemma eq_binomial_mean m p f g :
   (forall j, (j <= m)%N -> f j = g j) ->
   binomial_mean m p f = binomial_mean m p g.
@@ -273,7 +181,8 @@ rewrite !binomial_meanD binomial_meanZ binomial_mean_cst binomial_mean_sqr.
 by rewrite binomial_mean_id; ring.
 Qed.
 
-(* Keeping only the event that all m trials succeed. *)
+(* Keeping only the event that all m trials succeed, of probability
+   p ^+ m. *)
 Lemma binomial_mean_last m p f :
   0 <= p <= 1 -> (forall j, (j <= m)%N -> 0 <= f j) ->
   p ^+ m * f m <= binomial_mean m p f.
@@ -289,7 +198,8 @@ have h2 : p ^+ m * f m.+1 <= binomial_mean m p (fun j => f j.+1).
 by rewrite -[p * _]add0r lerD // ler_wpM2l.
 Qed.
 
-(* More trials give more successes. *)
+(* More trials give more successes: the mean of a nondecreasing f is
+   nondecreasing in the number of trials. *)
 Lemma binomial_mean_trialsS m p f :
   0 <= p <= 1 -> {homo f : i j / (i <= j)%N >-> i <= j} ->
   binomial_mean m p f <= binomial_mean m.+1 p f.
@@ -344,7 +254,8 @@ Section binomial_mean_bridge.
 Context {R : realType}.
 
 (* The weights are those of binomial_pmf, and binomial_mean is the integral
-   against binomial_prob for p in [0, 1]. *)
+   against binomial_prob for p in [0, 1]; for other p, binomial_prob is the
+   Dirac mass at 0. *)
 Lemma binomial_meanE m (p : R) (f : nat -> R) :
   binomial_mean m p f = \sum_(j < m.+1) binomial_pmf m p j * f j.
 Proof. by []. Qed.

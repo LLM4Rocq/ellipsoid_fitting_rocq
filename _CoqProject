@@ -834,6 +834,7 @@ applications/SatVarianceStatement.v
 applications/SatVarianceTheorem.v
 applications/SatThresholdDefinitions.v
 applications/SatThresholdStatement.v
+applications/SatThresholdTheorem.v
 applications/MinSuperadditiveStatement.v
 applications/MinSuperadditiveTheorem.v
 applications/PsdNormalizationStatement.v
@@ -854,5 +855,11 @@ applications/RandomSAT/Replacement.v
 applications/RandomSAT/Forcing.v
 applications/RandomSAT/Variance.v
 applications/RandomSAT/Survival.v
+applications/RandomSAT/Tails.v
+applications/RandomSAT/CenterBounds.v
+applications/RandomSAT/Interpolation.v
+applications/RandomSAT/Transfer.v
+applications/RandomSAT/CenterComparison.v
+applications/RandomSAT/Threshold.v
 applications/PsdRank/Model.v
 applications/PsdRank/Main.v
