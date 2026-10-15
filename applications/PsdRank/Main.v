@@ -10,9 +10,76 @@ From GaussianAnalysis.probability Require Import mixture.
 From GaussianApplications Require Import PsdRankDefinitions PsdRankStatement.
 From GaussianApplications Require Import PsdNormalizationStatement.
 From GaussianApplications Require Import ProductSmoothingStatement.
+From GaussianApplications Require Import ProductSmoothingTheorem.
 From GaussianApplications.PsdRank Require Import Model.
 
 (**md**************************************************************************)
+(* # The final step of the PSD rank bound for shifted matching matrices       *)
+(*                                                                            *)
+(* Item P6 of phase 13 (AGENTS.md, section Phase 13): the skeleton of the     *)
+(* final step of the main theorem of 'Exponential PSD rank of positively      *)
+(* shifted matching matrices' (family 126 of the OpenAI math collection,      *)
+(* revision 1581d4cbd, source/sections/matching.tex, lines 41-66 and          *)
+(* 114-218), a Rocq formalization of the credited argument. It proves         *)
+(* psd_rank_statement of PsdRankStatement.v from explicit hypotheses, each    *)
+(* named in the statements below. Compiling the skeleton does not validate    *)
+(* them: phase 14 proves them, and then this file proves the main theorem     *)
+(* without hypotheses. The file follows no Lean module: the Lean development  *)
+(* of the collection proves a weaker claim by another route (Main.lean).      *)
+(*                                                                            *)
+(* T10 and T11 are used through their theorems, psd_normalization             *)
+(* (matrix/psd_factorization.v) and product_smoothing_theorem                 *)
+(* (ProductSmoothingTheorem.v); of T11 only the coefficient conclusion, at    *)
+(* one tuple of positive weight, is used.                                     *)
+(*                                                                            *)
+(* The hypotheses of psd_rank_from_cell_data:                                 *)
+(* - fourier_packet R t a, five general statements of packet P                *)
+(*   (boolean_fourier.v): the character algebra, the block distance as a      *)
+(*   metric, Fourier inversion, the coefficients of a combination of          *)
+(*   characters, and the translation of low block degree; they become the     *)
+(*   lemmas of the same names once the user accepts them.                     *)
+(* - cell_data, for every R, cells of a fixed size k, a fixed T and constants *)
+(*   theta and lambda chosen before rho, with L lambda^2 C_L theta <= 1       *)
+(*   (matching-local-smallness) and lambda >= (64 L^4)^T: for every           *)
+(*   0 < rho < 1, every even n and every even t >= T with                     *)
+(*   k t <= n < k (t + 2), local laws mu, nu and channels pi with             *)
+(*   smoothing_hyps and the contraction theta (local-averaging.tex, Lemma     *)
+(*   'Local averaging'), the realization U, M of rows and columns by odd sets *)
+(*   and perfect matchings with A_n(rho)(U x, M m) = f y on the support of    *)
+(*   the product restriction (matching.tex, lines 68-101), and a parity       *)
+(*   functional for f at block degree t / T and eps = 1 - rho (parity.tex,    *)
+(*   Proposition 'Parity functional', with the expander lemma).               *)
+(*                                                                            *)
+(* The proof:                                                                 *)
+(* - final_step_core: the truncation of each branch to the frequencies within *)
+(*   block distance D of the branch, the bound n (16 L^2)^-t on the discarded *)
+(*   part (matching-tail), the uniform error 2 n (4 L)^-t + n (16 L^2)^-t     *)
+(*   (matching-uniform-error), and the contradiction with the parity          *)
+(*   functional, by the character translation of the squares.                 *)
+(* - final_step: from a PSD factorization of A_n(rho) of size r <= 2^t, T10   *)
+(*   (with B = n) and T11 give the squares (matching-squares) and the         *)
+(*   coefficient bound (matching-fourier-bound), and the realization gives f  *)
+(*   as a sum of squares (matching-full-squares).                             *)
+(* - psd_rank_from_cell_data: K = 2 k; t is the largest even integer with     *)
+(*   k t <= n; every factorization has a size r > 2^t >= 2^(n / (2 k)).       *)
+(*                                                                            *)
+(* Departures from the manuscript, all equivalent:                            *)
+(* - D = t / T for a fixed T in place of floor(tau t) with tau = 1/1000, and  *)
+(*   lambda >= (64 L^4)^T in place of lambda^tau >= 64 L^4.                   *)
+(* - G^(1/2) is replaced by a Gram factor B with G = B^T B (psdmx_gram).      *)
+(* - The uniform error comes from 2 <S, E> <= d |S|^2 + |E|^2 / d with        *)
+(*   d = (4 L)^-t (mxdot_young).                                              *)
+(*                                                                            *)
+(* ```                                                                        *)
+(*   parity_functional D eps f == a linear functional, nonnegative on the     *)
+(*                                squares of the functions of block degree    *)
+(*                                at most D, equal to - eps at f, and         *)
+(*                                bounded by L^t times the supremum norm      *)
+(* cell_data a theta n t D rho == local laws, a realization and a parity      *)
+(*                                functional, for t cells of a bits each      *)
+(*        fourier_packet R t a == the five statements of packet P used        *)
+(* ```                                                                        *)
+(******************************************************************************)
 (* # The final step of the PSD rank bound for shifted matching matrices       *)
 (*                                                                            *)
 (* Item P6 of phase 13 (AGENTS.md, section Phase 13): the skeleton of the     *)
@@ -403,7 +470,7 @@ Qed.
    114-218): a PSD factorization of A_n(rho) of size r <= 2^t, normalized by
    T10 and smoothed by T11, contradicts the realization of the cells by
    matchings and the parity functional. *)
-Lemma final_step (hT11 : product_smoothing_statement) (n D r : nat)
+Lemma final_step (n D r : nat)
     (rho lambda theta : R) (X M : finType) (mu : 'I_t -> X -> R)
     (nu : 'I_t -> M -> R) (pi : 'I_t -> M -> 'rV['F_2]_a -> X -> R)
     (U : t.-tuple X -> odd_set n) (Mm : t.-tuple M -> perfect_matching n)
@@ -438,9 +505,9 @@ have J0 : (0 < #|{: perfect_matching n}|)%N.
 have [F' [G' [F'p G'p FGE F'tr G'tr]]] := psd_normalization J0 F0p G0p An.
 (* T11, with B = n, for the rows F' (U x) *)
 have l0 : 0 < lambda by apply: lt_le_trans l1.
-have [Rw [H [Hsq Hpot [m mpos Hfou]]]] := hT11 R X M t a r mu nu pi theta
-  n%:R lambda (fun x => F' (U x)) hs (fun x => F'p (U x))
-  (fun x => F'tr (U x)) l0 hlam.
+have [Rw [H [Hsq Hpot [m mpos Hfou]]]] :=
+  product_smoothing_theorem R X M t a r mu nu pi theta n%:R lambda
+    (fun x => F' (U x)) hs (fun x => F'p (U x)) (fun x => F'tr (U x)) l0 hlam.
 have [B GE] := psdmx_gram (G'p (Mm m)).
 pose w y x := \prod_(i < t) pi i (tnth m i) (row i y) (tnth x i).
 have w0 y x : 0 <= w y x.
@@ -511,7 +578,6 @@ Definition fourier_packet (R : realType) (t a : nat) : Prop :=
    bits per block, theta with L lambda^2 C_L theta <= 1, lambda with
    lambda >= (64 L^4)^T, the block degree D = t / T, and cells of size k. *)
 Theorem psd_rank_from_cell_data (a : nat) :
-  product_smoothing_statement ->
   (forall (R : realType) t, fourier_packet R t a) ->
   (forall R : realType, exists (k T : nat) (theta lambda : R),
      [/\ (0 < k)%N && (0 < T)%N, 1 <= lambda,
@@ -523,7 +589,7 @@ Theorem psd_rank_from_cell_data (a : nat) :
            cell_data a theta n t (t %/ T) rho]) ->
   psd_rank_statement.
 Proof.
-move=> hT11 hP hcells R.
+move=> hP hcells R.
 have [k [T [theta [lambda [/andP[k0 T0] l1 hlam hlT hc]]]]] := hcells R.
 exists (2 * k)%N; split; first by rewrite muln_gt0.
 move=> rho /andP[r0 r1]; have e0 : 0 < 1 - rho by rewrite subr_gt0.
@@ -606,6 +672,6 @@ have small' : 2 * n%:R / 4 ^+ t + n%:R / (16 * (2 ^ a)%:R) ^+ t < 1 - rho :> R.
   move: h1 h2; set u := (4 : R) ^+ t.
   set w := (16 * (2 ^ a)%:R : R) ^+ t; set nn := (n%:R : R).
   by rewrite -!mulrA; lra.
-exact: (final_step hchar hdist hinv hexp htrans hT11 hs l1 hlam hl' hreal
-  hpar (ltW r1) small' hf rt).
+exact: (final_step hchar hdist hinv hexp htrans hs l1 hlam hl' hreal hpar
+  (ltW r1) small' hf rt).
 Qed.

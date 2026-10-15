@@ -853,5 +853,6 @@ applications/RandomSAT/Pivotal.v
 applications/RandomSAT/Replacement.v
 applications/RandomSAT/Forcing.v
 applications/RandomSAT/Variance.v
+applications/RandomSAT/Survival.v
 applications/PsdRank/Model.v
 applications/PsdRank/Main.v

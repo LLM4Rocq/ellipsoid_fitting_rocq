@@ -104,6 +104,13 @@ move=> [As Ap] [Bs Bp]; split.
 by move=> x; rewrite mulmxDl mxdotDr addr_ge0.
 Qed.
 
+Lemma psdmxZ n (c : R) (A : 'M[R]_n) : 0 <= c -> psdmx A -> psdmx (c *: A).
+Proof.
+move=> c0 [As Ap]; split.
+  by apply/symmetricmxP; rewrite linearZ /= (symmetricmxP _ As).
+by move=> x; rewrite -scalemxAl mxdotZr mulr_ge0.
+Qed.
+
 Lemma psdmx0 n : psdmx (0 : 'M[R]_n).
 Proof.
 by split; [apply/symmetricmxP; rewrite trmx0 | move=> x; rewrite mul0mx mxdot0r].
