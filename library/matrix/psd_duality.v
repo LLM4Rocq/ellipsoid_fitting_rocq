@@ -15,32 +15,30 @@ From GaussianAnalysis.convex Require Import logdet_barrier moreau.
 (* Let G j, for j < N, be matrices of 'M[R]_n. The evaluation psd_eval G F of *)
 (* F in 'M[R]_n is the row of its trace pairings tr (F G j), and the          *)
 (* evaluation cone psd_eval_cone G is the image of the positive semidefinite  *)
-(* matrices under psd_eval G. This file states the duality of the positive    *)
+(* matrices under psd_eval G. This file proves the duality of the positive    *)
 (* semidefinite cone that the passage from an exact semidefinite lift to a    *)
 (* PSD factorization of its slack matrix uses.                                *)
 (*                                                                            *)
-(* The general statements of this file are compiled Prop definitions, which   *)
-(* the user accepted on 15 October 2026 with batch 3 of phase 13 (AGENTS.md,  *)
-(* section Phase 13, step 0, items 3 and 4). Each is proved by the lemma of   *)
-(* the same name without the suffix _statement; the statement definitions     *)
-(* stay until the freezes record them in the acceptance inventory.            *)
+(* The user accepted the statements of the five main results below on         *)
+(* 15 October 2026, with batch 3 of phase 13 (AGENTS.md, section Phase 13,    *)
+(* step 0, items 3 and 4); make check proves each accepted text, as the       *)
+(* acceptance inventory records it, by the result of the same name.           *)
 (*                                                                            *)
-(* - psd_eval_cone_closed_statement: if every G j is positive semidefinite,   *)
-(*   the evaluation cone is closed.                                           *)
-(* - psdmx_dual_statement: self-duality. A symmetric S is positive            *)
-(*   semidefinite if and only if tr (F S) >= 0 for every positive             *)
-(*   semidefinite F.                                                          *)
-(* - psd_farkas_statement: Farkas's lemma for the evaluation cone. If         *)
-(*   every G j is positive semidefinite, y is in the evaluation cone if and   *)
-(*   only if <c, y> >= 0 for every c such that sum_j c_j G j is positive      *)
+(* - psd_eval_cone_closed: if every G j is positive semidefinite, the         *)
+(*   evaluation cone is closed.                                               *)
+(* - psdmx_dual: self-duality. A symmetric S is positive semidefinite if and  *)
+(*   only if tr (F S) >= 0 for every positive semidefinite F.                 *)
+(* - psd_farkas: Farkas's lemma for the evaluation cone. If every G j is      *)
+(*   positive semidefinite, y is in the evaluation cone if and only if        *)
+(*   <c, y> >= 0 for every c such that sum_j c_j G j is positive              *)
 (*   semidefinite.                                                            *)
-(* - psd_slack_certificate_statement: the slack certificate. Let B i, for i   *)
-(*   in a finite type I, be positive semidefinite, and let s : I -> R vanish  *)
-(*   at some i0. Then s i = tr (A B i) for every i and some positive          *)
-(*   semidefinite A if and only if sum_i w_i s_i >= 0 for every w of sum one  *)
-(*   such that sum_i w_i B i is positive semidefinite.                        *)
-(* - psd_slack_certificate_affine_statement: the slack certificate for an     *)
-(*   affine subspace L = {X | tr (C l X) = c l for every l < m} and an affine *)
+(* - psd_slack_certificate: the slack certificate. Let B i, for i in a finite *)
+(*   type I, be positive semidefinite, and let s : I -> R vanish at some i0.  *)
+(*   Then s i = tr (A B i) for every i and some positive semidefinite A if    *)
+(*   and only if sum_i w_i s_i >= 0 for every w of sum one such that          *)
+(*   sum_i w_i B i is positive semidefinite.                                  *)
+(* - psd_slack_certificate_affine: the slack certificate for an affine        *)
+(*   subspace L = {X | tr (C l X) = c l for every l < m} and an affine        *)
 (*   function f X = tr (D X) + d. If the B i are positive semidefinite points *)
 (*   of L, f >= 0 at the positive semidefinite points of L and f (B i0) = 0,  *)
 (*   then f (B i) = tr (A B i) for every i and some positive semidefinite A.  *)
@@ -84,12 +82,12 @@ From GaussianAnalysis.convex Require Import logdet_barrier moreau.
 (* compression by the kernel projection and a compact set replace them.       *)
 (*                                                                            *)
 (* Departures from the Lean statements. The Lean slack certificate takes an   *)
-(* affine subspace and an affine map. psd_slack_certificate_statement assumes *)
-(* only the sign of the slacks at the positive semidefinite affine            *)
-(* combinations of the B i, and the affine form writes the subspace by trace  *)
-(* equations and the map by a trace pairing. Farkas's lemma, self-duality and *)
-(* the first slack certificate are stated as equivalences; their converse     *)
-(* directions are the easy ones.                                              *)
+(* affine subspace and an affine map. psd_slack_certificate assumes only the  *)
+(* sign of the slacks at the positive semidefinite affine combinations of the *)
+(* B i, and the affine form writes the subspace by trace equations and the    *)
+(* map by a trace pairing. Farkas's lemma, self-duality and the first slack   *)
+(* certificate are stated as equivalences; their converse directions are the  *)
+(* easy ones.                                                                 *)
 (*                                                                            *)
 (* Proved besides:                                                            *)
 (* - psd_eval_compress: the compressed representative and its trace bound;    *)
@@ -135,49 +133,6 @@ Definition psd_eval_cone n N (G : 'I_N -> 'M[R]_n) : set 'rV[R]_N :=
   [set psd_eval G F | F in [set F : 'M[R]_n | psdmx F]].
 
 End evaluation.
-
-(* The general statements. *)
-
-(* The evaluation cone of positive semidefinite matrices is closed. *)
-Definition psd_eval_cone_closed_statement : Prop :=
-  forall (R : realType) (n N : nat) (G : 'I_N -> 'M[R]_n),
-  (forall j, psdmx (G j)) -> closed (psd_eval_cone G).
-
-(* Self-duality of the positive semidefinite cone. *)
-Definition psdmx_dual_statement : Prop :=
-  forall (R : realType) (n : nat) (S : 'M[R]_n), S \is symmetricmx ->
-  psdmx S <-> (forall F : 'M[R]_n, psdmx F -> 0 <= \tr (F *m S)).
-
-(* Farkas's lemma: the evaluation cone is the dual of the cone of the
-   coefficients c such that sum_j c_j G j is positive semidefinite. *)
-Definition psd_farkas_statement : Prop :=
-  forall (R : realType) (n N : nat) (G : 'I_N -> 'M[R]_n) (y : 'rV[R]_N),
-  (forall j, psdmx (G j)) ->
-  psd_eval_cone G y <->
-  (forall c : 'rV[R]_N, psdmx (\sum_j c 0 j *: G j) -> 0 <= mxdot c y).
-
-(* The slack certificate: slacks with one zero, nonnegative on average at
-   the positive semidefinite affine combinations, are the trace pairings
-   with a positive semidefinite matrix. *)
-Definition psd_slack_certificate_statement : Prop :=
-  forall (R : realType) (n : nat) (I : finType) (B : I -> 'M[R]_n)
-         (s : I -> R) (i0 : I),
-  (forall i, psdmx (B i)) -> s i0 = 0 ->
-  (exists2 A : 'M[R]_n, psdmx A & forall i, \tr (A *m B i) = s i) <->
-  (forall w : I -> R, \sum_i w i = 1 -> psdmx (\sum_i w i *: B i) ->
-     0 <= \sum_i w i * s i).
-
-(* The slack certificate for an affine subspace given by trace equations and
-   an affine function given by a trace pairing. *)
-Definition psd_slack_certificate_affine_statement : Prop :=
-  forall (R : realType) (n m : nat) (I : finType) (C : 'I_m -> 'M[R]_n)
-         (c : 'I_m -> R) (D : 'M[R]_n) (d : R) (B : I -> 'M[R]_n) (i0 : I),
-  (forall i, psdmx (B i)) -> (forall i l, \tr (C l *m B i) = c l) ->
-  (forall X : 'M[R]_n, psdmx X -> (forall l, \tr (C l *m X) = c l) ->
-     0 <= \tr (D *m X) + d) ->
-  \tr (D *m B i0) + d = 0 ->
-  exists2 A : 'M[R]_n, psdmx A &
-    forall i, \tr (A *m B i) = \tr (D *m B i) + d.
 
 Section psd_tools.
 Variable R : realType.
