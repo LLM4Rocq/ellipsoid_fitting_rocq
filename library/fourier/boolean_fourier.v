@@ -22,16 +22,20 @@ From GaussianAnalysis.matrix Require Import euclidean.
 (* degree larger than D; the zero function has every block degree.            *)
 (*                                                                            *)
 (* This file holds the definitions and, as Prop definitions, the general      *)
-(* statements of packet P of phase 13, for the user's review (AGENTS.md,      *)
-(* section Phase 13, step 0, items 3 and 4). Each statement foo_statement is  *)
-(* proved, in the second part of the file, by the lemma foo with the same     *)
-(* text and the same parameters; the statement definitions stay until the     *)
-(* user accepts them. The characters take their values in any ring            *)
-(* (pzRingType), and the coefficients are over a numFieldType:                *)
+(* statements of packet P of phase 13, which the user accepted on 15 October  *)
+(* 2026 (AGENTS.md, section Phase 13, step 0, items 3 and 4). Each statement  *)
+(* foo_statement is proved, in the second part of the file, by the lemma foo  *)
+(* with the same text and the same parameters; the statement definitions stay *)
+(* until the freezes record them in the acceptance inventory. The characters  *)
+(* take their values in any ring (pzRingType), and the coefficients are over  *)
+(* a numFieldType:                                                            *)
 (* - bchar_algebra_statement: chi_0 = 1, chi_(p + q) = chi_p chi_q,           *)
 (*   chi_p (y) = chi_y (p), and chi_p (y) is 1 or -1.                         *)
 (* - bchar_orthogonal_statement: \sum_y chi_p (y) chi_q (y) is 2^(t a) if     *)
 (*   p = q, and 0 otherwise.                                                  *)
+(* - bchar_delta_statement: at the one-bit frequency delta_mx i j, the        *)
+(*   character is y |-> (-1)^(y_ij), with the exponent written as             *)
+(*   nat_of_ord (y i j).                                                      *)
 (* - blk_dist_metric_statement: the block distance is a metric, invariant     *)
 (*   under translation, and the distance of p and q is the block degree of    *)
 (*   p + q.                                                                   *)
@@ -165,6 +169,11 @@ Definition bchar_algebra_statement : Prop :=
 Definition bchar_orthogonal_statement : Prop :=
   forall p q, \sum_(y : cube) bchar R p y * bchar R q y =
     if p == q then #|{: cube}|%:R else 0.
+
+(* The character at the one-bit frequency delta_mx i j. *)
+Definition bchar_delta_statement : Prop :=
+  forall (i : 'I_t) (j : 'I_a) y,
+    bchar R (delta_mx i j) y = (-1) ^+ nat_of_ord (y i j).
 
 End characters.
 
@@ -405,6 +414,10 @@ Lemma bchar_algebra :
 Proof.
 by split; [exact: bchar0 | exact: bcharD | exact: bcharC | exact: bchar_sign].
 Qed.
+
+Lemma bchar_delta (i : 'I_t) (j : 'I_a) y :
+  bchar R (delta_mx i j) y = (-1) ^+ nat_of_ord (y i j).
+Proof. by rewrite bcharC /bchar bdot_delta. Qed.
 
 Lemma bchar_int p y : bchar R p y = (bchar int p y)%:~R.
 Proof. by rewrite /bchar rmorphXn rmorphN1. Qed.

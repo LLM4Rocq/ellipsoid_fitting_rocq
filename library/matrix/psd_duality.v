@@ -19,11 +19,11 @@ From GaussianAnalysis.convex Require Import logdet_barrier moreau.
 (* semidefinite cone that the passage from an exact semidefinite lift to a    *)
 (* PSD factorization of its slack matrix uses.                                *)
 (*                                                                            *)
-(* The general statements of this file are compiled Prop definitions, for     *)
-(* review with batch 3 of phase 13 (AGENTS.md, section Phase 13, step 0,      *)
-(* items 3 and 4). Each is proved by the lemma of the same name without the   *)
-(* suffix _statement; the statement definitions stay until the user accepts   *)
-(* them.                                                                      *)
+(* The general statements of this file are compiled Prop definitions, which   *)
+(* the user accepted on 15 October 2026 with batch 3 of phase 13 (AGENTS.md,  *)
+(* section Phase 13, step 0, items 3 and 4). Each is proved by the lemma of   *)
+(* the same name without the suffix _statement; the statement definitions     *)
+(* stay until the freezes record them in the acceptance inventory.            *)
 (*                                                                            *)
 (* - psd_eval_cone_closed_statement: if every G j is positive semidefinite,   *)
 (*   the evaluation cone is closed.                                           *)
@@ -136,7 +136,7 @@ Definition psd_eval_cone n N (G : 'I_N -> 'M[R]_n) : set 'rV[R]_N :=
 
 End evaluation.
 
-(* The general statements, for review. *)
+(* The general statements. *)
 
 (* The evaluation cone of positive semidefinite matrices is closed. *)
 Definition psd_eval_cone_closed_statement : Prop :=
