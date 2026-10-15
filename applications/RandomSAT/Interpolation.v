@@ -320,11 +320,17 @@ have p01 : 0 <= p <= 1.
 pose E1 := @emb_avg (r + s) r k (@lshift r s).
 pose E2 := @emb_avg (r + s) s k (@rshift r s).
 pose E := @aux_avg (r + s) k.
+(* The averages commute exactly, so they sub-commute. *)
+have subC (F G : ({set {ffun 'I_(r + s) -> bool}} -> R) ->
+    {set {ffun 'I_(r + s) -> bool}} -> R) :
+    (forall g, F (G g) = G (F g)) -> forall g S, F (G g) S <= G (F g) S.
+  by move=> FG g S; rewrite FG.
 have h := @binomial_mix_le_iter R _ E1 E2 E p alive p01
   (meet_avg_linear _) (meet_avg_linear _) (meet_avg_linear _)
   (meet_avg_monotone _) (meet_avg_monotone _) (meet_avg_monotone _)
-  (fun g => meet_avgC _ _ g) (fun g => meet_avgC _ _ g)
-  (fun g => meet_avgC _ _ g) (fun S => global_ge_local k S r0 s0) m setT.
+  (fun g => meet_avgC _ _ g) (subC E1 E (fun g => meet_avgC _ _ g))
+  (subC E2 E (fun g => meet_avgC _ _ g))
+  (fun S => global_ge_local k S r0 s0) m setT.
 apply: le_trans h; rewrite le_eqVlt; apply/orP; left; apply/eqP.
 by apply: eq_bigr => j _; congr (_ * _); rewrite -block_setT iter_block.
 Qed.

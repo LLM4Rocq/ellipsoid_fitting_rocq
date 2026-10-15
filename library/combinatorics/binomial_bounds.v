@@ -88,8 +88,8 @@ Definition bin_near_half_statement : Prop :=
 (* The ratio C(u, j)^2 / C(2u, 2j) as a ratio of central coefficients. *)
 Definition bin_sqr_central_statement : Prop :=
   forall u j : nat, (j <= u)%N ->
-  'C(u, j) ^ 2 * 'C(2 * u, u) =
-    'C(2 * j, j) * 'C(2 * (u - j), u - j) * 'C(2 * u, 2 * j).
+  ('C(u, j) ^ 2 * 'C(2 * u, u) =
+    'C(2 * j, j) * 'C(2 * (u - j), u - j) * 'C(2 * u, 2 * j))%N.
 
 (* The same ratio is at most 2 sqrt((u + 1) / ((j + 1) (u - j + 1))). *)
 Definition bin_sqr_ratio_statement : Prop :=
