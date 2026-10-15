@@ -5,11 +5,6 @@ From GaussianAnalysis.probability Require Import finite_mean binomial_mean.
 (**md**************************************************************************)
 (* # Commuting operators and averages over random intersections               *)
 (*                                                                            *)
-(* The lemmas below prove the general statements of this file. Each statement *)
-(* is also a compiled Prop definition, named after its lemma with the suffix  *)
-(* _statement, for review with batch 1 of phase 13; these definitions go once *)
-(* the statements are accepted.                                               *)
-(*                                                                            *)
 (* - Iterates of monotone maps of a preorder T (a preorderType). The iterates *)
 (*   of a monotone map are monotone (homo_iter). If A and B are monotone, B   *)
 (*   sub-commutes with A (B (A y) <= A (B y) for every y), and at one point   *)
@@ -111,99 +106,16 @@ Definition meet_avg (E : C -> {set T}) (f : {set T} -> R) (S : {set T}) : R :=
 
 End meet_avg.
 
-(* The general statements, for review. *)
-
-(* The iterates of a monotone map of a preorder are monotone. *)
-Definition homo_iter_statement : Prop :=
-  forall (disp : Order.disp_t) (T : preorderType disp) (A : T -> T) (m : nat),
-  {homo A : x y / (x <= y)%O} -> {homo iter m A : x y / (x <= y)%O}.
-
-(* The comparison of the iterates of two monotone maps at one point x: if B
-   sub-commutes with A and B x <= A x, then iter m B x <= iter m A x. *)
-Definition iter_le_subcomm_statement : Prop :=
-  forall (disp : Order.disp_t) (T : preorderType disp) (A B : T -> T) (x : T),
-  {homo A : y z / (y <= z)%O} -> {homo B : y z / (y <= z)%O} ->
-  (forall y, (B (A y) <= A (B y))%O) -> (B x <= A x)%O ->
-  forall m, (iter m B x <= iter m A x)%O.
-
-(* The same comparison for monotone operators on functions, at one
-   function f, pointwise. *)
-Definition monotone_iter_le_statement : Prop :=
-  forall (R : numDomainType) (X : Type) (A B : (X -> R) -> X -> R)
-         (f : X -> R),
-  monotone_op A -> monotone_op B ->
-  (forall g x, B (A g) x <= A (B g) x) -> (forall x, B f x <= A f x) ->
-  forall (m : nat) (x : X), iter m B f x <= iter m A f x.
-
-(* The iterate of c A is c ^+ m times the iterate of A. *)
-Definition iter_scale_statement : Prop :=
-  forall (R : numDomainType) (X : Type) (A : (X -> R) -> X -> R) (c : R),
-  linear_op A ->
-  forall (m : nat) (f : X -> R) (x : X),
-  iter m (fun g y => c * A g y) f x = c ^+ m * iter m A f x.
-
-(* The binomial expansion of the iterate of the p-mixture of two commuting
-   linear operators. *)
-Definition iter_mix_binomial_statement : Prop :=
-  forall (R : numDomainType) (X : Type) (A B : (X -> R) -> X -> R) (p : R),
-  linear_op A -> linear_op B -> (forall f, A (B f) = B (A f)) ->
-  forall (m : nat) (f : X -> R) (x : X),
-  iter m (fun g y => p * A g y + (1 - p) * B g y) f x =
-  binomial_mean m p (fun j => iter j A (iter (m - j) B f) x).
-
-(* The fixed-count interpolation: if the p-mixture of A and B is below C at
-   f, so is the binomial mixture of their iterates below the iterate of C,
-   for monotone linear operators A, B and C such that A and B commute and
-   sub-commute with C. *)
-Definition binomial_mix_le_iter_statement : Prop :=
-  forall (R : numDomainType) (X : Type) (A B C : (X -> R) -> X -> R)
-         (p : R) (f : X -> R),
-  0 <= p <= 1 ->
-  linear_op A -> linear_op B -> linear_op C ->
-  monotone_op A -> monotone_op B -> monotone_op C ->
-  (forall g, A (B g) = B (A g)) -> (forall g x, A (C g) x <= C (A g) x) ->
-  (forall g x, B (C g) x <= C (B g) x) ->
-  (forall x, p * A f x + (1 - p) * B f x <= C f x) ->
-  forall (m : nat) (x : X),
-  binomial_mean m p (fun j => iter j A (iter (m - j) B f) x) <=
-  iter m C f x.
-
-(* Averages over random intersections are monotone linear operators. *)
-Definition meet_avg_linear_statement : Prop :=
-  forall (R : realFieldType) (T C : finType) (E : C -> {set T}),
-  linear_op (@meet_avg R T C E).
-
-Definition meet_avg_monotone_statement : Prop :=
-  forall (R : realFieldType) (T C : finType) (E : C -> {set T}),
-  monotone_op (@meet_avg R T C E).
-
-Definition meet_avg_cst_statement : Prop :=
-  forall (R : realFieldType) (T C : finType) (E : C -> {set T}) (a : R)
-         (S : {set T}),
-  (0 < #|C|)%N -> meet_avg E (fun=> a) S = a.
-
-(* Any two averages over random intersections commute. *)
-Definition meet_avgC_statement : Prop :=
-  forall (R : realFieldType) (T C D : finType) (E : C -> {set T})
-         (F : D -> {set T}) (f : {set T} -> R),
-  meet_avg E (meet_avg F f) = meet_avg F (meet_avg E f).
-
-(* The m-th iterate intersects S with m independent uniform members. *)
-Definition iter_meet_avg_statement : Prop :=
-  forall (R : realFieldType) (T C : finType) (E : C -> {set T}) (m : nat)
-         (f : {set T} -> R) (S : {set T}),
-  iter m (meet_avg E) f S =
-  unif_mean (fun t : m.-tuple C => f (S :&: \bigcap_(c <- t) E c)).
-
 Section iter_order.
 Context {disp : Order.disp_t} {T : preorderType disp}.
 
-(* The iterates of a monotone map are monotone. *)
+(* The iterates of a monotone map of a preorder are monotone. *)
 Lemma homo_iter (A : T -> T) (m : nat) :
   {homo A : x y / (x <= y)%O} -> {homo iter m A : x y / (x <= y)%O}.
 Proof. by move=> hA; elim: m => // m IH x y xy /=; apply: hA; exact: IH. Qed.
 
-(* The comparison of the iterates of two monotone maps at one point. *)
+(* The comparison of the iterates of two monotone maps at one point x: if B
+   sub-commutes with A and B x <= A x, then iter m B x <= iter m A x. *)
 Lemma iter_le_subcomm (A B : T -> T) (x : T) :
   {homo A : y z / (y <= z)%O} -> {homo B : y z / (y <= z)%O} ->
   (forall y, (B (A y) <= A (B y))%O) -> (B x <= A x)%O ->
@@ -223,7 +135,8 @@ Section operators.
 Context {R : numDomainType} {X : Type}.
 Implicit Types (A B C : (X -> R) -> X -> R) (f g : X -> R).
 
-(* The same comparison for monotone operators, pointwise. *)
+(* The same comparison for monotone operators on functions, at one
+   function f, pointwise. *)
 Lemma monotone_iter_le A B f :
   monotone_op A -> monotone_op B ->
   (forall g x, B (A g) x <= A (B g) x) -> (forall x, B f x <= A f x) ->
@@ -307,7 +220,10 @@ rewrite binomial_meanS addrC; congr (_ + _).
 by congr (_ * _); apply: eq_binomial_mean => j jm; rewrite BA subSn.
 Qed.
 
-(* The fixed-count interpolation. *)
+(* The fixed-count interpolation: if the p-mixture of A and B is below C at
+   f, so is the binomial mixture of their iterates below the iterate of C,
+   for monotone linear operators A, B and C such that A and B commute and
+   sub-commute with C. *)
 Lemma binomial_mix_le_iter A B C (p : R) (f : X -> R) :
   0 <= p <= 1 ->
   linear_op A -> linear_op B -> linear_op C ->

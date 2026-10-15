@@ -22,11 +22,8 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (* statements below fix constants that suffice for its two uses. It follows   *)
 (* no Lean module of the collection.                                          *)
 (*                                                                            *)
-(* Each main result is stated first as a Prop definition with the suffix      *)
-(* _statement, for review with batch 3 of phase 13, and the lemma of the same *)
-(* name proves it with the same text; the definitions go once the user        *)
-(* accepts them. The squared forms avoid square roots, and no statement       *)
-(* computes a large numeral.                                                  *)
+(* The squared forms avoid square roots, and no statement computes a large    *)
+(* numeral.                                                                   *)
 (*                                                                            *)
 (* - central_bin_le: (3 n + 1) C(2n, n)^2 <= 16^n for every n.                *)
 (* - central_bin_ge: 16^n <= 4 n C(2n, n)^2 for n > 0. Both follow from the   *)
@@ -63,44 +60,6 @@ Unset Printing Implicit Defensive.
 Import Order.TTheory GRing.Theory Num.Theory.
 Local Open Scope ring_scope.
 
-(* The central binomial coefficient, from above and from below. *)
-Definition central_bin_le_statement : Prop :=
-  forall n : nat, ((3 * n).+1 * 'C(2 * n, n) ^ 2 <= 16 ^ n)%N.
-
-Definition central_bin_ge_statement : Prop :=
-  forall n : nat, (0 < n)%N -> (16 ^ n <= 4 * n * 'C(2 * n, n) ^ 2)%N.
-
-(* The middle coefficient of every row, from below. *)
-Definition half_bin_ge_statement : Prop :=
-  forall h : nat, (4 ^ h <= 2 * h.+1 * 'C(h, h./2) ^ 2)%N.
-
-(* Unimodality: the middle coefficient is the largest of its row. *)
-Definition leq_bin_half_statement : Prop :=
-  forall n k : nat, ('C(n, k) <= 'C(n, n./2))%N.
-
-(* Near the middle, at distance at most T from h/2 with h >= 6 T, a
-   coefficient is at least 2^-(T+1) times the middle one. *)
-Definition bin_near_half_statement : Prop :=
-  forall h g T : nat, (6 * T <= h)%N ->
-  (h <= 2 * (g + T))%N -> (2 * g <= h + 2 * T)%N ->
-  ('C(h, h./2) <= 2 ^ T.+1 * 'C(h, g))%N.
-
-(* The ratio C(u, j)^2 / C(2u, 2j) as a ratio of central coefficients. *)
-Definition bin_sqr_central_statement : Prop :=
-  forall u j : nat, (j <= u)%N ->
-  ('C(u, j) ^ 2 * 'C(2 * u, u) =
-    'C(2 * j, j) * 'C(2 * (u - j), u - j) * 'C(2 * u, 2 * j))%N.
-
-(* The same ratio is at most 2 sqrt((u + 1) / ((j + 1) (u - j + 1))). *)
-Definition bin_sqr_ratio_statement : Prop :=
-  forall u j : nat, (j <= u)%N ->
-  ('C(u, j) ^ 4 * j.+1 * (u - j).+1 <= 4 * u.+1 * 'C(2 * u, 2 * j) ^ 2)%N.
-
-(* The partial sums of a row of Pascal's triangle. *)
-Definition bin_partial_sum_statement : Prop :=
-  forall (R : realType) (N M : nat), (M <= N)%N ->
-  \sum_(j < M.+1) ('C(N, j))%:R <= (expR 1 * N%:R / M%:R) ^+ M :> R.
-
 Section central.
 Local Open Scope nat_scope.
 
@@ -129,6 +88,7 @@ have e3 : (2 * n).+1 * 'C(2 * n, n) = n.+1 * 'C((2 * n).+1, n).
 by rewrite central_bin_odd -mulnA e3; ring.
 Qed.
 
+(* The central binomial coefficient, from above and from below. *)
 Lemma central_bin_le n : (3 * n).+1 * 'C(2 * n, n) ^ 2 <= 16 ^ n.
 Proof.
 elim: n => [|n IH]; first by [].
@@ -171,6 +131,7 @@ have -> : 4 * (2 * (2 * n).+1 * 'C(2 * n, n)) ^ 2 =
 by rewrite leq_mul2r leq_mul2l -poly leq_addr !orbT.
 Qed.
 
+(* The middle coefficient of every row, from below. *)
 Lemma half_bin_ge h : 4 ^ h <= 2 * h.+1 * 'C(h, h./2) ^ 2.
 Proof.
 have [[n ->] | [n ->]] : (exists n, h = 2 * n) \/ (exists n, h = (2 * n).+1).
@@ -205,6 +166,7 @@ apply: leq_trans (IH h') _; rewrite addnS; apply: leq_bin_succ.
 by move: h; rewrite geq_half_double addnS doubleS mul2n => /ltnW.
 Qed.
 
+(* Unimodality: the middle coefficient is the largest of its row. *)
 Lemma leq_bin_half n k : 'C(n, k) <= 'C(n, n./2).
 Proof.
 have low j : j <= n./2 -> 'C(n, j) <= 'C(n, n./2).
@@ -248,6 +210,8 @@ apply: leq_trans (bin_shift_le _ hk) _.
 by rewrite leq_mul2r leq_pexp2l // orbT.
 Qed.
 
+(* Near the middle, at distance at most T from h/2 with h >= 6 T, a
+   coefficient is at least 2^-(T+1) times the middle one. *)
 Lemma bin_near_half h g T : 6 * T <= h ->
   h <= 2 * (g + T) -> 2 * g <= h + 2 * T ->
   'C(h, h./2) <= 2 ^ T.+1 * 'C(h, g).
@@ -299,6 +263,7 @@ have -> : 'C(2 * j, j) * 'C(2 * (u - j), u - j) * 'C(2 * u, 2 * j) * P =
 by rewrite f1 f2 f3 f4 f5; ring.
 Qed.
 
+(* The same ratio is at most 2 sqrt((u + 1) / ((j + 1) (u - j + 1))). *)
 Lemma bin_sqr_ratio u j : j <= u ->
   'C(u, j) ^ 4 * j.+1 * (u - j).+1 <= 4 * u.+1 * 'C(2 * u, 2 * j) ^ 2.
 Proof.
@@ -333,7 +298,8 @@ End central.
 Section partial_sums.
 Context {R : realType}.
 
-(* With x = M / N: x^M sum_(j <= M) C(N, j) <= (1 + x)^N <= e^M. *)
+(* The partial sums of a row of Pascal's triangle. With x = M / N:
+   x^M sum_(j <= M) C(N, j) <= (1 + x)^N <= e^M. *)
 Lemma bin_partial_sum N M : (M <= N)%N ->
   \sum_(j < M.+1) ('C(N, j))%:R <= (expR 1 * N%:R / M%:R) ^+ M :> R.
 Proof.
