@@ -35,10 +35,7 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (*   inequality (unif_chebyshev), and the independence of the coordinates of  *)
 (*   a uniform tuple (unif_mean_tuple_prod_ord), in particular of the         *)
 (*   coordinates in a set J of positions (unif_mean_tuple_prod_set; the       *)
-(*   example unif_mean_fair_bits). Each of these statements is also a         *)
-(*   compiled Prop definition, named after its lemma with the suffix          *)
-(*   _statement, for review with batch 1 of phase 13; these definitions go    *)
-(*   once the statements are accepted.                                        *)
+(*   example unif_mean_fair_bits).                                            *)
 (*                                                                            *)
 (* This file is part of target T7 of phase 12: a Rocq formalization of the    *)
 (* finite means of the credited argument of the proposition 'Polynomial       *)
@@ -339,58 +336,11 @@ Qed.
 
 End unif_mean.
 
-(* The general statements of phase 13, for review. *)
-
-(* The union bound: the probability that one of the events P i holds is at
-   most the sum of their probabilities. *)
-Definition unif_mean_union_statement : Prop :=
-  forall (R : realFieldType) (T I : finType) (P : I -> pred T),
-  unif_mean (fun x => [exists i, P i x]%:R : R) <=
-  \sum_i unif_mean (fun x => (P i x)%:R : R).
-
-(* The complement of an event. *)
-Definition unif_mean_indicatorN_statement : Prop :=
-  forall (R : realFieldType) (T : finType) (P : pred T), (0 < #|T|)%N ->
-  unif_mean (fun x => (~~ P x)%:R : R) = 1 - unif_mean (fun x => (P x)%:R : R).
-
-(* Markov's inequality for a nonnegative f; t may have any sign. *)
-Definition unif_mean_markov_statement : Prop :=
-  forall (R : realFieldType) (T : finType) (f : T -> R) (t : R),
-  (forall x, 0 <= f x) ->
-  t * unif_mean (fun x => (t <= f x)%R%:R : R) <= unif_mean f.
-
-(* A bound by a cutoff: if f <= M, then E f <= t + M P(f >= t) for t >= 0. *)
-Definition unif_mean_cutoff_statement : Prop :=
-  forall (R : realFieldType) (T : finType) (f : T -> R) (M t : R),
-  0 <= t -> (forall x, f x <= M) ->
-  unif_mean f <= t + M * unif_mean (fun x => (t <= f x)%R%:R : R).
-
-(* Chebyshev's inequality. *)
-Definition unif_chebyshev_statement : Prop :=
-  forall (R : realFieldType) (T : finType) (f : T -> R) (t : R), 0 < t ->
-  unif_mean (fun x => (t <= `|f x - unif_mean f|)%R%:R : R) <=
-  unif_var f / t ^+ 2.
-
-(* The coordinates of a uniform tuple are independent: the mean of a
-   product of functions of the coordinates is the product of the means. *)
-Definition unif_mean_tuple_prod_ord_statement : Prop :=
-  forall (R : realFieldType) (T : finType) (m : nat) (g : 'I_m -> T -> R),
-  unif_mean (fun t : m.-tuple T => \prod_(i < m) g i (tnth t i)) =
-  \prod_(i < m) unif_mean (g i).
-
-(* In particular, the coordinates in a set J of positions are independent:
-   the mean of a product over J is the product of the means. *)
-Definition unif_mean_tuple_prod_set_statement : Prop :=
-  forall (R : realFieldType) (T : finType) (m : nat) (J : {set 'I_m})
-         (g : T -> R),
-  (0 < #|T|)%N ->
-  unif_mean (fun t : m.-tuple T => \prod_(i in J) g (tnth t i)) =
-  unif_mean g ^+ #|J|.
-
 Section unif_mean_bounds.
 Variable R : realFieldType.
 
-(* The union bound. *)
+(* The union bound: the probability that one of the events P i holds is at
+   most the sum of their probabilities. *)
 Lemma unif_mean_union (T I : finType) (P : I -> pred T) :
   unif_mean (fun x => [exists i, P i x]%:R : R) <=
   \sum_i unif_mean (fun x => (P i x)%:R : R).
@@ -457,6 +407,8 @@ rewrite big_ord_recl; congr (_ * _).
 by apply: eq_bigr => i _; rewrite tnthS.
 Qed.
 
+(* In particular, the coordinates in a set J of positions are independent:
+   the mean of a product over J is the product of the means. *)
 Lemma unif_mean_tuple_prod_set (T : finType) m (J : {set 'I_m}) (g : T -> R) :
   (0 < #|T|)%N ->
   unif_mean (fun t : m.-tuple T => \prod_(i in J) g (tnth t i)) =
