@@ -3,7 +3,7 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum ssrint zmodp.
 From mathcomp Require Import matrix sesquilinear reals boolp.
 From mathcomp Require Import ring_tactic field_tactic.
 From GaussianAnalysis.matrix Require Import euclidean real_spectral psd_part.
-From GaussianAnalysis.matrix Require Import psd_splitting.
+From GaussianAnalysis.matrix Require Import psd_splitting psd_duality.
 From GaussianAnalysis.fourier Require Import boolean_fourier.
 
 (**md**************************************************************************)
@@ -62,12 +62,12 @@ From GaussianAnalysis.fourier Require Import boolean_fourier.
 (* iterates the step by induction on t, with the first block processed last   *)
 (* ('M['F_2]_(1 + t, a) splits with col_mx), over a finite type P of          *)
 (* parameters with nonnegative weights, the inputs of the coordinates not yet *)
-(* processed; the base case is F = H^T H (psdmx_factor). product_smoothing    *)
-(* takes P = unit. The coefficient bound follows from the potential at a      *)
-(* tuple of positive weight (exists_weight_le), by the trace bound            *)
-(* tr C <= sqrt (r |I|) |C|_F for a weighted Gram matrix of r-column matrices *)
-(* indexed by I (mxtrace_gram_le), and by Cauchy-Schwarz over the 2^(t a)     *)
-(* branches.                                                                  *)
+(* processed; the base case is F = H^T H (psdmx_factor of                     *)
+(* matrix/psd_duality.v). product_smoothing takes P = unit. The coefficient   *)
+(* bound follows from the potential at a tuple of positive weight             *)
+(* (exists_weight_le), by the trace bound tr C <= sqrt (r |I|) |C|_F for a    *)
+(* weighted Gram matrix of r-column matrices indexed by I (mxtrace_gram_le),  *)
+(* and by Cauchy-Schwarz over the 2^(t a) branches.                           *)
 (*                                                                            *)
 (* Proved besides, for any realType R:                                        *)
 (* - sum_wsqr_le, frobenius_wsum_le, frobenius_sum_sqr_le: Cauchy-Schwarz     *)
@@ -77,8 +77,6 @@ From GaussianAnalysis.fourier Require Import boolean_fourier.
 (*   psdmx_gram: the trace, the trace of products, the norm, the trace bound  *)
 (*   and the positivity of weighted Gram matrices \sum_i w_i h_i h_i^T;       *)
 (*   mxtrace_le_frobenius: tr A <= sqrt n |A|_F;                              *)
-(* - psdmx_factor, psdmx_frobenius_le_trace: a positive semidefinite S is     *)
-(*   H^T H, and |S|_F <= tr S;                                                *)
 (* - psd_splitting_fin: T5 for matrices indexed by a nonempty finite type Z,  *)
 (*   with constant 2^(|Z| - 1);                                               *)
 (* - sum_tuple_cons, prod_tuple_cons, sum_tuple0, sum_prod_prob,              *)
@@ -317,25 +315,6 @@ apply: ler_wpM2l; first exact: sqrtr_ge0.
 apply: le_trans E2 _; apply: ler_wpM2l; first exact: sqrtr_ge0.
 rewrite -[X in _ <= X]ger0_norm ?frobenius_ge0 // -sqrtr_sqr ler_sqrt //.
 exact: sqr_ge0.
-Qed.
-
-(* A positive semidefinite matrix is a Gram matrix H^T H. *)
-Lemma psdmx_factor n (S : 'M[R]_n) :
-  psdmx S -> exists H : 'M[R]_n, H^T *m H = S.
-Proof.
-move=> [Ssym Sform]; have [P Po [d SE]] := symmetric_spectral Ssym.
-have d0 i : 0 <= d 0 i by have [+ _] := spectral_psd Po SE; apply.
-exists (diag_mx (\row_i Num.sqrt (d 0 i)) *m P).
-rewrite trmx_mul tr_diag_mx SE mulmxA -[_ *m diag_mx _ *m diag_mx _]mulmxA.
-rewrite mulmx_diag; congr (_ *m diag_mx _ *m _).
-by apply/rowP => i; rewrite !mxE -expr2 sqr_sqrtr.
-Qed.
-
-Lemma psdmx_frobenius_le_trace n (S : 'M[R]_n) :
-  psdmx S -> frobenius S <= \tr S.
-Proof.
-move=> /psdmx_factor [H <-]; apply: le_trans (frobenius_mulmx _ _) _.
-by rewrite frobenius_trmx -expr2 frobenius_sqr mxdot_trace mxtrace_mulC.
 Qed.
 
 (* The orthogonal splitting (T5, psd_splitting) for matrices indexed by a
