@@ -19,25 +19,22 @@ From GaussianAnalysis.convex Require Import logdet_barrier moreau.
 (* 0 for the zero matrix, where the manuscript's convention (the least r >=   *)
 (* 1) gives 1; the two agree for every matrix with a nonzero entry.           *)
 (*                                                                            *)
-(* The general statements of this file are compiled Prop definitions, for     *)
-(* review with batch 2 of phase 13 (AGENTS.md, section Phase 13, step 0,      *)
-(* items 3 and 4). Each is proved by the lemma of the same name without the   *)
-(* suffix _statement; the statement definitions stay until the user accepts   *)
-(* them.                                                                      *)
-(*                                                                            *)
-(* - psd_factorization_ge0_statement: the entries of a matrix with a PSD      *)
-(*   factorization are nonnegative.                                           *)
-(* - psd_factorization_size_gt0_statement: a factorization of a matrix with a *)
-(*   nonzero entry has a positive size.                                       *)
-(* - psd_factorization_restrict_statement: a factorization restricts to the   *)
-(*   rows and columns of any maps I' -> I and J' -> J.                        *)
-(* - psd_factorization_widen_statement: a factorization of size r gives one   *)
-(*   of every size s >= r, by zero blocks.                                    *)
-(* - psd_factorization_shift_statement: a factorization of A of size r gives  *)
-(*   one of A + rho of size r + 1 for rho >= 0, by a block of size one.       *)
-(* - psd_factorization_nonneg_statement: a nonnegative factorization A i j =  *)
-(*   sum_(k < r) a i k b j k, with a, b >= 0, gives a PSD factorization of    *)
-(*   size r, by diagonal matrices.                                            *)
+(* The general statements of this file, which the user accepted with batch    *)
+(* 2 of phase 13 (AGENTS.md, section Phase 13, step 0, items 3 and 4), are    *)
+(* the following lemmas, with the accepted texts:                             *)
+(* - psd_factorization_ge0: the entries of a matrix with a PSD factorization  *)
+(*   are nonnegative.                                                         *)
+(* - psd_factorization_size_gt0: a factorization of a matrix with a nonzero   *)
+(*   entry has a positive size.                                               *)
+(* - psd_factorization_restrict: a factorization restricts to the rows and    *)
+(*   columns of any maps I' -> I and J' -> J.                                 *)
+(* - psd_factorization_widen: a factorization of size r gives one of every    *)
+(*   size s >= r, by zero blocks.                                             *)
+(* - psd_factorization_shift: a factorization of A of size r gives one of     *)
+(*   A + rho of size r + 1 for rho >= 0, by a block of size one.              *)
+(* - psd_factorization_nonneg: a nonnegative factorization                    *)
+(*   A i j = sum_(k < r) a i k b j k, with a, b >= 0, gives a PSD             *)
+(*   factorization of size r, by diagonal matrices.                           *)
 (*                                                                            *)
 (* The exact normalization of the factors, target T10 of phase 13, is stated  *)
 (* in applications/PsdNormalizationStatement.v, written out with psdmx and    *)
@@ -105,44 +102,6 @@ Definition psd_factorization (I J : finType) (A : I -> J -> R) (r : nat) :
         forall i j, A i j = \tr (F i *m G j)].
 
 End factorization.
-
-(* The general statements, for review. *)
-
-(* The trace of the product of two PSD matrices is nonnegative. *)
-Definition psd_factorization_ge0_statement : Prop :=
-  forall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat),
-  psd_factorization A r -> forall i j, 0 <= A i j.
-
-(* A factorization of size 0 has only zero entries. *)
-Definition psd_factorization_size_gt0_statement : Prop :=
-  forall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat),
-  psd_factorization A r -> (exists i j, A i j != 0) -> (0 < r)%N.
-
-(* Restriction to rows and columns, along any maps. *)
-Definition psd_factorization_restrict_statement : Prop :=
-  forall (R : realType) (I J I' J' : finType) (A : I -> J -> R) (r : nat)
-         (f : I' -> I) (g : J' -> J),
-  psd_factorization A r -> psd_factorization (fun i j => A (f i) (g j)) r.
-
-(* Padding the factors with zero blocks. *)
-Definition psd_factorization_widen_statement : Prop :=
-  forall (R : realType) (I J : finType) (A : I -> J -> R) (r s : nat),
-  (r <= s)%N -> psd_factorization A r -> psd_factorization A s.
-
-(* Appending the scalar blocks rho to the row factors and 1 to the column
-   factors. *)
-Definition psd_factorization_shift_statement : Prop :=
-  forall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat) (rho : R),
-  0 <= rho -> psd_factorization A r ->
-  psd_factorization (fun i j => A i j + rho) r.+1.
-
-(* A nonnegative factorization of size r gives a PSD factorization of size r,
-   by diagonal factors. *)
-Definition psd_factorization_nonneg_statement : Prop :=
-  forall (R : realType) (I J : finType) (r : nat) (a : I -> 'I_r -> R)
-         (b : J -> 'I_r -> R),
-  (forall i k, 0 <= a i k) -> (forall j k, 0 <= b j k) ->
-  psd_factorization (fun i j => \sum_(k < r) a i k * b j k) r.
 
 Section closure.
 Variable R : realType.
