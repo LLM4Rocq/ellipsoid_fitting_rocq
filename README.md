@@ -472,6 +472,14 @@ generated`), whose code cannot change. The other modules print none.
   to (`mxdot`, `frobenius`, `opnorm`, `psdmx`, `goe_mx`, the measurable
   structure of matrices, and `gauss` through its values on boxes, which
   determine it); `make check` compiles it.
+  `check/Phase13Definitions.v` does the same for phase 13: it states a
+  characterization of each project definition that the frozen statements
+  of phase 13 and its accepted general statements unfold to, written out
+  down to the definitions of MathComp and proved by computation, so that a
+  definition that no longer computes to that text fails. Each freeze
+  extends it; freeze 1 covers `unif_mean`, `unif_var`, `binomial_mean`,
+  `linear_op`, `monotone_op` and `meet_avg`. `make check` compiles it into
+  `build/phase13_definitions.txt`, a required output.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality
@@ -486,8 +494,15 @@ generated`), whose code cannot change. The other modules print none.
   `fc76edf`, as the section `lambda_max` of
   `library/matrix/lambda_max.v` with its Require commands, and the seven
   statement and definitions files of batch 2 the same code as at commit
-  `0d5afba` (comments may differ); that `check/ApplicationsDefinitions.v`
-  has its fixed code; that the
+  `0d5afba`, and the three statement files of batch 1 of phase 13 the same
+  code as at commit `46e45c8`, at which the user accepted the statements of
+  phase 13 (comments may differ); that `check/ApplicationsDefinitions.v`
+  has its fixed code, and `check/Phase13Definitions.v` the code of its
+  last freeze, the code of each earlier freeze being a prefix of it; that
+  each entry of the acceptance inventory, the general statements of the
+  library accepted in phase 13 with their full propositions as `Print`
+  shows them at the acceptance commit, names a definition of its file at
+  that commit; that the
   axiom-check files of phases 5 and 6 and their expected lists are
   byte-identical to commit `c3e555e`, those of phases 7 and 8 to commit
   `a89ed1e`, those of phase 9 to commit `e4c46e1`, those of phase 10 to

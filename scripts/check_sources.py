@@ -197,6 +197,31 @@
    CHECKS_EXACT_P12, those of the axiom checks of phase 12 (rule 24), are
    byte-identical to the commit CHECKS_P12_BASELINE (commit P), a separate
    baseline; the older baselines and check/frozen-baseline do not change.
+26. Phase 13, the freeze of batch 1. The code of each file of
+   PHASE13_B1_FROZEN, the definition and the statement of the
+   satisfiability threshold of random k-SAT and the statement of the
+   convergence from approximate minimum inequalities, must equal its code
+   at the commit PHASE13_B1_BASELINE, at which the user accepted them.
+   The project definitions that the frozen statements of phase 13 and the
+   accepted general statements of its packets unfold to are protected by
+   check/Phase13Definitions.v, which states a characterization of each,
+   written out down to the definitions of MathComp and MathComp-Analysis.
+   Its code is fixed: it must equal the last code of
+   PHASE13_DEFINITIONS_FREEZES, and the code of each freeze is a prefix of
+   the code of the next one, so that a freeze extends the file without
+   altering it. make check deletes its output,
+   build/phase13_definitions.txt, then compiles the file into it; the
+   output is required: it must exist and be a complete axiom report whose
+   axioms are among those of check/sat_variance_assumptions.expected (the
+   seven axioms of phases 11 and 12). The Makefile must hold the two
+   commands of PHASE13_MAKE_LINES, the deletion of the output and the
+   compilation, so that an old output cannot stand for a new one.
+   INVENTORY records the general
+   statements that the user accepted, one entry per statement: the full
+   acceptance commit, the path, the name of the Prop definition and the
+   proposition as Print shows it at that commit, with its section
+   parameters. Each entry must name a full commit at which that file
+   defines that name, and no two entries name the same statement.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -347,6 +372,12 @@ PHASE12_B2_FROZEN = [
     "applications/SatVarianceStatement.v",
 ]
 PHASE12_B2_BASELINE = "0d5afbac072113544fd4c46451a7b6397b7344b3"
+PHASE13_B1_FROZEN = [
+    "applications/SatThresholdDefinitions.v",
+    "applications/SatThresholdStatement.v",
+    "applications/MinSuperadditiveStatement.v",
+]
+PHASE13_B1_BASELINE = "46e45c84b99a50663205933ae501da029dd66098"
 LAMBDA_MAX = "library/matrix/lambda_max.v"
 APPLICATIONS_DEFINITIONS = "check/ApplicationsDefinitions.v"
 APPLICATIONS_DEFINITIONS_CHECK = (
@@ -388,6 +419,184 @@ APPLICATIONS_DEFINITIONS_CHECK = (
     'forall i, A i (x 0 i)] = (\\prod_(i < n) normal_prob 0 1 (A i))%E) -> '
     'forall X, measurable X -> P X = gauss n X. Proof. exact: '
     'gauss_unique. Qed.')
+PHASE13_DEFINITIONS = "check/Phase13Definitions.v"
+PHASE13_DEFINITIONS_OUTPUT = "build/phase13_definitions.txt"
+# The commands of the Makefile that delete and regenerate the output.
+PHASE13_MAKE_LINES = [
+    "rm -f $(REPORTS) build/applications_definitions.txt "
+    "build/phase13_definitions.txt",
+    "rocq compile -noglob -w -notation-overridden -w -ambiguous-paths "
+    "-w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library "
+    "GaussianAnalysis -o build/Phase13Definitions.vo "
+    "check/Phase13Definitions.v > build/phase13_definitions.txt",
+]
+# The code of check/Phase13Definitions.v at each freeze of phase 13, in
+# order; each is a prefix of the next, and the file has the last one.
+PHASE13_DEFINITIONS_FREEZES = [
+    # freeze 1 (batch 1): unif_mean, unif_var, binomial_mean, linear_op,
+    # monotone_op, meet_avg
+    (
+    'From HB Require Import structures. From mathcomp Require Import al'
+    'l_ssreflect_compat ssralg ssrnum. From GaussianAnalysis.probabilit'
+    'y Require Import finite_mean binomial_mean. From GaussianAnalysis.'
+    'probability Require Import commuting_operators. Import GRing.Theor'
+    'y Num.Theory. Local Open Scope ring_scope. Lemma unif_mean_charact'
+    'erization (R : realFieldType) (T : finType) (f : T -> R) : unif_me'
+    'an f = (#|T|%:R)^-1 * \\sum_(x : T) f x. Proof. by []. Qed. Lemma u'
+    'nif_var_characterization (R : realFieldType) (T : finType) (f : T '
+    '-> R) : unif_var f = (#|T|%:R)^-1 * \\sum_(x : T) (f x - (#|T|%:R)^'
+    '-1 * \\sum_(y : T) f y) ^+ 2. Proof. by []. Qed. Lemma binomial_mea'
+    'n_characterization (R : numDomainType) (m : nat) (p : R) (f : nat '
+    '-> R) : binomial_mean m p f = \\sum_(j < m.+1) (p ^+ j * (1 - p) ^+'
+    " (m - j) *+ 'C(m, j)) * f j. Proof. by []. Qed. Lemma linear_op_ch"
+    'aracterization (R : numDomainType) (X : Type) (A : (X -> R) -> X -'
+    '> R) : linear_op A <-> (forall (f g : X -> R) (x : X), A (fun y =>'
+    ' f y + g y) x = A f x + A g x) /\\ (forall (a : R) (f : X -> R) (x '
+    ': X), A (fun y => a * f y) x = a * A f x). Proof. by []. Qed. Lemm'
+    'a monotone_op_characterization (R : numDomainType) (X : Type) (A :'
+    ' (X -> R) -> X -> R) : monotone_op A <-> forall f g : X -> R, (for'
+    'all y, f y <= g y) -> forall x, A f x <= A g x. Proof. by []. Qed.'
+    ' Lemma meet_avg_characterization (R : realFieldType) (T C : finTyp'
+    'e) (E : C -> {set T}) (f : {set T} -> R) (S : {set T}) : meet_avg '
+    'E f S = (#|C|%:R)^-1 * \\sum_(c : C) f (S :&: E c). Proof. by []. Q'
+    'ed. Print Assumptions meet_avg_characterization.'),
+]
+# The general statements accepted by the user: (acceptance commit, path,
+# name of the Prop definition, the proposition as Print shows it).
+INVENTORY = [
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/finite_mean.v',
+     'unif_mean_union_statement',
+     'forall (R : realFieldType) (T I : finType) (P : I -> pred T), @unif_mean R T (fun x : T => [exists i, P i x]%:R : R) <= \\sum_i @unif_mean R T (fun x : T => (P i x)%:R : R)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/finite_mean.v',
+     'unif_mean_indicatorN_statement',
+     'forall (R : realFieldType) (T : finType) (P : pred T), (0 < #|T|)%N -> @unif_mean R T (fun x : T => (~~ P x)%:R : R) = 1 - @unif_mean R T (fun x : T => (P x)%:R : R)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/finite_mean.v',
+     'unif_mean_markov_statement',
+     'forall (R : realFieldType) (T : finType) (f : T -> R) (t : R), (forall x : T, 0 <= f x) -> t * @unif_mean R T (fun x : T => (t <= f x)%R%:R : R) <= @unif_mean R T f'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/finite_mean.v',
+     'unif_mean_cutoff_statement',
+     'forall (R : realFieldType) (T : finType) (f : T -> R) (M t : R), 0 <= t -> (forall x : T, f x <= M) -> @unif_mean R T f <= t + M * @unif_mean R T (fun x : T => (t <= f x)%R%:R : R)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/finite_mean.v',
+     'unif_chebyshev_statement',
+     'forall (R : realFieldType) (T : finType) (f : T -> R) (t : R), 0 < t -> @unif_mean R T (fun x : T => (t <= `|f x - @unif_mean R T f|)%R%:R : R) <= @unif_var R T f / t ^+ 2'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/finite_mean.v',
+     'unif_mean_tuple_prod_ord_statement',
+     "forall (R : realFieldType) (T : finType) (m : nat) (g : 'I_m -> T -> R), @unif_mean R (tuple_tuple_of__canonical__fintype_Finite m T) (fun t : m.-tuple T => \\prod_(i < m) g i (@tnth m T t i)) = \\prod_(i < m) @unif_mean R T (g i)"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/finite_mean.v',
+     'unif_mean_tuple_prod_set_statement',
+     "forall (R : realFieldType) (T : finType) (m : nat) (J : {set 'I_m}) (g : T -> R), (0 < #|T|)%N -> @unif_mean R (tuple_tuple_of__canonical__fintype_Finite m T) (fun t : m.-tuple T => \\prod_(i in J) g (@tnth m T t i)) = @unif_mean R T g ^+ #|J|"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_mean0_statement',
+     'forall (R : numDomainType) (p : R) (f : nat -> R), @binomial_mean R 0 p f = f 0%N'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_meanS_statement',
+     'forall (R : numDomainType) (m : nat) (p : R) (f : nat -> R), @binomial_mean R m.+1 p f = (1 - p) * @binomial_mean R m p f + p * @binomial_mean R m p (fun j : nat => f j.+1)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'eq_binomial_mean_statement',
+     'forall (R : numDomainType) (m : nat) (p : R) (f g : nat -> R), (forall j : nat, (j <= m)%N -> f j = g j) -> @binomial_mean R m p f = @binomial_mean R m p g'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_mean_cst_statement',
+     'forall (R : numDomainType) (m : nat) (p c : R), @binomial_mean R m p (fun=> c) = c'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_meanD_statement',
+     'forall (R : numDomainType) (m : nat) (p : R) (f g : nat -> R), @binomial_mean R m p (fun j : nat => f j + g j) = @binomial_mean R m p f + @binomial_mean R m p g'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_meanZ_statement',
+     'forall (R : numDomainType) (m : nat) (p c : R) (f : nat -> R), @binomial_mean R m p (fun j : nat => c * f j) = c * @binomial_mean R m p f'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'ler_binomial_mean_statement',
+     'forall (R : numDomainType) (m : nat) (p : R) (f g : nat -> R), 0 <= p <= 1 -> (forall j : nat, (j <= m)%N -> f j <= g j) -> @binomial_mean R m p f <= @binomial_mean R m p g'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_mean_id_statement',
+     'forall (R : numDomainType) (m : nat) (p : R), @binomial_mean R m p [eta @Algebra.natmul R 1] = m%:R * p'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_mean_sqr_dev_statement',
+     'forall (R : numDomainType) (m : nat) (p : R), @binomial_mean R m p (fun j : nat => (j%:R - m%:R * p) ^+ 2) = m%:R * p * (1 - p)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_chebyshev_statement',
+     'forall (R : realFieldType) (m : nat) (p t : R), 0 <= p <= 1 -> 0 < t -> @binomial_mean R m p (fun j : nat => (t <= `|j%:R - m%:R * p|)%R%:R) <= m%:R * p * (1 - p) / t ^+ 2'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_mean_last_statement',
+     'forall (R : numDomainType) (m : nat) (p : R) (f : nat -> R), 0 <= p <= 1 -> (forall j : nat, (j <= m)%N -> 0 <= f j) -> p ^+ m * f m <= @binomial_mean R m p f'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_mean_trials_statement',
+     "forall (R : numDomainType) (m m' : nat) (p : R) (f : nat -> R), 0 <= p <= 1 -> {homo f : i j / (i <= j)%N >-> i <= j} -> (m <= m')%N -> @binomial_mean R m p f <= @binomial_mean R m' p f"),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'unif_mean_binomial_mean_statement',
+     'forall (R : realFieldType) (T : finType) (m : nat) (p : R) (f : nat -> T -> R), @unif_mean R T (fun x : T => @binomial_mean R m p (f^~ x)) = @binomial_mean R m p (fun j : nat => @unif_mean R T (f j))'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'binomial_meanE_statement',
+     'forall (R : realType) (m : nat) (p : R) (f : nat -> R), @binomial_mean R m p f = \\sum_(j < m.+1) @binomial_pmf R m p (nat_of_ord j) * f (nat_of_ord j)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/binomial_mean.v',
+     'integral_binomial_mean_statement',
+     'forall (R : realType) (m : nat) (p : R) (f : nat -> R), 0 <= p <= 1 -> (\\int[@binomial_prob R m p]_j (f j)%:E)%E = (@binomial_mean R m p f)%:E'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'homo_iter_statement',
+     'forall (disp : Order.disp_t) (T : preorderType disp) (A : T -> T) (m : nat), {homo A : x y / (x <= y)%O} -> {homo @iter T m A : x y / (x <= y)%O}'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'iter_le_subcomm_statement',
+     'forall (disp : Order.disp_t) (T : preorderType disp) (A B : T -> T) (x : T), {homo A : y z / (y <= z)%O} -> {homo B : y z / (y <= z)%O} -> (forall y : T, (B (A y) <= A (B y))%O) -> (B x <= A x)%O -> forall m : nat, (@iter T m B x <= @iter T m A x)%O'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'monotone_iter_le_statement',
+     'forall (R : numDomainType) (X : Type) (A B : (X -> R) -> X -> R) (f : X -> R), @monotone_op R X A -> @monotone_op R X B -> (forall (g : X -> R) (x : X), B (A g) x <= A (B g) x) -> (forall x : X, B f x <= A f x) -> forall (m : nat) (x : X), @iter (X -> R) m B f x <= @iter (X -> R) m A f x'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'iter_scale_statement',
+     'forall (R : numDomainType) (X : Type) (A : (X -> R) -> X -> R) (c : R), @linear_op R X A -> forall (m : nat) (f : X -> R) (x : X), @iter (X -> R) m (fun (g : X -> R) (y : X) => c * A g y) f x = c ^+ m * @iter (X -> R) m A f x'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'iter_mix_binomial_statement',
+     'forall (R : numDomainType) (X : Type) (A B : (X -> R) -> X -> R) (p : R), @linear_op R X A -> @linear_op R X B -> (forall f : X -> R, A (B f) = B (A f)) -> forall (m : nat) (f : X -> R) (x : X), @iter (X -> R) m (fun (g : X -> R) (y : X) => p * A g y + (1 - p) * B g y) f x = @binomial_mean R m p (fun j : nat => @iter (X -> R) j A (@iter (X -> R) (m - j) B f) x)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'binomial_mix_le_iter_statement',
+     'forall (R : numDomainType) (X : Type) (A B C : (X -> R) -> X -> R) (p : R) (f : X -> R), 0 <= p <= 1 -> @linear_op R X A -> @linear_op R X B -> @linear_op R X C -> @monotone_op R X A -> @monotone_op R X B -> @monotone_op R X C -> (forall g : X -> R, A (B g) = B (A g)) -> (forall (g : X -> R) (x : X), A (C g) x <= C (A g) x) -> (forall (g : X -> R) (x : X), B (C g) x <= C (B g) x) -> (forall x : X, p * A f x + (1 - p) * B f x <= C f x) -> forall (m : nat) (x : X), @binomial_mean R m p (fun j : nat => @iter (X -> R) j A (@iter (X -> R) (m - j) B f) x) <= @iter (X -> R) m C f x'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'meet_avg_linear_statement',
+     'forall (R : realFieldType) (T C : finType) (E : C -> {set T}), @linear_op R {set T} (@meet_avg R T C E)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'meet_avg_monotone_statement',
+     'forall (R : realFieldType) (T C : finType) (E : C -> {set T}), @monotone_op R {set T} (@meet_avg R T C E)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'meet_avg_cst_statement',
+     'forall (R : realFieldType) (T C : finType) (E : C -> {set T}) (a : R) (S0 : {set T}), (0 < #|C|)%N -> @meet_avg R T C E (fun=> a) S0 = a'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'meet_avgC_statement',
+     'forall (R : realFieldType) (T C D : finType) (E : C -> {set T}) (F : D -> {set T}) (f : {set T} -> R), @meet_avg R T C E (@meet_avg R T D F f) = @meet_avg R T D F (@meet_avg R T C E f)'),
+    ('46e45c84b99a50663205933ae501da029dd66098',
+     'library/probability/commuting_operators.v',
+     'iter_meet_avg_statement',
+     'forall (R : realFieldType) (T C : finType) (E : C -> {set T}) (m : nat) (f : {set T} -> R) (S : {set T}), @iter ({set T} -> R) m (@meet_avg R T C E) f S = @unif_mean R (tuple_tuple_of__canonical__fintype_Finite m C) (fun t : m.-tuple C => f (S :&: \\bigcap_(c <- t) E c))'),
+]
 UNIVERSALITY_CHECK = (
     "From EllipsoidUniversality Require Import UniversalityStatement "
     "UniversalityTheorem. Definition universality_theorem_checked : "
@@ -742,6 +951,52 @@ def main():
     elif now != tuple_prod_code(at_baseline(CHECKS_BASELINE, TUPLE_PROD)):
         failures.append(f"{TUPLE_PROD}: the Require commands or the section "
                         f"tuple_prod differ from {CHECKS_BASELINE[:12]}")
+    for path in PHASE13_B1_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(PHASE13_B1_BASELINE, path)):
+            failures.append(f"{path}: code differs from {PHASE13_B1_BASELINE[:12]}")
+    if code((ROOT / PHASE13_DEFINITIONS).read_text()) != PHASE13_DEFINITIONS_FREEZES[-1]:
+        failures.append(f"{PHASE13_DEFINITIONS}: code differs from the last code "
+                        "of PHASE13_DEFINITIONS_FREEZES")
+    for k, (prev, nxt) in enumerate(zip(PHASE13_DEFINITIONS_FREEZES,
+                                        PHASE13_DEFINITIONS_FREEZES[1:])):
+        if not nxt.startswith(prev):
+            failures.append(f"PHASE13_DEFINITIONS_FREEZES: freeze {k + 2} does not "
+                            f"extend freeze {k + 1}")
+    makefile = (ROOT / "Makefile").read_text()
+    for line in PHASE13_MAKE_LINES:
+        if line not in makefile:
+            failures.append(f"Makefile: the command {line!r} is missing")
+    output = ROOT / PHASE13_DEFINITIONS_OUTPUT
+    if not output.exists():
+        failures.append(f"{PHASE13_DEFINITIONS_OUTPUT}: no such output; make check "
+                        f"compiles {PHASE13_DEFINITIONS} into it")
+    elif not report_complete(output.read_text()):
+        failures.append(f"{PHASE13_DEFINITIONS_OUTPUT}: incomplete, neither the line "
+                        "Axioms: with at least one axiom nor the line Closed under "
+                        "the global context")
+    else:
+        allowed_p13 = axiom_names(
+            (ROOT / "check" / "sat_variance_assumptions.expected").read_text())
+        for ax in sorted(axiom_names(output.read_text()) - allowed_p13):
+            failures.append(f"{PHASE13_DEFINITIONS_OUTPUT}: {ax} is not among "
+                            "check/sat_variance_assumptions.expected")
+    seen = set()
+    for inv_commit, path, name, prop in INVENTORY:
+        if (path, name) in seen:
+            failures.append(f"INVENTORY: {path} {name} recorded twice")
+        seen.add((path, name))
+        if not re.fullmatch(r"[0-9a-f]{40}", inv_commit):
+            failures.append(f"INVENTORY: {name}: {inv_commit} is not a full commit")
+            continue
+        try:
+            then = strip_comments(at_baseline(inv_commit, path))
+        except subprocess.CalledProcessError:
+            failures.append(f"INVENTORY: {name}: no file {path} at {inv_commit[:12]}")
+            continue
+        if not re.search(rf"\bDefinition\s+{re.escape(name)}\b", then):
+            failures.append(f"INVENTORY: {name}: not defined in {path} at {inv_commit[:12]}")
+        if not prop.strip():
+            failures.append(f"INVENTORY: {name}: empty proposition")
     now = section_code((ROOT / LAMBDA_MAX).read_text(), "lambda_max")
     if now[1] is None:
         failures.append(f"{LAMBDA_MAX}: no section lambda_max")
@@ -866,7 +1121,12 @@ def main():
           f"lambda_max unchanged since {PHASE12_B1_BASELINE[:12]}; "
           f"{len(PHASE12_B2_FROZEN)} frozen files of phase 12 unchanged since "
           f"{PHASE12_B2_BASELINE[:12]}; "
+          f"{len(PHASE13_B1_FROZEN)} frozen files of batch 1 of phase 13 unchanged since "
+          f"{PHASE13_B1_BASELINE[:12]}; "
           f"the characterizations of {APPLICATIONS_DEFINITIONS} unchanged; "
+          f"the characterizations of {PHASE13_DEFINITIONS} at freeze "
+          f"{len(PHASE13_DEFINITIONS_FREEZES)}, compiled; "
+          f"{len(INVENTORY)} accepted general statements in the inventory; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
           f"{len(library)} library modules independent of the papers, of applications/ "
           f"and of Stdlib's reals; "
