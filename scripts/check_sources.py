@@ -150,8 +150,8 @@
    GaussianApplications. An omitted axiom report is an error: the script
    takes exactly one report per theorem of its table, in the order of
    THEOREMS (the main theorem, the universality theorem, then those of
-   PHASE6_THEOREMS to PHASE13_THEOREMS, 28 in all since rule 29), and a
-   missing or extra report makes it fail.
+   PHASE6_THEOREMS to PHASE13_THEOREMS and of SHIFTED_THEOREMS, 35 in all
+   since rule 31), and a missing or extra report makes it fail.
 22. Phase 12, the freeze of batch 1. The code of each file of
    PHASE12_B1_FROZEN, the statements of the Gaussian matrix series, of the
    sharp upper edge of the GOE and of the orthogonal splitting of positive
@@ -292,6 +292,31 @@
    Makefile must hold the two commands of SHIFTED_MAKE_LINES, the deletion
    of the output and the compilation, so that an old output cannot stand
    for a new one.
+31. The shifted-Gaussian proof, the axiom checks. The seven check files of
+   SHIFTED_THEOREMS, check/ShiftedConditionAssumptions.v,
+   check/ShiftedGaussianAssumptions.v, check/ShiftedQuadricAssumptions.v,
+   check/ShiftedErrorAssumptions.v, check/ShiftedMixtureUnsatAssumptions.v,
+   check/ShiftedMixtureSatAssumptions.v and check/ShiftedSignAssumptions.v,
+   have the codes of SHIFTED_CHECKS. Each is in the identity form of rule
+   29: it requires the frozen statement module and the theorem module of a
+   target (S1 to S7) without Import, defines shifted_<x>_identity with the
+   frozen statement as its type and the theorem as its body, both by their
+   absolute names, and prints the full name of that definition (Locate) and
+   its axioms, which must be among those of its expected list,
+   check/shifted_<x>_assumptions.expected; the axioms of each of the seven
+   lists must be among the seven of check/sat_variance_assumptions.expected
+   (no Classical_Prop.classic). The script then takes 35 reports, one per
+   theorem of THEOREMS. check/ShiftedIdentities.v has the code
+   SHIFTED_IDENTITIES_CHECK: it requires the fourteen modules without
+   Import, defines the seven identities in the same form, and bundles them
+   in the definition shifted_identities, whose type is the conjunction of
+   the seven frozen statements, so that one compiled file checks the seven
+   theorems against their frozen statements. make check deletes its output,
+   build/shifted_identities.txt, then compiles the file into it; the output
+   is required: it must exist and be a complete axiom report whose axioms
+   are among those of check/sat_variance_assumptions.expected. The Makefile
+   must hold the two commands of SHIFTED_MAKE_LINES_P, the deletion of the
+   output and the compilation.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -1821,13 +1846,137 @@ SHIFTED_DEFINITIONS_CHECK = (
     ', @iid_row_sample_law_characterization, @shifted_iid_sample_law_ch'
     'aracterization, @sign_mixture_sample_law_characterization). Print '
     'Assumptions shifted_characterizations.')
+# The axiom checks of the seven theorems of the shifted-Gaussian proof
+# (rule 31), in the identity form of rule 29: the code of each check file.
+SHIFTED_CHECKS = {
+    "Condition": ('Require EllipsoidUniversality.ShiftedConditionStatement. Require Ell'
+        'ipsoidUniversality.Shifted.ConditionTheorem. Definition shifted_cond'
+        'ition_identity : EllipsoidUniversality.ShiftedConditionStatement.shi'
+        'fted_condition_statement := EllipsoidUniversality.Shifted.ConditionT'
+        'heorem.shifted_condition_theorem. Locate shifted_condition_identity.'
+        ' Print Assumptions shifted_condition_identity.'),
+    "Gaussian": ('Require EllipsoidUniversality.ShiftedGaussianStatement. Require Elli'
+        'psoidUniversality.Shifted.GaussianTheorem. Definition shifted_gaussi'
+        'an_identity : EllipsoidUniversality.ShiftedGaussianStatement.shifted'
+        '_gaussian_statement := EllipsoidUniversality.Shifted.GaussianTheorem'
+        '.shifted_gaussian_theorem. Locate shifted_gaussian_identity. Print A'
+        'ssumptions shifted_gaussian_identity.'),
+    "Quadric": ('Require EllipsoidUniversality.ShiftedQuadricStatement. Require Ellip'
+        'soidUniversality.Shifted.QuadricTheorem. Definition shifted_quadric_'
+        'identity : EllipsoidUniversality.ShiftedQuadricStatement.shifted_qua'
+        'dric_statement := EllipsoidUniversality.Shifted.QuadricTheorem.shift'
+        'ed_quadric_theorem. Locate shifted_quadric_identity. Print Assumptio'
+        'ns shifted_quadric_identity.'),
+    "Error": ('Require EllipsoidUniversality.ShiftedErrorStatement. Require Ellipso'
+        'idUniversality.Shifted.ErrorTheorem. Definition shifted_error_identi'
+        'ty : EllipsoidUniversality.ShiftedErrorStatement.shifted_error_state'
+        'ment := EllipsoidUniversality.Shifted.ErrorTheorem.shifted_error_the'
+        'orem. Locate shifted_error_identity. Print Assumptions shifted_error'
+        '_identity.'),
+    "MixtureUnsat": ('Require EllipsoidUniversality.ShiftedMixtureUnsatStatement. Require '
+        'EllipsoidUniversality.Shifted.MixtureUnsatTheorem. Definition shifte'
+        'd_mixture_unsat_identity : EllipsoidUniversality.ShiftedMixtureUnsat'
+        'Statement.shifted_mixture_unsat_statement := EllipsoidUniversality.S'
+        'hifted.MixtureUnsatTheorem.shifted_mixture_unsat_theorem. Locate shi'
+        'fted_mixture_unsat_identity. Print Assumptions shifted_mixture_unsat'
+        '_identity.'),
+    "MixtureSat": ('Require EllipsoidUniversality.ShiftedMixtureSatStatement. Require El'
+        'lipsoidUniversality.Shifted.MixtureSatTheorem. Definition shifted_mi'
+        'xture_sat_identity : EllipsoidUniversality.ShiftedMixtureSatStatemen'
+        't.shifted_mixture_sat_statement := EllipsoidUniversality.Shifted.Mix'
+        'tureSatTheorem.shifted_mixture_sat_theorem. Locate shifted_mixture_s'
+        'at_identity. Print Assumptions shifted_mixture_sat_identity.'),
+    "Sign": ('Require EllipsoidUniversality.ShiftedSignStatement. Require Ellipsoi'
+        'dUniversality.Shifted.SignTheorem. Definition shifted_sign_identity '
+        ': EllipsoidUniversality.ShiftedSignStatement.shifted_sign_statement '
+        ':= EllipsoidUniversality.Shifted.SignTheorem.shifted_sign_theorem. L'
+        'ocate shifted_sign_identity. Print Assumptions shifted_sign_identity'
+        '.'),
+}
+SHIFTED_THEOREMS = [
+    ("shifted condition theorem", "check/ShiftedConditionAssumptions.v", SHIFTED_CHECKS["Condition"],
+     "check/shifted_condition_assumptions.expected"),
+    ("shifted Gaussian theorem", "check/ShiftedGaussianAssumptions.v", SHIFTED_CHECKS["Gaussian"],
+     "check/shifted_gaussian_assumptions.expected"),
+    ("shifted quadric theorem", "check/ShiftedQuadricAssumptions.v", SHIFTED_CHECKS["Quadric"],
+     "check/shifted_quadric_assumptions.expected"),
+    ("shifted error theorem", "check/ShiftedErrorAssumptions.v", SHIFTED_CHECKS["Error"],
+     "check/shifted_error_assumptions.expected"),
+    ("shifted mixture nonexistence theorem", "check/ShiftedMixtureUnsatAssumptions.v", SHIFTED_CHECKS["MixtureUnsat"],
+     "check/shifted_mixture_unsat_assumptions.expected"),
+    ("shifted mixture existence theorem", "check/ShiftedMixtureSatAssumptions.v", SHIFTED_CHECKS["MixtureSat"],
+     "check/shifted_mixture_sat_assumptions.expected"),
+    ("shifted sign theorem", "check/ShiftedSignAssumptions.v", SHIFTED_CHECKS["Sign"],
+     "check/shifted_sign_assumptions.expected"),
+]
+# The joint check of the seven theorems against their frozen statements
+# (rule 31), its output, and the commands of the Makefile that delete and
+# regenerate the output.
+SHIFTED_IDENTITIES = "check/ShiftedIdentities.v"
+SHIFTED_IDENTITIES_OUTPUT = "build/shifted_identities.txt"
+SHIFTED_MAKE_LINES_P = [
+    "rm -f $(REPORTS) build/applications_definitions.txt "
+    "build/phase13_definitions.txt build/library_statements.txt "
+    "build/shifted_definitions.txt build/shifted_identities.txt",
+    "rocq compile -noglob -Q library GaussianAnalysis -Q theories "
+    "EllipsoidFitting -Q extension EllipsoidUniversality -o "
+    "build/ShiftedIdentities.vo check/ShiftedIdentities.v > "
+    "build/shifted_identities.txt",
+]
+# The code of check/ShiftedIdentities.v, fixed with the axiom checks.
+SHIFTED_IDENTITIES_CHECK = (
+    'Require EllipsoidUniversality.ShiftedConditionStatement. Require E'
+    'llipsoidUniversality.Shifted.ConditionTheorem. Require EllipsoidUn'
+    'iversality.ShiftedGaussianStatement. Require EllipsoidUniversality'
+    '.Shifted.GaussianTheorem. Require EllipsoidUniversality.ShiftedQua'
+    'dricStatement. Require EllipsoidUniversality.Shifted.QuadricTheore'
+    'm. Require EllipsoidUniversality.ShiftedErrorStatement. Require El'
+    'lipsoidUniversality.Shifted.ErrorTheorem. Require EllipsoidUnivers'
+    'ality.ShiftedMixtureUnsatStatement. Require EllipsoidUniversality.'
+    'Shifted.MixtureUnsatTheorem. Require EllipsoidUniversality.Shifted'
+    'MixtureSatStatement. Require EllipsoidUniversality.Shifted.Mixture'
+    'SatTheorem. Require EllipsoidUniversality.ShiftedSignStatement. Re'
+    'quire EllipsoidUniversality.Shifted.SignTheorem. Definition shifte'
+    'd_condition_identity : EllipsoidUniversality.ShiftedConditionState'
+    'ment.shifted_condition_statement := EllipsoidUniversality.Shifted.'
+    'ConditionTheorem.shifted_condition_theorem. Definition shifted_gau'
+    'ssian_identity : EllipsoidUniversality.ShiftedGaussianStatement.sh'
+    'ifted_gaussian_statement := EllipsoidUniversality.Shifted.Gaussian'
+    'Theorem.shifted_gaussian_theorem. Definition shifted_quadric_ident'
+    'ity : EllipsoidUniversality.ShiftedQuadricStatement.shifted_quadri'
+    'c_statement := EllipsoidUniversality.Shifted.QuadricTheorem.shifte'
+    'd_quadric_theorem. Definition shifted_error_identity : EllipsoidUn'
+    'iversality.ShiftedErrorStatement.shifted_error_statement := Ellips'
+    'oidUniversality.Shifted.ErrorTheorem.shifted_error_theorem. Defini'
+    'tion shifted_mixture_unsat_identity : EllipsoidUniversality.Shifte'
+    'dMixtureUnsatStatement.shifted_mixture_unsat_statement := Ellipsoi'
+    'dUniversality.Shifted.MixtureUnsatTheorem.shifted_mixture_unsat_th'
+    'eorem. Definition shifted_mixture_sat_identity : EllipsoidUniversa'
+    'lity.ShiftedMixtureSatStatement.shifted_mixture_sat_statement := E'
+    'llipsoidUniversality.Shifted.MixtureSatTheorem.shifted_mixture_sat'
+    '_theorem. Definition shifted_sign_identity : EllipsoidUniversality'
+    '.ShiftedSignStatement.shifted_sign_statement := EllipsoidUniversal'
+    'ity.Shifted.SignTheorem.shifted_sign_theorem. Definition shifted_i'
+    'dentities : EllipsoidUniversality.ShiftedConditionStatement.shifte'
+    'd_condition_statement /\\ EllipsoidUniversality.ShiftedGaussianStat'
+    'ement.shifted_gaussian_statement /\\ EllipsoidUniversality.ShiftedQ'
+    'uadricStatement.shifted_quadric_statement /\\ EllipsoidUniversality'
+    '.ShiftedErrorStatement.shifted_error_statement /\\ EllipsoidUnivers'
+    'ality.ShiftedMixtureUnsatStatement.shifted_mixture_unsat_statement'
+    ' /\\ EllipsoidUniversality.ShiftedMixtureSatStatement.shifted_mixtu'
+    're_sat_statement /\\ EllipsoidUniversality.ShiftedSignStatement.shi'
+    'fted_sign_statement := conj shifted_condition_identity (conj shift'
+    'ed_gaussian_identity (conj shifted_quadric_identity (conj shifted_'
+    'error_identity (conj shifted_mixture_unsat_identity (conj shifted_'
+    'mixture_sat_identity shifted_sign_identity))))). Locate shifted_id'
+    'entities. Print Assumptions shifted_identities.')
 # Every theorem whose axiom report the script takes, in the order of its
 # arguments, and the path of its report: the arguments must be exactly the
 # paths of REPORTS.
 THEOREMS = (["main theorem", "universality theorem"]
             + [name for name, _, _, _ in PHASE6_THEOREMS + PHASE8_THEOREMS
                + PHASE9_THEOREMS + PHASE10_THEOREMS + PHASE11_THEOREMS
-               + PHASE12_THEOREMS + PHASE13_THEOREMS])
+               + PHASE12_THEOREMS + PHASE13_THEOREMS + SHIFTED_THEOREMS])
 REPORTS = [
     "build/assumptions.txt",
     "build/universality_assumptions.txt",
@@ -1857,6 +2006,13 @@ REPORTS = [
     "build/psd_normalization_assumptions.txt",
     "build/product_smoothing_assumptions.txt",
     "build/min_superadditive_assumptions.txt",
+    "build/shifted_condition_assumptions.txt",
+    "build/shifted_gaussian_assumptions.txt",
+    "build/shifted_quadric_assumptions.txt",
+    "build/shifted_error_assumptions.txt",
+    "build/shifted_mixture_unsat_assumptions.txt",
+    "build/shifted_mixture_sat_assumptions.txt",
+    "build/shifted_sign_assumptions.txt",
 ]
 assert len(REPORTS) == len(THEOREMS)
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
@@ -2112,6 +2268,24 @@ def main():
         for ax in sorted(axiom_names(output.read_text()) - allowed_p13):
             failures.append(f"{SHIFTED_DEFINITIONS_OUTPUT}: {ax} is not among "
                             "check/sat_variance_assumptions.expected")
+    if code((ROOT / SHIFTED_IDENTITIES).read_text()) != SHIFTED_IDENTITIES_CHECK:
+        failures.append(f"{SHIFTED_IDENTITIES}: code differs from "
+                        "SHIFTED_IDENTITIES_CHECK")
+    for line in SHIFTED_MAKE_LINES_P:
+        if line not in makefile:
+            failures.append(f"Makefile: the command {line!r} is missing")
+    output = ROOT / SHIFTED_IDENTITIES_OUTPUT
+    if not output.exists():
+        failures.append(f"{SHIFTED_IDENTITIES_OUTPUT}: no such output; make check "
+                        f"compiles {SHIFTED_IDENTITIES} into it")
+    elif not report_complete(output.read_text()):
+        failures.append(f"{SHIFTED_IDENTITIES_OUTPUT}: incomplete, neither the line "
+                        "Axioms: with at least one axiom nor the line Closed under "
+                        "the global context")
+    else:
+        for ax in sorted(axiom_names(output.read_text()) - allowed_p13):
+            failures.append(f"{SHIFTED_IDENTITIES_OUTPUT}: {ax} is not among "
+                            "check/sat_variance_assumptions.expected")
     now = section_code((ROOT / LAMBDA_MAX).read_text(), "lambda_max")
     if now[1] is None:
         failures.append(f"{LAMBDA_MAX}: no section lambda_max")
@@ -2189,13 +2363,13 @@ def main():
     for k, (name, check, check_code, expected) in enumerate(
             PHASE6_THEOREMS + PHASE8_THEOREMS + PHASE9_THEOREMS
             + PHASE10_THEOREMS + PHASE11_THEOREMS + PHASE12_THEOREMS
-            + PHASE13_THEOREMS):
+            + PHASE13_THEOREMS + SHIFTED_THEOREMS):
         if code((ROOT / check).read_text()) != check_code:
             failures.append(f"{check}: code differs from the expected check")
         allowed_k = axiom_names((ROOT / expected).read_text())
         for ax in sorted(allowed_k - allowed):
             failures.append(f"{expected}: {ax} is not among check/assumptions.expected")
-        if (name, check, check_code, expected) in PHASE13_THEOREMS:
+        if (name, check, check_code, expected) in PHASE13_THEOREMS + SHIFTED_THEOREMS:
             for ax in sorted(allowed_k - allowed_p13):
                 failures.append(f"{expected}: {ax} is not among "
                                 "check/sat_variance_assumptions.expected")
@@ -2253,6 +2427,8 @@ def main():
           f"the characterizations of {PHASE13_DEFINITIONS} at freeze "
           f"{len(PHASE13_DEFINITIONS_FREEZES)}, compiled; "
           f"the characterizations of {SHIFTED_DEFINITIONS} unchanged, compiled; "
+          f"the joint identities of the {len(SHIFTED_THEOREMS)} shifted theorems "
+          f"in {SHIFTED_IDENTITIES} unchanged, compiled; "
           f"{len(INVENTORY)} accepted general statements in the inventory, each "
           f"stated and proved in {LIBRARY_STATEMENTS}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "
