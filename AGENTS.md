@@ -3,6 +3,54 @@
 `CLAUDE.md` is a symbolic link to this file. Read it, then `README.md` and
 `library/README.md`, before touching anything.
 
+## The shifted-Gaussian extension (16 October 2026)
+
+The user authorized the formal proof of the shifted-Gaussian extension on
+the Mac, while the VM was unavailable: seven theorems on translated
+samples, stated at the top of `extension/` and proved in
+`extension/Shifted/`, with 23 new library files. The work follows a
+formalization plan that is outside the repository. On 16 October 2026 the
+user accepted the seven statement files at commit `51c2e14`, and decided to
+freeze them with the current checker and to merge the work into main. These
+rules are in force.
+
+- **The frozen statements.** The seven statement files are frozen:
+  `extension/ShiftedConditionStatement.v`, `ShiftedGaussianStatement.v`,
+  `ShiftedQuadricStatement.v`, `ShiftedErrorStatement.v`,
+  `ShiftedMixtureUnsatStatement.v`, `ShiftedMixtureSatStatement.v` and
+  `ShiftedSignStatement.v`. Their code does not change:
+  `scripts/check_sources.py` compares it with `51c2e14` (rule 30). Only the
+  master edits their comments. If a proof seems to require a change, stop
+  and ask the user.
+- **Their definitions.** `check/ShiftedDefinitions.v` protects the 29
+  definitions of other files that these statements unfold to and that no
+  earlier check protects, by characterizations proved by computation. Its
+  code is fixed, and `make check` compiles it into
+  `build/shifted_definitions.txt`, a required output.
+- **The axiom checks.** `check/ShiftedConditionAssumptions.v` to
+  `check/ShiftedSignAssumptions.v` check the seven theorems, with the
+  expected lists `check/shifted_condition_assumptions.expected` to
+  `check/shifted_sign_assumptions.expected` (rule 31). Each theorem may use
+  only the seven axioms of `check/sat_variance_assumptions.expected`, so
+  `Classical_Prop.classic` is not allowed. `check/ShiftedIdentities.v`
+  checks the seven theorems against their frozen statements in one file;
+  its output, `build/shifted_identities.txt`, is required. `make check`
+  takes 35 axiom reports.
+- **What is new.** `extension/Shifted/`, the seven statement files and the
+  23 library files that their proofs use are new; the user's authorization
+  permits them. For them only, this overrides the rules of phase 13 that
+  nothing changes in `extension/` and that a general result enters the
+  library only for a proof of phase 13 or 14; the other rules of phase 13
+  apply. The code of the 56 frozen files, the 49 of phases 1 to 13 and
+  these seven, does not change, and the 35 theorems that `make check`
+  checks keep building at every commit. No new mathematics enters the
+  extension without a new decision of the user.
+- **What waits.** The pin of the new check files and expected lists, and
+  any tag, wait for the user's acceptance of the phase 13 checker repair
+  (branch `local/checker-repair`), as the pin and the tag of phase 13 do.
+- **No push.** The user decided to merge the work into the local `main`.
+  Nothing is pushed anywhere unless the user asks.
+
 ## The task
 
 `theories/` holds a proof of the three main theorems of the paper
@@ -144,7 +192,11 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 ## Phases
 
 Phases 1 to 12 below are done: tag `phase12` is at 9046883. The
-current work is phase 13, described after phase 12.
+current work is phase 13, described after phase 12. The statements of the
+shifted-Gaussian extension, described at the top of this file, are frozen,
+and the user decided to merge it into main; the pin of its check files and
+any tag wait, like those of phase 13, for the user's acceptance of the
+checker repair.
 
 **Phase 1. Agent 1 alone; the others wait.**
 

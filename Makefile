@@ -62,7 +62,14 @@ REPORTS = build/assumptions.txt \
 	build/sat_threshold_assumptions.txt \
 	build/psd_normalization_assumptions.txt \
 	build/product_smoothing_assumptions.txt \
-	build/min_superadditive_assumptions.txt
+	build/min_superadditive_assumptions.txt \
+	build/shifted_condition_assumptions.txt \
+	build/shifted_gaussian_assumptions.txt \
+	build/shifted_quadric_assumptions.txt \
+	build/shifted_error_assumptions.txt \
+	build/shifted_mixture_unsat_assumptions.txt \
+	build/shifted_mixture_sat_assumptions.txt \
+	build/shifted_sign_assumptions.txt
 
 .PHONY: all build check citations clean FORCE
 
@@ -79,10 +86,11 @@ theories/%.vo library/%.vo extension/%.vo applications/%.vo: Makefile.rocq FORCE
 
 check: build
 	mkdir -p build
-	rm -f $(REPORTS) build/applications_definitions.txt build/phase13_definitions.txt build/library_statements.txt
+	rm -f $(REPORTS) build/applications_definitions.txt build/phase13_definitions.txt build/library_statements.txt build/shifted_definitions.txt build/shifted_identities.txt
 	$(EXEC) rocq compile -noglob -w -notation-overridden -w -ambiguous-paths -w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library GaussianAnalysis -o build/ApplicationsDefinitions.vo check/ApplicationsDefinitions.v > build/applications_definitions.txt
 	$(EXEC) rocq compile -noglob -w -notation-overridden -w -ambiguous-paths -w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library GaussianAnalysis -o build/Phase13Definitions.vo check/Phase13Definitions.v > build/phase13_definitions.txt
 	$(EXEC) rocq compile -noglob -w -notation-overridden -w -ambiguous-paths -w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library GaussianAnalysis -o build/LibraryStatements.vo check/LibraryStatements.v > build/library_statements.txt
+	$(EXEC) rocq compile -noglob -w -notation-overridden -w -ambiguous-paths -w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ShiftedDefinitions.vo check/ShiftedDefinitions.v > build/shifted_definitions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -o build/Assumptions.vo check/Assumptions.v > build/assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/UniversalityAssumptions.vo check/UniversalityAssumptions.v > build/universality_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/MixtureAssumptions.vo check/MixtureAssumptions.v > build/mixture_assumptions.txt
@@ -111,6 +119,14 @@ check: build
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/PsdNormalizationAssumptions.vo check/PsdNormalizationAssumptions.v > build/psd_normalization_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/ProductSmoothingAssumptions.vo check/ProductSmoothingAssumptions.v > build/product_smoothing_assumptions.txt
 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q applications GaussianApplications -o build/MinSuperadditiveAssumptions.vo check/MinSuperadditiveAssumptions.v > build/min_superadditive_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ShiftedConditionAssumptions.vo check/ShiftedConditionAssumptions.v > build/shifted_condition_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ShiftedGaussianAssumptions.vo check/ShiftedGaussianAssumptions.v > build/shifted_gaussian_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ShiftedQuadricAssumptions.vo check/ShiftedQuadricAssumptions.v > build/shifted_quadric_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ShiftedErrorAssumptions.vo check/ShiftedErrorAssumptions.v > build/shifted_error_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ShiftedMixtureUnsatAssumptions.vo check/ShiftedMixtureUnsatAssumptions.v > build/shifted_mixture_unsat_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ShiftedMixtureSatAssumptions.vo check/ShiftedMixtureSatAssumptions.v > build/shifted_mixture_sat_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ShiftedSignAssumptions.vo check/ShiftedSignAssumptions.v > build/shifted_sign_assumptions.txt
+	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/ShiftedIdentities.vo check/ShiftedIdentities.v > build/shifted_identities.txt
 	python3 scripts/check_sources.py $(REPORTS)
 	$(if $(filter yes,$(CITATIONS)),$(EXEC) python3 scripts/stale_citations.py,@true)
 	@echo "make check passed."
