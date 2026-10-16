@@ -165,6 +165,11 @@ The remaining modules assemble the probabilistic limits and conclusions:
 | `Shifted/SparseInputs.v` | Joint fit and interpolation events along arbitrary cofinal complement dimensions. Constants precede all family and sample sequences; an explicit admissible baseline handles omitted dimensions. |
 | `Shifted/SparseCoordinates.v` | Moves an arbitrary deterministic support to a head block, commutes this coordinate selection with translation, transports positive definite fits, and preserves local admissibility and averaged fourth moments. |
 | `Shifted/SparseBlockSamples.v` | Identifies the actual flat-sample head targets and their measurable norm bound; combines the complementary fit and interpolation event into a translated positive definite fit. |
+| `Shifted/SparseTargetRates.v` | Scalar limits for the head-target moment and maximum bounds when the complement dimension is cofinal, `h/p -> 0` and `n/p^2 -> alpha`. No positivity of the scalar constants or logarithmic strengthening of `h/p -> 0` is needed. |
+| `Shifted/SparseTargetBounds.v` | For finite/countable mixtures with common admissibility constant `K>0`, the head-target interpolation size tends to zero when `p` is cofinal, `h/p -> 0` and `n/p^2 -> alpha`, for each `L>=0`. Arbitrary shift magnitudes; no symmetry or fourth-moment matching. |
+| `Shifted/SparseExistence.v` | Positive definite fitting for a translated head block of finite/countable admissible mixtures, with `kappa>1`, cofinal `p`, `h/p -> 0` and `n/p^2 -> alpha` in `(0,alpha_star(kappa))`. Uses an explicit admissible baseline and the two block marginals without assuming independence. |
+| `Shifted/SparseShift.v` | For finite/countable admissible mixtures of fourth moment `kappa>1` and `0<alpha<alpha_star(kappa)`, deterministic shifts supported on `o(d)` coordinates admit positive definite fits with probability tending to one. No shift-size bound or symmetry is required. |
+| `Shifted/MixtureSign.v` | For centrally symmetric finite/countable admissible mixture point laws with `kappa>1`, transfers sparse-shift PD existence below `alpha_star(kappa)` and arbitrary-shift PSD nonexistence above it to opposite-shift mixtures. Sign weights may vary with dimension and include 0 and 1. |
 
 ## Existing results
 

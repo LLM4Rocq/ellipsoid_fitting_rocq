@@ -79,6 +79,12 @@ Checkpoint `5f579e9` assembles the Gaussian condition and error limits and
 symmetric-mixture quadric exclusion. It passed the historical checks,
 supplemental axiom audits and recursive kernel checking.
 
+Checkpoint `7feef8b` adds the sparse-shift inputs, coordinate selection
+and sign-law bridges. Its build, axiom audits and recursive kernel checks
+passed. The final local checkpoint assembles sparse-shift existence and
+its opposite-shift mixture consequences. Public statement freezes and
+release checks still await the accepted verification repair.
+
 Current ownership: the Gaussian worker owns `Shifted/SparseExistence.v`;
 the matrix worker owns `Shifted/SparseTargetBounds.v`; the probability
 worker owns `Shifted/SparseShift.v`; the separate local agent owns

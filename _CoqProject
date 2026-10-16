@@ -929,3 +929,8 @@ extension/Shifted/SignMixture.v
 extension/Shifted/SparseCoordinates.v
 extension/Shifted/TranslatedNonexistence.v
 extension/Shifted/SparseBlockSamples.v
+extension/Shifted/SparseTargetRates.v
+extension/Shifted/SparseTargetBounds.v
+extension/Shifted/SparseExistence.v
+extension/Shifted/SparseShift.v
+extension/Shifted/MixtureSign.v
