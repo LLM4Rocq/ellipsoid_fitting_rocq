@@ -155,6 +155,17 @@ The remaining modules assemble the probabilistic limits and conclusions:
 | `Shifted/GaussianError.v` | Convergence in probability of the shifted fitting error and its infimum over translations to the frozen centered error curve, for every positive density. |
 | `Shifted/SymmetricQuadric.v` | For `kappa>1` and `alpha>alpha_star(kappa)`, finite/countable admissible mixtures with centrally symmetric point laws have one measurable good event giving a positive uniform translation-error margin and exclusion of all nonzero PSD quadrics. The margin is fixed from `kappa,alpha` alone. |
 
+| `Shifted/GaussianBounds.v` | Combines existence with matching optimal-condition bounds of order `1+||m||/sqrt(d)` below `1/4`, with constants fixed before the deterministic shift and sample-count sequences. |
+| `Shifted/SignMixture.v` | Exact centered-fit probabilities and laws of the optimal condition number and fitting error under opposite-shift mixtures; all Gaussian small-shift, condition-scale and error consequences, including centered PSD nonexistence above `1/4`. It does not transfer arbitrary-center quadric events. |
+| `Shifted/TranslatedNonexistence.v` | For symmetric finite/countable admissible mixtures above `alpha_star(kappa)`, every deterministic translation has centered PSD-fit probability tending to zero, with no shift-size restriction. |
+| `Shifted/SparseInterpolation.v` | An arbitrary head block with positive weight and an interpolated complementary fit gives a positive definite full fit. No independence of the two blocks is assumed. |
+| `Shifted/SparseRows.v` | Exact sample and row marginal laws for injective coordinate selections of finite/countable product mixtures; selected coordinates retain their original component weights and laws. |
+| `Shifted/SparseDimensions.v` | A head size `h=o(d)` leaves a cofinal complement, preserves quadratic sample density, and makes every fixed logarithmic power divided by its square root vanish. |
+| `Shifted/SparseTargets.v` | Second moments and measurability of normalized head targets, using weight `1/(1+||m||)`. The bound is `(8 K^4 h+8)/p`, without symmetry or fourth-moment matching. |
+| `Shifted/SparseInputs.v` | Joint fit and interpolation events along arbitrary cofinal complement dimensions. Constants precede all family and sample sequences; an explicit admissible baseline handles omitted dimensions. |
+| `Shifted/SparseCoordinates.v` | Moves an arbitrary deterministic support to a head block, commutes this coordinate selection with translation, transports positive definite fits, and preserves local admissibility and averaged fourth moments. |
+| `Shifted/SparseBlockSamples.v` | Identifies the actual flat-sample head targets and their measurable norm bound; combines the complementary fit and interpolation event into a translated positive definite fit. |
+
 ## Existing results
 
 This directory, under the logical root `EllipsoidUniversality`, holds

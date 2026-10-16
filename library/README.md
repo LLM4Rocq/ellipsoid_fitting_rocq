@@ -75,6 +75,10 @@ samples is documented in `extension/README.md`.
 | `random_matrix/reserve_convergence.v` | Asymptotic centered-reserve correction bounds. | Under explicit sign-invariant row, covariance and independent right-hand-side hypotheses, singularity is negligible, the correction norm tends to zero and the quadratic correction norm is `o_P(sqrt(d))`. The proof retains the singular event before using guarded inverses. |
 | `random_matrix/reserve_row_conditions.v` | Maximum-row and covariance bounds supplying the reserve hypotheses. | Independent centered isotropic rows with a common directional subgaussian constant and `k/d^2` tending to a positive limit. The maximum-row constant is fixed before the probability tolerance. |
 
+| `analysis/family_reindexing.v` | `family_eventually_reindex` | Eventual conclusions valid for every admissible dimension-indexed selector transfer to arbitrary cofinal dimension maps, even with different instances at repeated dimensions. An explicit admissible baseline and a convergent scalar statistic are required. |
+| `matrix/coordinate_blocks.v` | Coordinate partitions, support selection and quadratic-form transport. | A finite support and its complement give an explicit bijection of coordinates, including empty blocks. Its inverse transports PSD, positive definiteness and condition bounds. No dimension casts or probabilistic assumptions are needed. |
+| `probability/sign_shift_sample.v` | `symmetric_sign_shift_sample`, `symmetric_sign_shift_observation` | Under a centrally symmetric point law, every measurable sample observable invariant under independent row signs has the same law for any mixture of opposite shifts as for a single shift. Weights 0 and 1 and empty samples are included. |
+
 The main results of each file, with an informal statement and the modules
 of `theories/` that use them directly. `Gaussian/Law/LibraryBridge` is the bridge
 between the library and the definitions of the paper; a row that names it

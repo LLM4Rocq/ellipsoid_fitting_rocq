@@ -75,14 +75,18 @@ error limits and symmetric-mixture quadric exclusion. Its completed source
 inventory is maintained outside the repository in
 `../../reviews/shifted-runtime/local-checkpoint-03-progress.json`.
 
-Current remaining ownership: the Gaussian worker owns
-`probability/sign_shift_sample.v` and `Shifted/SignMixture.v`; the matrix
-worker owns `Shifted/SparseTargets.v`; the probability worker owns
-`Shifted/SparseRows.v`; the separate local agent owns
-`analysis/family_reindexing.v`. The master handles sparse-existence
-assembly, source review, registration, documentation and verified local
-commits. Do not edit another owner's module or any historical checker,
-frozen statement, or main-branch source. Only sources cross worktrees.
+Checkpoint `5f579e9` assembles the Gaussian condition and error limits and
+symmetric-mixture quadric exclusion. It passed the historical checks,
+supplemental axiom audits and recursive kernel checking.
+
+Current ownership: the Gaussian worker owns `Shifted/SparseExistence.v`;
+the matrix worker owns `Shifted/SparseTargetBounds.v`; the probability
+worker owns `Shifted/SparseShift.v`; the separate local agent owns
+`Shifted/SparseTargetRates.v`. Their completed supporting files retain
+their original ownership. The master owns `Shifted/SparseBlockSamples.v`,
+`Shifted/MixtureSign.v`, review, registration, documentation and local
+commits. Only sources cross worktrees. No worker edits another owner's
+module, historical checker, frozen statement or main-branch source.
 
 `CLAUDE.md` is a symbolic link to this file. Read it, then `README.md` and
 `library/README.md`, before touching anything.

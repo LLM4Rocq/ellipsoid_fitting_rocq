@@ -916,3 +916,16 @@ extension/Shifted/SampleSplit.v
 extension/Shifted/GaussianErrorLower.v
 extension/Shifted/GaussianError.v
 extension/Shifted/SymmetricQuadric.v
+library/analysis/family_reindexing.v
+library/probability/sign_shift_sample.v
+extension/Shifted/SparseInterpolation.v
+extension/Shifted/SparseRows.v
+extension/Shifted/GaussianBounds.v
+extension/Shifted/SparseDimensions.v
+library/matrix/coordinate_blocks.v
+extension/Shifted/SparseTargets.v
+extension/Shifted/SparseInputs.v
+extension/Shifted/SignMixture.v
+extension/Shifted/SparseCoordinates.v
+extension/Shifted/TranslatedNonexistence.v
+extension/Shifted/SparseBlockSamples.v
