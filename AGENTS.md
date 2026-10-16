@@ -36,6 +36,38 @@ The current separate assignments are `Shifted/ConditionGap.v` and `Shifted/Resid
 three modules are complete. Continue with the accepted S1-S7 plan; the
 master reviews interfaces and integrates complete proof chunks.
 
+Checkpoint `436dafd` contains twelve supporting modules, verified by
+`make check`, supplemental axiom reports and recursive kernel checking.
+The next assignments are `Shifted/Translations.v`,
+`Shifted/ConditionTranslation.v` and `matrix/centered_translation.v`
+(master); `matrix/condition_perturbation.v` and
+`Shifted/GaussianTargets.v` (Gaussian worker);
+`random_matrix/isotropic_rows.v` (matrix worker);
+`random_matrix/symmetric_reserve.v` (probability worker); and
+`Shifted/ProjectionCertificate.v` (the separate projection agent).
+The separate agent also delivered `convex/psd_residual.v` for integration.
+Only source files are transferred; every module is compiled at its final
+logical name in this worktree. Active draft files are not completed
+results and must be finished and registered before the next checkpoint.
+
+The Gaussian worker continues in `Shifted/GaussianTargetBounds.v`.
+The separate projection agent has completed `analysis/infimum_measurability.v`
+and `Shifted/TranslationError.v`, and owns the deterministic assembly in
+`Shifted/ReserveCertificate.v`. The matrix worker's
+`random_matrix/isotropic_rows.v` is complete; further law bridges are
+assigned separately after its survey. The probability worker continues
+the independent-product and centered-covariance bounds in
+`random_matrix/symmetric_reserve.v`. The master reviews and registers
+these completed modules and keeps their original source ownership.
+
+Further assignments: `random_matrix/even_weights.v` and
+`Shifted/GaussianSmallShift.v` belong to the master;
+`Shifted/GaussianExistence.v` to the Gaussian worker;
+`probability/isotropic_mixtures.v`, `Shifted/MixtureRows.v` and
+`Shifted/MixtureAdjoint.v` to the matrix worker; and
+`probability/independent_row_signs.v` to the separate projection agent.
+The completed Gaussian matrix bounds remain owned by the matrix worker.
+
 `CLAUDE.md` is a symbolic link to this file. Read it, then `README.md` and
 `library/README.md`, before touching anything.
 

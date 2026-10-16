@@ -39,8 +39,77 @@ and intercept. `gaussian_condition_residual_gap` specializes this to
 Gaussian data above `condition_alpha C`, for every `C>1` and `alpha>0`;
 its positive gap is chosen before the sample-size sequence and tolerance.
 
-These are supporting lemmas. The shifted condition-number, quadric and
-error-limit theorems are not yet proved. This local development does not
+`Shifted/Translations.v` defines translation in the frozen flat sample
+layout, proves its point identity and joint measurability, and transfers
+one moment-cancelling certificate to all translations. The fitting-error
+bound keeps `d*t^2/(n*sum w_i^2)`; a positive margin excludes every
+translated fit with a nonzero PSD matrix, at every common real level.
+
+`Shifted/ProjectionCertificate.v` identifies the frozen fitting error
+with the squared norm of the closest centered measurement of the PSD
+trace slice, for `n,d>0`. Its measurable normalized direction depends only
+on the outer products, has zero sum and norm at most one, and yields the
+exact matrix margin `sqrt(n/d)*sqrt(fitting_error)`. A positive error gives
+unit norm; at zero error the projection, weights, outer matrix and first
+moment are all zero. No random reserve correction is assumed here.
+
+`Shifted/GaussianTargets.v` proves the deterministic interpolation step
+for a shifted coordinate, retaining the common level and scalar
+intercept until rescaling is justified. The unit and weighted block
+versions use the library perturbation bounds. For standard Gaussian
+coordinates it proves the exact target second moment
+`n*s^2*(2+4*a^2)/p`, together with integrability and measurability of the
+correction-size bound. Probability estimates and asymptotic assembly
+are separate.
+
+`Shifted/TranslationError.v` proves continuity of the frozen fitting error
+in flat row coordinates for `n,d>0`. Its infimum over all translations
+has open strict sublevels and is measurable in the original tuple layout.
+It is nonnegative, bounded above by the error at each fixed translation,
+and inherits every lower bound that holds uniformly over translations.
+No minimizing translation or continuity of the infimum is assumed.
+
+`Shifted/ConditionTranslation.v` transfers a residual gap uniform over
+the condition slice to translated samples. For `d>0`, `C>0`, any fit of
+the translated sample forces
+`eta*n*d <= 4*C^2*opnorm(G)^2*frobenius(m)^2`.
+The candidate fitting matrix may depend on the whole sample. A measurable
+event inclusion gives the corresponding probability bound under any
+sample probability law, for each fixed translation.
+
+`Shifted/GaussianMatrixBounds.v` transfers the finite Gaussian matrix
+second-moment and tail bounds to the frozen flat sample law. The scaled
+tail bound includes a zero multiplier, which covers a zero shift without
+division by its norm.
+
+`Shifted/GaussianTargetBounds.v` controls both terms of the interpolation
+size. At density `alpha`, fixed `L,e>=0`, `abs(s)<=1` and
+`abs(s*a)<=e*sqrt(p)` eventually give an asymptotic upper bound
+`2*L*e*sqrt(alpha)`. The probability tolerance is chosen after `e`.
+For `s=1` and `abs(a)=o(sqrt(p))`, the size tends to zero in probability.
+The proof separates the centered-square and linear Gaussian terms and
+uses moments through order four.
+
+`Shifted/ReserveCertificate.v` combines the main-sample projection weights
+with a centered reserve correction, assuming invertibility of its
+covariance and positive main count, reserve count and dimension. The
+combined weights annihilate constants and coordinates. Its error lower
+bound is uniform over all translations and retains the exact sample-size
+ratios, the correction norm and the positive part of the remaining
+margin. A strictly positive margin excludes every quadric with nonzero
+PSD quadratic part. The zero-error and nonpositive-margin cases are
+handled separately; this module makes no probability claim.
+
+`Shifted/GaussianSmallShift.v` proves the unsatisfiable half of the
+small-shift Gaussian threshold: for every `C>1`, `alpha>condition_alpha C`,
+`alpha>0`, `n/d^2 -> alpha`, and deterministic `frobenius(m_d)=o(sqrt(d))`,
+the probability of a translated fit with condition number at most `C`
+tends to zero. The finite bound is `eps + K(C,alpha)*frobenius(m)^2/d`
+at all sufficiently large dimensions, uniformly over the deterministic
+shift. No logarithmic restriction or upper bound on `alpha` is used.
+
+The full shifted condition-number, quadric and error-limit theorems
+are not yet assembled. This local development does not
 change the phase 13 checker-repair acceptance or release status.
 
 ## Existing results
