@@ -4,7 +4,7 @@
    The small-shift hypothesis is written explicitly below. The optimum
    is the existing extended-real infimum; no attainment is asserted.
    Source: doc/shifted-gaussian.tex and the formalization plan, S1.
-   These are review drafts, not frozen statements. *)
+   Accepted at commit 51c2e14 and frozen. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.

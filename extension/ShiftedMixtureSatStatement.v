@@ -10,7 +10,7 @@
    for each deterministic shift sequence; no event common to all shifts
    is asserted. No baseline family or interpolation-target hypothesis is
    left in the statement. Finite and countable families are explicit.
-   This file contains draft statements only, not a freeze. *)
+   Accepted at commit 51c2e14 and frozen. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.

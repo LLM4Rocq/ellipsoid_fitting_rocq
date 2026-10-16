@@ -264,6 +264,34 @@
    build/library_statements.txt, and compiles the file into it; the output is
    required and must be a complete axiom report within the seven axioms. The
    Makefile must hold the commands of PHASE13_MAKE_LINES_P.
+30. The shifted-Gaussian proof, the freeze. The code of each file of
+   SHIFTED_FROZEN, the seven statement files extension/Shifted<X>Statement.v
+   (X = Condition, Gaussian, Quadric, Error, MixtureUnsat, MixtureSat and
+   Sign), must equal its code at the commit SHIFTED_BASELINE, at which the
+   user accepted them. The project definitions that these statements unfold
+   to and that the earlier rules do not protect are protected by
+   check/ShiftedDefinitions.v, which states a characterization of each,
+   written out down to the definitions of MathComp, MathComp-Analysis and
+   Stdlib, to the frozen files, to the section tuple_prod and to the
+   definitions that check/ApplicationsDefinitions.v characterizes, and
+   proves it by computation: family_sequence_limit, coordinate_support,
+   quadric_eval, tuple_map, mixture_weights, mixture, cmixture_weights,
+   cmixture, row_symmetric_law, row_shift, row_shift_law,
+   sign_shift_weights, sign_shift_law, row_outer, row_of_tuple, point_law,
+   sample_row_tuple, sample_flat_row, sample_flat_col, sample_of_row_tuple,
+   sample_translate, translation_fitting_error, gaussian_small_shift,
+   finite_row_law, countable_row_law, row_sample_map, iid_row_sample_law,
+   shifted_iid_sample_law and sign_mixture_sample_law. The constants
+   generated for them (canonical instances, mixins, factories and Let
+   subproofs) are fixed through the values that these characterizations
+   compute. The code of check/ShiftedDefinitions.v is fixed: it must equal
+   SHIFTED_DEFINITIONS_CHECK. make check deletes its output,
+   build/shifted_definitions.txt, then compiles the file into it; the
+   output is required: it must exist and be a complete axiom report whose
+   axioms are among those of check/sat_variance_assumptions.expected. The
+   Makefile must hold the two commands of SHIFTED_MAKE_LINES, the deletion
+   of the output and the compilation, so that an old output cannot stand
+   for a new one.
 
 `make check` runs this script after the build. It exits 1 on any failure.
 """
@@ -1595,6 +1623,204 @@ PHASE13_MAKE_LINES_P = [
     "GaussianAnalysis -o build/LibraryStatements.vo "
     "check/LibraryStatements.v > build/library_statements.txt",
 ]
+# The freeze of the seven statement files of the shifted-Gaussian proof
+# (rule 30), accepted by the user at SHIFTED_BASELINE.
+SHIFTED_FROZEN = [
+    "extension/ShiftedConditionStatement.v",
+    "extension/ShiftedGaussianStatement.v",
+    "extension/ShiftedQuadricStatement.v",
+    "extension/ShiftedErrorStatement.v",
+    "extension/ShiftedMixtureUnsatStatement.v",
+    "extension/ShiftedMixtureSatStatement.v",
+    "extension/ShiftedSignStatement.v",
+]
+SHIFTED_BASELINE = "51c2e14d5c2d75469f8147901bc8f664d33d4b6c"
+SHIFTED_DEFINITIONS = "check/ShiftedDefinitions.v"
+SHIFTED_DEFINITIONS_OUTPUT = "build/shifted_definitions.txt"
+# The commands of the Makefile that delete and regenerate the output.
+SHIFTED_MAKE_LINES = [
+    "rm -f $(REPORTS) build/applications_definitions.txt "
+    "build/phase13_definitions.txt build/library_statements.txt "
+    "build/shifted_definitions.txt",
+    "rocq compile -noglob -w -notation-overridden -w -ambiguous-paths "
+    "-w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library "
+    "GaussianAnalysis -Q theories EllipsoidFitting -Q extension "
+    "EllipsoidUniversality -o build/ShiftedDefinitions.vo "
+    "check/ShiftedDefinitions.v > build/shifted_definitions.txt",
+]
+# The code of check/ShiftedDefinitions.v, fixed at the freeze.
+SHIFTED_DEFINITIONS_CHECK = (
+    'From Stdlib Require Import Reals. From mathcomp Require Import all'
+    '_ssreflect_compat ssralg ssrnum matrix. From mathcomp Require Impo'
+    'rt classical_sets reals Rstruct. From mathcomp Require Import erea'
+    'l topology sequences measure lebesgue_measure. From mathcomp Requi'
+    're Import probability. Require GaussianAnalysis.gaussian.measurabl'
+    'e_matrix. Require GaussianAnalysis.analysis.family_reindexing. Req'
+    'uire GaussianAnalysis.matrix.euclidean. Require GaussianAnalysis.m'
+    'atrix.coordinate_blocks. Require GaussianAnalysis.matrix.quadric_c'
+    'ertificate. Require GaussianAnalysis.probability.lindeberg. Requir'
+    'e GaussianAnalysis.probability.tuple_rows. Require GaussianAnalysi'
+    's.probability.mixture. Require GaussianAnalysis.probability.counta'
+    'ble_mixture. Require GaussianAnalysis.probability.symmetric_shift.'
+    ' Require EllipsoidFitting.PaperMainDefinitions. Require EllipsoidF'
+    'itting.Gaussian.Law.LibraryBridge. Require EllipsoidUniversality.U'
+    'niversalityDefinitions. Require EllipsoidUniversality.MixtureDefin'
+    'itions. Require EllipsoidUniversality.CountableMixtureDefinitions.'
+    ' Require EllipsoidUniversality.Sat.AprioriSparse. Require Ellipsoi'
+    'dUniversality.Shifted.GaussianRows. Require EllipsoidUniversality.'
+    'Shifted.Translations. Require EllipsoidUniversality.Shifted.Transl'
+    'ationError. Require EllipsoidUniversality.Shifted.GaussianConditio'
+    'n. Require EllipsoidUniversality.Shifted.MixtureRows. Require Elli'
+    'psoidUniversality.Shifted.SignMixture. Import (canonicals) Gaussia'
+    'nAnalysis.gaussian.measurable_matrix. Import (canonicals) Gaussian'
+    'Analysis.probability.mixture. Import (canonicals) GaussianAnalysis'
+    '.probability.countable_mixture. Local Open Scope ring_scope. Local'
+    ' Open Scope classical_set_scope. Local Notation RR := (R : realTyp'
+    'e). Lemma family_sequence_limit_characterization (R : realType) (u'
+    ' : nat -> R) (a : R) : GaussianAnalysis.analysis.family_reindexing'
+    '.family_sequence_limit u a <-> forall eps : R, 0 < eps -> exists D'
+    ' : nat, forall d : nat, (D <= d)%N -> `|u d - a| < eps. Proof. by '
+    '[]. Qed. Lemma coordinate_support_characterization (R : realType) '
+    "(d : nat) (m : 'cV[R]_d) : GaussianAnalysis.matrix.coordinate_bloc"
+    "ks.coordinate_support m = [set i : 'I_d | m i 0 != 0]%SET. Proof. "
+    'by []. Qed. Lemma quadric_eval_characterization (R : realType) (n '
+    ": nat) (Q : 'M[R]_n) (v : 'cV[R]_n) (c : R) (x : 'cV[R]_n) : Gauss"
+    'ianAnalysis.matrix.quadric_certificate.quadric_eval Q v c x = Gaus'
+    'sianAnalysis.matrix.euclidean.mxdot x (Q *m x) + GaussianAnalysis.'
+    'matrix.euclidean.mxdot v x + c. Proof. by []. Qed. Lemma tuple_map'
+    "_characterization d d' (T : measurableType d) (T' : measurableType"
+    " d') (g : nat -> T -> T') (n : nat) (x : n.-tuple T) : GaussianAna"
+    'lysis.probability.tuple_rows.tuple_map g x = [tuple g i (tnth x i)'
+    ' | i < n]. Proof. by []. Qed. Lemma mixture_weights_characterizati'
+    'on (I : finType) (R : realType) (w : I -> R) : GaussianAnalysis.pr'
+    'obability.mixture.mixture_weights w <-> (forall i, 0 <= w i) /\\ \\s'
+    'um_i w i = 1. Proof. by []. Qed. Lemma mixture_characterization d '
+    '(T : measurableType d) (R : realType) (I : finType) (w : I -> R) ('
+    'P : I -> probability T R) (hw : GaussianAnalysis.probability.mixtu'
+    're.mixture_weights w) (A : set T) : (GaussianAnalysis.probability.'
+    'mixture.mixture P hw : probability T R) A = (\\sum_i (w i)%:E * P i'
+    ' A)%E. Proof. by []. Qed. Lemma cmixture_weights_characterization '
+    '(R : realType) (p : nat -> R) : GaussianAnalysis.probability.count'
+    'able_mixture.cmixture_weights p <-> (forall s, 0 <= p s) /\\ (\\sum_'
+    '(s <oo) (p s)%:E = 1)%E. Proof. by []. Qed. Lemma cmixture_charact'
+    'erization d (T : measurableType d) (R : realType) (P : nat -> prob'
+    'ability T R) (p : nat -> R) (hp : GaussianAnalysis.probability.cou'
+    'ntable_mixture.cmixture_weights p) (A : set T) : (GaussianAnalysis'
+    '.probability.countable_mixture.cmixture P hp : probability T R) A '
+    '= (\\sum_(s <oo) (p s)%:E * P s A)%E. Proof. by []. Qed. Lemma row_'
+    'symmetric_law_characterization (R : realType) (d : nat) (P : proba'
+    "bility 'rV[R]_d R) : GaussianAnalysis.probability.symmetric_shift."
+    "row_symmetric_law P <-> forall A : set 'rV[R]_d, measurable A -> P"
+    ' ((fun x => - x) @^-1` A) = P A. Proof. by []. Qed. Lemma row_shif'
+    "t_characterization (R : realType) (d : nat) (m x : 'rV[R]_d) : Gau"
+    'ssianAnalysis.probability.symmetric_shift.row_shift m x = x + m. P'
+    'roof. by []. Qed. Lemma row_shift_law_characterization (R : realTy'
+    "pe) (d : nat) (P : probability 'rV[R]_d R) (m : 'rV[R]_d) (A : set"
+    " 'rV[R]_d) : (GaussianAnalysis.probability.symmetric_shift.row_shi"
+    "ft_law P m : probability 'rV[R]_d R) A = P [set x | A (x + m)]. Pr"
+    'oof. by []. Qed. Lemma sign_shift_weights_characterization (R : re'
+    'alType) (w : R) (b : bool) : GaussianAnalysis.probability.symmetri'
+    'c_shift.sign_shift_weights w b = if b then w else 1 - w. Proof. by'
+    ' []. Qed. Lemma sign_shift_law_characterization (R : realType) (d '
+    ": nat) (P : probability 'rV[R]_d R) (m : 'rV[R]_d) (w : R) (hw : 0"
+    " <= w <= 1) (A : set 'rV[R]_d) : (GaussianAnalysis.probability.sym"
+    "metric_shift.sign_shift_law P m hw : probability 'rV[R]_d R) A = ("
+    '\\sum_(b : bool) (if b then w else 1 - w)%:E * P [set x | A (x + if'
+    ' b then m else - m)%R])%E. Proof. by []. Qed. Lemma row_outer_char'
+    "acterization (R : realType) (d : nat) (x : 'rV[R]_d) : GaussianAna"
+    'lysis.probability.symmetric_shift.row_outer x = x^T *m x. Proof. b'
+    'y []. Qed. Lemma row_of_tuple_characterization (d : nat) (t : d.-t'
+    'uple (measurableTypeR R)) : EllipsoidFitting.Gaussian.Law.LibraryB'
+    'ridge.row_of_tuple d t = \\row_i (tnth t i : R). Proof. by []. Qed.'
+    ' Lemma point_law_characterization (d : nat) (nu : nat -> probabili'
+    "ty (measurableTypeR R) R) (A : set 'rV[RR]_d) : EllipsoidUniversal"
+    'ity.Sat.AprioriSparse.point_law d nu A = GaussianAnalysis.probabil'
+    'ity.lindeberg.tuple_prod nu d [set t | A (\\row_i (tnth t i : R))].'
+    ' Proof. by []. Qed. Lemma sample_row_tuple_characterization (n d :'
+    ' nat) (x : (n * d).-tuple (measurableTypeR R)) : @EllipsoidUnivers'
+    'ality.Shifted.GaussianRows.sample_row_tuple n d x = [tuple (Ellips'
+    'oidFitting.PaperMainDefinitions.paper_main_point x i)^T | i < n]. '
+    'Proof. by []. Qed. Lemma sample_flat_row_characterization (n d : n'
+    "at) (k : 'I_(n * d)) : nat_of_ord (@EllipsoidUniversality.Shifted."
+    'GaussianRows.sample_flat_row n d k) = (k %/ d)%N. Proof. by []. Qe'
+    "d. Lemma sample_flat_col_characterization (n d : nat) (k : 'I_(n *"
+    ' d)) : nat_of_ord (@EllipsoidUniversality.Shifted.GaussianRows.sam'
+    'ple_flat_col n d k) = (k %% d)%N. Proof. by []. Qed. Lemma sample_'
+    "of_row_tuple_characterization (n d : nat) (x : n.-tuple 'rV[RR]_d)"
+    ' : @EllipsoidUniversality.Shifted.GaussianRows.sample_of_row_tuple'
+    ' n d x = [tuple tnth x (EllipsoidUniversality.Shifted.GaussianRows'
+    '.sample_flat_row k) 0 (EllipsoidUniversality.Shifted.GaussianRows.'
+    'sample_flat_col k) | k < n * d]. Proof. by []. Qed. Lemma sample_t'
+    "ranslate_characterization (n d : nat) (m : 'cV[RR]_d) (x : (n * d)"
+    '.-tuple (measurableTypeR R)) : @EllipsoidUniversality.Shifted.Tran'
+    'slations.sample_translate n d m x = @EllipsoidUniversality.Shifted'
+    '.GaussianRows.sample_of_row_tuple n d [tuple tnth (EllipsoidUniver'
+    'sality.Shifted.GaussianRows.sample_row_tuple x) i + m^T | i < n]. '
+    'Proof. by []. Qed. Lemma translation_fitting_error_characterizatio'
+    'n (n d : nat) (x : (n * d).-tuple (measurableTypeR R)) : Ellipsoid'
+    'Universality.Shifted.TranslationError.translation_fitting_error n '
+    'd x = inf [set EllipsoidUniversality.UniversalityDefinitions.unive'
+    'rsality_fitting_error n d (EllipsoidUniversality.Shifted.Translati'
+    "ons.sample_translate m x) | m in [set: 'cV[RR]_d]]. Proof. by []. "
+    'Qed. Lemma gaussian_small_shift_characterization (m : forall d : n'
+    "at, 'cV[R]_d) : EllipsoidUniversality.Shifted.GaussianCondition.ga"
+    'ussian_small_shift m <-> forall e : R, 0 < e -> exists D : nat, fo'
+    'rall d : nat, (D <= d)%N -> GaussianAnalysis.matrix.euclidean.frob'
+    'enius (m d) <= e * Num.sqrt d%:R. Proof. by []. Qed. Lemma finite_'
+    'row_law_characterization (K : R) (N : nat -> nat) (w : nat -> nat '
+    '-> R) (mu : nat -> nat -> nat -> probability (measurableTypeR R) R'
+    ') (hfam : EllipsoidUniversality.MixtureDefinitions.mixture_family '
+    "K N w mu) (d : nat) (A : set 'rV[RR]_d) : EllipsoidUniversality.Sh"
+    'ifted.MixtureRows.finite_row_law hfam d A = (\\sum_(s < N d) (w d s'
+    ')%:E * EllipsoidUniversality.Sat.AprioriSparse.point_law d (mu d s'
+    ') A)%E. Proof. by []. Qed. Lemma countable_row_law_characterizatio'
+    'n (K : R) (w : nat -> nat -> R) (mu : nat -> nat -> nat -> probabi'
+    'lity (measurableTypeR R) R) (hfam : EllipsoidUniversality.Countabl'
+    'eMixtureDefinitions.countable_mixture_family K w mu) (d : nat) (A '
+    ": set 'rV[RR]_d) : EllipsoidUniversality.Shifted.MixtureRows.count"
+    'able_row_law hfam d A = (\\sum_(s <oo) (w d s)%:E * EllipsoidUniver'
+    'sality.Sat.AprioriSparse.point_law d (mu d s) A)%E. Proof. by []. '
+    'Qed. Lemma row_sample_map_characterization (n d : nat) (x : n.-tup'
+    "le 'rV[RR]_d) : EllipsoidUniversality.Shifted.SignMixture.row_samp"
+    'le_map n d x = @EllipsoidUniversality.Shifted.GaussianRows.sample_'
+    'of_row_tuple n d x. Proof. by []. Qed. Lemma iid_row_sample_law_ch'
+    "aracterization (d : nat) (P : probability 'rV[RR]_d RR) (n : nat) "
+    '(A : set ((n * d).-tuple (measurableTypeR R))) : EllipsoidUniversa'
+    'lity.Shifted.SignMixture.iid_row_sample_law P n A = GaussianAnalys'
+    'is.probability.lindeberg.tuple_prod (fun _ => P) n (@EllipsoidUniv'
+    'ersality.Shifted.GaussianRows.sample_of_row_tuple n d @^-1` A). Pr'
+    'oof. by []. Qed. Lemma shifted_iid_sample_law_characterization (d '
+    ": nat) (P : probability 'rV[RR]_d RR) (m : 'cV[R]_d) (n : nat) (A "
+    ': set ((n * d).-tuple (measurableTypeR R))) : EllipsoidUniversalit'
+    'y.Shifted.SignMixture.shifted_iid_sample_law P m n A = GaussianAna'
+    'lysis.probability.lindeberg.tuple_prod (fun _ => GaussianAnalysis.'
+    'probability.symmetric_shift.row_shift_law P m^T) n (@EllipsoidUniv'
+    'ersality.Shifted.GaussianRows.sample_of_row_tuple n d @^-1` A). Pr'
+    'oof. by []. Qed. Lemma sign_mixture_sample_law_characterization (d'
+    " : nat) (P : probability 'rV[RR]_d RR) (m : 'cV[R]_d) (w : R) (hw "
+    ': 0 <= w <= 1) (n : nat) (A : set ((n * d).-tuple (measurableTypeR'
+    ' R))) : EllipsoidUniversality.Shifted.SignMixture.sign_mixture_sam'
+    'ple_law P m hw n A = GaussianAnalysis.probability.lindeberg.tuple_'
+    'prod (fun _ => GaussianAnalysis.probability.symmetric_shift.sign_s'
+    'hift_law P m^T hw) n (@EllipsoidUniversality.Shifted.GaussianRows.'
+    'sample_of_row_tuple n d @^-1` A). Proof. by []. Qed. Definition sh'
+    'ifted_characterizations := (@family_sequence_limit_characterizatio'
+    'n, @coordinate_support_characterization, @quadric_eval_characteriz'
+    'ation, @tuple_map_characterization, @mixture_weights_characterizat'
+    'ion, @mixture_characterization, @cmixture_weights_characterization'
+    ', @cmixture_characterization, @row_symmetric_law_characterization,'
+    ' @row_shift_characterization, @row_shift_law_characterization, @si'
+    'gn_shift_weights_characterization, @sign_shift_law_characterizatio'
+    'n, @row_outer_characterization, @row_of_tuple_characterization, @p'
+    'oint_law_characterization, @sample_row_tuple_characterization, @sa'
+    'mple_flat_row_characterization, @sample_flat_col_characterization,'
+    ' @sample_of_row_tuple_characterization, @sample_translate_characte'
+    'rization, @translation_fitting_error_characterization, @gaussian_s'
+    'mall_shift_characterization, @finite_row_law_characterization, @co'
+    'untable_row_law_characterization, @row_sample_map_characterization'
+    ', @iid_row_sample_law_characterization, @shifted_iid_sample_law_ch'
+    'aracterization, @sign_mixture_sample_law_characterization). Print '
+    'Assumptions shifted_characterizations.')
 # Every theorem whose axiom report the script takes, in the order of its
 # arguments, and the path of its report: the arguments must be exactly the
 # paths of REPORTS.
@@ -1865,6 +2091,27 @@ def main():
         for ax in sorted(axiom_names(output.read_text()) - allowed_p13):
             failures.append(f"{LIBRARY_STATEMENTS_OUTPUT}: {ax} is not among "
                             "check/sat_variance_assumptions.expected")
+    for path in SHIFTED_FROZEN:
+        if code((ROOT / path).read_text()) != code(at_baseline(SHIFTED_BASELINE, path)):
+            failures.append(f"{path}: code differs from {SHIFTED_BASELINE[:12]}")
+    if code((ROOT / SHIFTED_DEFINITIONS).read_text()) != SHIFTED_DEFINITIONS_CHECK:
+        failures.append(f"{SHIFTED_DEFINITIONS}: code differs from "
+                        "SHIFTED_DEFINITIONS_CHECK")
+    for line in SHIFTED_MAKE_LINES:
+        if line not in makefile:
+            failures.append(f"Makefile: the command {line!r} is missing")
+    output = ROOT / SHIFTED_DEFINITIONS_OUTPUT
+    if not output.exists():
+        failures.append(f"{SHIFTED_DEFINITIONS_OUTPUT}: no such output; make check "
+                        f"compiles {SHIFTED_DEFINITIONS} into it")
+    elif not report_complete(output.read_text()):
+        failures.append(f"{SHIFTED_DEFINITIONS_OUTPUT}: incomplete, neither the line "
+                        "Axioms: with at least one axiom nor the line Closed under "
+                        "the global context")
+    else:
+        for ax in sorted(axiom_names(output.read_text()) - allowed_p13):
+            failures.append(f"{SHIFTED_DEFINITIONS_OUTPUT}: {ax} is not among "
+                            "check/sat_variance_assumptions.expected")
     now = section_code((ROOT / LAMBDA_MAX).read_text(), "lambda_max")
     if now[1] is None:
         failures.append(f"{LAMBDA_MAX}: no section lambda_max")
@@ -2000,9 +2247,12 @@ def main():
           f"{PHASE13_B2_BASELINE[:12]}; "
           f"{len(PHASE13_B3_FROZEN)} frozen files of batch 3 of phase 13 unchanged since "
           f"{PHASE13_B3_BASELINE[:12]}; "
+          f"{len(SHIFTED_FROZEN)} frozen shifted statement files unchanged since "
+          f"{SHIFTED_BASELINE[:12]}; "
           f"the characterizations of {APPLICATIONS_DEFINITIONS} unchanged; "
           f"the characterizations of {PHASE13_DEFINITIONS} at freeze "
           f"{len(PHASE13_DEFINITIONS_FREEZES)}, compiled; "
+          f"the characterizations of {SHIFTED_DEFINITIONS} unchanged, compiled; "
           f"{len(INVENTORY)} accepted general statements in the inventory, each "
           f"stated and proved in {LIBRARY_STATEMENTS}; "
           f"no Admitted, Axiom, Parameter or Conjecture; "

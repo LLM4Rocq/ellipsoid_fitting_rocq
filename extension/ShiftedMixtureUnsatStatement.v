@@ -10,7 +10,7 @@
    quadric with arbitrary linear and constant terms is excluded.
    The universal quadric predicate itself is not asserted to be Borel.
    Finite and countable families are separate conjuncts with the same
-   margin. This file contains draft statements only, not a freeze. *)
+   margin. Accepted at commit 51c2e14 and frozen. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.

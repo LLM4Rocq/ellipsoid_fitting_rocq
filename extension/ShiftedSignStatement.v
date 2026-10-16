@@ -1,5 +1,5 @@
 (* S7: exact opposite-shift mixture laws and their fitting consequences.
-   This is an explicit proposition for review, not a frozen statement.
+   Accepted at commit 51c2e14 and frozen.
 
    The outer-product identity holds over any realType, for independent
    samples from a centrally symmetric row law. The fitting clauses use

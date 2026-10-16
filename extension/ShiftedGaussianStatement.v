@@ -4,7 +4,7 @@
    A separate lower-bound statement holds on one event for all translations,
    at every positive density; its constant is quantified independently.
    Source: doc/shifted-gaussian.tex and the formalization plan, S2.
-   These are review drafts, not frozen statements. *)
+   Accepted at commit 51c2e14 and frozen. *)
 From Stdlib Require Import Reals.
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
