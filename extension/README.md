@@ -1553,8 +1553,8 @@ ellipsoids stay centered at the origin: a fit of the translated points
 (the value is `d` instead of 1 in the positive semidefinite fit event
 `paper_main_fit_event`). The file headers cite the informal proof,
 *Centered ellipsoid fitting for non-centered Gaussian data* (16 October
-2026), as `doc/shifted-gaussian.tex`, "the note" below, and some cite the
-formalization plan; neither document is in the repository. The user
+2026), `doc/shifted-gaussian.tex`, "the note" below, and some cite the
+formalization plan, which is outside the repository. The user
 accepted the seven statement files at commit `51c2e14` on 16 October 2026
 and decided to merge the extension into main. No claim of novelty is made.
 

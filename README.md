@@ -689,6 +689,11 @@ generated`), whose code cannot change. The other modules print none.
   is not checked: it cites the Lean sources of the collection. `make
   citations` runs it, and `make check` fails on a stale citation
   (`CITATIONS=no` skips it).
+- `doc/shifted-gaussian.tex`: the informal proof of the seven theorems on
+  translated samples, *Centered ellipsoid fitting for non-centered Gaussian
+  data*, with its bibliography `doc/statements.bib`. Its Appendix A names
+  the frozen statement and the theorem of each of its results, and records
+  where the formal proof departs from the text.
 
 ## Where the proof comes from
 

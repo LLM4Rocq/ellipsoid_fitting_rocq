@@ -1,0 +1,1507 @@
+% Compile from this directory:
+% latexmk -pdf -outdir=/tmp/shifted-gaussian shifted-gaussian.tex
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{url}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Centered ellipsoid fitting for non-centered Gaussian data: proof and Rocq formalization}}
+\setlength{\emergencystretch}{2em}
+\allowdisplaybreaks[1]
+\newcommand{\R}{\mathbb R}
+\newcommand{\Pbb}{\mathbb P}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Sym}{\mathbb S}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\cond}{cond}
+\DeclareMathOperator{\Var}{Var}
+\newcommand{\opnorm}[1]{\lVert#1\rVert_{\mathrm{op}}}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\Fit}{\mathcal F}
+\newcommand{\Copt}{\mathcal C}
+\newcommand{\OP}{O_{\Pbb}}
+\newcommand{\oP}{o_{\Pbb}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\begin{document}
+\begin{center}
+  {\LARGE Centered ellipsoid fitting for non-centered Gaussian data\par}
+  \smallskip
+  {\large Thresholds, condition numbers, and fitting error\par}
+  \medskip
+  16 October 2026
+\end{center}
+
+\begin{abstract}
+For independent $\mathcal N(m_d,I_d)$ points with
+$\norm{m_d}=o(\sqrt d)$, the threshold for each prescribed condition
+number and the limiting optimal condition number equal their standard
+Gaussian values. Without any restriction on the shift, the
+unrestricted PSD threshold remains $1/4$. Below it, the optimal
+condition number is of order $1+\norm{m_d}/\sqrt d$; above it, one event
+excludes every quadric with nonzero PSD quadratic part, whatever its
+linear and constant terms. At every positive density the optimal
+normalized squared fitting error has the unshifted Gaussian limit.
+These centered-fitting statistics also apply exactly to every mixture
+of $\mathcal N(m_d,I_d)$ and $\mathcal N(-m_d,I_d)$.
+
+The nonexistence proof corrects a dual certificate using independent
+reserve points to annihilate constants and linear functions. It extends
+to centrally symmetric admissible mixtures of product laws. For these
+mixtures, positive definite fits below the unshifted threshold also
+exist for arbitrary shifts supported on $o(d)$ coordinates. The general
+mixture inputs and the conclusions of this note are proved in Rocq. The
+conclusions are seven public propositions, each proved by a theorem;
+their statements are frozen with the repository's existing checker.
+Appendix~\ref{app:sources} names them and records several differences
+between the proofs, including a sparse-shift existence theorem that
+does not require symmetry. In particular, two supporting assertions of
+the text are not formalized, and the formal proof needs neither: the
+almost-sure invertibility of the reserve Gram matrix in
+Lemma~\ref{lem:reserve-correction} and the constant of Tropp's matrix
+Rademacher bound in~\eqref{eq:reserve-rademacher}. No claim of novelty
+is made.
+\end{abstract}
+
+\section{Statement and scope}
+
+For a sample $X=(X_1,\ldots,X_n)$ in $\R^d$, let
+\[
+ \Fit_{n,d}(C)=\{X:\exists Q\succ0,\quad
+       X_i^{\mathsf T}QX_i=1\ (1\le i\le n),\quad \cond(Q)\le C\},
+\]
+where $\cond(Q)=\lambda_{\max}(Q)/\lambda_{\min}(Q)$, and set
+\[
+ \Copt(X)=\inf\{C\ge1:X\in\Fit_{n,d}(C)\},\qquad \inf\varnothing=+\infty.
+\]
+The fitting events and $\Copt$ are Borel measurable; the precise formal
+sources are listed in Appendix~\ref{app:sources}. The ellipsoids remain
+centered at the origin.
+
+Write $\alpha_C=\alpha(C,3)$ for the Gaussian threshold. For completeness,
+with
+\[
+ \nu(dz)=\pi^{-1}\sqrt{2-z^2}\,
+       \mathbf1_{[-\sqrt2,\sqrt2]}(z)\,dz,\qquad
+ m(t)=\int(z-t)_+\,\nu(dz),\quad v(t)=\int(z-t)_+^2\,\nu(dz),
+\]
+it is given by
+\begin{equation}\label{eq:curve}
+ m(-t_C)=C\,m(Ct_C),\qquad
+ 0<t_C<\sqrt2/C,\qquad
+ \alpha_C=\tfrac12-v(-t_C)-v(Ct_C).
+\end{equation}
+The root is unique, and $C\mapsto\alpha_C$ is continuous and strictly
+increasing from $(1,\infty)$ onto $(0,1/4)$. Its inverse is denoted by
+$C_\star(\alpha)=C_\star(\alpha,3)$. Appendix~\ref{app:sources} gives
+the formal sources for the root, the curve properties and the inverse.
+
+\begin{theorem}[Non-centered Gaussian data]\label{thm:shifted}
+Let $m_d\in\R^d$ be deterministic and put $a_d=\norm{m_d}$.
+Suppose
+\begin{equation}\label{eq:growth}
+ \frac{a_d}{\sqrt d}\longrightarrow0,
+ \qquad \frac{n(d)}{d^2}\longrightarrow\alpha>0.
+\end{equation}
+Let $X_i=Z_i+m_d$, where the $Z_i$ are independent
+$\mathcal N(0,I_d)$ vectors. For every fixed $C>1$,
+\begin{equation}\label{eq:threshold}
+ \Pbb\{X\in\Fit_{n(d),d}(C)\}\longrightarrow
+ \begin{cases}
+  1,&\alpha<\alpha_C,\\
+  0,&\alpha>\alpha_C.
+ \end{cases}
+\end{equation}
+If $0<\alpha<1/4$, then
+\begin{equation}\label{eq:optimum}
+ \Copt(X)\xrightarrow{\Pbb}C_\star(\alpha).
+\end{equation}
+\end{theorem}
+
+The point law has mean $m_d$ and covariance $I_d$, so it need not
+satisfy the centering assumption of the existing mixture theorem.
+Since $\alpha_C\uparrow1/4$, the result gives positive definite fits
+at every $0<\alpha<1/4$ by taking $C$ large enough. Theorem~\ref{thm:unrestricted}
+also gives bounded condition numbers for shifts of order $\sqrt d$ and
+matching growth bounds for larger shifts. It does not identify the
+precise condition-number curve when $a_d/\sqrt d$ has a nonzero limit.
+No assertion is made at $\alpha=\alpha_C$.
+
+\begin{remark}[The sign mixture gives the same fitting problem]
+\label{rem:sign-invariance}
+For any $w_d\in[0,1]$, the conclusions of Theorem~\ref{thm:shifted} also
+hold for independent points with law
+\[
+ w_d\mathcal N(m_d,I_d)+(1-w_d)\mathcal N(-m_d,I_d).
+\]
+In fact, the equality of fitting statistics is exact at every $n,d$.
+Write these points as $\widetilde X_i=Z_i+\sigma_i m_d$, with independent
+signs satisfying $\Pbb(\sigma_i=1)=w_d$, independent of the $Z_i$.
+Then $Y_i=\sigma_i\widetilde X_i=\sigma_i Z_i+m_d$ are independent
+$\mathcal N(m_d,I_d)$ points, while
+$Y_iY_i^{\mathsf T}=\widetilde X_i\widetilde X_i^{\mathsf T}$.
+Thus the entire sets of fitting matrices coincide samplewise, as do
+their optimal condition numbers and normalized fitting errors. This
+includes $w_d=0,1$ and does not
+assert equality of the point distributions. The identity applies to
+positive semidefinite as well as positive definite fitting matrices and
+requires no bound on $\norm{m_d}$.
+\end{remark}
+
+\begin{theorem}[The unrestricted threshold for arbitrary shifts]
+\label{thm:unrestricted}
+Let $n(d)/d^2\to\alpha\in(0,\infty)$, let $m_d\in\R^d$ be arbitrary
+and deterministic, and let $X_i=Z_i+m_d$ for independent
+$Z_i\sim\mathcal N(0,I_d)$. There is no restriction on $\norm{m_d}$.
+\begin{enumerate}
+\item If $\alpha<1/4$, then with probability tending to one there is
+      $Q\succ0$ such that $X_i^{\mathsf T}QX_i=1$ for every $i$.
+      More precisely, there are constants $0<c_\alpha\le C_\alpha<\infty$
+      such that, with probability tending to one,
+      \begin{equation}\label{eq:condition-growth}
+       c_\alpha\left(1+\frac{\norm{m_d}}{\sqrt d}\right)
+       \le\Copt(X)\le
+       C_\alpha\left(1+\frac{\norm{m_d}}{\sqrt d}\right).
+      \end{equation}
+\item If $\alpha>1/4$, then with probability tending to one there is
+      no $Q\succeq0$ such that $X_i^{\mathsf T}QX_i=1$ for every $i$.
+      More strongly, there are Borel sets $\Omega_d$ of Gaussian samples
+      with $\Pbb(\Omega_d)\to1$ such that, on $\Omega_d$, no
+      $Q\succeq0$, $Q\ne0$, $\ell\in\R^d$, and $c\in\R$ satisfy
+      \begin{equation}\label{eq:no-quadric}
+       Z_i^{\mathsf T}QZ_i+2\ell^{\mathsf T}Z_i+c=0
+       \qquad(1\le i\le n).
+      \end{equation}
+      In particular, no PSD fit exists for $Z_i+m$, simultaneously
+      for every $m\in\R^d$. No ellipsoid, whatever its center, passes
+      through all the points.
+\end{enumerate}
+The existence and nonexistence conclusions for centered fits, and the
+condition-number bounds, also hold for independent points with law
+$w_d\mathcal N(m_d,I_d)+(1-w_d)\mathcal N(-m_d,I_d)$, for every
+$w_d\in[0,1]$.
+\end{theorem}
+
+Section~\ref{sec:unrestricted} proves this theorem and identifies the
+limiting fitting error in Theorem~\ref{thm:shifted-error}.
+Section~\ref{sec:symmetric-mixtures} extends the unrestricted
+nonexistence argument to symmetric non-Gaussian mixtures.
+Exact fitting at the critical density, general component means and
+covariances, and existence for dense shifts of non-Gaussian data are
+not settled here.
+
+\section{Inputs and deterministic perturbation}
+
+Here $\Sym_p$ denotes the real symmetric $p\times p$ matrices,
+$\norm\cdot$ is the Euclidean norm, and logarithms are natural.
+The general mixture condition-number and interpolation theorems are
+proved in Rocq. We use their elementary Gaussian specializations.
+For a standard normal scalar $G_0$,
+\begin{equation}\label{eq:normal-admissibility}
+ \E G_0=0,\qquad \E G_0^2=1,\qquad \E G_0^4=3,
+ \qquad \E e^{G_0^2/4}=\sqrt2\le2.
+\end{equation}
+Hence the one-component Gaussian family is admissible with $K=2$ and
+fourth moment three. The Rocq development proves these scalar facts and
+exports the Gaussian specializations used below, in
+\path{GaussianInputs.v} and \path{GaussianExports.v} of
+\path{extension/Shifted/}; see Appendix~\ref{app:sources}.
+
+\paragraph{Gaussian fitting.}
+If $g_1,\ldots,g_N$ are independent $\mathcal N(0,I_p)$ and
+$N/p^2\to\beta>0$, then for fixed $D>1$ the probability of
+$\Fit_{N,p}(D)$ tends to one for $\beta<\alpha_D$, and to zero for
+$\beta>\alpha_D$. This follows by applying
+\path{condition_statement_holds} to the family just described.
+
+\paragraph{Simultaneous interpolation.}
+If $0<\beta<1/2$ and $N/p^2\to\beta$, there is $L_\beta>0$ such that,
+outside Borel exceptional sets of probability tending to zero, the
+Gaussian sample has the following property: for every $y\in\R^N$ there
+exist $\Delta\in\Sym_p$ and $b\in\R$ with
+\begin{align}
+ g_i^{\mathsf T}\Delta g_i-\tr\Delta
+       &=\sqrt p\,(y_i+b)\qquad(1\le i\le N),\label{eq:interpolation}\\
+ \opnorm{\Delta}
+       &\le L_\beta\left(\frac{\norm y_2}{p}
+          +\frac{(\log p)^4}{\sqrt p}\norm y_\infty\right).
+          \label{eq:interpolation-bound}
+\end{align}
+This is the Gaussian specialization of
+\path{mixture_interpolation_holds} in
+\path{extension/Mixture/Interpolation.v}, obtained from
+\path{mixture_small_residual}; its source is the interpolation theorem
+of Koehler--Sohn~\cite[Theorem 1.9]{KoehlerSohn2026}.
+The formal statement gives an exceptional set of probability at most
+each prescribed $\epsilon>0$ in every sufficiently large dimension.
+A diagonal choice gives the sets used here.
+
+The conclusion holds simultaneously for every $y$. We use it on the
+same sample as the Gaussian fitting event. All probability bounds use
+the Borel exceptional sets, without asserting measurability of the full
+interpolation-property event or choosing a measurable correction matrix.
+
+\begin{lemma}[Stability under a small correction]\label{lem:stability}
+Suppose $A\succ0$, $\tr A=p$, and $\cond(A)\le D$. Then
+$\lambda_{\min}(A)\ge1/D$ and $\opnorm A\le D$. If $E$ is symmetric
+and $\opnorm E\le\delta<1/D$, then $A+E\succ0$ and
+\begin{equation}\label{eq:condition-stability}
+ \cond(A+E)\le D+\frac{(D+1)\delta}{1/D-\delta}.
+\end{equation}
+Also, $\operatorname{diag}(1,A)$ has trace $p+1$ and condition number
+at most $D$.
+\end{lemma}
+\begin{proof}
+The mean eigenvalue of $A$ is one, so
+$\lambda_{\min}(A)\le1\le\lambda_{\max}(A)$ and the assertions about
+$A$ and $\operatorname{diag}(1,A)$ follow. Writing
+$\ell=\lambda_{\min}(A)$, the extremal eigenvalue bounds give
+\[
+ \cond(A+E)\le\frac{D\ell+\delta}{\ell-\delta}
+   =D+\frac{(D+1)\delta}{\ell-\delta}
+   \le D+\frac{(D+1)\delta}{1/D-\delta}.\qedhere
+\]
+\end{proof}
+
+We will repeatedly rescale a fitting matrix to have trace equal to the
+dimension. Its quadratic values then equal some common level $q>0$,
+instead of one. Conversely, a positive definite matrix with a common
+quadratic value on nonzero observations has a positive common level;
+division by that level gives an exact fit without changing its condition
+number. This observation removes any need to estimate the scalar $b$
+in~\eqref{eq:interpolation}.
+
+\section{Existence below the threshold}
+\label{sec:conditioned-existence}
+
+Assume $\alpha<\alpha_C$ and choose $1<C_-<C$ with
+$\alpha<\alpha_{C_-}$. Rotate $m_d$ to $a_de_1$ and write
+\[
+ X_i=(u_i,g_i),\qquad u_i=\xi_i+a_d,
+ \qquad p=d-1,
+\]
+where the $\xi_i$ are standard Gaussian, the $g_i$ are
+$\mathcal N(0,I_p)$, and all these variables are independent. This
+uses Gaussian rotation invariance and splitting off the first
+coordinate. Since $n(d)/p^2\to\alpha$, Gaussian fitting
+gives, with probability tending to one, a matrix $A\succ0$ such that
+\[
+ \tr A=p,\qquad \cond(A)\le C_-,\qquad
+ g_i^{\mathsf T}Ag_i=q\quad\hbox{for every }i.
+\]
+Interpolate on this same Gaussian sample the centered targets
+\begin{equation}\label{eq:sat-targets}
+ y_i=-\frac{u_i^2-(1+a_d^2)}{\sqrt p}.
+\end{equation}
+Here
+\[
+ u_i^2-(1+a_d^2)=\xi_i^2-1+2a_d\xi_i,
+ \qquad \Var(u_i^2)=2+4a_d^2.
+\]
+Since $n(d)=O(d^2)$, the second-moment bound and the Gaussian maximum
+bound give
+\begin{align}
+ \frac{\norm y_2}{p}
+    &=\OP\left(\frac{1+a_d}{\sqrt d}\right),\label{eq:sat-l2}\\
+ \norm y_\infty
+    &=\OP\left(\frac{a_d\sqrt{\log d}+\log d}{\sqrt d}\right).
+       \label{eq:sat-linf}
+\end{align}
+For example, $\E\norm y_2^2=n(d)(2+4a_d^2)/p$ proves the first
+estimate by Markov's inequality, and
+$\max_i|\xi_i|=\OP(\sqrt{\log d})$ proves the second.
+Because $\alpha<1/4<1/2$, interpolation applies. Outside its Borel
+exceptional set, there exists a correction with
+\[
+ \opnorm\Delta\le S_d:=L_\alpha\left(
+   \frac{\norm y_2}{p}+\frac{(\log p)^4}{\sqrt p}\norm y_\infty\right).
+\]
+This upper bound is a measurable random variable, and
+\begin{equation}\label{eq:sat-correction}
+ S_d=\OP\left(
+  \frac{1+a_d}{\sqrt d}
+  +\frac{a_d(\log d)^{9/2}}{d}
+  +\frac{(\log d)^5}{d}\right)=\oP(1)
+\end{equation}
+whenever $a_d=o(\sqrt d)$.
+
+Set $Q=\operatorname{diag}(1,A+\Delta)$ and choose
+\[
+ \delta=\frac{C-C_-}{2C_-(C+1)}<\frac1{C_-}.
+\]
+Then $C_-+(C_-+1)\delta/(1/C_--\delta)\le C$.
+On $\{S_d\le\delta\}$, Lemma~\ref{lem:stability}, applied to
+$\operatorname{diag}(1,A)$, gives $Q\succ0$ and $\cond(Q)\le C$.
+Moreover,
+\begin{align*}
+ X_i^{\mathsf T}QX_i
+ &=u_i^2+q+\tr\Delta+\sqrt p\,(y_i+b)\\
+ &=q+1+a_d^2+\tr\Delta+\sqrt p\,b.
+\end{align*}
+This is independent of $i$. It is positive because $Q\succ0$ and the
+observations are almost surely nonzero. Rescaling $Q$ gives an exact
+fit of condition number at most $C$. The Gaussian fitting event, the
+complement of the interpolation exceptional set, and $\{S_d\le\delta\}$
+have intersection of probability tending to one. This proves the first half
+of~\eqref{eq:threshold}.
+
+\section{A uniform residual gap for Gaussian points}
+\label{sec:data-gap}
+
+The missing quantitative statement is contained in the proof of
+\path{condition_unsat_gap}, rather than in its exported conclusion.
+We extract it here, retaining the squared loss that the exact-fit proof
+sets to zero. This step concerns the actual quadratic features of
+Gaussian points, not just auxiliary Gaussian matrix measurements.
+
+Write
+\[
+ \mathcal K_d(C)=\{R\in\Sym_d:R\succ0,\ \tr R=d,\ \cond(R)\le C\},
+ \qquad W_i=\frac{Z_iZ_i^{\mathsf T}-I_d}{\sqrt d}.
+\]
+For a tuple $U=(U_1,\ldots,U_n)$ of symmetric matrices define
+\[
+ \mathcal E_U(R,b)=\frac1n\sum_{i=1}^n
+                    (b-\langle U_i,R\rangle)^2,
+ \qquad \langle A,B\rangle=\tr(AB).
+\]
+Let $P_n$ be orthogonal projection onto the vectors in $\R^n$ with
+coordinate sum zero. For any point sample $Z$, set
+\begin{equation}\label{eq:centered-measurements}
+ \mathcal L_Z(R)=\frac1{\sqrt{nd}}\,
+                  P_n\bigl((Z_i^{\mathsf T}RZ_i)_{i=1}^n\bigr).
+\end{equation}
+Subtracting $\tr R$ from every quadratic value has no effect under
+$P_n$, so
+\begin{equation}\label{eq:loss-identity}
+ \norm{\mathcal L_Z(R)}_2^2=\min_{b\in\R}\mathcal E_W(R,b).
+\end{equation}
+
+\begin{lemma}[Extracted data gap]\label{lem:data-gap}
+Let $C>1$, $\alpha>\alpha_C$, and $n(d)/d^2\to\alpha$.
+Choose $C_p>C$ with $\alpha_{C_p}<\alpha$, and put
+\begin{equation}\label{eq:gap-constant}
+ g=\frac{(\sqrt\alpha-\sqrt{\alpha_{C_p}})^2}{64\alpha}>0.
+\end{equation}
+For independent $Z_i\sim\mathcal N(0,I_d)$ there are Borel sets
+$\Omega_d$ with $\Pbb(\Omega_d)\to1$ such that, on $\Omega_d$,
+\begin{equation}\label{eq:data-gap}
+ \mathcal E_W(R,b)\ge g/4
+ \qquad\text{for every }R\in\mathcal K_d(C),\ b\in\R.
+\end{equation}
+In particular, $\inf_{R\in\mathcal K_d(C)}
+\norm{\mathcal L_Z(R)}_2^2\ge g/4$ there.
+\end{lemma}
+
+\begin{proof}
+We spell out the estimates from
+\path{extension/Condition/Unsat.v} that make the assertion uniform in
+$R$ and retain a positive residual. The Gaussian specialization is
+justified by~\eqref{eq:normal-admissibility}.
+
+\emph{Cover and regularized objectives.}
+The finite cover \path{cond_cover} supplies numbers
+$0<\ell_j<1<h_j<C_p\ell_j$, $1\le j\le J$, and a barrier bound $B$,
+independent of $d$. Enlarge $B$ to $\max(B,0)$. Every
+$R\in\mathcal K_d(C)$ lies in some slice
+\[
+ \mathcal D_{j,d}=\{S\in\Sym_d:\tr S=d,\ \ell_j I_d\prec S\prec h_jI_d\}
+\]
+with $\mathcal B_{j,d}(R)\le dB$. Here the normalized barrier is
+\[
+ \mathcal B_{j,d}(S)=-\log\det(S-\ell_jI_d)
+    -\log\det(h_jI_d-S)+d\log((1-\ell_j)(h_j-1)).
+\]
+It is nonnegative on the slice. Let $\lambda_d$ be the operator norm
+of the covariance of $W_i$, so that $0<d\lambda_d\le2$, and put
+$\gamma_d=(d\sqrt d)^{-1}$. For positive weights $\beta_j$ chosen below,
+the slice value used in the formal proof is
+\begin{equation}\label{eq:slice-value}
+ \Phi_j(U)=\inf_{\substack{S\in\mathcal D_{j,d}\\b\in\R}}
+ \left\{\frac12\mathcal E_U(S,b)
+   +\beta_j(\lambda_d\norm S_F^2+b^2)
+   +\gamma_d\mathcal B_{j,d}(S)\right\}.
+\end{equation}
+The norm $\norm\cdot_F$ is Frobenius norm. This is \path{af_value} at
+fourth moment three.
+
+\emph{The simultaneous lower bounds.}
+For auxiliary independent centered Gaussian matrix measurements $H_i$ with the
+same covariance as $W_i$, \path{gaussian_gap} gives
+$\mathcal E_H(S,b)\ge g$ throughout $\mathcal K_d(C_p)$ outside
+an event of probability tending to zero. Each $\mathcal D_{j,d}$ is
+contained in that cone slice. Nonnegativity of the ridge and barrier
+therefore gives $\Phi_j(H)\ge g/2$ on this event, and
+$\E\Phi_j(H)\ge g/4$ for all large $d$.
+The comparison and concentration estimates used in
+\path{condition_unsat_gap} then yield, simultaneously for all $j$,
+\begin{equation}\label{eq:slice-lower}
+ \Phi_j(W)\ge g/4-\beta_j/4
+\end{equation}
+outside Borel exceptional sets of probability tending to zero.
+These are precisely \path{af_center_ge}, \path{af_conc},
+\path{sl_err_small}, and \path{sl_prob_small}, applied to the finitely
+many fixed slices. None of these events assumes an exact fit.
+
+\emph{The minimizing intercept and the upper bound.}
+On the Borel a priori event of \path{mixture_adjoint_bound}, for a
+constant $C_a$ and every $z\in\R^n$,
+\[
+ \left\|\sum_i z_iW_i\right\|_F\le C_a\sqrt d\,\norm z_2.
+\]
+For each $R\in\mathcal K_d(C)$ choose a covering slice $j$ and set
+\[
+ b_R=\frac1n\sum_i\langle W_i,R\rangle
+       =\langle\overline W,R\rangle,\qquad
+ \overline W=\frac1n\sum_i W_i.
+\]
+The a priori bound and $\norm R_F^2\le h_jd$ give, eventually,
+\begin{equation}\label{eq:intercept-bound}
+ |b_R|\le C_a\sqrt{d/n}\,\norm R_F,
+ \qquad b_R^2\le c_bh_j,\qquad c_b=2C_a^2/\alpha,
+\end{equation}
+using $n\ge\alpha d^2/2$. Unlike \path{common_value_le}, this argument
+does not assume equal feature values: $b_R$ is their empirical mean by
+definition.
+
+Use the same parameter choices as the formal proof:
+\[
+ \theta=\frac{g}{16(1+c_b)},\qquad
+ \beta_j=\frac{\theta}{2(2h_j+1)}.
+\]
+Then
+\begin{equation}\label{eq:ridge-bounds}
+ \beta_j\le g/32,\qquad
+ \beta_j(2h_j+b_R^2)\le g/32,\qquad
+ \gamma_d\mathcal B_{j,d}(R)\le B/\sqrt d\le g/32
+\end{equation}
+for all sufficiently large $d$. Evaluating~\eqref{eq:slice-value} at
+$(R,b_R)$, and using $d\lambda_d\le2$, gives
+\begin{equation}\label{eq:slice-upper}
+ \Phi_j(W)\le\tfrac12\mathcal E_W(R,b_R)+g/16.
+\end{equation}
+This is exactly the proof of \path{af_value_common} with its loss term
+retained instead of set to zero.
+
+Combining~\eqref{eq:slice-lower}--\eqref{eq:slice-upper},
+\[
+ \tfrac12\mathcal E_W(R,b_R)+g/16
+       \ge g/4-g/128=31g/128,
+ \qquad \mathcal E_W(R,b_R)\ge23g/64>g/4.
+\]
+Finally,
+$\mathcal E_W(R,b)=\mathcal E_W(R,b_R)+(b-b_R)^2$,
+so the bound holds for every $b$. The event $\Omega_d$ is the
+intersection of the a priori event and the complements of the finitely
+many slice exceptional sets, with the same diagonal choice as in
+Section~2. It is Borel and has probability tending to one, independently
+of $R$ and $b$. No restriction $\alpha<1/2$ was used.
+\end{proof}
+
+\section{Nonexistence and the optimal condition number}
+
+Assume $\alpha>\alpha_C$ and use the full sample of $n=n(d)$ points.
+Let $G$ have rows $Z_i^{\mathsf T}$. The standard Gaussian matrix norm
+bound gives $\opnorm G=\OP(\sqrt n+\sqrt d)=\OP(d)$.
+Expanding $X_i=Z_i+m_d$ and applying $P_n$ removes the common term
+$m_d^{\mathsf T}Rm_d$. Uniformly over $R\in\mathcal K_d(C)$,
+\begin{equation}\label{eq:residual-comparison}
+ \norm{\mathcal L_X(R)-\mathcal L_Z(R)}_2
+ =\frac{2\norm{P_nGRm_d}_2}{\sqrt{nd}}
+ \le T_d:=\frac{2Ca_d\opnorm G}{\sqrt{nd}}
+ =\OP\left(\frac{a_d}{\sqrt d}\right)=\oP(1).
+\end{equation}
+Here $\opnorm R\le C$ by Lemma~\ref{lem:stability}, and $T_d$ is a
+measurable bound independent of the choice of $R$.
+
+A hypothetical fit of $X$ with condition number at most $C$, rescaled
+to trace $d$, belongs to $\mathcal K_d(C)$ and satisfies
+$\mathcal L_X(R)=0$. On $\Omega_d$ from Lemma~\ref{lem:data-gap},
+it would therefore imply $\sqrt g/2\le T_d$. Consequently,
+\[
+ \Pbb\{X\in\Fit_{n,d}(C)\}
+ \le\Pbb(\Omega_d^c)+\Pbb\{T_d\ge\sqrt g/2\}\longrightarrow0.
+\]
+This proves nonexistence without subsampling or reverse interpolation.
+Uniformity in~\eqref{eq:residual-comparison} handles a matrix selected
+from the data; no measurable choice of a fitting matrix is needed.
+
+For $0<\alpha<1/4$, the optimum now follows from the threshold and
+monotonicity of $\Fit_{n,d}(C)$ in $C$. Given $\eta>0$, existence at
+$C_\star(\alpha)+\eta/2$ gives
+$\Pbb\{\Copt(X)>C_\star(\alpha)+\eta\}\to0$.
+If $C_\star(\alpha)-\eta\le1$, the lower deviation is impossible.
+Otherwise choose $D\in(C_\star(\alpha)-\eta,C_\star(\alpha))$.
+The definition of an infimum and monotonicity give
+\[
+ \{\Copt(X)<C_\star(\alpha)-\eta\}
+       \subseteq\{X\in\Fit_{n,d}(D)\}.
+\]
+The right-hand probability tends to zero because $\alpha>\alpha_D$.
+This proves~\eqref{eq:optimum} without assuming attainment and completes
+Theorem~\ref{thm:shifted}.
+
+\section{Unrestricted fits for arbitrary Gaussian shifts}
+\label{sec:unrestricted}
+
+The bound in~\eqref{eq:residual-comparison} uses a fixed condition
+number. We now prove Theorem~\ref{thm:unrestricted} by a different
+argument. Above $1/4$ we construct a positive definite dual certificate
+whose weights annihilate both constants and linear functions. Such a
+certificate is unchanged by translation of the observations.
+
+\subsection{Positive definite fits below \texorpdfstring{$1/4$}{1/4}}
+
+Suppose $0<\alpha<1/4$ and choose a fixed $D>1$ with
+$\alpha<\alpha_D$. As in Section~\ref{sec:conditioned-existence}, rotate
+the shift to $a_de_1$ and write $X_i=(\xi_i+a_d,g_i)$, with $p=d-1$.
+With probability tending to one, the Gaussian sample $(g_i)$ admits
+$A\succ0$ with $\tr A=p$, $\cond(A)\le D$, and
+$g_i^{\mathsf T}Ag_i=q$ independent of $i$.
+
+Fix a sufficiently small $\varepsilon>0$, depending only on $\alpha$
+and $D$, and give the first coordinate the positive weight
+\[
+ s_d=\min\left(1,\frac{\varepsilon\sqrt d}{a_d}\right),
+ \qquad s_d=1\quad\text{if }a_d=0.
+\]
+Interpolate the targets
+\[
+ y_i=-\frac{s_d\big((\xi_i+a_d)^2-(1+a_d^2)\big)}{\sqrt p}.
+\]
+Since $s_d\le1$ and $s_da_d\le\varepsilon\sqrt d$, the law of large
+numbers for $\xi_i^2$ and $(\xi_i^2-1)^2$ gives
+\begin{align}
+ \frac{\norm y_2}{p}
+ &\le\frac{s_d}{p^{3/2}}\norm{(\xi_i^2-1)_i}_2
+       +\frac{2s_da_d}{p^{3/2}}\norm{(\xi_i)_i}_2
+ \le2\sqrt\alpha\,\varepsilon+\oP(1),
+       \label{eq:weighted-target-l2}\\
+ \frac{(\log p)^4}{\sqrt p}\norm y_\infty
+ &=\OP\left(\frac{(\log d)^5}{d}
+       +\frac{\varepsilon(\log d)^{9/2}}{\sqrt d}\right)=\oP(1).
+       \label{eq:weighted-target-infinity}
+\end{align}
+The second estimate uses $\max_i|\xi_i|=\OP(\sqrt{\log d})$.
+In particular, the first bound has a deterministic leading constant;
+a tightness estimate alone would not suffice for this choice of $s_d$.
+Simultaneous interpolation therefore supplies a symmetric correction
+$\Delta$ and an intercept $b_0$ with the measurable upper bound
+\[
+ \opnorm\Delta\le S'_d:=L_\alpha\left(
+ \frac{\norm y_2}{p}+\frac{(\log p)^4}{\sqrt p}\norm y_\infty\right)
+ \le2L_\alpha\sqrt\alpha\,\varepsilon+\oP(1).
+\]
+Choose $0<\varepsilon\le1$ so that
+$2L_\alpha\sqrt\alpha\,\varepsilon<1/(4D)$. With probability tending
+to one, $\opnorm\Delta\le1/(2D)$, and hence
+\[
+ (2D)^{-1}I_p\preceq A+\Delta\preceq2D I_p.
+\]
+The matrix
+$Q=\operatorname{diag}(s_d,A+\Delta)$ is then positive definite and
+\[
+ X_i^{\mathsf T}QX_i
+ =q+s_d(1+a_d^2)+\tr\Delta+\sqrt p\,b_0
+\]
+is independent of $i$. Its common value is positive, so rescaling gives
+an exact positive definite fit, with
+\begin{equation}\label{eq:weighted-condition-upper}
+ \cond(Q)\le\frac{4D^2}{s_d}
+ \le\frac{4D^2}{\varepsilon}\left(1+\frac{a_d}{\sqrt d}\right).
+\end{equation}
+The Borel exceptional-set argument is the same as in
+Section~\ref{sec:conditioned-existence}. This proves existence and the
+upper bound in~\eqref{eq:condition-growth}, without a growth restriction
+on $a_d$.
+
+\paragraph{A matching lower bound.}
+For any fixed density $\alpha>0$, let $G$ have rows $Z_i^{\mathsf T}$.
+The adjoint bound used in~\eqref{eq:reserve-adjoint}, by duality, gives
+on events of probability tending to one a fixed $L>0$, depending only
+on $\alpha$, such that
+\[
+ \norm{(Z_i^{\mathsf T}QZ_i-\tr Q)_i}_2
+       \le Ld\,\norm Q_F\qquad(Q\in\Sym_d).
+\]
+Also $\sigma_{\min}(P_nG)/\sqrt n\to1$ in probability: an orthogonal
+change of the row coordinates identifies its nonzero rows with an
+$(n-1)\times d$ standard Gaussian matrix. If $Q\succ0$ fits $Z+m$,
+centering its fit equations gives
+\[
+ P_n(Z_i^{\mathsf T}QZ_i)_i=-2P_nGQm.
+\]
+Consequently, on the same events, simultaneously for every such $m,Q$,
+\begin{align*}
+ 2\sigma_{\min}(P_nG)\lambda_{\min}(Q)\norm m
+ &\le2\norm{P_nGQm}_2\\
+ &\le Ld\norm Q_F
+ \le Ld^{3/2}\lambda_{\max}(Q).
+\end{align*}
+Canceling $\lambda_{\min}(Q)>0$ gives the scale-invariant bound
+\begin{equation}\label{eq:condition-lower}
+ \cond(Q)\ge
+ \frac{2\sigma_{\min}(P_nG)}{Ld}\,
+       \frac{\norm m}{\sqrt d}
+ =\left(\frac{2\sqrt\alpha}{L}+\oP(1)\right)
+       \frac{\norm m}{\sqrt d}.
+\end{equation}
+The random coefficient is independent of $m$ and $Q$. Together with
+$\cond(Q)\ge1$, this proves the lower bound
+in~\eqref{eq:condition-growth} after decreasing a deterministic positive
+constant $c_\alpha$. Taking the infimum over fitting matrices requires
+no attainment assumption. In particular, for $\alpha<1/4$, shifts of
+order $\sqrt d$ admit bounded condition numbers, whereas
+$a_d/\sqrt d\to\infty$ forces the optimal condition number to diverge
+linearly in $a_d/\sqrt d$, up to fixed multiplicative constants.
+
+\subsection{A Gaussian certificate with a positive margin}
+
+For a sample $Z=(Z_1,\ldots,Z_N)$ define its unrestricted normalized
+squared residual by
+\begin{equation}\label{eq:psd-residual}
+ \Gamma_{N,d}(Z)=
+ \min_{\substack{R\succeq0\\\tr R=d}}
+       \norm{\mathcal L_Z(R)}_2^2.
+\end{equation}
+Here $\mathcal L_Z$ is~\eqref{eq:centered-measurements}, with sample
+size $N$. For a PSD matrix the quadratic values are nonnegative, so
+subtracting their empirical mean is also the minimization over
+nonnegative common levels used in the Gaussian residual theorem.
+For $N/d^2\to\beta>0$ and standard Gaussian points, the squared-error
+theorem of \citet[Theorems 1.2 and 1.7]{KoehlerSohn2026} gives
+\begin{equation}\label{eq:gaussian-error-limit}
+ \Gamma_{N,d}(Z)\xrightarrow{\Pbb}e_\star(\beta,3),\qquad
+ e_\star(\beta,3)=\frac{2}{\beta}(-\omega_\beta)_+^2,
+ \qquad v(\omega_\beta)=\beta.
+\end{equation}
+Here $v$ is defined in Section~1. It is continuous and strictly
+decreasing from $+\infty$ to $0$ on $(-\infty,\sqrt2)$, so
+$\omega_\beta$ is unique and continuous in $\beta>0$.
+Thus $e_\star(\beta,3)$ is continuous, equals zero for
+$\beta\le1/4$, and is positive for $\beta>1/4$, since $v(0)=1/4$.
+In particular, for $\beta>1/4$ there is $\eta_\beta>0$ such that
+\begin{equation}\label{eq:psd-gaussian-gap}
+ \Pbb\{\Gamma_{N,d}(Z)\ge\eta_\beta\}\longrightarrow1.
+\end{equation}
+Unlike Lemma~\ref{lem:data-gap}, this input ranges over the entire PSD
+trace slice. The following consequence is the dual identity of
+\citet[Proposition A.1]{KoehlerSohn2026}, in our normalization. We give
+the construction to make its measurability and sign invariance explicit.
+
+\begin{lemma}[A certificate determined by the outer products]
+\label{lem:psd-certificate}
+Let $N/d^2\to\beta>1/4$. There is a Borel choice of
+$y=y(Z)\in\R^N$, depending only on $(Z_iZ_i^{\mathsf T})_{i\le N}$,
+such that $\sum_i y_i=0$, $\norm y_2\le1$, and, for any fixed
+$0<c_\beta<\sqrt{\beta e_\star(\beta,3)}$, with probability tending to one,
+\begin{equation}\label{eq:certificate-margin}
+ M_0:=\sum_{i=1}^N y_iZ_iZ_i^{\mathsf T}
+       \succeq c_\beta\sqrt d\,I_d.
+\end{equation}
+Its linear moment $b=\sum_i y_iZ_i$ satisfies
+$\norm b=\OP(\sqrt d)$.
+\end{lemma}
+
+\begin{proof}
+The image
+\[
+ \mathcal V_Z=
+ \{\mathcal L_Z(R):R\succeq0,\ \tr R=d\}\subset\mathbf1^\perp
+\]
+is compact and convex. Let $z_*(Z)$ be its unique point of smallest
+Euclidean norm. Set $y=z_*/\norm{z_*}$ when $z_*\ne0$ and $y=0$
+otherwise. The vector $z_*$ depends continuously on the sample: along a
+convergent sequence of samples, compactness of the fixed PSD trace slice
+gives subsequential limits of minimizing matrices, and every resulting
+image limit is the unique minimizing image at the limiting sample.
+Consequently $y$ is Borel. Its definition uses only the outer products.
+
+The projection inequality gives, for every $R\succeq0$ of trace $d$,
+\[
+ \langle y,\mathcal L_Z(R)\rangle
+ \ge\norm{z_*}=\sqrt{\Gamma_{N,d}(Z)}.
+\]
+This also holds when $z_*=0$. Since $y\perp\mathbf1$, it implies
+\[
+ \tr(M_0R)\ge\sqrt{Nd}\,\sqrt{\Gamma_{N,d}(Z)}.
+\]
+Minimizing the left side over the PSD trace slice gives
+\begin{equation}\label{eq:certificate-duality}
+ \lambda_{\min}(M_0)
+ \ge\sqrt{N/d}\,\sqrt{\Gamma_{N,d}(Z)}.
+\end{equation}
+Equation~\eqref{eq:gaussian-error-limit} proves~\eqref{eq:certificate-margin}
+with every constant $c_\beta$ in the stated range.
+
+To bound $b$, represent $Z_i=\varepsilon_iU_i$ with independent
+standard Gaussian $U_i$ and independent Rademacher signs
+$\varepsilon_i$. The weights $y_i$ depend on the $U_iU_i^{\mathsf T}$
+and hence not on these signs. Conditional on $(U_i)_i$,
+\[
+ \E_\varepsilon\left\|\sum_i y_i\varepsilon_iU_i\right\|^2
+ =\sum_i y_i^2\norm{U_i}^2
+ \le\max_i\norm{U_i}^2.
+\]
+The maximum is at most $Cd$ with probability tending to one because
+$N=O(d^2)$. Conditional Markov's inequality now gives
+$\norm b=\OP(\sqrt d)$.
+\end{proof}
+
+\subsection{Correcting the linear moment on an independent sample}
+
+\begin{lemma}[Correction with a small quadratic contribution]
+\label{lem:reserve-correction}
+Suppose $k=k(d)$ satisfies $k/d^2\to\gamma>0$. Let $H$ be a $k\times d$
+matrix with independent standard Gaussian rows $H_j^{\mathsf T}$, and
+let $b\in\R^d$ be independent of $H$, with $\norm b=\OP(\sqrt d)$.
+Put
+\[
+ P_k=I_k-\frac1k\mathbf1\mathbf1^{\mathsf T},\qquad
+ K=H^{\mathsf T}P_kH,\qquad v=K^{-1}b,\qquad r=P_kHv.
+\]
+For all sufficiently large $d$, $K$ is invertible almost surely. This
+supporting assertion is informal and is not formalized; see
+Appendix~\ref{app:sources}. Define $r=0$ on the null event of
+singularity. Then $r$ is Borel, and almost surely
+\begin{equation}\label{eq:reserve-identities}
+ \mathbf1^{\mathsf T}r=0,\qquad H^{\mathsf T}r=b.
+\end{equation}
+Moreover,
+\begin{equation}\label{eq:reserve-bounds}
+ \norm r_2=\OP(d^{-1/2}),\qquad
+ \left\|\sum_{j=1}^k r_jH_jH_j^{\mathsf T}\right\|_{\mathrm{op}}
+       =\OP\big(\sqrt{\log(2d)}\big)=o_{\Pbb}(\sqrt d).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The identities in~\eqref{eq:reserve-identities} follow directly from the
+definition. The matrix $K$ has the law of the Gram matrix of $k-1$
+independent Gaussian rows. Since $k-1\ge d$ eventually, it is invertible
+almost surely. This step is informal, and the formal proof does not use
+it. That proof shows instead that the event on which $K$ is singular or
+the correction is large has probability tending to zero: this is
+\path{reserve_correction_converges} in
+\path{library/random_matrix/reserve_convergence.v}. On the event
+$\opnorm{k^{-1}K-I_d}\le1/2$, the lemma \path{centered_correction_bounds}
+gives the invertibility of $K$ and~\eqref{eq:reserve-identities}. Write
+\[
+ \overline H=\frac1k\sum_jH_j,\qquad B_j=H_jH_j^{\mathsf T}-I_d,
+ \qquad \mathcal B^*(t)=\sum_jt_jB_j.
+\]
+Gaussian covariance concentration and the Gaussian norm bounds give
+\begin{align}
+ \opnorm{k^{-1}K-I_d}&=\OP(d^{-1/2}),&
+ \opnorm H&=\OP(d),\label{eq:reserve-covariance}\\
+ \norm{\overline H}&=\OP(d^{-1/2}),&
+ \opnorm{\textstyle\sum_jB_j}&=\OP(d^{3/2}).\nonumber
+\end{align}
+It follows that
+\begin{equation}\label{eq:reserve-inverse}
+ \norm v=\OP(d^{-3/2}),\qquad
+ \left\|v-\frac bk\right\|=\OP(d^{-2}),\qquad
+ \norm r_2^2=b^{\mathsf T}K^{-1}b=\OP(d^{-1}).
+\end{equation}
+
+We also use the quadratic-feature bound
+\begin{equation}\label{eq:reserve-adjoint}
+ \norm{\mathcal B^*(t)}_F\le Ld\,\norm t_2
+       \qquad\text{for every }t\in\R^k,
+\end{equation}
+on events of probability tending to one, for a fixed $L$ depending on
+$\gamma$. This is the Gaussian case of \path{mixture_adjoint_bound},
+with the factor $\sqrt d$ restored because $B_j$ is unnormalized;
+its analytic source is \citet[Proposition 3.1]{KoehlerSohn2026}.
+
+Let $D=\sum_jr_jH_jH_j^{\mathsf T}$. Since $\sum_jr_j=0$, equations
+\eqref{eq:reserve-covariance}--\eqref{eq:reserve-adjoint} give
+\begin{align}
+ D&=D_0+
+   \mathcal B^*\!\left(H\left(v-\frac bk\right)\right)
+   -(\overline H^{\mathsf T}v)\sum_jB_j,
+       \label{eq:reserve-decomposition}\\
+ D_0&=\frac1k\sum_j(H_j^{\mathsf T}b)B_j.\nonumber
+\end{align}
+The middle term has operator norm at most
+$Ld\,\opnorm H\norm{v-b/k}=\OP(1)$. The last term has operator norm
+$\OP(d^{-1/2})$. Thus it suffices to bound $D_0$.
+
+Represent $H_j=\varepsilon_jU_j$, with independent standard Gaussian
+$U_j$ and independent Rademacher signs, all independent of $b$. We may
+use an event $E_d$ depending only on $(U_jU_j^{\mathsf T})_j$, with
+$\Pbb(E_d)\to1$, on which~\eqref{eq:reserve-adjoint} and
+$\max_j\norm{U_j}^2\le L_0d$ hold for fixed constants $L,L_0$.
+On this event, duality in~\eqref{eq:reserve-adjoint}, applied to
+$uu^{\mathsf T}$ for $\norm u=1$, gives
+\begin{equation}\label{eq:reserve-fourth}
+ \sum_j(U_j^{\mathsf T}u)^4
+ \le2\sum_j\big((U_j^{\mathsf T}u)^2-1\big)^2+2k
+ \le2L^2d^2+2k\le L_1k.
+\end{equation}
+Consequently, for all $b,u\in\R^d$ with $\norm u=1$,
+\begin{align*}
+ \sum_j(U_j^{\mathsf T}b)^2(U_j^{\mathsf T}u)^2
+     &\le L_1k\norm b^2,\\
+ \sum_j(U_j^{\mathsf T}b)^2&\le\sqrt{L_1}\,k\norm b^2,
+\end{align*}
+by Cauchy--Schwarz and homogeneity. With $B_j=U_jU_j^{\mathsf T}-I_d$,
+\[
+ B_j^2=(\norm{U_j}^2-2)U_jU_j^{\mathsf T}+I_d
+       \preceq L_0d\,U_jU_j^{\mathsf T}+I_d.
+\]
+The preceding estimates therefore yield the matrix variance bound
+\begin{equation}\label{eq:reserve-variance}
+ \left\|\sum_j(U_j^{\mathsf T}b)^2B_j^2\right\|_{\mathrm{op}}
+       \le L_2dk\norm b^2.
+\end{equation}
+
+Conditional on $b$ and $(U_j)_j$, the matrix
+$D_0=k^{-1}\sum_j\varepsilon_j(U_j^{\mathsf T}b)B_j$ is a Rademacher
+series. The expected-norm bound of
+\citet[Theorem 4.1.1]{TroppMatrixConcentration2015} and
+\eqref{eq:reserve-variance} give, on $E_d$,
+\begin{equation}\label{eq:reserve-rademacher}
+ \E_\varepsilon\opnorm{D_0}
+ \le\frac{\sqrt{2\log(2d)}}{k}
+     \left\|\sum_j(U_j^{\mathsf T}b)^2B_j^2\right\|_{\mathrm{op}}^{1/2}
+ \le L_3\norm b\sqrt{\frac{d\log(2d)}{k}}.
+\end{equation}
+The factor $\sqrt{2\log(2d)}$ is the constant of Tropp's theorem, which
+is cited and not formalized. The Rocq proof uses
+\path{rademacher_mx_series_variance} in
+\path{library/random_matrix/rademacher_series.v}, which
+gives~\eqref{eq:reserve-rademacher} with $40\sqrt{\log(2d)}$ in place of
+$\sqrt{2\log(2d)}$. Only the constants $L_3$ and $L_4$ change, and the
+conclusion $\opnorm{D_0}=\OP(\sqrt{\log(2d)})$ is the same.
+
+For clarity, no moment assumption on the random vector $b$ is needed
+beyond tightness of $\norm b/\sqrt d$. For $M,T>0$, conditional Markov's
+inequality gives, for all sufficiently large $d$,
+\[
+ \Pbb\{\opnorm{D_0}>T\sqrt{\log(2d)}\}
+ \le\Pbb(E_d^c)+\Pbb\{\norm b>M\sqrt d\}+\frac{L_4M}{T}.
+\]
+First choose $M$ large and then $T$ large. This proves
+$\opnorm{D_0}=\OP(\sqrt{\log(2d)})$. Equation~\eqref{eq:reserve-decomposition}
+proves~\eqref{eq:reserve-bounds}. All constants above are independent of
+$b$ and $d$, and may depend on $\gamma$.
+\end{proof}
+
+\subsection{Nonexistence above \texorpdfstring{$1/4$}{1/4}, uniformly over translations}
+
+Suppose $\alpha>1/4$ and fix $\beta\in(1/4,\alpha)$. Split the sample
+into its first $N=\lfloor\beta d^2\rfloor$ points and its remaining
+$k=n(d)-N$ points. Thus $k/d^2\to\alpha-\beta>0$.
+Apply Lemma~\ref{lem:psd-certificate} to the first part. It supplies
+$y$, $M_0$, and $b=\sum_{i\le N}y_iZ_i$, with
+$\norm b=\OP(\sqrt d)$ and
+$M_0\succeq c_\beta\sqrt d\,I_d$ with probability tending to one.
+The reserve matrix $H$, with rows $Z_{N+j}^{\mathsf T}$, is independent
+of $b$. Lemma~\ref{lem:reserve-correction} supplies $r$ with
+$H^{\mathsf T}r=b$, $\sum_jr_j=0$, and
+$\opnorm D=o_{\Pbb}(\sqrt d)$, where
+$D=\sum_jr_jZ_{N+j}Z_{N+j}^{\mathsf T}$.
+
+Define weights on the whole sample by
+$\lambda=(y_1,\ldots,y_N,-r_1,\ldots,-r_k)$. They satisfy
+\begin{equation}\label{eq:translation-certificate}
+ \sum_i\lambda_i=0,\qquad \sum_i\lambda_iZ_i=0,\qquad
+ M:=\sum_i\lambda_iZ_iZ_i^{\mathsf T}=M_0-D
+       \succeq\frac{c_\beta}{2}\sqrt d\,I_d
+\end{equation}
+with probability tending to one. The weights are Borel functions of the
+sample, using the choices in the two lemmas. We may take $\Omega_d$ to
+be the Borel event on which $K$ is invertible and the last inequality
+in~\eqref{eq:translation-certificate} holds. The two equalities then
+hold exactly on $\Omega_d$.
+
+For every $m\in\R^d$, expansion of the outer products gives on this
+same event
+\begin{equation}\label{eq:translation-cancellation}
+ \sum_i\lambda_i(Z_i+m)(Z_i+m)^{\mathsf T}=M.
+\end{equation}
+If a nonzero $Q\succeq0$ fitted the translated points at level one,
+then
+\[
+ 0=\sum_i\lambda_i
+  =\sum_i\lambda_i(Z_i+m)^{\mathsf T}Q(Z_i+m)
+  =\tr(QM)
+  \ge\frac{c_\beta}{2}\sqrt d\,\tr Q>0,
+\]
+a contradiction. A fitting matrix is necessarily nonzero, so this
+excludes all PSD fits. The certificate and the event do not depend on
+$m$; the assertion is therefore simultaneous over every translation,
+without a union bound or a bound on its norm. More generally, for every
+nonzero $Q\succeq0$, every $\ell\in\R^d$, and every $c\in\R$,
+\[
+ \sum_i\lambda_i
+   (Z_i^{\mathsf T}QZ_i+2\ell^{\mathsf T}Z_i+c)
+ =\tr(QM)>0.
+\]
+Thus no quadric of the form~\eqref{eq:no-quadric} contains all the
+points. This includes ellipsoids with arbitrary centers. Finally,
+Remark~\ref{rem:sign-invariance} transfers both threshold conclusions
+for centered fits to the sign mixtures and completes
+Theorem~\ref{thm:unrestricted}.
+
+\subsection{The fitting-error limit for every deterministic shift}
+\label{sec:shifted-error}
+
+The same certificate gives a quantitative residual bound uniformly
+over translations. Retaining its full margin, and then letting the
+reserve fraction decrease after taking the dimension limit, identifies
+the limiting error exactly.
+
+\begin{theorem}[The Gaussian fitting-error limit is unchanged]
+\label{thm:shifted-error}
+Let $n(d)/d^2\to\alpha>0$ and let $Z_i$ be independent standard Gaussian
+points. For every deterministic sequence $m_d\in\R^d$, with no norm
+restriction,
+\begin{equation}\label{eq:shifted-error-limit}
+ \Gamma_{n,d}(Z+m_d)\xrightarrow{\Pbb}e_\star(\alpha,3).
+\end{equation}
+Moreover, for every $\delta>0$,
+\begin{equation}\label{eq:uniform-error-lower}
+ \Pbb\left\{\inf_{m\in\R^d}\Gamma_{n,d}(Z+m)
+                 \ge e_\star(\alpha,3)-\delta\right\}\longrightarrow1.
+\end{equation}
+The infimum over all translations also converges in probability to
+$e_\star(\alpha,3)$. Equation~\eqref{eq:shifted-error-limit} holds for
+the sign mixtures in Remark~\ref{rem:sign-invariance} as well.
+\end{theorem}
+
+\begin{proof}
+First suppose $\alpha>1/4$ and fix $1/4<\beta<\alpha$. Use the split
+and certificate of the preceding subsection. On events of probability
+tending to one, $\Gamma_{N,d}(Z_1,\ldots,Z_N)>0$, so $\norm y_2=1$ and
+\[
+ \norm\lambda_2^2=1+\norm r_2^2=1+\OP(d^{-1}),\qquad
+ \lambda_{\min}(M)\ge
+    \sqrt{N/d}\sqrt{\Gamma_{N,d}(Z_1,\ldots,Z_N)}-\opnorm D.
+\]
+For every $m$ and every $R\succeq0$ with $\tr R=d$, the annihilation
+identities give
+\[
+ \langle\lambda,\mathcal L_{Z+m}(R)\rangle
+   =\frac{\tr(RM)}{\sqrt{nd}}
+   \ge\sqrt{\frac dn}\lambda_{\min}(M).
+\]
+Cauchy--Schwarz and minimization over $R$ therefore give, simultaneously
+for every $m$,
+\begin{equation}\label{eq:sharp-uniform-error-bound}
+ \sqrt{\Gamma_{n,d}(Z+m)}\ge
+ \frac{\left[
+    \sqrt{N/n}\sqrt{\Gamma_{N,d}(Z_1,\ldots,Z_N)}
+       -\sqrt{d/n}\opnorm D\right]_+}{\norm\lambda_2}.
+\end{equation}
+For this fixed $\beta$, the square of the right side converges in
+probability to $(\beta/\alpha)e_\star(\beta,3)$, because
+$\opnorm D=\OP(\sqrt{\log(2d)})=\oP(\sqrt d)$.
+Given $\delta>0$, continuity in~\eqref{eq:gaussian-error-limit} allows
+us to choose a fixed $\beta<\alpha$ sufficiently close to $\alpha$ to
+deduce~\eqref{eq:uniform-error-lower}. The choice is made before
+letting $d\to\infty$; no estimate uniform in a vanishing reserve
+fraction is needed. For $\alpha\le1/4$, the same conclusion follows
+from $\Gamma\ge0$ and $e_\star(\alpha,3)=0$.
+
+For the upper bound, put $p=d-1$ and choose a deterministic isometry
+$J_d:\R^p\to\R^d$ with image orthogonal to $m_d$; if $m_d=0$, choose
+any such isometry. The points $g_i=J_d^{\mathsf T}Z_i$ are independent
+standard Gaussian vectors in $\R^p$. For every $A\succeq0$ with
+$\tr A=p$, the matrix $R=(d/p)J_dAJ_d^{\mathsf T}$ is PSD of trace $d$,
+and
+\[
+ (Z_i+m_d)^{\mathsf T}R(Z_i+m_d)=\frac dp\,g_i^{\mathsf T}Ag_i.
+\]
+Taking centered residuals with their respective normalizations yields
+\begin{equation}\label{eq:projection-error-upper}
+ \Gamma_{n,d}(Z+m_d)\le\frac dp\,\Gamma_{n,p}(g).
+\end{equation}
+Since $n/p^2\to\alpha$ and $d/p\to1$, the right side converges to
+$e_\star(\alpha,3)$ by~\eqref{eq:gaussian-error-limit}.
+Together with~\eqref{eq:uniform-error-lower}, this
+proves~\eqref{eq:shifted-error-limit} at every $\alpha>0$, including
+$\alpha=1/4$. It does not decide exact fitting at the critical density.
+The infimum over translations is bounded above by $\Gamma_{n,d}(Z)$,
+which has the same limit. It is measurable because $\Gamma$ is
+continuous in the sample and the infimum may be taken over rational
+translations. Finally, rowwise sign changes leave every quadratic
+measurement unchanged, proving the assertion for sign mixtures.
+\end{proof}
+
+For a simpler positive lower bound at a fixed split, on $\Omega_d$,
+\[
+ \inf_{m\in\R^d}\Gamma_{n,d}(Z+m)
+ \ge\frac{c_\beta^2d^2}{4n\norm\lambda_2^2}
+ =\frac{c_\beta^2}{4\alpha}+\oP(1).
+\]
+Theorem~\ref{thm:shifted-error} strengthens this bound to the full
+Gaussian limit.
+
+\section{Symmetric mixtures beyond Gaussian data}
+\label{sec:symmetric-mixtures}
+
+We now specify a class for which the same certificate works. Let the
+law of a point in $\R^d$ be a finite or countable mixture
+\begin{equation}\label{eq:symmetric-mixture-law}
+ \rho_d=\sum_s w_{d,s}\bigotimes_{j=1}^d\mu_{d,s,j},\qquad
+ w_{d,s}\ge0,\quad\sum_s w_{d,s}=1.
+\end{equation}
+Assume that every component coordinate has mean zero, variance one,
+and subgaussian norm at most a fixed $K_0$, and that, for a fixed
+$\kappa>1$,
+\begin{equation}\label{eq:mixture-fourth}
+ \sum_s w_{d,s}\int t^4\,\mu_{d,s,j}(dt)=\kappa
+       \qquad(1\le j\le d).
+\end{equation}
+These are the admissibility assumptions of the formal mixture theorem.
+Assume in addition that $\rho_d$ is centrally symmetric: $Z$ and $-Z$
+have the same law. This holds, in particular, if every
+$\mu_{d,s,j}$ is symmetric. No independence of the coordinates under
+the mixture itself is required.
+
+Write $\alpha_\star(\kappa)$ for the unshifted mixture threshold. In
+the notation of Section~1, it is
+\[
+ \alpha_\star(\kappa)
+   =v(\omega_\kappa)+\frac{\kappa-3}{2}m(\omega_\kappa)^2,
+ \qquad \omega_\kappa=\frac{\kappa-3}{2}m(\omega_\kappa),
+\]
+where the root is unique. The threshold lies in $(0,1/2)$ for every
+$\kappa>1$.
+Let $e_\star(\beta,\kappa)$ denote the unshifted squared-error limit
+from the same mixture theorem; it is positive when
+$\beta>\alpha_\star(\kappa)$.
+
+\begin{theorem}[Translations of symmetric admissible mixtures]
+\label{thm:symmetric-mixtures}
+Let $Z_1,\ldots,Z_n$ be independent with law~\eqref{eq:symmetric-mixture-law}
+under the preceding assumptions, and let $n/d^2\to\alpha>0$.
+\begin{enumerate}
+\item If $\alpha>\alpha_\star(\kappa)$, then on Borel events of
+      probability tending to one there is no nonzero $Q\succeq0$,
+      $\ell\in\R^d$, and $c\in\R$ with
+      $Z_i^{\mathsf T}QZ_i+2\ell^{\mathsf T}Z_i+c=0$ for all $i$.
+      In particular, no translated sample $Z+m$ has a PSD fit,
+      simultaneously for all $m\in\R^d$. There is also a constant
+      $\eta>0$, depending only on $\alpha,\kappa$, such that
+      \[
+       \Pbb\left\{\inf_{m\in\R^d}\Gamma_{n,d}(Z+m)\ge\eta\right\}
+       \longrightarrow1.
+      \]
+\item If $\alpha<\alpha_\star(\kappa)$ and a deterministic shift $m_d$
+      is supported on $h_d=o(d)$ coordinates, then $Z+m_d$ has a
+      positive definite fit with probability tending to one.
+      There is no restriction on $\norm{m_d}$.
+\end{enumerate}
+The centered-fitting conclusions also hold for the sign mixture
+$w_d\,\operatorname{Law}(Z+m_d)+(1-w_d)\,\operatorname{Law}(Z-m_d)$, for every
+$w_d\in[0,1]$.
+\end{theorem}
+
+\begin{proof}
+\emph{Nonexistence.}
+Fix $\alpha_\star(\kappa)<\beta<\alpha$, and split the sample into
+$N=\lfloor\beta d^2\rfloor$ points and $k=n-N$ reserve points.
+The mixture squared-error theorem gives
+$\Gamma_{N,d}\to e_\star(\beta,\kappa)>0$ in probability. The compact
+convex projection in Lemma~\ref{lem:psd-certificate} is deterministic
+and applies without change. It gives a Borel vector $y$, determined
+by the outer products, with $\sum_i y_i=0$, $\norm y_2\le1$, and
+\[
+ M_0\succeq c_\beta\sqrt d\,I_d
+ \quad\text{with probability tending to one},\qquad
+ 0<c_\beta<\sqrt{\beta e_\star(\beta,\kappa)}.
+\]
+
+We verify the remaining probabilistic inputs. Conditional on a mixture
+label, independence and the uniform scalar subgaussian bound give
+\[
+ \E\exp(tu^{\mathsf T}Z)\le
+       \exp(C_{K_0}t^2\norm u^2),\qquad
+ \E ZZ^{\mathsf T}=I_d.
+\]
+The bound is uniform in the label, so it also holds after mixing.
+A fixed net of the unit sphere therefore gives
+$\max_{i\le n}\norm{Z_i}^2\le C d$ with probability tending to one.
+Central symmetry permits the representation $Z_i=\varepsilon_iU_i$,
+where the $U_i$ have law $\rho_d$ and the signs are independent.
+The conditional second-moment argument in
+Lemma~\ref{lem:psd-certificate} gives $\norm b=\OP(\sqrt d)$ for
+$b=\sum_{i\le N}y_iZ_i$.
+
+For the reserve rows, the same linear subgaussian bound gives
+\[
+ \opnorm{k^{-1}H^{\mathsf T}H-I_d}
+       =\OP\big(\sqrt{d/k}\big),\qquad
+ \norm{\overline H}=\OP\big(\sqrt{d/k}\big).
+\]
+Indeed, for a fixed unit vector $u$, the independent variables
+$(u^{\mathsf T}H_j)^2-1$ have uniformly bounded subexponential norms.
+Bernstein's inequality followed by a union bound over a $1/4$-net
+with at most $9^d$ points proves the covariance estimate. The mean
+estimate follows from $\E\norm{\overline H}^2=d/k$.
+Since
+$K/k=H^{\mathsf T}H/k-\overline H\overline H^{\mathsf T}$,
+all the rates in~\eqref{eq:reserve-covariance} follow. In particular,
+$K$ is invertible with probability tending to one. Almost-sure
+invertibility is not needed and is not asserted for discrete laws.
+
+The finite-mixture adjoint bound \path{mixture_adjoint_bound} gives
+\eqref{eq:reserve-adjoint} with a constant depending on $K_0$ and
+$\alpha-\beta$. It also holds for countable mixtures: truncate the
+component labels at tail mass at most $d^{-4}$ and replace the tail
+by one admissible component. The finite law has the same uniform
+subgaussian bound, and coupling the $k=O(d^2)$ labels changes a sample
+with probability at most $kd^{-4}=o(1)$. The adjoint estimate does not
+require a prescribed fourth moment, so this replacement is sufficient
+for that estimate. The squared-error input for countable mixtures
+comes directly from their formal theorem.
+
+Define $v=K^{-1}b$ and $r=P_kHv$ on the invertibility event and set
+$v=r=0$ otherwise. Then~\eqref{eq:reserve-identities} holds exactly
+on that event, and~\eqref{eq:reserve-inverse} holds in probability.
+The decomposition~\eqref{eq:reserve-decomposition}, the fourth-moment
+estimate~\eqref{eq:reserve-fourth} obtained from the adjoint bound,
+and the variance estimate~\eqref{eq:reserve-variance} are deterministic.
+Central symmetry gives the same independent-sign representation of
+the reserve rows, so~\eqref{eq:reserve-rademacher} and its conditional
+Markov argument prove
+\[
+ \norm r_2=\OP(d^{-1/2}),\qquad
+ \opnorm D=\OP\big(\sqrt{\log(2d)}\big)=\oP(\sqrt d).
+\]
+Thus $\lambda=(y,-r)$ has all the properties
+in~\eqref{eq:translation-certificate}. The deterministic cancellation
+and quadric argument prove nonexistence on a Borel event independent
+of the translation. The bound following
+Theorem~\ref{thm:shifted-error} gives any fixed
+$0<\eta<c_\beta^2/(4\alpha)$, proving the residual assertion.
+
+\emph{Existence for shifts on few coordinates.}
+Write $h=h_d$, $p=d-h$, and, after a coordinate permutation,
+$Z_i=(U_i,g_i)$ and $m_d=(\widetilde m_d,0)$, with
+$a_d=\norm{\widetilde m_d}$. The case $h=0$ is the unshifted theorem.
+The complementary points $g_i$ remain an admissible mixture in
+dimension $p$, with the same $K_0,\kappa$, and $n/p^2\to\alpha$.
+The unshifted mixture theorem supplies, with probability tending to
+one, $A\succ0$ with $\tr A=p$, $\cond(A)\le D$ for a fixed $D$, and
+$g_i^{\mathsf T}Ag_i=q>0$ independent of $i$.
+
+Set $t_d=(1+a_d)^{-1}$ and
+\[
+ y_i=-\frac{t_d\big(\norm{U_i+\widetilde m_d}^2-h-a_d^2\big)}{\sqrt p}.
+\]
+Conditional component independence and variance one imply
+$\operatorname{Cov}(U_{ij}^2,U_{i\ell}^2)=0$ for $j\ne\ell$.
+Central symmetry makes the covariance between
+$\norm{U_i}^2$ and $\widetilde m_d^{\mathsf T}U_i$ zero. Hence
+\[
+ \E y_i^2=\frac{t_d^2}{p}\big(h(\kappa-1)+4a_d^2\big),\qquad
+ \frac{\norm y_2}{p}=\OP\left(\sqrt{\frac{h+1}{d}}\right)=\oP(1).
+\]
+Uniform conditional Bernstein bounds for the sums of squares, and
+the linear subgaussian bound, also give
+\[
+ \norm y_\infty
+ =\OP\left(\frac{\sqrt{h\log d}+\log d}{\sqrt d}\right),\qquad
+ \frac{(\log p)^4}{\sqrt p}\norm y_\infty=\oP(1).
+\]
+Since $\alpha<\alpha_\star(\kappa)<1/2$, mixture interpolation applies
+to $(g_i)$ and gives $\opnorm\Delta=\oP(1)$. It holds simultaneously
+for every target, so no independence between $(U_i)$ and $(g_i)$ is
+required. With probability tending to one,
+$Q=\operatorname{diag}(t_dI_h,A+\Delta)$ is positive definite and has
+the common quadratic level
+\[
+ q+t_d(h+a_d^2)+\tr\Delta+\sqrt p\,b_0.
+\]
+This level is positive because $Q\succ0$ and each $g_i\ne0$ on the
+fitting event. Rescaling proves the existence assertion.
+Finally, central symmetry permits exactly the sign coupling of
+Remark~\ref{rem:sign-invariance}, proving the centered-fitting
+assertions for every mixture weight.
+\end{proof}
+
+For example, mixing the Rademacher product law on $\{\pm1\}^d$ with
+the standard Gaussian product law, with fixed Gaussian weight $0<\theta\le1$,
+gives $\kappa=1+2\theta$. The theorem excludes every translated PSD
+fit above $\alpha_\star(1+2\theta)$ and supplies positive definite fits
+below it for shifts supported on $o(d)$ coordinates. The case
+$\kappa=1$ is excluded: unshifted Rademacher data lie exactly on a
+sphere at every sample size. Existence for arbitrary dense shifts of
+these non-Gaussian mixtures is not established by the present argument.
+
+\appendix
+\section{Formal results and their relation to the proof}
+\label{app:sources}
+\begingroup\raggedright\setlength{\parindent}{17pt}
+
+The conclusions of this note are seven public propositions of the local
+Rocq development, listed below with the seven theorems that prove them.
+Their statement files were written at commit \texttt{51c2e14} on branch
+\texttt{local/shifted-gaussian}, based on \texttt{e34ddcf}; the
+supporting modules were complete at \texttt{9408427}. The statements
+were accepted at \texttt{51c2e14} and are frozen with the repository's
+existing checker. \path{scripts/check_sources.py} compares their code
+with that commit. The project definitions that they unfold to are
+either in frozen files or already protected by earlier checks, or
+among the 29 that \path{check/ShiftedDefinitions.v} fixes by
+characterizations proved by computation. Each theorem has an axiom check file, such as
+\path{check/ShiftedConditionAssumptions.v}, that compiles only if the
+theorem proves its frozen statement, and \path{check/ShiftedIdentities.v}
+checks the seven together. The work is not released: the pin of the
+new check files and the release tag wait for the acceptance of a
+separate repair of the verification machinery. The modules compiled
+with Rocq 9.1.1 and passed axiom audits, independent source reviews and
+recursive kernel checking. The references below point to the modules at
+\texttt{51c2e14}.
+
+The distinction is between conclusions and proof routes: some supporting
+claims in the text are stronger than the estimates used in Rocq, and
+only the weaker estimates are formalized. The text marks two of these
+claims as not formalized: the almost-sure invertibility of $K$ in
+Lemma~\ref{lem:reserve-correction} and the constant $\sqrt{2\log(2d)}$
+in~\eqref{eq:reserve-rademacher}. The formal proof needs neither. The
+paragraphs below specify these two differences and several others. They
+do not list every estimate of the text that the formal proof replaces
+by a weaker one.
+
+\paragraph{Public statements.}
+The statement files are at the top of \path{extension/}, and the
+theorem files are in \path{extension/Shifted/}.
+\begin{itemize}
+\item Theorem~\ref{thm:shifted}: \path{shifted_condition_statement} in
+  \path{ShiftedConditionStatement.v}, proved by
+  \path{shifted_condition_theorem} in \path{ConditionTheorem.v}.
+\item Theorem~\ref{thm:unrestricted}, part~1:
+  \path{shifted_gaussian_statement} in \path{ShiftedGaussianStatement.v},
+  proved by \path{shifted_gaussian_theorem} in \path{GaussianTheorem.v}.
+\item Theorem~\ref{thm:unrestricted}, part~2:
+  \path{shifted_quadric_statement} in \path{ShiftedQuadricStatement.v},
+  proved by \path{shifted_quadric_theorem} in \path{QuadricTheorem.v}.
+\item Theorem~\ref{thm:shifted-error}: \path{shifted_error_statement} in
+  \path{ShiftedErrorStatement.v}, proved by \path{shifted_error_theorem}
+  in \path{ErrorTheorem.v}.
+\item Theorem~\ref{thm:symmetric-mixtures}, part~1:
+  \path{shifted_mixture_unsat_statement} in
+  \path{ShiftedMixtureUnsatStatement.v}, proved by
+  \path{shifted_mixture_unsat_theorem} in \path{MixtureUnsatTheorem.v}.
+\item Theorem~\ref{thm:symmetric-mixtures}, part~2:
+  \path{shifted_mixture_sat_statement} in
+  \path{ShiftedMixtureSatStatement.v}, proved by
+  \path{shifted_mixture_sat_theorem} in \path{MixtureSatTheorem.v}.
+  This statement needs no symmetry.
+\item Remark~\ref{rem:sign-invariance} and the sign-mixture sentences of
+  Theorems~\ref{thm:unrestricted}, \ref{thm:shifted-error}
+  and~\ref{thm:symmetric-mixtures}: \path{shifted_sign_statement} in
+  \path{ShiftedSignStatement.v}, proved by \path{shifted_sign_theorem}
+  in \path{SignTheorem.v}.
+\end{itemize}
+Several statements give, for every $\epsilon>0$ and every sufficiently
+large dimension, a Borel exceptional set of probability at most
+$\epsilon$ outside which the conclusion holds. In this way they express
+events that serve all translations, all quadrics or several bounds at
+once. A diagonal choice gives the events $\Omega_d$ of the text, as in
+Section~2.
+
+\paragraph{Gaussian conclusions.}
+The paths in this paragraph are under \path{extension/Shifted/}.
+Theorem~\ref{thm:shifted} is \path{shifted_condition_statement}, and
+\path{shifted_condition_theorem} proves it from
+\path{gaussian_shift_condition_threshold} and
+\path{gaussian_shift_optimal_condition} in \path{GaussianCondition.v}.
+The norm hypothesis is exactly $\norm{m_d}/\sqrt d\to0$; no logarithmic
+restriction remains. The optimum is extended-real valued, and its
+infimum is not assumed attained. The measurability stated in Section~1
+is part of \path{shifted_condition_statement} and
+\path{shifted_gaussian_statement}. In \path{GaussianCondition.v},
+\path{measurable_gaussian_shift_fit} proves it for the events
+$\{Z+m\in\Fit_{n,d}(C)\}$ and
+\path{measurable_gaussian_shift_condition_number} for $\Copt(Z+m)$, for
+every $m\in\R^d$; the case $m=0$ gives the fitting events and $\Copt$
+themselves.
+
+For Theorem~\ref{thm:unrestricted}, part~1 is
+\path{shifted_gaussian_statement} and part~2 is
+\path{shifted_quadric_statement}.
+\path{gaussian_arbitrary_shift_condition_bounds} in
+\path{GaussianBounds.v} chooses both constants before the sample-size
+and shift sequences. The upper event may depend on that deterministic
+shift sequence. The lower bound in \path{ConditionLower.v} holds on one
+event for all translations. Above $1/4$,
+\path{gaussian_quadric_good_events} in \path{GaussianErrorLower.v}
+proves \path{shifted_quadric_statement}. It chooses the exceptional
+event before all $Q,v,c$, with $Q\succeq0$ and $Q\ne0$. Its linear term
+is $v^{\mathsf T}x$; take $v=2\ell$ to recover the notation of the text.
+
+Theorem~\ref{thm:shifted-error} is \path{shifted_error_statement},
+proved from \path{gaussian_shift_error_limit} and
+\path{gaussian_translation_error_limit} in \path{GaussianError.v}.
+These include $\alpha=1/4$ and arbitrary deterministic shifts.
+The latter result concerns the infimum over all translations.
+For positive sample size and dimension, its measurability is proved in
+\path{TranslationError.v}, using open strict sublevel sets of an
+infimum of continuous functions. The all-dimension extension is
+\path{measurable_translation_fitting_error_all} in
+\path{GaussianErrorLower.v}. No minimizing translation is selected. The uniform lower tail is
+\path{gaussian_translation_error_lower_tail} in
+\path{GaussianErrorLower.v}. A zero error limit at $1/4$ is not a proof
+of exact fitting at that density.
+
+\paragraph{Mixtures and signs.}
+Part~1 of Theorem~\ref{thm:symmetric-mixtures} is
+\path{shifted_mixture_unsat_statement}, proved from
+\path{finite_symmetric_quadric} and \path{countable_symmetric_quadric}
+in \path{SymmetricQuadric.v}. Part~2 is
+\path{shifted_mixture_sat_statement}, proved from
+\path{finite_sparse_shift_theorem} and \path{countable_sparse_shift_theorem}
+in \path{SparseShift.v}. The nonexistence results require symmetry of
+the actual mixture point law, not of each component. Their positive
+residual margin depends only on $\alpha,\kappa$ and is chosen before
+the common subgaussian bound and the families.
+
+The sparse-shift existence results are stronger than the theorem stated
+in the text: they need no symmetry. For the normalized target used in
+Section~\ref{sec:symmetric-mixtures}, \path{SparseTargets.v} proves
+\[
+ \E y_i^2\le \frac{8K^4h+8}{p}.
+\]
+It bounds the squared sum of the centered quadratic and linear parts
+rather than cancelling their covariance. \path{SparseTargetBounds.v}
+uses the sufficient maximum bound
+$\norm y_\infty=\OP((\sqrt h+1)\log d/\sqrt p)$.
+Consequently the interpolation contribution is of order
+$(\sqrt h+1)(\log p)^5/p$, which tends to zero under $h/p\to0$.
+There is no concealed condition such as $h(\log p)^a=o(p)$.
+
+The complementary dimension $p(d)=d-h(d)$ need not be injective or
+monotone. \path{SparseInputs.v} uses the varying-dimension transfer in
+\path{library/analysis/family_reindexing.v}, allowing different laws
+at repeated values of $p$. The construction in \path{SparseExistence.v}
+uses separate head and complement marginals and a union bound. It never
+assumes independence of these two blocks after mixing. The final
+statements have no auxiliary baseline-family or target-tail hypothesis.
+
+The public statement \path{shifted_sign_statement} collects the sign
+results. Its first conjunct, the equality of the joint laws of the outer
+products, holds over any real type. The finite-sample sign identities
+are in \path{SignMixture.v} and
+\path{library/probability/symmetric_shift.v}. They cover weights in the
+closed interval $[0,1]$, including dimension-dependent weights in the
+limit theorems. \path{MixtureSign.v} supplies the finite and countable
+mixture consequences. They transfer centered fit probabilities and the
+laws of the optimum and fitting error. They do not transfer the quadric
+event with arbitrary linear terms, or an infimum over further
+translations: these are not invariant under separate signs on the data.
+
+\paragraph{Inputs and normalization.}
+\path{GaussianInputs.v} proves standard-normal admissibility with $K=2$
+and fourth moment three. \path{GaussianExports.v} specializes the
+existing condition, interpolation, adjoint and error results.
+\path{GaussianRows.v} connects flat samples, row tuples, matrices,
+coordinate splits and rotations. These are proved law identities, not
+identifications made by notation.
+
+The extracted gap is \path{gaussian_condition_residual_gap} in
+\path{ConditionGap.v}. Its proof retains the loss in
+\path{af_value_residual} and bounds the empirical intercept without an
+exact-fit hypothesis. The existing frozen condition theorem is unchanged.
+The curve properties remain those of \path{extension/Condition/Curve.v};
+\path{extension/ConditionKappa/Compatibility.v} identifies this curve
+and its inverse with the fourth-moment-three specialization.
+
+The identity \path{sample_residual_gamma} in
+\path{ProjectionCertificate.v} identifies the squared closest-residual
+norm with the frozen \path{universality_fitting_error}. In particular,
+the centered squared loss has factor $1/(nd)$, the trace is $d$, and the
+best intercept is the empirical mean of nonnegative quadratic
+measurements. The restriction to nonnegative intercepts therefore
+causes no change. \path{library/convex/image_projection.v} proves
+continuity of the unique closest image point even when its matrix
+preimage is not unique.
+
+\paragraph{Reserve correction and proof departures.}
+The deterministic correction and cancellation identities are in
+\path{library/matrix/centered_correction.v},
+\path{library/matrix/centered_quadratic_correction.v} and
+\path{library/matrix/quadric_certificate.v}.
+The reserve estimates are in
+\path{library/random_matrix/symmetric_reserve.v} and
+\path{library/random_matrix/reserve_convergence.v}; \path{ReserveApplications.v} discharges
+their hypotheses for Gaussian and admissible mixture rows.
+The countable adjoint estimate is proved separately by label truncation
+in \path{MixtureAdjoint.v}. Row subgaussianity is not used as a substitute
+for this quadratic-feature estimate.
+
+The matrix Rademacher estimate used formally is
+\path{rademacher_mx_series_variance} in
+\path{library/random_matrix/rademacher_series.v}. For $d\times d$
+matrices its factor is $40\sqrt{\log(2d)}$ instead of
+$\sqrt{2\log(2d)}$. The file derives it from the existing Gaussian
+matrix-series estimate and a comparison between signs and Gaussians,
+rather than formalizing Tropp's matrix Laplace argument. The constant
+$\sqrt{2\log(2d)}$
+in~\eqref{eq:reserve-rademacher} is therefore informal. The formal
+constant suffices for the reserve error to be $o_{\Pbb}(\sqrt d)$.
+The condition lower bound uses a centered sample-covariance deviation
+estimate for independent isotropic subgaussian rows, together with the
+raw quadratic adjoint bound. No separate centered Wishart limit is proved.
+
+Lemma~\ref{lem:reserve-correction} states that the Gaussian reserve Gram
+matrix is invertible almost surely for large dimensions. This stronger
+supporting assertion is marked informal in the text and has not been
+formalized. Rocq defines the correction to be zero when the matrix is
+singular, and \path{reserve_correction_converges} proves that the event
+on which the matrix is singular or the correction is large has
+probability tending to zero. That is enough for every theorem
+of this note. Likewise, the main fitting-error argument fixes a positive
+reserve density before taking the dimension limit; it needs no estimate
+uniform in a reserve fraction tending to zero.
+
+Two estimates of Section~\ref{sec:conditioned-existence} are also
+replaced by weaker ones. The text uses $\max_i|\xi_i|=\OP(\sqrt{\log d})$
+for~\eqref{eq:sat-linf}. The formal proof uses the event
+$\max_i|\xi_i|\le\log p$, whose complement has probability at most
+$2n/p^4$ once $\log p\ge8$ (\path{gaussian_coordinate_log_tail} in
+\path{GaussianTargetBounds.v}); this still gives $S_d=\oP(1)$ when
+$a_d=o(\sqrt d)$. The text also says that the common level is positive
+because the observations are almost surely nonzero. The formal proof
+uses instead that every point is nonzero on the Gaussian fitting event
+(\path{gaussian_conditioned_point_nonzero} and
+\path{gaussian_axis_point_nonzero} in \path{GaussianExistence.v}), so it
+needs no almost-sure argument.
+
+\paragraph{Verification scope.}
+Each of the seven public theorems uses exactly the usual seven
+classical axioms of the ellipsoid development: the three \path{boolp}
+axioms \path{propositional_extensionality},
+\path{functional_extensionality_dep} and
+\path{constructive_indefinite_description};
+\path{FunctionalExtensionality.functional_extensionality_dep};
+\path{Epsilon.epsilon_statement}; and \path{sig_forall_dec} and
+\path{sig_not_dec} of \path{ClassicalDedekindReals}.
+\path{Classical_Prop.classic} is not among them. The new general library
+lemmas use at most the three \path{boolp} axioms. This is not an
+axiom-free formalization.
+Source review checks the mathematical meanings and quantifiers;
+compilation and kernel checking verify the proofs of those propositions.
+The seven statements are frozen with the existing checker, and
+\texttt{make check} requires their seven axiom reports, 35 reports in
+all. The pin of the new check files and the release tag still depend on
+acceptance of the repaired verification machinery. Dense non-Gaussian
+shift existence and exact fitting at the critical density remain outside
+these conclusions.
+\par\endgroup
+
+\bibliographystyle{plainnat}
+\bibliography{statements}
+\end{document}
