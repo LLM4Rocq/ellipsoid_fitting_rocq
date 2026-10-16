@@ -94,6 +94,18 @@ their original ownership. The master owns `Shifted/SparseBlockSamples.v`,
 commits. Only sources cross worktrees. No worker edits another owner's
 module, historical checker, frozen statement or main-branch source.
 
+The user has directed continued work after checkpoint `9408427`.
+The next local checkpoint packages the completed results as explicit public
+propositions and their seven assembly theorems for review. It does not
+freeze them or change release machinery. New ownership: the Gaussian
+worker owns `ShiftedConditionStatement.v`, `ShiftedGaussianStatement.v`,
+`Shifted/ConditionTheorem.v` and `Shifted/GaussianTheorem.v`; the matrix
+worker owns the corresponding Quadric and Error statement/theorem pairs;
+the probability worker owns the MixtureUnsat and MixtureSat pairs; the
+separate local agent owns the Sign pair. The master owns definition and
+semantic-dependency inventories, cross-review, registration and documents.
+Do not refactor completed proof modules while these interfaces are drafted.
+
 `CLAUDE.md` is a symbolic link to this file. Read it, then `README.md` and
 `library/README.md`, before touching anything.
 

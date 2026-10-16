@@ -934,3 +934,17 @@ extension/Shifted/SparseTargetBounds.v
 extension/Shifted/SparseExistence.v
 extension/Shifted/SparseShift.v
 extension/Shifted/MixtureSign.v
+extension/ShiftedConditionStatement.v
+extension/Shifted/ConditionTheorem.v
+extension/ShiftedGaussianStatement.v
+extension/Shifted/GaussianTheorem.v
+extension/ShiftedQuadricStatement.v
+extension/Shifted/QuadricTheorem.v
+extension/ShiftedErrorStatement.v
+extension/Shifted/ErrorTheorem.v
+extension/ShiftedMixtureUnsatStatement.v
+extension/Shifted/MixtureUnsatTheorem.v
+extension/ShiftedMixtureSatStatement.v
+extension/Shifted/MixtureSatTheorem.v
+extension/ShiftedSignStatement.v
+extension/Shifted/SignTheorem.v

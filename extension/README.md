@@ -171,6 +171,19 @@ The remaining modules assemble the probabilistic limits and conclusions:
 | `Shifted/SparseShift.v` | For finite/countable admissible mixtures of fourth moment `kappa>1` and `0<alpha<alpha_star(kappa)`, deterministic shifts supported on `o(d)` coordinates admit positive definite fits with probability tending to one. No shift-size bound or symmetry is required. |
 | `Shifted/MixtureSign.v` | For centrally symmetric finite/countable admissible mixture point laws with `kappa>1`, transfers sparse-shift PD existence below `alpha_star(kappa)` and arbitrary-shift PSD nonexistence above it to opposite-shift mixtures. Sign weights may vary with dimension and include 0 and 1. |
 
+The following public propositions package the completed local proofs. They
+are compiled review drafts; no new statement freeze or release is implied.
+
+| Statement and assembly | Checked scope |
+|---|---|
+| `ShiftedConditionStatement.v`, `Shifted/ConditionTheorem.v` | `shifted_condition_theorem`: measurable conditioned fits and extended optimum; small-shift Gaussian threshold at every positive density away from the curve, and optimum convergence below `1/4`. |
+| `ShiftedGaussianStatement.v`, `Shifted/GaussianTheorem.v` | `shifted_gaussian_theorem`: arbitrary-shift condition bounds below `1/4`, constants before sequences; a separate lower bound on one event for all shifts at every positive density. |
+| `ShiftedQuadricStatement.v`, `Shifted/QuadricTheorem.v` | `shifted_quadric_theorem`: above `1/4`, one Gaussian good event excludes every quadric with nonzero PSD quadratic part and arbitrary linear/constant coefficients. |
+| `ShiftedErrorStatement.v`, `Shifted/ErrorTheorem.v` | `shifted_error_theorem`: measurable shifted error and translation infimum, their common limit at every positive density, and uniform lower tails; includes density `1/4` without an exact-fit claim. |
+| `ShiftedMixtureUnsatStatement.v`, `Shifted/MixtureUnsatTheorem.v` | `shifted_mixture_unsat_theorem`: one positive margin before `K` and finite/countable families, for actual point-law symmetry and density above `alpha_star(kappa)`. |
+| `ShiftedMixtureSatStatement.v`, `Shifted/MixtureSatTheorem.v` | `shifted_mixture_sat_theorem`: measurable translated PD fitting and probability tending to one for support `o(d)`, `kappa>1`, positive subcritical density; no symmetry or shift-size hypothesis. |
+| `ShiftedSignStatement.v`, `Shifted/SignTheorem.v` | `shifted_sign_theorem`: exact iid outer-product tuple law, centered observable laws, and all Gaussian/mixture sign consequences; includes weights 0 and 1, excludes arbitrary-center quadric and translation-infimum transfers. |
+
 ## Existing results
 
 This directory, under the logical root `EllipsoidUniversality`, holds
