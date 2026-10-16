@@ -1,5 +1,50 @@
 # Beyond Gaussian points: universality, mixtures and the optimal condition number
 
+## Local work on translated samples
+
+`Shifted/GaussianInputs.v` supplies the Gaussian admissibility input for
+the translated-data project. `gaussian_subgaussian_expectation` gives
+`E exp(G^2 / 4) = sqrt 2`; `gaussian_coordinate_law` and
+`gaussian_component_law` put the standard normal law in the existing
+classes with fourth moment 3 and subgaussian constant 2.
+`gaussian_mixture_family` and `gaussian_mixture_fourth_moment` supply the
+one-component family, while `gaussian_mixture_probability` identifies its
+sample probability with the frozen Gaussian product law.
+
+`Shifted/GaussianExports.v` proves the centered Gaussian threshold,
+optimal-condition, interpolation, adjoint and fitting-error specializations,
+all using the same frozen flat Gaussian sample law. The admissibility
+constant is 2, and the fourth moment is 3. Interpolation retains one
+measurable exceptional set valid for every target.
+
+`Shifted/GaussianRows.v` identifies the flat sample with independent
+Gaussian rows, provides the measurable row-major inverse, proves the
+joint coordinate-block law and independence of entire sample blocks,
+and transfers deterministic right isometries directly between flat
+sample laws. These identities include empty samples and zero-dimensional
+coordinate blocks.
+
+`Shifted/ResidualCertificate.v` connects the deterministic certificate
+with the frozen fitting-error definition. With `n,d>0`, certificate
+margin `t>=0`, positive squared weight norm, and weights annihilating
+constants and coordinates, `sample_certificate_error` proves the lower
+bound `d*t^2/(n*sum w_i^2)`. This fixes the normalization needed for the
+uniform error bound; construction of the random certificate is separate.
+
+`Shifted/ConditionGap.v` retains the squared loss in the existing
+condition-number comparison. `condition_residual_gap` transfers a Gaussian
+feature gap to finite admissible mixtures with fourth moment 3. The
+exceptional set is measurable and independent of the candidate matrix
+and intercept. `gaussian_condition_residual_gap` specializes this to
+Gaussian data above `condition_alpha C`, for every `C>1` and `alpha>0`;
+its positive gap is chosen before the sample-size sequence and tolerance.
+
+These are supporting lemmas. The shifted condition-number, quadric and
+error-limit theorems are not yet proved. This local development does not
+change the phase 13 checker-repair acceptance or release status.
+
+## Existing results
+
 This directory, under the logical root `EllipsoidUniversality`, holds
 the theorems below, beyond the three theorems of Misiakiewicz and Wen for
 Gaussian points.

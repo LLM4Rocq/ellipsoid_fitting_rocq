@@ -1,5 +1,41 @@
 # Rules for agents
 
+## Local shifted-Gaussian development, 16 October 2026
+
+The user has authorized starting the shifted-Gaussian formal proof on the
+Mac while VM access is unavailable. This isolated worktree is based on
+e34ddcf and follows `../../reviews/shifted-gaussian-formalization-plan.md`.
+This authorization permits new supporting modules for that plan; it does
+not accept the pending checker repair or authorize a release, tag or push.
+All historical frozen code and check machinery remain unchanged.
+
+For this local session the coordinator assigns individual new files and
+alone updates `_CoqProject` and documentation. Read the assignment before
+editing; do not modify another worker's file. Compile with the pinned
+`rocq-analysis` switch (Rocq 9.1.1), without sharing compiled objects from
+other worktrees. General lemmas may be proved before their acceptance;
+public application statements still require the planned review. No
+unfinished proof may be retained as a proved result. Build and axiom
+reports are development evidence, not phase 13 release acceptance.
+
+Local ownership: this session owns `matrix/quadric_certificate.v`,
+`probability/symmetric_shift.v` and `Shifted/GaussianInputs.v`. The separate
+agent working in `/Users/lelarge/Recherche/Antoine/tmp/shifted-local` has
+stopped its overlapping certificate prototype and owns the new generic
+module `library/convex/image_projection.v` for changing-image projection
+continuity. It delivers source for review and integration here. Its Rocq
+9.2 diagnostics and edits to its isolated archive are not part of this
+development: every integrated proof must compile on Rocq 9.1.1, without
+copying compiled objects or altering the pinned toolchain.
+
+The user has appointed this Codex session as local master while away.
+The current separate assignments are `Shifted/ConditionGap.v` and `Shifted/ResidualCertificate.v` (master),
+`Shifted/GaussianExports.v` and `Shifted/GaussianRows.v` (Gaussian worker),
+`matrix/centered_correction.v` (matrix worker), and
+`random_matrix/rademacher_series.v` (probability worker). The initial
+three modules are complete. Continue with the accepted S1-S7 plan; the
+master reviews interfaces and integrates complete proof chunks.
+
 `CLAUDE.md` is a symbolic link to this file. Read it, then `README.md` and
 `library/README.md`, before touching anything.
 

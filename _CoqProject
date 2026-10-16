@@ -863,3 +863,15 @@ applications/RandomSAT/CenterComparison.v
 applications/RandomSAT/Threshold.v
 applications/PsdRank/Model.v
 applications/PsdRank/Main.v
+library/matrix/quadric_certificate.v
+library/probability/symmetric_shift.v
+extension/Shifted/GaussianInputs.v
+library/convex/image_projection.v
+library/matrix/centered_correction.v
+library/matrix/centered_quadratic_correction.v
+extension/Shifted/ResidualCertificate.v
+extension/Shifted/GaussianRows.v
+extension/Shifted/GaussianExports.v
+library/matrix/quadratic_series_variance.v
+library/random_matrix/rademacher_series.v
+extension/Shifted/ConditionGap.v
