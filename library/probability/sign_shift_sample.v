@@ -7,16 +7,34 @@ From GaussianAnalysis.gaussian Require Import measurable_matrix.
 From GaussianAnalysis.probability Require Import lindeberg tuple_rows mixture.
 From GaussianAnalysis.probability Require Import symmetric_shift independent_row_signs symmetrization.
 
-(* Exact sample-law transfer for separately even observations.
-   A measurable event invariant under changing any subset of row signs
-   has the same probability under every mixture of the translations
-   +m and -m as under +m alone. The base row law is centrally symmetric;
-   coordinates within a row need not be independent. Both endpoint
-   weights and empty samples are included. This strengthens the
-   outer-product observation interface of symmetric_shift.v without
-   requiring a measurable factorization through outer products.
-   Source: the elementary sign coupling in doc/shifted-gaussian.tex.
-   The final squared-coordinate example is independent of fitting. *)
+(**md**************************************************************************)
+(* # Samples from opposite shifts of a symmetric law                          *)
+(*                                                                            *)
+(* Let P be a centrally symmetric law of row vectors (row_symmetric_law).     *)
+(* A measurable event of n-tuples of rows that is unchanged when the signs    *)
+(* of any of the rows are changed (tuple_row_sign) has the same               *)
+(* probability for n independent rows of law sign_shift_law P m hw, the       *)
+(* mixture with weights w and 1 - w of the translations of P by m and by      *)
+(* -m, as for n independent rows of law row_shift_law P m. The                *)
+(* coordinates of a row need not be independent, and the weights 0 and 1      *)
+(* and the empty sample are included. This extends the identity of            *)
+(* symmetric_shift.v for tuples of outer products, with no measurable         *)
+(* factorization through the outer products.                                  *)
+(*                                                                            *)
+(* ```                                                                        *)
+(* tuple_row_shift m x == the tuple of the rows of x, each translated by m    *)
+(* ```                                                                        *)
+(*                                                                            *)
+(* - symmetric_sign_shift_sample: the equality for such events.               *)
+(* - symmetric_sign_shift_observation: the same for the law of a              *)
+(*   measurable map of the sample that is unchanged by the signs of the       *)
+(*   rows.                                                                    *)
+(* - symmetric_sign_shift_sample_coordinate_square, the example: the          *)
+(*   square of one coordinate of one row, a statistic unrelated to            *)
+(*   fitting.                                                                 *)
+(*                                                                            *)
+(* Source: the elementary sign coupling in doc/shifted-gaussian.tex.          *)
+(******************************************************************************)
 
 Set Implicit Arguments.
 Unset Strict Implicit.

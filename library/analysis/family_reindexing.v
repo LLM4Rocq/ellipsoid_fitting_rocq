@@ -1,24 +1,41 @@
-(* Reindexing asymptotic statements for varying parameter families.
-   At dimension q the parameters may have an arbitrary dependent type T q.
-   An admissible baseline fills dimensions that are absent from the image
-   of the reindexing map. The map must tend to infinity, but need not be
-   monotone or injective. Repeated dimensions may carry different data.
-
-   family_sequence_limit u a: the explicit epsilon definition of u -> a.
-   family_cofinal p: p(d) tends to infinity as d tends to infinity.
-   family_eventually_reindex transfers eventual predicates. In particular,
-   the predicate may assert existence of a measurable exceptional cover;
-   measurability of its failure set is not needed. family_limit_reindex
-   specializes this to convergence of a real statistic to zero.
-
-   The proof selects one failing instance in each nonempty failing fiber,
-   using the baseline elsewhere. Finite prefixes have bounded images, so
-   the selected family's density has the prescribed limit. Applying the
-   original family theorem eliminates all sufficiently large bad fibers. *)
-
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum.
 From mathcomp Require Import boolp classical_sets functions reals.
+
+(**md**************************************************************************)
+(* # Reindexing statements about families indexed by the dimension            *)
+(*                                                                            *)
+(* At dimension q the parameters of a family have an arbitrary type T q,      *)
+(* and a family s is admissible when A q (s q) holds at every q. Suppose      *)
+(* that a property holds eventually along every admissible family whose       *)
+(* statistic stat q (s q) tends to alpha, and that some admissible            *)
+(* baseline family has that limit. Then the property holds eventually         *)
+(* along x d, taken at the dimensions p d, for every map p that tends to      *)
+(* infinity and every x with A (p d) (x d) at every d whose statistic         *)
+(* tends to alpha. The map p need not be monotone or injective, and           *)
+(* repeated dimensions may carry different data; the baseline fills the       *)
+(* dimensions that are not in the image of p.                                 *)
+(*                                                                            *)
+(* ```                                                                        *)
+(* family_sequence_limit u a == u d tends to a: for every eps > 0,            *)
+(*                              |u d - a| < eps for all large d               *)
+(*          family_cofinal p == p d tends to infinity with d                  *)
+(* ```                                                                        *)
+(*                                                                            *)
+(* - family_eventually_reindex transfers eventual properties. The             *)
+(*   property may assert the existence of a measurable exceptional set;       *)
+(*   the measurability of the set where it fails is not needed.               *)
+(* - family_limit_reindex is the case of a property that says that a real     *)
+(*   quantity tends to 0.                                                     *)
+(* - scalar_parameter_reindexing, the example, is the case of a real          *)
+(*   parameter with no constraint.                                            *)
+(*                                                                            *)
+(* The proof selects one failing instance in each nonempty failing fiber      *)
+(* of p and uses the baseline elsewhere. Finite prefixes have bounded         *)
+(* images, so the selected family has the prescribed limit, and the           *)
+(* hypothesis on admissible families excludes the failing fibers at all       *)
+(* large dimensions.                                                          *)
+(******************************************************************************)
 
 Set Implicit Arguments.
 Unset Strict Implicit.

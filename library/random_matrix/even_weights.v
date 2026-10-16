@@ -10,11 +10,36 @@ From GaussianAnalysis.convex Require Import image_projection.
 From GaussianAnalysis.probability Require Import symmetrization.
 From GaussianAnalysis.random_matrix Require Import symmetric_reserve.
 
-(* The weighted first moment of a row-sign invariant sample. The weights
-   may depend on every row, but must be unchanged by each independent row
-   sign. Sign averaging removes the cross terms without imposing moments
-   on the sample law. Source: the main-sample certificate argument in
-   doc/shifted-gaussian.tex. *)
+(**md**************************************************************************)
+(* # Weighted first moments under a row-sign invariant law                    *)
+(*                                                                            *)
+(* For a k x d matrix H and weights w, a row vector of size k, the            *)
+(* weighted first moment is H^T w^T, the sum over i of w_i times the          *)
+(* transpose of row i of H. If the law Q of H is unchanged by every change    *)
+(* of the signs of the rows (reserve_sign_invariant) and the weights are      *)
+(* unchanged by the signs, averaging over the signs removes the cross         *)
+(* terms. No moment of Q is assumed, and the weights may depend on every      *)
+(* row.                                                                       *)
+(*                                                                            *)
+(* ```                                                                        *)
+(* weighted_row_moment H w == H^T *m w^T, the column sum_i w_i (row i H)^T    *)
+(* ```                                                                        *)
+(*                                                                            *)
+(* - rademacher_mean_frobenius_sum: the mean over the signs s of the          *)
+(*   squared Frobenius norm of sum_i s_i A_i is sum_i |A_i|^2.                *)
+(* - weighted_row_moment_sign_second: for fixed weights, the mean over the    *)
+(*   signs of the squared norm of the weighted moment of the signed rows      *)
+(*   is sum_i w_i^2 |row i H|^2.                                              *)
+(* - even_weights_moment_tail: for measurable weights of norm at most 1       *)
+(*   that are unchanged by the signs, and a measurable event E on which       *)
+(*   every squared row norm is at most M, the probability that the squared    *)
+(*   norm of the weighted moment exceeds t > 0 is at most the probability     *)
+(*   of the complement of E plus M / t.                                       *)
+(* - two_equal_rows_sign_second, the example: the cross terms vanish even     *)
+(*   for two equal rows.                                                      *)
+(*                                                                            *)
+(* Source: the main-sample certificate argument in doc/shifted-gaussian.tex.  *)
+(******************************************************************************)
 
 Set Implicit Arguments.
 Unset Strict Implicit.

@@ -1,113 +1,55 @@
 # Rules for agents
 
-## Local shifted-Gaussian development, 16 October 2026
-
-The user has authorized starting the shifted-Gaussian formal proof on the
-Mac while VM access is unavailable. This isolated worktree is based on
-e34ddcf and follows `../../reviews/shifted-gaussian-formalization-plan.md`.
-This authorization permits new supporting modules for that plan; it does
-not accept the pending checker repair or authorize a release, tag or push.
-All historical frozen code and check machinery remain unchanged.
-
-For this local session the coordinator assigns individual new files and
-alone updates `_CoqProject` and documentation. Read the assignment before
-editing; do not modify another worker's file. Compile with the pinned
-`rocq-analysis` switch (Rocq 9.1.1), without sharing compiled objects from
-other worktrees. General lemmas may be proved before their acceptance;
-public application statements still require the planned review. No
-unfinished proof may be retained as a proved result. Build and axiom
-reports are development evidence, not phase 13 release acceptance.
-
-Local ownership: this session owns `matrix/quadric_certificate.v`,
-`probability/symmetric_shift.v` and `Shifted/GaussianInputs.v`. The separate
-agent working in `/Users/lelarge/Recherche/Antoine/tmp/shifted-local` has
-stopped its overlapping certificate prototype and owns the new generic
-module `library/convex/image_projection.v` for changing-image projection
-continuity. It delivers source for review and integration here. Its Rocq
-9.2 diagnostics and edits to its isolated archive are not part of this
-development: every integrated proof must compile on Rocq 9.1.1, without
-copying compiled objects or altering the pinned toolchain.
-
-The user has appointed this Codex session as local master while away.
-The current separate assignments are `Shifted/ConditionGap.v` and `Shifted/ResidualCertificate.v` (master),
-`Shifted/GaussianExports.v` and `Shifted/GaussianRows.v` (Gaussian worker),
-`matrix/centered_correction.v` (matrix worker), and
-`random_matrix/rademacher_series.v` (probability worker). The initial
-three modules are complete. Continue with the accepted S1-S7 plan; the
-master reviews interfaces and integrates complete proof chunks.
-
-Checkpoint `436dafd` contains twelve supporting modules, verified by
-`make check`, supplemental axiom reports and recursive kernel checking.
-The next assignments are `Shifted/Translations.v`,
-`Shifted/ConditionTranslation.v` and `matrix/centered_translation.v`
-(master); `matrix/condition_perturbation.v` and
-`Shifted/GaussianTargets.v` (Gaussian worker);
-`random_matrix/isotropic_rows.v` (matrix worker);
-`random_matrix/symmetric_reserve.v` (probability worker); and
-`Shifted/ProjectionCertificate.v` (the separate projection agent).
-The separate agent also delivered `convex/psd_residual.v` for integration.
-Only source files are transferred; every module is compiled at its final
-logical name in this worktree. Active draft files are not completed
-results and must be finished and registered before the next checkpoint.
-
-The Gaussian worker continues in `Shifted/GaussianTargetBounds.v`.
-The separate projection agent has completed `analysis/infimum_measurability.v`
-and `Shifted/TranslationError.v`, and owns the deterministic assembly in
-`Shifted/ReserveCertificate.v`. The matrix worker's
-`random_matrix/isotropic_rows.v` is complete; further law bridges are
-assigned separately after its survey. The probability worker continues
-the independent-product and centered-covariance bounds in
-`random_matrix/symmetric_reserve.v`. The master reviews and registers
-these completed modules and keeps their original source ownership.
-
-Further assignments: `random_matrix/even_weights.v` and
-`Shifted/GaussianSmallShift.v` belong to the master;
-`Shifted/GaussianExistence.v` to the Gaussian worker;
-`probability/isotropic_mixtures.v`, `Shifted/MixtureRows.v` and
-`Shifted/MixtureAdjoint.v` to the matrix worker; and
-`probability/independent_row_signs.v` to the separate projection agent.
-The completed Gaussian matrix bounds remain owned by the matrix worker.
-
-Checkpoint `ddb2a3a` contains the next seventeen supporting modules,
-verified by a source-only full build, the historical checks and recursive
-kernel checking. The next checkpoint assembles the Gaussian condition and
-error limits and symmetric-mixture quadric exclusion. Its completed source
-inventory is maintained outside the repository in
-`../../reviews/shifted-runtime/local-checkpoint-03-progress.json`.
-
-Checkpoint `5f579e9` assembles the Gaussian condition and error limits and
-symmetric-mixture quadric exclusion. It passed the historical checks,
-supplemental axiom audits and recursive kernel checking.
-
-Checkpoint `7feef8b` adds the sparse-shift inputs, coordinate selection
-and sign-law bridges. Its build, axiom audits and recursive kernel checks
-passed. The final local checkpoint assembles sparse-shift existence and
-its opposite-shift mixture consequences. Public statement freezes and
-release checks still await the accepted verification repair.
-
-Current ownership: the Gaussian worker owns `Shifted/SparseExistence.v`;
-the matrix worker owns `Shifted/SparseTargetBounds.v`; the probability
-worker owns `Shifted/SparseShift.v`; the separate local agent owns
-`Shifted/SparseTargetRates.v`. Their completed supporting files retain
-their original ownership. The master owns `Shifted/SparseBlockSamples.v`,
-`Shifted/MixtureSign.v`, review, registration, documentation and local
-commits. Only sources cross worktrees. No worker edits another owner's
-module, historical checker, frozen statement or main-branch source.
-
-The user has directed continued work after checkpoint `9408427`.
-The next local checkpoint packages the completed results as explicit public
-propositions and their seven assembly theorems for review. It does not
-freeze them or change release machinery. New ownership: the Gaussian
-worker owns `ShiftedConditionStatement.v`, `ShiftedGaussianStatement.v`,
-`Shifted/ConditionTheorem.v` and `Shifted/GaussianTheorem.v`; the matrix
-worker owns the corresponding Quadric and Error statement/theorem pairs;
-the probability worker owns the MixtureUnsat and MixtureSat pairs; the
-separate local agent owns the Sign pair. The master owns definition and
-semantic-dependency inventories, cross-review, registration and documents.
-Do not refactor completed proof modules while these interfaces are drafted.
-
 `CLAUDE.md` is a symbolic link to this file. Read it, then `README.md` and
 `library/README.md`, before touching anything.
+
+## The shifted-Gaussian extension (16 October 2026)
+
+The user authorized the formal proof of the shifted-Gaussian extension on
+the Mac, while the VM was unavailable: seven theorems on translated
+samples, stated at the top of `extension/` and proved in
+`extension/Shifted/`, with 23 new library files. The work follows a
+formalization plan that is outside the repository. On 16 October 2026 the
+user accepted the seven statement files at commit `51c2e14`, and decided to
+freeze them with the current checker and to merge the work into main. These
+rules are in force.
+
+- **The frozen statements.** The seven statement files are frozen:
+  `extension/ShiftedConditionStatement.v`, `ShiftedGaussianStatement.v`,
+  `ShiftedQuadricStatement.v`, `ShiftedErrorStatement.v`,
+  `ShiftedMixtureUnsatStatement.v`, `ShiftedMixtureSatStatement.v` and
+  `ShiftedSignStatement.v`. Their code does not change:
+  `scripts/check_sources.py` compares it with `51c2e14` (rule 30). Only the
+  master edits their comments. If a proof seems to require a change, stop
+  and ask the user.
+- **Their definitions.** `check/ShiftedDefinitions.v` protects the 29
+  definitions of other files that these statements unfold to and that no
+  earlier check protects, by characterizations proved by computation. Its
+  code is fixed, and `make check` compiles it into
+  `build/shifted_definitions.txt`, a required output.
+- **The axiom checks.** `check/ShiftedConditionAssumptions.v` to
+  `check/ShiftedSignAssumptions.v` check the seven theorems, with the
+  expected lists `check/shifted_condition_assumptions.expected` to
+  `check/shifted_sign_assumptions.expected` (rule 31). Each theorem may use
+  only the seven axioms of `check/sat_variance_assumptions.expected`, so
+  `Classical_Prop.classic` is not allowed. `check/ShiftedIdentities.v`
+  checks the seven theorems against their frozen statements in one file;
+  its output, `build/shifted_identities.txt`, is required. `make check`
+  takes 35 axiom reports.
+- **What is new.** `extension/Shifted/`, the seven statement files and the
+  23 library files that their proofs use are new; the user's authorization
+  permits them. For them only, this overrides the rules of phase 13 that
+  nothing changes in `extension/` and that a general result enters the
+  library only for a proof of phase 13 or 14; the other rules of phase 13
+  apply. The code of the 56 frozen files, the 49 of phases 1 to 13 and
+  these seven, does not change, and the 35 theorems that `make check`
+  checks keep building at every commit. No new mathematics enters the
+  extension without a new decision of the user.
+- **What waits.** The pin of the new check files and expected lists, and
+  any tag, wait for the user's acceptance of the phase 13 checker repair
+  (branch `local/checker-repair`), as the pin and the tag of phase 13 do.
+- **No push.** The user decided to merge the work into the local `main`.
+  Nothing is pushed anywhere unless the user asks.
 
 ## The task
 
@@ -250,7 +192,11 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 ## Phases
 
 Phases 1 to 12 below are done: tag `phase12` is at 9046883. The
-current work is phase 13, described after phase 12.
+current work is phase 13, described after phase 12. The statements of the
+shifted-Gaussian extension, described at the top of this file, are frozen,
+and the user decided to merge it into main; the pin of its check files and
+any tag wait, like those of phase 13, for the user's acceptance of the
+checker repair.
 
 **Phase 1. Agent 1 alone; the others wait.**
 

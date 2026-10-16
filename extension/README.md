@@ -1,188 +1,4 @@
-# Beyond Gaussian points: universality, mixtures and the optimal condition number
-
-## Local work on translated samples
-
-The local branch now proves the Gaussian conclusions for deterministic
-translations. If `n/d^2 -> alpha`, `alpha>0`, and `||m_d||=o(sqrt(d))`,
-the condition threshold is the centered curve `condition_alpha C`; below
-`alpha=1/4`, the optimal condition number converges to `condition_star alpha`.
-For arbitrary shifts and `0<alpha<1/4`, it lies between positive constant
-multiples of `1+||m_d||/sqrt(d)` with probability tending to one. The lower
-bound holds on one event for every shift; the upper bound is stated for
-each deterministic shift sequence.
-
-For every deterministic Gaussian shift and every `alpha>0`, including
-`alpha=1/4`, the frozen fitting error converges to
-`universality_e_star alpha 3`. Its infimum over all translations has the
-same limit. Above `1/4`, one measurable good event excludes all quadrics
-with nonzero PSD quadratic part, with arbitrary linear and constant terms.
-For centrally symmetric finite or countable admissible mixtures, the same
-quadric exclusion holds above `universality_alpha_star kappa`, with a
-positive uniform translation-error margin depending only on `kappa,alpha`.
-Central symmetry is required of the whole point law, not of each component.
-
-These are local proof modules, not a release or a new freeze. Sparse
-non-Gaussian shifts and the exact sign-mixture transfers are still being
-assembled. The phase 13 checker repair remains separate.
-
-`Shifted/GaussianInputs.v` supplies the Gaussian admissibility input for
-the translated-data project. `gaussian_subgaussian_expectation` gives
-`E exp(G^2 / 4) = sqrt 2`; `gaussian_coordinate_law` and
-`gaussian_component_law` put the standard normal law in the existing
-classes with fourth moment 3 and subgaussian constant 2.
-`gaussian_mixture_family` and `gaussian_mixture_fourth_moment` supply the
-one-component family, while `gaussian_mixture_probability` identifies its
-sample probability with the frozen Gaussian product law.
-
-`Shifted/GaussianExports.v` proves the centered Gaussian threshold,
-optimal-condition, interpolation, adjoint and fitting-error specializations,
-all using the same frozen flat Gaussian sample law. The admissibility
-constant is 2, and the fourth moment is 3. Interpolation retains one
-measurable exceptional set valid for every target.
-
-`Shifted/GaussianRows.v` identifies the flat sample with independent
-Gaussian rows, provides the measurable row-major inverse, proves the
-joint coordinate-block law and independence of entire sample blocks,
-and transfers deterministic right isometries directly between flat
-sample laws. These identities include empty samples and zero-dimensional
-coordinate blocks.
-
-`Shifted/ResidualCertificate.v` connects the deterministic certificate
-with the frozen fitting-error definition. With `n,d>0`, certificate
-margin `t>=0`, positive squared weight norm, and weights annihilating
-constants and coordinates, `sample_certificate_error` proves the lower
-bound `d*t^2/(n*sum w_i^2)`. This fixes the normalization needed for the
-uniform error bound; construction of the random certificate is separate.
-
-`Shifted/ConditionGap.v` retains the squared loss in the existing
-condition-number comparison. `condition_residual_gap` transfers a Gaussian
-feature gap to finite admissible mixtures with fourth moment 3. The
-exceptional set is measurable and independent of the candidate matrix
-and intercept. `gaussian_condition_residual_gap` specializes this to
-Gaussian data above `condition_alpha C`, for every `C>1` and `alpha>0`;
-its positive gap is chosen before the sample-size sequence and tolerance.
-
-`Shifted/Translations.v` defines translation in the frozen flat sample
-layout, proves its point identity and joint measurability, and transfers
-one moment-cancelling certificate to all translations. The fitting-error
-bound keeps `d*t^2/(n*sum w_i^2)`; a positive margin excludes every
-translated fit with a nonzero PSD matrix, at every common real level.
-
-`Shifted/ProjectionCertificate.v` identifies the frozen fitting error
-with the squared norm of the closest centered measurement of the PSD
-trace slice, for `n,d>0`. Its measurable normalized direction depends only
-on the outer products, has zero sum and norm at most one, and yields the
-exact matrix margin `sqrt(n/d)*sqrt(fitting_error)`. A positive error gives
-unit norm; at zero error the projection, weights, outer matrix and first
-moment are all zero. No random reserve correction is assumed here.
-
-`Shifted/GaussianTargets.v` proves the deterministic interpolation step
-for a shifted coordinate, retaining the common level and scalar
-intercept until rescaling is justified. The unit and weighted block
-versions use the library perturbation bounds. For standard Gaussian
-coordinates it proves the exact target second moment
-`n*s^2*(2+4*a^2)/p`, together with integrability and measurability of the
-correction-size bound. Probability estimates and asymptotic assembly
-are separate.
-
-`Shifted/TranslationError.v` proves continuity of the frozen fitting error
-in flat row coordinates for `n,d>0`. Its infimum over all translations
-has open strict sublevels and is measurable in the original tuple layout.
-It is nonnegative, bounded above by the error at each fixed translation,
-and inherits every lower bound that holds uniformly over translations.
-No minimizing translation or continuity of the infimum is assumed.
-
-`Shifted/ConditionTranslation.v` transfers a residual gap uniform over
-the condition slice to translated samples. For `d>0`, `C>0`, any fit of
-the translated sample forces
-`eta*n*d <= 4*C^2*opnorm(G)^2*frobenius(m)^2`.
-The candidate fitting matrix may depend on the whole sample. A measurable
-event inclusion gives the corresponding probability bound under any
-sample probability law, for each fixed translation.
-
-`Shifted/GaussianMatrixBounds.v` transfers the finite Gaussian matrix
-second-moment and tail bounds to the frozen flat sample law. The scaled
-tail bound includes a zero multiplier, which covers a zero shift without
-division by its norm.
-
-`Shifted/GaussianTargetBounds.v` controls both terms of the interpolation
-size. At density `alpha`, fixed `L,e>=0`, `abs(s)<=1` and
-`abs(s*a)<=e*sqrt(p)` eventually give an asymptotic upper bound
-`2*L*e*sqrt(alpha)`. The probability tolerance is chosen after `e`.
-For `s=1` and `abs(a)=o(sqrt(p))`, the size tends to zero in probability.
-The proof separates the centered-square and linear Gaussian terms and
-uses moments through order four.
-
-`Shifted/ReserveCertificate.v` combines the main-sample projection weights
-with a centered reserve correction, assuming invertibility of its
-covariance and positive main count, reserve count and dimension. The
-combined weights annihilate constants and coordinates. Its error lower
-bound is uniform over all translations and retains the exact sample-size
-ratios, the correction norm and the positive part of the remaining
-margin. A strictly positive margin excludes every quadric with nonzero
-PSD quadratic part. The zero-error and nonpositive-margin cases are
-handled separately; this module makes no probability claim.
-
-`Shifted/GaussianSmallShift.v` proves the unsatisfiable half of the
-small-shift Gaussian threshold: for every `C>1`, `alpha>condition_alpha C`,
-`alpha>0`, `n/d^2 -> alpha`, and deterministic `frobenius(m_d)=o(sqrt(d))`,
-the probability of a translated fit with condition number at most `C`
-tends to zero. The finite bound is `eps + K(C,alpha)*frobenius(m)^2/d`
-at all sufficiently large dimensions, uniformly over the deterministic
-shift. No logarithmic restriction or upper bound on `alpha` is used.
-
-The remaining modules assemble the probabilistic limits and conclusions:
-
-| File | Result and hypotheses |
-|---|---|
-| `Shifted/MixtureRows.v` | Exact finite/countable mixture row and sample laws; mean zero, covariance identity and directional subgaussian constant `4K`, from component constant `K`. |
-| `Shifted/MixtureAdjoint.v` | Raw quadratic adjoint bounds of order `d` for finite/countable mixtures and Gaussian samples; no fourth-moment or symmetry assumption. |
-| `Shifted/MainMoment.v` | Exact sample/matrix inverses and measurability; the projection weights are unchanged by each row sign, so their first moment is of order `sqrt(d)` in probability under independent symmetric rows. |
-| `Shifted/ReserveModel.v` | Exact independent reserve/main-moment law and convergence of the reserve failure probability, under the stated row and adjoint bounds. |
-| `Shifted/ReserveCorrectionLimit.v` | From the reserve failure bound, covariance singularity is negligible, the correction norm tends to zero, and its quadratic operator norm divided by `sqrt(d)` tends to zero. |
-| `Shifted/ReserveApplications.v` | Verifies those reserve hypotheses for Gaussian data and centrally symmetric finite/countable admissible mixture point laws, without a fourth-moment assumption. |
-| `Shifted/ResidualLaws.v` | Exact matrix/sample and independent block laws, and the centered fitting-error limit on the main block for Gaussian and finite/countable mixture samples. |
-| `Shifted/ReserveDensity.v` | Sample-density limits for the exact main/reserve ratios, including eventual positivity of all counts. |
-| `Shifted/ReserveLimit.v` | Combines a main error limit `e` with negligible reserve corrections: uniform translation-error lower tails at `beta/(beta+gamma)*e`; if `e>0`, excludes nonzero PSD quadrics outside measurable exceptional covers. |
-| `Shifted/SampleSplit.v` | Rounding `beta*n/alpha` gives an exact decomposition of every sample count, with limiting densities `beta` and `alpha-beta` whenever `0<beta<alpha`. |
-| `Shifted/ResidualRestriction.v` | Dropping a coordinate gives `Gamma_(1+p) <= ((1+p)/p)*Gamma_p` for `p>0`, through a zero-head PSD embedding; empty samples are included. |
-| `Shifted/ErrorCurve.v` | Continuity of the frozen error curve for `alpha>0,kappa>1`, its zero set, and approximation from smaller sample densities. |
-| `Shifted/GaussianExistence.v` | Small-shift exact fitting below the condition curve, and arbitrary-shift fitting with condition bound `K(alpha)*(1+||m||/sqrt(d))` below `1/4`; `K` is chosen before the sample and shift sequences. |
-| `Shifted/ConditionLower.v` | For every positive sample density, one Gaussian good event gives an optimal-condition lower bound `c(alpha)*(1+||m||/sqrt(d))` simultaneously for all shifts, including samples with no fit. |
-| `Shifted/GaussianCondition.v` | The two-sided small-shift threshold and convergence of the optimal condition number to the centered inverse curve. |
-| `Shifted/GaussianErrorUpper.v` | Rotation and coordinate restriction give the fitting-error upper tail for arbitrary deterministic Gaussian shifts, at every positive density. |
-| `Shifted/GaussianErrorLower.v` | The reserve certificate gives the matching lower tail uniformly over translations; above `1/4`, it also excludes all nonzero PSD quadrics on one measurable good event. |
-| `Shifted/GaussianError.v` | Convergence in probability of the shifted fitting error and its infimum over translations to the frozen centered error curve, for every positive density. |
-| `Shifted/SymmetricQuadric.v` | For `kappa>1` and `alpha>alpha_star(kappa)`, finite/countable admissible mixtures with centrally symmetric point laws have one measurable good event giving a positive uniform translation-error margin and exclusion of all nonzero PSD quadrics. The margin is fixed from `kappa,alpha` alone. |
-
-| `Shifted/GaussianBounds.v` | Combines existence with matching optimal-condition bounds of order `1+||m||/sqrt(d)` below `1/4`, with constants fixed before the deterministic shift and sample-count sequences. |
-| `Shifted/SignMixture.v` | Exact centered-fit probabilities and laws of the optimal condition number and fitting error under opposite-shift mixtures; all Gaussian small-shift, condition-scale and error consequences, including centered PSD nonexistence above `1/4`. It does not transfer arbitrary-center quadric events. |
-| `Shifted/TranslatedNonexistence.v` | For symmetric finite/countable admissible mixtures above `alpha_star(kappa)`, every deterministic translation has centered PSD-fit probability tending to zero, with no shift-size restriction. |
-| `Shifted/SparseInterpolation.v` | An arbitrary head block with positive weight and an interpolated complementary fit gives a positive definite full fit. No independence of the two blocks is assumed. |
-| `Shifted/SparseRows.v` | Exact sample and row marginal laws for injective coordinate selections of finite/countable product mixtures; selected coordinates retain their original component weights and laws. |
-| `Shifted/SparseDimensions.v` | A head size `h=o(d)` leaves a cofinal complement, preserves quadratic sample density, and makes every fixed logarithmic power divided by its square root vanish. |
-| `Shifted/SparseTargets.v` | Second moments and measurability of normalized head targets, using weight `1/(1+||m||)`. The bound is `(8 K^4 h+8)/p`, without symmetry or fourth-moment matching. |
-| `Shifted/SparseInputs.v` | Joint fit and interpolation events along arbitrary cofinal complement dimensions. Constants precede all family and sample sequences; an explicit admissible baseline handles omitted dimensions. |
-| `Shifted/SparseCoordinates.v` | Moves an arbitrary deterministic support to a head block, commutes this coordinate selection with translation, transports positive definite fits, and preserves local admissibility and averaged fourth moments. |
-| `Shifted/SparseBlockSamples.v` | Identifies the actual flat-sample head targets and their measurable norm bound; combines the complementary fit and interpolation event into a translated positive definite fit. |
-| `Shifted/SparseTargetRates.v` | Scalar limits for the head-target moment and maximum bounds when the complement dimension is cofinal, `h/p -> 0` and `n/p^2 -> alpha`. No positivity of the scalar constants or logarithmic strengthening of `h/p -> 0` is needed. |
-| `Shifted/SparseTargetBounds.v` | For finite/countable mixtures with common admissibility constant `K>0`, the head-target interpolation size tends to zero when `p` is cofinal, `h/p -> 0` and `n/p^2 -> alpha`, for each `L>=0`. Arbitrary shift magnitudes; no symmetry or fourth-moment matching. |
-| `Shifted/SparseExistence.v` | Positive definite fitting for a translated head block of finite/countable admissible mixtures, with `kappa>1`, cofinal `p`, `h/p -> 0` and `n/p^2 -> alpha` in `(0,alpha_star(kappa))`. Uses an explicit admissible baseline and the two block marginals without assuming independence. |
-| `Shifted/SparseShift.v` | For finite/countable admissible mixtures of fourth moment `kappa>1` and `0<alpha<alpha_star(kappa)`, deterministic shifts supported on `o(d)` coordinates admit positive definite fits with probability tending to one. No shift-size bound or symmetry is required. |
-| `Shifted/MixtureSign.v` | For centrally symmetric finite/countable admissible mixture point laws with `kappa>1`, transfers sparse-shift PD existence below `alpha_star(kappa)` and arbitrary-shift PSD nonexistence above it to opposite-shift mixtures. Sign weights may vary with dimension and include 0 and 1. |
-
-The following public propositions package the completed local proofs. They
-are compiled review drafts; no new statement freeze or release is implied.
-
-| Statement and assembly | Checked scope |
-|---|---|
-| `ShiftedConditionStatement.v`, `Shifted/ConditionTheorem.v` | `shifted_condition_theorem`: measurable conditioned fits and extended optimum; small-shift Gaussian threshold at every positive density away from the curve, and optimum convergence below `1/4`. |
-| `ShiftedGaussianStatement.v`, `Shifted/GaussianTheorem.v` | `shifted_gaussian_theorem`: arbitrary-shift condition bounds below `1/4`, constants before sequences; a separate lower bound on one event for all shifts at every positive density. |
-| `ShiftedQuadricStatement.v`, `Shifted/QuadricTheorem.v` | `shifted_quadric_theorem`: above `1/4`, one Gaussian good event excludes every quadric with nonzero PSD quadratic part and arbitrary linear/constant coefficients. |
-| `ShiftedErrorStatement.v`, `Shifted/ErrorTheorem.v` | `shifted_error_theorem`: measurable shifted error and translation infimum, their common limit at every positive density, and uniform lower tails; includes density `1/4` without an exact-fit claim. |
-| `ShiftedMixtureUnsatStatement.v`, `Shifted/MixtureUnsatTheorem.v` | `shifted_mixture_unsat_theorem`: one positive margin before `K` and finite/countable families, for actual point-law symmetry and density above `alpha_star(kappa)`. |
-| `ShiftedMixtureSatStatement.v`, `Shifted/MixtureSatTheorem.v` | `shifted_mixture_sat_theorem`: measurable translated PD fitting and probability tending to one for support `o(d)`, `kappa>1`, positive subcritical density; no symmetry or shift-size hypothesis. |
-| `ShiftedSignStatement.v`, `Shifted/SignTheorem.v` | `shifted_sign_theorem`: exact iid outer-product tuple law, centered observable laws, and all Gaussian/mixture sign consequences; includes weights 0 and 1, excludes arbitrary-center quadric and translation-infimum transfers. |
+# Beyond Gaussian points: universality, mixtures, the optimal condition number and translated samples
 
 ## Existing results
 
@@ -267,6 +83,22 @@ Gaussian points.
   o(d^-2) in total variation of a finite or countable family. Its
   statement implies that of `robust_condition_theorem` of phase 10.
   Section (j).
+- **Translated samples**, the shifted-Gaussian extension:
+  `shifted_condition_theorem` to `shifted_sign_theorem`
+  (`Shifted/ConditionTheorem.v` to `Shifted/SignTheorem.v`), on the frozen
+  statements of `ShiftedConditionStatement.v` to `ShiftedSignStatement.v`.
+  For Gaussian points translated by deterministic shifts m_d: the threshold
+  and the optimal condition number of centered data if
+  ||m_d|| = o(sqrt d); for arbitrary shifts, optimal condition numbers of
+  order 1 + ||m_d|| / sqrt d below 1/4, the exclusion of every quadric with
+  nonzero positive semidefinite quadratic part above 1/4, and the Gaussian
+  limit of the fitting error at every density. For admissible finite or
+  countable mixtures: if the point law is centrally symmetric, the exclusion
+  of quadrics above alpha*(kappa), with a margin for the error uniform over
+  translations; and, with no symmetry, positive definite fits below
+  alpha*(kappa) for shifts supported on o(d) coordinates. Mixtures of
+  opposite shifts have the centered-fitting statistics of a single shift.
+  Section (k).
 
 Sections (a) to (e) are the feasibility study written before phase 5, for
 extending the formal result of this repository to Theorem 1.2 of Koehler
@@ -306,7 +138,9 @@ latent-sign law, a continuous latent mixture and the endpoints of the
 condition-number curve; (i) phase 10, the robustness of the optimal
 condition number and a finite tensorization constant; (j) phase 11, the
 optimal condition number at every fourth moment kappa > 1, with its
-countable and robust versions.
+countable and robust versions; (k) the shifted-Gaussian extension:
+translated Gaussian samples, symmetric and sparse-shift mixtures, and sign
+mixtures.
 
 ---
 
@@ -1707,3 +1541,373 @@ expected lists (`scripts/check_sources.py`, rule 19). Each of the three
 theorems uses seven of the eight classical axioms of
 `check/assumptions.expected`, all but `Classical_Prop.classic`, as the
 theorems of phases 5 to 10 do.
+
+## (k) The shifted-Gaussian extension: translated samples
+
+The shifted-Gaussian extension proves seven theorems on samples translated
+by deterministic shifts. The points are i.i.d. standard Gaussian, or drawn
+from a finite or countable mixture of product laws as in phases 6 and 8, or
+from a mixture of two opposite translates of a centrally symmetric law. The
+ellipsoids stay centered at the origin: a fit of the translated points
+`x_i + m` is a matrix `S` with `(x_i + m)^T S (x_i + m) = 1` for every `i`
+(the value is `d` instead of 1 in the positive semidefinite fit event
+`paper_main_fit_event`). The file headers cite the informal proof,
+*Centered ellipsoid fitting for non-centered Gaussian data* (16 October
+2026), as `doc/shifted-gaussian.tex`, "the note" below, and some cite the
+formalization plan; neither document is in the repository. The user
+accepted the seven statement files at commit `51c2e14` on 16 October 2026
+and decided to merge the extension into main. No claim of novelty is made.
+
+Notation. `n / d^2 -> alpha > 0` throughout. `m_d` is a deterministic column
+of `R^d` and `a_d = ||m_d||` its Euclidean norm (`frobenius`).
+`sample_translate m x` translates every point of the sample `x` by `m`. The
+events and statistics are those of the frozen definitions:
+`paper_main_fit_event` (a positive semidefinite fit),
+`universality_pd_fit_event` (a positive definite fit),
+`universality_conditioned_fit_event n d C` (a fit of condition number at
+most `C`), `data_condition_number` (the optimal condition number, an
+infimum in the extended reals, `+oo` when there is no fit) and
+`universality_fitting_error` (the optimal fitting error). `alpha_C` and
+`C_star(alpha)` are `condition_alpha` and `condition_star` of phase 8;
+`alpha*(kappa)` and `e*(alpha, kappa)` are `universality_alpha_star` and
+`universality_e_star` of phase 5. An admissible family is one that
+satisfies (M1)-(M3) of phase 6 (`mixture_family`, `mixture_fourth_moment`)
+or their countable forms of phase 8 (`countable_mixture_family`,
+`countable_fourth_moment`).
+
+### Files
+
+The statement files are at the top of `extension/`. Their theorems and the
+supporting modules are in `extension/Shifted/`, as the modules
+`EllipsoidUniversality.Shifted.<Name>`.
+
+| Statement file, theorem file | Statement, theorem and content |
+|---|---|
+| `ShiftedConditionStatement.v`, `Shifted/ConditionTheorem.v` | `shifted_condition_statement` (S1), proved by `shifted_condition_theorem`: the threshold and the optimal condition number for small Gaussian shifts |
+| `ShiftedGaussianStatement.v`, `Shifted/GaussianTheorem.v` | `shifted_gaussian_statement` (S2), proved by `shifted_gaussian_theorem`: the bounds of order `1 + a_d / sqrt d` on the optimal condition number for arbitrary Gaussian shifts |
+| `ShiftedQuadricStatement.v`, `Shifted/QuadricTheorem.v` | `shifted_quadric_statement` (S3), proved by `shifted_quadric_theorem`: above `1/4`, one event excludes every quadric with nonzero positive semidefinite quadratic part |
+| `ShiftedErrorStatement.v`, `Shifted/ErrorTheorem.v` | `shifted_error_statement` (S4), proved by `shifted_error_theorem`: the limit of the fitting error under arbitrary Gaussian shifts, and of its infimum over all translations |
+| `ShiftedMixtureUnsatStatement.v`, `Shifted/MixtureUnsatTheorem.v` | `shifted_mixture_unsat_statement` (S5), proved by `shifted_mixture_unsat_theorem`: above `alpha*(kappa)`, symmetric admissible mixtures exclude every such quadric, with a margin for the error uniform over translations |
+| `ShiftedMixtureSatStatement.v`, `Shifted/MixtureSatTheorem.v` | `shifted_mixture_sat_statement` (S6), proved by `shifted_mixture_sat_theorem`: below `alpha*(kappa)`, admissible mixtures shifted on `o(d)` coordinates have positive definite fits |
+| `ShiftedSignStatement.v`, `Shifted/SignTheorem.v` | `shifted_sign_statement` (S7), proved by `shifted_sign_theorem`: mixtures of opposite shifts have the centered-fitting statistics of a single shift |
+
+| File | Content |
+|---|---|
+| `Shifted/GaussianInputs.v` | the Gaussian input of the mixture theorems: `E exp(G^2 / 4) = sqrt 2` (`gaussian_subgaussian_expectation`); the standard normal law is a component law with fourth moment 3 and subgaussian constant 2 (`gaussian_coordinate_law`, `gaussian_component_law`); the one-component family (`gaussian_mixture_family`, `gaussian_mixture_fourth_moment`), whose sample probability is the frozen Gaussian product law (`gaussian_mixture_probability`) |
+| `Shifted/GaussianExports.v` | the centered Gaussian threshold, optimal condition number, interpolation, adjoint and fitting-error results, as specializations of the mixture theorems to the frozen flat Gaussian sample law, with admissibility constant 2 and fourth moment 3; the interpolation keeps one measurable exceptional set for every target |
+| `Shifted/GaussianRows.v` | the flat sample as a tuple of rows (`sample_row_tuple`), with its measurable row-major inverse (`sample_of_row_tuple`, through `sample_flat_row` and `sample_flat_col`); independent Gaussian rows, the joint law of coordinate blocks and the independence of whole sample blocks; right isometries acting on every row transfer between flat sample laws; empty samples and zero-dimensional blocks are included |
+| `Shifted/GaussianMatrixBounds.v` | the finite Gaussian matrix second-moment and tail bounds in the frozen flat sample layout; the scaled tail bound allows a zero multiplier, which covers a zero shift without dividing by its norm |
+| `Shifted/Translations.v` | `sample_translate`, the translation of the frozen flat sample, with its point identity and its joint measurability; one certificate whose weights cancel constants and coordinates serves every translation: the error bound `d t^2 / (n sum_i w_i^2)` holds at every translation, and a positive margin excludes every translated fit by a nonzero positive semidefinite matrix, at every common level |
+| `Shifted/TranslationError.v` | `translation_fitting_error`, the infimum of the frozen fitting error over all translations; for `n, d > 0` the error is continuous in the row coordinates, and its infimum over translations has open strict sublevels and is measurable in the tuple layout; the infimum is nonnegative, at most the error at each translation, and at least every lower bound that holds uniformly over translations; no minimizing translation and no continuity of the infimum is asserted |
+| `Shifted/ResidualCertificate.v` | the certificate and the frozen fitting error: for `n, d > 0`, a margin `t >= 0`, a positive squared weight norm and weights that cancel constants and coordinates, `sample_certificate_error` bounds the error below by `d t^2 / (n sum_i w_i^2)`; the random certificate is built elsewhere |
+| `Shifted/ProjectionCertificate.v` | for `n, d > 0`, the frozen fitting error is the squared norm of the closest centered measurement of the PSD trace slice; the normalized direction is measurable, depends only on the outer products, has zero sum and norm at most one, and gives the exact matrix margin `sqrt(n / d) sqrt(fitting error)`; a positive error gives a unit direction, and at zero error the projection, the weights, the outer matrix and the first moment are all zero; no reserve correction is used here |
+| `Shifted/ConditionGap.v` | the comparison of `Condition/Unsat.v` with the squared loss kept: `condition_residual_gap` transfers a Gaussian feature gap to finite admissible mixtures of fourth moment 3, on a measurable exceptional set that does not depend on the candidate matrix and intercept; `gaussian_condition_residual_gap` specializes it to Gaussian data above `alpha_C`, for every `C > 1` and `alpha > 0`, with a positive gap chosen before the sample-size sequence and the tolerance |
+| `Shifted/ConditionTranslation.v` | a residual gap uniform over the condition slice passes to translated samples: for `d > 0` and `C > 0`, a fit of the translated sample forces `eta n d <= 4 C^2 opnorm(G)^2 frobenius(m)^2`, where the fitting matrix may depend on the whole sample; a measurable event inclusion gives the probability bound under any sample law, for each fixed translation |
+| `Shifted/GaussianSmallShift.v` | the unsatisfiable half of the small-shift threshold: for `C > 1`, `alpha > alpha_C`, `alpha > 0` and `frobenius(m_d) = o(sqrt d)`, the probability of a translated fit of condition number at most `C` tends to 0; the finite bound is `eps + K(C, alpha) frobenius(m)^2 / d` for every large `d`, uniformly over the shift; no logarithmic restriction and no upper bound on `alpha` are used |
+| `Shifted/GaussianTargets.v` | the deterministic interpolation step for a shifted coordinate, which keeps the common level and the scalar intercept until rescaling is justified; unit and weighted block versions, by the library perturbation bounds; for standard Gaussian coordinates, the exact target second moment `n s^2 (2 + 4 a^2) / p`, with the integrability and the measurability of the bound on the size of the correction |
+| `Shifted/GaussianTargetBounds.v` | both terms of the interpolation size: at density `alpha`, for fixed `L, e >= 0`, `abs(s) <= 1` and `abs(s a) <= e sqrt(p)` give eventually the asymptotic bound `2 L e sqrt(alpha)`, with the probability tolerance chosen after `e`; for `s = 1` and `abs(a) = o(sqrt p)` the size tends to 0 in probability; the centered-square and linear Gaussian terms are bounded apart, with moments up to order four |
+| `Shifted/GaussianExistence.v` | exact fits of condition number at most `C` below the curve for small shifts, and, for arbitrary shifts below `1/4`, fits of condition number at most `K(alpha) (1 + a_d / sqrt d)`, with `K` chosen before the sample and shift sequences |
+| `Shifted/ConditionLower.v` | for every density `alpha > 0`, one Gaussian good event gives the lower bound `c(alpha) (1 + frobenius m / sqrt d)` on the optimal condition number, for all shifts at once, samples with no fit included |
+| `Shifted/GaussianCondition.v` | `gaussian_small_shift`, the small-shift hypothesis; the two-sided small-shift threshold and the convergence of the optimal condition number to `C_star(alpha)` |
+| `Shifted/GaussianBounds.v` | existence with matching bounds of order `1 + a_d / sqrt d` on the optimal condition number below `1/4`, with constants fixed before the shift and sample-count sequences |
+| `Shifted/ReserveCertificate.v` | the projection weights of the main sample combined with a centered reserve correction, assuming the invertibility of its covariance and positive main count, reserve count and dimension; the combined weights cancel constants and coordinates; the lower bound on the error is uniform over all translations and keeps the exact sample-size ratios, the norm of the correction and the positive part of the remaining margin; a positive margin excludes every quadric with nonzero positive semidefinite quadratic part; the zero-error and nonpositive-margin cases are treated apart; no probability claim |
+| `Shifted/MainMoment.v` | exact sample and matrix inverses and their measurability; the projection weights are unchanged by each row sign, so their first moment is of order `sqrt d` in probability under independent symmetric rows |
+| `Shifted/MixtureRows.v` | `finite_row_law` and `countable_row_law`, the law of one point of a finite or countable family, and the exact row and sample laws; mean 0, identity covariance and directional subgaussian constant `4 K` from the component constant `K`; no fourth moment or symmetry |
+| `Shifted/MixtureAdjoint.v` | raw quadratic adjoint bounds of order `d` for finite and countable mixtures and for Gaussian samples, with no fourth moment or symmetry |
+| `Shifted/ReserveModel.v` | the exact independent law of the reserve and of the main moment, and the convergence of the reserve failure probability, under the stated row and adjoint bounds |
+| `Shifted/ReserveCorrectionLimit.v` | from the reserve failure bound: the singularity of the covariance is negligible, the norm of the correction tends to 0, and the operator norm of its quadratic part divided by `sqrt d` tends to 0 |
+| `Shifted/ReserveApplications.v` | the reserve hypotheses for Gaussian data and for centrally symmetric point laws of finite or countable admissible mixtures, with no fourth moment |
+| `Shifted/ResidualLaws.v` | exact matrix and sample laws and independent block laws, and the limit of the centered fitting error on the main block, for Gaussian samples and for samples of finite or countable mixtures |
+| `Shifted/SampleSplit.v` | rounding `beta n / alpha` splits every sample count exactly, with limiting densities `beta` and `alpha - beta` whenever `0 < beta < alpha` |
+| `Shifted/ReserveDensity.v` | the limits of the exact main and reserve density ratios, with every count eventually positive |
+| `Shifted/ReserveLimit.v` | a main error limit `e` with negligible reserve corrections gives lower tails of the error at `beta / (beta + gamma) e`, uniform over translations; if `e > 0`, nonzero positive semidefinite quadrics are excluded outside measurable exceptional covers |
+| `Shifted/ErrorCurve.v` | the continuity of the frozen error curve for `alpha > 0` and `kappa > 1`, its zero set, and its approximation from smaller sample densities |
+| `Shifted/ResidualRestriction.v` | dropping a coordinate gives `Gamma_(1+p) <= ((1 + p) / p) Gamma_p` for `p > 0`, through a positive semidefinite embedding with a zero head; empty samples are included |
+| `Shifted/GaussianErrorUpper.v` | rotation and the restriction to the other coordinates give the upper tail of the fitting error for arbitrary deterministic Gaussian shifts, at every positive density |
+| `Shifted/GaussianErrorLower.v` | the reserve certificate gives the matching lower tail, uniformly over translations; above `1/4` it also excludes every nonzero positive semidefinite quadric on one measurable good event (`gaussian_quadric_good_events`) |
+| `Shifted/GaussianError.v` | the convergence in probability of the fitting error of the translated sample, and of its infimum over translations, to the frozen centered error curve, at every positive density, `1/4` included |
+| `Shifted/SymmetricQuadric.v` | for `kappa > 1` and `alpha > alpha*(kappa)`, finite and countable admissible mixtures with centrally symmetric point laws: one measurable good event gives a positive margin for the error, uniform over translations, and excludes every nonzero positive semidefinite quadric; the margin `symmetric_quadric_margin kappa alpha` depends only on `kappa` and `alpha` |
+| `Shifted/TranslatedNonexistence.v` | for symmetric finite and countable admissible mixtures above `alpha*(kappa)`, every deterministic translation has a probability of a centered positive semidefinite fit tending to 0, with no bound on the shift |
+| `Shifted/SparseInterpolation.v` | an arbitrary head block with positive weight and an interpolated complementary fit give a positive definite fit; no independence of the two blocks is assumed |
+| `Shifted/SparseRows.v` | exact sample and row marginal laws for injective coordinate selections of finite and countable product mixtures; the selected coordinates keep their component weights and laws |
+| `Shifted/SparseDimensions.v` | a head size `h = o(d)` leaves a cofinal complement, preserves the quadratic sample density, and makes every fixed power of the logarithm divided by its square root vanish |
+| `Shifted/SparseTargets.v` | the second moments and the measurability of normalized head targets, with the weight `1 / (1 + frobenius m)`; the bound is `(8 K^4 h + 8) / p`, without symmetry or fourth-moment matching |
+| `Shifted/SparseInputs.v` | joint fit and interpolation events along arbitrary cofinal complement dimensions; the constants precede every family and sample sequence, and an explicit admissible baseline fills the omitted dimensions |
+| `Shifted/SparseCoordinates.v` | moving an arbitrary deterministic support to a head block; this commutes with translation, transports positive definite fits, and preserves local admissibility and averaged fourth moments |
+| `Shifted/SparseBlockSamples.v` | the head targets of the flat sample and their measurable norm bound; the complementary fit and the interpolation event combine into a translated positive definite fit |
+| `Shifted/SparseTargetRates.v` | scalar limits of the head-target moment and maximum bounds when the complement dimension is cofinal, `h / p -> 0` and `n / p^2 -> alpha`; no positivity of the scalar constants and no logarithmic strengthening of `h / p -> 0` is needed |
+| `Shifted/SparseTargetBounds.v` | for finite and countable mixtures with a common admissibility constant `K > 0`, the head-target interpolation size tends to 0 when `p` is cofinal, `h / p -> 0` and `n / p^2 -> alpha`, for each `L >= 0`; arbitrary shift sizes, no symmetry or fourth-moment matching |
+| `Shifted/SparseExistence.v` | positive definite fits for a translated head block of finite and countable admissible mixtures, with `kappa > 1`, cofinal `p`, `h / p -> 0` and `n / p^2 -> alpha` in `(0, alpha*(kappa))`; an explicit admissible baseline and the two block marginals are used, without independence |
+| `Shifted/SparseShift.v` | for finite and countable admissible mixtures of fourth moment `kappa > 1` and `0 < alpha < alpha*(kappa)`, deterministic shifts supported on `o(d)` coordinates leave positive definite fits with probability tending to 1 (`finite_sparse_shift_theorem`, `countable_sparse_shift_theorem`); no bound on the shift and no symmetry |
+| `Shifted/SignMixture.v` | the laws of samples of i.i.d. points, of translated points and of their sign mixtures (`row_sample_map`, `iid_row_sample_law`, `shifted_iid_sample_law`, `sign_mixture_sample_law`); for a centrally symmetric point law, the exact equality of the centered-fit probabilities and of the laws of the optimal condition number and of the fitting error under mixtures of opposite shifts; the Gaussian consequences for small shifts, condition-number scales and errors, and the absence of centered positive semidefinite fits above `1/4`; quadric events with arbitrary centers are not transferred |
+| `Shifted/MixtureSign.v` | for centrally symmetric point laws of finite and countable admissible mixtures with `kappa > 1`, the transfer to mixtures of opposite shifts of sparse-shift positive definite existence below `alpha*(kappa)` and of the absence of positive semidefinite fits for arbitrary shifts above it; the sign weights may depend on the dimension and include 0 and 1 |
+
+The user accepted the seven statement files at commit `51c2e14`; they are
+frozen, and `scripts/check_sources.py` compares their code with that commit
+(rule 30).
+
+### The statements
+
+The asymptotic statements give either the limit of a probability or, for
+every tolerance and every large dimension, a measurable exceptional set of
+small probability. The results of the note that they formalize are given in
+parentheses.
+
+- **S1** (the note's Theorem 1.1). `shifted_condition_statement` is the
+  conjunction of three parts. `shifted_condition_measurability_statement`:
+  for all `n`, `d`, `m` and `C`, the translated conditioned fit event, the
+  optimal condition number of the translated sample and the events that it
+  is farther than `eps` from a real `c` are measurable.
+  `shifted_condition_threshold_statement`: for `C > 1`,
+  `alpha > 0` and `a_d = o(sqrt d)`, the probability of a translated fit of
+  condition number at most `C` tends to 1 if `alpha < alpha_C` and to 0 if
+  `alpha > alpha_C`. `shifted_condition_number_statement`: for
+  `0 < alpha < 1/4` and `a_d = o(sqrt d)`, the optimal condition number of
+  the translated sample tends to `C_star(alpha)` in probability, with
+  measurable exceptional sets. The small-shift hypothesis is written out;
+  equality at the threshold is left open.
+- **S2** (Theorem 1.3 (1), with its lower bound at every density).
+  `shifted_gaussian_statement` is the conjunction of the measurability of
+  the translated fit events and of the optimal condition number, and of
+  two bounds. `shifted_gaussian_uniform_lower_statement`: for every
+  `alpha > 0` there is `c > 0` such that, for every `eps > 0` and every
+  large `d`, outside one measurable set of probability at most `eps`, every
+  translation `m` gives an optimal condition number at least
+  `c (1 + ||m|| / sqrt d)`, and every fit of condition number at most `B`
+  of the translated sample has `B >= c (1 + ||m|| / sqrt d)`.
+  `shifted_gaussian_bounds_statement`: for `0 < alpha < 1/4` there are
+  `0 < c <= C` such that, for every shift sequence, outside such sets the
+  translated sample has a positive definite fit, a fit of condition number
+  at most `C (1 + a_d / sqrt d)`, and an optimal condition number between
+  `c (1 + a_d / sqrt d)` and `C (1 + a_d / sqrt d)`. The constants are
+  chosen before the sequences, and there is no bound on `a_d`.
+- **S3** (Theorem 1.3 (2)). `shifted_quadric_statement`: for
+  `alpha > 1/4`, every `eps > 0` and every large `d`, outside a measurable
+  set of Gaussian probability at most `eps`, no quadric
+  `quadric_eval Q v c x = <x, Q x> + <v, x> + c` with `Q` positive
+  semidefinite and nonzero vanishes at all the points, whatever `v` and
+  `c`. The set is chosen before the quadric. So, on its complement, no
+  translate of the sample has a positive semidefinite fit, for all
+  translations at once.
+- **S4** (Theorem 6.3). `shifted_error_statement` is the conjunction of
+  the measurability of `translation_fitting_error` and of the error at each
+  translation, and of `shifted_error_limit_statement`: for every
+  `alpha > 0`, `1/4` included, and every shift sequence, the fitting error
+  of the translated sample tends to `e*(alpha, 3)` in probability, and so
+  does `translation_fitting_error`; the probability that
+  `translation_fitting_error <= t` tends to 0 for every
+  `t < e*(alpha, 3)`, and the probability that
+  `translation_fitting_error >= e*(alpha, 3) - delta` tends to 1 for every
+  `delta > 0`. No exact fit is claimed at `1/4`.
+- **S5** (Theorem 7.1 (1)). `shifted_mixture_unsat_statement`: for
+  `kappa > 1` and `alpha > alpha*(kappa)` there is `eta > 0` such that, for
+  every `K > 0` and every finite (`finite_shifted_mixture_unsat_statement`)
+  or countable (`countable_shifted_mixture_unsat_statement`) admissible
+  family of fourth moment `kappa` whose point law (`finite_row_law`,
+  `countable_row_law`) is centrally symmetric (`row_symmetric_law`), for
+  every `eps > 0` and every large `d`, outside a measurable set of
+  probability at most `eps`, `translation_fitting_error >= eta` and no
+  nonzero positive semidefinite quadric vanishes at all the points, whatever
+  its linear and constant terms. `eta` is chosen before `K` and the family.
+  The symmetry concerns the point law, not each component; the event that
+  some quadric fits is not asserted to be measurable.
+- **S6** (Theorem 7.1 (2), without its symmetry hypothesis).
+  `shifted_mixture_sat_statement`: for `kappa > 1`, `K > 0`,
+  `0 < alpha < alpha*(kappa)`, every finite
+  (`finite_shifted_mixture_sat_statement`) or countable
+  (`countable_shifted_mixture_sat_statement`) admissible family of fourth
+  moment `kappa`, and every shift sequence whose support
+  (`coordinate_support`) has `o(d)` coordinates (`family_sequence_limit`
+  of `#|supp m_d| / d` to 0), the translated positive definite fit event is
+  measurable and its probability tends to 1. There is no bound on `a_d`,
+  the support may change with `d`, and no event common to all shifts is
+  asserted.
+- **S7** (Remark 1.2 and the sentences on sign mixtures of Theorems 1.3,
+  6.3 and 7.1). `shifted_sign_statement` is the conjunction of four parts.
+  `shifted_sign_outer_statement`: over every real type, for a centrally
+  symmetric law `P` of a point and `0 <= w <= 1`, the outer products of `n`
+  i.i.d. points of law `sign_shift_law P m hw`, the mixture
+  `w law(X + m) + (1 - w) law(X - m)`, have the same joint law as for `n`
+  i.i.d. points of law `row_shift_law P m`.
+  `shifted_sign_observables_statement`: the same equality, at every `n` and
+  `d`, for the probabilities of the positive semidefinite, positive
+  definite and conditioned fit events and for the laws of the optimal
+  condition number and of the fitting error (`sign_mixture_sample_law`,
+  `shifted_iid_sample_law`). `shifted_sign_gaussian_statement`: for
+  Gaussian points and weights `w_d` in `[0, 1]`, the threshold and the
+  limit of S1 under `gaussian_small_shift`, and, for arbitrary shifts, the
+  fits and the two-sided bounds of S2, the limit of the fitting error at
+  the shift (S4) and the absence of positive semidefinite fits above `1/4`.
+  `shifted_sign_mixture_statement`: for finite and countable admissible
+  families with centrally symmetric point laws, no positive semidefinite fit
+  above `alpha*(kappa)`, and positive definite fits below it for shifts on
+  `o(d)` coordinates. No clause transfers the exclusion of quadrics with
+  arbitrary centers or an infimum over further translations.
+
+### The definitions
+
+Besides the frozen definitions of `theories/` and of `extension/`
+(`UniversalityDefinitions.v`, `ConditionDefinitions.v`,
+`MixtureDefinitions.v` and `CountableMixtureDefinitions.v`) and the library
+definitions protected before (below), the seven statements unfold to 29
+definitions of other files:
+
+- in `Shifted/`: `sample_translate` (`Translations.v`); `sample_row_tuple`,
+  `sample_of_row_tuple`, `sample_flat_row` and `sample_flat_col`
+  (`GaussianRows.v`); `translation_fitting_error` (`TranslationError.v`);
+  `gaussian_small_shift` (`GaussianCondition.v`); `finite_row_law` and
+  `countable_row_law` (`MixtureRows.v`); and `row_sample_map`,
+  `iid_row_sample_law`, `shifted_iid_sample_law` and
+  `sign_mixture_sample_law` (`SignMixture.v`);
+- `point_law` (`Sat/AprioriSparse.v`) and `row_of_tuple`
+  (`theories/Gaussian/Law/LibraryBridge.v`), through which the point laws
+  of the mixtures are defined;
+- in the library: `row_symmetric_law`, `row_shift`, `row_shift_law`,
+  `sign_shift_weights`, `sign_shift_law` and `row_outer`
+  (`probability/symmetric_shift.v`), `quadric_eval`
+  (`matrix/quadric_certificate.v`), `coordinate_support`
+  (`matrix/coordinate_blocks.v`), `family_sequence_limit`
+  (`analysis/family_reindexing.v`), `mixture` and `mixture_weights`
+  (`probability/mixture.v`), `cmixture` and `cmixture_weights`
+  (`probability/countable_mixture.v`), and `tuple_map`
+  (`probability/tuple_rows.v`).
+
+`check/ShiftedDefinitions.v` states a characterization of each of these 29
+definitions, proved by computation. The other constants that the statements
+reach are of five kinds:
+
+- the constants of frozen files;
+- the library definitions protected before: the section `tuple_prod` of
+  `library/probability/lindeberg.v` is pinned, and
+  `check/ApplicationsDefinitions.v` characterizes `gauss`, `mxdot`,
+  `frobenius`, `psdmx` and the measurable structure of matrices;
+- the instances, factories, mixins and subproofs that Hierarchy Builder
+  generates for the laws and maps above, fixed through the values that the
+  characterizations compute;
+- opaque lemmas, used as proof arguments of these definitions or reached
+  only inside opaque proofs;
+- the helpers used only inside `gauss`, and the display tag of the
+  measurable structure of matrices, which has no measure content.
+
+To reach the definitions of `Shifted/`, the statement files require proof
+modules: `ShiftedSignStatement.v` requires `Shifted/GaussianCondition`,
+`Shifted/MixtureRows` and `Shifted/SignMixture`, and S1, S2 and S4 to S6
+require `Shifted/Translations`, `Shifted/TranslationError` or
+`Shifted/MixtureRows`.
+
+### The proof
+
+The route of the note, in six parts.
+
+- **Gaussian inputs.** The standard normal law is a component law of
+  constant 2 and fourth moment 3, so the theorems of phases 6 and 8
+  (`mixture_theorem`, `condition_theorem`) apply to Gaussian samples
+  (`GaussianInputs.v`, `GaussianExports.v`). The flat sample of the frozen
+  definitions is identified with a tuple of rows, on which translation
+  acts (`GaussianRows.v`, `Translations.v`).
+- **Small shifts (S1).** Below the curve, a rotation puts the shift on the
+  first coordinate. A fit of the other `d - 1` coordinates, of condition
+  number below `C`, is corrected by the small-residual interpolation of
+  Theorem 1.9 (`mixture_interpolation_holds`, specialized to Gaussian data
+  as `gaussian_interpolation_holds` in `GaussianExports.v`) so that all
+  the translated points have the same quadratic value; the correction is
+  small when `a_d = o(sqrt d)`, and the condition number stays at most `C`
+  by the perturbation bound of `library/matrix/condition_perturbation.v`
+  (`GaussianTargets.v`, `GaussianTargetBounds.v`, `GaussianExistence.v`).
+  Above the curve, the comparison of phase 8 is redone with its squared
+  loss kept, which gives a residual gap `eta > 0` uniform over the
+  condition slice (`ConditionGap.v`). On the complement of the exceptional
+  set of the gap, a fit of condition number at most `C` of the translated
+  sample forces `eta n d <= 4 C^2 opnorm(G)^2 a_d^2`, where `G` is the
+  `n x d` matrix of the points (`ConditionTranslation.v`). Since
+  `E opnorm(G)^2` is of order `n` (`GaussianMatrixBounds.v`), the
+  probability of such a fit is at most `eps + K(C, alpha) a_d^2 / d` for
+  every large `d`, which tends to 0 (`GaussianSmallShift.v`). The limit of
+  the optimal condition number follows as in phase 8
+  (`GaussianCondition.v`).
+- **Arbitrary shifts (S2).** Below `1/4`, a rotation again puts the shift
+  on the first coordinate, which gets the weight `min(1, e sqrt p / a_d)`,
+  with `p = d - 1` and a fixed `e > 0`, before the interpolation. This
+  gives fits of condition number at most `C (1 + a_d / sqrt d)`
+  (`GaussianExistence.v`, `GaussianBounds.v`). The lower bound holds at
+  every density, on one event for all shifts, from the adjoint bound of the
+  features and the centered covariance of the sample (`ConditionLower.v`).
+- **The reserve certificate (S3, S4, S5).** The sample is split into a main
+  block of density `beta` and a reserve block (`SampleSplit.v`,
+  `ReserveDensity.v`). On the main block, the projection onto the image of
+  the PSD trace slice gives weights determined by the outer products, with
+  an exact margin given by the fitting error (`ProjectionCertificate.v`,
+  `library/convex/image_projection.v`, `library/convex/psd_residual.v`).
+  Their first moment is cancelled on the independent reserve block by a
+  centered correction whose quadratic part is `o(sqrt d)` in probability
+  (`ReserveCertificate.v`, `library/matrix/centered_correction.v`,
+  `library/random_matrix/symmetric_reserve.v`,
+  `library/random_matrix/reserve_convergence.v`, `ReserveModel.v`,
+  `ReserveCorrectionLimit.v`). The combined weights cancel constants and
+  coordinates, so one certificate bounds the error from below at every
+  translation and, with a positive margin, excludes every quadric with
+  nonzero positive semidefinite quadratic part
+  (`library/matrix/quadric_certificate.v`, `ReserveLimit.v`). The bounds on
+  the first moment of the main weights and on the correction use the
+  invariance of the sample law under the signs of the rows, which holds for
+  independent Gaussian rows and for independent centrally symmetric rows
+  (`MainMoment.v`,
+  `ReserveApplications.v`, `library/random_matrix/even_weights.v`,
+  `library/probability/independent_row_signs.v`). For Gaussian data above
+  `1/4` this gives S3 (`GaussianErrorLower.v`); letting the reserve fraction
+  decrease after the limit in the dimension, with the continuity of the
+  error curve (`ErrorCurve.v`), gives the lower half of S4. The upper half
+  comes from a rotation and the restriction to the other coordinates
+  (`ResidualRestriction.v`, `GaussianErrorUpper.v`, `GaussianError.v`). For
+  centrally symmetric admissible mixtures above `alpha*(kappa)`, the same
+  argument, with the limit of the fitting error from the mixture theorems
+  of phases 6 and 8, gives S5 (`SymmetricQuadric.v`).
+- **Sparse shifts (S6).** The support of the shift is moved to a head block
+  of `h = o(d)` coordinates (`SparseCoordinates.v`,
+  `library/matrix/coordinate_blocks.v`). The other `p = d - h` coordinates
+  have a fit by the mixture theorem; the head block gets a positive weight,
+  and the fit of the other coordinates is corrected by interpolation so that
+  all the translated points have the same quadratic value
+  (`SparseInterpolation.v`,
+  `SparseTargets.v`, `SparseTargetBounds.v`, `SparseExistence.v`). The
+  dimension `p` runs along a cofinal map, which
+  `library/analysis/family_reindexing.v` handles (`SparseInputs.v`,
+  `SparseShift.v`). The two blocks need not be independent, and no symmetry
+  is used.
+- **Sign mixtures (S7).** For a centrally symmetric law, a point
+  `X + sigma m` with an independent sign `sigma` gives
+  `sigma (X + sigma m) = sigma X + m`, a translate by `m` of a point of the
+  same law, with the same outer product. So every statistic of the outer
+  products, in particular every centered-fitting statistic, has the same law
+  for the sign mixture as for the shift `m`
+  (`library/probability/symmetric_shift.v`,
+  `library/probability/sign_shift_sample.v`, `SignMixture.v`,
+  `MixtureSign.v`). Quadric events with arbitrary centers and infima over
+  further translations need not be invariant under the signs of the rows,
+  and are not transferred.
+
+### Verification
+
+`make check` compiles `check/ShiftedConditionAssumptions.v`,
+`check/ShiftedGaussianAssumptions.v`, `check/ShiftedQuadricAssumptions.v`,
+`check/ShiftedErrorAssumptions.v`, `check/ShiftedMixtureUnsatAssumptions.v`,
+`check/ShiftedMixtureSatAssumptions.v` and `check/ShiftedSignAssumptions.v`,
+which check that the seven theorems prove the frozen statements and print
+their axioms, and compares the axioms with the expected lists
+`check/shifted_condition_assumptions.expected` to
+`check/shifted_sign_assumptions.expected` (`scripts/check_sources.py`,
+rule 31). Each list is a copy of `check/sat_variance_assumptions.expected`:
+the eight classical axioms of `check/assumptions.expected` without
+`Classical_Prop.classic`. Each theorem uses exactly these seven:
+`boolp.propositional_extensionality`, `boolp.functional_extensionality_dep`,
+`boolp.constructive_indefinite_description`,
+`FunctionalExtensionality.functional_extensionality_dep`,
+`Epsilon.epsilon_statement`, `ClassicalDedekindReals.sig_forall_dec` and
+`ClassicalDedekindReals.sig_not_dec`. `check/ShiftedIdentities.v` checks the
+seven theorems against their frozen statements in one file, and `make check`
+compiles it into `build/shifted_identities.txt`, a required output within
+the same seven axioms. `make check` takes 35 axiom reports. The code of
+`check/ShiftedDefinitions.v` (above) is fixed, and its output
+`build/shifted_definitions.txt` is required. The new check files and
+expected lists are not pinned yet: their pin, and any tag, wait for the
+user's acceptance of the phase 13 checker repair.
