@@ -47,9 +47,10 @@ is the place to start.
 
 ## Main results
 
-The local shifted-Gaussian development adds supporting modules. These
-are deterministic or finite-sample results; the asymptotic translated-data
-theorems are not yet assembled.
+The local shifted-Gaussian development adds the reusable modules below.
+They include deterministic certificates, finite-sample probability bounds
+and convergence of reserve corrections. Their application to translated
+samples is documented in `extension/README.md`.
 
 | File | Results | Scope |
 |---|---|---|
@@ -68,6 +69,11 @@ theorems are not yet assembled.
 | `random_matrix/gaussian_rows_bounds.v` | `gauss_direction_subgaussian`, `gaussian_rows_opnorm_second_moment`, `gaussian_rows_opnorm_integrable`, `gaussian_rows_opnorm_tail` | Standard Gaussian rows satisfy the directional hypotheses with constant 2. Their matrix has `E opnorm(H)^2 <= k+1152(sqrt(k(d+1))+d+1)`, with integrability and a positive-threshold Markov bound. Zero row and column dimensions are included. |
 | `random_matrix/symmetric_reserve.v` | `reserve_linearized_tail`, `reserve_independent_correction_tail`, `reserve_failure_success` | For a matrix law invariant under independent row signs, an intrinsic adjoint and row-norm event gives a finite correction bound with constant 40. The centered-covariance event is imposed after sign averaging. An independent random right-hand side is truncated by its norm, with no moment assumption. The final bound charges each exceptional probability once. Off the measurable failure event the guarded correction has exactly zero mass, the prescribed first moment, and the stated norm bounds. Normalized conclusions require positive row count and dimension. |
 | `random_matrix/even_weights.v` | `rademacher_mean_frobenius_sum`, `weighted_row_moment_sign_second`, `even_weights_moment_tail` | For measurable weights invariant under every row sign and of norm at most one, sign averaging gives the exact second moment `sum w_i^2 norm(row_i)^2`. Under a row-sign invariant matrix law, a measurable event bounding every row norm squared by `M` yields a first-moment tail bounded by its exceptional probability plus `M/t`. The weights may depend on all rows; no moment assumption on the matrix law is required. |
+| `probability/isotropic_mixtures.v` | Centering, covariance and directional subgaussian bounds for product laws and their finite/countable mixtures. | Every component has mean-zero, variance-one coordinates with common subgaussian constant `K`; the mixture directional constant is `4K`. Countable integral exchanges include absolute-integrability proofs. |
+| `probability/independent_row_signs.v` | Exact row-matrix laws and independent row-sign invariance. | Independent centrally symmetric row laws, including zero dimensions; coordinates within a row need not be independent. Gaussian and odd-image examples are included. |
+| `probability/independent_matrix_blocks.v` | Exact product laws for concatenated tuples and matrix blocks. | Both block orders and measurable statistics of either block; all block sizes are allowed. |
+| `random_matrix/reserve_convergence.v` | Asymptotic centered-reserve correction bounds. | Under explicit sign-invariant row, covariance and independent right-hand-side hypotheses, singularity is negligible, the correction norm tends to zero and the quadratic correction norm is `o_P(sqrt(d))`. The proof retains the singular event before using guarded inverses. |
+| `random_matrix/reserve_row_conditions.v` | Maximum-row and covariance bounds supplying the reserve hypotheses. | Independent centered isotropic rows with a common directional subgaussian constant and `k/d^2` tending to a positive limit. The maximum-row constant is fixed before the probability tolerance. |
 
 The main results of each file, with an informal statement and the modules
 of `theories/` that use them directly. `Gaussian/Law/LibraryBridge` is the bridge

@@ -2,6 +2,29 @@
 
 ## Local work on translated samples
 
+The local branch now proves the Gaussian conclusions for deterministic
+translations. If `n/d^2 -> alpha`, `alpha>0`, and `||m_d||=o(sqrt(d))`,
+the condition threshold is the centered curve `condition_alpha C`; below
+`alpha=1/4`, the optimal condition number converges to `condition_star alpha`.
+For arbitrary shifts and `0<alpha<1/4`, it lies between positive constant
+multiples of `1+||m_d||/sqrt(d)` with probability tending to one. The lower
+bound holds on one event for every shift; the upper bound is stated for
+each deterministic shift sequence.
+
+For every deterministic Gaussian shift and every `alpha>0`, including
+`alpha=1/4`, the frozen fitting error converges to
+`universality_e_star alpha 3`. Its infimum over all translations has the
+same limit. Above `1/4`, one measurable good event excludes all quadrics
+with nonzero PSD quadratic part, with arbitrary linear and constant terms.
+For centrally symmetric finite or countable admissible mixtures, the same
+quadric exclusion holds above `universality_alpha_star kappa`, with a
+positive uniform translation-error margin depending only on `kappa,alpha`.
+Central symmetry is required of the whole point law, not of each component.
+
+These are local proof modules, not a release or a new freeze. Sparse
+non-Gaussian shifts and the exact sign-mixture transfers are still being
+assembled. The phase 13 checker repair remains separate.
+
 `Shifted/GaussianInputs.v` supplies the Gaussian admissibility input for
 the translated-data project. `gaussian_subgaussian_expectation` gives
 `E exp(G^2 / 4) = sqrt 2`; `gaussian_coordinate_law` and
@@ -108,9 +131,29 @@ tends to zero. The finite bound is `eps + K(C,alpha)*frobenius(m)^2/d`
 at all sufficiently large dimensions, uniformly over the deterministic
 shift. No logarithmic restriction or upper bound on `alpha` is used.
 
-The full shifted condition-number, quadric and error-limit theorems
-are not yet assembled. This local development does not
-change the phase 13 checker-repair acceptance or release status.
+The remaining modules assemble the probabilistic limits and conclusions:
+
+| File | Result and hypotheses |
+|---|---|
+| `Shifted/MixtureRows.v` | Exact finite/countable mixture row and sample laws; mean zero, covariance identity and directional subgaussian constant `4K`, from component constant `K`. |
+| `Shifted/MixtureAdjoint.v` | Raw quadratic adjoint bounds of order `d` for finite/countable mixtures and Gaussian samples; no fourth-moment or symmetry assumption. |
+| `Shifted/MainMoment.v` | Exact sample/matrix inverses and measurability; the projection weights are unchanged by each row sign, so their first moment is of order `sqrt(d)` in probability under independent symmetric rows. |
+| `Shifted/ReserveModel.v` | Exact independent reserve/main-moment law and convergence of the reserve failure probability, under the stated row and adjoint bounds. |
+| `Shifted/ReserveCorrectionLimit.v` | From the reserve failure bound, covariance singularity is negligible, the correction norm tends to zero, and its quadratic operator norm divided by `sqrt(d)` tends to zero. |
+| `Shifted/ReserveApplications.v` | Verifies those reserve hypotheses for Gaussian data and centrally symmetric finite/countable admissible mixture point laws, without a fourth-moment assumption. |
+| `Shifted/ResidualLaws.v` | Exact matrix/sample and independent block laws, and the centered fitting-error limit on the main block for Gaussian and finite/countable mixture samples. |
+| `Shifted/ReserveDensity.v` | Sample-density limits for the exact main/reserve ratios, including eventual positivity of all counts. |
+| `Shifted/ReserveLimit.v` | Combines a main error limit `e` with negligible reserve corrections: uniform translation-error lower tails at `beta/(beta+gamma)*e`; if `e>0`, excludes nonzero PSD quadrics outside measurable exceptional covers. |
+| `Shifted/SampleSplit.v` | Rounding `beta*n/alpha` gives an exact decomposition of every sample count, with limiting densities `beta` and `alpha-beta` whenever `0<beta<alpha`. |
+| `Shifted/ResidualRestriction.v` | Dropping a coordinate gives `Gamma_(1+p) <= ((1+p)/p)*Gamma_p` for `p>0`, through a zero-head PSD embedding; empty samples are included. |
+| `Shifted/ErrorCurve.v` | Continuity of the frozen error curve for `alpha>0,kappa>1`, its zero set, and approximation from smaller sample densities. |
+| `Shifted/GaussianExistence.v` | Small-shift exact fitting below the condition curve, and arbitrary-shift fitting with condition bound `K(alpha)*(1+||m||/sqrt(d))` below `1/4`; `K` is chosen before the sample and shift sequences. |
+| `Shifted/ConditionLower.v` | For every positive sample density, one Gaussian good event gives an optimal-condition lower bound `c(alpha)*(1+||m||/sqrt(d))` simultaneously for all shifts, including samples with no fit. |
+| `Shifted/GaussianCondition.v` | The two-sided small-shift threshold and convergence of the optimal condition number to the centered inverse curve. |
+| `Shifted/GaussianErrorUpper.v` | Rotation and coordinate restriction give the fitting-error upper tail for arbitrary deterministic Gaussian shifts, at every positive density. |
+| `Shifted/GaussianErrorLower.v` | The reserve certificate gives the matching lower tail uniformly over translations; above `1/4`, it also excludes all nonzero PSD quadrics on one measurable good event. |
+| `Shifted/GaussianError.v` | Convergence in probability of the shifted fitting error and its infimum over translations to the frozen centered error curve, for every positive density. |
+| `Shifted/SymmetricQuadric.v` | For `kappa>1` and `alpha>alpha_star(kappa)`, finite/countable admissible mixtures with centrally symmetric point laws have one measurable good event giving a positive uniform translation-error margin and exclusion of all nonzero PSD quadrics. The margin is fixed from `kappa,alpha` alone. |
 
 ## Existing results
 

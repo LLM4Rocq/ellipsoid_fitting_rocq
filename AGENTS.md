@@ -68,6 +68,22 @@ Further assignments: `random_matrix/even_weights.v` and
 `probability/independent_row_signs.v` to the separate projection agent.
 The completed Gaussian matrix bounds remain owned by the matrix worker.
 
+Checkpoint `ddb2a3a` contains the next seventeen supporting modules,
+verified by a source-only full build, the historical checks and recursive
+kernel checking. The next checkpoint assembles the Gaussian condition and
+error limits and symmetric-mixture quadric exclusion. Its completed source
+inventory is maintained outside the repository in
+`../../reviews/shifted-runtime/local-checkpoint-03-progress.json`.
+
+Current remaining ownership: the Gaussian worker owns
+`probability/sign_shift_sample.v` and `Shifted/SignMixture.v`; the matrix
+worker owns `Shifted/SparseTargets.v`; the probability worker owns
+`Shifted/SparseRows.v`; the separate local agent owns
+`analysis/family_reindexing.v`. The master handles sparse-existence
+assembly, source review, registration, documentation and verified local
+commits. Do not edit another owner's module or any historical checker,
+frozen statement, or main-branch source. Only sources cross worktrees.
+
 `CLAUDE.md` is a symbolic link to this file. Read it, then `README.md` and
 `library/README.md`, before touching anything.
 
