@@ -1,0 +1,13 @@
+{
+ "title": "a control prefix (Instructions) before Axiom hides an axiom of a library module from the scan of rule 2",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "library/fourier/inversion\\.v: control prefix Instructions is not allowed",
+  "step": "checker"
+ },
+ "source": "reviews/phase13-repair-review/verify/attacks/prefix-library-axiom/attack.diff"
+}

@@ -1,0 +1,14 @@
+{
+ "title": "symlinked source directories (library/vlinked, theories/vlinked, registered in _CoqProject) bring an Elpi program that runs a shell command and an Axiom past the files that the checker reads",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "library/vlinked: protected input is a symlink",
+  "step": "checker"
+ },
+ "marker": "verify-sym-elpi-ran",
+ "source": "reviews/phase13-repair-review/verify/attacks/symlink/setup.sh, as a patch with two mode 120000 links"
+}

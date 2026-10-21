@@ -1,0 +1,12 @@
+diff --git a/library/fourier/product_smoothing.v b/library/fourier/product_smoothing.v
+index ae6c35d..1655f66 100644
+--- a/library/fourier/product_smoothing.v
++++ b/library/fourier/product_smoothing.v
+@@ -1203,3 +1203,7 @@ move=> mu1 nu1; split=> [i|i|i m y|i y x|i y g]; [exact: mu1|exact: nu1|
+   exact: mu1|by rewrite -mulr_suml (nu1 i).2 mul1r|].
+ by under eq_bigr do rewrite subrr expr2 !mulr0; rewrite big1 // mul0r.
+ Qed.
++
++Fail Check lp:{{ (* }}.
++Axiom e31_axiom : False.
++Fail Check lp:{{ *) }}.

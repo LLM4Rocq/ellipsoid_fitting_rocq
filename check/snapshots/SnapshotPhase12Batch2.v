@@ -1,0 +1,56 @@
+(* The statement snapshot SnapshotPhase12Batch2 (scripts/check_sources.py, rule 30):
+   the declarations accepted at 0d5afbac0721, printed in full. Written
+   by scripts/snapshot_baselines.py; its reference, the output at that
+   commit, is check/snapshots/SnapshotPhase12Batch2.txt. *)
+
+Require GaussianApplications.TensorPackingStatement.
+Require GaussianApplications.SKGapDefinitions.
+Require GaussianApplications.SKGapStatement.
+Require GaussianApplications.PerceptronSignDefinitions.
+Require GaussianApplications.PerceptronSignStatement.
+Require GaussianApplications.SatVarianceDefinitions.
+Require GaussianApplications.SatVarianceStatement.
+
+Set Printing All.
+Set Printing Universes.
+Set Printing Depth 1000000.
+Set Printing Width 78.
+
+Print Module GaussianApplications.TensorPackingStatement.
+Print GaussianApplications.TensorPackingStatement.tensor_packing_statement.
+Print Module GaussianApplications.SKGapDefinitions.
+Print GaussianApplications.SKGapDefinitions.spin.
+Print GaussianApplications.SKGapDefinitions.spin_vec.
+Print GaussianApplications.SKGapDefinitions.spin_set.
+Print GaussianApplications.SKGapDefinitions.ising_weight.
+Print GaussianApplications.SKGapDefinitions.ising_mass.
+Print GaussianApplications.SKGapDefinitions.ising_mean.
+Print GaussianApplications.SKGapDefinitions.ising_var.
+Print GaussianApplications.SKGapDefinitions.half_diff.
+Print GaussianApplications.SKGapDefinitions.ising_cond_mean.
+Print GaussianApplications.SKGapDefinitions.ising_cond_var.
+Print GaussianApplications.SKGapDefinitions.ising_dirichlet.
+Print GaussianApplications.SKGapDefinitions.ising_cov.
+Print GaussianApplications.SKGapDefinitions.sk_coupling.
+Print Module GaussianApplications.SKGapStatement.
+Print GaussianApplications.SKGapStatement.sk_gap_statement.
+Print Module GaussianApplications.PerceptronSignDefinitions.
+Print GaussianApplications.PerceptronSignDefinitions.spin_col.
+Print GaussianApplications.PerceptronSignDefinitions.perceptron_pressure.
+Print GaussianApplications.PerceptronSignDefinitions.gauss_pressure.
+Print GaussianApplications.PerceptronSignDefinitions.sign_pressure.
+Print GaussianApplications.PerceptronSignDefinitions.bounded_C3.
+Print Module GaussianApplications.PerceptronSignStatement.
+Print GaussianApplications.PerceptronSignStatement.perceptron_sign_statement.
+Print Module GaussianApplications.SatVarianceDefinitions.
+Print GaussianApplications.SatVarianceDefinitions.proper_clause.
+Print GaussianApplications.SatVarianceDefinitions.clause.
+Print GaussianApplications.SatVarianceDefinitions.clause_sat.
+Print GaussianApplications.SatVarianceDefinitions.prefix_sat.
+Print GaussianApplications.SatVarianceDefinitions.sat_cap.
+Print GaussianApplications.SatVarianceDefinitions.sat_prefix_len.
+Print GaussianApplications.SatVarianceDefinitions.sat_mean.
+Print GaussianApplications.SatVarianceDefinitions.sat_var.
+Print GaussianApplications.SatVarianceDefinitions.sat_capped_var.
+Print Module GaussianApplications.SatVarianceStatement.
+Print GaussianApplications.SatVarianceStatement.sat_variance_statement.

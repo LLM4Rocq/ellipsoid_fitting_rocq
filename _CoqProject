@@ -6,6 +6,8 @@
 -arg -w -arg -ambiguous-paths
 -arg -w -arg -notation-incompatible-prefix
 -arg -w -arg -hiding-delimiting-key
+-arg -w -arg +comment-terminator-in-string
+-arg -q
 
 library/gaussian/measurable_matrix.v
 library/gaussian/normal_integral.v

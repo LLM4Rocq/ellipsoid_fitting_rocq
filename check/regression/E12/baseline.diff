@@ -1,0 +1,13 @@
+diff --git a/scripts/check_sources.py b/scripts/check_sources.py
+index 53391f4..3aa2d12 100644
+--- a/scripts/check_sources.py
++++ b/scripts/check_sources.py
+@@ -669,7 +669,7 @@ INVENTORY = [
+     ('46e45c84b99a50663205933ae501da029dd66098',
+      'library/probability/finite_mean.v',
+      'unif_mean_markov_statement',
+-     'forall (R : realFieldType) (T : finType) (f : T -> R) (t : R), (forall x : T, 0 <= f x) -> t * @unif_mean R T (fun x : T => (t <= f x)%R%:R : R) <= @unif_mean R T f'),
++     'forall (R : realFieldType) (T : finType) (f : T -> R) (t : R), (forall x : T, 0 <= f x) -> t * @unif_mean R T (fun x : T => (t <= f x)%R%:R : R) < @unif_mean R T f'),
+     ('46e45c84b99a50663205933ae501da029dd66098',
+      'library/probability/finite_mean.v',
+      'unif_mean_cutoff_statement',

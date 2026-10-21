@@ -8,7 +8,6 @@
 
 (* The Require commands of each file are inside its module, so that the
    imports end with the module. *)
-Set Warnings "-require-in-module".
 
 (* library/probability/finite_mean.v, accepted at 46e45c84b99a *)
 Module accepted_finite_mean.

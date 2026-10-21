@@ -489,8 +489,51 @@ generated`), whose code cannot change. The other modules print none.
   `check/LibraryStatements.v` states in full each general statement of the
   library that the user accepted in phase 13, the 70 entries of the
   acceptance inventory of `scripts/check_sources.py`, and proves each by
-  its library lemma; `make check` compiles it into
-  `build/library_statements.txt`, a second required output.
+  its library lemma; `make check` compiles it, and requires its report.
+  `check/TheoremIdentities.v` requires the statement and theorem modules of
+  the 28 theorems without importing them and defines, for each, by absolute
+  names, `<theorem>_identity` with the frozen statement as its type and the
+  theorem as its body; it prints the full name and the axioms of each. (The
+  theorem check files of phases 5 to 12 import the theorem modules after the
+  statement modules, so a definition of a theorem module could shadow the
+  statement there.) `check/MatrixSigmaRing.v` states that the measurable sets
+  of the SigmaRing instance of matrices, which the statements of phase 12,
+  batch 1, name, are those that `check/ApplicationsDefinitions.v`
+  characterizes, by reflexivity (the user's decision of 15 October 2026).
+  `check/Reports.v` prints, after its full name, the axioms of each
+  characterization lemma of `check/ApplicationsDefinitions.v`,
+  `check/MatrixSigmaRing.v` and `check/Phase13Definitions.v` and of each
+  accepted statement of `check/LibraryStatements.v`.
+  `check/snapshots/` holds one statement snapshot per acceptance baseline: a
+  file that requires the frozen modules, and the compiled check files,
+  without importing them, and prints under `Set Printing All` and
+  `Set Printing Universes` the module lists and the definitions of the
+  frozen files accepted there, the statements of their theorems, the pinned
+  sections, the characterization lemmas and the accepted statements; the
+  `.txt` file of the same name is its output against a build of the
+  acceptance commit, and `REFERENCES.json` records the commit, the toolchain
+  and the hash of each, with the project names each snapshot mentions.
+  `AcceptedConversions.v` checks, at the acceptance commit 46e45c8, that the
+  statements of the lemmas of `check/LibraryStatements.v` and of the library
+  lemmas are convertible with the accepted `_statement` definitions.
+  `check/identity/` holds the identity layer of the snapshots (the repair
+  E42): a printed name can resolve to another constant than at the
+  acceptance commit while the print stays the same. For each snapshot that
+  prints a declaration, the driver `Identity<Name>.v` requires the same
+  modules and asks the exporter of `check/identity/` (a small OCaml plugin,
+  `kernel_identity.ml` and `kernel_universe.ml`, loaded only by these
+  drivers) for the kernel term of each declaration; `Identity<Name>.json`
+  is the reference, the kernel names (user and canonical) of every
+  constant, inductive, constructor and projection of each term at its
+  position, from a build of the acceptance commit; `inventory.json` lists
+  the 424 queries of the 18 drivers, and `REFERENCES.json` records the
+  commit, the toolchain and the hashes. The sidecars hold no universe (the
+  printed snapshots keep them); they identify names and do not fix what a
+  name means, which the frozen files, the pinned sections and the
+  characterizations do.
+  `check/regression/` holds one directory per exploit of the checks found
+  before the release of phase 13, with its patch and the expected failure,
+  run by `scripts/run_regressions.py`.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality
@@ -508,7 +551,9 @@ generated`), whose code cannot change. The other modules print none.
   `0d5afba`, and the three statement files of batch 1 of phase 13, the two
   of batch 2 and the two of batch 3 the same code as at commit `46e45c8`,
   at which the user accepted the statements of phase 13 (comments may
-  differ); that `check/ApplicationsDefinitions.v`
+  differ; the text is read as Rocq reads it, by `scripts/rocq_lex.py`, and a
+  non-ASCII character outside comments is refused); that
+  `check/ApplicationsDefinitions.v`
   has its fixed code, and `check/Phase13Definitions.v` the code of its
   last freeze, the code of each earlier freeze being a prefix of it; that
   each entry of the acceptance inventory, the general statements of the
@@ -530,15 +575,59 @@ generated`), whose code cannot change. The other modules print none.
   `applications/` requires a module of `theories/` or `extension/`,
   Stdlib's reals, or MathComp's bridge to them (`Rstruct`,
   `Rstruct_topology`), and no module of `library/` a module of
-  `applications/`; that it is given exactly the report of each theorem
-  of its table (28), by path and in order, every report exists and is
-  complete, and the axioms of each theorem are among its expected ones,
+  `applications/`; that the outputs of the check files are those that
+  `scripts/run_checks.py` wrote in this run (the checker creates the run
+  identifier and starts the runner; the manifest records the sources, the
+  outputs and the toolchain), each with exactly the reports it must print,
+  every report complete; that the axioms of each theorem are among its
+  expected ones,
   each expected list being part of the first, and those of phase 13 part
   of the seven of `check/sat_variance_assumptions.expected` (without
   `Classical_Prop.classic`); and that `check/LibraryStatements.v` has its
   fixed code, states the recorded proposition of each entry of the
-  inventory, and has a complete report within the same seven axioms. `make check` deletes the
-  reports before it regenerates them, then runs it.
+  inventory, and has a complete report within the same seven axioms;
+  that each statement snapshot equals its reference, that the references
+  of each identity driver equal theirs, and that each project constant a
+  frozen or accepted statement names is frozen, pinned or characterized; that no source contains a forbidden command (assumptions,
+  typing-flag bypasses, plugin and file commands, Elpi commands, global
+  settings and exports in `library/`, `extension/` and `applications/`); and
+  that the Makefile and the scripts have their fixed hashes, `scripts/` holds
+  exactly its listed files, `_CoqProject` has its fixed options, git tracks
+  no build product, and none of `GNUmakefile`, `makefile`,
+  `Makefile.rocq.local` and `Makefile.rocq.local-late` exists. `make check`
+  runs it twice, without the environment variables that can change what
+  Rocq loads and without any variable whose name starts with `OCAML` or
+  `CAML`: first with `--before-build`, on the sources alone, before
+  anything compiles, then after the build. make reads a `GNUmakefile` or a
+  `makefile` before the `Makefile`, so the command that runs the checks
+  whatever files the tree holds is `make -f Makefile check`.
+- `scripts/run_checks.py`: compiles the check files of `check/` for the
+  checker, each with its fixed flags, `-q` and the warning
+  `comment-terminator-in-string` as an error, in `build/checks/`, which it
+  owns; it publishes an output only after a successful compilation and
+  writes the manifest only when every compilation succeeded. It refuses to
+  start if a variable whose name starts with `OCAML` or `CAML` is set. It
+  first builds the exporter of `check/identity/` from its sources and sets
+  `OCAMLPATH` to that build for the identity drivers only; the manifest
+  records the versions of ocamlopt and findlib and the SHA-256 of the
+  recipe and of the plugin, which the checker compares with the pinned
+  versions and with the plugin that wrote the references.
+- `scripts/identity_sidecars.py`: what the checker, the runner and the
+  snapshot generator share for the identity layer: the queries of the
+  snapshot files, the text of the drivers, the strict framing of their
+  outputs (one complete record per query, in order) and the sidecars;
+  `scripts/test_identity_sidecars.py` tests it.
+- `scripts/rocq_lex.py`: reads the comments, strings and blanks of a `.v`
+  file as Rocq does, and refuses the forms whose reading depends on the
+  keywords in scope; `scripts/test_rocq_lex.py` compares it with Rocq on a
+  corpus and on random insertions.
+- `scripts/snapshot_baselines.py`: builds the acceptance commits of the
+  frozen files, writes the statement snapshots of `check/snapshots/` and
+  their references, and verifies a reference against its acceptance build;
+  it also writes the identity drivers and their references
+  (`identity-files`, `identities`).
+- `scripts/run_regressions.py`: runs the regression tests of
+  `check/regression/` on a scratch copy.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
 - `scripts/unused.py`: lists the declarations of `theories/` that the main

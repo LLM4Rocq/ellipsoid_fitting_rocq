@@ -1,0 +1,11 @@
+diff --git a/applications/SatThresholdDefinitions.v b/applications/SatThresholdDefinitions.v
+index 143a8b0..b13daf2 100644
+--- a/applications/SatThresholdDefinitions.v
++++ b/applications/SatThresholdDefinitions.v
+@@ -41,5 +41,5 @@ Unset Printing Implicit Defensive.
+ Import GRing.Theory Num.Theory.
+ Local Open Scope ring_scope.
+ 
+-Definition sat_prob (R : realType) (n k m : nat) : R :=
++Definition sat(*x*)_prob (R : realType) (n k m : nat) : R :=
+   sat_mean (fun t : m.-tuple (clause n k) => (prefix_sat t m)%:R).

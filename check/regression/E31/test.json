@@ -1,0 +1,14 @@
+{
+ "title": "a string literal holding the old text of the pinned section lambda_max fools the regex search over the stripped code; the repaired pins read sentences",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass",
+  "step": "checker"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "the Require commands or the section lambda_max differ"
+ },
+ "validation_level": "checker-only",
+ "validation_note": "This committed exploit text need not compile; baseline pass demonstrates the old source checker accepting it, not a kernel-accepted false theorem."
+}

@@ -1,0 +1,361 @@
+Phase13Definitions.unif_mean_characterization
+     : forall (R : numfield.Num.RealField.type) (T : fintype.Finite.type)
+         (f : forall _ : fintype.Finite.sort T, numfield.Num.RealField.sort R),
+       @eq (numfield.Num.RealField.sort R) (@finite_mean.unif_mean R T f)
+         (@rings_modules_and_algebras.GRing.mul
+            (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+               (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                  R))
+            (@divalg.GRing.inv
+               (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                  R)
+               (@nmodule.Algebra.natmul
+                  (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                        (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                           R)))
+                  (rings_modules_and_algebras.GRing.one
+                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                        (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                           R)))
+                  (@fintype.card.body T
+                     (@ssrbool.mem
+                        (eqtype.Equality.sort
+                           (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                              T))
+                        (ssrbool.predPredType
+                           (eqtype.Equality.sort
+                              (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                 T)))
+                        (@ssrbool.PredOfSimpl.coerce
+                           (eqtype.Equality.sort
+                              (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                 T))
+                           (ssrbool.pred_of_argType
+                              (eqtype.Equality.sort
+                                 (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                    T))))))))
+            (@bigop.bigop.body
+               (nmodule.Algebra.BaseAddUMagma.sort
+                  (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddUMagma
+                     R))
+               (fintype.Finite.sort T)
+               (@nmodule.Algebra.zero
+                  (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddUMagma
+                     R))
+               (bigop.index_enum T)
+               (fun x : fintype.Finite.sort T =>
+                @bigop.BigBody
+                  (nmodule.Algebra.BaseAddMagma.sort
+                     (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddMagma
+                        R))
+                  (fintype.Finite.sort T) x
+                  (@nmodule.Algebra.add
+                     (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddMagma
+                        R))
+                  true (f x))))
+Phase13Definitions.unif_var_characterization
+     : forall (R : numfield.Num.RealField.type) (T : fintype.Finite.type)
+         (f : forall _ : fintype.Finite.sort T, numfield.Num.RealField.sort R),
+       @eq (numfield.Num.RealField.sort R) (@finite_mean.unif_var R T f)
+         (@rings_modules_and_algebras.GRing.mul
+            (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+               (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                  R))
+            (@divalg.GRing.inv
+               (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                  R)
+               (@nmodule.Algebra.natmul
+                  (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                        (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                           R)))
+                  (rings_modules_and_algebras.GRing.one
+                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                        (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                           R)))
+                  (@fintype.card.body T
+                     (@ssrbool.mem
+                        (eqtype.Equality.sort
+                           (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                              T))
+                        (ssrbool.predPredType
+                           (eqtype.Equality.sort
+                              (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                 T)))
+                        (@ssrbool.PredOfSimpl.coerce
+                           (eqtype.Equality.sort
+                              (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                 T))
+                           (ssrbool.pred_of_argType
+                              (eqtype.Equality.sort
+                                 (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                    T))))))))
+            (@bigop.bigop.body
+               (nmodule.Algebra.BaseAddUMagma.sort
+                  (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                     (numfield.Num.RealField.Exports.Num_RealField__to__GRing_PzSemiRing
+                        R)))
+               (fintype.Finite.sort T)
+               (@nmodule.Algebra.zero
+                  (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                     (numfield.Num.RealField.Exports.Num_RealField__to__GRing_PzSemiRing
+                        R)))
+               (bigop.index_enum T)
+               (fun x : fintype.Finite.sort T =>
+                @bigop.BigBody
+                  (nmodule.Algebra.BaseAddMagma.sort
+                     (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddMagma
+                        (numfield.Num.RealField.Exports.Num_RealField__to__GRing_PzSemiRing
+                           R)))
+                  (fintype.Finite.sort T) x
+                  (@nmodule.Algebra.add
+                     (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddMagma
+                        (numfield.Num.RealField.Exports.Num_RealField__to__GRing_PzSemiRing
+                           R)))
+                  true
+                  (@rings_modules_and_algebras.GRing.exp
+                     (numfield.Num.RealField.Exports.Num_RealField__to__GRing_PzSemiRing
+                        R)
+                     (@nmodule.Algebra.add
+                        (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddMagma
+                           R)
+                        (f x)
+                        (@nmodule.Algebra.opp
+                           (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__Algebra_BaseZmodule
+                              (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                                 R))
+                           (@rings_modules_and_algebras.GRing.mul
+                              (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                                 (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                                    R))
+                              (@divalg.GRing.inv
+                                 (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                                    R)
+                                 (@nmodule.Algebra.natmul
+                                    (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                       (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                                          (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                                             R)))
+                                    (rings_modules_and_algebras.GRing.one
+                                       (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                                          (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                                             R)))
+                                    (@fintype.card.body T
+                                       (@ssrbool.mem
+                                          (eqtype.Equality.sort
+                                             (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                                T))
+                                          (ssrbool.predPredType
+                                             (eqtype.Equality.sort
+                                                (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                                 T)))
+                                          (@ssrbool.PredOfSimpl.coerce
+                                             (eqtype.Equality.sort
+                                                (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                                 T))
+                                             (ssrbool.pred_of_argType
+                                                (eqtype.Equality.sort
+                                                 (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                                 T))))))))
+                              (@bigop.bigop.body
+                                 (nmodule.Algebra.BaseAddUMagma.sort
+                                    (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddUMagma
+                                       R))
+                                 (fintype.Finite.sort T)
+                                 (@nmodule.Algebra.zero
+                                    (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddUMagma
+                                       R))
+                                 (bigop.index_enum T)
+                                 (fun y : fintype.Finite.sort T =>
+                                  @bigop.BigBody
+                                    (nmodule.Algebra.BaseAddMagma.sort
+                                       (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddMagma
+                                          R))
+                                    (fintype.Finite.sort T) y
+                                    (@nmodule.Algebra.add
+                                       (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddMagma
+                                          R))
+                                    true (f y))))))
+                     (S (S O))))))
+Phase13Definitions.binomial_mean_characterization
+     : forall (R : numdomain.Num.NumDomain.type) (m : nat)
+         (p : numdomain.Num.NumDomain.sort R)
+         (f : forall _ : nat, numdomain.Num.NumDomain.sort R),
+       @eq (numdomain.Num.NumDomain.sort R)
+         (@binomial_mean.binomial_mean R m p f)
+         (@bigop.bigop.body
+            (nmodule.Algebra.BaseAddUMagma.sort
+               (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                  (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                     R)))
+            (fintype.Finite.sort
+               (fintype.fintype_ordinal__canonical__fintype_Finite (S m)))
+            (@nmodule.Algebra.zero
+               (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                  (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                     R)))
+            (bigop.index_enum
+               (fintype.fintype_ordinal__canonical__fintype_Finite (S m)))
+            (fun j : fintype.ordinal (S m) =>
+             @bigop.BigBody
+               (nmodule.Algebra.BaseAddMagma.sort
+                  (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddMagma
+                     (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                        R)))
+               (fintype.ordinal (S m)) j
+               (@nmodule.Algebra.add
+                  (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddMagma
+                     (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                        R)))
+               true
+               (@rings_modules_and_algebras.GRing.mul
+                  (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                     R)
+                  (@nmodule.Algebra.natmul
+                     (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                        (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                           R))
+                     (@rings_modules_and_algebras.GRing.mul
+                        (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                           R)
+                        (@rings_modules_and_algebras.GRing.exp
+                           (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                              R)
+                           p (@fintype.nat_of_ord (S m) j))
+                        (@rings_modules_and_algebras.GRing.exp
+                           (rings_modules_and_algebras.GRing.PzRing.Exports.join_GRing_PzRing_between_Algebra_BaseZmodule_and_GRing_PzSemiRing
+                              (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzRing
+                                 R))
+                           (@nmodule.Algebra.add
+                              (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddMagma
+                                 (rings_modules_and_algebras.GRing.PzRing.Exports.join_GRing_PzRing_between_Algebra_BaseZmodule_and_GRing_PzSemiRing
+                                    (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzRing
+                                       R)))
+                              (rings_modules_and_algebras.GRing.one
+                                 (rings_modules_and_algebras.GRing.PzRing.Exports.join_GRing_PzRing_between_Algebra_BaseZmodule_and_GRing_PzSemiRing
+                                    (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzRing
+                                       R)))
+                              (@nmodule.Algebra.opp
+                                 (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__Algebra_BaseZmodule
+                                    R)
+                                 p))
+                           (ssrnat.subn m (@fintype.nat_of_ord (S m) j))))
+                     (binomial.binomial m (@fintype.nat_of_ord (S m) j)))
+                  (f (@fintype.nat_of_ord (S m) j)))))
+Phase13Definitions.linear_op_characterization
+     : forall (R : numdomain.Num.NumDomain.type)
+         (X : Type@{Phase13Definitions.linear_op_characterization.u0})
+         (A : forall (_ : forall _ : X, numdomain.Num.NumDomain.sort R)
+                (_ : X),
+              numdomain.Num.NumDomain.sort R),
+       iff (@commuting_operators.linear_op R X A)
+         (and
+            (forall (f g : forall _ : X, numdomain.Num.NumDomain.sort R)
+               (x : X),
+             @eq (numdomain.Num.NumDomain.sort R)
+               (A
+                  (fun y : X =>
+                   @nmodule.Algebra.add
+                     (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__Algebra_BaseAddMagma
+                        R)
+                     (f y) (g y))
+                  x)
+               (@nmodule.Algebra.add
+                  (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__Algebra_BaseAddMagma
+                     R)
+                  (A f x) (A g x)))
+            (forall (a : numdomain.Num.NumDomain.sort R)
+               (f : forall _ : X, numdomain.Num.NumDomain.sort R) 
+               (x : X),
+             @eq (numdomain.Num.NumDomain.sort R)
+               (A
+                  (fun y : X =>
+                   @rings_modules_and_algebras.GRing.mul
+                     (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                        R)
+                     a (f y))
+                  x)
+               (@rings_modules_and_algebras.GRing.mul
+                  (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__GRing_PzSemiRing
+                     R)
+                  a (A f x))))
+Phase13Definitions.monotone_op_characterization
+     : forall (R : numdomain.Num.NumDomain.type)
+         (X : Type@{Phase13Definitions.monotone_op_characterization.u0})
+         (A : forall (_ : forall _ : X, numdomain.Num.NumDomain.sort R)
+                (_ : X),
+              numdomain.Num.NumDomain.sort R),
+       iff (@commuting_operators.monotone_op R X A)
+         (forall (f g : forall _ : X, numdomain.Num.NumDomain.sort R)
+            (_ : forall y : X,
+                 is_true
+                   (@preorder.Order.le orderedzmod.ring_display
+                      (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__Order_Preorder
+                         R)
+                      (f y) (g y)))
+            (x : X),
+          is_true
+            (@preorder.Order.le orderedzmod.ring_display
+               (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__Order_Preorder
+                  R)
+               (A f x) (A g x)))
+Phase13Definitions.meet_avg_characterization
+     : forall (R : numfield.Num.RealField.type) (T C : fintype.Finite.type)
+         (E : forall _ : fintype.Finite.sort C, finset.set_of T)
+         (f : forall _ : finset.set_of T, numfield.Num.RealField.sort R)
+         (S : finset.set_of T),
+       @eq (numfield.Num.RealField.sort R)
+         (@commuting_operators.meet_avg R T C E f S)
+         (@rings_modules_and_algebras.GRing.mul
+            (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+               (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                  R))
+            (@divalg.GRing.inv
+               (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                  R)
+               (@nmodule.Algebra.natmul
+                  (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                        (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                           R)))
+                  (rings_modules_and_algebras.GRing.one
+                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                        (numfield.Num.RealField.Exports.Num_RealField__to__GRing_UnitRing
+                           R)))
+                  (@fintype.card.body C
+                     (@ssrbool.mem
+                        (eqtype.Equality.sort
+                           (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                              C))
+                        (ssrbool.predPredType
+                           (eqtype.Equality.sort
+                              (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                 C)))
+                        (@ssrbool.PredOfSimpl.coerce
+                           (eqtype.Equality.sort
+                              (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                 C))
+                           (ssrbool.pred_of_argType
+                              (eqtype.Equality.sort
+                                 (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                                    C))))))))
+            (@bigop.bigop.body
+               (nmodule.Algebra.BaseAddUMagma.sort
+                  (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddUMagma
+                     R))
+               (fintype.Finite.sort C)
+               (@nmodule.Algebra.zero
+                  (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddUMagma
+                     R))
+               (bigop.index_enum C)
+               (fun c : fintype.Finite.sort C =>
+                @bigop.BigBody
+                  (nmodule.Algebra.BaseAddMagma.sort
+                     (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddMagma
+                        R))
+                  (fintype.Finite.sort C) c
+                  (@nmodule.Algebra.add
+                     (numfield.Num.RealField.Exports.Num_RealField__to__Algebra_BaseAddMagma
+                        R))
+                  true (f (@finset.setI T S (E c))))))

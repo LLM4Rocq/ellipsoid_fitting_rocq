@@ -1,0 +1,13 @@
+{
+ "title": "a comment inside a token: sat(*x*)_prob",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "follows a token with no blank between"
+ },
+ "validation_level": "checker-only",
+ "validation_note": "This committed exploit text need not compile; baseline pass demonstrates the old source checker accepting it, not a kernel-accepted false theorem."
+}

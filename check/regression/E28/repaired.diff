@@ -1,0 +1,10 @@
+diff --git a/_CoqProject b/_CoqProject
+index 1f84eac..398c070 100644
+--- a/_CoqProject
++++ b/_CoqProject
+@@ -1,4 +1,5 @@
+ -Q library GaussianAnalysis
++-Q build GaussianAnalysis.fourier
+ -Q theories EllipsoidFitting
+ -Q extension EllipsoidUniversality
+ -Q applications GaussianApplications

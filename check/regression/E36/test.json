@@ -1,0 +1,21 @@
+{
+ "title": "an unchecked-hash .pyc in scripts/__pycache__/ replaces a module that the checker loads by its path, under python3 -I -B on the repaired tree; T9 weakened as in E01",
+ "step": "make",
+ "baseline": {
+  "expect": "pass",
+  "step": "checker"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "scripts/__pycache__/rocq_lex\\.cpython-\\d+\\.pyc: not a file of SCRIPTS",
+  "step": "checker"
+ },
+ "pyc": {
+  "baseline": {
+   "scripts/export_from_ellipsoid_rocq.py": "import os\nos._exit(0)\n"
+  },
+  "repaired": {
+   "scripts/rocq_lex.py": "import os\nos._exit(0)\n"
+  }
+ }
+}

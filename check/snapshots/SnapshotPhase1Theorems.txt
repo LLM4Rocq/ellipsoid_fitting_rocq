@@ -1,0 +1,711 @@
+Module
+PaperMainResults
+:= Struct
+     Parameter paper_main_results :
+       and
+         (and
+            (forall n d : nat,
+             @measurable_structure.measurable
+               (measurable_structure.measure_tuple_display
+                  (@measurable_structure.sigma_display
+                     (classical_sets.Pointed.sort
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R)))
+                     (@measurable_structure.measurable
+                        (lebesgue_stieltjes_measure.ocitv_display
+                           (reals.Real.sort
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R)))))
+               (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+                  (@measurable_structure.sigma_display
+                     (classical_sets.Pointed.sort
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R)))
+                     (@measurable_structure.measurable
+                        (lebesgue_stieltjes_measure.ocitv_display
+                           (reals.Real.sort
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R))))
+                  (@measurable_structure.measurable_structure_g_sigma_algebraType__canonical__measurable_structure_SigmaRing
+                     (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                        (@reverse_coercion@{reals.Real.type.u0
+                           PaperMainDefinitions.paper_main_point.u0}
+                           reals.Real.type Set
+                           Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                           Rdefinitions.RbaseSymbolsImpl.R))
+                     (@measurable_structure.measurable
+                        (lebesgue_stieltjes_measure.ocitv_display
+                           (reals.Real.sort
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R))))
+                  (ssrnat.muln n d))
+               (PaperMainDefinitions.paper_main_fit_event n d))
+            (forall n : forall _ : nat, nat,
+             and
+               (forall
+                  _ : PaperMainDefinitions.paper_main_limsup_lt
+                        (PaperMainDefinitions.paper_main_density n)
+                        (Rdefinitions.Rdiv
+                           (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))
+                           (@nmodule.Algebra.natmul
+                              (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                              (rings_modules_and_algebras.GRing.one
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                              (S (S (S (S O)))))),
+                PaperMainDefinitions.paper_main_tends_to
+                  (fun d : nat =>
+                   PaperMainDefinitions.paper_main_probability 
+                     (n d) d
+                     (PaperMainDefinitions.paper_main_fit_event (n d) d))
+                  (Rdefinitions.IZR (BinNums.Zpos BinNums.xH)))
+               (forall
+                  _ : PaperMainDefinitions.paper_main_liminf_gt
+                        (PaperMainDefinitions.paper_main_density n)
+                        (Rdefinitions.Rdiv
+                           (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))
+                           (@nmodule.Algebra.natmul
+                              (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                              (rings_modules_and_algebras.GRing.one
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                              (S (S (S (S O)))))),
+                PaperMainDefinitions.paper_main_tends_to
+                  (fun d : nat =>
+                   PaperMainDefinitions.paper_main_probability 
+                     (n d) d
+                     (PaperMainDefinitions.paper_main_fit_event (n d) d))
+                  (Rdefinitions.IZR BinNums.Z0))))
+         (and
+            (forall (alpha : Rdefinitions.RbaseSymbolsImpl.R)
+               (_ : is_true
+                      (@preorder.Order.lt orderedzmod.ring_display
+                         Rstruct.RbaseSymbolsImpl_R__canonical__Order_Preorder
+                         alpha
+                         (@rings_modules_and_algebras.GRing.mul
+                            (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                               (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                  Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain))
+                            (rings_modules_and_algebras.GRing.one
+                               (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                                  (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                     Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain)))
+                            (@divalg.GRing.inv
+                               (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                  Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain)
+                               (@nmodule.Algebra.natmul
+                                  (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                                        (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                           Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain)))
+                                  (rings_modules_and_algebras.GRing.one
+                                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                                        (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                           Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain)))
+                                  (S (S (S (S O))))))))),
+             @ex Rdefinitions.RbaseSymbolsImpl.R
+               (fun lm : Rdefinitions.RbaseSymbolsImpl.R =>
+                @ex Rdefinitions.RbaseSymbolsImpl.R
+                  (fun lp : Rdefinitions.RbaseSymbolsImpl.R =>
+                   and
+                     (is_true
+                        (@preorder.Order.lt orderedzmod.ring_display
+                           (orderedzmod.Num.POrderNmodule.Exports.join_Num_POrderNmodule_between_Algebra_BaseAddUMagma_and_Order_Preorder
+                              Rstruct.RbaseSymbolsImpl_R__canonical__Num_POrderNmodule)
+                           (@nmodule.Algebra.zero
+                              (orderedzmod.Num.POrderNmodule.Exports.Num_POrderNmodule__to__Algebra_BaseAddUMagma
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__Num_POrderNmodule))
+                           lm))
+                     (and
+                        (is_true
+                           (@preorder.Order.le orderedzmod.ring_display
+                              Rstruct.RbaseSymbolsImpl_R__canonical__Order_Preorder
+                              lm lp))
+                        (and
+                           (forall n d : nat,
+                            @measurable_structure.measurable
+                              (measurable_structure.measure_tuple_display
+                                 (@measurable_structure.sigma_display
+                                    (classical_sets.Pointed.sort
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R)))
+                                    (@measurable_structure.measurable
+                                       (lebesgue_stieltjes_measure.ocitv_display
+                                          (reals.Real.sort
+                                             (@reverse_coercion@{reals.Real.type.u0
+                                                PaperMainDefinitions.paper_main_point.u0}
+                                                reals.Real.type Set
+                                                Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                                Rdefinitions.RbaseSymbolsImpl.R)))
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R)))))
+                              (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+                                 (@measurable_structure.sigma_display
+                                    (classical_sets.Pointed.sort
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R)))
+                                    (@measurable_structure.measurable
+                                       (lebesgue_stieltjes_measure.ocitv_display
+                                          (reals.Real.sort
+                                             (@reverse_coercion@{reals.Real.type.u0
+                                                PaperMainDefinitions.paper_main_point.u0}
+                                                reals.Real.type Set
+                                                Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                                Rdefinitions.RbaseSymbolsImpl.R)))
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R))))
+                                 (@measurable_structure.measurable_structure_g_sigma_algebraType__canonical__measurable_structure_SigmaRing
+                                    (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                                       (@reverse_coercion@{reals.Real.type.u0
+                                          PaperMainDefinitions.paper_main_point.u0}
+                                          reals.Real.type Set
+                                          Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                          Rdefinitions.RbaseSymbolsImpl.R))
+                                    (@measurable_structure.measurable
+                                       (lebesgue_stieltjes_measure.ocitv_display
+                                          (reals.Real.sort
+                                             (@reverse_coercion@{reals.Real.type.u0
+                                                PaperMainDefinitions.paper_main_point.u0}
+                                                reals.Real.type Set
+                                                Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                                Rdefinitions.RbaseSymbolsImpl.R)))
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R))))
+                                 (ssrnat.muln n d))
+                              (PaperMainDefinitions.paper_main_conditioned_event
+                                 n d lm lp))
+                           (forall (n : forall _ : nat, nat)
+                              (_ : PaperMainDefinitions.paper_main_limsup_le
+                                     (PaperMainDefinitions.paper_main_density
+                                        n)
+                                     alpha),
+                            PaperMainDefinitions.paper_main_tends_to
+                              (fun d : nat =>
+                               PaperMainDefinitions.paper_main_probability
+                                 (n d) d
+                                 (PaperMainDefinitions.paper_main_conditioned_event
+                                    (n d) d lm lp))
+                              (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))))))))
+            (and
+               (forall n d : nat,
+                @measurable_structure.measurable
+                  (measurable_structure.measure_tuple_display
+                     (@measurable_structure.sigma_display
+                        (classical_sets.Pointed.sort
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (@measurable_structure.measurable
+                           (lebesgue_stieltjes_measure.ocitv_display
+                              (reals.Real.sort
+                                 (@reverse_coercion@{reals.Real.type.u0
+                                    PaperMainDefinitions.paper_main_point.u0}
+                                    reals.Real.type Set
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                    Rdefinitions.RbaseSymbolsImpl.R)))
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))))
+                  (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+                     (@measurable_structure.sigma_display
+                        (classical_sets.Pointed.sort
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (@measurable_structure.measurable
+                           (lebesgue_stieltjes_measure.ocitv_display
+                              (reals.Real.sort
+                                 (@reverse_coercion@{reals.Real.type.u0
+                                    PaperMainDefinitions.paper_main_point.u0}
+                                    reals.Real.type Set
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                    Rdefinitions.RbaseSymbolsImpl.R)))
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R))))
+                     (@measurable_structure.measurable_structure_g_sigma_algebraType__canonical__measurable_structure_SigmaRing
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R))
+                        (@measurable_structure.measurable
+                           (lebesgue_stieltjes_measure.ocitv_display
+                              (reals.Real.sort
+                                 (@reverse_coercion@{reals.Real.type.u0
+                                    PaperMainDefinitions.paper_main_point.u0}
+                                    reals.Real.type Set
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                    Rdefinitions.RbaseSymbolsImpl.R)))
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R))))
+                     (ssrnat.muln n d))
+                  (PaperMainDefinitions.paper_main_balanced_pd_event n d))
+               (forall n : forall _ : nat, nat,
+                and
+                  (forall
+                     _ : PaperMainDefinitions.paper_main_limsup_lt
+                           (PaperMainDefinitions.paper_main_density n)
+                           (Rdefinitions.Rdiv
+                              (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))
+                              (@nmodule.Algebra.natmul
+                                 (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                                 (rings_modules_and_algebras.GRing.one
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                                 (S (S (S (S O)))))),
+                   PaperMainDefinitions.paper_main_tends_to
+                     (fun d : nat =>
+                      PaperMainDefinitions.paper_main_probability 
+                        (n d) d
+                        (PaperMainDefinitions.paper_main_balanced_pd_event
+                           (n d) d))
+                     (Rdefinitions.IZR BinNums.Z0))
+                  (forall
+                     _ : PaperMainDefinitions.paper_main_liminf_gt
+                           (PaperMainDefinitions.paper_main_density n)
+                           (Rdefinitions.Rdiv
+                              (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))
+                              (@nmodule.Algebra.natmul
+                                 (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                                 (rings_modules_and_algebras.GRing.one
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                                 (S (S (S (S O)))))),
+                   PaperMainDefinitions.paper_main_tends_to
+                     (fun d : nat =>
+                      PaperMainDefinitions.paper_main_probability 
+                        (n d) d
+                        (PaperMainDefinitions.paper_main_balanced_pd_event
+                           (n d) d))
+                     (Rdefinitions.IZR (BinNums.Zpos BinNums.xH)))))).
+   End
+PaperMainResults.paper_main_results
+     : and
+         (and
+            (forall n d : nat,
+             @measurable_structure.measurable
+               (measurable_structure.measure_tuple_display
+                  (@measurable_structure.sigma_display
+                     (classical_sets.Pointed.sort
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R)))
+                     (@measurable_structure.measurable
+                        (lebesgue_stieltjes_measure.ocitv_display
+                           (reals.Real.sort
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R)))))
+               (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+                  (@measurable_structure.sigma_display
+                     (classical_sets.Pointed.sort
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R)))
+                     (@measurable_structure.measurable
+                        (lebesgue_stieltjes_measure.ocitv_display
+                           (reals.Real.sort
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R))))
+                  (@measurable_structure.measurable_structure_g_sigma_algebraType__canonical__measurable_structure_SigmaRing
+                     (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                        (@reverse_coercion@{reals.Real.type.u0
+                           PaperMainDefinitions.paper_main_point.u0}
+                           reals.Real.type Set
+                           Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                           Rdefinitions.RbaseSymbolsImpl.R))
+                     (@measurable_structure.measurable
+                        (lebesgue_stieltjes_measure.ocitv_display
+                           (reals.Real.sort
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R))))
+                  (ssrnat.muln n d))
+               (PaperMainDefinitions.paper_main_fit_event n d))
+            (forall n : forall _ : nat, nat,
+             and
+               (forall
+                  _ : PaperMainDefinitions.paper_main_limsup_lt
+                        (PaperMainDefinitions.paper_main_density n)
+                        (Rdefinitions.Rdiv
+                           (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))
+                           (@nmodule.Algebra.natmul
+                              (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                              (rings_modules_and_algebras.GRing.one
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                              (S (S (S (S O)))))),
+                PaperMainDefinitions.paper_main_tends_to
+                  (fun d : nat =>
+                   PaperMainDefinitions.paper_main_probability 
+                     (n d) d
+                     (PaperMainDefinitions.paper_main_fit_event (n d) d))
+                  (Rdefinitions.IZR (BinNums.Zpos BinNums.xH)))
+               (forall
+                  _ : PaperMainDefinitions.paper_main_liminf_gt
+                        (PaperMainDefinitions.paper_main_density n)
+                        (Rdefinitions.Rdiv
+                           (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))
+                           (@nmodule.Algebra.natmul
+                              (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                              (rings_modules_and_algebras.GRing.one
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                              (S (S (S (S O)))))),
+                PaperMainDefinitions.paper_main_tends_to
+                  (fun d : nat =>
+                   PaperMainDefinitions.paper_main_probability 
+                     (n d) d
+                     (PaperMainDefinitions.paper_main_fit_event (n d) d))
+                  (Rdefinitions.IZR BinNums.Z0))))
+         (and
+            (forall (alpha : Rdefinitions.RbaseSymbolsImpl.R)
+               (_ : is_true
+                      (@preorder.Order.lt orderedzmod.ring_display
+                         Rstruct.RbaseSymbolsImpl_R__canonical__Order_Preorder
+                         alpha
+                         (@rings_modules_and_algebras.GRing.mul
+                            (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                               (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                  Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain))
+                            (rings_modules_and_algebras.GRing.one
+                               (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                                  (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                     Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain)))
+                            (@divalg.GRing.inv
+                               (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                  Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain)
+                               (@nmodule.Algebra.natmul
+                                  (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                                        (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                           Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain)))
+                                  (rings_modules_and_algebras.GRing.one
+                                     (divalg.GRing.UnitRing.Exports.GRing_UnitRing__to__GRing_PzSemiRing
+                                        (numdomain.Num.NumDomain.Exports.join_Num_NumDomain_between_Order_Preorder_and_GRing_UnitRing
+                                           Rstruct.RbaseSymbolsImpl_R__canonical__Num_NumDomain)))
+                                  (S (S (S (S O))))))))),
+             @ex Rdefinitions.RbaseSymbolsImpl.R
+               (fun lm : Rdefinitions.RbaseSymbolsImpl.R =>
+                @ex Rdefinitions.RbaseSymbolsImpl.R
+                  (fun lp : Rdefinitions.RbaseSymbolsImpl.R =>
+                   and
+                     (is_true
+                        (@preorder.Order.lt orderedzmod.ring_display
+                           (orderedzmod.Num.POrderNmodule.Exports.join_Num_POrderNmodule_between_Algebra_BaseAddUMagma_and_Order_Preorder
+                              Rstruct.RbaseSymbolsImpl_R__canonical__Num_POrderNmodule)
+                           (@nmodule.Algebra.zero
+                              (orderedzmod.Num.POrderNmodule.Exports.Num_POrderNmodule__to__Algebra_BaseAddUMagma
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__Num_POrderNmodule))
+                           lm))
+                     (and
+                        (is_true
+                           (@preorder.Order.le orderedzmod.ring_display
+                              Rstruct.RbaseSymbolsImpl_R__canonical__Order_Preorder
+                              lm lp))
+                        (and
+                           (forall n d : nat,
+                            @measurable_structure.measurable
+                              (measurable_structure.measure_tuple_display
+                                 (@measurable_structure.sigma_display
+                                    (classical_sets.Pointed.sort
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R)))
+                                    (@measurable_structure.measurable
+                                       (lebesgue_stieltjes_measure.ocitv_display
+                                          (reals.Real.sort
+                                             (@reverse_coercion@{reals.Real.type.u0
+                                                PaperMainDefinitions.paper_main_point.u0}
+                                                reals.Real.type Set
+                                                Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                                Rdefinitions.RbaseSymbolsImpl.R)))
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R)))))
+                              (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+                                 (@measurable_structure.sigma_display
+                                    (classical_sets.Pointed.sort
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R)))
+                                    (@measurable_structure.measurable
+                                       (lebesgue_stieltjes_measure.ocitv_display
+                                          (reals.Real.sort
+                                             (@reverse_coercion@{reals.Real.type.u0
+                                                PaperMainDefinitions.paper_main_point.u0}
+                                                reals.Real.type Set
+                                                Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                                Rdefinitions.RbaseSymbolsImpl.R)))
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R))))
+                                 (@measurable_structure.measurable_structure_g_sigma_algebraType__canonical__measurable_structure_SigmaRing
+                                    (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                                       (@reverse_coercion@{reals.Real.type.u0
+                                          PaperMainDefinitions.paper_main_point.u0}
+                                          reals.Real.type Set
+                                          Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                          Rdefinitions.RbaseSymbolsImpl.R))
+                                    (@measurable_structure.measurable
+                                       (lebesgue_stieltjes_measure.ocitv_display
+                                          (reals.Real.sort
+                                             (@reverse_coercion@{reals.Real.type.u0
+                                                PaperMainDefinitions.paper_main_point.u0}
+                                                reals.Real.type Set
+                                                Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                                Rdefinitions.RbaseSymbolsImpl.R)))
+                                       (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                                          (@reverse_coercion@{reals.Real.type.u0
+                                             PaperMainDefinitions.paper_main_point.u0}
+                                             reals.Real.type Set
+                                             Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                             Rdefinitions.RbaseSymbolsImpl.R))))
+                                 (ssrnat.muln n d))
+                              (PaperMainDefinitions.paper_main_conditioned_event
+                                 n d lm lp))
+                           (forall (n : forall _ : nat, nat)
+                              (_ : PaperMainDefinitions.paper_main_limsup_le
+                                     (PaperMainDefinitions.paper_main_density
+                                        n)
+                                     alpha),
+                            PaperMainDefinitions.paper_main_tends_to
+                              (fun d : nat =>
+                               PaperMainDefinitions.paper_main_probability
+                                 (n d) d
+                                 (PaperMainDefinitions.paper_main_conditioned_event
+                                    (n d) d lm lp))
+                              (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))))))))
+            (and
+               (forall n d : nat,
+                @measurable_structure.measurable
+                  (measurable_structure.measure_tuple_display
+                     (@measurable_structure.sigma_display
+                        (classical_sets.Pointed.sort
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (@measurable_structure.measurable
+                           (lebesgue_stieltjes_measure.ocitv_display
+                              (reals.Real.sort
+                                 (@reverse_coercion@{reals.Real.type.u0
+                                    PaperMainDefinitions.paper_main_point.u0}
+                                    reals.Real.type Set
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                    Rdefinitions.RbaseSymbolsImpl.R)))
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))))
+                  (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+                     (@measurable_structure.sigma_display
+                        (classical_sets.Pointed.sort
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R)))
+                        (@measurable_structure.measurable
+                           (lebesgue_stieltjes_measure.ocitv_display
+                              (reals.Real.sort
+                                 (@reverse_coercion@{reals.Real.type.u0
+                                    PaperMainDefinitions.paper_main_point.u0}
+                                    reals.Real.type Set
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                    Rdefinitions.RbaseSymbolsImpl.R)))
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R))))
+                     (@measurable_structure.measurable_structure_g_sigma_algebraType__canonical__measurable_structure_SigmaRing
+                        (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__classical_sets_Pointed
+                           (@reverse_coercion@{reals.Real.type.u0
+                              PaperMainDefinitions.paper_main_point.u0}
+                              reals.Real.type Set
+                              Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                              Rdefinitions.RbaseSymbolsImpl.R))
+                        (@measurable_structure.measurable
+                           (lebesgue_stieltjes_measure.ocitv_display
+                              (reals.Real.sort
+                                 (@reverse_coercion@{reals.Real.type.u0
+                                    PaperMainDefinitions.paper_main_point.u0}
+                                    reals.Real.type Set
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                    Rdefinitions.RbaseSymbolsImpl.R)))
+                           (lebesgue_stieltjes_measure.lebesgue_stieltjes_measure_ocitv_type__canonical__measurable_structure_SemiRingOfSets
+                              (@reverse_coercion@{reals.Real.type.u0
+                                 PaperMainDefinitions.paper_main_point.u0}
+                                 reals.Real.type Set
+                                 Rstruct.RbaseSymbolsImpl_R__canonical__reals_Real
+                                 Rdefinitions.RbaseSymbolsImpl.R))))
+                     (ssrnat.muln n d))
+                  (PaperMainDefinitions.paper_main_balanced_pd_event n d))
+               (forall n : forall _ : nat, nat,
+                and
+                  (forall
+                     _ : PaperMainDefinitions.paper_main_limsup_lt
+                           (PaperMainDefinitions.paper_main_density n)
+                           (Rdefinitions.Rdiv
+                              (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))
+                              (@nmodule.Algebra.natmul
+                                 (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                                 (rings_modules_and_algebras.GRing.one
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                                 (S (S (S (S O)))))),
+                   PaperMainDefinitions.paper_main_tends_to
+                     (fun d : nat =>
+                      PaperMainDefinitions.paper_main_probability 
+                        (n d) d
+                        (PaperMainDefinitions.paper_main_balanced_pd_event
+                           (n d) d))
+                     (Rdefinitions.IZR BinNums.Z0))
+                  (forall
+                     _ : PaperMainDefinitions.paper_main_liminf_gt
+                           (PaperMainDefinitions.paper_main_density n)
+                           (Rdefinitions.Rdiv
+                              (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))
+                              (@nmodule.Algebra.natmul
+                                 (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                                 (rings_modules_and_algebras.GRing.one
+                                    Rstruct.RbaseSymbolsImpl_R__canonical__GRing_PzSemiRing)
+                                 (S (S (S (S O)))))),
+                   PaperMainDefinitions.paper_main_tends_to
+                     (fun d : nat =>
+                      PaperMainDefinitions.paper_main_probability 
+                        (n d) d
+                        (PaperMainDefinitions.paper_main_balanced_pd_event
+                           (n d) d))
+                     (Rdefinitions.IZR (BinNums.Zpos BinNums.xH))))))
+Module
+MainTheorem
+:= Struct
+     Parameter ellipsoid_fitting_main : MainStatement.main_statement.
+   End
+MainTheorem.ellipsoid_fitting_main
+     : MainStatement.main_statement

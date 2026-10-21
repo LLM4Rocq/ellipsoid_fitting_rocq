@@ -1,0 +1,32 @@
+diff --git a/applications/PsdRank/Main.v b/applications/PsdRank/Main.v
+index 73cf698..c041072 100644
+--- a/applications/PsdRank/Main.v
++++ b/applications/PsdRank/Main.v
+@@ -94,7 +94,7 @@ Variable R : realType.
+ 
+ (* The square of the norm of a sum of k matrices is at most k times the sum
+    of the squares of their norms. *)
+-Lemma mxdot_sum_le m n (I : finType) (P : pred I) (X : I -> 'M[R]_(m, n)) :
++Lemma mxdot_sum_le m n (I : Finite.type) (P : pred I) (X : I -> 'M[R]_(m, n)) :
+   mxdot (\sum_(i | P i) X i) (\sum_(i | P i) X i) <=
+   #|P|%:R * \sum_(i | P i) mxdot (X i) (X i).
+ Proof.
+@@ -145,7 +145,7 @@ by rewrite !mxE -expr2 sqr_sqrtr.
+ Qed.
+ 
+ (* tr ((sum_q H_q^T H_q) B^T B) = sum_q |H_q B^T|^2. *)
+-Lemma mxtrace_gram_sum (I : finType) m k n (H : I -> 'M[R]_(m, n))
++Lemma mxtrace_gram_sum (I : Finite.type) m k n (H : I -> 'M[R]_(m, n))
+     (B : 'M[R]_(k, n)) :
+   \tr ((\sum_q (H q)^T *m H q) *m (B^T *m B)) =
+   \sum_q mxdot (H q *m B^T) (H q *m B^T).
+diff --git a/library/fourier/product_smoothing.v b/library/fourier/product_smoothing.v
+index ae6c35d..3b65dd4 100644
+--- a/library/fourier/product_smoothing.v
++++ b/library/fourier/product_smoothing.v
+@@ -1203,3 +1203,5 @@ move=> mu1 nu1; split=> [i|i|i m y|i y x|i y g]; [exact: mu1|exact: nu1|
+   exact: mu1|by rewrite -mulr_suml (nu1 i).2 mul1r|].
+ by under eq_bigr do rewrite subrr expr2 !mulr0; rewrite big1 // mul0r.
+ Qed.
++
++Definition finType := finCTBDistrLatticeType (Order.Disp tt tt).

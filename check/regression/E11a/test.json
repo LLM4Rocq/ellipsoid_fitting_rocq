@@ -1,0 +1,12 @@
+{
+ "title": "T11 narrowed by a notation named finType at the end of product_smoothing.v",
+ "step": "make",
+ "baseline": {
+  "expect": "pass",
+  "step": "checker"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "the snapshot differs from check/snapshots/SnapshotPhase13.txt"
+ }
+}

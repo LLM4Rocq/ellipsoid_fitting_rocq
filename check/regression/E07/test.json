@@ -1,0 +1,12 @@
+{
+ "title": "the commands of make check turned into shell comments, a broken check file, old outputs kept",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "Makefile: differs from the content fixed by FIXED_FILES",
+  "step": "checker"
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "title": "a force-committed .vo",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "a build product is tracked by git"
+ },
+ "track": [
+  "library/fourier/inversion.vo"
+ ]
+}

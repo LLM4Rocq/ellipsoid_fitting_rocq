@@ -1,0 +1,12 @@
+diff --git a/check/snapshots/SnapshotPhase12Batch2.v b/check/snapshots/SnapshotPhase12Batch2.v
+index f471b64..2140055 100644
+--- a/check/snapshots/SnapshotPhase12Batch2.v
++++ b/check/snapshots/SnapshotPhase12Batch2.v
+@@ -13,7 +13,6 @@ Require GaussianApplications.SatVarianceStatement.
+ 
+ Set Printing All.
+ Set Printing Universes.
+-Set Printing Depth 1000000.
+ Set Printing Width 78.
+ 
+ Print Module GaussianApplications.TensorPackingStatement.

@@ -1,0 +1,12 @@
+diff --git a/_CoqProject b/_CoqProject
+index 59cfa79..669ac75 100644
+--- a/_CoqProject
++++ b/_CoqProject
+@@ -6,6 +6,7 @@
+ -arg -w -arg -ambiguous-paths
+ -arg -w -arg -notation-incompatible-prefix
+ -arg -w -arg -hiding-delimiting-key
++-arg -impredicative-set
+ 
+ library/gaussian/measurable_matrix.v
+ library/gaussian/normal_integral.v

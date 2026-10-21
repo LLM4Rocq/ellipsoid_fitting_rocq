@@ -1,0 +1,18 @@
+{
+ "title": "an rc file at the default place under HOME (.config/coq/coqrc), which no variable of the environment names, is loaded by every compilation without -q",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "pass",
+  "marker": false
+ },
+ "environment": {
+  "HOME": "@BUILD@/e26home"
+ },
+ "files": {
+  "e26home/.config/coq/coqrc": "From elpi Require Import elpi.\nElpi Command rc_marker.\nElpi Accumulate lp:{{ main _ :- system \"touch build/e26b-rc-ran\" _. }}.\nElpi rc_marker.\n"
+ },
+ "marker": "e26b-rc-ran"
+}

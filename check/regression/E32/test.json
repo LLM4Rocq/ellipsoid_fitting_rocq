@@ -1,0 +1,14 @@
+{
+ "title": "a form feed in the frozen T9 statement that str.split collapses but code() keeps",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass",
+  "step": "checker"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "code differs from"
+ },
+ "validation_level": "checker-only",
+ "validation_note": "This committed exploit text need not compile; baseline pass demonstrates the old source checker accepting it, not a kernel-accepted false theorem."
+}

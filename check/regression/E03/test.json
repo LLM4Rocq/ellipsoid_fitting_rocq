@@ -1,0 +1,13 @@
+{
+ "title": "the pinned section lambda_max hidden, a new section over the unit ball",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "the Require commands or the section lambda_max differ|no section lambda_max|a \\*\\) in a string inside a comment closes no"
+ },
+ "validation_level": "checker-only",
+ "validation_note": "This committed exploit text need not compile; baseline pass demonstrates the old source checker accepting it, not a kernel-accepted false theorem."
+}

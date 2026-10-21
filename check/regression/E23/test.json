@@ -1,0 +1,13 @@
+{
+ "title": "a snapshot printed with the default depth (elision)",
+ "step": "make",
+ "baseline": {
+  "expect": "skip",
+  "reason": "no snapshot exists before the repair"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "the elision token|code differs from the code fixed by NEW_CHECK_CODE",
+  "step": "checker"
+ }
+}

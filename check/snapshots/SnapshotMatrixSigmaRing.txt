@@ -1,0 +1,39 @@
+@MatrixSigmaRing.matrix_sigma_ring_characterization ?dT
+     : forall (T : measurable_structure.Measurable.type ?dT) (m n : nat),
+       @eq
+         (classical_sets.set
+            (classical_sets.set
+               (@measurable_structure.SemiRingOfSets.sort
+                  (measurable_matrix.measure_matrix_display ?dT)
+                  (@measurable_structure.SigmaRing.Exports.measurable_structure_SigmaRing__to__measurable_structure_SemiRingOfSets
+                     (measurable_matrix.measure_matrix_display ?dT)
+                     (@measurable_matrix.matrix_matrix__canonical__measurable_structure_SigmaRing
+                        ?dT
+                        (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                           ?dT T)
+                        m n)))))
+         (@measurable_structure.measurable
+            (measurable_matrix.measure_matrix_display ?dT)
+            (@measurable_structure.SigmaRing.Exports.measurable_structure_SigmaRing__to__measurable_structure_SemiRingOfSets
+               (measurable_matrix.measure_matrix_display ?dT)
+               (@measurable_matrix.matrix_matrix__canonical__measurable_structure_SigmaRing
+                  ?dT
+                  (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                     ?dT T)
+                  m n)))
+         (@measurable_structure.measurable
+            (measurable_matrix.measure_matrix_display ?dT)
+            (@reverse_coercion@{measurable_structure.SemiRingOfSets.type.u0
+               MatrixSigmaRing.matrix_sigma_ring_characterization.u0}
+               (measurable_structure.SemiRingOfSets.type
+                  (measurable_matrix.measure_matrix_display ?dT))
+               ssrbool.predArgType
+               (@measurable_matrix.matrix_matrix__canonical__measurable_structure_SemiRingOfSets
+                  ?dT
+                  (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                     ?dT T)
+                  m n)
+               (matrix.matrix (@measurable_structure.Measurable.sort ?dT T) m
+                  n)))
+where
+?dT : [ |- measurable_structure.measure_display]

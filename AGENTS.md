@@ -2086,6 +2086,137 @@ Phase 13 is done when the following hold:
 - the README rows cover every new file;
 - `main` is tagged `phase13` at the checked pin commit.
 
+### The checker repair and the release
+
+On 15 October 2026 the user held the release of phase 13 until the
+checking machinery was repaired. The specification is
+`/srv/ellipsoid-fitting/reviews/phase13-checker-repair.md`. The work
+resumed on the VM on 20 October, under the user's decisions in
+`/srv/ellipsoid-fitting/runtime/coordinator/resume-2026-10-19/DECISIONS.md`
+and the plan
+`/srv/ellipsoid-fitting/reviews/project-audit-and-resume-plan-2026-10-19.md`
+(Part B). This subsection replaces that directory's `RULES-IN-FORCE.md`.
+Where it differs from any other section of this file, the section
+"Building" included, it prevails.
+
+- **Scope of the exception.** It covers:
+  - `scripts/check_sources.py`, the new files of `scripts/` and `check/`,
+    the `Makefile`, the option lines of `_CoqProject`, and the files of
+    commit P;
+  - no historical check file or baseline.
+- **The pin (decision Q10).** The pin of step 0 item 5 and of the done
+  criterion compares the ten new check files with the repair commit, not
+  with P: the four theorem check files, their four expected lists,
+  `check/Phase13Definitions.v` and `check/LibraryStatements.v`. The repair
+  report shows each file's diff against P (624da5f). The same pin compares
+  the repaired machinery byte for byte with the repair commit: every
+  script other than `scripts/check_sources.py`, the `Makefile`, the check
+  files that the repair added, and every file of `check/identity/`,
+  `check/snapshots/` and `check/regression/`. Agent 1 records the new
+  hash of `scripts/check_sources.py` in the fingerprint record. The tag
+  `phase13` goes on the checked pin commit.
+- **The check command.** The authoritative command is
+  `make -f Makefile check`. make reads a `GNUmakefile` or a `makefile`
+  before the `Makefile`; the checker refuses both, but only the explicit
+  `-f Makefile` runs it whatever files the tree holds.
+- **The repaired protocol.**
+  - `make -f Makefile check` first runs `scripts/check_sources.py
+    --before-build`, which applies every rule that reads only the
+    sources and stops before anything compiles.
+  - It then builds and runs the checker again. The checker creates a run
+    identifier and starts `scripts/run_checks.py`, which compiles the
+    check files of `CHECK_FILES` into `build/checks/`, runs `rocqchk` on
+    every module, and writes a manifest.
+  - The checker reads only the outputs that the manifest lists.
+  - Every source is read as Rocq reads it, by `scripts/rocq_lex.py`.
+  - The statement snapshots of `check/snapshots/` must equal their
+    references, taken from builds of the acceptance commits.
+  - The identity drivers of `check/identity/` must give the same kernel
+    names at every position of every frozen or accepted declaration as
+    at those commits (E42).
+  - The machinery and its reference data have fixed SHA-256 values.
+    Agent 1 keeps an external fingerprint record of them,
+    `/srv/ellipsoid-fitting/runtime/agent1/machinery-hashes.txt`.
+- **The exceptions of the exporter** (decision Q20):
+  - the exact sentence `Declare ML Module "kernel_identity".` is allowed
+    only in the 18 hash-pinned drivers `check/identity/Identity<Name>.v`;
+  - `OCAMLPATH` is set to the findlib directory of the exporter just
+    built, and only for the compilations of those drivers, by
+    `scripts/run_checks.py` and by the `identities` and
+    `identities-verify` commands of `scripts/snapshot_baselines.py`.
+- **The environment.** Every compiling or checking command runs without
+  the variables that can change what Rocq loads and without any variable
+  whose name starts with `OCAML` or `CAML`. `scripts/run_checks.py` and
+  `scripts/snapshot_baselines.py` refuse to start when one is set, and
+  the Makefile's clean environment drops them. On the VM, prefix each
+  command, inside the container, with:
+
+  ```
+  env -u ROCQPATH -u COQPATH -u ROCQLIB -u COQLIB -u OCAMLPATH \
+    -u CAML_LD_LIBRARY_PATH -u ROCQRC -u COQRC -u XDG_CONFIG_HOME \
+    -u COQFLAGS -u COQEXTRAFLAGS -u OTHERFLAGS -u COQ_SRC_SUBDIRS \
+    -u COQCHKEXTRAFLAGS \
+    $(env | sed -n "s/^\(OCAML[A-Za-z0-9_]*\|CAML[A-Za-z0-9_]*\)=.*/-u \1/p")
+  ```
+- **Building.** Every `make`, `rocq` or `python3` command that compiles
+  or checks runs through `/srv/ellipsoid-fitting/environment/proof-shell.sh
+  <clone>`, one at a time per clone, with its scratch under that clone's
+  ignored `build/`. Use `JOBS=3` everywhere, by hand as in the regression
+  driver (decision Q9): with `JOBS=4`, a fresh full build exceeds the
+  12 GiB of the container. The `Makefile`'s default `JOBS ?= 4` is not
+  used.
+- **The shifted work.** The shifted Gaussian work of 16 October, frozen
+  on the user's machine, reaches `main` only at step 18 of the plan,
+  after the `phase13` pin. No lane drafts, proves or commits anything
+  shifted before that, and nobody creates `extension/Shifted` on the VM.
+  Step 18 may change `theories/`, `extension/` and the repaired checker
+  only as the shifted plan allows, on the user's explicit word.
+- **Pushes and the release** (the user's conditions of 20 October,
+  17:32, in `DECISIONS.md`). No push of `main` or of a tag without the
+  user's word, given directly or relayed by the coordinator. The user
+  accepts the repair after agent 1's final review and its check of the
+  tested tree. The master then commits the repair on `lane/c` with the
+  tested tree, and makes the pin commit; the full hash of each is
+  recorded. Nothing is pushed, and `main` does not move, until all of
+  these pass:
+  - agent 1's review of the actual pin diff: only the authorized changes,
+    the pins of the scripts that had no fixed hash, and the limits of
+    the repair kept explicit in `README.md`;
+  - a final verification by the master: a fresh clone, the pin commit
+    built from scratch, `make -f Makefile check`, then the repaired-side
+    regression campaign on that same commit;
+  - agent 1's own `make -f Makefile check` in a fresh clone of the pin
+    commit;
+  - the step 19 agreement of the two sides.
+
+  Every verification record names the exact commit it checked. Then the
+  master pushes `lane/c`, fast-forwards `main` to the pin commit in
+  `integration`, places the annotated tag `phase13` and pushes `main` and
+  the tag: this is pre-authorized. Any failure, or any possibility of a
+  false pass that the reviews cannot rule out, stops the work and goes to
+  the user; the documented limits of coverage do not. Nothing goes to
+  GitHub from the VM, and any push by the coordinator needs the user's
+  word each time.
+- **Roles.** Agent 1 implements no part of the checker, so that its
+  reviews stay independent, and keeps the fingerprint record. Agent 2
+  takes no checker, lexer, regression or exploit work. No agent starts,
+  restarts or clears a session, or changes a model or an account: the
+  coordinator or the user does.
+- **Sharing the VM.** The VM also runs the graph-theory-rocq project.
+  - Never look into or touch `/srv/graph-theory-rocq`, its tmux sessions
+    (`gt-*`), its containers or its runtime.
+  - Never stop or reboot the VM, restart Docker, run `apt upgrade` or
+    `docker kill`, or delete Docker images; `docker builder prune` only
+    on the user's word.
+  - Our tmux sessions are `lancelot`, `arthur` and `marcol`; never type
+    into any other.
+  - In another agent's clone, run `git status` only with
+    `--no-optional-locks`.
+  - The three Claude accounts are shared with the graph-theory agents.
+- **The user.** Requests and status for the user, and a usage limit that
+  stops an agent, go dated to
+  `/srv/ellipsoid-fitting/runtime/coordinator/resume-2026-10-19/requests-to-user.md`.
+
 ## Bridging Stdlib's `R` and the library
 
 At Stdlib's `R`, MathComp's `+ - * / ^-1` are Stdlib's operations up to
@@ -2101,17 +2232,20 @@ never go in `library/`.
 
 - Use the switch `rocq-analysis` (Rocq 9.1.1, MathComp 2.6.0,
   MathComp-Analysis 1.16.0). Inside a container where those binaries are on
-  `PATH`, use `make check ROCQ_SWITCH=`. Never install or upgrade packages;
-  if one seems necessary, ask the user.
+  `PATH`, use `make -f Makefile check ROCQ_SWITCH= JOBS=3`. Never install
+  or upgrade packages; if one seems necessary, ask the user.
 - On the VM, this toolchain exists only in the pinned Docker image. The
   host's opam switches are older; never use them. Run every `make` and
   `rocq` command through the wrapper, with the name of the clone, from that
-  clone:
-  `/srv/ellipsoid-fitting/environment/proof-shell.sh agent2 make check ROCQ_SWITCH= JOBS=4`.
+  clone, with the environment prefix of the subsection "The checker
+  repair and the release":
+  `/srv/ellipsoid-fitting/environment/proof-shell.sh agent2 make -f Makefile check ROCQ_SWITCH= JOBS=3`.
   It mounts that clone writable and the rest of `/srv/ellipsoid-fitting/`
   read-only, with 4 CPUs and 12 GiB.
-- On a 16-vCPU machine shared by three agents, use `JOBS=4`. On a Mac with
-  16 cores and `JOBS=12`, a full build took 13 minutes; expect longer here.
+- On the VM, shared by three agents and another project, use `JOBS=3`:
+  with `JOBS=4`, a fresh full build exceeds the 12 GiB of the container.
+  On a Mac with 16 cores and `JOBS=12`, a full build took 13 minutes;
+  expect longer here.
 - `make build` recompiles only what changed and what depends on it.
 - Each agent has its own clone and its own build. Never share `.vo` files.
 - `.mcp.json` starts `rocq-mcp-evolve` in the switch `rocq-analysis`. On

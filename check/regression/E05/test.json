@@ -1,0 +1,13 @@
+{
+ "title": "U+00A0 after psdmx in the frozen T10 statement",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "non-ASCII character U\\+00A0|code differs from 46e45c84b99a"
+ },
+ "validation_level": "checker-only",
+ "validation_note": "This committed exploit text need not compile; baseline pass demonstrates the old source checker accepting it, not a kernel-accepted false theorem."
+}

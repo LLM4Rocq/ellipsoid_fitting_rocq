@@ -1,0 +1,12 @@
+{
+ "title": "a GNUmakefile, which make reads before the Makefile, replaces make check; T9 weakened as in E01",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "GNUmakefile: must not exist",
+  "step": "checker"
+ }
+}

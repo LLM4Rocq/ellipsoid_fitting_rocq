@@ -1,0 +1,179 @@
+(* The statement snapshot SnapshotPhase13 (scripts/check_sources.py, rule 30):
+   the declarations accepted at 46e45c84b99a, printed in full. Written
+   by scripts/snapshot_baselines.py; its reference, the output at that
+   commit, is check/snapshots/SnapshotPhase13.txt. *)
+
+Require GaussianApplications.SatThresholdDefinitions.
+Require GaussianApplications.SatThresholdStatement.
+Require GaussianApplications.MinSuperadditiveStatement.
+Require GaussianApplications.PsdNormalizationStatement.
+Require GaussianApplications.ProductSmoothingStatement.
+Require GaussianApplications.PsdRankDefinitions.
+Require GaussianApplications.PsdRankStatement.
+Require Checks.LibraryStatements.
+
+Set Printing All.
+Set Printing Universes.
+Set Printing Depth 1000000.
+Set Printing Width 78.
+
+Print Module GaussianApplications.SatThresholdDefinitions.
+Print GaussianApplications.SatThresholdDefinitions.sat_prob.
+Print Module GaussianApplications.SatThresholdStatement.
+Print GaussianApplications.SatThresholdStatement.sat_threshold_statement.
+Print Module GaussianApplications.MinSuperadditiveStatement.
+Print GaussianApplications.MinSuperadditiveStatement.min_superadditive_statement.
+Print Module GaussianApplications.PsdNormalizationStatement.
+Print GaussianApplications.PsdNormalizationStatement.psd_normalization_statement.
+Print Module GaussianApplications.ProductSmoothingStatement.
+Print GaussianApplications.ProductSmoothingStatement.product_smoothing_statement.
+Print Module GaussianApplications.PsdRankDefinitions.
+Print GaussianApplications.PsdRankDefinitions.kn_edge.
+Print GaussianApplications.PsdRankDefinitions.edge_cut.
+Print GaussianApplications.PsdRankDefinitions.is_perfect_matching.
+Print GaussianApplications.PsdRankDefinitions.perfect_matching.
+Print GaussianApplications.PsdRankDefinitions.odd_set.
+Print GaussianApplications.PsdRankDefinitions.crossing.
+Print GaussianApplications.PsdRankDefinitions.shifted_matching_mx.
+Print Module GaussianApplications.PsdRankStatement.
+Print GaussianApplications.PsdRankStatement.psd_rank_statement.
+Check Checks.LibraryStatements.accepted_finite_mean.unif_mean_union_accepted.
+Check Checks.LibraryStatements.accepted_finite_mean.unif_mean_indicatorN_accepted.
+Check Checks.LibraryStatements.accepted_finite_mean.unif_mean_markov_accepted.
+Check Checks.LibraryStatements.accepted_finite_mean.unif_mean_cutoff_accepted.
+Check Checks.LibraryStatements.accepted_finite_mean.unif_chebyshev_accepted.
+Check Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_ord_accepted.
+Check Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_set_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_mean0_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_meanS_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.eq_binomial_mean_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_cst_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_meanD_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_meanZ_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.ler_binomial_mean_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_id_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_sqr_dev_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_chebyshev_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_last_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_trials_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.unif_mean_binomial_mean_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.binomial_meanE_accepted.
+Check Checks.LibraryStatements.accepted_binomial_mean.integral_binomial_mean_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.homo_iter_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.iter_le_subcomm_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.monotone_iter_le_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.iter_scale_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.iter_mix_binomial_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.binomial_mix_le_iter_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.meet_avg_linear_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.meet_avg_monotone_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.meet_avg_cst_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.meet_avgC_accepted.
+Check Checks.LibraryStatements.accepted_commuting_operators.iter_meet_avg_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.bchar_algebra_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.bchar_orthogonal_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.bchar_delta_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_metric_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.fcoef_inversion_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.fcoef_expansion_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.fcoef_plancherel_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.fcoef_linear_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.fcoef_comp_linear_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.fcoef_mulmx_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.fcoef_norm_le_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.fcoef_translate_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_expansion_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_translate_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_row_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.bchar_col_mx_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.blk_col_mx_accepted.
+Check Checks.LibraryStatements.accepted_boolean_fourier.fcoef_col_mx_accepted.
+Check Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_ge0_accepted.
+Check Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_size_gt0_accepted.
+Check Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_restrict_accepted.
+Check Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_widen_accepted.
+Check Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_shift_accepted.
+Check Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_nonneg_accepted.
+Check Checks.LibraryStatements.accepted_binomial_bounds.central_bin_le_accepted.
+Check Checks.LibraryStatements.accepted_binomial_bounds.central_bin_ge_accepted.
+Check Checks.LibraryStatements.accepted_binomial_bounds.half_bin_ge_accepted.
+Check Checks.LibraryStatements.accepted_binomial_bounds.leq_bin_half_accepted.
+Check Checks.LibraryStatements.accepted_binomial_bounds.bin_near_half_accepted.
+Check Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_central_accepted.
+Check Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_ratio_accepted.
+Check Checks.LibraryStatements.accepted_binomial_bounds.bin_partial_sum_accepted.
+Check Checks.LibraryStatements.accepted_psd_duality.psd_eval_cone_closed_accepted.
+Check Checks.LibraryStatements.accepted_psd_duality.psdmx_dual_accepted.
+Check Checks.LibraryStatements.accepted_psd_duality.psd_farkas_accepted.
+Check Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_accepted.
+Check Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_affine_accepted.
+Check @GaussianAnalysis.probability.finite_mean.unif_mean_union.
+Check @GaussianAnalysis.probability.finite_mean.unif_mean_indicatorN.
+Check @GaussianAnalysis.probability.finite_mean.unif_mean_markov.
+Check @GaussianAnalysis.probability.finite_mean.unif_mean_cutoff.
+Check @GaussianAnalysis.probability.finite_mean.unif_chebyshev.
+Check @GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_ord.
+Check @GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_set.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_mean0.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_meanS.
+Check @GaussianAnalysis.probability.binomial_mean.eq_binomial_mean.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_mean_cst.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_meanD.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_meanZ.
+Check @GaussianAnalysis.probability.binomial_mean.ler_binomial_mean.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_mean_id.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_mean_sqr_dev.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_chebyshev.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_mean_last.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_mean_trials.
+Check @GaussianAnalysis.probability.binomial_mean.unif_mean_binomial_mean.
+Check @GaussianAnalysis.probability.binomial_mean.binomial_meanE.
+Check @GaussianAnalysis.probability.binomial_mean.integral_binomial_mean.
+Check @GaussianAnalysis.probability.commuting_operators.homo_iter.
+Check @GaussianAnalysis.probability.commuting_operators.iter_le_subcomm.
+Check @GaussianAnalysis.probability.commuting_operators.monotone_iter_le.
+Check @GaussianAnalysis.probability.commuting_operators.iter_scale.
+Check @GaussianAnalysis.probability.commuting_operators.iter_mix_binomial.
+Check @GaussianAnalysis.probability.commuting_operators.binomial_mix_le_iter.
+Check @GaussianAnalysis.probability.commuting_operators.meet_avg_linear.
+Check @GaussianAnalysis.probability.commuting_operators.meet_avg_monotone.
+Check @GaussianAnalysis.probability.commuting_operators.meet_avg_cst.
+Check @GaussianAnalysis.probability.commuting_operators.meet_avgC.
+Check @GaussianAnalysis.probability.commuting_operators.iter_meet_avg.
+Check @GaussianAnalysis.fourier.boolean_fourier.bchar_algebra.
+Check @GaussianAnalysis.fourier.boolean_fourier.bchar_orthogonal.
+Check @GaussianAnalysis.fourier.boolean_fourier.bchar_delta.
+Check @GaussianAnalysis.fourier.boolean_fourier.blk_dist_metric.
+Check @GaussianAnalysis.fourier.boolean_fourier.fcoef_inversion.
+Check @GaussianAnalysis.fourier.boolean_fourier.fcoef_expansion.
+Check @GaussianAnalysis.fourier.boolean_fourier.fcoef_plancherel.
+Check @GaussianAnalysis.fourier.boolean_fourier.fcoef_linear.
+Check @GaussianAnalysis.fourier.boolean_fourier.fcoef_comp_linear.
+Check @GaussianAnalysis.fourier.boolean_fourier.fcoef_mulmx.
+Check @GaussianAnalysis.fourier.boolean_fourier.fcoef_norm_le.
+Check @GaussianAnalysis.fourier.boolean_fourier.fcoef_translate.
+Check @GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_expansion.
+Check @GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_translate.
+Check @GaussianAnalysis.fourier.boolean_fourier.blk_dist_row.
+Check @GaussianAnalysis.fourier.boolean_fourier.bchar_col_mx.
+Check @GaussianAnalysis.fourier.boolean_fourier.blk_col_mx.
+Check @GaussianAnalysis.fourier.boolean_fourier.fcoef_col_mx.
+Check @GaussianAnalysis.matrix.psd_factorization.psd_factorization_ge0.
+Check @GaussianAnalysis.matrix.psd_factorization.psd_factorization_size_gt0.
+Check @GaussianAnalysis.matrix.psd_factorization.psd_factorization_restrict.
+Check @GaussianAnalysis.matrix.psd_factorization.psd_factorization_widen.
+Check @GaussianAnalysis.matrix.psd_factorization.psd_factorization_shift.
+Check @GaussianAnalysis.matrix.psd_factorization.psd_factorization_nonneg.
+Check @GaussianAnalysis.combinatorics.binomial_bounds.central_bin_le.
+Check @GaussianAnalysis.combinatorics.binomial_bounds.central_bin_ge.
+Check @GaussianAnalysis.combinatorics.binomial_bounds.half_bin_ge.
+Check @GaussianAnalysis.combinatorics.binomial_bounds.leq_bin_half.
+Check @GaussianAnalysis.combinatorics.binomial_bounds.bin_near_half.
+Check @GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_central.
+Check @GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_ratio.
+Check @GaussianAnalysis.combinatorics.binomial_bounds.bin_partial_sum.
+Check @GaussianAnalysis.matrix.psd_duality.psd_eval_cone_closed.
+Check @GaussianAnalysis.matrix.psd_duality.psdmx_dual.
+Check @GaussianAnalysis.matrix.psd_duality.psd_farkas.
+Check @GaussianAnalysis.matrix.psd_duality.psd_slack_certificate.
+Check @GaussianAnalysis.matrix.psd_duality.psd_slack_certificate_affine.

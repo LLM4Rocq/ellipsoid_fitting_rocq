@@ -1,0 +1,10 @@
+diff --git a/library/fourier/inversion.v b/library/fourier/inversion.v
+index 5088299..62e73e9 100644
+--- a/library/fourier/inversion.v
++++ b/library/fourier/inversion.v
+@@ -1048,3 +1048,5 @@ by rewrite ler_pdivrMr// mul1r lerDl ler01.
+ Qed.
+ 
+ End cf_rV_inversion.
++
++Extraction "e29_extracted" nat.

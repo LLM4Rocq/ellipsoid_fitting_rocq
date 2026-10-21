@@ -1,0 +1,13 @@
+{
+ "title": "strings \"(*\" and \"*)\" in code hide Axiom, Admitted and Require from rules 2 and 3",
+ "step": "make",
+ "baseline": {
+  "expect": "pass",
+  "step": "checker"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "library/fourier/inversion.v: Axiom",
+  "step": "checker"
+ }
+}

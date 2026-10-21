@@ -1,0 +1,12 @@
+{
+ "title": "an accepted statement elaborates to another constant (a new topology_structure.closed that a notation of the unfrozen psd_duality.v brings into scope), while its printed snapshot stays byte-identical",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "check/identity/IdentitySnapshotPhase13\\.v: the references differ from check/identity/IdentitySnapshotPhase13\\.json: #\\d+ Checks\\.LibraryStatements\\.accepted_psd_duality\\.psd_eval_cone_closed_accepted"
+ },
+ "source": "reviews/phase13-repair-review/verify/attacks/collision/attack.diff"
+}

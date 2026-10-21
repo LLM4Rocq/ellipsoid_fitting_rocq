@@ -1,0 +1,89 @@
+(* The bodies of the 70 accepted _statement definitions, printed at
+   46e45c84b99a (scripts/check_sources.py, rule 30 (d)). The definitions
+   no longer exist at HEAD: this file is compiled only at the
+   acceptance commit, and its output is compared with the statements
+   of the lemmas of check/LibraryStatements.v. *)
+
+Require GaussianAnalysis.combinatorics.binomial_bounds.
+Require GaussianAnalysis.fourier.boolean_fourier.
+Require GaussianAnalysis.matrix.psd_duality.
+Require GaussianAnalysis.matrix.psd_factorization.
+Require GaussianAnalysis.probability.binomial_mean.
+Require GaussianAnalysis.probability.commuting_operators.
+Require GaussianAnalysis.probability.finite_mean.
+
+Set Printing All.
+Set Printing Universes.
+Set Printing Depth 1000000.
+Set Printing Width 78.
+
+Print GaussianAnalysis.probability.finite_mean.unif_mean_union_statement.
+Print GaussianAnalysis.probability.finite_mean.unif_mean_indicatorN_statement.
+Print GaussianAnalysis.probability.finite_mean.unif_mean_markov_statement.
+Print GaussianAnalysis.probability.finite_mean.unif_mean_cutoff_statement.
+Print GaussianAnalysis.probability.finite_mean.unif_chebyshev_statement.
+Print GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_ord_statement.
+Print GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_set_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_mean0_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_meanS_statement.
+Print GaussianAnalysis.probability.binomial_mean.eq_binomial_mean_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_mean_cst_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_meanD_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_meanZ_statement.
+Print GaussianAnalysis.probability.binomial_mean.ler_binomial_mean_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_mean_id_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_mean_sqr_dev_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_chebyshev_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_mean_last_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_mean_trials_statement.
+Print GaussianAnalysis.probability.binomial_mean.unif_mean_binomial_mean_statement.
+Print GaussianAnalysis.probability.binomial_mean.binomial_meanE_statement.
+Print GaussianAnalysis.probability.binomial_mean.integral_binomial_mean_statement.
+Print GaussianAnalysis.probability.commuting_operators.homo_iter_statement.
+Print GaussianAnalysis.probability.commuting_operators.iter_le_subcomm_statement.
+Print GaussianAnalysis.probability.commuting_operators.monotone_iter_le_statement.
+Print GaussianAnalysis.probability.commuting_operators.iter_scale_statement.
+Print GaussianAnalysis.probability.commuting_operators.iter_mix_binomial_statement.
+Print GaussianAnalysis.probability.commuting_operators.binomial_mix_le_iter_statement.
+Print GaussianAnalysis.probability.commuting_operators.meet_avg_linear_statement.
+Print GaussianAnalysis.probability.commuting_operators.meet_avg_monotone_statement.
+Print GaussianAnalysis.probability.commuting_operators.meet_avg_cst_statement.
+Print GaussianAnalysis.probability.commuting_operators.meet_avgC_statement.
+Print GaussianAnalysis.probability.commuting_operators.iter_meet_avg_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.bchar_algebra_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.bchar_orthogonal_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.bchar_delta_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.blk_dist_metric_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.fcoef_inversion_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.fcoef_expansion_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.fcoef_plancherel_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.fcoef_linear_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.fcoef_comp_linear_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.fcoef_mulmx_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.fcoef_norm_le_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.fcoef_translate_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_expansion_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_translate_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.blk_dist_row_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.bchar_col_mx_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.blk_col_mx_statement.
+Print GaussianAnalysis.fourier.boolean_fourier.fcoef_col_mx_statement.
+Print GaussianAnalysis.matrix.psd_factorization.psd_factorization_ge0_statement.
+Print GaussianAnalysis.matrix.psd_factorization.psd_factorization_size_gt0_statement.
+Print GaussianAnalysis.matrix.psd_factorization.psd_factorization_restrict_statement.
+Print GaussianAnalysis.matrix.psd_factorization.psd_factorization_widen_statement.
+Print GaussianAnalysis.matrix.psd_factorization.psd_factorization_shift_statement.
+Print GaussianAnalysis.matrix.psd_factorization.psd_factorization_nonneg_statement.
+Print GaussianAnalysis.combinatorics.binomial_bounds.central_bin_le_statement.
+Print GaussianAnalysis.combinatorics.binomial_bounds.central_bin_ge_statement.
+Print GaussianAnalysis.combinatorics.binomial_bounds.half_bin_ge_statement.
+Print GaussianAnalysis.combinatorics.binomial_bounds.leq_bin_half_statement.
+Print GaussianAnalysis.combinatorics.binomial_bounds.bin_near_half_statement.
+Print GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_central_statement.
+Print GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_ratio_statement.
+Print GaussianAnalysis.combinatorics.binomial_bounds.bin_partial_sum_statement.
+Print GaussianAnalysis.matrix.psd_duality.psd_eval_cone_closed_statement.
+Print GaussianAnalysis.matrix.psd_duality.psdmx_dual_statement.
+Print GaussianAnalysis.matrix.psd_duality.psd_farkas_statement.
+Print GaussianAnalysis.matrix.psd_duality.psd_slack_certificate_statement.
+Print GaussianAnalysis.matrix.psd_duality.psd_slack_certificate_affine_statement.

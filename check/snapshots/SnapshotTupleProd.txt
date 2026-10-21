@@ -1,0 +1,791 @@
+lindeberg.tuple_cons =
+fun (d : measurable_structure.measure_display)
+  (T : measurable_structure.Measurable.type d) (n : nat)
+  (p : prod (@measurable_structure.Measurable.sort d T)
+         (tuple.tuple_of n (@measurable_structure.Measurable.sort d T))) =>
+@tuple.tuple (S n) (@measurable_structure.Measurable.sort d T)
+  (@tuple.cons_tuple n (@measurable_structure.Measurable.sort d T)
+     (@fst (@measurable_structure.Measurable.sort d T)
+        (tuple.tuple_of n (@measurable_structure.Measurable.sort d T)) p)
+     (@snd (@measurable_structure.Measurable.sort d T)
+        (tuple.tuple_of n (@measurable_structure.Measurable.sort d T)) p))
+  (fun
+     sP : is_true
+            (@eqtype.eq_op ssrnat.Datatypes_nat__canonical__eqtype_Equality
+               (@seq.size (@measurable_structure.Measurable.sort d T)
+                  (@tuple.tval (S n)
+                     (@measurable_structure.Measurable.sort d T)
+                     (@tuple.cons_tuple n
+                        (@measurable_structure.Measurable.sort d T)
+                        (@fst (@measurable_structure.Measurable.sort d T)
+                           (tuple.tuple_of n
+                              (@measurable_structure.Measurable.sort d T))
+                           p)
+                        (@snd (@measurable_structure.Measurable.sort d T)
+                           (tuple.tuple_of n
+                              (@measurable_structure.Measurable.sort d T))
+                           p))))
+               (S n)) =>
+   @tuple.Tuple (S n) (@measurable_structure.Measurable.sort d T)
+     (@cons (@measurable_structure.Measurable.sort d T)
+        (@fst (@measurable_structure.Measurable.sort d T)
+           (tuple.tuple_of n (@measurable_structure.Measurable.sort d T)) p)
+        (@tuple.tval n (@measurable_structure.Measurable.sort d T)
+           (@snd (@measurable_structure.Measurable.sort d T)
+              (tuple.tuple_of n (@measurable_structure.Measurable.sort d T))
+              p)))
+     sP)
+     : forall [d : measurable_structure.measure_display]
+         [T : measurable_structure.Measurable.type d] 
+         [n : nat]
+         (_ : prod (@measurable_structure.Measurable.sort d T)
+                (tuple.tuple_of n (@measurable_structure.Measurable.sort d T))),
+       tuple.tuple_of (S n) (@measurable_structure.Measurable.sort d T)
+
+Arguments lindeberg.tuple_cons [d]%_measure_display_scope 
+  [T] [n]%_nat_scope p
+lindeberg.measurable_tuple_cons
+     : forall (d : measurable_structure.measure_display)
+         (T : measurable_structure.Measurable.type d) 
+         (n : nat),
+       @measurable_function.measurable_fun
+         (measurable_structure.measure_prod_display
+            (@pair measurable_structure.measure_display
+               measurable_structure.measure_display d
+               (measurable_structure.measure_tuple_display d)))
+         (measurable_structure.measure_tuple_display d)
+         (@measurable_structure.Datatypes_prod__canonical__measurable_structure_SigmaRing
+            d (measurable_structure.measure_tuple_display d)
+            (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+               d T)
+            (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+               d
+               (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                  d T)
+               n))
+         (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SigmaRing
+            d
+            (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+               d T)
+            (S n))
+         (@classical_sets.setT
+            (@measurable_structure.SigmaRing.sort
+               (measurable_structure.measure_prod_display
+                  (@pair measurable_structure.measure_display
+                     measurable_structure.measure_display d
+                     (measurable_structure.measure_tuple_display d)))
+               (@measurable_structure.Datatypes_prod__canonical__measurable_structure_SigmaRing
+                  d (measurable_structure.measure_tuple_display d)
+                  (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                     d T)
+                  (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+                     d
+                     (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                        d T)
+                     n))))
+         (@lindeberg.tuple_cons d T n)
+lindeberg.HB_unnamed_factory_2 =
+fun (d : measurable_structure.measure_display)
+  (T : measurable_structure.Measurable.type d) (n : nat) =>
+@measurable_function.isMeasurableFun.Axioms_
+  (measurable_structure.measure_prod_display
+     (@pair measurable_structure.measure_display
+        measurable_structure.measure_display d
+        (measurable_structure.measure_tuple_display d)))
+  (measurable_structure.measure_tuple_display d)
+  (@measurable_structure.Datatypes_prod__canonical__measurable_structure_SigmaRing
+     d (measurable_structure.measure_tuple_display d)
+     (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+        d T)
+     (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+        d
+        (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+           d T)
+        n))
+  (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SigmaRing
+     d
+     (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+        d T)
+     (S n))
+  (@lindeberg.tuple_cons d T n) (@lindeberg.measurable_tuple_cons d T n)
+     : forall [d : measurable_structure.measure_display]
+         (T : measurable_structure.Measurable.type d) 
+         (n : nat),
+       measurable_function.isMeasurableFun.axioms_
+         (measurable_structure.measure_prod_display
+            (@pair measurable_structure.measure_display
+               measurable_structure.measure_display d
+               (measurable_structure.measure_tuple_display d)))
+         (measurable_structure.measure_tuple_display d)
+         (@measurable_structure.Datatypes_prod__canonical__measurable_structure_SigmaRing
+            d (measurable_structure.measure_tuple_display d)
+            (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+               d T)
+            (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+               d
+               (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                  d T)
+               n))
+         (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SigmaRing
+            d
+            (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+               d T)
+            (S n))
+         (@lindeberg.tuple_cons d T n)
+
+Arguments lindeberg.HB_unnamed_factory_2 [d]%_measure_display_scope 
+  T n%_nat_scope
+lindeberg.lindeberg_tuple_cons__canonical__measurable_function_MeasurableFun =
+fun (d : measurable_structure.measure_display)
+  (T : measurable_structure.Measurable.type d) (n : nat) =>
+@measurable_function.MeasurableFun.Pack
+  (measurable_structure.measure_prod_display
+     (@pair measurable_structure.measure_display
+        measurable_structure.measure_display d
+        (measurable_structure.measure_tuple_display d)))
+  (measurable_structure.measure_tuple_display d)
+  (@measurable_structure.Datatypes_prod__canonical__measurable_structure_SigmaRing
+     d (measurable_structure.measure_tuple_display d)
+     (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+        d T)
+     (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+        d
+        (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+           d T)
+        n))
+  (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SigmaRing
+     d
+     (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+        d T)
+     (S n))
+  (@lindeberg.tuple_cons d T n)
+  (@measurable_function.MeasurableFun.Class
+     (measurable_structure.measure_prod_display
+        (@pair measurable_structure.measure_display
+           measurable_structure.measure_display d
+           (measurable_structure.measure_tuple_display d)))
+     (measurable_structure.measure_tuple_display d)
+     (@measurable_structure.Datatypes_prod__canonical__measurable_structure_SigmaRing
+        d (measurable_structure.measure_tuple_display d)
+        (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+           d T)
+        (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+           d
+           (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+              d T)
+           n))
+     (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SigmaRing
+        d
+        (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+           d T)
+        (S n))
+     (@lindeberg.tuple_cons d T n) (@lindeberg.HB_unnamed_factory_2 d T n))
+     : forall [d : measurable_structure.measure_display]
+         (T : measurable_structure.Measurable.type d) 
+         (n : nat),
+       @measurable_function.MeasurableFun.type
+         (measurable_structure.measure_prod_display
+            (@pair measurable_structure.measure_display
+               measurable_structure.measure_display d
+               (measurable_structure.measure_tuple_display d)))
+         (measurable_structure.measure_tuple_display d)
+         (@measurable_structure.Datatypes_prod__canonical__measurable_structure_SigmaRing
+            d (measurable_structure.measure_tuple_display d)
+            (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+               d T)
+            (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SemiRingOfSets
+               d
+               (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                  d T)
+               n))
+         (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SigmaRing
+            d
+            (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+               d T)
+            (S n))
+
+Arguments
+  lindeberg.lindeberg_tuple_cons__canonical__measurable_function_MeasurableFun
+  [d]%_measure_display_scope T n%_nat_scope
+lindeberg.tuple_prod =
+fun (d : measurable_structure.measure_display)
+  (T : measurable_structure.Measurable.type d) (R : reals.Real.type) =>
+fix tuple_prod
+  (mu : forall _ : nat, @probability_measure.Probability.type d T R)
+  (n : nat) {struct n} :
+    @probability_measure.Probability.type
+      (measurable_structure.measure_tuple_display d)
+      (@reverse_coercion@{measurable_structure.Measurable.type.u0
+         lindeberg.tuple_prod.u1}
+         (measurable_structure.Measurable.type
+            (measurable_structure.measure_tuple_display d))
+         Type@{lindeberg.tuple_prod.u0}
+         (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+            d
+            (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+               d T)
+            n)
+         (tuple.tuple_of n (@measurable_structure.Measurable.sort d T)))
+      R :=
+  match
+    n as n0
+    return
+      (@probability_measure.Probability.type
+         (measurable_structure.measure_tuple_display d)
+         (@reverse_coercion@{measurable_structure.Measurable.type.u0
+            lindeberg.tuple_prod.u1}
+            (measurable_structure.Measurable.type
+               (measurable_structure.measure_tuple_display d))
+            Type@{lindeberg.tuple_prod.u0}
+            (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+               d
+               (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                  d T)
+               n0)
+            (tuple.tuple_of n0 (@measurable_structure.Measurable.sort d T)))
+         R)
+  with
+  | @O =>
+      @reverse_coercion@{probability_measure.Probability.type.u0
+        lindeberg.tuple_prod.u2}
+        (@probability_measure.Probability.type
+           (measurable_structure.measure_tuple_display d)
+           (@reverse_coercion@{measurable_structure.Measurable.type.u0
+              lindeberg.tuple_prod.u1}
+              (measurable_structure.Measurable.type
+                 (measurable_structure.measure_tuple_display d))
+              Type@{lindeberg.tuple_prod.u0}
+              (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                 d
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    d T)
+                 O)
+              (tuple.tuple_of O (@measurable_structure.Measurable.sort d T)))
+           R)
+        (forall
+           _ : classical_sets.set
+                 (@measurable_structure.SigmaRing.sort
+                    (measurable_structure.measure_tuple_display d)
+                    (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SigmaRing
+                       d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)
+                       O)),
+         constructive_ereal.extended
+           (numfield.Num.RealField.sort
+              (reals.Real.Exports.reals_Real__to__Num_RealField R)))
+        (@probability_measure.dirac_measure_dirac__canonical__probability_measure_Probability
+           (measurable_structure.measure_tuple_display d)
+           (@reverse_coercion@{measurable_structure.Measurable.type.u0
+              lindeberg.tuple_prod.u1}
+              (measurable_structure.Measurable.type
+                 (measurable_structure.measure_tuple_display d))
+              Type@{lindeberg.tuple_prod.u0}
+              (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                 d
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    d T)
+                 O)
+              (tuple.tuple_of O (@measurable_structure.Measurable.sort d T)))
+           R
+           (@tuple.tuple O
+              (@measurable_structure.SigmaRing.sort d
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    d T))
+              (tuple.nil_tuple
+                 (@measurable_structure.SigmaRing.sort d
+                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                       d T)))
+              (fun
+                 sP : is_true
+                        (@eqtype.eq_op
+                           ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                           (@seq.size
+                              (@measurable_structure.SigmaRing.sort d
+                                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                    d T))
+                              (@tuple.tval O
+                                 (@measurable_structure.SigmaRing.sort d
+                                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                       d T))
+                                 (tuple.nil_tuple
+                                    (@measurable_structure.SigmaRing.sort d
+                                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                          d T)))))
+                           O) =>
+               @tuple.Tuple O
+                 (@measurable_structure.SigmaRing.sort d
+                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                       d T))
+                 (@nil
+                    (@measurable_structure.SigmaRing.sort d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)))
+                 sP)))
+        (@dirac_measure.dirac (measurable_structure.measure_tuple_display d)
+           (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_SigmaRing
+              d
+              (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                 d T)
+              O)
+           (@tuple.tuple O
+              (@measurable_structure.SigmaRing.sort d
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    d T))
+              (tuple.nil_tuple
+                 (@measurable_structure.SigmaRing.sort d
+                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                       d T)))
+              (fun
+                 sP : is_true
+                        (@eqtype.eq_op
+                           ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                           (@seq.size
+                              (@measurable_structure.SigmaRing.sort d
+                                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                    d T))
+                              (@tuple.tval O
+                                 (@measurable_structure.SigmaRing.sort d
+                                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                       d T))
+                                 (tuple.nil_tuple
+                                    (@measurable_structure.SigmaRing.sort d
+                                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                          d T)))))
+                           O) =>
+               @tuple.Tuple O
+                 (@measurable_structure.SigmaRing.sort d
+                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                       d T))
+                 (@nil
+                    (@measurable_structure.SigmaRing.sort d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)))
+                 sP))
+           (reals.Real.Exports.reals_Real__to__Num_RealField R))
+  | @S n' =>
+      @reverse_coercion@{probability_measure.Probability.type.u0
+        lindeberg.tuple_prod.u2}
+        (@probability_measure.Probability.type
+           (measurable_structure.measure_tuple_display d)
+           (@reverse_coercion@{measurable_structure.Measurable.type.u0
+              lindeberg.tuple_prod.u1}
+              (measurable_structure.Measurable.type
+                 (measurable_structure.measure_tuple_display d))
+              Type@{lindeberg.tuple_prod.u0}
+              (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                 d
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    d T)
+                 (S n'))
+              (tuple.tuple_of (S n')
+                 (@measurable_structure.Measurable.sort d T)))
+           R)
+        (forall
+           _ : classical_sets.set
+                 (@measurable_structure.SigmaRing.sort
+                    (measurable_structure.measure_tuple_display d)
+                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                       (measurable_structure.measure_tuple_display d)
+                       (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                          d
+                          (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                             d T)
+                          (S n')))),
+         constructive_ereal.extended
+           (numfield.Num.RealField.sort
+              (reals.Real.Exports.reals_Real__to__Num_RealField R)))
+        (@random_variable.random_variable_distribution__canonical__probability_measure_Probability
+           (measurable_structure.measure_prod_display
+              (@pair measurable_structure.measure_display
+                 measurable_structure.measure_display d
+                 (measurable_structure.measure_tuple_display d)))
+           (measurable_structure.measure_tuple_display d)
+           (@measurable_structure.Datatypes_prod__canonical__measurable_structure_Measurable
+              d (measurable_structure.measure_tuple_display d)
+              (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                 d T)
+              (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                 (measurable_structure.measure_tuple_display d)
+                 (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                    lindeberg.tuple_prod.u1}
+                    (measurable_structure.Measurable.type
+                       (measurable_structure.measure_tuple_display d))
+                    Type@{lindeberg.tuple_prod.u0}
+                    (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                       d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)
+                       n')
+                    (tuple.tuple_of n'
+                       (@measurable_structure.Measurable.sort d T)))))
+           (@reverse_coercion@{measurable_structure.Measurable.type.u0
+              lindeberg.tuple_prod.u1}
+              (measurable_structure.Measurable.type
+                 (measurable_structure.measure_tuple_display d))
+              Type@{lindeberg.tuple_prod.u0}
+              (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                 d
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    d T)
+                 (S n'))
+              (tuple.tuple_of (S n')
+                 (@measurable_structure.Measurable.sort d T)))
+           R
+           (@reverse_coercion@{probability_measure.Probability.type.u0
+              lindeberg.tuple_prod.u3}
+              (@probability_measure.Probability.type
+                 (measurable_structure.measure_prod_display
+                    (@pair measurable_structure.measure_display
+                       measurable_structure.measure_display d
+                       (measurable_structure.measure_tuple_display d)))
+                 (@measurable_structure.Datatypes_prod__canonical__measurable_structure_Measurable
+                    d (measurable_structure.measure_tuple_display d)
+                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                       d T)
+                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                       (measurable_structure.measure_tuple_display d)
+                       (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                          lindeberg.tuple_prod.u1}
+                          (measurable_structure.Measurable.type
+                             (measurable_structure.measure_tuple_display d))
+                          Type@{lindeberg.tuple_prod.u0}
+                          (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                             d
+                             (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                d T)
+                             n')
+                          (tuple.tuple_of n'
+                             (@measurable_structure.Measurable.sort d T)))))
+                 R)
+              (forall
+                 _ : classical_sets.set
+                       (prod (@measurable_structure.Measurable.sort d T)
+                          (@measurable_structure.Measurable.sort
+                             (measurable_structure.measure_tuple_display d)
+                             (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                                lindeberg.tuple_prod.u1}
+                                (measurable_structure.Measurable.type
+                                   (measurable_structure.measure_tuple_display
+                                      d))
+                                Type@{lindeberg.tuple_prod.u0}
+                                (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                                   d
+                                   (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                      d T)
+                                   n')
+                                (tuple.tuple_of n'
+                                   (@measurable_structure.Measurable.sort d T))))),
+               rings_modules_and_algebras.Dummy.GRing.BaseAddMagma.sort
+                 (@reverse_coercion@{nmodule.Algebra.BaseAddMagma.type.u0
+                    lebesgue_integral_definition.integral.u1}
+                    rings_modules_and_algebras.Dummy.GRing.BaseAddMagma.type
+                    Type@{lebesgue_integral_definition.integral.u0}
+                    (@constructive_ereal.constructive_ereal_extended__canonical__Algebra_BaseAddMagma
+                       (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__Algebra_Nmodule
+                          (numfield.Num.RealField.Exports.Num_RealField__to__Num_NumDomain
+                             (reals.Real.Exports.reals_Real__to__Num_RealField
+                                R))))
+                    (constructive_ereal.extended
+                       (nmodule.Algebra.Nmodule.sort
+                          (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__Algebra_Nmodule
+                             (numfield.Num.RealField.Exports.Num_RealField__to__Num_NumDomain
+                                (reals.Real.Exports.reals_Real__to__Num_RealField
+                                   R)))))))
+              (@lebesgue_integral_fubini.lebesgue_integral_fubini_product_measure1__canonical__probability_measure_Probability
+                 d T (measurable_structure.measure_tuple_display d)
+                 (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                    lindeberg.tuple_prod.u1}
+                    (measurable_structure.Measurable.type
+                       (measurable_structure.measure_tuple_display d))
+                    Type@{lindeberg.tuple_prod.u0}
+                    (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                       d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)
+                       n')
+                    (tuple.tuple_of n'
+                       (@measurable_structure.Measurable.sort d T)))
+                 R (mu O) (tuple_prod (fun i : nat => mu (S i)) n'))
+              (@lebesgue_integral_fubini.product_measure1 d
+                 (measurable_structure.measure_tuple_display d) T
+                 (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                    lindeberg.tuple_prod.u1}
+                    (measurable_structure.Measurable.type
+                       (measurable_structure.measure_tuple_display d))
+                    Type@{lindeberg.tuple_prod.u0}
+                    (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                       d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)
+                       n')
+                    (tuple.tuple_of n'
+                       (@measurable_structure.Measurable.sort d T)))
+                 R (@probability_measure.Probability.sort d T R (mu O))
+                 (@probability_measure.Probability.sort
+                    (measurable_structure.measure_tuple_display d)
+                    (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                       lindeberg.tuple_prod.u1}
+                       (measurable_structure.Measurable.type
+                          (measurable_structure.measure_tuple_display d))
+                       Type@{lindeberg.tuple_prod.u0}
+                       (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                          d
+                          (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                             d T)
+                          n')
+                       (tuple.tuple_of n'
+                          (@measurable_structure.Measurable.sort d T)))
+                    R (tuple_prod (fun i : nat => mu (S i)) n'))))
+           (@reverse_coercion@{measurable_function.MeasurableFun.type.u0
+              lindeberg.tuple_prod.u0}
+              (@measurable_function.MeasurableFun.type
+                 (measurable_structure.measure_prod_display
+                    (@pair measurable_structure.measure_display
+                       measurable_structure.measure_display d
+                       (measurable_structure.measure_tuple_display d)))
+                 (measurable_structure.measure_tuple_display d)
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    (measurable_structure.measure_prod_display
+                       (@pair measurable_structure.measure_display
+                          measurable_structure.measure_display d
+                          (measurable_structure.measure_tuple_display d)))
+                    (@measurable_structure.Datatypes_prod__canonical__measurable_structure_Measurable
+                       d (measurable_structure.measure_tuple_display d)
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                          d T)
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                          (measurable_structure.measure_tuple_display d)
+                          (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                             lindeberg.tuple_prod.u1}
+                             (measurable_structure.Measurable.type
+                                (measurable_structure.measure_tuple_display d))
+                             Type@{lindeberg.tuple_prod.u0}
+                             (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                                d
+                                (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                   d T)
+                                n')
+                             (tuple.tuple_of n'
+                                (@measurable_structure.Measurable.sort d T))))))
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    (measurable_structure.measure_tuple_display d)
+                    (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                       d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)
+                       (S n'))))
+              (forall
+                 _ : prod (@measurable_structure.Measurable.sort d T)
+                       (tuple.tuple_of n'
+                          (@measurable_structure.Measurable.sort d T)),
+               tuple.tuple_of (S n')
+                 (@measurable_structure.Measurable.sort d T))
+              (@lindeberg.lindeberg_tuple_cons__canonical__measurable_function_MeasurableFun
+                 d T n')
+              (@lindeberg.tuple_cons d T n')))
+        (@random_variable.distribution
+           (measurable_structure.measure_prod_display
+              (@pair measurable_structure.measure_display
+                 measurable_structure.measure_display d
+                 (measurable_structure.measure_tuple_display d)))
+           (measurable_structure.measure_tuple_display d)
+           (@measurable_structure.Datatypes_prod__canonical__measurable_structure_Measurable
+              d (measurable_structure.measure_tuple_display d)
+              (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                 d T)
+              (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                 (measurable_structure.measure_tuple_display d)
+                 (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                    lindeberg.tuple_prod.u1}
+                    (measurable_structure.Measurable.type
+                       (measurable_structure.measure_tuple_display d))
+                    Type@{lindeberg.tuple_prod.u0}
+                    (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                       d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)
+                       n')
+                    (tuple.tuple_of n'
+                       (@measurable_structure.Measurable.sort d T)))))
+           (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+              d
+              (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                 d T)
+              (S n'))
+           R
+           (@reverse_coercion@{probability_measure.Probability.type.u0
+              lindeberg.tuple_prod.u3}
+              (@probability_measure.Probability.type
+                 (measurable_structure.measure_prod_display
+                    (@pair measurable_structure.measure_display
+                       measurable_structure.measure_display d
+                       (measurable_structure.measure_tuple_display d)))
+                 (@measurable_structure.Datatypes_prod__canonical__measurable_structure_Measurable
+                    d (measurable_structure.measure_tuple_display d)
+                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                       d T)
+                    (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                       (measurable_structure.measure_tuple_display d)
+                       (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                          lindeberg.tuple_prod.u1}
+                          (measurable_structure.Measurable.type
+                             (measurable_structure.measure_tuple_display d))
+                          Type@{lindeberg.tuple_prod.u0}
+                          (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                             d
+                             (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                d T)
+                             n')
+                          (tuple.tuple_of n'
+                             (@measurable_structure.Measurable.sort d T)))))
+                 R)
+              (forall
+                 _ : classical_sets.set
+                       (prod (@measurable_structure.Measurable.sort d T)
+                          (@measurable_structure.Measurable.sort
+                             (measurable_structure.measure_tuple_display d)
+                             (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                                lindeberg.tuple_prod.u1}
+                                (measurable_structure.Measurable.type
+                                   (measurable_structure.measure_tuple_display
+                                      d))
+                                Type@{lindeberg.tuple_prod.u0}
+                                (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                                   d
+                                   (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                      d T)
+                                   n')
+                                (tuple.tuple_of n'
+                                   (@measurable_structure.Measurable.sort d T))))),
+               rings_modules_and_algebras.Dummy.GRing.BaseAddMagma.sort
+                 (@reverse_coercion@{nmodule.Algebra.BaseAddMagma.type.u0
+                    lebesgue_integral_definition.integral.u1}
+                    rings_modules_and_algebras.Dummy.GRing.BaseAddMagma.type
+                    Type@{lebesgue_integral_definition.integral.u0}
+                    (@constructive_ereal.constructive_ereal_extended__canonical__Algebra_BaseAddMagma
+                       (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__Algebra_Nmodule
+                          (numfield.Num.RealField.Exports.Num_RealField__to__Num_NumDomain
+                             (reals.Real.Exports.reals_Real__to__Num_RealField
+                                R))))
+                    (constructive_ereal.extended
+                       (nmodule.Algebra.Nmodule.sort
+                          (numdomain.Num.NumDomain.Exports.Num_NumDomain__to__Algebra_Nmodule
+                             (numfield.Num.RealField.Exports.Num_RealField__to__Num_NumDomain
+                                (reals.Real.Exports.reals_Real__to__Num_RealField
+                                   R)))))))
+              (@lebesgue_integral_fubini.lebesgue_integral_fubini_product_measure1__canonical__probability_measure_Probability
+                 d T (measurable_structure.measure_tuple_display d)
+                 (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                    lindeberg.tuple_prod.u1}
+                    (measurable_structure.Measurable.type
+                       (measurable_structure.measure_tuple_display d))
+                    Type@{lindeberg.tuple_prod.u0}
+                    (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                       d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)
+                       n')
+                    (tuple.tuple_of n'
+                       (@measurable_structure.Measurable.sort d T)))
+                 R (mu O) (tuple_prod (fun i : nat => mu (S i)) n'))
+              (@lebesgue_integral_fubini.product_measure1 d
+                 (measurable_structure.measure_tuple_display d) T
+                 (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                    lindeberg.tuple_prod.u1}
+                    (measurable_structure.Measurable.type
+                       (measurable_structure.measure_tuple_display d))
+                    Type@{lindeberg.tuple_prod.u0}
+                    (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                       d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)
+                       n')
+                    (tuple.tuple_of n'
+                       (@measurable_structure.Measurable.sort d T)))
+                 R (@probability_measure.Probability.sort d T R (mu O))
+                 (@probability_measure.Probability.sort
+                    (measurable_structure.measure_tuple_display d)
+                    (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                       lindeberg.tuple_prod.u1}
+                       (measurable_structure.Measurable.type
+                          (measurable_structure.measure_tuple_display d))
+                       Type@{lindeberg.tuple_prod.u0}
+                       (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                          d
+                          (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                             d T)
+                          n')
+                       (tuple.tuple_of n'
+                          (@measurable_structure.Measurable.sort d T)))
+                    R (tuple_prod (fun i : nat => mu (S i)) n'))))
+           (@reverse_coercion@{measurable_function.MeasurableFun.type.u0
+              lindeberg.tuple_prod.u0}
+              (@measurable_function.MeasurableFun.type
+                 (measurable_structure.measure_prod_display
+                    (@pair measurable_structure.measure_display
+                       measurable_structure.measure_display d
+                       (measurable_structure.measure_tuple_display d)))
+                 (measurable_structure.measure_tuple_display d)
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    (measurable_structure.measure_prod_display
+                       (@pair measurable_structure.measure_display
+                          measurable_structure.measure_display d
+                          (measurable_structure.measure_tuple_display d)))
+                    (@measurable_structure.Datatypes_prod__canonical__measurable_structure_Measurable
+                       d (measurable_structure.measure_tuple_display d)
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                          d T)
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SemiRingOfSets
+                          (measurable_structure.measure_tuple_display d)
+                          (@reverse_coercion@{measurable_structure.Measurable.type.u0
+                             lindeberg.tuple_prod.u1}
+                             (measurable_structure.Measurable.type
+                                (measurable_structure.measure_tuple_display d))
+                             Type@{lindeberg.tuple_prod.u0}
+                             (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                                d
+                                (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                                   d T)
+                                n')
+                             (tuple.tuple_of n'
+                                (@measurable_structure.Measurable.sort d T))))))
+                 (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                    (measurable_structure.measure_tuple_display d)
+                    (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+                       d
+                       (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                          d T)
+                       (S n'))))
+              (forall
+                 _ : prod (@measurable_structure.Measurable.sort d T)
+                       (tuple.tuple_of n'
+                          (@measurable_structure.Measurable.sort d T)),
+               tuple.tuple_of (S n')
+                 (@measurable_structure.Measurable.sort d T))
+              (@lindeberg.lindeberg_tuple_cons__canonical__measurable_function_MeasurableFun
+                 d T n')
+              (@lindeberg.tuple_cons d T n')))
+  end
+     : forall [d : measurable_structure.measure_display]
+         [T : measurable_structure.Measurable.type d] 
+         [R : reals.Real.type]
+         (_ : forall _ : nat, @probability_measure.Probability.type d T R)
+         (n : nat),
+       @probability_measure.Probability.type
+         (measurable_structure.measure_tuple_display d)
+         (@reverse_coercion@{measurable_structure.Measurable.type.u0
+            lindeberg.tuple_prod.u1}
+            (measurable_structure.Measurable.type
+               (measurable_structure.measure_tuple_display d))
+            Type@{lindeberg.tuple_prod.u0}
+            (@measurable_structure.tuple_tuple_of__canonical__measurable_structure_Measurable
+               d
+               (@measurable_structure.Measurable.Exports.measurable_structure_Measurable__to__measurable_structure_SigmaRing
+                  d T)
+               n)
+            (tuple.tuple_of n (@measurable_structure.Measurable.sort d T)))
+         R
+
+Arguments lindeberg.tuple_prod [d]%_measure_display_scope 
+  [T R] mu%_function_scope n%_nat_scope

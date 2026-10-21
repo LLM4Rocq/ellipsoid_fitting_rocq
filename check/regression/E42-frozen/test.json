@@ -1,0 +1,13 @@
+{
+ "title": "a frozen statement (product_smoothing_statement) elaborates to another constant while every printed snapshot stays byte-identical: a new library GaussianAnalysis.zz.euclidean defines an alias of frobenius with the same body, and a notation at the end of the unfrozen product_smoothing.v redirects frobenius to it; the 38 short Requires of euclidean are qualified (the second library would make them ambiguous) and PsdRank/Main.v names the original in full",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "check/identity/IdentitySnapshotPhase13\\.v: the references differ from check/identity/IdentitySnapshotPhase13\\.json: #\\d+ GaussianApplications\\.ProductSmoothingStatement\\.product_smoothing_statement"
+ },
+ "validation_note": "The alias has the same body, so the frozen theorem still checks by conversion. The print is byte-identical (the printer shows euclidean.frobenius for the alias, and frobenius is printed nowhere else in SnapshotPhase13), so only the identity layer catches it: tested on 20 October 2026 in a copy of the tested tree, one failure, the references of IdentitySnapshotPhase13 at product_smoothing_statement.",
+ "source": "the name-resolution toy of reviews/phase13-repair-review/snapshots/name-resolution-toy, on a frozen statement of the project"
+}

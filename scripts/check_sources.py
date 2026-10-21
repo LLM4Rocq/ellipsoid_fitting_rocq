@@ -265,17 +265,180 @@
    required and must be a complete axiom report within the seven axioms. The
    Makefile must hold the commands of PHASE13_MAKE_LINES_P.
 
-`make check` runs this script after the build. It exits 1 on any failure.
+30. Phase 13, the repair of the checks of 15 October 2026
+   (reviews/phase13-checker-repair.md, version 2).
+   (a) Reading. The text of a source is read as Rocq reads it, by
+   scripts/rocq_lex.py, loaded by its path: comments nest; a double quote
+   opens a string both in code and in a comment, and the comment delimiters
+   inside a string do not count; a comment separates tokens; the blanks are
+   those of Rocq, so U+00A0 and every other character are kept; carriage
+   returns are kept. A text that the lexer cannot read is a failure: an
+   unterminated comment or string, and the forms that Rocq reads by the
+   keywords in scope (a comment opener or a double quote glued to the token
+   before it, and the quotations :{{ and lp:). code() (rules 1 and 7 to 29),
+   the pinned sections, the Require commands of rule 3 and the scan of rule
+   2 read the sentences of that code, never the inside of a comment or a
+   string. The scan of rule 2 refuses, after any attributes and modifiers,
+   Axiom, Parameter, Conjecture (singular or plural), Admitted, Admit
+   Obligations, Declare Instance, Declare ML Module, Add LoadPath, Add ML
+   Path, Load, Extraction in its forms, Redirect, Cd, every Elpi command,
+   Extra Dependency, HB.graph, Set or Unset of Guard, Positivity or Universe
+   Checking, the attribute bypass_check, and a Variable, Hypothesis or
+   Context outside a section. Elpi, which Hierarchy-Builder brings, runs
+   shell commands and writes files while Rocq compiles (its built-ins
+   system and open_out), from a quotation or from a file that Extra
+   Dependency names (E37); the other commands of Hierarchy-Builder take
+   only Rocq terms, and HB.graph writes the file it names. In library/,
+   extension/ and applications/, a global or exported setting, an exported
+   module and Require Export are refused. In a frozen file, a pinned section
+   or a code-fixed check file, a non-ASCII character outside comments, Set
+   Warnings, a warning attribute, and a comment not followed by a blank, a
+   line boundary or a parenthesis are refused. A missing frozen, pinned or
+   code-fixed file is a failure.
+   (b) Compilation. make check first runs this script with --before-build,
+   which applies every rule that reads only the sources (rules 1 to 3 and 7
+   to 29, and those of rule 30 that read no compiled file), and stops on a
+   failure before anything compiles, since a source that breaks them can
+   run code during the build (E37). It then builds, and runs this script
+   again, which applies the same rules and starts the runner only if they
+   hold. make runs the build and this script without the variables of
+   UNSAFE_ENV of the Makefile (an rc file, load paths, plugin paths) and
+   without any variable whose name starts with OCAML or CAML (findlib and
+   the OCaml compiler), and Rocq runs with -q. The modules of scripts/ that this script and the
+   runner load are compiled from their source, never from the bytecode
+   cached in scripts/__pycache__/, which python3 -B does not prevent and
+   which can stand for another source (E36). make reads a GNUmakefile or a
+   makefile before the Makefile: this script refuses both, but only make
+   -f Makefile check, or a check from outside the tree that they are
+   absent, makes sure that make runs this script at all (E38). This
+   script creates a run identifier and starts scripts/run_checks.py,
+   loaded by its path, with python3 -I -B; the
+   runner compiles each check file of CHECK_FILES with its flags, -q and the
+   warning comment-terminator-in-string as an error, publishes an output
+   only after exit status 0, and writes build/checks/manifest.json after
+   full success. This script then requires that manifest, with this run's
+   identifier, ROCQ_VERSION and the PACKAGES installed, every check file of
+   CHECK_FILES in order with its flags and output, the SHA-256 of each source
+   as it is now and of each output and standard error as they are read, and
+   no file of build/checks/ that it does not list. The runner also runs
+   rocqchk -silent -o on every module of library/, theories/, extension/ and
+   applications/ and every check file, each named with -norec, so that the
+   kernel checks each again; its output must show the default theory (Set
+   predicative, no rewrite rules), nothing that relies on type-in-type,
+   unsafe (co)fixpoints or assumed positivity, and no axiom of a project
+   module (rule 2 at the kernel level). The files of FIXED_FILES
+   (the Makefile and the reviewed scripts) have their fixed SHA-256;
+   scripts/ holds exactly SCRIPTS; the option lines of _CoqProject are
+   COQPROJECT_OPTIONS and every other line is a source file of the four
+   source directories; the files of ABSENT_FILES do not exist, each name
+   compared against the directory listing so that a case-insensitive file
+   system does not confuse makefile with Makefile; git tracks no
+   build product (compiled Rocq files, the generated makefiles, build/,
+   Python bytecode). This replaces the command-text checks of rules 26 and
+   29 and the report arguments of rules 4 to 24: the outputs are those of
+   CHECK_FILES, read through the manifest.
+   (c) Output. Each output holds exactly what its entry of CHECK_FILES
+   requires, and none reports an unsafe construction (an unsafe hierarchy,
+   an assumed guard or positivity, a Theory section): one complete axiom
+   report within its expected list for each theorem check file, after the
+   full name of its identity definition for the four of phase 13; nothing
+   for check/ApplicationsDefinitions.v and check/MatrixSigmaRing.v; three
+   complete reports for
+   check/Phase13Definitions.v and one for check/LibraryStatements.v, within
+   the seven axioms of check/sat_variance_assumptions.expected; for
+   check/TheoremIdentities.v and check/Reports.v, the full name of each
+   identity, characterization lemma or accepted statement, in order, each
+   followed by one complete report within its list. check/TheoremIdentities.v
+   requires the statement and theorem modules without Import and defines,
+   by absolute names, <theorem>_identity with the frozen statement as its
+   type and the theorem as its body, for each of the 28 theorems: in the
+   theorem check files of phases 5 to 12, which import the unfrozen theorem
+   modules after the statement modules, a definition of a theorem module can
+   shadow the statement.
+   (d) Snapshots. Each snapshot file of CHECK_FILES requires the frozen
+   modules of one acceptance baseline, and compiled check files, without
+   Import, and prints under Set Printing All, Set Printing Universes, Set
+   Printing Depth 1000000 and Set Printing Width 78 the module lists of the
+   frozen modules (Print Module), the bodies of their definitions, the
+   statements of their theorems, the pinned sections, the characterization
+   lemmas and the accepted statements. Its standard error must be empty, its
+   output must not hold the elision token ..., and its output must equal its
+   reference in check/snapshots/, written by scripts/snapshot_baselines.py
+   from a build of the acceptance commit, whose SHA-256 is fixed: a
+   reference is never regenerated to make an output pass. NEW_CHECK_CODE
+   fixes the code of the new check files. Each project constant that the
+   snapshot of a frozen or accepted statement names (resolved by Locate at
+   its acceptance commit, in check/snapshots/REFERENCES.json) is defined in
+   a frozen file, lies in a pinned section, or is named by the snapshot of a
+   characterization lemma. check/MatrixSigmaRing.v characterizes the
+   SigmaRing instance of matrices that the statements of phase 12, batch 1,
+   name: its measurable sets are, by reflexivity, those that
+   check/ApplicationsDefinitions.v characterizes (the user's decision of 15
+   October 2026).
+   (e) Identities (E42). A snapshot prints names, and a printed name can
+   resolve to another constant than at the acceptance commit, with the same
+   text. For each snapshot that prints a declaration, the driver
+   check/identity/Identity<Name>.v requires the same modules and asks the
+   exporter of check/identity/ (Declare ML Module "kernel_identity", allowed
+   in these drivers only) for each declaration: a Print in definition mode
+   (type and body), except the opaque roots listed in
+   scripts/identity_sidecars.py, in opaque-body mode, and a Check in type
+   mode. check/identity/inventory.json lists the queries and must equal the
+   list read from the snapshot files; each driver must equal the text
+   generated from it. scripts/run_checks.py builds the exporter from its
+   fixed sources and compiles the drivers with OCAMLPATH set to that build
+   only. Each output must be framed exactly (one complete record per query,
+   in order, with the expected target, mode and parts, and nothing else),
+   its standard error empty, and the references it lists (the kernel names,
+   user and canonical, of each constant, inductive, constructor and
+   projection of each term, at its position in the term) must equal those of
+   the reference check/identity/Identity<Name>.json, written by
+   scripts/snapshot_baselines.py from a build of the acceptance commit, whose
+   SHA-256 IDENTITY_REFERENCES fixes. There are IDENTITY_QUERIES queries in
+   IDENTITY_PARTS parts. The manifest records the versions of ocamlopt and
+   findlib (OCAML_VERSION, FINDLIB_VERSION), the SHA-256 of the exporter's
+   build recipe and that of the plugin built, which must equal the plugin of
+   every reference (check/identity/REFERENCES.json). The protection closure
+   of (d) also holds for these kernel names, user and canonical, of every
+   kind of reference: a project name is a subject of its snapshot, defined
+   in a frozen file (by the file of its kernel name), pinned, referenced by a
+   characterization snapshot, or, under Checks., defined in a check file. The sidecars hold no universe: the snapshots
+   print them. They identify names; they do not fix what a name means, which
+   the frozen files, the pinned sections and the characterizations do.
 """
 
+import argparse
+import hashlib
+import json
 import re
+import secrets
 import subprocess
 import sys
+import types
 from pathlib import Path
+from typing import NamedTuple
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "scripts"))
-from export_from_ellipsoid_rocq import strip_comments  # noqa: E402
+
+
+def _load(name, path):
+    """A module of scripts/, compiled from its source: the checker does not
+    change sys.path (python3 -I keeps scripts/ out of it), and it never reads
+    the bytecode cached in scripts/__pycache__/, which python3 -B does not
+    prevent and which can stand for another source (E36)."""
+    for component in (path, *path.parents):
+        if component == ROOT:
+            break
+        if component.is_symlink():
+            raise SystemExit(f"{component}: a checker input is a symlink")
+    module = types.ModuleType(name)
+    module.__file__ = str(path)
+    exec(compile(Path(path).read_bytes(), str(path), "exec"), module.__dict__)
+    return module
+
+
+rocq_lex = _load("rocq_lex", ROOT / "scripts" / "rocq_lex.py")
+identity_sidecars = _load("identity_sidecars", ROOT / "scripts" / "identity_sidecars.py")
 
 FROZEN = [
     "theories/MainStatement.v",
@@ -473,15 +636,6 @@ APPLICATIONS_DEFINITIONS_CHECK = (
     'gauss_unique. Qed.')
 PHASE13_DEFINITIONS = "check/Phase13Definitions.v"
 PHASE13_DEFINITIONS_OUTPUT = "build/phase13_definitions.txt"
-# The commands of the Makefile that delete and regenerate the output.
-PHASE13_MAKE_LINES = [
-    "rm -f $(REPORTS) build/applications_definitions.txt "
-    "build/phase13_definitions.txt",
-    "rocq compile -noglob -w -notation-overridden -w -ambiguous-paths "
-    "-w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library "
-    "GaussianAnalysis -o build/Phase13Definitions.vo "
-    "check/Phase13Definitions.v > build/phase13_definitions.txt",
-]
 # The code of check/Phase13Definitions.v at each freeze of phase 13, in
 # order; each is a prefix of the next, and the file has the last one.
 PHASE13_DEFINITIONS_FREEZES = [
@@ -1182,419 +1336,398 @@ PHASE13_THEOREMS = [
 ]
 LIBRARY_STATEMENTS = "check/LibraryStatements.v"
 LIBRARY_STATEMENTS_OUTPUT = "build/library_statements.txt"
-LIBRARY_STATEMENTS_CHECK = (
-    'Set Warnings "-require-in-module". Module accepted_finite_mean. Fr'
-    'om HB Require Import structures. From mathcomp Require Import all_'
-    'ssreflect_compat ssralg ssrnum. From mathcomp Require Import arith'
-    'metic_tactic ring_tactic. Import Order.TTheory GRing.Theory Num.Th'
-    'eory. Local Open Scope ring_scope. Require Import GaussianAnalysis'
-    '.probability.finite_mean. Lemma unif_mean_union_accepted : forall '
-    '(R : realFieldType) (T I : finType) (P : I -> pred T), @unif_mean '
-    'R T (fun x : T => [exists i, P i x]%:R : R) <= \\sum_i @unif_mean R'
-    ' T (fun x : T => (P i x)%:R : R). Proof. exact: @unif_mean_union. '
-    'Qed. Lemma unif_mean_indicatorN_accepted : forall (R : realFieldTy'
-    'pe) (T : finType) (P : pred T), (0 < #|T|)%N -> @unif_mean R T (fu'
-    'n x : T => (~~ P x)%:R : R) = 1 - @unif_mean R T (fun x : T => (P '
-    'x)%:R : R). Proof. exact: @unif_mean_indicatorN. Qed. Lemma unif_m'
-    'ean_markov_accepted : forall (R : realFieldType) (T : finType) (f '
-    ': T -> R) (t : R), (forall x : T, 0 <= f x) -> t * @unif_mean R T '
-    '(fun x : T => (t <= f x)%R%:R : R) <= @unif_mean R T f. Proof. exa'
-    'ct: @unif_mean_markov. Qed. Lemma unif_mean_cutoff_accepted : fora'
-    'll (R : realFieldType) (T : finType) (f : T -> R) (M t : R), 0 <= '
-    't -> (forall x : T, f x <= M) -> @unif_mean R T f <= t + M * @unif'
-    '_mean R T (fun x : T => (t <= f x)%R%:R : R). Proof. exact: @unif_'
-    'mean_cutoff. Qed. Lemma unif_chebyshev_accepted : forall (R : real'
-    'FieldType) (T : finType) (f : T -> R) (t : R), 0 < t -> @unif_mean'
-    ' R T (fun x : T => (t <= `|f x - @unif_mean R T f|)%R%:R : R) <= @'
-    'unif_var R T f / t ^+ 2. Proof. exact: @unif_chebyshev. Qed. Lemma'
-    ' unif_mean_tuple_prod_ord_accepted : forall (R : realFieldType) (T'
-    " : finType) (m : nat) (g : 'I_m -> T -> R), @unif_mean R (tuple_tu"
-    'ple_of__canonical__fintype_Finite m T) (fun t : m.-tuple T => \\pro'
-    'd_(i < m) g i (@tnth m T t i)) = \\prod_(i < m) @unif_mean R T (g i'
-    '). Proof. exact: @unif_mean_tuple_prod_ord. Qed. Lemma unif_mean_t'
-    'uple_prod_set_accepted : forall (R : realFieldType) (T : finType) '
-    "(m : nat) (J : {set 'I_m}) (g : T -> R), (0 < #|T|)%N -> @unif_mea"
-    'n R (tuple_tuple_of__canonical__fintype_Finite m T) (fun t : m.-tu'
-    'ple T => \\prod_(i in J) g (@tnth m T t i)) = @unif_mean R T g ^+ #'
-    '|J|. Proof. exact: @unif_mean_tuple_prod_set. Qed. End accepted_fi'
-    'nite_mean. Module accepted_binomial_mean. From HB Require Import s'
-    'tructures. From mathcomp Require Import all_ssreflect_compat ssral'
-    'g ssrnum. From mathcomp Require Import boolp classical_sets reals '
-    'ereal measure numfun. From mathcomp Require Import lebesgue_integr'
-    'al binomial_distribution. From mathcomp Require Import ring_tactic'
-    '. From GaussianAnalysis.probability Require Import finite_mean. Im'
-    'port Order.TTheory GRing.Theory Num.Theory. Local Open Scope ring_'
-    'scope. Require Import GaussianAnalysis.probability.binomial_mean. '
-    'Lemma binomial_mean0_accepted : forall (R : numDomainType) (p : R)'
-    ' (f : nat -> R), @binomial_mean R 0 p f = f 0%N. Proof. exact: @bi'
-    'nomial_mean0. Qed. Lemma binomial_meanS_accepted : forall (R : num'
-    'DomainType) (m : nat) (p : R) (f : nat -> R), @binomial_mean R m.+'
-    '1 p f = (1 - p) * @binomial_mean R m p f + p * @binomial_mean R m '
-    'p (fun j : nat => f j.+1). Proof. exact: @binomial_meanS. Qed. Lem'
-    'ma eq_binomial_mean_accepted : forall (R : numDomainType) (m : nat'
-    ') (p : R) (f g : nat -> R), (forall j : nat, (j <= m)%N -> f j = g'
-    ' j) -> @binomial_mean R m p f = @binomial_mean R m p g. Proof. exa'
-    'ct: @eq_binomial_mean. Qed. Lemma binomial_mean_cst_accepted : for'
-    'all (R : numDomainType) (m : nat) (p c : R), @binomial_mean R m p '
-    '(fun=> c) = c. Proof. exact: @binomial_mean_cst. Qed. Lemma binomi'
-    'al_meanD_accepted : forall (R : numDomainType) (m : nat) (p : R) ('
-    'f g : nat -> R), @binomial_mean R m p (fun j : nat => f j + g j) ='
-    ' @binomial_mean R m p f + @binomial_mean R m p g. Proof. exact: @b'
-    'inomial_meanD. Qed. Lemma binomial_meanZ_accepted : forall (R : nu'
-    'mDomainType) (m : nat) (p c : R) (f : nat -> R), @binomial_mean R '
-    'm p (fun j : nat => c * f j) = c * @binomial_mean R m p f. Proof. '
-    'exact: @binomial_meanZ. Qed. Lemma ler_binomial_mean_accepted : fo'
-    'rall (R : numDomainType) (m : nat) (p : R) (f g : nat -> R), 0 <= '
-    'p <= 1 -> (forall j : nat, (j <= m)%N -> f j <= g j) -> @binomial_'
-    'mean R m p f <= @binomial_mean R m p g. Proof. exact: @ler_binomia'
-    'l_mean. Qed. Lemma binomial_mean_id_accepted : forall (R : numDoma'
-    'inType) (m : nat) (p : R), @binomial_mean R m p [eta @Algebra.natm'
-    'ul R 1] = m%:R * p. Proof. exact: @binomial_mean_id. Qed. Lemma bi'
-    'nomial_mean_sqr_dev_accepted : forall (R : numDomainType) (m : nat'
-    ') (p : R), @binomial_mean R m p (fun j : nat => (j%:R - m%:R * p) '
-    '^+ 2) = m%:R * p * (1 - p). Proof. exact: @binomial_mean_sqr_dev. '
-    'Qed. Lemma binomial_chebyshev_accepted : forall (R : realFieldType'
-    ') (m : nat) (p t : R), 0 <= p <= 1 -> 0 < t -> @binomial_mean R m '
-    'p (fun j : nat => (t <= `|j%:R - m%:R * p|)%R%:R) <= m%:R * p * (1'
-    ' - p) / t ^+ 2. Proof. exact: @binomial_chebyshev. Qed. Lemma bino'
-    'mial_mean_last_accepted : forall (R : numDomainType) (m : nat) (p '
-    ': R) (f : nat -> R), 0 <= p <= 1 -> (forall j : nat, (j <= m)%N ->'
-    ' 0 <= f j) -> p ^+ m * f m <= @binomial_mean R m p f. Proof. exact'
-    ': @binomial_mean_last. Qed. Lemma binomial_mean_trials_accepted : '
-    "forall (R : numDomainType) (m m' : nat) (p : R) (f : nat -> R), 0 "
-    "<= p <= 1 -> {homo f : i j / (i <= j)%N >-> i <= j} -> (m <= m')%N"
-    " -> @binomial_mean R m p f <= @binomial_mean R m' p f. Proof. exac"
-    't: @binomial_mean_trials. Qed. Lemma unif_mean_binomial_mean_accep'
-    'ted : forall (R : realFieldType) (T : finType) (m : nat) (p : R) ('
-    'f : nat -> T -> R), @unif_mean R T (fun x : T => @binomial_mean R '
-    'm p (f^~ x)) = @binomial_mean R m p (fun j : nat => @unif_mean R T'
-    ' (f j)). Proof. exact: @unif_mean_binomial_mean. Qed. Lemma binomi'
-    'al_meanE_accepted : forall (R : realType) (m : nat) (p : R) (f : n'
-    'at -> R), @binomial_mean R m p f = \\sum_(j < m.+1) @binomial_pmf R'
-    ' m p (nat_of_ord j) * f (nat_of_ord j). Proof. exact: @binomial_me'
-    'anE. Qed. Lemma integral_binomial_mean_accepted : forall (R : real'
-    'Type) (m : nat) (p : R) (f : nat -> R), 0 <= p <= 1 -> (\\int[@bino'
-    'mial_prob R m p]_j (f j)%:E)%E = (@binomial_mean R m p f)%:E. Proo'
-    'f. exact: @integral_binomial_mean. Qed. End accepted_binomial_mean'
-    '. Module accepted_commuting_operators. From HB Require Import stru'
-    'ctures. From mathcomp Require Import all_ssreflect_compat ssralg s'
-    'srnum boolp. From GaussianAnalysis.probability Require Import fini'
-    'te_mean binomial_mean. Import Order.TTheory GRing.Theory Num.Theor'
-    'y. Local Open Scope ring_scope. Require Import GaussianAnalysis.pr'
-    'obability.commuting_operators. Lemma homo_iter_accepted : forall ('
-    'disp : Order.disp_t) (T : preorderType disp) (A : T -> T) (m : nat'
-    '), {homo A : x y / (x <= y)%O} -> {homo @iter T m A : x y / (x <= '
-    'y)%O}. Proof. exact: @homo_iter. Qed. Lemma iter_le_subcomm_accept'
-    'ed : forall (disp : Order.disp_t) (T : preorderType disp) (A B : T'
-    ' -> T) (x : T), {homo A : y z / (y <= z)%O} -> {homo B : y z / (y '
-    '<= z)%O} -> (forall y : T, (B (A y) <= A (B y))%O) -> (B x <= A x)'
-    '%O -> forall m : nat, (@iter T m B x <= @iter T m A x)%O. Proof. e'
-    'xact: @iter_le_subcomm. Qed. Lemma monotone_iter_le_accepted : for'
-    'all (R : numDomainType) (X : Type) (A B : (X -> R) -> X -> R) (f :'
-    ' X -> R), @monotone_op R X A -> @monotone_op R X B -> (forall (g :'
-    ' X -> R) (x : X), B (A g) x <= A (B g) x) -> (forall x : X, B f x '
-    '<= A f x) -> forall (m : nat) (x : X), @iter (X -> R) m B f x <= @'
-    'iter (X -> R) m A f x. Proof. exact: @monotone_iter_le. Qed. Lemma'
-    ' iter_scale_accepted : forall (R : numDomainType) (X : Type) (A : '
-    '(X -> R) -> X -> R) (c : R), @linear_op R X A -> forall (m : nat) '
-    '(f : X -> R) (x : X), @iter (X -> R) m (fun (g : X -> R) (y : X) ='
-    '> c * A g y) f x = c ^+ m * @iter (X -> R) m A f x. Proof. exact: '
-    '@iter_scale. Qed. Lemma iter_mix_binomial_accepted : forall (R : n'
-    'umDomainType) (X : Type) (A B : (X -> R) -> X -> R) (p : R), @line'
-    'ar_op R X A -> @linear_op R X B -> (forall f : X -> R, A (B f) = B'
-    ' (A f)) -> forall (m : nat) (f : X -> R) (x : X), @iter (X -> R) m'
-    ' (fun (g : X -> R) (y : X) => p * A g y + (1 - p) * B g y) f x = @'
-    'binomial_mean R m p (fun j : nat => @iter (X -> R) j A (@iter (X -'
-    '> R) (m - j) B f) x). Proof. exact: @iter_mix_binomial. Qed. Lemma'
-    ' binomial_mix_le_iter_accepted : forall (R : numDomainType) (X : T'
-    'ype) (A B C : (X -> R) -> X -> R) (p : R) (f : X -> R), 0 <= p <= '
-    '1 -> @linear_op R X A -> @linear_op R X B -> @linear_op R X C -> @'
-    'monotone_op R X A -> @monotone_op R X B -> @monotone_op R X C -> ('
-    'forall g : X -> R, A (B g) = B (A g)) -> (forall (g : X -> R) (x :'
-    ' X), A (C g) x <= C (A g) x) -> (forall (g : X -> R) (x : X), B (C'
-    ' g) x <= C (B g) x) -> (forall x : X, p * A f x + (1 - p) * B f x '
-    '<= C f x) -> forall (m : nat) (x : X), @binomial_mean R m p (fun j'
-    ' : nat => @iter (X -> R) j A (@iter (X -> R) (m - j) B f) x) <= @i'
-    'ter (X -> R) m C f x. Proof. exact: @binomial_mix_le_iter. Qed. Le'
-    'mma meet_avg_linear_accepted : forall (R : realFieldType) (T C : f'
-    'inType) (E : C -> {set T}), @linear_op R {set T} (@meet_avg R T C '
-    'E). Proof. exact: @meet_avg_linear. Qed. Lemma meet_avg_monotone_a'
-    'ccepted : forall (R : realFieldType) (T C : finType) (E : C -> {se'
-    't T}), @monotone_op R {set T} (@meet_avg R T C E). Proof. exact: @'
-    'meet_avg_monotone. Qed. Lemma meet_avg_cst_accepted : forall (R : '
-    'realFieldType) (T C : finType) (E : C -> {set T}) (a : R) (S0 : {s'
-    'et T}), (0 < #|C|)%N -> @meet_avg R T C E (fun=> a) S0 = a. Proof.'
-    ' exact: @meet_avg_cst. Qed. Lemma meet_avgC_accepted : forall (R :'
-    ' realFieldType) (T C D : finType) (E : C -> {set T}) (F : D -> {se'
-    't T}) (f : {set T} -> R), @meet_avg R T C E (@meet_avg R T D F f) '
-    '= @meet_avg R T D F (@meet_avg R T C E f). Proof. exact: @meet_avg'
-    'C. Qed. Lemma iter_meet_avg_accepted : forall (R : realFieldType) '
-    '(T C : finType) (E : C -> {set T}) (m : nat) (f : {set T} -> R) (S'
-    ' : {set T}), @iter ({set T} -> R) m (@meet_avg R T C E) f S = @uni'
-    'f_mean R (tuple_tuple_of__canonical__fintype_Finite m C) (fun t : '
-    'm.-tuple C => f (S :&: \\bigcap_(c <- t) E c)). Proof. exact: @iter'
-    '_meet_avg. Qed. End accepted_commuting_operators. Module accepted_'
-    'boolean_fourier. From HB Require Import structures. From mathcomp '
-    'Require Import all_ssreflect_compat ssralg ssrnum ssrint zmodp. Fr'
-    'om mathcomp Require Import matrix. From GaussianAnalysis.matrix Re'
-    'quire Import euclidean. Import Order.TTheory GRing.Theory Num.Theo'
-    'ry. Local Open Scope ring_scope. Require Import GaussianAnalysis.f'
-    'ourier.boolean_fourier. Lemma bchar_algebra_accepted : forall (t a'
-    " : nat) (R : pzRingType), [/\\ forall y : matrix 'F_2 t a, @bchar t"
-    " a R 0 y = 1, forall p q y : matrix 'F_2 t a, @bchar t a R (p + q)"
-    " y = @bchar t a R p y * @bchar t a R q y, forall p y : matrix 'F_2"
-    " t a, @bchar t a R p y = @bchar t a R y p & forall p y : matrix 'F"
-    '_2 t a, @bchar t a R p y = 1 \\/ @bchar t a R p y = -1]. Proof. exa'
-    'ct: @bchar_algebra. Qed. Lemma bchar_orthogonal_accepted : forall '
-    "(t a : nat) (R : pzRingType), forall p q : matrix 'F_2 t a, \\sum_y"
-    ' @bchar t a R p y * @bchar t a R q y = (if p == q then #|{: matrix'
-    " 'F_2 t a}|%:R else 0). Proof. exact: @bchar_orthogonal. Qed. Lemm"
-    'a bchar_delta_accepted : forall (t a : nat) (R : pzRingType), fora'
-    "ll (i : 'I_t) (j : 'I_a) (y : matrix 'F_2 t a), @bchar t a R (@del"
-    'ta_mx (fintype_ordinal__canonical__GRing_PzSemiRing (Zp_trunc (pdi'
-    'v 2))) t a i j) y = (-1) ^+ nat_of_ord (y i j). Proof. exact: @bch'
-    'ar_delta. Qed. Lemma blk_dist_metric_accepted : forall t a : nat, '
-    "[/\\ forall p q : matrix 'F_2 t a, @blk_dist t a p q = @blk_deg t a"
-    " (p + q), forall p q : matrix 'F_2 t a, @blk_dist t a p q = 0%N <-"
-    "> p = q, forall p q : matrix 'F_2 t a, @blk_dist t a p q = @blk_di"
-    "st t a q p, forall p q s : matrix 'F_2 t a, (@blk_dist t a p s <= "
-    "@blk_dist t a p q + @blk_dist t a q s)%N & forall p q s : matrix '"
-    'F_2 t a, @blk_dist t a (p + s) (q + s) = @blk_dist t a p q]. Proof'
-    '. exact: @blk_dist_metric. Qed. Lemma fcoef_inversion_accepted : f'
-    'orall (t a : nat) (R : numFieldType), forall (V : lmodType R) (f :'
-    " matrix 'F_2 t a -> V) (y : matrix 'F_2 t a), f y = \\sum_p @bchar "
-    't a R p y *: @fcoef t a R V f p. Proof. exact: @fcoef_inversion. Q'
-    'ed. Lemma fcoef_expansion_accepted : forall (t a : nat) (R : numFi'
-    "eldType), forall (V : lmodType R) (c : matrix 'F_2 t a -> V) (q : "
-    "matrix 'F_2 t a), @fcoef t a R V (fun y : matrix 'F_2 t a => \\sum_"
-    'p @bchar t a R p y *: c p) q = c q. Proof. exact: @fcoef_expansion'
-    '. Qed. Lemma fcoef_plancherel_accepted : forall (t a : nat) (R : n'
-    'umFieldType), forall (V W Z : lmodType R) (b : V -> W -> Z), (fora'
-    'll w : W, linear (b^~ w)) -> (forall v : V, linear (b v)) -> foral'
-    "l (f : matrix 'F_2 t a -> V) (g : matrix 'F_2 t a -> W), #|{: matr"
-    "ix 'F_2 t a}|%:R^-1 *: \\sum_y b (f y) (g y) = \\sum_p b (@fcoef t a"
-    ' R V f p) (@fcoef t a R W g p). Proof. exact: @fcoef_plancherel. Q'
-    'ed. Lemma fcoef_linear_accepted : forall (t a : nat) (R : numField'
-    "Type), forall (V : lmodType R) (c : R) (f g : matrix 'F_2 t a -> V"
-    ") (p : matrix 'F_2 t a), @fcoef t a R V (fun y : matrix 'F_2 t a ="
-    '> c *: f y + g y) p = c *: @fcoef t a R V f p + @fcoef t a R V g p'
-    '. Proof. exact: @fcoef_linear. Qed. Lemma fcoef_comp_linear_accept'
-    'ed : forall (t a : nat) (R : numFieldType), forall (V W : lmodType'
-    " R) (h : V -> W), linear h -> forall (f : matrix 'F_2 t a -> V) (p"
-    " : matrix 'F_2 t a), @fcoef t a R W (fun y : matrix 'F_2 t a => h "
-    '(f y)) p = h (@fcoef t a R V f p). Proof. exact: @fcoef_comp_linea'
-    'r. Qed. Lemma fcoef_mulmx_accepted : forall (t a : nat) (R : numFi'
-    "eldType), forall (m n k l : nat) (A : matrix R m n) (f : matrix 'F"
-    "_2 t a -> matrix R n k) (B : matrix R k l) (p : matrix 'F_2 t a), "
-    '@fcoef t a R (matrix_matrix__canonical__GRing_Lmodule R m l) (fun '
-    "y : matrix 'F_2 t a => A *m f y *m B) p = A *m @fcoef t a R (matri"
-    'x_matrix__canonical__GRing_Lmodule R n k) f p *m B. Proof. exact: '
-    '@fcoef_mulmx. Qed. Lemma fcoef_norm_le_accepted : forall (t a : na'
-    "t) (R : numFieldType), forall (f : matrix 'F_2 t a -> R^o) (c : R)"
-    " (p : matrix 'F_2 t a), (forall y : matrix 'F_2 t a, `|f y : R| <="
-    ' c) -> `|@fcoef t a R (GRing.GRing_regular__canonical__GRing_Lmodu'
-    'le R) f p : R| <= c. Proof. exact: @fcoef_norm_le. Qed. Lemma fcoe'
-    'f_translate_accepted : forall (t a : nat) (R : numFieldType), fora'
-    "ll (V : lmodType R) (f : matrix 'F_2 t a -> V) (p q : matrix 'F_2 "
-    "t a), @fcoef t a R V (fun y : matrix 'F_2 t a => @bchar t a R q y "
-    '*: f y) (p + q) = @fcoef t a R V f p. Proof. exact: @fcoef_transla'
-    'te. Qed. Lemma low_blk_deg_expansion_accepted : forall (t a : nat)'
-    ' (R : numFieldType), forall (V : lmodType R) (D : nat) (f : matrix'
-    " 'F_2 t a -> V), @low_blk_deg t a R V D f <-> (forall y : matrix '"
-    'F_2 t a, f y = \\sum_(p | (@blk_deg t a p <= D)%N) @bchar t a R p y'
-    ' *: @fcoef t a R V f p). Proof. exact: @low_blk_deg_expansion. Qed'
-    '. Lemma low_blk_deg_translate_accepted : forall (t a : nat) (R : n'
-    "umFieldType), forall (V : lmodType R) (D : nat) (f : matrix 'F_2 t"
-    " a -> V) (q : matrix 'F_2 t a), (forall p : matrix 'F_2 t a, (D < "
-    '@blk_dist t a p q)%N -> @fcoef t a R V f p = 0) -> @low_blk_deg t '
-    "a R V D (fun y : matrix 'F_2 t a => @bchar t a R q y *: f y). Proo"
-    'f. exact: @low_blk_deg_translate. Qed. Lemma blk_dist_row_accepted'
-    " : forall (a : nat) (s z : matrix 'F_2 1 a), @blk_dist 1 a s z = ("
-    's != z). Proof. exact: @blk_dist_row. Qed. Lemma bchar_col_mx_acce'
-    'pted : forall t1 t2 a : nat, forall (R : pzRingType) (p1 y1 : matr'
-    "ix 'F_2 t1 a) (p2 y2 : matrix 'F_2 t2 a), @bchar (t1 + t2) a R (@c"
-    "ol_mx 'F_2 t1 t2 a p1 p2) (@col_mx 'F_2 t1 t2 a y1 y2) = @bchar t1"
-    ' a R p1 y1 * @bchar t2 a R p2 y2. Proof. exact: @bchar_col_mx. Qed'
-    '. Lemma blk_col_mx_accepted : forall t1 t2 a : nat, forall (p1 q1 '
-    ": matrix 'F_2 t1 a) (p2 q2 : matrix 'F_2 t2 a), @blk_deg (t1 + t2)"
-    " a (@col_mx 'F_2 t1 t2 a p1 p2) = (@blk_deg t1 a p1 + @blk_deg t2 "
-    "a p2)%N /\\ @blk_dist (t1 + t2) a (@col_mx 'F_2 t1 t2 a p1 p2) (@co"
-    "l_mx 'F_2 t1 t2 a q1 q2) = (@blk_dist t1 a p1 q1 + @blk_dist t2 a "
-    'p2 q2)%N. Proof. exact: @blk_col_mx. Qed. Lemma fcoef_col_mx_accep'
-    'ted : forall t1 t2 a : nat, forall (R : numFieldType) (V : lmodTyp'
-    "e R) (f : matrix 'F_2 (t1 + t2) a -> V) (p1 : matrix 'F_2 t1 a) (p"
-    "2 : matrix 'F_2 t2 a), @fcoef (t1 + t2) a R V f (@col_mx 'F_2 t1 t"
-    "2 a p1 p2) = @fcoef t1 a R V (fun y1 : matrix 'F_2 t1 a => @fcoef "
-    "t2 a R V (fun y2 : matrix 'F_2 t2 a => f (@col_mx 'F_2 t1 t2 a y1 "
-    'y2)) p2) p1. Proof. exact: @fcoef_col_mx. Qed. End accepted_boolea'
-    'n_fourier. Module accepted_psd_factorization. From HB Require Impo'
-    'rt structures. From mathcomp Require Import all_ssreflect_compat f'
-    'ingroup perm ssralg ssrnum. From mathcomp Require Import matrix se'
-    'squilinear boolp classical_sets reals. From mathcomp Require Impor'
-    't topology normedtype derive exp. From mathcomp Require Import ari'
-    'thmetic_tactic ring_tactic. From GaussianAnalysis.matrix Require I'
-    'mport euclidean real_spectral psd_part. From GaussianAnalysis.matr'
-    'ix Require Import psd_splitting. From GaussianAnalysis.convex Requ'
-    'ire Import logdet_barrier moreau. Import GRing.Theory Num.Theory O'
-    'rder.TTheory. Import numFieldTopology.Exports numFieldNormedType.E'
-    'xports. Local Open Scope ring_scope. Local Open Scope classical_se'
-    't_scope. Require Import GaussianAnalysis.matrix.psd_factorization.'
-    ' Lemma psd_factorization_ge0_accepted : forall (R : realType) (I J'
-    ' : finType) (A : I -> J -> R) (r : nat), @psd_factorization R I J '
-    'A r -> forall (i : I) (j : J), 0 <= A i j. Proof. exact: @psd_fact'
-    'orization_ge0. Qed. Lemma psd_factorization_size_gt0_accepted : fo'
-    'rall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat), @'
-    'psd_factorization R I J A r -> (exists (i : I) (j : J), A i j != 0'
-    ') -> (0 < r)%N. Proof. exact: @psd_factorization_size_gt0. Qed. Le'
-    'mma psd_factorization_restrict_accepted : forall (R : realType) (I'
-    " J I' J' : finType) (A : I -> J -> R) (r : nat) (f : I' -> I) (g :"
-    " J' -> J), @psd_factorization R I J A r -> @psd_factorization R I'"
-    " J' (fun (i : I') (j : J') => A (f i) (g j)) r. Proof. exact: @psd"
-    '_factorization_restrict. Qed. Lemma psd_factorization_widen_accept'
-    'ed : forall (R : realType) (I J : finType) (A : I -> J -> R) (r s '
-    ': nat), (r <= s)%N -> @psd_factorization R I J A r -> @psd_factori'
-    'zation R I J A s. Proof. exact: @psd_factorization_widen. Qed. Lem'
-    'ma psd_factorization_shift_accepted : forall (R : realType) (I J :'
-    ' finType) (A : I -> J -> R) (r : nat) (rho : R), 0 <= rho -> @psd_'
-    'factorization R I J A r -> @psd_factorization R I J (fun (i : I) ('
-    'j : J) => A i j + rho) r.+1. Proof. exact: @psd_factorization_shif'
-    't. Qed. Lemma psd_factorization_nonneg_accepted : forall (R : real'
-    "Type) (I J : finType) (r : nat) (a : I -> 'I_r -> R) (b : J -> 'I_"
-    "r -> R), (forall (i : I) (k : 'I_r), 0 <= a i k) -> (forall (j : J"
-    ") (k : 'I_r), 0 <= b j k) -> @psd_factorization R I J (fun (i : I)"
-    ' (j : J) => \\sum_(k < r) a i k * b j k) r. Proof. exact: @psd_fact'
-    'orization_nonneg. Qed. End accepted_psd_factorization. Module acce'
-    'pted_binomial_bounds. From HB Require Import structures. From math'
-    'comp Require Import all_ssreflect_compat ssralg ssrnum rat reals. '
-    'From mathcomp Require Import sequences exp. From mathcomp Require '
-    'Import arithmetic_tactic ring_tactic. Import Order.TTheory GRing.T'
-    'heory Num.Theory. Local Open Scope ring_scope. Local Open Scope na'
-    't_scope. Require Import GaussianAnalysis.combinatorics.binomial_bo'
-    'unds. Lemma central_bin_le_accepted : forall n : nat, (3 * n).+1 *'
-    " 'C(2 * n, n) ^ 2 <= 16 ^ n. Proof. exact: @central_bin_le. Qed. L"
-    'emma central_bin_ge_accepted : forall n : nat, 0 < n -> 16 ^ n <= '
-    "4 * n * 'C(2 * n, n) ^ 2. Proof. exact: @central_bin_ge. Qed. Lemm"
-    "a half_bin_ge_accepted : forall h : nat, 4 ^ h <= 2 * h.+1 * 'C(h,"
-    ' h./2) ^ 2. Proof. exact: @half_bin_ge. Qed. Lemma leq_bin_half_ac'
-    "cepted : forall n k : nat, 'C(n, k) <= 'C(n, n./2). Proof. exact: "
-    '@leq_bin_half. Qed. Lemma bin_near_half_accepted : forall h g T : '
-    "nat, 6 * T <= h -> h <= 2 * (g + T) -> 2 * g <= h + 2 * T -> 'C(h,"
-    " h./2) <= 2 ^ T.+1 * 'C(h, g). Proof. exact: @bin_near_half. Qed. "
-    "Lemma bin_sqr_central_accepted : forall u j : nat, j <= u -> 'C(u,"
-    " j) ^ 2 * 'C(2 * u, u) = 'C(2 * j, j) * 'C(2 * (u - j), u - j) * '"
-    'C(2 * u, 2 * j). Proof. exact: @bin_sqr_central. Qed. Lemma bin_sq'
-    "r_ratio_accepted : forall u j : nat, j <= u -> 'C(u, j) ^ 4 * j.+1"
-    " * (u - j).+1 <= 4 * u.+1 * 'C(2 * u, 2 * j) ^ 2. Proof. exact: @b"
-    'in_sqr_ratio. Qed. Lemma bin_partial_sum_accepted : forall (R : re'
-    "alType) (N M : nat), M <= N -> ((\\sum_(j < M.+1) 'C(N, nat_of_ord "
-    'j)%:R : R) <= ((@expR R 1 * N%:R / M%:R) ^+ M : R))%R. Proof. exac'
-    't: @bin_partial_sum. Qed. End accepted_binomial_bounds. Module acc'
-    'epted_psd_duality. From HB Require Import structures. From mathcom'
-    'p Require Import all_ssreflect_compat ssralg ssrnum matrix. From m'
-    'athcomp Require Import sesquilinear boolp classical_sets reals. Fr'
-    'om mathcomp Require Import topology normedtype. From mathcomp Requ'
-    'ire Import arithmetic_tactic ring_tactic. From GaussianAnalysis.ma'
-    'trix Require Import euclidean real_spectral psd_part. From Gaussia'
-    'nAnalysis.matrix Require Import psd_splitting psd_factorization. F'
-    'rom GaussianAnalysis.matrix Require Import nuclear condition_cone.'
-    ' From GaussianAnalysis.gaussian Require Import measurable_matrix. '
-    'From GaussianAnalysis.convex Require Import logdet_barrier moreau.'
-    ' Import GRing.Theory Num.Theory Order.TTheory. Import numFieldTopo'
-    'logy.Exports numFieldNormedType.Exports. Local Open Scope ring_sco'
-    'pe. Local Open Scope classical_set_scope. Require Import GaussianA'
-    'nalysis.matrix.psd_duality. Lemma psd_eval_cone_closed_accepted : '
-    "forall (R : realType) (n N : nat) (G : 'I_N -> matrix R n n), (for"
-    "all j : 'I_N, @psdmx R n (G j)) -> @closed (matrix_matrix__canonic"
-    'al__topology_structure_Topological 1 N (numFieldTopology.Real_sort'
-    '__canonical__topology_structure_Topological R)) (@psd_eval_cone R '
-    'n N G). Proof. exact: @psd_eval_cone_closed. Qed. Lemma psdmx_dual'
-    '_accepted : forall (R : realType) (n : nat) (S : matrix R n n), S '
-    '\\is symmetricmx -> @psdmx R n S <-> (forall F : matrix R n n, @psd'
-    'mx R n F -> 0 <= \\tr (F *m S)). Proof. exact: @psdmx_dual. Qed. Le'
-    "mma psd_farkas_accepted : forall (R : realType) (n N : nat) (G : '"
-    "I_N -> matrix R n n) (y : matrix R 1 N), (forall j : 'I_N, @psdmx "
-    'R n (G j)) -> @psd_eval_cone R n N G y <-> (forall c : matrix R 1 '
-    'N, @psdmx R n (\\sum_j c 0 j *: G j) -> 0 <= @mxdot R 1 N c y). Pro'
-    'of. exact: @psd_farkas. Qed. Lemma psd_slack_certificate_accepted '
-    ': forall (R : realType) (n : nat) (I : finType) (B : I -> matrix R'
-    ' n n) (s : I -> R) (i0 : I), (forall i : I, @psdmx R n (B i)) -> s'
-    ' i0 = 0 -> (exists2 A : matrix R n n, @psdmx R n A & forall i : I,'
-    ' \\tr (A *m B i) = s i) <-> (forall w : I -> R, \\sum_i w i = 1 -> @'
-    'psdmx R n (\\sum_i w i *: B i) -> 0 <= \\sum_i w i * s i). Proof. ex'
-    'act: @psd_slack_certificate. Qed. Lemma psd_slack_certificate_affi'
-    'ne_accepted : forall (R : realType) (n m : nat) (I : finType) (C :'
-    " 'I_m -> matrix R n n) (c : 'I_m -> R) (D : matrix R n n) (d : R) "
-    '(B : I -> matrix R n n) (i0 : I), (forall i : I, @psdmx R n (B i))'
-    " -> (forall (i : I) (l : 'I_m), \\tr (C l *m B i) = c l) -> (forall"
-    " X : matrix R n n, @psdmx R n X -> (forall l : 'I_m, \\tr (C l *m X"
-    ') = c l) -> 0 <= \\tr (D *m X) + d) -> \\tr (D *m B i0) + d = 0 -> e'
-    'xists2 A : matrix R n n, @psdmx R n A & forall i : I, \\tr (A *m B '
-    'i) = \\tr (D *m B i) + d. Proof. exact: @psd_slack_certificate_affi'
-    'ne. Qed. End accepted_psd_duality. Definition library_statements_a'
-    'ccepted := (accepted_finite_mean.unif_mean_union_accepted, accepte'
-    'd_finite_mean.unif_mean_indicatorN_accepted, accepted_finite_mean.'
-    'unif_mean_markov_accepted, accepted_finite_mean.unif_mean_cutoff_a'
-    'ccepted, accepted_finite_mean.unif_chebyshev_accepted, accepted_fi'
-    'nite_mean.unif_mean_tuple_prod_ord_accepted, accepted_finite_mean.'
-    'unif_mean_tuple_prod_set_accepted, accepted_binomial_mean.binomial'
-    '_mean0_accepted, accepted_binomial_mean.binomial_meanS_accepted, a'
-    'ccepted_binomial_mean.eq_binomial_mean_accepted, accepted_binomial'
-    '_mean.binomial_mean_cst_accepted, accepted_binomial_mean.binomial_'
-    'meanD_accepted, accepted_binomial_mean.binomial_meanZ_accepted, ac'
-    'cepted_binomial_mean.ler_binomial_mean_accepted, accepted_binomial'
-    '_mean.binomial_mean_id_accepted, accepted_binomial_mean.binomial_m'
-    'ean_sqr_dev_accepted, accepted_binomial_mean.binomial_chebyshev_ac'
-    'cepted, accepted_binomial_mean.binomial_mean_last_accepted, accept'
-    'ed_binomial_mean.binomial_mean_trials_accepted, accepted_binomial_'
-    'mean.unif_mean_binomial_mean_accepted, accepted_binomial_mean.bino'
-    'mial_meanE_accepted, accepted_binomial_mean.integral_binomial_mean'
-    '_accepted, accepted_commuting_operators.homo_iter_accepted, accept'
-    'ed_commuting_operators.iter_le_subcomm_accepted, accepted_commutin'
-    'g_operators.monotone_iter_le_accepted, accepted_commuting_operator'
-    's.iter_scale_accepted, accepted_commuting_operators.iter_mix_binom'
-    'ial_accepted, accepted_commuting_operators.binomial_mix_le_iter_ac'
-    'cepted, accepted_commuting_operators.meet_avg_linear_accepted, acc'
-    'epted_commuting_operators.meet_avg_monotone_accepted, accepted_com'
-    'muting_operators.meet_avg_cst_accepted, accepted_commuting_operato'
-    'rs.meet_avgC_accepted, accepted_commuting_operators.iter_meet_avg_'
-    'accepted, accepted_boolean_fourier.bchar_algebra_accepted, accepte'
-    'd_boolean_fourier.bchar_orthogonal_accepted, accepted_boolean_four'
-    'ier.bchar_delta_accepted, accepted_boolean_fourier.blk_dist_metric'
-    '_accepted, accepted_boolean_fourier.fcoef_inversion_accepted, acce'
-    'pted_boolean_fourier.fcoef_expansion_accepted, accepted_boolean_fo'
-    'urier.fcoef_plancherel_accepted, accepted_boolean_fourier.fcoef_li'
-    'near_accepted, accepted_boolean_fourier.fcoef_comp_linear_accepted'
-    ', accepted_boolean_fourier.fcoef_mulmx_accepted, accepted_boolean_'
-    'fourier.fcoef_norm_le_accepted, accepted_boolean_fourier.fcoef_tra'
-    'nslate_accepted, accepted_boolean_fourier.low_blk_deg_expansion_ac'
-    'cepted, accepted_boolean_fourier.low_blk_deg_translate_accepted, a'
-    'ccepted_boolean_fourier.blk_dist_row_accepted, accepted_boolean_fo'
-    'urier.bchar_col_mx_accepted, accepted_boolean_fourier.blk_col_mx_a'
-    'ccepted, accepted_boolean_fourier.fcoef_col_mx_accepted, accepted_'
-    'psd_factorization.psd_factorization_ge0_accepted, accepted_psd_fac'
-    'torization.psd_factorization_size_gt0_accepted, accepted_psd_facto'
-    'rization.psd_factorization_restrict_accepted, accepted_psd_factori'
-    'zation.psd_factorization_widen_accepted, accepted_psd_factorizatio'
-    'n.psd_factorization_shift_accepted, accepted_psd_factorization.psd'
-    '_factorization_nonneg_accepted, accepted_binomial_bounds.central_b'
-    'in_le_accepted, accepted_binomial_bounds.central_bin_ge_accepted, '
-    'accepted_binomial_bounds.half_bin_ge_accepted, accepted_binomial_b'
-    'ounds.leq_bin_half_accepted, accepted_binomial_bounds.bin_near_hal'
-    'f_accepted, accepted_binomial_bounds.bin_sqr_central_accepted, acc'
-    'epted_binomial_bounds.bin_sqr_ratio_accepted, accepted_binomial_bo'
-    'unds.bin_partial_sum_accepted, accepted_psd_duality.psd_eval_cone_'
-    'closed_accepted, accepted_psd_duality.psdmx_dual_accepted, accepte'
-    'd_psd_duality.psd_farkas_accepted, accepted_psd_duality.psd_slack_'
-    'certificate_accepted, accepted_psd_duality.psd_slack_certificate_a'
-    'ffine_accepted). Print Assumptions library_statements_accepted.')
-PHASE13_MAKE_LINES_P = [
-    "rm -f $(REPORTS) build/applications_definitions.txt "
-    "build/phase13_definitions.txt build/library_statements.txt",
-    "rocq compile -noglob -w -notation-overridden -w -ambiguous-paths "
-    "-w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library "
-    "GaussianAnalysis -o build/LibraryStatements.vo "
-    "check/LibraryStatements.v > build/library_statements.txt",
-]
+LIBRARY_STATEMENTS_CHECK = ('Module accepted_finite_mean. From HB Require Import structures. From'
+    ' mathcomp Require Import all_ssreflect_compat ssralg ssrnum. From ma'
+    'thcomp Require Import arithmetic_tactic ring_tactic. Import Order.TT'
+    'heory GRing.Theory Num.Theory. Local Open Scope ring_scope. Require '
+    'Import GaussianAnalysis.probability.finite_mean. Lemma unif_mean_uni'
+    'on_accepted : forall (R : realFieldType) (T I : finType) (P : I -> p'
+    'red T), @unif_mean R T (fun x : T => [exists i, P i x]%:R : R) <= \\s'
+    'um_i @unif_mean R T (fun x : T => (P i x)%:R : R). Proof. exact: @un'
+    'if_mean_union. Qed. Lemma unif_mean_indicatorN_accepted : forall (R '
+    ': realFieldType) (T : finType) (P : pred T), (0 < #|T|)%N -> @unif_m'
+    'ean R T (fun x : T => (~~ P x)%:R : R) = 1 - @unif_mean R T (fun x :'
+    ' T => (P x)%:R : R). Proof. exact: @unif_mean_indicatorN. Qed. Lemma'
+    ' unif_mean_markov_accepted : forall (R : realFieldType) (T : finType'
+    ') (f : T -> R) (t : R), (forall x : T, 0 <= f x) -> t * @unif_mean R'
+    ' T (fun x : T => (t <= f x)%R%:R : R) <= @unif_mean R T f. Proof. ex'
+    'act: @unif_mean_markov. Qed. Lemma unif_mean_cutoff_accepted : foral'
+    'l (R : realFieldType) (T : finType) (f : T -> R) (M t : R), 0 <= t -'
+    '> (forall x : T, f x <= M) -> @unif_mean R T f <= t + M * @unif_mean'
+    ' R T (fun x : T => (t <= f x)%R%:R : R). Proof. exact: @unif_mean_cu'
+    'toff. Qed. Lemma unif_chebyshev_accepted : forall (R : realFieldType'
+    ') (T : finType) (f : T -> R) (t : R), 0 < t -> @unif_mean R T (fun x'
+    ' : T => (t <= `|f x - @unif_mean R T f|)%R%:R : R) <= @unif_var R T '
+    'f / t ^+ 2. Proof. exact: @unif_chebyshev. Qed. Lemma unif_mean_tupl'
+    'e_prod_ord_accepted : forall (R : realFieldType) (T : finType) (m : '
+    "nat) (g : 'I_m -> T -> R), @unif_mean R (tuple_tuple_of__canonical__"
+    'fintype_Finite m T) (fun t : m.-tuple T => \\prod_(i < m) g i (@tnth '
+    'm T t i)) = \\prod_(i < m) @unif_mean R T (g i). Proof. exact: @unif_'
+    'mean_tuple_prod_ord. Qed. Lemma unif_mean_tuple_prod_set_accepted : '
+    "forall (R : realFieldType) (T : finType) (m : nat) (J : {set 'I_m}) "
+    '(g : T -> R), (0 < #|T|)%N -> @unif_mean R (tuple_tuple_of__canonica'
+    'l__fintype_Finite m T) (fun t : m.-tuple T => \\prod_(i in J) g (@tnt'
+    'h m T t i)) = @unif_mean R T g ^+ #|J|. Proof. exact: @unif_mean_tup'
+    'le_prod_set. Qed. End accepted_finite_mean. Module accepted_binomial'
+    '_mean. From HB Require Import structures. From mathcomp Require Impo'
+    'rt all_ssreflect_compat ssralg ssrnum. From mathcomp Require Import '
+    'boolp classical_sets reals ereal measure numfun. From mathcomp Requi'
+    're Import lebesgue_integral binomial_distribution. From mathcomp Req'
+    'uire Import ring_tactic. From GaussianAnalysis.probability Require I'
+    'mport finite_mean. Import Order.TTheory GRing.Theory Num.Theory. Loc'
+    'al Open Scope ring_scope. Require Import GaussianAnalysis.probabilit'
+    'y.binomial_mean. Lemma binomial_mean0_accepted : forall (R : numDoma'
+    'inType) (p : R) (f : nat -> R), @binomial_mean R 0 p f = f 0%N. Proo'
+    'f. exact: @binomial_mean0. Qed. Lemma binomial_meanS_accepted : fora'
+    'll (R : numDomainType) (m : nat) (p : R) (f : nat -> R), @binomial_m'
+    'ean R m.+1 p f = (1 - p) * @binomial_mean R m p f + p * @binomial_me'
+    'an R m p (fun j : nat => f j.+1). Proof. exact: @binomial_meanS. Qed'
+    '. Lemma eq_binomial_mean_accepted : forall (R : numDomainType) (m : '
+    'nat) (p : R) (f g : nat -> R), (forall j : nat, (j <= m)%N -> f j = '
+    'g j) -> @binomial_mean R m p f = @binomial_mean R m p g. Proof. exac'
+    't: @eq_binomial_mean. Qed. Lemma binomial_mean_cst_accepted : forall'
+    ' (R : numDomainType) (m : nat) (p c : R), @binomial_mean R m p (fun='
+    '> c) = c. Proof. exact: @binomial_mean_cst. Qed. Lemma binomial_mean'
+    'D_accepted : forall (R : numDomainType) (m : nat) (p : R) (f g : nat'
+    ' -> R), @binomial_mean R m p (fun j : nat => f j + g j) = @binomial_'
+    'mean R m p f + @binomial_mean R m p g. Proof. exact: @binomial_meanD'
+    '. Qed. Lemma binomial_meanZ_accepted : forall (R : numDomainType) (m'
+    ' : nat) (p c : R) (f : nat -> R), @binomial_mean R m p (fun j : nat '
+    '=> c * f j) = c * @binomial_mean R m p f. Proof. exact: @binomial_me'
+    'anZ. Qed. Lemma ler_binomial_mean_accepted : forall (R : numDomainTy'
+    'pe) (m : nat) (p : R) (f g : nat -> R), 0 <= p <= 1 -> (forall j : n'
+    'at, (j <= m)%N -> f j <= g j) -> @binomial_mean R m p f <= @binomial'
+    '_mean R m p g. Proof. exact: @ler_binomial_mean. Qed. Lemma binomial'
+    '_mean_id_accepted : forall (R : numDomainType) (m : nat) (p : R), @b'
+    'inomial_mean R m p [eta @Algebra.natmul R 1] = m%:R * p. Proof. exac'
+    't: @binomial_mean_id. Qed. Lemma binomial_mean_sqr_dev_accepted : fo'
+    'rall (R : numDomainType) (m : nat) (p : R), @binomial_mean R m p (fu'
+    'n j : nat => (j%:R - m%:R * p) ^+ 2) = m%:R * p * (1 - p). Proof. ex'
+    'act: @binomial_mean_sqr_dev. Qed. Lemma binomial_chebyshev_accepted '
+    ': forall (R : realFieldType) (m : nat) (p t : R), 0 <= p <= 1 -> 0 <'
+    ' t -> @binomial_mean R m p (fun j : nat => (t <= `|j%:R - m%:R * p|)'
+    '%R%:R) <= m%:R * p * (1 - p) / t ^+ 2. Proof. exact: @binomial_cheby'
+    'shev. Qed. Lemma binomial_mean_last_accepted : forall (R : numDomain'
+    'Type) (m : nat) (p : R) (f : nat -> R), 0 <= p <= 1 -> (forall j : n'
+    'at, (j <= m)%N -> 0 <= f j) -> p ^+ m * f m <= @binomial_mean R m p '
+    'f. Proof. exact: @binomial_mean_last. Qed. Lemma binomial_mean_trial'
+    "s_accepted : forall (R : numDomainType) (m m' : nat) (p : R) (f : na"
+    't -> R), 0 <= p <= 1 -> {homo f : i j / (i <= j)%N >-> i <= j} -> (m'
+    " <= m')%N -> @binomial_mean R m p f <= @binomial_mean R m' p f. Proo"
+    'f. exact: @binomial_mean_trials. Qed. Lemma unif_mean_binomial_mean_'
+    'accepted : forall (R : realFieldType) (T : finType) (m : nat) (p : R'
+    ') (f : nat -> T -> R), @unif_mean R T (fun x : T => @binomial_mean R'
+    ' m p (f^~ x)) = @binomial_mean R m p (fun j : nat => @unif_mean R T '
+    '(f j)). Proof. exact: @unif_mean_binomial_mean. Qed. Lemma binomial_'
+    'meanE_accepted : forall (R : realType) (m : nat) (p : R) (f : nat ->'
+    ' R), @binomial_mean R m p f = \\sum_(j < m.+1) @binomial_pmf R m p (n'
+    'at_of_ord j) * f (nat_of_ord j). Proof. exact: @binomial_meanE. Qed.'
+    ' Lemma integral_binomial_mean_accepted : forall (R : realType) (m : '
+    'nat) (p : R) (f : nat -> R), 0 <= p <= 1 -> (\\int[@binomial_prob R m'
+    ' p]_j (f j)%:E)%E = (@binomial_mean R m p f)%:E. Proof. exact: @inte'
+    'gral_binomial_mean. Qed. End accepted_binomial_mean. Module accepted'
+    '_commuting_operators. From HB Require Import structures. From mathco'
+    'mp Require Import all_ssreflect_compat ssralg ssrnum boolp. From Gau'
+    'ssianAnalysis.probability Require Import finite_mean binomial_mean. '
+    'Import Order.TTheory GRing.Theory Num.Theory. Local Open Scope ring_'
+    'scope. Require Import GaussianAnalysis.probability.commuting_operato'
+    'rs. Lemma homo_iter_accepted : forall (disp : Order.disp_t) (T : pre'
+    'orderType disp) (A : T -> T) (m : nat), {homo A : x y / (x <= y)%O} '
+    '-> {homo @iter T m A : x y / (x <= y)%O}. Proof. exact: @homo_iter. '
+    'Qed. Lemma iter_le_subcomm_accepted : forall (disp : Order.disp_t) ('
+    'T : preorderType disp) (A B : T -> T) (x : T), {homo A : y z / (y <='
+    ' z)%O} -> {homo B : y z / (y <= z)%O} -> (forall y : T, (B (A y) <= '
+    'A (B y))%O) -> (B x <= A x)%O -> forall m : nat, (@iter T m B x <= @'
+    'iter T m A x)%O. Proof. exact: @iter_le_subcomm. Qed. Lemma monotone'
+    '_iter_le_accepted : forall (R : numDomainType) (X : Type) (A B : (X '
+    '-> R) -> X -> R) (f : X -> R), @monotone_op R X A -> @monotone_op R '
+    'X B -> (forall (g : X -> R) (x : X), B (A g) x <= A (B g) x) -> (for'
+    'all x : X, B f x <= A f x) -> forall (m : nat) (x : X), @iter (X -> '
+    'R) m B f x <= @iter (X -> R) m A f x. Proof. exact: @monotone_iter_l'
+    'e. Qed. Lemma iter_scale_accepted : forall (R : numDomainType) (X : '
+    'Type) (A : (X -> R) -> X -> R) (c : R), @linear_op R X A -> forall ('
+    'm : nat) (f : X -> R) (x : X), @iter (X -> R) m (fun (g : X -> R) (y'
+    ' : X) => c * A g y) f x = c ^+ m * @iter (X -> R) m A f x. Proof. ex'
+    'act: @iter_scale. Qed. Lemma iter_mix_binomial_accepted : forall (R '
+    ': numDomainType) (X : Type) (A B : (X -> R) -> X -> R) (p : R), @lin'
+    'ear_op R X A -> @linear_op R X B -> (forall f : X -> R, A (B f) = B '
+    '(A f)) -> forall (m : nat) (f : X -> R) (x : X), @iter (X -> R) m (f'
+    'un (g : X -> R) (y : X) => p * A g y + (1 - p) * B g y) f x = @binom'
+    'ial_mean R m p (fun j : nat => @iter (X -> R) j A (@iter (X -> R) (m'
+    ' - j) B f) x). Proof. exact: @iter_mix_binomial. Qed. Lemma binomial'
+    '_mix_le_iter_accepted : forall (R : numDomainType) (X : Type) (A B C'
+    ' : (X -> R) -> X -> R) (p : R) (f : X -> R), 0 <= p <= 1 -> @linear_'
+    'op R X A -> @linear_op R X B -> @linear_op R X C -> @monotone_op R X'
+    ' A -> @monotone_op R X B -> @monotone_op R X C -> (forall g : X -> R'
+    ', A (B g) = B (A g)) -> (forall (g : X -> R) (x : X), A (C g) x <= C'
+    ' (A g) x) -> (forall (g : X -> R) (x : X), B (C g) x <= C (B g) x) -'
+    '> (forall x : X, p * A f x + (1 - p) * B f x <= C f x) -> forall (m '
+    ': nat) (x : X), @binomial_mean R m p (fun j : nat => @iter (X -> R) '
+    'j A (@iter (X -> R) (m - j) B f) x) <= @iter (X -> R) m C f x. Proof'
+    '. exact: @binomial_mix_le_iter. Qed. Lemma meet_avg_linear_accepted '
+    ': forall (R : realFieldType) (T C : finType) (E : C -> {set T}), @li'
+    'near_op R {set T} (@meet_avg R T C E). Proof. exact: @meet_avg_linea'
+    'r. Qed. Lemma meet_avg_monotone_accepted : forall (R : realFieldType'
+    ') (T C : finType) (E : C -> {set T}), @monotone_op R {set T} (@meet_'
+    'avg R T C E). Proof. exact: @meet_avg_monotone. Qed. Lemma meet_avg_'
+    'cst_accepted : forall (R : realFieldType) (T C : finType) (E : C -> '
+    '{set T}) (a : R) (S0 : {set T}), (0 < #|C|)%N -> @meet_avg R T C E ('
+    'fun=> a) S0 = a. Proof. exact: @meet_avg_cst. Qed. Lemma meet_avgC_a'
+    'ccepted : forall (R : realFieldType) (T C D : finType) (E : C -> {se'
+    't T}) (F : D -> {set T}) (f : {set T} -> R), @meet_avg R T C E (@mee'
+    't_avg R T D F f) = @meet_avg R T D F (@meet_avg R T C E f). Proof. e'
+    'xact: @meet_avgC. Qed. Lemma iter_meet_avg_accepted : forall (R : re'
+    'alFieldType) (T C : finType) (E : C -> {set T}) (m : nat) (f : {set '
+    'T} -> R) (S : {set T}), @iter ({set T} -> R) m (@meet_avg R T C E) f'
+    ' S = @unif_mean R (tuple_tuple_of__canonical__fintype_Finite m C) (f'
+    'un t : m.-tuple C => f (S :&: \\bigcap_(c <- t) E c)). Proof. exact: '
+    '@iter_meet_avg. Qed. End accepted_commuting_operators. Module accept'
+    'ed_boolean_fourier. From HB Require Import structures. From mathcomp'
+    ' Require Import all_ssreflect_compat ssralg ssrnum ssrint zmodp. Fro'
+    'm mathcomp Require Import matrix. From GaussianAnalysis.matrix Requi'
+    're Import euclidean. Import Order.TTheory GRing.Theory Num.Theory. L'
+    'ocal Open Scope ring_scope. Require Import GaussianAnalysis.fourier.'
+    'boolean_fourier. Lemma bchar_algebra_accepted : forall (t a : nat) ('
+    "R : pzRingType), [/\\ forall y : matrix 'F_2 t a, @bchar t a R 0 y = "
+    "1, forall p q y : matrix 'F_2 t a, @bchar t a R (p + q) y = @bchar t"
+    " a R p y * @bchar t a R q y, forall p y : matrix 'F_2 t a, @bchar t "
+    "a R p y = @bchar t a R y p & forall p y : matrix 'F_2 t a, @bchar t "
+    'a R p y = 1 \\/ @bchar t a R p y = -1]. Proof. exact: @bchar_algebra.'
+    ' Qed. Lemma bchar_orthogonal_accepted : forall (t a : nat) (R : pzRi'
+    "ngType), forall p q : matrix 'F_2 t a, \\sum_y @bchar t a R p y * @bc"
+    "har t a R q y = (if p == q then #|{: matrix 'F_2 t a}|%:R else 0). P"
+    'roof. exact: @bchar_orthogonal. Qed. Lemma bchar_delta_accepted : fo'
+    "rall (t a : nat) (R : pzRingType), forall (i : 'I_t) (j : 'I_a) (y :"
+    " matrix 'F_2 t a), @bchar t a R (@delta_mx (fintype_ordinal__canonic"
+    'al__GRing_PzSemiRing (Zp_trunc (pdiv 2))) t a i j) y = (-1) ^+ nat_o'
+    'f_ord (y i j). Proof. exact: @bchar_delta. Qed. Lemma blk_dist_metri'
+    "c_accepted : forall t a : nat, [/\\ forall p q : matrix 'F_2 t a, @bl"
+    "k_dist t a p q = @blk_deg t a (p + q), forall p q : matrix 'F_2 t a,"
+    " @blk_dist t a p q = 0%N <-> p = q, forall p q : matrix 'F_2 t a, @b"
+    "lk_dist t a p q = @blk_dist t a q p, forall p q s : matrix 'F_2 t a,"
+    ' (@blk_dist t a p s <= @blk_dist t a p q + @blk_dist t a q s)%N & fo'
+    "rall p q s : matrix 'F_2 t a, @blk_dist t a (p + s) (q + s) = @blk_d"
+    'ist t a p q]. Proof. exact: @blk_dist_metric. Qed. Lemma fcoef_inver'
+    'sion_accepted : forall (t a : nat) (R : numFieldType), forall (V : l'
+    "modType R) (f : matrix 'F_2 t a -> V) (y : matrix 'F_2 t a), f y = \\"
+    'sum_p @bchar t a R p y *: @fcoef t a R V f p. Proof. exact: @fcoef_i'
+    'nversion. Qed. Lemma fcoef_expansion_accepted : forall (t a : nat) ('
+    "R : numFieldType), forall (V : lmodType R) (c : matrix 'F_2 t a -> V"
+    ") (q : matrix 'F_2 t a), @fcoef t a R V (fun y : matrix 'F_2 t a => "
+    '\\sum_p @bchar t a R p y *: c p) q = c q. Proof. exact: @fcoef_expans'
+    'ion. Qed. Lemma fcoef_plancherel_accepted : forall (t a : nat) (R : '
+    'numFieldType), forall (V W Z : lmodType R) (b : V -> W -> Z), (foral'
+    'l w : W, linear (b^~ w)) -> (forall v : V, linear (b v)) -> forall ('
+    "f : matrix 'F_2 t a -> V) (g : matrix 'F_2 t a -> W), #|{: matrix 'F"
+    '_2 t a}|%:R^-1 *: \\sum_y b (f y) (g y) = \\sum_p b (@fcoef t a R V f '
+    'p) (@fcoef t a R W g p). Proof. exact: @fcoef_plancherel. Qed. Lemma'
+    ' fcoef_linear_accepted : forall (t a : nat) (R : numFieldType), fora'
+    "ll (V : lmodType R) (c : R) (f g : matrix 'F_2 t a -> V) (p : matrix"
+    " 'F_2 t a), @fcoef t a R V (fun y : matrix 'F_2 t a => c *: f y + g "
+    'y) p = c *: @fcoef t a R V f p + @fcoef t a R V g p. Proof. exact: @'
+    'fcoef_linear. Qed. Lemma fcoef_comp_linear_accepted : forall (t a : '
+    'nat) (R : numFieldType), forall (V W : lmodType R) (h : V -> W), lin'
+    "ear h -> forall (f : matrix 'F_2 t a -> V) (p : matrix 'F_2 t a), @f"
+    "coef t a R W (fun y : matrix 'F_2 t a => h (f y)) p = h (@fcoef t a "
+    'R V f p). Proof. exact: @fcoef_comp_linear. Qed. Lemma fcoef_mulmx_a'
+    'ccepted : forall (t a : nat) (R : numFieldType), forall (m n k l : n'
+    "at) (A : matrix R m n) (f : matrix 'F_2 t a -> matrix R n k) (B : ma"
+    "trix R k l) (p : matrix 'F_2 t a), @fcoef t a R (matrix_matrix__cano"
+    "nical__GRing_Lmodule R m l) (fun y : matrix 'F_2 t a => A *m f y *m "
+    'B) p = A *m @fcoef t a R (matrix_matrix__canonical__GRing_Lmodule R '
+    'n k) f p *m B. Proof. exact: @fcoef_mulmx. Qed. Lemma fcoef_norm_le_'
+    'accepted : forall (t a : nat) (R : numFieldType), forall (f : matrix'
+    " 'F_2 t a -> R^o) (c : R) (p : matrix 'F_2 t a), (forall y : matrix "
+    "'F_2 t a, `|f y : R| <= c) -> `|@fcoef t a R (GRing.GRing_regular__c"
+    'anonical__GRing_Lmodule R) f p : R| <= c. Proof. exact: @fcoef_norm_'
+    'le. Qed. Lemma fcoef_translate_accepted : forall (t a : nat) (R : nu'
+    "mFieldType), forall (V : lmodType R) (f : matrix 'F_2 t a -> V) (p q"
+    " : matrix 'F_2 t a), @fcoef t a R V (fun y : matrix 'F_2 t a => @bch"
+    'ar t a R q y *: f y) (p + q) = @fcoef t a R V f p. Proof. exact: @fc'
+    'oef_translate. Qed. Lemma low_blk_deg_expansion_accepted : forall (t'
+    ' a : nat) (R : numFieldType), forall (V : lmodType R) (D : nat) (f :'
+    " matrix 'F_2 t a -> V), @low_blk_deg t a R V D f <-> (forall y : mat"
+    "rix 'F_2 t a, f y = \\sum_(p | (@blk_deg t a p <= D)%N) @bchar t a R "
+    'p y *: @fcoef t a R V f p). Proof. exact: @low_blk_deg_expansion. Qe'
+    'd. Lemma low_blk_deg_translate_accepted : forall (t a : nat) (R : nu'
+    "mFieldType), forall (V : lmodType R) (D : nat) (f : matrix 'F_2 t a "
+    "-> V) (q : matrix 'F_2 t a), (forall p : matrix 'F_2 t a, (D < @blk_"
+    'dist t a p q)%N -> @fcoef t a R V f p = 0) -> @low_blk_deg t a R V D'
+    " (fun y : matrix 'F_2 t a => @bchar t a R q y *: f y). Proof. exact:"
+    ' @low_blk_deg_translate. Qed. Lemma blk_dist_row_accepted : forall ('
+    "a : nat) (s z : matrix 'F_2 1 a), @blk_dist 1 a s z = (s != z). Proo"
+    'f. exact: @blk_dist_row. Qed. Lemma bchar_col_mx_accepted : forall t'
+    "1 t2 a : nat, forall (R : pzRingType) (p1 y1 : matrix 'F_2 t1 a) (p2"
+    " y2 : matrix 'F_2 t2 a), @bchar (t1 + t2) a R (@col_mx 'F_2 t1 t2 a "
+    "p1 p2) (@col_mx 'F_2 t1 t2 a y1 y2) = @bchar t1 a R p1 y1 * @bchar t"
+    '2 a R p2 y2. Proof. exact: @bchar_col_mx. Qed. Lemma blk_col_mx_acce'
+    "pted : forall t1 t2 a : nat, forall (p1 q1 : matrix 'F_2 t1 a) (p2 q"
+    "2 : matrix 'F_2 t2 a), @blk_deg (t1 + t2) a (@col_mx 'F_2 t1 t2 a p1"
+    ' p2) = (@blk_deg t1 a p1 + @blk_deg t2 a p2)%N /\\ @blk_dist (t1 + t2'
+    ") a (@col_mx 'F_2 t1 t2 a p1 p2) (@col_mx 'F_2 t1 t2 a q1 q2) = (@bl"
+    'k_dist t1 a p1 q1 + @blk_dist t2 a p2 q2)%N. Proof. exact: @blk_col_'
+    'mx. Qed. Lemma fcoef_col_mx_accepted : forall t1 t2 a : nat, forall '
+    "(R : numFieldType) (V : lmodType R) (f : matrix 'F_2 (t1 + t2) a -> "
+    "V) (p1 : matrix 'F_2 t1 a) (p2 : matrix 'F_2 t2 a), @fcoef (t1 + t2)"
+    " a R V f (@col_mx 'F_2 t1 t2 a p1 p2) = @fcoef t1 a R V (fun y1 : ma"
+    "trix 'F_2 t1 a => @fcoef t2 a R V (fun y2 : matrix 'F_2 t2 a => f (@"
+    "col_mx 'F_2 t1 t2 a y1 y2)) p2) p1. Proof. exact: @fcoef_col_mx. Qed"
+    '. End accepted_boolean_fourier. Module accepted_psd_factorization. F'
+    'rom HB Require Import structures. From mathcomp Require Import all_s'
+    'sreflect_compat fingroup perm ssralg ssrnum. From mathcomp Require I'
+    'mport matrix sesquilinear boolp classical_sets reals. From mathcomp '
+    'Require Import topology normedtype derive exp. From mathcomp Require'
+    ' Import arithmetic_tactic ring_tactic. From GaussianAnalysis.matrix '
+    'Require Import euclidean real_spectral psd_part. From GaussianAnalys'
+    'is.matrix Require Import psd_splitting. From GaussianAnalysis.convex'
+    ' Require Import logdet_barrier moreau. Import GRing.Theory Num.Theor'
+    'y Order.TTheory. Import numFieldTopology.Exports numFieldNormedType.'
+    'Exports. Local Open Scope ring_scope. Local Open Scope classical_set'
+    '_scope. Require Import GaussianAnalysis.matrix.psd_factorization. Le'
+    'mma psd_factorization_ge0_accepted : forall (R : realType) (I J : fi'
+    'nType) (A : I -> J -> R) (r : nat), @psd_factorization R I J A r -> '
+    'forall (i : I) (j : J), 0 <= A i j. Proof. exact: @psd_factorization'
+    '_ge0. Qed. Lemma psd_factorization_size_gt0_accepted : forall (R : r'
+    'ealType) (I J : finType) (A : I -> J -> R) (r : nat), @psd_factoriza'
+    'tion R I J A r -> (exists (i : I) (j : J), A i j != 0) -> (0 < r)%N.'
+    ' Proof. exact: @psd_factorization_size_gt0. Qed. Lemma psd_factoriza'
+    "tion_restrict_accepted : forall (R : realType) (I J I' J' : finType)"
+    " (A : I -> J -> R) (r : nat) (f : I' -> I) (g : J' -> J), @psd_facto"
+    "rization R I J A r -> @psd_factorization R I' J' (fun (i : I') (j : "
+    "J') => A (f i) (g j)) r. Proof. exact: @psd_factorization_restrict. "
+    'Qed. Lemma psd_factorization_widen_accepted : forall (R : realType) '
+    '(I J : finType) (A : I -> J -> R) (r s : nat), (r <= s)%N -> @psd_fa'
+    'ctorization R I J A r -> @psd_factorization R I J A s. Proof. exact:'
+    ' @psd_factorization_widen. Qed. Lemma psd_factorization_shift_accept'
+    'ed : forall (R : realType) (I J : finType) (A : I -> J -> R) (r : na'
+    't) (rho : R), 0 <= rho -> @psd_factorization R I J A r -> @psd_facto'
+    'rization R I J (fun (i : I) (j : J) => A i j + rho) r.+1. Proof. exa'
+    'ct: @psd_factorization_shift. Qed. Lemma psd_factorization_nonneg_ac'
+    "cepted : forall (R : realType) (I J : finType) (r : nat) (a : I -> '"
+    "I_r -> R) (b : J -> 'I_r -> R), (forall (i : I) (k : 'I_r), 0 <= a i"
+    " k) -> (forall (j : J) (k : 'I_r), 0 <= b j k) -> @psd_factorization"
+    ' R I J (fun (i : I) (j : J) => \\sum_(k < r) a i k * b j k) r. Proof.'
+    ' exact: @psd_factorization_nonneg. Qed. End accepted_psd_factorizati'
+    'on. Module accepted_binomial_bounds. From HB Require Import structur'
+    'es. From mathcomp Require Import all_ssreflect_compat ssralg ssrnum '
+    'rat reals. From mathcomp Require Import sequences exp. From mathcomp'
+    ' Require Import arithmetic_tactic ring_tactic. Import Order.TTheory '
+    'GRing.Theory Num.Theory. Local Open Scope ring_scope. Local Open Sco'
+    'pe nat_scope. Require Import GaussianAnalysis.combinatorics.binomial'
+    '_bounds. Lemma central_bin_le_accepted : forall n : nat, (3 * n).+1 '
+    "* 'C(2 * n, n) ^ 2 <= 16 ^ n. Proof. exact: @central_bin_le. Qed. Le"
+    'mma central_bin_ge_accepted : forall n : nat, 0 < n -> 16 ^ n <= 4 *'
+    " n * 'C(2 * n, n) ^ 2. Proof. exact: @central_bin_ge. Qed. Lemma hal"
+    "f_bin_ge_accepted : forall h : nat, 4 ^ h <= 2 * h.+1 * 'C(h, h./2) "
+    '^ 2. Proof. exact: @half_bin_ge. Qed. Lemma leq_bin_half_accepted : '
+    "forall n k : nat, 'C(n, k) <= 'C(n, n./2). Proof. exact: @leq_bin_ha"
+    'lf. Qed. Lemma bin_near_half_accepted : forall h g T : nat, 6 * T <='
+    " h -> h <= 2 * (g + T) -> 2 * g <= h + 2 * T -> 'C(h, h./2) <= 2 ^ T"
+    ".+1 * 'C(h, g). Proof. exact: @bin_near_half. Qed. Lemma bin_sqr_cen"
+    "tral_accepted : forall u j : nat, j <= u -> 'C(u, j) ^ 2 * 'C(2 * u,"
+    " u) = 'C(2 * j, j) * 'C(2 * (u - j), u - j) * 'C(2 * u, 2 * j). Proo"
+    'f. exact: @bin_sqr_central. Qed. Lemma bin_sqr_ratio_accepted : fora'
+    "ll u j : nat, j <= u -> 'C(u, j) ^ 4 * j.+1 * (u - j).+1 <= 4 * u.+1"
+    " * 'C(2 * u, 2 * j) ^ 2. Proof. exact: @bin_sqr_ratio. Qed. Lemma bi"
+    'n_partial_sum_accepted : forall (R : realType) (N M : nat), M <= N -'
+    "> ((\\sum_(j < M.+1) 'C(N, nat_of_ord j)%:R : R) <= ((@expR R 1 * N%:"
+    'R / M%:R) ^+ M : R))%R. Proof. exact: @bin_partial_sum. Qed. End acc'
+    'epted_binomial_bounds. Module accepted_psd_duality. From HB Require '
+    'Import structures. From mathcomp Require Import all_ssreflect_compat'
+    ' ssralg ssrnum matrix. From mathcomp Require Import sesquilinear boo'
+    'lp classical_sets reals. From mathcomp Require Import topology norme'
+    'dtype. From mathcomp Require Import arithmetic_tactic ring_tactic. F'
+    'rom GaussianAnalysis.matrix Require Import euclidean real_spectral p'
+    'sd_part. From GaussianAnalysis.matrix Require Import psd_splitting p'
+    'sd_factorization. From GaussianAnalysis.matrix Require Import nuclea'
+    'r condition_cone. From GaussianAnalysis.gaussian Require Import meas'
+    'urable_matrix. From GaussianAnalysis.convex Require Import logdet_ba'
+    'rrier moreau. Import GRing.Theory Num.Theory Order.TTheory. Import n'
+    'umFieldTopology.Exports numFieldNormedType.Exports. Local Open Scope'
+    ' ring_scope. Local Open Scope classical_set_scope. Require Import Ga'
+    'ussianAnalysis.matrix.psd_duality. Lemma psd_eval_cone_closed_accept'
+    "ed : forall (R : realType) (n N : nat) (G : 'I_N -> matrix R n n), ("
+    "forall j : 'I_N, @psdmx R n (G j)) -> @closed (matrix_matrix__canoni"
+    'cal__topology_structure_Topological 1 N (numFieldTopology.Real_sort_'
+    '_canonical__topology_structure_Topological R)) (@psd_eval_cone R n N'
+    ' G). Proof. exact: @psd_eval_cone_closed. Qed. Lemma psdmx_dual_acce'
+    'pted : forall (R : realType) (n : nat) (S : matrix R n n), S \\is sym'
+    'metricmx -> @psdmx R n S <-> (forall F : matrix R n n, @psdmx R n F '
+    '-> 0 <= \\tr (F *m S)). Proof. exact: @psdmx_dual. Qed. Lemma psd_far'
+    "kas_accepted : forall (R : realType) (n N : nat) (G : 'I_N -> matrix"
+    " R n n) (y : matrix R 1 N), (forall j : 'I_N, @psdmx R n (G j)) -> @"
+    'psd_eval_cone R n N G y <-> (forall c : matrix R 1 N, @psdmx R n (\\s'
+    'um_j c 0 j *: G j) -> 0 <= @mxdot R 1 N c y). Proof. exact: @psd_far'
+    'kas. Qed. Lemma psd_slack_certificate_accepted : forall (R : realTyp'
+    'e) (n : nat) (I : finType) (B : I -> matrix R n n) (s : I -> R) (i0 '
+    ': I), (forall i : I, @psdmx R n (B i)) -> s i0 = 0 -> (exists2 A : m'
+    'atrix R n n, @psdmx R n A & forall i : I, \\tr (A *m B i) = s i) <-> '
+    '(forall w : I -> R, \\sum_i w i = 1 -> @psdmx R n (\\sum_i w i *: B i)'
+    ' -> 0 <= \\sum_i w i * s i). Proof. exact: @psd_slack_certificate. Qe'
+    'd. Lemma psd_slack_certificate_affine_accepted : forall (R : realTyp'
+    "e) (n m : nat) (I : finType) (C : 'I_m -> matrix R n n) (c : 'I_m ->"
+    ' R) (D : matrix R n n) (d : R) (B : I -> matrix R n n) (i0 : I), (fo'
+    "rall i : I, @psdmx R n (B i)) -> (forall (i : I) (l : 'I_m), \\tr (C "
+    'l *m B i) = c l) -> (forall X : matrix R n n, @psdmx R n X -> (foral'
+    "l l : 'I_m, \\tr (C l *m X) = c l) -> 0 <= \\tr (D *m X) + d) -> \\tr ("
+    'D *m B i0) + d = 0 -> exists2 A : matrix R n n, @psdmx R n A & foral'
+    'l i : I, \\tr (A *m B i) = \\tr (D *m B i) + d. Proof. exact: @psd_sla'
+    'ck_certificate_affine. Qed. End accepted_psd_duality. Definition lib'
+    'rary_statements_accepted := (accepted_finite_mean.unif_mean_union_ac'
+    'cepted, accepted_finite_mean.unif_mean_indicatorN_accepted, accepted'
+    '_finite_mean.unif_mean_markov_accepted, accepted_finite_mean.unif_me'
+    'an_cutoff_accepted, accepted_finite_mean.unif_chebyshev_accepted, ac'
+    'cepted_finite_mean.unif_mean_tuple_prod_ord_accepted, accepted_finit'
+    'e_mean.unif_mean_tuple_prod_set_accepted, accepted_binomial_mean.bin'
+    'omial_mean0_accepted, accepted_binomial_mean.binomial_meanS_accepted'
+    ', accepted_binomial_mean.eq_binomial_mean_accepted, accepted_binomia'
+    'l_mean.binomial_mean_cst_accepted, accepted_binomial_mean.binomial_m'
+    'eanD_accepted, accepted_binomial_mean.binomial_meanZ_accepted, accep'
+    'ted_binomial_mean.ler_binomial_mean_accepted, accepted_binomial_mean'
+    '.binomial_mean_id_accepted, accepted_binomial_mean.binomial_mean_sqr'
+    '_dev_accepted, accepted_binomial_mean.binomial_chebyshev_accepted, a'
+    'ccepted_binomial_mean.binomial_mean_last_accepted, accepted_binomial'
+    '_mean.binomial_mean_trials_accepted, accepted_binomial_mean.unif_mea'
+    'n_binomial_mean_accepted, accepted_binomial_mean.binomial_meanE_acce'
+    'pted, accepted_binomial_mean.integral_binomial_mean_accepted, accept'
+    'ed_commuting_operators.homo_iter_accepted, accepted_commuting_operat'
+    'ors.iter_le_subcomm_accepted, accepted_commuting_operators.monotone_'
+    'iter_le_accepted, accepted_commuting_operators.iter_scale_accepted, '
+    'accepted_commuting_operators.iter_mix_binomial_accepted, accepted_co'
+    'mmuting_operators.binomial_mix_le_iter_accepted, accepted_commuting_'
+    'operators.meet_avg_linear_accepted, accepted_commuting_operators.mee'
+    't_avg_monotone_accepted, accepted_commuting_operators.meet_avg_cst_a'
+    'ccepted, accepted_commuting_operators.meet_avgC_accepted, accepted_c'
+    'ommuting_operators.iter_meet_avg_accepted, accepted_boolean_fourier.'
+    'bchar_algebra_accepted, accepted_boolean_fourier.bchar_orthogonal_ac'
+    'cepted, accepted_boolean_fourier.bchar_delta_accepted, accepted_bool'
+    'ean_fourier.blk_dist_metric_accepted, accepted_boolean_fourier.fcoef'
+    '_inversion_accepted, accepted_boolean_fourier.fcoef_expansion_accept'
+    'ed, accepted_boolean_fourier.fcoef_plancherel_accepted, accepted_boo'
+    'lean_fourier.fcoef_linear_accepted, accepted_boolean_fourier.fcoef_c'
+    'omp_linear_accepted, accepted_boolean_fourier.fcoef_mulmx_accepted, '
+    'accepted_boolean_fourier.fcoef_norm_le_accepted, accepted_boolean_fo'
+    'urier.fcoef_translate_accepted, accepted_boolean_fourier.low_blk_deg'
+    '_expansion_accepted, accepted_boolean_fourier.low_blk_deg_translate_'
+    'accepted, accepted_boolean_fourier.blk_dist_row_accepted, accepted_b'
+    'oolean_fourier.bchar_col_mx_accepted, accepted_boolean_fourier.blk_c'
+    'ol_mx_accepted, accepted_boolean_fourier.fcoef_col_mx_accepted, acce'
+    'pted_psd_factorization.psd_factorization_ge0_accepted, accepted_psd_'
+    'factorization.psd_factorization_size_gt0_accepted, accepted_psd_fact'
+    'orization.psd_factorization_restrict_accepted, accepted_psd_factoriz'
+    'ation.psd_factorization_widen_accepted, accepted_psd_factorization.p'
+    'sd_factorization_shift_accepted, accepted_psd_factorization.psd_fact'
+    'orization_nonneg_accepted, accepted_binomial_bounds.central_bin_le_a'
+    'ccepted, accepted_binomial_bounds.central_bin_ge_accepted, accepted_'
+    'binomial_bounds.half_bin_ge_accepted, accepted_binomial_bounds.leq_b'
+    'in_half_accepted, accepted_binomial_bounds.bin_near_half_accepted, a'
+    'ccepted_binomial_bounds.bin_sqr_central_accepted, accepted_binomial_'
+    'bounds.bin_sqr_ratio_accepted, accepted_binomial_bounds.bin_partial_'
+    'sum_accepted, accepted_psd_duality.psd_eval_cone_closed_accepted, ac'
+    'cepted_psd_duality.psdmx_dual_accepted, accepted_psd_duality.psd_far'
+    'kas_accepted, accepted_psd_duality.psd_slack_certificate_accepted, a'
+    'ccepted_psd_duality.psd_slack_certificate_affine_accepted). Print As'
+    'sumptions library_statements_accepted.')
 # Every theorem whose axiom report the script takes, in the order of its
 # arguments, and the path of its report: the arguments must be exactly the
 # paths of REPORTS.
@@ -1633,6 +1766,333 @@ REPORTS = [
     "build/min_superadditive_assumptions.txt",
 ]
 assert len(REPORTS) == len(THEOREMS)
+# Rule 30. The check files that scripts/run_checks.py compiles, with their
+# flags, their outputs, their stage (stage 2 requires compiled check files of
+# stage 1) and what each output must hold: ("empty",), nothing; ("reports",
+# n, list), n complete reports within the list; ("marked", pairs), for each
+# pair (marker, list, label) the marker line of the name (none for the
+# pinned check files of phases 1 to 12, identified by the runner's record)
+# followed by one complete report within the list; ("snapshot", reference,
+# SHA-256), exactly the reference.
+class CheckFile(NamedTuple):
+    source: str
+    flags: tuple
+    output: str
+    stage: int
+    expect: tuple
+
+
+LIB_CHECK_FLAGS = ("-w", "-notation-overridden", "-w", "-ambiguous-paths", "-w", "-notation-incompatible-prefix", "-w", "-hiding-delimiting-key", "-Q", "library", "GaussianAnalysis")
+PAPER_CHECK_FLAGS = ("-Q", "library", "GaussianAnalysis", "-Q", "theories", "EllipsoidFitting")
+EXTENSION_CHECK_FLAGS = PAPER_CHECK_FLAGS + ("-Q", "extension", "EllipsoidUniversality")
+APPLICATION_CHECK_FLAGS = ("-Q", "library", "GaussianAnalysis",
+                           "-Q", "applications", "GaussianApplications")
+ALL_CHECK_FLAGS = LIB_CHECK_FLAGS + ("-Q", "theories", "EllipsoidFitting",
+                                     "-Q", "extension", "EllipsoidUniversality",
+                                     "-Q", "applications", "GaussianApplications")
+SEVEN_AXIOMS = "check/sat_variance_assumptions.expected"
+EXPECTED_LISTS = dict([("main theorem", "check/assumptions.expected"),
+                       ("universality theorem", "check/universality_assumptions.expected")]
+                      + [(name, expected) for name, _, _, expected in
+                         PHASE6_THEOREMS + PHASE8_THEOREMS + PHASE9_THEOREMS
+                         + PHASE10_THEOREMS + PHASE11_THEOREMS + PHASE12_THEOREMS
+                         + PHASE13_THEOREMS])
+# check/TheoremIdentities.v: the full name of each identity, its list, its label.
+THEOREM_IDENTITIES = [
+    ("Checks.TheoremIdentities.ellipsoid_fitting_main_identity", EXPECTED_LISTS["main theorem"], "main theorem"),
+    ("Checks.TheoremIdentities.universality_theorem_identity", EXPECTED_LISTS["universality theorem"], "universality theorem"),
+    ("Checks.TheoremIdentities.mixture_theorem_identity", EXPECTED_LISTS["mixture theorem"], "mixture theorem"),
+    ("Checks.TheoremIdentities.paired_theorem_identity", EXPECTED_LISTS["paired theorem"], "paired theorem"),
+    ("Checks.TheoremIdentities.latent_sign_theorem_identity", EXPECTED_LISTS["latent-sign theorem"], "latent-sign theorem"),
+    ("Checks.TheoremIdentities.countable_theorem_identity", EXPECTED_LISTS["countable-mixture theorem"], "countable-mixture theorem"),
+    ("Checks.TheoremIdentities.condition_theorem_identity", EXPECTED_LISTS["condition-number theorem"], "condition-number theorem"),
+    ("Checks.TheoremIdentities.latent_scope_theorem_identity", EXPECTED_LISTS["latent-sign scope theorem"], "latent-sign scope theorem"),
+    ("Checks.TheoremIdentities.robust_theorem_identity", EXPECTED_LISTS["robustness theorem"], "robustness theorem"),
+    ("Checks.TheoremIdentities.latent_tensor_theorem_identity", EXPECTED_LISTS["tensorization theorem"], "tensorization theorem"),
+    ("Checks.TheoremIdentities.continuous_latent_theorem_identity", EXPECTED_LISTS["continuous-latent theorem"], "continuous-latent theorem"),
+    ("Checks.TheoremIdentities.condition_endpoints_theorem_identity", EXPECTED_LISTS["condition-endpoints theorem"], "condition-endpoints theorem"),
+    ("Checks.TheoremIdentities.robust_condition_theorem_identity", EXPECTED_LISTS["robust condition-number theorem"], "robust condition-number theorem"),
+    ("Checks.TheoremIdentities.latent_tensor_upper_theorem_identity", EXPECTED_LISTS["tensorization upper bound"], "tensorization upper bound"),
+    ("Checks.TheoremIdentities.condition_kappa_curve_theorem_identity", EXPECTED_LISTS["condition-number curve at kappa"], "condition-number curve at kappa"),
+    ("Checks.TheoremIdentities.condition_kappa_theorem_identity", EXPECTED_LISTS["condition-number theorem at kappa"], "condition-number theorem at kappa"),
+    ("Checks.TheoremIdentities.condition_kappa_robust_theorem_identity", EXPECTED_LISTS["robust condition-number theorem at kappa"], "robust condition-number theorem at kappa"),
+    ("Checks.TheoremIdentities.matrix_series_theorem_identity", EXPECTED_LISTS["Gaussian matrix series theorem"], "Gaussian matrix series theorem"),
+    ("Checks.TheoremIdentities.tensor_packing_theorem_identity", EXPECTED_LISTS["tensor packing theorem"], "tensor packing theorem"),
+    ("Checks.TheoremIdentities.goe_edge_theorem_identity", EXPECTED_LISTS["GOE edge theorem"], "GOE edge theorem"),
+    ("Checks.TheoremIdentities.sk_gap_theorem_identity", EXPECTED_LISTS["SK spectral gap theorem"], "SK spectral gap theorem"),
+    ("Checks.TheoremIdentities.psd_splitting_theorem_identity", EXPECTED_LISTS["orthogonal splitting theorem"], "orthogonal splitting theorem"),
+    ("Checks.TheoremIdentities.perceptron_sign_theorem_identity", EXPECTED_LISTS["perceptron comparison theorem"], "perceptron comparison theorem"),
+    ("Checks.TheoremIdentities.sat_variance_theorem_identity", EXPECTED_LISTS["k-SAT variance theorem"], "k-SAT variance theorem"),
+    ("Checks.TheoremIdentities.sat_threshold_theorem_identity", EXPECTED_LISTS["satisfiability threshold theorem"], "satisfiability threshold theorem"),
+    ("Checks.TheoremIdentities.psd_normalization_theorem_identity", EXPECTED_LISTS["PSD normalization theorem"], "PSD normalization theorem"),
+    ("Checks.TheoremIdentities.product_smoothing_theorem_identity", EXPECTED_LISTS["product smoothing theorem"], "product smoothing theorem"),
+    ("Checks.TheoremIdentities.min_superadditive_theorem_identity", EXPECTED_LISTS["min-superadditive convergence theorem"], "min-superadditive convergence theorem"),
+]
+# check/Reports.v: the full name of each lemma, its list, its label.
+MARKED_REPORTS = [
+    ("Checks.ApplicationsDefinitions.mxdot_characterization", SEVEN_AXIOMS, "Checks.ApplicationsDefinitions.mxdot_characterization"),
+    ("Checks.ApplicationsDefinitions.frobenius_characterization", SEVEN_AXIOMS, "Checks.ApplicationsDefinitions.frobenius_characterization"),
+    ("Checks.ApplicationsDefinitions.opnorm_characterization", SEVEN_AXIOMS, "Checks.ApplicationsDefinitions.opnorm_characterization"),
+    ("Checks.ApplicationsDefinitions.psdmx_characterization", SEVEN_AXIOMS, "Checks.ApplicationsDefinitions.psdmx_characterization"),
+    ("Checks.ApplicationsDefinitions.goe_mx_characterization", SEVEN_AXIOMS, "Checks.ApplicationsDefinitions.goe_mx_characterization"),
+    ("Checks.ApplicationsDefinitions.matrix_measurable_characterization", SEVEN_AXIOMS, "Checks.ApplicationsDefinitions.matrix_measurable_characterization"),
+    ("Checks.ApplicationsDefinitions.gauss_characterization", SEVEN_AXIOMS, "Checks.ApplicationsDefinitions.gauss_characterization"),
+    ("Checks.ApplicationsDefinitions.gauss_determined", SEVEN_AXIOMS, "Checks.ApplicationsDefinitions.gauss_determined"),
+    ("Checks.MatrixSigmaRing.matrix_sigma_ring_characterization", SEVEN_AXIOMS, "Checks.MatrixSigmaRing.matrix_sigma_ring_characterization"),
+    ("Checks.Phase13Definitions.unif_mean_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.unif_mean_characterization"),
+    ("Checks.Phase13Definitions.unif_var_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.unif_var_characterization"),
+    ("Checks.Phase13Definitions.binomial_mean_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.binomial_mean_characterization"),
+    ("Checks.Phase13Definitions.linear_op_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.linear_op_characterization"),
+    ("Checks.Phase13Definitions.monotone_op_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.monotone_op_characterization"),
+    ("Checks.Phase13Definitions.meet_avg_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.meet_avg_characterization"),
+    ("Checks.Phase13Definitions.bdot_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.bdot_characterization"),
+    ("Checks.Phase13Definitions.bchar_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.bchar_characterization"),
+    ("Checks.Phase13Definitions.blk_deg_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.blk_deg_characterization"),
+    ("Checks.Phase13Definitions.blk_dist_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.blk_dist_characterization"),
+    ("Checks.Phase13Definitions.fcoef_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.fcoef_characterization"),
+    ("Checks.Phase13Definitions.low_blk_deg_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.low_blk_deg_characterization"),
+    ("Checks.Phase13Definitions.prob_vec_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.prob_vec_characterization"),
+    ("Checks.Phase13Definitions.prod_avg_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.prod_avg_characterization"),
+    ("Checks.Phase13Definitions.smoothing_hyps_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.smoothing_hyps_characterization"),
+    ("Checks.Phase13Definitions.weighted_gram_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.weighted_gram_characterization"),
+    ("Checks.Phase13Definitions.psd_factorization_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.psd_factorization_characterization"),
+    ("Checks.Phase13Definitions.psd_eval_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.psd_eval_characterization"),
+    ("Checks.Phase13Definitions.psd_eval_cone_characterization", SEVEN_AXIOMS, "Checks.Phase13Definitions.psd_eval_cone_characterization"),
+    ("Checks.LibraryStatements.accepted_finite_mean.unif_mean_union_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_finite_mean.unif_mean_union_accepted"),
+    ("Checks.LibraryStatements.accepted_finite_mean.unif_mean_indicatorN_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_finite_mean.unif_mean_indicatorN_accepted"),
+    ("Checks.LibraryStatements.accepted_finite_mean.unif_mean_markov_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_finite_mean.unif_mean_markov_accepted"),
+    ("Checks.LibraryStatements.accepted_finite_mean.unif_mean_cutoff_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_finite_mean.unif_mean_cutoff_accepted"),
+    ("Checks.LibraryStatements.accepted_finite_mean.unif_chebyshev_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_finite_mean.unif_chebyshev_accepted"),
+    ("Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_ord_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_ord_accepted"),
+    ("Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_set_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_set_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_mean0_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean0_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_meanS_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_meanS_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.eq_binomial_mean_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.eq_binomial_mean_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_cst_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_cst_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_meanD_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_meanD_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_meanZ_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_meanZ_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.ler_binomial_mean_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.ler_binomial_mean_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_id_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_id_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_sqr_dev_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_sqr_dev_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_chebyshev_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_chebyshev_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_last_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_last_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_trials_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_trials_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.unif_mean_binomial_mean_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.unif_mean_binomial_mean_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.binomial_meanE_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.binomial_meanE_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_mean.integral_binomial_mean_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_mean.integral_binomial_mean_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.homo_iter_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.homo_iter_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.iter_le_subcomm_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.iter_le_subcomm_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.monotone_iter_le_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.monotone_iter_le_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.iter_scale_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.iter_scale_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.iter_mix_binomial_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.iter_mix_binomial_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.binomial_mix_le_iter_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.binomial_mix_le_iter_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.meet_avg_linear_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.meet_avg_linear_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.meet_avg_monotone_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.meet_avg_monotone_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.meet_avg_cst_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.meet_avg_cst_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.meet_avgC_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.meet_avgC_accepted"),
+    ("Checks.LibraryStatements.accepted_commuting_operators.iter_meet_avg_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_commuting_operators.iter_meet_avg_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.bchar_algebra_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.bchar_algebra_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.bchar_orthogonal_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.bchar_orthogonal_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.bchar_delta_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.bchar_delta_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_metric_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_metric_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.fcoef_inversion_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_inversion_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.fcoef_expansion_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_expansion_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.fcoef_plancherel_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_plancherel_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.fcoef_linear_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_linear_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.fcoef_comp_linear_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_comp_linear_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.fcoef_mulmx_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_mulmx_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.fcoef_norm_le_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_norm_le_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.fcoef_translate_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_translate_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_expansion_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_expansion_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_translate_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_translate_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_row_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_row_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.bchar_col_mx_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.bchar_col_mx_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.blk_col_mx_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.blk_col_mx_accepted"),
+    ("Checks.LibraryStatements.accepted_boolean_fourier.fcoef_col_mx_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_col_mx_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_ge0_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_ge0_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_size_gt0_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_size_gt0_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_restrict_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_restrict_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_widen_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_widen_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_shift_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_shift_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_nonneg_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_nonneg_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_bounds.central_bin_le_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_bounds.central_bin_le_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_bounds.central_bin_ge_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_bounds.central_bin_ge_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_bounds.half_bin_ge_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_bounds.half_bin_ge_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_bounds.leq_bin_half_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_bounds.leq_bin_half_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_bounds.bin_near_half_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_bounds.bin_near_half_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_central_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_central_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_ratio_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_ratio_accepted"),
+    ("Checks.LibraryStatements.accepted_binomial_bounds.bin_partial_sum_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_binomial_bounds.bin_partial_sum_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_duality.psd_eval_cone_closed_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_duality.psd_eval_cone_closed_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_duality.psdmx_dual_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_duality.psdmx_dual_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_duality.psd_farkas_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_duality.psd_farkas_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_accepted"),
+    ("Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_affine_accepted", SEVEN_AXIOMS, "Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_affine_accepted"),
+]
+CHECK_FILES = [
+    CheckFile("check/ApplicationsDefinitions.v", LIB_CHECK_FLAGS,
+              "build/checks/ApplicationsDefinitions.out", 1, ("empty",)),
+    CheckFile("check/MatrixSigmaRing.v", LIB_CHECK_FLAGS,
+              "build/checks/MatrixSigmaRing.out", 1, ("empty",)),
+    CheckFile("check/Phase13Definitions.v", LIB_CHECK_FLAGS,
+              "build/checks/Phase13Definitions.out", 1, ("reports", 3, SEVEN_AXIOMS)),
+    CheckFile("check/LibraryStatements.v", LIB_CHECK_FLAGS,
+              "build/checks/LibraryStatements.out", 1, ("reports", 1, SEVEN_AXIOMS)),
+    CheckFile("check/Assumptions.v", PAPER_CHECK_FLAGS, "build/checks/Assumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["main theorem"], "main theorem")])),
+    CheckFile("check/UniversalityAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/UniversalityAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["universality theorem"], "universality theorem")])),
+    CheckFile("check/MixtureAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/MixtureAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["mixture theorem"], "mixture theorem")])),
+    CheckFile("check/PairedAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/PairedAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["paired theorem"], "paired theorem")])),
+    CheckFile("check/LatentSignAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/LatentSignAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["latent-sign theorem"], "latent-sign theorem")])),
+    CheckFile("check/CountableAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/CountableAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["countable-mixture theorem"], "countable-mixture theorem")])),
+    CheckFile("check/ConditionAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/ConditionAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["condition-number theorem"], "condition-number theorem")])),
+    CheckFile("check/LatentScopeAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/LatentScopeAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["latent-sign scope theorem"], "latent-sign scope theorem")])),
+    CheckFile("check/RobustAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/RobustAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["robustness theorem"], "robustness theorem")])),
+    CheckFile("check/LatentTensorAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/LatentTensorAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["tensorization theorem"], "tensorization theorem")])),
+    CheckFile("check/ContinuousLatentAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/ContinuousLatentAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["continuous-latent theorem"], "continuous-latent theorem")])),
+    CheckFile("check/ConditionEndpointsAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/ConditionEndpointsAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["condition-endpoints theorem"], "condition-endpoints theorem")])),
+    CheckFile("check/ConditionRobustAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/ConditionRobustAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["robust condition-number theorem"], "robust condition-number theorem")])),
+    CheckFile("check/LatentTensorUpperAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/LatentTensorUpperAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["tensorization upper bound"], "tensorization upper bound")])),
+    CheckFile("check/ConditionKappaCurveAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/ConditionKappaCurveAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["condition-number curve at kappa"], "condition-number curve at kappa")])),
+    CheckFile("check/ConditionKappaAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/ConditionKappaAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["condition-number theorem at kappa"], "condition-number theorem at kappa")])),
+    CheckFile("check/ConditionKappaRobustAssumptions.v", EXTENSION_CHECK_FLAGS, "build/checks/ConditionKappaRobustAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["robust condition-number theorem at kappa"], "robust condition-number theorem at kappa")])),
+    CheckFile("check/MatrixSeriesAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/MatrixSeriesAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["Gaussian matrix series theorem"], "Gaussian matrix series theorem")])),
+    CheckFile("check/TensorPackingAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/TensorPackingAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["tensor packing theorem"], "tensor packing theorem")])),
+    CheckFile("check/GoeEdgeAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/GoeEdgeAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["GOE edge theorem"], "GOE edge theorem")])),
+    CheckFile("check/SKGapAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/SKGapAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["SK spectral gap theorem"], "SK spectral gap theorem")])),
+    CheckFile("check/PsdSplittingAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/PsdSplittingAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["orthogonal splitting theorem"], "orthogonal splitting theorem")])),
+    CheckFile("check/PerceptronSignAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/PerceptronSignAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["perceptron comparison theorem"], "perceptron comparison theorem")])),
+    CheckFile("check/SatVarianceAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/SatVarianceAssumptions.out", 1,
+              ("marked", [(None, EXPECTED_LISTS["k-SAT variance theorem"], "k-SAT variance theorem")])),
+    CheckFile("check/SatThresholdAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/SatThresholdAssumptions.out", 1,
+              ("marked", [("Checks.SatThresholdAssumptions.sat_threshold_identity", EXPECTED_LISTS["satisfiability threshold theorem"], "satisfiability threshold theorem")])),
+    CheckFile("check/PsdNormalizationAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/PsdNormalizationAssumptions.out", 1,
+              ("marked", [("Checks.PsdNormalizationAssumptions.psd_normalization_identity", EXPECTED_LISTS["PSD normalization theorem"], "PSD normalization theorem")])),
+    CheckFile("check/ProductSmoothingAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/ProductSmoothingAssumptions.out", 1,
+              ("marked", [("Checks.ProductSmoothingAssumptions.product_smoothing_identity", EXPECTED_LISTS["product smoothing theorem"], "product smoothing theorem")])),
+    CheckFile("check/MinSuperadditiveAssumptions.v", APPLICATION_CHECK_FLAGS, "build/checks/MinSuperadditiveAssumptions.out", 1,
+              ("marked", [("Checks.MinSuperadditiveAssumptions.min_superadditive_identity", EXPECTED_LISTS["min-superadditive convergence theorem"], "min-superadditive convergence theorem")])),
+    CheckFile("check/TheoremIdentities.v", ALL_CHECK_FLAGS,
+              "build/checks/TheoremIdentities.out", 1, ("marked", THEOREM_IDENTITIES)),
+    CheckFile("check/Reports.v", LIB_CHECK_FLAGS, "build/checks/Reports.out", 2,
+              ("marked", MARKED_REPORTS)),
+    CheckFile("check/snapshots/SnapshotApplicationsDefinitions.v", ALL_CHECK_FLAGS, "build/checks/SnapshotApplicationsDefinitions.out", 2,
+              ("snapshot", "check/snapshots/SnapshotApplicationsDefinitions.txt",
+               "a49e2f982ab315e9fb882ba4a570426837c943181761292e0519778b1c486b49")),
+    CheckFile("check/snapshots/SnapshotMatrixSigmaRing.v", ALL_CHECK_FLAGS, "build/checks/SnapshotMatrixSigmaRing.out", 2,
+              ("snapshot", "check/snapshots/SnapshotMatrixSigmaRing.txt",
+               "12a4befb2cc46242ec9185482341765071a6950f19889ac633bbb8ad56a8467a")),
+    CheckFile("check/snapshots/SnapshotPhase1.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase1.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase1.txt",
+               "58c6d6f2ddf409319275a9fc499709317e4f472e2dad0fdba2812b9404424b7d")),
+    CheckFile("check/snapshots/SnapshotPhase10.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase10.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase10.txt",
+               "87dd3babad8f996192bb2c64b5b846cfcbb3471124f55834d042b5f925b877aa")),
+    CheckFile("check/snapshots/SnapshotPhase11.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase11.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase11.txt",
+               "fc54f0c72f0abe5fd353acbca1b2ffabfaf814e2ebf199ed274459c291045c8d")),
+    CheckFile("check/snapshots/SnapshotPhase12Batch1.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase12Batch1.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase12Batch1.txt",
+               "e89954a3dff1f2a66793bd58f26917b412c28d16b4461ecb12af84914ebd4d30")),
+    CheckFile("check/snapshots/SnapshotPhase12Batch2.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase12Batch2.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase12Batch2.txt",
+               "3e6646c9444f1ca8b32fd208d3281a1ba3190b5b949285eb05cc6a22ae610528")),
+    CheckFile("check/snapshots/SnapshotPhase13.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase13.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase13.txt",
+               "3ce0300d7bf9489448666d822b0ef813c7b8969a16788473852380afeeeed4f2")),
+    CheckFile("check/snapshots/SnapshotPhase13Freeze1.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase13Freeze1.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase13Freeze1.txt",
+               "98263a2d0d2f80d8d09d160c6932989e40c9c4a9e18b90dcb4728c818f325ade")),
+    CheckFile("check/snapshots/SnapshotPhase13Freeze2.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase13Freeze2.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase13Freeze2.txt",
+               "b9557b735a093fa58442bf1de97c1e880fc9cbfb96c66fce53b58e6333afdb0d")),
+    CheckFile("check/snapshots/SnapshotPhase13Freeze3.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase13Freeze3.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase13Freeze3.txt",
+               "2e416b6067853b04def20fb4445600cd6295c1f276c49be26af648dc9ff46584")),
+    CheckFile("check/snapshots/SnapshotPhase1Theorems.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase1Theorems.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase1Theorems.txt",
+               "c3a56779f6550c334a007c3c164129b4c9aebb332a7a0825f02d2ce9ba35a444")),
+    CheckFile("check/snapshots/SnapshotPhase5.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase5.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase5.txt",
+               "21052c338dbf3e5bf062992d50ffe6830cf556db94b12906814874969bb98972")),
+    CheckFile("check/snapshots/SnapshotPhase6.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase6.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase6.txt",
+               "7f9b2627834ceff603c268f33fcd8d3ad779b5025271bb686110c01808b10617")),
+    CheckFile("check/snapshots/SnapshotPhase7.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase7.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase7.txt",
+               "033dc24da294a4b36dec738207f4292d3b6d718e3328925f69df5f489898c580")),
+    CheckFile("check/snapshots/SnapshotPhase8.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase8.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase8.txt",
+               "de5980786ab6ab0072546565d5d89623c5c8e1725d3f70fa00cb345934b4260b")),
+    CheckFile("check/snapshots/SnapshotPhase9.v", ALL_CHECK_FLAGS, "build/checks/SnapshotPhase9.out", 2,
+              ("snapshot", "check/snapshots/SnapshotPhase9.txt",
+               "9b3ad498de48743b32c2eaeff613507b36dc5ff11a63127b76710cfc230f4aea")),
+    CheckFile("check/snapshots/SnapshotTupleProd.v", ALL_CHECK_FLAGS, "build/checks/SnapshotTupleProd.out", 2,
+              ("snapshot", "check/snapshots/SnapshotTupleProd.txt",
+               "b4cb555fb7227baa39700d072f9888d02d8908f3dee4cd4fed078ecd346fb039")),
+]
+# Rule 30 (e): the identity drivers of the snapshots that print a
+# declaration, and the SHA-256 of their references.
+IDENTITY_INVENTORY = "check/identity/inventory.json"
+IDENTITY_META = "check/identity/REFERENCES.json"
+IDENTITY_QUERIES = 424
+IDENTITY_PARTS = 653
+OCAML_VERSION = "5.3.0"
+FINDLIB_VERSION = "1.9.8"
+IDENTITY_REFERENCES = {'SnapshotApplicationsDefinitions': 'f7a833bf5ce806aa52cc3ec5253209cf025d111033c06051adf709b74cd34100', 'SnapshotMatrixSigmaRing': '3d8e3e9761c9d2995833406821faecdabebe4330a1dd1e2094bff0ab367b6c10', 'SnapshotPhase1': 'a303085aa9e270242a1cdb03ab9c64524dcc6af766745b7291030acbc59b1e1e', 'SnapshotPhase10': 'bc5aa8533d8bc6f6f7b17a127bb75471c9908583123ca7e0f5e4292c0eb1a31c', 'SnapshotPhase11': 'a76aa824b4b56515bbf4ebf6099d9dbd00c83a7b9b864135ef7e8114249e1463', 'SnapshotPhase12Batch1': '4a238335bae99e561dedb781d04e578231e478ab77c07142130a1f2769ad2126', 'SnapshotPhase12Batch2': 'c377fcd42ed952d95d47ac7670e901350c5912894795c846e296b8e61b3dd2d3', 'SnapshotPhase13': 'f8af26f895707a1910d5745be9a673ee0f5387c629e6f493cab876c2302fb2d7', 'SnapshotPhase13Freeze1': 'c9e5aa896927b557fea9ff700b4d078b0c0811323437bb10692b231f873f710f', 'SnapshotPhase13Freeze2': 'e1fa6fc56442e2a35e6206454a60a32d1f8ac8fe747848c700114bd58920e51d', 'SnapshotPhase13Freeze3': '011b8682d1335c45e34262910fd39b098612041df1f7ddbdb6a5fb2f4810a627', 'SnapshotPhase1Theorems': 'e4f63bab1dc796b4da7c1ce7b3722c4c636124573d6d45723beadc7ddf9b9b80', 'SnapshotPhase5': '16bee76d38cfd63468d126a397e1e37ffa02df2714e6c7c49c6595eaebedb1bf', 'SnapshotPhase6': 'a19527f75fa5fdeced6244bbbde6f28bf43c7f898f7a7bc63174fd5e395cc78b', 'SnapshotPhase7': '6658ee672f2736ebe13d8316d509dd6e6fb87c164d02ebbfe14c91fbfa35bcf8', 'SnapshotPhase8': '625f21020e8f382a0494039f06efc4f56825fa64738bf2c3f8857d206d2cb1e9', 'SnapshotPhase9': 'fbf85e3917cb1a94548c67ff090be950b627a0adc37acc446a37695b49aa101b', 'SnapshotTupleProd': 'dee8f3e84871f77ce10663e2dfca87480f93c2f74c1e89004bd00bb4c444f479'}
+CHECK_FILES += [CheckFile(f"check/identity/Identity{name}.v", ALL_CHECK_FLAGS,
+                          f"build/checks/Identity{name}.out", 2,
+                          ("identity", f"check/identity/Identity{name}.json", digest))
+                for name, digest in IDENTITY_REFERENCES.items()]
+MANIFEST = "build/checks/manifest.json"
+REFERENCES = "check/snapshots/REFERENCES.json"
+# The snapshots of characterization lemmas, the other snapshots being those
+# of frozen statements, pinned sections and accepted statements.
+CHARACTERIZATION_SNAPSHOTS = ["SnapshotApplicationsDefinitions", "SnapshotMatrixSigmaRing",
+                              "SnapshotPhase13Freeze1", "SnapshotPhase13Freeze2",
+                              "SnapshotPhase13Freeze3"]
+# The names that each snapshot file prints by its own commands.
+SNAPSHOT_SUBJECTS = {'SnapshotAcceptedStatements': ['GaussianAnalysis.combinatorics.binomial_bounds.bin_near_half_statement', 'GaussianAnalysis.combinatorics.binomial_bounds.bin_partial_sum_statement', 'GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_central_statement', 'GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_ratio_statement', 'GaussianAnalysis.combinatorics.binomial_bounds.central_bin_ge_statement', 'GaussianAnalysis.combinatorics.binomial_bounds.central_bin_le_statement', 'GaussianAnalysis.combinatorics.binomial_bounds.half_bin_ge_statement', 'GaussianAnalysis.combinatorics.binomial_bounds.leq_bin_half_statement', 'GaussianAnalysis.fourier.boolean_fourier.bchar_algebra_statement', 'GaussianAnalysis.fourier.boolean_fourier.bchar_col_mx_statement', 'GaussianAnalysis.fourier.boolean_fourier.bchar_delta_statement', 'GaussianAnalysis.fourier.boolean_fourier.bchar_orthogonal_statement', 'GaussianAnalysis.fourier.boolean_fourier.blk_col_mx_statement', 'GaussianAnalysis.fourier.boolean_fourier.blk_dist_metric_statement', 'GaussianAnalysis.fourier.boolean_fourier.blk_dist_row_statement', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_col_mx_statement', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_comp_linear_statement', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_expansion_statement', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_inversion_statement', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_linear_statement', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_mulmx_statement', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_norm_le_statement', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_plancherel_statement', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_translate_statement', 'GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_expansion_statement', 'GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_translate_statement', 'GaussianAnalysis.matrix.psd_duality.psd_eval_cone_closed_statement', 'GaussianAnalysis.matrix.psd_duality.psd_farkas_statement', 'GaussianAnalysis.matrix.psd_duality.psd_slack_certificate_affine_statement', 'GaussianAnalysis.matrix.psd_duality.psd_slack_certificate_statement', 'GaussianAnalysis.matrix.psd_duality.psdmx_dual_statement', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_ge0_statement', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_nonneg_statement', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_restrict_statement', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_shift_statement', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_size_gt0_statement', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_widen_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_chebyshev_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_mean0_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_meanD_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_meanE_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_meanS_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_meanZ_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_cst_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_id_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_last_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_sqr_dev_statement', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_trials_statement', 'GaussianAnalysis.probability.binomial_mean.eq_binomial_mean_statement', 'GaussianAnalysis.probability.binomial_mean.integral_binomial_mean_statement', 'GaussianAnalysis.probability.binomial_mean.ler_binomial_mean_statement', 'GaussianAnalysis.probability.binomial_mean.unif_mean_binomial_mean_statement', 'GaussianAnalysis.probability.commuting_operators.binomial_mix_le_iter_statement', 'GaussianAnalysis.probability.commuting_operators.homo_iter_statement', 'GaussianAnalysis.probability.commuting_operators.iter_le_subcomm_statement', 'GaussianAnalysis.probability.commuting_operators.iter_meet_avg_statement', 'GaussianAnalysis.probability.commuting_operators.iter_mix_binomial_statement', 'GaussianAnalysis.probability.commuting_operators.iter_scale_statement', 'GaussianAnalysis.probability.commuting_operators.meet_avgC_statement', 'GaussianAnalysis.probability.commuting_operators.meet_avg_cst_statement', 'GaussianAnalysis.probability.commuting_operators.meet_avg_linear_statement', 'GaussianAnalysis.probability.commuting_operators.meet_avg_monotone_statement', 'GaussianAnalysis.probability.commuting_operators.monotone_iter_le_statement', 'GaussianAnalysis.probability.finite_mean.unif_chebyshev_statement', 'GaussianAnalysis.probability.finite_mean.unif_mean_cutoff_statement', 'GaussianAnalysis.probability.finite_mean.unif_mean_indicatorN_statement', 'GaussianAnalysis.probability.finite_mean.unif_mean_markov_statement', 'GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_ord_statement', 'GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_set_statement', 'GaussianAnalysis.probability.finite_mean.unif_mean_union_statement'], 'SnapshotApplicationsDefinitions': ['Checks.ApplicationsDefinitions.frobenius_characterization', 'Checks.ApplicationsDefinitions.gauss_characterization', 'Checks.ApplicationsDefinitions.gauss_determined', 'Checks.ApplicationsDefinitions.goe_mx_characterization', 'Checks.ApplicationsDefinitions.matrix_measurable_characterization', 'Checks.ApplicationsDefinitions.mxdot_characterization', 'Checks.ApplicationsDefinitions.opnorm_characterization', 'Checks.ApplicationsDefinitions.psdmx_characterization'], 'SnapshotMatrixSigmaRing': ['Checks.MatrixSigmaRing.matrix_sigma_ring_characterization'], 'SnapshotPhase1': ['EllipsoidFitting.AnalysisIntegralDefinitions.continuity_2d_pt', 'EllipsoidFitting.AnalysisIntegralDefinitions.oriented_has_integral', 'EllipsoidFitting.AnalysisIntegralDefinitions.oriented_integral', 'EllipsoidFitting.AnalysisIntegralDefinitions.segment_integrable', 'EllipsoidFitting.AnalysisIntegralDefinitions.whole_line_has_integral', 'EllipsoidFitting.AnalysisIntegralDefinitions.whole_line_integrable', 'EllipsoidFitting.AnalysisIntegralDefinitions.whole_line_integral', 'EllipsoidFitting.GaussianDefinitions.gaussian_absolutely_integrable', 'EllipsoidFitting.GaussianDefinitions.gaussian_density', 'EllipsoidFitting.GaussianDefinitions.gaussian_expectation', 'EllipsoidFitting.GaussianDefinitions.gaussian_has_integral', 'EllipsoidFitting.GaussianDefinitions.gaussian_integral', 'EllipsoidFitting.GaussianDefinitions.gaussian_integral_exists', 'EllipsoidFitting.GaussianDefinitions.gaussian_kernel', 'EllipsoidFitting.GaussianDefinitions.gaussian_mass', 'EllipsoidFitting.GaussianDefinitions.gaussian_primitive', 'EllipsoidFitting.GaussianDefinitions.gaussian_stein_integrand', 'EllipsoidFitting.GaussianDefinitions.moment_factor', 'EllipsoidFitting.GaussianProbabilityDefinitions.gaussian_law', 'EllipsoidFitting.GaussianProbabilityDefinitions.gaussian_law_density', 'EllipsoidFitting.GaussianProbabilityDefinitions.gaussian_law_expectation', 'EllipsoidFitting.GaussianProbabilityDefinitions.gaussian_law_integrable', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.GaussianProbabilityProductDefinitions_gaussian_cons_tuple__canonical__measurable_function_MeasurableFun', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.HB_unnamed_factory_1', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.HB_unnamed_factory_7', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_cons_tuple', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_cons_tuple_measurable', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_law_probability', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_pair_probability', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_pair_probability_setT_subproof', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_product_law', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__measure_function_isFinite', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__measure_function_isSFinite', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__measure_function_isSigmaFinite', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__probability_measure_isProbability', 'EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__probability_measure_isSubProbability', 'EllipsoidFitting.MainStatement.main_statement', 'EllipsoidFitting.PaperMainDefinitions.paper_main_balanced_pd_event', 'EllipsoidFitting.PaperMainDefinitions.paper_main_conditioned_event', 'EllipsoidFitting.PaperMainDefinitions.paper_main_density', 'EllipsoidFitting.PaperMainDefinitions.paper_main_eventually_ge', 'EllipsoidFitting.PaperMainDefinitions.paper_main_eventually_le', 'EllipsoidFitting.PaperMainDefinitions.paper_main_fit_event', 'EllipsoidFitting.PaperMainDefinitions.paper_main_liminf_gt', 'EllipsoidFitting.PaperMainDefinitions.paper_main_limsup_le', 'EllipsoidFitting.PaperMainDefinitions.paper_main_limsup_lt', 'EllipsoidFitting.PaperMainDefinitions.paper_main_loewner_le', 'EllipsoidFitting.PaperMainDefinitions.paper_main_pd', 'EllipsoidFitting.PaperMainDefinitions.paper_main_point', 'EllipsoidFitting.PaperMainDefinitions.paper_main_probability', 'EllipsoidFitting.PaperMainDefinitions.paper_main_psd', 'EllipsoidFitting.PaperMainDefinitions.paper_main_quadratic_form', 'EllipsoidFitting.PaperMainDefinitions.paper_main_symmetric', 'EllipsoidFitting.PaperMainDefinitions.paper_main_tends_to', 'EllipsoidFitting.PaperMainDefinitions.paper_main_trace'], 'SnapshotPhase10': ['EllipsoidUniversality.ConditionRobustStatement.robust_condition_number_statement', 'EllipsoidUniversality.ConditionRobustStatement.robust_condition_statement', 'EllipsoidUniversality.ConditionRobustStatement.robust_condition_theorem_statement', 'EllipsoidUniversality.LatentTensorUpper.latent_tensor_constant', 'EllipsoidUniversality.LatentTensorUpper.latent_tensor_upper_statement'], 'SnapshotPhase11': ['EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_curve_statement', 'EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_integral', 'EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_inverse', 'EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_range', 'EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_root', 'EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_three', 'EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_variational', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_F', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_J', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_L', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_alpha', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_ell', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_objective', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_profile', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_star', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_u', 'EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_value', 'EllipsoidUniversality.ConditionKappaRobustStatement.condition_kappa_robust_theorem_statement', 'EllipsoidUniversality.ConditionKappaRobustStatement.finite_robust_condition_kappa_number_statement', 'EllipsoidUniversality.ConditionKappaRobustStatement.finite_robust_condition_kappa_statement', 'EllipsoidUniversality.ConditionKappaRobustStatement.robust_condition_kappa_number_statement', 'EllipsoidUniversality.ConditionKappaRobustStatement.robust_condition_kappa_statement', 'EllipsoidUniversality.ConditionKappaStatement.condition_kappa_number_statement', 'EllipsoidUniversality.ConditionKappaStatement.condition_kappa_statement', 'EllipsoidUniversality.ConditionKappaStatement.condition_kappa_theorem_statement', 'EllipsoidUniversality.ConditionKappaStatement.countable_condition_kappa_number_statement', 'EllipsoidUniversality.ConditionKappaStatement.countable_condition_kappa_statement'], 'SnapshotPhase12Batch1': ['GaussianAnalysis.matrix.lambda_max.lambda_max', 'GaussianApplications.GoeEdgeStatement.goe_edge_statement', 'GaussianApplications.MatrixSeriesStatement.matrix_series_statement', 'GaussianApplications.PsdSplittingStatement.psd_splitting_statement'], 'SnapshotPhase12Batch2': ['GaussianApplications.PerceptronSignDefinitions.bounded_C3', 'GaussianApplications.PerceptronSignDefinitions.gauss_pressure', 'GaussianApplications.PerceptronSignDefinitions.perceptron_pressure', 'GaussianApplications.PerceptronSignDefinitions.sign_pressure', 'GaussianApplications.PerceptronSignDefinitions.spin_col', 'GaussianApplications.PerceptronSignStatement.perceptron_sign_statement', 'GaussianApplications.SKGapDefinitions.half_diff', 'GaussianApplications.SKGapDefinitions.ising_cond_mean', 'GaussianApplications.SKGapDefinitions.ising_cond_var', 'GaussianApplications.SKGapDefinitions.ising_cov', 'GaussianApplications.SKGapDefinitions.ising_dirichlet', 'GaussianApplications.SKGapDefinitions.ising_mass', 'GaussianApplications.SKGapDefinitions.ising_mean', 'GaussianApplications.SKGapDefinitions.ising_var', 'GaussianApplications.SKGapDefinitions.ising_weight', 'GaussianApplications.SKGapDefinitions.sk_coupling', 'GaussianApplications.SKGapDefinitions.spin', 'GaussianApplications.SKGapDefinitions.spin_set', 'GaussianApplications.SKGapDefinitions.spin_vec', 'GaussianApplications.SKGapStatement.sk_gap_statement', 'GaussianApplications.SatVarianceDefinitions.clause', 'GaussianApplications.SatVarianceDefinitions.clause_sat', 'GaussianApplications.SatVarianceDefinitions.prefix_sat', 'GaussianApplications.SatVarianceDefinitions.proper_clause', 'GaussianApplications.SatVarianceDefinitions.sat_cap', 'GaussianApplications.SatVarianceDefinitions.sat_capped_var', 'GaussianApplications.SatVarianceDefinitions.sat_mean', 'GaussianApplications.SatVarianceDefinitions.sat_prefix_len', 'GaussianApplications.SatVarianceDefinitions.sat_var', 'GaussianApplications.SatVarianceStatement.sat_variance_statement', 'GaussianApplications.TensorPackingStatement.tensor_packing_statement'], 'SnapshotPhase13': ['Checks.LibraryStatements.accepted_binomial_bounds.bin_near_half_accepted', 'Checks.LibraryStatements.accepted_binomial_bounds.bin_partial_sum_accepted', 'Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_central_accepted', 'Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_ratio_accepted', 'Checks.LibraryStatements.accepted_binomial_bounds.central_bin_ge_accepted', 'Checks.LibraryStatements.accepted_binomial_bounds.central_bin_le_accepted', 'Checks.LibraryStatements.accepted_binomial_bounds.half_bin_ge_accepted', 'Checks.LibraryStatements.accepted_binomial_bounds.leq_bin_half_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_chebyshev_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_mean0_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_meanD_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_meanE_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_meanS_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_meanZ_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_cst_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_id_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_last_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_sqr_dev_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_trials_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.eq_binomial_mean_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.integral_binomial_mean_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.ler_binomial_mean_accepted', 'Checks.LibraryStatements.accepted_binomial_mean.unif_mean_binomial_mean_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.bchar_algebra_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.bchar_col_mx_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.bchar_delta_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.bchar_orthogonal_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.blk_col_mx_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_metric_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_row_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.fcoef_col_mx_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.fcoef_comp_linear_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.fcoef_expansion_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.fcoef_inversion_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.fcoef_linear_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.fcoef_mulmx_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.fcoef_norm_le_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.fcoef_plancherel_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.fcoef_translate_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_expansion_accepted', 'Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_translate_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.binomial_mix_le_iter_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.homo_iter_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.iter_le_subcomm_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.iter_meet_avg_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.iter_mix_binomial_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.iter_scale_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.meet_avgC_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.meet_avg_cst_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.meet_avg_linear_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.meet_avg_monotone_accepted', 'Checks.LibraryStatements.accepted_commuting_operators.monotone_iter_le_accepted', 'Checks.LibraryStatements.accepted_finite_mean.unif_chebyshev_accepted', 'Checks.LibraryStatements.accepted_finite_mean.unif_mean_cutoff_accepted', 'Checks.LibraryStatements.accepted_finite_mean.unif_mean_indicatorN_accepted', 'Checks.LibraryStatements.accepted_finite_mean.unif_mean_markov_accepted', 'Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_ord_accepted', 'Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_set_accepted', 'Checks.LibraryStatements.accepted_finite_mean.unif_mean_union_accepted', 'Checks.LibraryStatements.accepted_psd_duality.psd_eval_cone_closed_accepted', 'Checks.LibraryStatements.accepted_psd_duality.psd_farkas_accepted', 'Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_accepted', 'Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_affine_accepted', 'Checks.LibraryStatements.accepted_psd_duality.psdmx_dual_accepted', 'Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_ge0_accepted', 'Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_nonneg_accepted', 'Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_restrict_accepted', 'Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_shift_accepted', 'Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_size_gt0_accepted', 'Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_widen_accepted', 'GaussianAnalysis.combinatorics.binomial_bounds.bin_near_half', 'GaussianAnalysis.combinatorics.binomial_bounds.bin_partial_sum', 'GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_central', 'GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_ratio', 'GaussianAnalysis.combinatorics.binomial_bounds.central_bin_ge', 'GaussianAnalysis.combinatorics.binomial_bounds.central_bin_le', 'GaussianAnalysis.combinatorics.binomial_bounds.half_bin_ge', 'GaussianAnalysis.combinatorics.binomial_bounds.leq_bin_half', 'GaussianAnalysis.fourier.boolean_fourier.bchar_algebra', 'GaussianAnalysis.fourier.boolean_fourier.bchar_col_mx', 'GaussianAnalysis.fourier.boolean_fourier.bchar_delta', 'GaussianAnalysis.fourier.boolean_fourier.bchar_orthogonal', 'GaussianAnalysis.fourier.boolean_fourier.blk_col_mx', 'GaussianAnalysis.fourier.boolean_fourier.blk_dist_metric', 'GaussianAnalysis.fourier.boolean_fourier.blk_dist_row', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_col_mx', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_comp_linear', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_expansion', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_inversion', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_linear', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_mulmx', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_norm_le', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_plancherel', 'GaussianAnalysis.fourier.boolean_fourier.fcoef_translate', 'GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_expansion', 'GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_translate', 'GaussianAnalysis.matrix.psd_duality.psd_eval_cone_closed', 'GaussianAnalysis.matrix.psd_duality.psd_farkas', 'GaussianAnalysis.matrix.psd_duality.psd_slack_certificate', 'GaussianAnalysis.matrix.psd_duality.psd_slack_certificate_affine', 'GaussianAnalysis.matrix.psd_duality.psdmx_dual', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_ge0', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_nonneg', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_restrict', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_shift', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_size_gt0', 'GaussianAnalysis.matrix.psd_factorization.psd_factorization_widen', 'GaussianAnalysis.probability.binomial_mean.binomial_chebyshev', 'GaussianAnalysis.probability.binomial_mean.binomial_mean0', 'GaussianAnalysis.probability.binomial_mean.binomial_meanD', 'GaussianAnalysis.probability.binomial_mean.binomial_meanE', 'GaussianAnalysis.probability.binomial_mean.binomial_meanS', 'GaussianAnalysis.probability.binomial_mean.binomial_meanZ', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_cst', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_id', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_last', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_sqr_dev', 'GaussianAnalysis.probability.binomial_mean.binomial_mean_trials', 'GaussianAnalysis.probability.binomial_mean.eq_binomial_mean', 'GaussianAnalysis.probability.binomial_mean.integral_binomial_mean', 'GaussianAnalysis.probability.binomial_mean.ler_binomial_mean', 'GaussianAnalysis.probability.binomial_mean.unif_mean_binomial_mean', 'GaussianAnalysis.probability.commuting_operators.binomial_mix_le_iter', 'GaussianAnalysis.probability.commuting_operators.homo_iter', 'GaussianAnalysis.probability.commuting_operators.iter_le_subcomm', 'GaussianAnalysis.probability.commuting_operators.iter_meet_avg', 'GaussianAnalysis.probability.commuting_operators.iter_mix_binomial', 'GaussianAnalysis.probability.commuting_operators.iter_scale', 'GaussianAnalysis.probability.commuting_operators.meet_avgC', 'GaussianAnalysis.probability.commuting_operators.meet_avg_cst', 'GaussianAnalysis.probability.commuting_operators.meet_avg_linear', 'GaussianAnalysis.probability.commuting_operators.meet_avg_monotone', 'GaussianAnalysis.probability.commuting_operators.monotone_iter_le', 'GaussianAnalysis.probability.finite_mean.unif_chebyshev', 'GaussianAnalysis.probability.finite_mean.unif_mean_cutoff', 'GaussianAnalysis.probability.finite_mean.unif_mean_indicatorN', 'GaussianAnalysis.probability.finite_mean.unif_mean_markov', 'GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_ord', 'GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_set', 'GaussianAnalysis.probability.finite_mean.unif_mean_union', 'GaussianApplications.MinSuperadditiveStatement.min_superadditive_statement', 'GaussianApplications.ProductSmoothingStatement.product_smoothing_statement', 'GaussianApplications.PsdNormalizationStatement.psd_normalization_statement', 'GaussianApplications.PsdRankDefinitions.crossing', 'GaussianApplications.PsdRankDefinitions.edge_cut', 'GaussianApplications.PsdRankDefinitions.is_perfect_matching', 'GaussianApplications.PsdRankDefinitions.kn_edge', 'GaussianApplications.PsdRankDefinitions.odd_set', 'GaussianApplications.PsdRankDefinitions.perfect_matching', 'GaussianApplications.PsdRankDefinitions.shifted_matching_mx', 'GaussianApplications.PsdRankStatement.psd_rank_statement', 'GaussianApplications.SatThresholdDefinitions.sat_prob', 'GaussianApplications.SatThresholdStatement.sat_threshold_statement'], 'SnapshotPhase13Freeze1': ['Checks.Phase13Definitions.binomial_mean_characterization', 'Checks.Phase13Definitions.linear_op_characterization', 'Checks.Phase13Definitions.meet_avg_characterization', 'Checks.Phase13Definitions.monotone_op_characterization', 'Checks.Phase13Definitions.unif_mean_characterization', 'Checks.Phase13Definitions.unif_var_characterization'], 'SnapshotPhase13Freeze2': ['Checks.Phase13Definitions.bchar_characterization', 'Checks.Phase13Definitions.bdot_characterization', 'Checks.Phase13Definitions.binomial_mean_characterization', 'Checks.Phase13Definitions.blk_deg_characterization', 'Checks.Phase13Definitions.blk_dist_characterization', 'Checks.Phase13Definitions.fcoef_characterization', 'Checks.Phase13Definitions.linear_op_characterization', 'Checks.Phase13Definitions.low_blk_deg_characterization', 'Checks.Phase13Definitions.meet_avg_characterization', 'Checks.Phase13Definitions.monotone_op_characterization', 'Checks.Phase13Definitions.prob_vec_characterization', 'Checks.Phase13Definitions.prod_avg_characterization', 'Checks.Phase13Definitions.psd_factorization_characterization', 'Checks.Phase13Definitions.smoothing_hyps_characterization', 'Checks.Phase13Definitions.unif_mean_characterization', 'Checks.Phase13Definitions.unif_var_characterization', 'Checks.Phase13Definitions.weighted_gram_characterization'], 'SnapshotPhase13Freeze3': ['Checks.Phase13Definitions.bchar_characterization', 'Checks.Phase13Definitions.bdot_characterization', 'Checks.Phase13Definitions.binomial_mean_characterization', 'Checks.Phase13Definitions.blk_deg_characterization', 'Checks.Phase13Definitions.blk_dist_characterization', 'Checks.Phase13Definitions.fcoef_characterization', 'Checks.Phase13Definitions.linear_op_characterization', 'Checks.Phase13Definitions.low_blk_deg_characterization', 'Checks.Phase13Definitions.meet_avg_characterization', 'Checks.Phase13Definitions.monotone_op_characterization', 'Checks.Phase13Definitions.prob_vec_characterization', 'Checks.Phase13Definitions.prod_avg_characterization', 'Checks.Phase13Definitions.psd_eval_characterization', 'Checks.Phase13Definitions.psd_eval_cone_characterization', 'Checks.Phase13Definitions.psd_factorization_characterization', 'Checks.Phase13Definitions.smoothing_hyps_characterization', 'Checks.Phase13Definitions.unif_mean_characterization', 'Checks.Phase13Definitions.unif_var_characterization', 'Checks.Phase13Definitions.weighted_gram_characterization'], 'SnapshotPhase1Theorems': ['EllipsoidFitting.MainTheorem.ellipsoid_fitting_main', 'EllipsoidFitting.PaperMainResults.paper_main_results'], 'SnapshotPhase5': ['EllipsoidUniversality.UniversalityDefinitions.universality_alpha_star', 'EllipsoidUniversality.UniversalityDefinitions.universality_alpha_star_variational', 'EllipsoidUniversality.UniversalityDefinitions.universality_conditioned_fit_event', 'EllipsoidUniversality.UniversalityDefinitions.universality_coordinate_law', 'EllipsoidUniversality.UniversalityDefinitions.universality_cutoff', 'EllipsoidUniversality.UniversalityDefinitions.universality_density_tends_to', 'EllipsoidUniversality.UniversalityDefinitions.universality_e_star', 'EllipsoidUniversality.UniversalityDefinitions.universality_energy', 'EllipsoidUniversality.UniversalityDefinitions.universality_error_event', 'EllipsoidUniversality.UniversalityDefinitions.universality_fitting_error', 'EllipsoidUniversality.UniversalityDefinitions.universality_level_cutoff', 'EllipsoidUniversality.UniversalityDefinitions.universality_m', 'EllipsoidUniversality.UniversalityDefinitions.universality_pd_fit_event', 'EllipsoidUniversality.UniversalityDefinitions.universality_positive_part', 'EllipsoidUniversality.UniversalityDefinitions.universality_power', 'EllipsoidUniversality.UniversalityDefinitions.universality_probability', 'EllipsoidUniversality.UniversalityDefinitions.universality_product_law', 'EllipsoidUniversality.UniversalityDefinitions.universality_s', 'EllipsoidUniversality.UniversalityDefinitions.universality_sample_law', 'EllipsoidUniversality.UniversalityDefinitions.universality_semicircle_density', 'EllipsoidUniversality.UniversalityDefinitions.universality_semicircle_integrable', 'EllipsoidUniversality.UniversalityDefinitions.universality_semicircle_integral', 'EllipsoidUniversality.UniversalityDefinitions.universality_subgaussian_test', 'EllipsoidUniversality.UniversalityStatement.universality_statement'], 'SnapshotPhase6': ['EllipsoidUniversality.MixtureDefinitions.mixture_component_law', 'EllipsoidUniversality.MixtureDefinitions.mixture_family', 'EllipsoidUniversality.MixtureDefinitions.mixture_fourth_moment', 'EllipsoidUniversality.MixtureDefinitions.mixture_interpolation', 'EllipsoidUniversality.MixtureDefinitions.mixture_label', 'EllipsoidUniversality.MixtureDefinitions.mixture_labelled_law', 'EllipsoidUniversality.MixtureDefinitions.mixture_probability', 'EllipsoidUniversality.MixtureStatement.mixture_interpolation_statement', 'EllipsoidUniversality.MixtureStatement.mixture_statement', 'EllipsoidUniversality.MixtureStatement.mixture_theorem_statement', 'EllipsoidUniversality.PairedDefinitions.paired_kernel', 'EllipsoidUniversality.PairedDefinitions.paired_pair_density', 'EllipsoidUniversality.PairedDefinitions.paired_probability', 'EllipsoidUniversality.PairedDefinitions.paired_sample_density', 'EllipsoidUniversality.PairedDefinitions.paired_uniform_spec', 'EllipsoidUniversality.PairedStatement.paired_statement'], 'SnapshotPhase7': ['EllipsoidUniversality.LatentSignDefinitions.latent_probability', 'EllipsoidUniversality.LatentSignDefinitions.latent_sample_density', 'EllipsoidUniversality.LatentSignStatement.latent_sign_statement'], 'SnapshotPhase8': ['EllipsoidUniversality.ConditionDefinitions.condition_alpha', 'EllipsoidUniversality.ConditionDefinitions.condition_star', 'EllipsoidUniversality.ConditionDefinitions.condition_t', 'EllipsoidUniversality.ConditionDefinitions.data_condition_number', 'EllipsoidUniversality.ConditionStatement.condition_number_statement', 'EllipsoidUniversality.ConditionStatement.condition_statement', 'EllipsoidUniversality.ConditionStatement.condition_theorem_statement', 'EllipsoidUniversality.ConditionStatement.countable_condition_number_statement', 'EllipsoidUniversality.ConditionStatement.countable_condition_statement', 'EllipsoidUniversality.CountableMixtureDefinitions.countable_fourth_moment', 'EllipsoidUniversality.CountableMixtureDefinitions.countable_labelled_law', 'EllipsoidUniversality.CountableMixtureDefinitions.countable_mixture_family', 'EllipsoidUniversality.CountableMixtureDefinitions.countable_mixture_probability', 'EllipsoidUniversality.CountableMixtureStatement.countable_interpolation_statement', 'EllipsoidUniversality.CountableMixtureStatement.countable_mixture_statement', 'EllipsoidUniversality.CountableMixtureStatement.countable_theorem_statement', 'EllipsoidUniversality.LatentSignScope.latent_covariance_statement', 'EllipsoidUniversality.LatentSignScope.latent_point_expectation', 'EllipsoidUniversality.LatentSignScope.latent_scope_statement', 'EllipsoidUniversality.LatentSignScope.latent_variance_statement'], 'SnapshotPhase9': ['EllipsoidUniversality.ConditionEndpoints.condition_alpha_near_infinity', 'EllipsoidUniversality.ConditionEndpoints.condition_alpha_near_one', 'EllipsoidUniversality.ConditionEndpoints.condition_endpoints_statement', 'EllipsoidUniversality.ConditionEndpoints.condition_star_near_quarter', 'EllipsoidUniversality.ConditionEndpoints.condition_star_near_zero', 'EllipsoidUniversality.ContinuousLatent.cl_moment', 'EllipsoidUniversality.ContinuousLatent.cl_point_law', 'EllipsoidUniversality.ContinuousLatent.cl_value', 'EllipsoidUniversality.ContinuousLatent.cl_weight', 'EllipsoidUniversality.ContinuousLatent.continuous_latent_statement', 'EllipsoidUniversality.LatentTensorization.latent_cond_expectation', 'EllipsoidUniversality.LatentTensorization.latent_cond_variance', 'EllipsoidUniversality.LatentTensorization.latent_replace', 'EllipsoidUniversality.LatentTensorization.latent_tensorization', 'EllipsoidUniversality.LatentTensorization.latent_tensorization_statement', 'EllipsoidUniversality.LatentTensorization.latent_variance', 'EllipsoidUniversality.RobustDefinitions.contaminated_laws', 'EllipsoidUniversality.RobustDefinitions.contaminated_weights', 'EllipsoidUniversality.RobustDefinitions.finite_weights', 'EllipsoidUniversality.RobustDefinitions.robust_close', 'EllipsoidUniversality.RobustDefinitions.robust_point_law', 'EllipsoidUniversality.RobustDefinitions.robust_points', 'EllipsoidUniversality.RobustDefinitions.robust_sample_law', 'EllipsoidUniversality.RobustDefinitions.robust_tv', 'EllipsoidUniversality.RobustStatement.contamination_statement', 'EllipsoidUniversality.RobustStatement.robust_interpolation_statement', 'EllipsoidUniversality.RobustStatement.robust_statement', 'EllipsoidUniversality.RobustStatement.robust_theorem_statement'], 'SnapshotTupleProd': ['GaussianAnalysis.probability.lindeberg.HB_unnamed_factory_2', 'GaussianAnalysis.probability.lindeberg.lindeberg_tuple_cons__canonical__measurable_function_MeasurableFun', 'GaussianAnalysis.probability.lindeberg.measurable_tuple_cons', 'GaussianAnalysis.probability.lindeberg.tuple_cons', 'GaussianAnalysis.probability.lindeberg.tuple_prod']}
+# The declarations of the pinned sections tuple_prod and lambda_max.
+PINNED_NAMES = ['GaussianAnalysis.probability.lindeberg.HB_unnamed_factory_2', 'GaussianAnalysis.probability.lindeberg.lindeberg_tuple_cons__canonical__measurable_function_MeasurableFun', 'GaussianAnalysis.probability.lindeberg.measurable_tuple_cons', 'GaussianAnalysis.probability.lindeberg.tuple_cons', 'GaussianAnalysis.probability.lindeberg.tuple_prod', 'GaussianAnalysis.matrix.lambda_max.lambda_max']
+# The frozen modules (49 files).
+FROZEN_MODULES = ['EllipsoidFitting.AnalysisIntegralDefinitions', 'EllipsoidFitting.GaussianDefinitions', 'EllipsoidFitting.GaussianProbabilityDefinitions', 'EllipsoidFitting.GaussianProbabilityProductDefinitions', 'EllipsoidFitting.MainStatement', 'EllipsoidFitting.MainTheorem', 'EllipsoidFitting.PaperMainDefinitions', 'EllipsoidFitting.PaperMainResults', 'EllipsoidUniversality.ConditionDefinitions', 'EllipsoidUniversality.ConditionEndpoints', 'EllipsoidUniversality.ConditionKappaCurveStatement', 'EllipsoidUniversality.ConditionKappaDefinitions', 'EllipsoidUniversality.ConditionKappaRobustStatement', 'EllipsoidUniversality.ConditionKappaStatement', 'EllipsoidUniversality.ConditionRobustStatement', 'EllipsoidUniversality.ConditionStatement', 'EllipsoidUniversality.ContinuousLatent', 'EllipsoidUniversality.CountableMixtureDefinitions', 'EllipsoidUniversality.CountableMixtureStatement', 'EllipsoidUniversality.LatentSignDefinitions', 'EllipsoidUniversality.LatentSignScope', 'EllipsoidUniversality.LatentSignStatement', 'EllipsoidUniversality.LatentTensorUpper', 'EllipsoidUniversality.LatentTensorization', 'EllipsoidUniversality.MixtureDefinitions', 'EllipsoidUniversality.MixtureStatement', 'EllipsoidUniversality.PairedDefinitions', 'EllipsoidUniversality.PairedStatement', 'EllipsoidUniversality.RobustDefinitions', 'EllipsoidUniversality.RobustStatement', 'EllipsoidUniversality.UniversalityDefinitions', 'EllipsoidUniversality.UniversalityStatement', 'GaussianApplications.GoeEdgeStatement', 'GaussianApplications.MatrixSeriesStatement', 'GaussianApplications.MinSuperadditiveStatement', 'GaussianApplications.PerceptronSignDefinitions', 'GaussianApplications.PerceptronSignStatement', 'GaussianApplications.ProductSmoothingStatement', 'GaussianApplications.PsdNormalizationStatement', 'GaussianApplications.PsdRankDefinitions', 'GaussianApplications.PsdRankStatement', 'GaussianApplications.PsdSplittingStatement', 'GaussianApplications.SKGapDefinitions', 'GaussianApplications.SKGapStatement', 'GaussianApplications.SatThresholdDefinitions', 'GaussianApplications.SatThresholdStatement', 'GaussianApplications.SatVarianceDefinitions', 'GaussianApplications.SatVarianceStatement', 'GaussianApplications.TensorPackingStatement']
+ROCQ_VERSION = "The Rocq Prover, version 9.1.1"
+PACKAGES = {"rocq-core": "9.1.1", "rocq-mathcomp-ssreflect": "2.6.0",
+            "rocq-mathcomp-analysis": "1.16.0"}
+# The code of the check files added by rule 30 (SHA-256 of code()).
+NEW_CHECK_CODE = {'check/TheoremIdentities.v': '2c8e1cc75f38b8f9bd7cc2f333acf7e5219326fbf5ba2f664ce1e5fb97a52950', 'check/Reports.v': '40a413e2c0235f58a4f99a03ecd7603937688dbbee237c7779bbda8f3672b059', 'check/MatrixSigmaRing.v': '93dcba7c2db44a36e92cad5479110fa92eb6d874a268f25ccc942edc6303f8e3', 'check/snapshots/SnapshotApplicationsDefinitions.v': '7efe8576613e770bac68ceec7e1da1685af7cc2ba478e7630c686ef3328da5fa', 'check/snapshots/SnapshotMatrixSigmaRing.v': '69dbef5995b8ea348fdd4e42f1f663170073d9ef85cf3b2a73b7a2fd343cee7a', 'check/snapshots/SnapshotPhase1.v': '6f0fe34b69e5fdcbd2a9982cd3c741200adac83a8ef432b3631f8a7f5d1480a5', 'check/snapshots/SnapshotPhase10.v': '58d60fe8ea2e6b44a828132912bd96c17b5c0f7335621d3ff6b9e47be473aec3', 'check/snapshots/SnapshotPhase11.v': '1dad4ee59c9ce77828c7da5ac1f5ccdd4188c01ffa38d1bf2221a921ac1f0e73', 'check/snapshots/SnapshotPhase12Batch1.v': '5577d1ef78041e6343d92fc932f39642a9814e9d01e4479eb955122c371bd78a', 'check/snapshots/SnapshotPhase12Batch2.v': 'eefd29b50bf3efbfc6e2039cbed7ff02a0ebb95b1fc1da4c8fb7e96c8221500e', 'check/snapshots/SnapshotPhase13.v': 'd53c5cebca8ac54aa2715cca87859cc55213df4f651a156cf096e536d1f72377', 'check/snapshots/SnapshotPhase13Freeze1.v': '30cccb145ca7e9906afc152f20217653e2d6904850566a6bdb0ee8150c8b5f3e', 'check/snapshots/SnapshotPhase13Freeze2.v': 'aaa4d69729494b90cd33092a8d0ca3b686af86a170117e4954eb126da9077161', 'check/snapshots/SnapshotPhase13Freeze3.v': 'be9a7b31f485c3aab0f2a31b443b44f34c25d5debd6d6a0d96f3b6dff25f1110', 'check/snapshots/SnapshotPhase1Theorems.v': 'af59288c93001fdfbd29ed5481fa2c8786e4769501351c76444525d766c55e1a', 'check/snapshots/SnapshotPhase5.v': '57bfc4ef2f1d36b8aefeaca386260183146c906de1835d005af834355e02187f', 'check/snapshots/SnapshotPhase6.v': 'd792342f45f9139d17efa508d47ee8ee25a78c4e3ee569ab2e6694fd21bc4f30', 'check/snapshots/SnapshotPhase7.v': 'd50b6506107ca4a94c7fa74ed8660087ac9c8db34a43d18338ddd2c427a0148b', 'check/snapshots/SnapshotPhase8.v': '271074e46836033353f3dac072360c3bd3a2c5dbe2c4c1cf2c05766f9b25fc94', 'check/snapshots/SnapshotPhase9.v': 'fba0813e1b71db80d055e3d65fc9a44e1b8186422d18b154d688bb746aa41631', 'check/snapshots/SnapshotTupleProd.v': 'f8de7cd1203612ff34c923aee1a7f1f6e7ce7eb7d8282dcfabd0b9c372dfe85d'}
+# Files fixed byte for byte (SHA-256): the Makefile and the reviewed scripts.
+FIXED_FILES = {'Makefile': 'fbac12558c138f16d98528ab94958440f253c00696990dd184006c3beddc6d0a', 'check/snapshots/REFERENCES.json': 'e3383218301b8d3820d34ff80fed3a2d7e1c4aa1a65af0ee4520d3455825fcf9', 'check/snapshots/SnapshotAcceptedStatements.v': '06d37d6d739528f906f05fcc294cdb0264958a192582df1102f176b5129e29ec', 'check/snapshots/SnapshotAcceptedStatements.txt': '25a5860620224a21d5740ea20dc0a50c02bd13018f36a61cfda9e7b24d6453cd', 'check/snapshots/AcceptedConversions.v': 'c53ea1f50dfbd10e6272ed5e5fcd6d540ff9747dc98a59ac380477b2774faeb2', 'scripts/run_checks.py': '3548d99aea726ecd8ebdde8049785a19ae8c6945be8e8c20e4b8b4787c35970e', 'scripts/rocq_lex.py': '898141e4b081cee47b6fe8c4fc315817a4c2f26ef1529067dc117104edeac5c4', 'scripts/test_rocq_lex.py': '2d3e9b23442958f1368179541d092ed7d17777bb72c9f4d47327e84b22ea7324', 'scripts/snapshot_baselines.py': '066dc7afb51aa845fe8d0636199e9a2ae750c3532f2cf85b4b2ca38505e4996f', 'scripts/run_regressions.py': '76f3efa7018e6f44c7a82d58b52925bfe54e7354b9db7bd4775b6ae19b349d71', 'scripts/test_regression_cleanup.py': '94100576e7dc1846a5efa91be5a6ba4cea4b9451f2289f62dea9b1e3bb7780f7', 'scripts/source_inventory.py': '60f367948e412901bb78810bd590d2179f62cd451536cd1079d88cac219ba573', 'scripts/test_source_inventory.py': '02d8f982a224980ae0ba13c86641c004de399bb2fb3f0bc39dafffa6ef575885', 'scripts/test_command_heads.py': '11fb596ae2f2eab2f30967a58773ee1e93d488706da75df25f598ed255797758', 'scripts/test_check_runner.py': 'a6ebdbb5ff36fde036c2b97d8cd1b4c6f8648eb5fe07c2d109f832e82dcdaba2', 'scripts/test_report_outputs.py': 'a50b255ace43412e06bec87cd3fad22148a32501d319b86356c6016a95d9428a', 'scripts/test_dependency_consistency.py': '85067e57e37161c26d37d9ab113707d65cab54cff7c32cfa99759b85b18674ed', 'scripts/identity_sidecars.py': '0c78c6cf3056e53a9476dc4fde9efdfbdd9e218c0230c1f04e9bae43b69a28c1', 'scripts/test_identity_sidecars.py': '3448736a22d5e1367a200bcd46f5ac326ddcc45ae27354dc7d7d74cafe27592b', 'check/identity/kernel_identity.ml': '6435bcb9af29a235937e076b347ec159d30d5b923da5c011798ca4cc7ad722f0', 'check/identity/kernel_universe.ml': 'a0a6e83517d914361cbbea963db4b208a5f217e97005ed8e61a1bc55e40ffb66', 'check/identity/META': '0b344f7c1aba69f30a90ecfd7b601b273a762c0c5cef876a7616ad090ab9fc7a', 'check/identity/README': 'ae517f66c654f056a07883773c4cf0391d1b8cb231a3f8ab9265064dbcff1f0b', 'check/identity/inventory.json': '616cba9b2a69303b62a9372babbb40e3b9ccb068132c61dd5c1aae2d1329c4c4', 'check/identity/REFERENCES.json': 'a68fdf5661137b6113f6fa0253b6192be47d8d9b5a8b0d8fa179e59f53337a74', 'check/identity/IdentitySnapshotApplicationsDefinitions.v': 'fece3cfb9bd1c1bec2803ab6b597499328b0468db19970bc8a97e7395edc20eb', 'check/identity/IdentitySnapshotMatrixSigmaRing.v': 'dbacd7d5e24cc453c23574df4efbca3c3152884673bb07d95d32a7027f95e715', 'check/identity/IdentitySnapshotPhase1.v': '2153b00d5ff804c403b620c46279421da59b3aae03aa190ce4156e9b8185c3cf', 'check/identity/IdentitySnapshotPhase10.v': 'ccb4afab6a297c74ba711d4c9dbf9ab7734d164cc55de105e281c2f3c2a7c13a', 'check/identity/IdentitySnapshotPhase11.v': 'dd0dcad971e79c8aa2d2517d2d7d59e9e6e66e1696f297b850a2868cb47a08ee', 'check/identity/IdentitySnapshotPhase12Batch1.v': '53c34c77407532011068796f7db4351491ed7311eb3dd0d8934e51d2418d72f7', 'check/identity/IdentitySnapshotPhase12Batch2.v': 'bdd0caa5aaf917490207897ea93d7549c06289665a5496430cdf1b7288a8792d', 'check/identity/IdentitySnapshotPhase13.v': 'f8ca2f616ea1e8b1d2d9a26012651b3ac4847a1a6abaac2328ee0eef454b17b2', 'check/identity/IdentitySnapshotPhase13Freeze1.v': 'aa158786f0bea88e68436ee5b5a4f69409478684db1913032b36e6c47ccade22', 'check/identity/IdentitySnapshotPhase13Freeze2.v': '3b0c5ad0871879cd96347bce9c1ade1408bcbc758302d229072311d1e35e4b36', 'check/identity/IdentitySnapshotPhase13Freeze3.v': 'abcdd5b2d2870ed14c7b4cfc89d673bf8f6a99af12b55bb522227ac937cec070', 'check/identity/IdentitySnapshotPhase1Theorems.v': 'de8ba5ec07f9ea911c19d08ded413376c3e11dfe5a01da51061711ea754f80df', 'check/identity/IdentitySnapshotPhase5.v': '438ebb69ff99cbc743d4b5fb7c4b493f5978365b1fe56549e9c0cc44c9d83f5d', 'check/identity/IdentitySnapshotPhase6.v': '1e65c54f94bb0ad5fab3131212e76df38e72ac885c9f3189d365bf4904b1f68e', 'check/identity/IdentitySnapshotPhase7.v': '0ff636ddc9edc1d52eb9a7586fc3594d696e8cec54baec91f9e82dddfe1614e4', 'check/identity/IdentitySnapshotPhase8.v': '7ed127dbd1493c0e17d7978a3c1336de10b1857ba725a7ae45dcc910303ae27d', 'check/identity/IdentitySnapshotPhase9.v': '54bb7e5e246e2362a10e0258b80a1f501b2cadb2a08b036f4794594c2cd685ae', 'check/identity/IdentitySnapshotTupleProd.v': 'c0f14aa71bee02a8a30f8a30cb31b59e2c74057c0ef710ccf579e82611ae4b16'}
+# The files of scripts/, exactly.
+SCRIPTS = ['check_sources.py', 'export_from_ellipsoid_rocq.py', 'stale_citations.py', 'unused.py', 'rocq_lex.py', 'test_rocq_lex.py', 'run_checks.py', 'snapshot_baselines.py', 'run_regressions.py', 'source_inventory.py', 'test_source_inventory.py', 'test_command_heads.py', 'test_check_runner.py', 'test_report_outputs.py', 'test_dependency_consistency.py', 'test_regression_cleanup.py', 'identity_sidecars.py', 'test_identity_sidecars.py']
+# Files that make reads before the Makefile (GNUmakefile, makefile) or that the
+# generated Makefile.rocq includes (Makefile.rocq.local, Makefile.rocq.local-late)
+# if they exist.
+ABSENT_FILES = ["GNUmakefile", "makefile", "Makefile.rocq.local", "Makefile.rocq.local-late"]
+COQPROJECT_OPTIONS = ['-Q library GaussianAnalysis', '-Q theories EllipsoidFitting', '-Q extension EllipsoidUniversality', '-Q applications GaussianApplications', '-arg -w -arg -notation-overridden', '-arg -w -arg -ambiguous-paths', '-arg -w -arg -notation-incompatible-prefix', '-arg -w -arg -hiding-delimiting-key', '-arg -w -arg +comment-terminator-in-string', '-arg -q']
 PAPERS = {"EllipsoidFitting", "EllipsoidUniversality"}
 APPLICATIONS = "GaussianApplications"
 ASSUMPTION = re.compile(
@@ -1643,181 +2103,582 @@ STDLIB_REALS = re.compile(r"^(Reals|Lra|Psatz|Fourier|Ranalysis\w*|R[A-Z]\w*|Rba
 MATHCOMP_BRIDGE = {"Rstruct", "Rstruct_topology"}
 
 
-def code(text):
-    return " ".join(strip_comments(text).split())
+def sha256_hex(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def present_exact(rel):
+    """Whether ROOT/rel exists, matching every path component by its exact
+    name. Path.exists() alone is wrong on a case-insensitive file system (it
+    finds Makefile when asked for makefile, so ABSENT_FILES would falsely
+    fail on macOS); iterdir() returns the names as stored, so this compares
+    case-sensitively."""
+    base = ROOT
+    for part in Path(rel).parts:
+        try:
+            if part not in {child.name for child in base.iterdir()}:
+                return False
+        except OSError:
+            return False
+        base = base / part
+    return True
+
+
+# Rule 30 (a): the text is read as Rocq reads it, by scripts/rocq_lex.py. A
+# text that cannot be read (an unterminated comment or string, or a form that
+# Rocq reads by the keywords in scope) is a failure, recorded here and
+# reported by main().
+LEX_FAILURES = []
+
+
+def read_text(path):
+    """The text of a file as Rocq reads it: UTF-8, carriage returns kept."""
+    return rocq_lex.read_source(path)
 
 
 def at_baseline(commit, path):
-    return subprocess.run(["git", "-C", str(ROOT), "show", f"{commit}:{path}"],
-                          check=True, capture_output=True, text=True).stdout
+    """The text of path at commit, decoded as Rocq reads it (the lexer's
+    decode_source: UTF-8, carriage returns kept, LexError on invalid UTF-8)."""
+    return rocq_lex.decode_source(subprocess.run(
+        ["git", "-C", str(ROOT), "show", f"{commit}:{path}"],
+        check=True, capture_output=True).stdout)
 
 
-def library_imports(text):
-    """Pairs (root, module) of the Require commands of a source."""
-    for match in REQUIRE.finditer(strip_comments(text)):
-        root = match.group(1) or ""
-        for name in match.group(2).split():
-            yield root, name
-
-
-def section_code(text, name):
-    """The Require commands of a source and the code of its section name,
-    comments removed and whitespace collapsed."""
-    stripped = strip_comments(text)
-    requires = " ".join(m.group(0) for m in REQUIRE.finditer(stripped))
-    section = re.search(rf"Section {name}\..*?End {name}\.", stripped, re.S)
-    return " ".join(requires.split()), " ".join(section.group(0).split()) if section else None
-
-
-def tuple_prod_code(text):
-    """The Require commands of TUPLE_PROD and the code of its section
-    tuple_prod, comments removed and whitespace collapsed."""
-    return section_code(text, "tuple_prod")
-
-
-def read_report(path):
-    """The text of an axiom report, or the empty string if it is missing."""
+def views(text, where):
+    """(stripped, masked): the text with each comment replaced by one blank
+    and strings kept, and the same with the inside of every string replaced
+    by x, for finding commands in code only. Both are aligned character by
+    character. None if the text cannot be read."""
     try:
-        return Path(path).read_text()
-    except OSError:
-        return ""
+        pieces = rocq_lex.segments(text)
+    except rocq_lex.LexError as err:
+        LEX_FAILURES.append(f"{where}: {err}")
+        return None
+    stripped, masked = [], []
+    for kind, piece in pieces:
+        if kind == "blank" and not stripped and piece.startswith("\ufeff"):
+            # Rocq treats a BOM as a blank only at the start of a source.
+            # Preserve offsets/source bytes, but expose the following head.
+            stripped.append(piece)
+            masked.append(" " + piece[1:])
+        elif kind == "comment":
+            stripped.append(" ")
+            masked.append(" ")
+        elif kind == "string":
+            stripped.append(piece)
+            masked.append('"' + "x" * (len(piece) - 2) + '"')
+        else:
+            stripped.append(piece)
+            masked.append(piece)
+    return "".join(stripped), "".join(masked)
 
 
-def report_complete(text):
-    """An axiom report is complete when it has the line "Closed under the
-    global context", or the line "Axioms:" followed by at least one
-    axiom. A report with the line "Axioms:" and no axiom is incomplete."""
-    lines = text.splitlines()
-    if any(line.startswith("Closed under the global context") for line in lines):
-        return True
-    if any(line.rstrip() == "Axioms:" for line in lines):
-        return any(not name.startswith("unexpected section ")
-                   for name in axiom_names(text))
-    return False
+def code(text, where="a source"):
+    """The code of a source: each maximal run of blanks and comments one
+    blank, strings kept exactly (rocq_lex.code)."""
+    try:
+        return rocq_lex.code(text)
+    except rocq_lex.LexError as err:
+        LEX_FAILURES.append(f"{where}: {err}")
+        return "\0unreadable\0"
+
+
+SENTENCE_END = re.compile(r"\.(?=[ \t\n\r]|\Z)")
+LEADING = re.compile(r"\A(?:[-+*]+|[{}]|[ \t\n\r])+")
+PREFIX_WORD = re.compile(r"[\w']+")
+PREFIX_ATTRIBUTE = re.compile(r"#\[[^\]]*\]")
+PREFIX_NATURAL = re.compile(r"[0-9]+(?=[ \t\n\r#]|\Z)")
+PREFIX_MODIFIERS = frozenset((
+    "Local", "Global", "Export", "Polymorphic", "Monomorphic", "Cumulative",
+    "NonCumulative", "Private", "Program"))
+# The complete vernac_control alternatives of Rocq 9.1.1, g_vernac.mlg.
+# None occurs in the accepted sources. Refuse all of them before compilation:
+# even Profile can write a file, and Fail/Succeed restore the command's state.
+CONTROL_PREFIXES = frozenset((
+    "Time", "Timeout", "Instructions", "Profile", "Redirect", "Fail", "Succeed"))
+
+
+def command_prefix(body, where):
+    """Read attributes, modifiers and control prefixes, in any order.
+
+    body comes from views(): comments are blanks, and a string is one pair
+    of quotes with only x inside. Keep control names in modifiers so every
+    consumer sees the same command head, while forbidden() still rejects
+    the controls themselves. Arguments never become command text. Original
+    sentence offsets and source slices are not changed by this operation.
+    None means a malformed prefix; LEX_FAILURES makes the source check fail.
+    """
+    lead = LEADING.match(body)
+    pos = lead.end() if lead else 0
+    attributes, modifiers = [], []
+
+    def bad(reason):
+        LEX_FAILURES.append(f"{where}: unreadable command prefix: {reason}")
+        return None
+
+    while True:
+        while pos < len(body) and body[pos] in rocq_lex.BLANKS:
+            pos += 1
+        if body.startswith("#[", pos):
+            attr = PREFIX_ATTRIBUTE.match(body, pos)
+            if attr is None:
+                return bad("unterminated attribute")
+            attributes.append(attr.group(0))
+            pos = attr.end()
+            continue
+        word = PREFIX_WORD.match(body, pos)
+        if word is None:
+            break
+        name = word.group(0)
+        if name not in PREFIX_MODIFIERS and name not in CONTROL_PREFIXES:
+            break
+        modifiers.append(name)
+        pos = word.end()
+        while pos < len(body) and body[pos] in rocq_lex.BLANKS:
+            pos += 1
+        if name == "Timeout":
+            natural = PREFIX_NATURAL.match(body, pos)
+            if natural is None:
+                return bad("Timeout needs a natural number")
+            pos = natural.end()
+        elif name in ("Redirect", "Profile"):
+            # Profile has an optional filename; Redirect has a required one.
+            # Quotes inside a source string have already been masked by views.
+            if pos < len(body) and body[pos] == '"':
+                end = body.find('"', pos + 1)
+                if end < 0:
+                    return bad(f"{name} has an unterminated filename")
+                pos = end + 1
+            elif name == "Redirect":
+                return bad("Redirect needs a filename")
+    command = " ".join(body[pos:].split())
+    if not command and (attributes or modifiers):
+        return bad("attributes, modifiers or controls without a command")
+    return (" ".join(" ".join(attributes).split()),
+            " ".join(modifiers), command)
+
+
+def sentences(text, where):
+    """Code sentences as (attributes, modifiers, command, start, end).
+
+    command has a consistently normalized head; modifiers also records every
+    control prefix, which forbidden() rejects. Strings are masked. start and
+    end still address the original comment-stripped source, used by freezes.
+    None if the lexer or the command-prefix reader cannot read the source.
+    """
+    v = views(text, where)
+    if v is None:
+        return None
+    _, masked = v
+    found, start = [], 0
+    for m in SENTENCE_END.finditer(masked):
+        parsed = command_prefix(masked[start:m.start()], where)
+        if parsed is None:
+            return None
+        found.append((*parsed, start, m.end()))
+        start = m.end()
+    if masked[start:].strip():
+        # Use the same reader even for an incomplete final command. A missing
+        # dot must not hide a control/attribute from the source scan.
+        parsed = command_prefix(masked[start:], where)
+        if parsed is None:
+            return None
+        found.append((*parsed, start, len(masked)))
+    return found
+
+
+REQUIRE_SENTENCE = re.compile(r"(?:From (\S+) )?Require(?: (?:Import|Export))? (.+)\Z")
+
+
+def requires(text, where):
+    """(root, module) for each module of each Require sentence; a dotted
+    module name counts as one name (E24)."""
+    for _, _, command, _, _ in sentences(text, where) or []:
+        m = REQUIRE_SENTENCE.match(command)
+        if m:
+            for name in m.group(2).split():
+                yield m.group(1) or "", name
+
+
+def section_code(text, name, where):
+    """The Require sentences of a source and the code of its section name,
+    from the sentence Section name to the sentence End name, both found in
+    the code only."""
+    v, found = views(text, where), sentences(text, where)
+    if v is None or found is None:
+        return None, None
+    stripped = v[0]
+    # Each Require sentence is compared through code(), as Rocq reads it, not
+    # through the blank-collapsed command, which str.split() normalizes (E32).
+    reqs = " ".join(code(stripped[start:end], where)
+                    for _, _, c, start, end in found if REQUIRE_SENTENCE.match(c))
+    opens = [s for s in found if s[2] == f"Section {name}" and not s[0] and not s[1]]
+    ends = [s for s in found if s[2] == f"End {name}"]
+    if len(opens) != 1 or len(ends) != 1 or ends[0][3] < opens[0][3]:
+        return reqs, None
+    return reqs, code(stripped[opens[0][3]:ends[0][4]], where)
+
+
+def tuple_prod_code(text, where):
+    return section_code(text, "tuple_prod", where)
+
+
+# Rule 30 (a): commands refused in theories/, library/, extension/ and
+# applications/, outside comments and strings: the four of rule 2, after any
+# attributes and modifiers, and the commands that declare an assumption, turn
+# off a kernel check, load code or write files. Elpi programs can run shell
+# commands while Rocq compiles (the built-ins system and open_out of Elpi),
+# from a quotation or from a file that Extra Dependency names (E37): every
+# Elpi command and Extra Dependency are refused. The commands of
+# Hierarchy-Builder (HB.instance and the others) run its own programs and
+# take only Rocq terms, except HB.graph, which writes the file it names, and
+# is refused.
+FORBIDDEN_COMMANDS = re.compile(
+    r"\A(?:Axioms?|Parameters?|Conjectures?|Admitted|Admit Obligations|Declare Instance|"
+    r"Declare ML Module|Add (?:Rec )?LoadPath|Add ML Path|Load|"
+    r"(?:Recursive |Separate )?Extraction(?: Library)?|Redirect|Cd|Elpi|HB\.graph|"
+    r"(?:From \S+ )?Extra Dependency|"
+    r"(?:Set|Unset) (?:Guard|Positivity|Universe) Checking)\b")
+SECTION_VARIABLES = re.compile(r"\A(?:Variables?|Hypothes[ie]s|Context)\b")
+
+
+def forbidden(text, where, scope):
+    """The failures of rule 2 and of the bans of rule 30 in one source.
+    scope: "all" for theories/, "library" for library/, extension/ and
+    applications/, which also refuse global or exported settings, exported
+    modules and Require Export, and "fixed" for frozen and code-fixed files,
+    which also refuse Set Warnings and warning attributes."""
+    found = sentences(text, where)
+    if found is None:
+        return []
+    out, stack = [], []
+    for attributes, modifiers, command, _, _ in found:
+        head = command.split(" ", 1)[0] if command else ""
+        controls = CONTROL_PREFIXES.intersection(modifiers.split())
+        for control in sorted(controls):
+            out.append(f"{where}: control prefix {control} is not allowed")
+        refused = FORBIDDEN_COMMANDS.match(command)
+        if refused:
+            out.append(f"{where}: {refused.group(0)}")
+        if "bypass_check" in attributes:
+            out.append(f"{where}: the attribute bypass_check")
+        if SECTION_VARIABLES.match(command) and not stack:
+            out.append(f"{where}: {head} outside a section declares an axiom")
+        # A refused control never changes the scanner's persistent scope.
+        # In particular, Succeed Section cannot license a later Variable.
+        if not controls:
+            opened = re.fullmatch(r"Section (\S+)", command)
+            ended = re.fullmatch(r"End (\S+)", command)
+            if opened:
+                stack.append(opened.group(1))
+            elif ended and stack:
+                if ended.group(1) != stack[-1]:
+                    out.append(f"{where}: End does not match the open section {stack[-1]}")
+                else:
+                    stack.pop()
+            # Module declarations are forbidden inside sections by Rocq.
+            # Outside sections their aliases/functors do not license Variables.
+        if scope in ("library", "fixed"):
+            settings = command.startswith(("Set ", "Unset "))
+            if settings and (re.search(r"#\[\s*(?:global|export)\b", attributes)
+                             or re.search(r"\b(?:Global|Export)\b", modifiers)):
+                out.append(f"{where}: a global or exported setting: {command[:60]}")
+            if head == "Export" or ("Export" in modifiers.split() and not settings) \
+                    or re.match(r"(?:From \S+ )?Require Export\b", command):
+                out.append(f"{where}: an exported module: {command[:60]}")
+        if scope == "fixed":
+            if command.startswith("Set Warnings") or re.search(r"\bwarnings?\s*=", attributes):
+                out.append(f"{where}: Set Warnings or a warning attribute")
+    return out
+
+
+def comment_boundaries(text, where):
+    """The failures of the boundary rule of frozen and code-fixed files: a
+    blank, a line boundary or a parenthesis before every (* and after every
+    *). The lexer refuses a (* glued to a token; this checks the end."""
+    try:
+        pieces = rocq_lex.segments(text)
+    except rocq_lex.LexError:
+        return []
+    out = []
+    for k, (kind, piece) in enumerate(pieces):
+        if kind == "comment" and k + 1 < len(pieces):
+            kind2, piece2 = pieces[k + 1]
+            if kind2 not in ("blank", "comment") and not piece2.startswith(("(", ")")):
+                out.append(f"{where}: no blank after the end of a comment: {piece2[:30]!r}")
+    return out
 
 
 def axiom_names(text):
-    names, header, marker = set(), None, False
+    """The names of an expected list (one axiom per line, continuation lines
+    indented)."""
+    names = set()
     for line in text.splitlines():
-        if marker:
-            marker = False
-            continue
-        if not line or line[0].isspace():
-            continue
-        # The output of Locate, which the check files of phase 13 print
-        # before their report: "Constant <name>", or "Constant" and the name
-        # on the next line.
-        if line == "Constant":
-            marker = True
-            continue
-        if line.startswith("Constant ") and len(line.split()) == 2:
-            continue
-        if line.rstrip().endswith(":") and " " not in line.rstrip()[:-1]:
-            header = line.rstrip()
-            if header != "Axioms:":
-                names.add("unexpected section " + header)
-            continue
-        if line.startswith("Closed under the global context"):
+        if not line or line[0].isspace() or line.rstrip() == "Axioms:":
             continue
         names.add(line.split(" :", 1)[0].strip())
     return names
 
 
+PROJECT_ROOTS = ("GaussianAnalysis.", "EllipsoidFitting.", "EllipsoidUniversality.",
+                 "GaussianApplications.", "Checks.")
+
+
+def kernel_failures(text):
+    """The failures that the output of rocqchk -silent -o shows: a theory
+    other than the default one, a constant or inductive that relies on
+    type-in-type, unsafe (co)fixpoints or assumed positivity, or an axiom of
+    a project module (rule 2 at the kernel level)."""
+    out = []
+    for theory in ("* Theory: Set is predicative", "* Theory: Rewrite rules are not allowed"):
+        if theory not in text.splitlines():
+            out.append(f"rocqchk: the line {theory!r} is missing")
+    for header in ("* Constants/Inductives relying on type-in-type:",
+                   "* Constants/Inductives relying on unsafe (co)fixpoints:",
+                   "* Inductives whose positivity is assumed:"):
+        if f"{header} <none>" not in text.splitlines():
+            out.append(f"rocqchk: {header} not <none>")
+    section, axioms = None, []
+    for line in text.splitlines():
+        if line.startswith("* "):
+            section = line
+        elif section == "* Axioms:" and line.startswith("    ") and line.strip():
+            axioms.append(line.strip())
+    if "* Axioms:" not in text.splitlines():
+        out.append("rocqchk: no list of axioms")
+    for name in axioms:
+        if name.startswith(PROJECT_ROOTS):
+            out.append(f"rocqchk: the project axiom {name}")
+    return out
+
+
+UNSAFE = re.compile(r"relies on an unsafe hierarchy|is assumed to be guarded|"
+                    r"is assumed to be positive|^Theory:", re.M)
+
+
+def parse_output(text):
+    """The items of a check output, in order: ("marker", name) for the output
+    of Locate on a constant: the line "Constant <name>" or, for a long name,
+    the line "Constant" and the name on the next line, possibly followed by
+    "  (shorter name to refer to it in current context is ...)"; ("report",
+    axioms) for a complete axiom report, the line "Closed under the global
+    context" or the line "Axioms:" followed by at least one axiom (a line
+    "<name> : ..." or "<name> :", with indented continuation lines);
+    ("other", line) for any other line, including "Axioms:" with no axiom.
+    The runner appends one completion trailer after successful exit; a cut
+    or duplicated stream is rejected before parsing, independently of its
+    manifest hash. This does not parse the Rocq grammar of printed types."""
+    if not text.endswith(OUTPUT_COMPLETE) or text.count(OUTPUT_COMPLETE) != 1:
+        return [("other", "missing or duplicated output-completion trailer")]
+    text = text[:-len(OUTPUT_COMPLETE)]
+    if text and not text.endswith("\n"):
+        return [("other", "output ends inside a line before its completion trailer")]
+    items, lines, k = [], text.splitlines(), 0
+    while k < len(lines):
+        line = lines[k]
+        if line.startswith("Constant ") and len(line.split()) == 2:
+            items.append(("marker", line.split()[1]))
+            k += 1
+        elif line == "Constant" and k + 1 < len(lines) and re.fullmatch(r"\S+", lines[k + 1]):
+            items.append(("marker", lines[k + 1]))
+            k += 2
+        elif line == "Closed under the global context":
+            items.append(("report", frozenset()))
+            k += 1
+            continue
+        elif line == "Axioms:":
+            axioms, k = set(), k + 1
+            while k < len(lines) and lines[k] and not lines[k][0].isspace():
+                m = re.match(r"(\S+) :(?: |$)", lines[k])
+                if not m:
+                    break
+                axioms.add(m.group(1))
+                k += 1
+                while k < len(lines) and lines[k][:1].isspace():
+                    k += 1
+            items.append(("report", frozenset(axioms)) if axioms else ("other", "Axioms:"))
+            continue
+        else:
+            items.append(("other", line))
+            k += 1
+            continue
+        if k < len(lines) and re.fullmatch(
+                r"  \(shorter name to refer to it in current context is \S+\)", lines[k]):
+            k += 1
+    return items
+
+
+OUTPUT_COMPLETE = "=== ROCQ CHECK OUTPUT COMPLETE ===\n"
+SOURCE_LOGICAL_ROOTS = (("library", "GaussianAnalysis"), ("theories", "EllipsoidFitting"),
+                        ("extension", "EllipsoidUniversality"),
+                        ("applications", "GaussianApplications"))
+
+
+def validated_sources():
+    inventory = _load("source_inventory", ROOT / "scripts/source_inventory.py")
+    result = inventory.inspect_sources(ROOT, COQPROJECT_OPTIONS)
+    if result["failures"]:
+        raise ValueError("\n".join(result["failures"]))
+    return result["sources"]
+
+
+def kernel_source_modules(sources):
+    roots = dict(SOURCE_LOGICAL_ROOTS)
+    return [roots[source.split("/", 1)[0]] + "." +
+            source.split("/", 1)[1][:-2].replace("/", ".") for source in sources]
+
+
 def main():
-    commit = (ROOT / "check" / "frozen-baseline").read_text().split()[0]
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--jobs", type=int, default=1)
+    parser.add_argument("--reuse", metavar="RUN_ID",
+                        help="for the regression tests only: verify the outputs of the "
+                             "earlier run RUN_ID instead of starting the runner; the "
+                             "Makefile, whose content rule 30 fixes, never passes it")
+    parser.add_argument("--before-build", action="store_true",
+                        help="check the sources only (every rule that reads no compiled "
+                             "file), before anything compiles: make check runs this first")
+    args = parser.parse_args()
     failures = []
-    for path in FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(commit, path)):
-            failures.append(f"{path}: code differs from {commit[:12]}")
-    for path in EXACT:
-        if (ROOT / path).read_text() != at_baseline(commit, path):
-            failures.append(f"{path}: differs from {commit[:12]}")
-    for path in EXTENSION_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(EXTENSION_BASELINE, path)):
-            failures.append(f"{path}: code differs from {EXTENSION_BASELINE[:12]}")
-    for path in PHASE6_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE6_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE6_BASELINE[:12]}")
-    for path in LATENT_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(LATENT_BASELINE, path)):
-            failures.append(f"{path}: code differs from {LATENT_BASELINE[:12]}")
-    for path in PHASE8_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE8_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE8_BASELINE[:12]}")
-    for path in PHASE9_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE9_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE9_BASELINE[:12]}")
-    for path in PHASE10_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE10_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE10_BASELINE[:12]}")
-    for path in PHASE11_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE11_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE11_BASELINE[:12]}")
-    for path in PHASE12_B1_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE12_B1_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE12_B1_BASELINE[:12]}")
-    for path in PHASE12_B2_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE12_B2_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE12_B2_BASELINE[:12]}")
-    for path in CHECKS_EXACT:
-        if (ROOT / path).read_text() != at_baseline(CHECKS_BASELINE, path):
-            failures.append(f"{path}: differs from {CHECKS_BASELINE[:12]}")
-    for path in CHECKS_EXACT_P8:
-        if (ROOT / path).read_text() != at_baseline(CHECKS_P8_BASELINE, path):
-            failures.append(f"{path}: differs from {CHECKS_P8_BASELINE[:12]}")
-    for path in CHECKS_EXACT_P9:
-        if (ROOT / path).read_text() != at_baseline(CHECKS_P9_BASELINE, path):
-            failures.append(f"{path}: differs from {CHECKS_P9_BASELINE[:12]}")
-    for path in CHECKS_EXACT_P10:
-        if (ROOT / path).read_text() != at_baseline(CHECKS_P10_BASELINE, path):
-            failures.append(f"{path}: differs from {CHECKS_P10_BASELINE[:12]}")
-    for path in CHECKS_EXACT_P11:
-        if (ROOT / path).read_text() != at_baseline(CHECKS_P11_BASELINE, path):
-            failures.append(f"{path}: differs from {CHECKS_P11_BASELINE[:12]}")
-    for path in CHECKS_EXACT_P12:
-        if (ROOT / path).read_text() != at_baseline(CHECKS_P12_BASELINE, path):
-            failures.append(f"{path}: differs from {CHECKS_P12_BASELINE[:12]}")
-    now = tuple_prod_code((ROOT / TUPLE_PROD).read_text())
-    if now[1] is None:
-        failures.append(f"{TUPLE_PROD}: no section tuple_prod")
-    elif now != tuple_prod_code(at_baseline(CHECKS_BASELINE, TUPLE_PROD)):
-        failures.append(f"{TUPLE_PROD}: the Require commands or the section "
-                        f"tuple_prod differ from {CHECKS_BASELINE[:12]}")
-    for path in PHASE13_B1_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE13_B1_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE13_B1_BASELINE[:12]}")
-    for path in PHASE13_B2_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE13_B2_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE13_B2_BASELINE[:12]}")
-    for path in PHASE13_B3_FROZEN:
-        if code((ROOT / path).read_text()) != code(at_baseline(PHASE13_B3_BASELINE, path)):
-            failures.append(f"{path}: code differs from {PHASE13_B3_BASELINE[:12]}")
-    if code((ROOT / PHASE13_DEFINITIONS).read_text()) != PHASE13_DEFINITIONS_FREEZES[-1]:
-        failures.append(f"{PHASE13_DEFINITIONS}: code differs from the last code "
-                        "of PHASE13_DEFINITIONS_FREEZES")
+    missing = []
+    # Fail before reading frozen/check inputs if source traversal is unsafe
+    # or differs from the exact build inventory (E41).
+    try:
+        sources = validated_sources()
+    except ValueError as error:
+        sys.exit(str(error))
+
+    def read(path, binary=False):
+        try:
+            return (ROOT / path).read_bytes() if binary else read_text(ROOT / path)
+        except OSError:
+            if path not in missing:
+                missing.append(path)
+                failures.append(f"{path}: missing")
+            return None
+        except (UnicodeDecodeError, rocq_lex.LexError) as err:
+            # Invalid UTF-8, or a text the lexer refuses: a failure; there is
+            # no fallback to another reading.
+            failures.append(f"{path}: cannot be read as Rocq reads it: {err}")
+            return None
+
+    def baseline(commit, path):
+        try:
+            return at_baseline(commit, path)
+        except subprocess.CalledProcessError:
+            failures.append(f"{path}: no such file at {commit[:12]}")
+            return None
+        except (UnicodeDecodeError, rocq_lex.LexError) as err:
+            failures.append(f"{path}: cannot be read at {commit[:12]}: {err}")
+            return None
+
+    def fixed_rules(path, text):
+        """Non-ASCII code, the comment boundaries and the bans of frozen and
+        code-fixed files."""
+        if text is None:
+            return
+        try:
+            found = rocq_lex.non_ascii(text)
+        except rocq_lex.LexError as err:
+            LEX_FAILURES.append(f"{path}: {err}")
+            found = []
+        if found:
+            line, column, char = found[0]
+            failures.append(f"{path}: the non-ASCII character U+{ord(char):04X} at "
+                            f"line {line}, column {column}, outside comments")
+        failures.extend(comment_boundaries(text, path))
+        failures.extend(f for f in forbidden(text, path, "fixed")
+                        if "Set Warnings" in f or "warning" in f)
+
+    def frozen(paths, commit):
+        for path in paths:
+            now, then = read(path), baseline(commit, path)
+            if now is None or then is None:
+                continue
+            fixed_rules(path, now)
+            if code(now, path) != code(then, f"{path} at {commit[:12]}"):
+                failures.append(f"{path}: code differs from {commit[:12]}")
+
+    def exact(paths, commit):
+        for path in paths:
+            now, then = read(path), baseline(commit, path)
+            if now is not None and then is not None and now != then:
+                failures.append(f"{path}: differs from {commit[:12]}")
+
+    def fixed(path, want, what):
+        now = read(path)
+        if now is None:
+            return
+        fixed_rules(path, now)
+        if code(now, path) != want:
+            failures.append(f"{path}: code differs from {what}")
+
+    def pinned_section(path, name, commit):
+        now_text, then_text = read(path), baseline(commit, path)
+        if now_text is None or then_text is None:
+            return
+        now = section_code(now_text, name, path)
+        if now[1] is None:
+            failures.append(f"{path}: no section {name}, or more than one")
+            return
+        if any(ord(c) > 127 for c in now[1]):
+            failures.append(f"{path}: a non-ASCII character in the section {name}")
+        if now != section_code(then_text, name, f"{path} at {commit[:12]}"):
+            failures.append(f"{path}: the Require commands or the section {name} "
+                            f"differ from {commit[:12]}")
+
+    # Rules 1, 7 to 28: the frozen files, the pinned check files and the
+    # pinned sections, compared with their baselines.
+    frozen_baseline = read("check/frozen-baseline")
+    commit = frozen_baseline.split()[0] if frozen_baseline else "HEAD"
+    frozen(FROZEN, commit)
+    exact(EXACT, commit)
+    frozen(EXTENSION_FROZEN, EXTENSION_BASELINE)
+    frozen(PHASE6_FROZEN, PHASE6_BASELINE)
+    frozen(LATENT_FROZEN, LATENT_BASELINE)
+    frozen(PHASE8_FROZEN, PHASE8_BASELINE)
+    frozen(PHASE9_FROZEN, PHASE9_BASELINE)
+    frozen(PHASE10_FROZEN, PHASE10_BASELINE)
+    frozen(PHASE11_FROZEN, PHASE11_BASELINE)
+    frozen(PHASE12_B1_FROZEN, PHASE12_B1_BASELINE)
+    frozen(PHASE12_B2_FROZEN, PHASE12_B2_BASELINE)
+    exact(CHECKS_EXACT, CHECKS_BASELINE)
+    exact(CHECKS_EXACT_P8, CHECKS_P8_BASELINE)
+    exact(CHECKS_EXACT_P9, CHECKS_P9_BASELINE)
+    exact(CHECKS_EXACT_P10, CHECKS_P10_BASELINE)
+    exact(CHECKS_EXACT_P11, CHECKS_P11_BASELINE)
+    exact(CHECKS_EXACT_P12, CHECKS_P12_BASELINE)
+    pinned_section(TUPLE_PROD, "tuple_prod", CHECKS_BASELINE)
+    frozen(PHASE13_B1_FROZEN, PHASE13_B1_BASELINE)
+    frozen(PHASE13_B2_FROZEN, PHASE13_B2_BASELINE)
+    frozen(PHASE13_B3_FROZEN, PHASE13_B3_BASELINE)
+    pinned_section(LAMBDA_MAX, "lambda_max", PHASE12_B1_BASELINE)
+
+    # The code-fixed check files (their stored constants are not recomputed).
+    fixed(PHASE13_DEFINITIONS, PHASE13_DEFINITIONS_FREEZES[-1],
+          "the last code of PHASE13_DEFINITIONS_FREEZES")
     for k, (prev, nxt) in enumerate(zip(PHASE13_DEFINITIONS_FREEZES,
                                         PHASE13_DEFINITIONS_FREEZES[1:])):
         if not nxt.startswith(prev):
             failures.append(f"PHASE13_DEFINITIONS_FREEZES: freeze {k + 2} does not "
                             f"extend freeze {k + 1}")
-    makefile = (ROOT / "Makefile").read_text()
-    allowed_p13 = axiom_names(
-        (ROOT / "check" / "sat_variance_assumptions.expected").read_text())
-    for line in PHASE13_MAKE_LINES:
-        if line not in makefile:
-            failures.append(f"Makefile: the command {line!r} is missing")
-    output = ROOT / PHASE13_DEFINITIONS_OUTPUT
-    if not output.exists():
-        failures.append(f"{PHASE13_DEFINITIONS_OUTPUT}: no such output; make check "
-                        f"compiles {PHASE13_DEFINITIONS} into it")
-    elif not report_complete(output.read_text()):
-        failures.append(f"{PHASE13_DEFINITIONS_OUTPUT}: incomplete, neither the line "
-                        "Axioms: with at least one axiom nor the line Closed under "
-                        "the global context")
-    else:
-        for ax in sorted(axiom_names(output.read_text()) - allowed_p13):
-            failures.append(f"{PHASE13_DEFINITIONS_OUTPUT}: {ax} is not among "
-                            "check/sat_variance_assumptions.expected")
+    fixed(APPLICATIONS_DEFINITIONS, APPLICATIONS_DEFINITIONS_CHECK,
+          "APPLICATIONS_DEFINITIONS_CHECK")
+    fixed("check/UniversalityAssumptions.v", UNIVERSALITY_CHECK, "UNIVERSALITY_CHECK")
+    fixed(LIBRARY_STATEMENTS, LIBRARY_STATEMENTS_CHECK, "LIBRARY_STATEMENTS_CHECK")
+    for name, check, check_code, expected in (
+            PHASE6_THEOREMS + PHASE8_THEOREMS + PHASE9_THEOREMS + PHASE10_THEOREMS
+            + PHASE11_THEOREMS + PHASE12_THEOREMS + PHASE13_THEOREMS):
+        fixed(check, check_code, "the expected check")
+    for path, digest in NEW_CHECK_CODE.items():
+        now = read(path)
+        if now is None:
+            continue
+        fixed_rules(path, now)
+        if sha256_hex(code(now, path).encode()) != digest:
+            failures.append(f"{path}: code differs from the code fixed by NEW_CHECK_CODE")
+
+    # Rule 26: the inventory of the accepted general statements.
     seen = set()
     for inv_commit, path, name, prop in INVENTORY:
         if (path, name) in seen:
@@ -1827,207 +2688,465 @@ def main():
             failures.append(f"INVENTORY: {name}: {inv_commit} is not a full commit")
             continue
         try:
-            then = strip_comments(at_baseline(inv_commit, path))
+            then = at_baseline(inv_commit, path)
         except subprocess.CalledProcessError:
             failures.append(f"INVENTORY: {name}: no file {path} at {inv_commit[:12]}")
             continue
-        if not re.search(rf"\bDefinition\s+{re.escape(name)}\b", then):
+        defined = [c for _, _, c, _, _ in sentences(then, f"{path} at {inv_commit[:12]}") or []
+                   if re.match(rf"Definition {re.escape(name)}\b", c)]
+        if not defined:
             failures.append(f"INVENTORY: {name}: not defined in {path} at {inv_commit[:12]}")
         if not prop.strip():
             failures.append(f"INVENTORY: {name}: empty proposition")
-    libst_text = (ROOT / LIBRARY_STATEMENTS).read_text()
-    if code(libst_text) != LIBRARY_STATEMENTS_CHECK:
-        failures.append(f"{LIBRARY_STATEMENTS}: code differs from LIBRARY_STATEMENTS_CHECK")
+
+    # Rule 29: every inventory entry stated in check/LibraryStatements.v.
+    libst_text = read(LIBRARY_STATEMENTS)
     lemmas = {}
-    for m in re.finditer(r"Lemma\s+(\w+)_accepted\s*:\s*(.*?)\.\s*Proof\.",
-                         " ".join(strip_comments(libst_text).split()), re.S):
-        lemmas[m.group(1)] = m.group(2).strip()
+    if libst_text is not None:
+        # Whole sentences built from the lexer's segments: a sentence Lemma
+        # <base>_accepted : <statement> followed by the sentence Proof. Nothing
+        # inside a string can stand for one (E31).
+        v = views(libst_text, LIBRARY_STATEMENTS)
+        found = sentences(libst_text, LIBRARY_STATEMENTS) or []
+        for k, (attrs, mods, command, start, end) in enumerate(found):
+            m = re.match(r"Lemma (\w+)_accepted :", command)
+            if m and v is not None and not attrs and not mods \
+                    and k + 1 < len(found) and found[k + 1][2] == "Proof":
+                text = code(v[0][start:end], LIBRARY_STATEMENTS).strip()
+                head = re.match(r"Lemma \w+_accepted :\s*", text)
+                body = text[head.end():] if head else ""
+                lemmas[m.group(1)] = (body[:-1] if body.endswith(".") else body).rstrip()
     for _, path, name, prop in INVENTORY:
         base = name[: -len("_statement")] if name.endswith("_statement") else name
         fun = re.match(r"fun\s+(.*?)\s*=>\s*(.*)\Z", prop, re.S)
-        want = " ".join((f"forall {fun.group(1)}, {fun.group(2)}" if fun else prop).split())
+        want = code(f"forall {fun.group(1)}, {fun.group(2)}" if fun else prop,
+                    f"INVENTORY {name}").strip()
         if base not in lemmas:
             failures.append(f"{LIBRARY_STATEMENTS}: no lemma {base}_accepted for "
                             f"the accepted statement {name} of {path}")
         elif lemmas[base] != want:
             failures.append(f"{LIBRARY_STATEMENTS}: {base}_accepted does not state "
                             f"the accepted proposition of {name}")
-    for line in PHASE13_MAKE_LINES_P:
-        if line not in makefile:
-            failures.append(f"Makefile: the command {line!r} is missing")
-    output = ROOT / LIBRARY_STATEMENTS_OUTPUT
-    if not output.exists():
-        failures.append(f"{LIBRARY_STATEMENTS_OUTPUT}: no such output; make check "
-                        f"compiles {LIBRARY_STATEMENTS} into it")
-    elif not report_complete(output.read_text()):
-        failures.append(f"{LIBRARY_STATEMENTS_OUTPUT}: incomplete axiom report")
-    else:
-        for ax in sorted(axiom_names(output.read_text()) - allowed_p13):
-            failures.append(f"{LIBRARY_STATEMENTS_OUTPUT}: {ax} is not among "
-                            "check/sat_variance_assumptions.expected")
-    now = section_code((ROOT / LAMBDA_MAX).read_text(), "lambda_max")
-    if now[1] is None:
-        failures.append(f"{LAMBDA_MAX}: no section lambda_max")
-    elif now != section_code(at_baseline(PHASE12_B1_BASELINE, LAMBDA_MAX), "lambda_max"):
-        failures.append(f"{LAMBDA_MAX}: the Require commands or the section "
-                        f"lambda_max differ from {PHASE12_B1_BASELINE[:12]}")
-    if code((ROOT / APPLICATIONS_DEFINITIONS).read_text()) != APPLICATIONS_DEFINITIONS_CHECK:
-        failures.append(f"{APPLICATIONS_DEFINITIONS}: code differs from "
-                        "APPLICATIONS_DEFINITIONS_CHECK")
-    reports = sys.argv[1:]
-    if len(reports) != len(THEOREMS):
-        missing = THEOREMS[len(reports):]
-        failures.append(
-            f"{len(reports)} axiom reports given, {len(THEOREMS)} required, "
-            "one per theorem"
-            + (": no report for the " + ", the ".join(missing) if missing else ""))
-    for k, (arg, path) in enumerate(zip(reports, REPORTS)):
-        if arg != path:
-            failures.append(f"argument {k + 1}: {arg} given where the report of "
-                            f"the {THEOREMS[k]}, {path}, is required")
-    for arg in sorted({a for a in reports if reports.count(a) > 1}):
-        failures.append(f"{arg}: given {reports.count(arg)} times")
-    for arg in reports:
-        if not Path(arg).exists():
-            failures.append(f"{arg}: no such axiom report")
+
+    # Rule 30 (e): the inventory of the identity queries, the drivers, and
+    # Declare ML Module in the drivers only.
+    snapshot_texts = {}
+    for path in sorted((ROOT / "check" / "snapshots").glob("Snapshot*.v")):
+        text = read(str(path.relative_to(ROOT)))
+        if text is not None:
+            snapshot_texts[path.stem] = text
+    try:
+        derived = identity_sidecars.inventory(snapshot_texts)
+    except ValueError as err:
+        failures.append(f"check/snapshots/: {err}")
+        derived = None
+    identity_inventory = None
+    inventory_data = read(IDENTITY_INVENTORY, binary=True)
+    if inventory_data is not None:
+        try:
+            identity_inventory = json.loads(inventory_data)
+        except ValueError:
+            failures.append(f"{IDENTITY_INVENTORY}: not JSON")
+    if derived is not None and identity_inventory is not None:
+        if identity_inventory != derived:
+            failures.append(f"{IDENTITY_INVENTORY}: differs from the queries that the "
+                            "snapshot files of check/snapshots/ print")
+        if sorted(derived["snapshots"]) != sorted(IDENTITY_REFERENCES):
+            failures.append("IDENTITY_REFERENCES: not exactly the snapshots that print "
+                            "a declaration")
+        queries = [q for e in derived["snapshots"].values() for q in e["queries"]]
+        parts = sum(len(q["parts"]) for q in queries)
+        if (len(queries), parts) != (IDENTITY_QUERIES, IDENTITY_PARTS):
+            failures.append(f"{IDENTITY_INVENTORY}: {len(queries)} queries in {parts} parts, "
+                            f"not {IDENTITY_QUERIES} in {IDENTITY_PARTS}")
+        for name, entry in derived["snapshots"].items():
+            path = f"check/identity/Identity{name}.v"
+            text = read(path)
+            if text is None:
+                continue
+            fixed_rules(path, text)
+            if text != identity_sidecars.driver_text(name, entry):
+                failures.append(f"{path}: differs from the driver generated from "
+                                f"{IDENTITY_INVENTORY}")
+    drivers = {f"check/identity/Identity{name}.v" for name in IDENTITY_REFERENCES}
+    for path in sorted((ROOT / "check").rglob("*.v")):
+        rel = str(path.relative_to(ROOT))
+        if rel.startswith("check/regression/") or rel in drivers:
             continue
-        if not report_complete(Path(arg).read_text()):
-            failures.append(f"{arg}: the axiom report has neither the line "
-                            "Axioms: with at least one axiom nor the line "
-                            "Closed under the global context")
-    sources = [path for top in ("theories", "library", "extension", "applications")
-               for path in sorted((ROOT / top).rglob("*.v"))]
-    for path in sources:
-        for match in ASSUMPTION.finditer(strip_comments(path.read_text())):
-            failures.append(f"{path.relative_to(ROOT)}: {match.group(1).strip()}")
-    library = sorted((ROOT / "library").rglob("*.v"))
-    applications = sorted((ROOT / "applications").rglob("*.v"))
+        text = read(rel)
+        for _, _, command, _, _ in (sentences(text, rel) or []) if text is not None else []:
+            if re.match(r"Declare ML Module\b", command):
+                failures.append(f"{rel}: Declare ML Module outside the identity drivers "
+                                "of check/identity/")
+
+    # Rule 30 (b): the build configuration, the scripts and the build
+    # products.
+    for path, digest in FIXED_FILES.items():
+        data = read(path, binary=True)
+        if data is not None and sha256_hex(data) != digest:
+            failures.append(f"{path}: differs from the content fixed by FIXED_FILES")
+    for path in ABSENT_FILES:
+        if present_exact(path):
+            failures.append(f"{path}: must not exist; make, or the Makefile.rocq that "
+                            "it generates, would read it")
+    present = sorted(str(p.relative_to(ROOT / "scripts"))
+                     for p in (ROOT / "scripts").rglob("*") if p.is_file() or p.is_symlink())
+    for extra in sorted(set(present) - set(SCRIPTS)):
+        failures.append(f"scripts/{extra}: not a file of SCRIPTS; scripts/ holds exactly "
+                        "those (a stale scripts/__pycache__ must be deleted)")
+    for absent in sorted(set(SCRIPTS) - set(present)):
+        failures.append(f"scripts/{absent}: missing")
+    project = read("_CoqProject")
+    if project is not None:
+        options = [line for line in project.splitlines()
+                   if line.strip() and not line.endswith(".v")]
+        if options != COQPROJECT_OPTIONS:
+            failures.append("_CoqProject: its option lines differ from COQPROJECT_OPTIONS")
+        for line in project.splitlines():
+            if line.endswith(".v") and not re.fullmatch(
+                    r"(theories|library|extension|applications)/[A-Za-z0-9_/]+\.v", line):
+                failures.append(f"_CoqProject: {line!r} is not a source file of the "
+                                "four source directories")
+    tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files"], capture_output=True,
+                             text=True, check=True).stdout.splitlines()
+    for path in tracked:
+        if re.search(r"\.(vo|vos|vok|glob|aux|pyc)$|(^|/)Makefile\.rocq(\.conf)?$|"
+                     r"(^|/)\.Makefile\.rocq\.d$|^build/|(^|/)__pycache__/", path):
+            failures.append(f"{path}: a build product is tracked by git")
+
+    # Rules 2 and 3, with the bans of rule 30 (a).
+    for top, scope in (("theories", "all"), ("library", "library"), ("extension", "library"),
+                       ("applications", "library")):
+        for rel in sources:
+            if not rel.startswith(top + "/"):
+                continue
+            text = read(rel)
+            if text is not None:
+                failures.extend(forbidden(text, rel, scope))
+    library = [ROOT / source for source in sources if source.startswith("library/")]
+    applications = [ROOT / source for source in sources if source.startswith("applications/")]
     for path in library + applications:
-        for root, name in library_imports(path.read_text()):
+        rel = str(path.relative_to(ROOT))
+        text = read(rel)
+        if text is None:
+            continue
+        for root, name in requires(text, rel):
             full = f"{root}.{name}" if root else name
-            last = full.split(".")[-1]
+            parts = full.split(".")
             stdlib = root.startswith(("Stdlib", "Coq")) or not root
-            if PAPERS & set(full.split(".")):
-                failures.append(f"{path.relative_to(ROOT)}: requires {full} of a paper")
-            elif path in library and APPLICATIONS in full.split("."):
-                failures.append(f"{path.relative_to(ROOT)}: requires {full} of applications/")
-            elif stdlib and (STDLIB_REALS.match(last) or "Reals" in full.split(".")):
-                failures.append(f"{path.relative_to(ROOT)}: requires Stdlib's {full}")
-            elif last in MATHCOMP_BRIDGE:
-                failures.append(f"{path.relative_to(ROOT)}: requires {full}")
-    if code((ROOT / "check" / "UniversalityAssumptions.v").read_text()) != UNIVERSALITY_CHECK:
-        failures.append("check/UniversalityAssumptions.v: code differs from UNIVERSALITY_CHECK")
-    allowed = axiom_names((ROOT / "check" / "assumptions.expected").read_text())
-    allowed_universality = axiom_names(
-        (ROOT / "check" / "universality_assumptions.expected").read_text())
+            if PAPERS & set(parts):
+                failures.append(f"{rel}: requires {full} of a paper")
+            elif path in library and APPLICATIONS in parts:
+                failures.append(f"{rel}: requires {full} of applications/")
+            elif stdlib and (any(STDLIB_REALS.match(p) for p in parts) or "Reals" in parts):
+                failures.append(f"{rel}: requires Stdlib's {full}")
+            elif set(parts) & MATHCOMP_BRIDGE:
+                failures.append(f"{rel}: requires {full}")
+
+    # Rule 30 (b): every rule above reads the sources only. They hold before
+    # anything compiles: make check runs this script with --before-build
+    # first, and the runner starts only if they hold, since a source that
+    # breaks them can run code while Rocq compiles it (E37).
+    static = failures + LEX_FAILURES
+    for line in static:
+        print(line)
+    if static:
+        sys.exit(1)
+    if args.before_build:
+        print(f"the sources follow the rules of scripts/check_sources.py "
+              f"({len(library)} library modules, {len(applications)} modules of "
+              f"applications/); nothing was compiled")
+        return
+    del LEX_FAILURES[:]
+
+    # Rule 30 (b): the run. The checker creates the run identifier and starts
+    # the runner; then only the outputs of this run are read.
+    run_id = args.reuse
+    if run_id is None:
+        run_id = secrets.token_hex(16)
+        runner = subprocess.run([sys.executable, "-I", "-B", str(ROOT / "scripts" / "run_checks.py"),
+                                 "--run-id", run_id, "--jobs", str(args.jobs)], cwd=ROOT)
+        if runner.returncode != 0:
+            failures.append(f"scripts/run_checks.py: exited with status {runner.returncode}; "
+                            "no output of this run is read")
+    outputs, errors = {}, {}
+    manifest = None
+    if (ROOT / MANIFEST).exists():
+        try:
+            manifest = json.loads((ROOT / MANIFEST).read_text())
+        except ValueError:
+            failures.append(f"{MANIFEST}: not a manifest of scripts/run_checks.py")
+    elif not failures or args.reuse:
+        failures.append(f"{MANIFEST}: missing")
+    if manifest is not None:
+        if manifest.get("run_id") != run_id:
+            failures.append(f"{MANIFEST}: written by another run of scripts/run_checks.py")
+        if manifest.get("rocq") != ROCQ_VERSION:
+            failures.append(f"{MANIFEST}: compiled with {manifest.get('rocq')!r}, "
+                            f"not {ROCQ_VERSION!r}")
+        if manifest.get("packages") != PACKAGES:
+            failures.append(f"{MANIFEST}: installed packages {manifest.get('packages')}, "
+                            f"not {PACKAGES}")
+        entries = manifest.get("checks", [])
+        want = [(c.source, list(c.flags), f"build/checks/{Path(c.source).stem}.out")
+                for c in CHECK_FILES]
+        got = [(e.get("source"), e.get("flags"), e.get("output")) for e in entries]
+        if got != want:
+            failures.append(f"{MANIFEST}: the checks compiled are not those of CHECK_FILES, "
+                            "with their flags and outputs, in order")
+        listed = {MANIFEST}
+        for entry in entries:
+            src = entry.get("source")
+            src_data = read(src, binary=True)
+            if src_data is not None and sha256_hex(src_data) != entry.get("source_sha256"):
+                failures.append(f"{src}: changed since scripts/run_checks.py compiled it")
+            for key, store in (("output", outputs), ("stderr", errors)):
+                path = entry.get(key)
+                listed.add(path)
+                data = read(path, binary=True)
+                if data is None:
+                    continue
+                if sha256_hex(data) != entry.get(key + "_sha256"):
+                    failures.append(f"{path}: not the file that scripts/run_checks.py wrote")
+                else:
+                    store[src] = data.decode("utf-8", "replace")
+        ident = manifest.get("identity", {})
+        if ident.get("ocaml") != OCAML_VERSION or ident.get("findlib") != FINDLIB_VERSION:
+            failures.append(f"{MANIFEST}: the exporter was built by ocamlopt "
+                            f"{ident.get('ocaml')!r} and findlib {ident.get('findlib')!r}, not "
+                            f"{OCAML_VERSION} and {FINDLIB_VERSION}")
+        if ident.get("recipe_sha256") != identity_sidecars.recipe_sha256():
+            failures.append(f"{MANIFEST}: the exporter was not built by the recipe of "
+                            "scripts/identity_sidecars.py")
+        plugin = ident.get("plugin")
+        listed.add(plugin)
+        data = read(plugin, binary=True) if plugin else None
+        if data is None or sha256_hex(data) != ident.get("plugin_sha256"):
+            failures.append(f"{MANIFEST}: the exporter plugin is not the file that "
+                            "scripts/run_checks.py built")
+        meta_data = read(IDENTITY_META, binary=True)
+        try:
+            meta = json.loads(meta_data) if meta_data is not None else {}
+        except ValueError:
+            meta = {}
+            failures.append(f"{IDENTITY_META}: not JSON")
+        for name in IDENTITY_REFERENCES:
+            if meta.get(name, {}).get("exporter", {}).get("plugin_sha256") \
+                    != ident.get("plugin_sha256"):
+                failures.append(f"{IDENTITY_META}: the reference of {name} was not written by "
+                                "the plugin of this run")
+        kernel = manifest.get("kernel", {})
+        expected_modules = kernel_source_modules(sources)
+        expected_modules += [f"Checks.{Path(c.source).stem}" for c in CHECK_FILES]
+        if kernel.get("modules") != expected_modules:
+            failures.append(f"{MANIFEST}: rocqchk did not check exactly the modules of "
+                            "library/, theories/, extension/, applications/ and the check files")
+        path = kernel.get("output")
+        listed.add(path)
+        data = read(path, binary=True) if path else None
+        if data is not None and sha256_hex(data) != kernel.get("output_sha256"):
+            failures.append(f"{path}: not the file that scripts/run_checks.py wrote")
+        elif data is not None:
+            failures.extend(kernel_failures(data.decode("utf-8", "replace")))
+        for path, digest in manifest.get("other_files", {}).items():
+            listed.add(path)
+            data = read(path, binary=True)
+            if data is not None and sha256_hex(data) != digest:
+                failures.append(f"{path}: not the file that scripts/run_checks.py wrote")
+        for path in sorted((ROOT / "build" / "checks").rglob("*")):
+            rel = str(path.relative_to(ROOT))
+            if path.is_file() and rel not in listed:
+                failures.append(f"{rel}: a file of build/checks/ that the manifest does "
+                                "not list")
+
+    # Rule 30 (c), (d): each output has exactly what its check must print.
+    allowed = axiom_names(read("check/assumptions.expected") or "")
+    allowed_p13 = axiom_names(read(SEVEN_AXIOMS) or "")
+    allowed_universality = axiom_names(read("check/universality_assumptions.expected") or "")
     for name in sorted(allowed_universality - allowed):
         failures.append(f"check/universality_assumptions.expected: {name} "
                         "is not among check/assumptions.expected")
-    if len(sys.argv) > 1:
-        printed = axiom_names(read_report(sys.argv[1]))
-        for name in sorted(printed - allowed):
-            failures.append(f"main theorem: {name} is not among check/assumptions.expected")
-        if not failures and printed != allowed:
-            print("main theorem: fewer axioms than check/assumptions.expected:",
-                  ", ".join(sorted(printed)) or "none")
-    if len(sys.argv) > 2:
-        printed = axiom_names(read_report(sys.argv[2]))
-        for name in sorted(printed - allowed_universality):
-            failures.append(f"universality theorem: {name} is not among "
-                            "check/universality_assumptions.expected")
-        if not failures and printed != allowed_universality:
-            print("universality theorem: fewer axioms than "
-                  "check/universality_assumptions.expected:",
-                  ", ".join(sorted(printed)) or "none")
-    for k, (name, check, check_code, expected) in enumerate(
-            PHASE6_THEOREMS + PHASE8_THEOREMS + PHASE9_THEOREMS
-            + PHASE10_THEOREMS + PHASE11_THEOREMS + PHASE12_THEOREMS
-            + PHASE13_THEOREMS):
-        if code((ROOT / check).read_text()) != check_code:
-            failures.append(f"{check}: code differs from the expected check")
-        allowed_k = axiom_names((ROOT / expected).read_text())
-        for ax in sorted(allowed_k - allowed):
+    lists = {}
+    for name, expected in EXPECTED_LISTS.items():
+        lists[expected] = axiom_names(read(expected) or "")
+        for ax in sorted(lists[expected] - allowed):
             failures.append(f"{expected}: {ax} is not among check/assumptions.expected")
-        if (name, check, check_code, expected) in PHASE13_THEOREMS:
-            for ax in sorted(allowed_k - allowed_p13):
-                failures.append(f"{expected}: {ax} is not among "
-                                "check/sat_variance_assumptions.expected")
-        if len(sys.argv) > 3 + k:
-            printed = axiom_names(read_report(sys.argv[3 + k]))
-            for ax in sorted(printed - allowed_k):
-                failures.append(f"{name}: {ax} is not among {expected}")
-            if not failures and printed != allowed_k:
-                print(f"{name}: fewer axioms than {expected}:",
-                      ", ".join(sorted(printed)) or "none")
+    for name, check, check_code, expected in PHASE13_THEOREMS:
+        for ax in sorted(lists[expected] - allowed_p13):
+            failures.append(f"{expected}: {ax} is not among {SEVEN_AXIOMS}")
+    lists[SEVEN_AXIOMS] = allowed_p13
+    for check in CHECK_FILES:
+        if check.source not in outputs:
+            if manifest is not None:
+                failures.append(f"{check.source}: no output of it in this run")
+            continue
+        text, kind = outputs[check.source], check.expect[0]
+        if UNSAFE.search(text):
+            failures.append(f"{check.source}: its output reports an unsafe construction: "
+                            f"{UNSAFE.search(text).group(0)!r}")
+        if kind == "snapshot":
+            ref_path, digest = check.expect[1], check.expect[2]
+            ref = read(ref_path, binary=True)
+            if errors.get(check.source):
+                failures.append(f"{check.source}: Rocq wrote to the standard error: "
+                                f"{errors[check.source].splitlines()[0][:100]!r}")
+            if "..." in text:
+                failures.append(f"{check.source}: the output holds the elision token ...")
+            if ref is None:
+                continue
+            if sha256_hex(ref) != digest:
+                failures.append(f"{ref_path}: differs from the reference fixed by "
+                                "CHECK_FILES; a reference is never regenerated to make an "
+                                "output pass")
+            elif text.encode() != ref:
+                diff = [f"line {k + 1}: {a[:90]!r} / {b[:90]!r}"
+                        for k, (a, b) in enumerate(zip(text.splitlines(),
+                                                       ref.decode().splitlines())) if a != b][:3]
+                failures.append(f"{check.source}: the snapshot differs from {ref_path}"
+                                + (": " + "; ".join(diff) if diff else ": lengths differ"))
+            continue
+        if kind == "identity":
+            ref_path, digest = check.expect[1], check.expect[2]
+            ref = read(ref_path, binary=True)
+            if errors.get(check.source):
+                failures.append(f"{check.source}: Rocq wrote to the standard error: "
+                                f"{errors[check.source].splitlines()[0][:100]!r}")
+            if ref is None or identity_inventory is None:
+                continue
+            if sha256_hex(ref) != digest:
+                failures.append(f"{ref_path}: differs from the reference fixed by "
+                                "IDENTITY_REFERENCES; a reference is never regenerated to "
+                                "make an output pass")
+                continue
+            raw = read(check.output, binary=True)
+            if raw is None:
+                continue
+            try:
+                # Strict: an invalid sequence fails, never a replacement.
+                text = identity_sidecars.decode_output(raw)
+            except ValueError as err:
+                failures.append(f"{check.output}: {err}")
+                continue
+            name = Path(check.source).stem[len("Identity"):]
+            queries = identity_inventory.get("snapshots", {}).get(name, {}).get("queries")
+            if queries is None:
+                failures.append(f"{check.source}: no queries in {IDENTITY_INVENTORY}")
+                continue
+            try:
+                got = identity_sidecars.sidecar_bytes(name, text, queries)
+            except ValueError as err:
+                failures.append(f"{check.source}: its output is not the framed export of "
+                                f"its queries: {err}")
+                continue
+            if got != ref:
+                failures.append(f"{check.source}: the references differ from {ref_path}: "
+                                + "; ".join(identity_sidecars.first_differences(ref, got)))
+            continue
+        items = parse_output(text)
+        others = [value for what, value in items if what == "other"]
+        if others:
+            failures.append(f"{check.source}: unexpected output {others[0][:100]!r}")
+            continue
+        if kind == "empty":
+            if items:
+                failures.append(f"{check.source}: must print nothing")
+            continue
+        if kind == "reports":
+            count, allowed_path = check.expect[1], check.expect[2]
+            reports = [value for what, value in items if what == "report"]
+            if len(items) != count or len(reports) != count:
+                failures.append(f"{check.source}: {len(reports)} complete axiom reports and "
+                                f"{len(items) - len(reports)} other items, {count} reports "
+                                "required")
+            for axioms in reports:
+                for ax in sorted(axioms - lists[allowed_path]):
+                    failures.append(f"{check.source}: {ax} is not among {allowed_path}")
+            continue
+        pairs = check.expect[1]
+        want_items = []
+        for marker, allowed_path, label in pairs:
+            if marker is not None:
+                want_items.append(("marker", marker))
+            want_items.append(("report", allowed_path, label))
+        if len(items) != len(want_items):
+            failures.append(f"{check.source}: {len(items)} markers and reports, "
+                            f"{len(want_items)} required")
+            continue
+        for got_item, want_item in zip(items, want_items):
+            if got_item[0] != want_item[0]:
+                failures.append(f"{check.source}: a {got_item[0]} where a {want_item[0]} "
+                                "is required")
+                break
+            if want_item[0] == "marker" and got_item[1] != want_item[1]:
+                failures.append(f"{check.source}: the report of {got_item[1]} where that of "
+                                f"{want_item[1]} is required")
+                break
+            if want_item[0] == "report":
+                for ax in sorted(got_item[1] - lists[want_item[1]]):
+                    failures.append(f"{want_item[2]}: {ax} is not among {want_item[1]}")
+
+    # Rule 30 (d): the protection closure. Each project constant that the
+    # snapshot of a frozen or accepted statement names (resolved by Locate at
+    # its acceptance commit, check/snapshots/REFERENCES.json) is defined in a
+    # frozen file, lies in a pinned section, or is named by the snapshot of a
+    # characterization lemma.
+    refs_text = read(REFERENCES)
+    if refs_text is not None:
+        refs = json.loads(refs_text)
+        characterized = {full for name in CHARACTERIZATION_SNAPSHOTS
+                         for full in refs.get(name, {}).get("project_names", {}).values()}
+        for name, data in sorted(refs.items()):
+            if name in CHARACTERIZATION_SNAPSHOTS:
+                continue
+            for printed, full in sorted(data.get("project_names", {}).items()):
+                if full in SNAPSHOT_SUBJECTS.get(name, ()):
+                    continue
+                module = ".".join(full.split(".")[:-1])
+                if any(module == m or module.startswith(m + ".") for m in FROZEN_MODULES) \
+                        or full in PINNED_NAMES or full in characterized:
+                    continue
+                failures.append(f"{REFERENCES}: the snapshot {name} names {full} ({printed}), "
+                                "which is neither defined in a frozen file, nor in a pinned "
+                                "section, nor named by a characterization snapshot")
+    # Rule 30 (e): the same closure over the kernel names of the references.
+    found_names = {}
+    for name in IDENTITY_REFERENCES:
+        ref_path = f"check/identity/Identity{name}.json"
+        data = read(ref_path, binary=True)
+        if data is None:
+            continue
+        try:
+            found_names[name] = identity_sidecars.referenced_names(json.loads(data))
+        except (ValueError, KeyError, TypeError, IndexError):
+            failures.append(f"{ref_path}: not an identity sidecar")
+    roots = tuple(r.rstrip(".") for r in PROJECT_ROOTS)
+    check_modules = {f"Checks.{Path(c.source).stem}" for c in CHECK_FILES}
+    for name, target, full, kind in identity_sidecars.unprotected(
+            found_names, CHARACTERIZATION_SNAPSHOTS, SNAPSHOT_SUBJECTS, set(FROZEN_MODULES),
+            set(PINNED_NAMES), check_modules, roots):
+        failures.append(f"check/identity/Identity{name}.json: {target} references {full} "
+                        f"({kind}), which is neither defined in a frozen file, nor pinned, "
+                        "nor referenced by a characterization snapshot")
+
+    failures = failures + LEX_FAILURES
     for line in failures:
         print(line)
     if failures:
         sys.exit(1)
-    print(f"{len(FROZEN)} frozen files unchanged since {commit[:12]}; "
-          f"{len(EXTENSION_FROZEN)} frozen files of extension/ unchanged since "
-          f"{EXTENSION_BASELINE[:12]}; "
-          f"{len(PHASE6_FROZEN)} frozen files of phase 6 unchanged since "
-          f"{PHASE6_BASELINE[:12]}; "
-          f"{len(CHECKS_EXACT)} check files and tuple_prod unchanged since "
-          f"{CHECKS_BASELINE[:12]}; "
-          f"{len(CHECKS_EXACT_P8)} check files of phases 7 and 8 unchanged since "
-          f"{CHECKS_P8_BASELINE[:12]}; "
-          f"{len(CHECKS_EXACT_P9)} check files of phase 9 unchanged since "
-          f"{CHECKS_P9_BASELINE[:12]}; "
-          f"{len(CHECKS_EXACT_P10)} check files of phase 10 unchanged since "
-          f"{CHECKS_P10_BASELINE[:12]}; "
-          f"{len(CHECKS_EXACT_P11)} check files of phase 11 unchanged since "
-          f"{CHECKS_P11_BASELINE[:12]}; "
-          f"{len(CHECKS_EXACT_P12)} check files of phase 12 unchanged since "
-          f"{CHECKS_P12_BASELINE[:12]}; "
-          f"{len(LATENT_FROZEN)} frozen files of phase 7 unchanged since "
-          f"{LATENT_BASELINE[:12]}; "
-          f"{len(PHASE8_FROZEN)} frozen files of phase 8 unchanged since "
-          f"{PHASE8_BASELINE[:12]}; "
-          f"{len(PHASE9_FROZEN)} frozen files of phase 9 unchanged since "
-          f"{PHASE9_BASELINE[:12]}; "
-          f"{len(PHASE10_FROZEN)} frozen files of phase 10 unchanged since "
-          f"{PHASE10_BASELINE[:12]}; "
-          f"{len(PHASE11_FROZEN)} frozen files of phase 11 unchanged since "
-          f"{PHASE11_BASELINE[:12]}; "
-          f"{len(PHASE12_B1_FROZEN)} frozen files of phase 12 and the section "
-          f"lambda_max unchanged since {PHASE12_B1_BASELINE[:12]}; "
-          f"{len(PHASE12_B2_FROZEN)} frozen files of phase 12 unchanged since "
-          f"{PHASE12_B2_BASELINE[:12]}; "
-          f"{len(PHASE13_B1_FROZEN)} frozen files of batch 1 of phase 13 unchanged since "
-          f"{PHASE13_B1_BASELINE[:12]}; "
-          f"{len(PHASE13_B2_FROZEN)} frozen files of batch 2 of phase 13 unchanged since "
-          f"{PHASE13_B2_BASELINE[:12]}; "
-          f"{len(PHASE13_B3_FROZEN)} frozen files of batch 3 of phase 13 unchanged since "
-          f"{PHASE13_B3_BASELINE[:12]}; "
-          f"the characterizations of {APPLICATIONS_DEFINITIONS} unchanged; "
-          f"the characterizations of {PHASE13_DEFINITIONS} at freeze "
-          f"{len(PHASE13_DEFINITIONS_FREEZES)}, compiled; "
-          f"{len(INVENTORY)} accepted general statements in the inventory, each "
-          f"stated and proved in {LIBRARY_STATEMENTS}; "
-          f"no Admitted, Axiom, Parameter or Conjecture; "
-          f"{len(library)} library modules independent of the papers, of applications/ "
-          f"and of Stdlib's reals; "
-          f"{len(applications)} modules of applications/ independent of the papers "
-          f"and of Stdlib's reals; "
-          f"{len(reports)} axiom reports, one per theorem"
-          + ("; axioms of the main theorem allowed" if len(sys.argv) > 1 else "")
-          + ("; axioms of the universality theorem allowed" if len(sys.argv) > 2 else "")
-          + ("; axioms of the mixture theorem allowed" if len(sys.argv) > 3 else "")
-          + ("; axioms of the paired theorem allowed" if len(sys.argv) > 4 else "")
-          + ("; axioms of the latent-sign theorem allowed" if len(sys.argv) > 5 else "")
-          + ("; axioms of the countable-mixture theorem allowed" if len(sys.argv) > 6 else "")
-          + ("; axioms of the condition-number theorem allowed" if len(sys.argv) > 7 else "")
-          + ("; axioms of the latent-sign scope theorem allowed" if len(sys.argv) > 8 else "")
-          + ("; axioms of the robustness theorem allowed" if len(sys.argv) > 9 else "")
-          + ("; axioms of the tensorization theorem allowed" if len(sys.argv) > 10 else "")
-          + ("; axioms of the continuous-latent theorem allowed" if len(sys.argv) > 11 else "")
-          + ("; axioms of the condition-endpoints theorem allowed" if len(sys.argv) > 12 else "")
-          + ("; axioms of the robust condition-number theorem allowed" if len(sys.argv) > 13 else "")
-          + ("; axioms of the tensorization upper bound allowed" if len(sys.argv) > 14 else "")
-          + ("; axioms of the condition-number curve at kappa allowed" if len(sys.argv) > 15 else "")
-          + ("; axioms of the condition-number theorem at kappa allowed" if len(sys.argv) > 16 else "")
-          + ("; axioms of the robust condition-number theorem at kappa allowed" if len(sys.argv) > 17 else ""))
+    print(f"the frozen files of phases 1 to 13 unchanged since their acceptance commits; "
+          f"the pinned check files unchanged; the sections tuple_prod and lambda_max "
+          f"unchanged; the code-fixed check files at their fixed code; "
+          f"{len(INVENTORY)} accepted general statements in the inventory, each stated and "
+          f"proved in {LIBRARY_STATEMENTS}; no forbidden command; "
+          f"{len(library)} library modules and {len(applications)} modules of applications/ "
+          f"with allowed imports; {len(CHECK_FILES)} check files compiled by "
+          f"scripts/run_checks.py in run {run_id}, each output as required "
+          f"({len(THEOREMS)} theorem reports, {len(THEOREM_IDENTITIES)} identities, "
+          f"{len(MARKED_REPORTS)} identified reports, "
+          f"{sum(1 for c in CHECK_FILES if c.expect[0] == 'snapshot')} snapshots equal to "
+          f"their references, the references of "
+          f"{sum(1 for c in CHECK_FILES if c.expect[0] == 'identity')} identity drivers "
+          f"equal to theirs); the build configuration and the scripts as fixed")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,3794 @@
+{
+ "opaque": [
+  "EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_pair_probability_setT_subproof"
+ ],
+ "schema": "phase13-identity-inventory-v1",
+ "snapshots": {
+  "SnapshotApplicationsDefinitions": {
+   "queries": [
+    {
+     "mode": "type",
+     "ordinal": 0,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ApplicationsDefinitions.mxdot_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 1,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ApplicationsDefinitions.frobenius_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 2,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ApplicationsDefinitions.opnorm_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 3,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ApplicationsDefinitions.psdmx_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 4,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ApplicationsDefinitions.goe_mx_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 5,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ApplicationsDefinitions.matrix_measurable_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 6,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ApplicationsDefinitions.gauss_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 7,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ApplicationsDefinitions.gauss_determined"
+    }
+   ],
+   "requires": [
+    "Require Checks.ApplicationsDefinitions."
+   ]
+  },
+  "SnapshotMatrixSigmaRing": {
+   "queries": [
+    {
+     "mode": "type",
+     "ordinal": 0,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.MatrixSigmaRing.matrix_sigma_ring_characterization"
+    }
+   ],
+   "requires": [
+    "Require Checks.MatrixSigmaRing."
+   ]
+  },
+  "SnapshotPhase1": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.AnalysisIntegralDefinitions.oriented_integral"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.AnalysisIntegralDefinitions.segment_integrable"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.AnalysisIntegralDefinitions.oriented_has_integral"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.AnalysisIntegralDefinitions.whole_line_integral"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.AnalysisIntegralDefinitions.whole_line_integrable"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 5,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.AnalysisIntegralDefinitions.whole_line_has_integral"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 6,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.AnalysisIntegralDefinitions.continuity_2d_pt"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 7,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_kernel"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 8,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_stein_integrand"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 9,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_primitive"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 10,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_mass"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 11,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_integral"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 12,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_has_integral"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 13,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_integral_exists"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 14,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_absolutely_integrable"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 15,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_expectation"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 16,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.gaussian_density"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 17,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianDefinitions.moment_factor"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 18,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityDefinitions.gaussian_law_density"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 19,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityDefinitions.gaussian_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 20,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityDefinitions.gaussian_law_integrable"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 21,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityDefinitions.gaussian_law_expectation"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 22,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_law_probability"
+    },
+    {
+     "mode": "opaque-body",
+     "ordinal": 23,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_pair_probability_setT_subproof"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 24,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.HB_unnamed_factory_1"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 25,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__probability_measure_isProbability"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 26,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__measure_function_isSigmaFinite"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 27,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__probability_measure_isSubProbability"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 28,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__measure_function_isSFinite"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 29,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.probability_measure_Measure_isProbability__to__measure_function_isFinite"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 30,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_pair_probability"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 31,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_cons_tuple"
+    },
+    {
+     "mode": "type",
+     "ordinal": 32,
+     "parts": [
+      "type"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_cons_tuple_measurable"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 33,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.HB_unnamed_factory_7"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 34,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.GaussianProbabilityProductDefinitions_gaussian_cons_tuple__canonical__measurable_function_MeasurableFun"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 35,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.GaussianProbabilityProductDefinitions.gaussian_product_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 36,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_quadratic_form"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 37,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_symmetric"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 38,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_psd"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 39,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_pd"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 40,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_loewner_le"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 41,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_trace"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 42,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_point"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 43,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_fit_event"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 44,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_conditioned_event"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 45,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_balanced_pd_event"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 46,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_probability"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 47,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_density"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 48,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_eventually_le"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 49,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_eventually_ge"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 50,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_limsup_lt"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 51,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_limsup_le"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 52,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_liminf_gt"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 53,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.PaperMainDefinitions.paper_main_tends_to"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 54,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidFitting.MainStatement.main_statement"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidFitting.AnalysisIntegralDefinitions.",
+    "Require EllipsoidFitting.GaussianDefinitions.",
+    "Require EllipsoidFitting.GaussianProbabilityDefinitions.",
+    "Require EllipsoidFitting.GaussianProbabilityProductDefinitions.",
+    "Require EllipsoidFitting.PaperMainDefinitions.",
+    "Require EllipsoidFitting.MainStatement."
+   ]
+  },
+  "SnapshotPhase10": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionRobustStatement.robust_condition_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionRobustStatement.robust_condition_number_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionRobustStatement.robust_condition_theorem_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentTensorUpper.latent_tensor_constant"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentTensorUpper.latent_tensor_upper_statement"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidUniversality.ConditionRobustStatement.",
+    "Require EllipsoidUniversality.LatentTensorUpper."
+   ]
+  },
+  "SnapshotPhase11": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_L"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_F"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_u"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_ell"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_J"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 5,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_alpha"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 6,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_star"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 7,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_objective"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 8,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_profile"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 9,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaDefinitions.condition_kappa_value"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 10,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_root"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 11,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_variational"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 12,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_integral"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 13,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_range"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 14,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_inverse"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 15,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_three"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 16,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_curve_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 17,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaStatement.condition_kappa_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 18,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaStatement.condition_kappa_number_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 19,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaStatement.countable_condition_kappa_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 20,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaStatement.countable_condition_kappa_number_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 21,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaStatement.condition_kappa_theorem_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 22,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaRobustStatement.robust_condition_kappa_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 23,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaRobustStatement.robust_condition_kappa_number_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 24,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaRobustStatement.finite_robust_condition_kappa_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 25,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaRobustStatement.finite_robust_condition_kappa_number_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 26,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionKappaRobustStatement.condition_kappa_robust_theorem_statement"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidUniversality.ConditionKappaDefinitions.",
+    "Require EllipsoidUniversality.ConditionKappaCurveStatement.",
+    "Require EllipsoidUniversality.ConditionKappaStatement.",
+    "Require EllipsoidUniversality.ConditionKappaRobustStatement."
+   ]
+  },
+  "SnapshotPhase12Batch1": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.MatrixSeriesStatement.matrix_series_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.GoeEdgeStatement.goe_edge_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdSplittingStatement.psd_splitting_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianAnalysis.matrix.lambda_max.lambda_max"
+    }
+   ],
+   "requires": [
+    "Require GaussianApplications.MatrixSeriesStatement.",
+    "Require GaussianApplications.GoeEdgeStatement.",
+    "Require GaussianApplications.PsdSplittingStatement.",
+    "Require GaussianAnalysis.matrix.lambda_max."
+   ]
+  },
+  "SnapshotPhase12Batch2": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.TensorPackingStatement.tensor_packing_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.spin"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.spin_vec"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.spin_set"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.ising_weight"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 5,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.ising_mass"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 6,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.ising_mean"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 7,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.ising_var"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 8,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.half_diff"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 9,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.ising_cond_mean"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 10,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.ising_cond_var"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 11,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.ising_dirichlet"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 12,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.ising_cov"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 13,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapDefinitions.sk_coupling"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 14,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SKGapStatement.sk_gap_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 15,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PerceptronSignDefinitions.spin_col"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 16,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PerceptronSignDefinitions.perceptron_pressure"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 17,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PerceptronSignDefinitions.gauss_pressure"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 18,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PerceptronSignDefinitions.sign_pressure"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 19,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PerceptronSignDefinitions.bounded_C3"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 20,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PerceptronSignStatement.perceptron_sign_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 21,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceDefinitions.proper_clause"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 22,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceDefinitions.clause"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 23,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceDefinitions.clause_sat"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 24,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceDefinitions.prefix_sat"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 25,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceDefinitions.sat_cap"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 26,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceDefinitions.sat_prefix_len"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 27,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceDefinitions.sat_mean"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 28,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceDefinitions.sat_var"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 29,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceDefinitions.sat_capped_var"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 30,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatVarianceStatement.sat_variance_statement"
+    }
+   ],
+   "requires": [
+    "Require GaussianApplications.TensorPackingStatement.",
+    "Require GaussianApplications.SKGapDefinitions.",
+    "Require GaussianApplications.SKGapStatement.",
+    "Require GaussianApplications.PerceptronSignDefinitions.",
+    "Require GaussianApplications.PerceptronSignStatement.",
+    "Require GaussianApplications.SatVarianceDefinitions.",
+    "Require GaussianApplications.SatVarianceStatement."
+   ]
+  },
+  "SnapshotPhase13": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatThresholdDefinitions.sat_prob"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.SatThresholdStatement.sat_threshold_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.MinSuperadditiveStatement.min_superadditive_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdNormalizationStatement.psd_normalization_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.ProductSmoothingStatement.product_smoothing_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 5,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdRankDefinitions.kn_edge"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 6,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdRankDefinitions.edge_cut"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 7,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdRankDefinitions.is_perfect_matching"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 8,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdRankDefinitions.perfect_matching"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 9,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdRankDefinitions.odd_set"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 10,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdRankDefinitions.crossing"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 11,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdRankDefinitions.shifted_matching_mx"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 12,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdRankStatement.psd_rank_statement"
+    },
+    {
+     "mode": "type",
+     "ordinal": 13,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_finite_mean.unif_mean_union_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 14,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_finite_mean.unif_mean_indicatorN_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 15,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_finite_mean.unif_mean_markov_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 16,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_finite_mean.unif_mean_cutoff_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 17,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_finite_mean.unif_chebyshev_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 18,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_ord_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 19,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_finite_mean.unif_mean_tuple_prod_set_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 20,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean0_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 21,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_meanS_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 22,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.eq_binomial_mean_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 23,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_cst_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 24,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_meanD_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 25,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_meanZ_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 26,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.ler_binomial_mean_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 27,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_id_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 28,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_sqr_dev_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 29,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_chebyshev_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 30,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_last_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 31,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_mean_trials_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 32,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.unif_mean_binomial_mean_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 33,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.binomial_meanE_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 34,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_mean.integral_binomial_mean_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 35,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.homo_iter_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 36,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.iter_le_subcomm_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 37,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.monotone_iter_le_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 38,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.iter_scale_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 39,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.iter_mix_binomial_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 40,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.binomial_mix_le_iter_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 41,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.meet_avg_linear_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 42,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.meet_avg_monotone_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 43,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.meet_avg_cst_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 44,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.meet_avgC_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 45,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_commuting_operators.iter_meet_avg_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 46,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.bchar_algebra_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 47,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.bchar_orthogonal_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 48,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.bchar_delta_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 49,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_metric_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 50,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_inversion_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 51,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_expansion_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 52,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_plancherel_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 53,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_linear_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 54,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_comp_linear_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 55,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_mulmx_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 56,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_norm_le_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 57,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_translate_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 58,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_expansion_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 59,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.low_blk_deg_translate_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 60,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.blk_dist_row_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 61,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.bchar_col_mx_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 62,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.blk_col_mx_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 63,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_boolean_fourier.fcoef_col_mx_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 64,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_ge0_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 65,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_size_gt0_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 66,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_restrict_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 67,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_widen_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 68,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_shift_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 69,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_factorization.psd_factorization_nonneg_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 70,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_bounds.central_bin_le_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 71,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_bounds.central_bin_ge_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 72,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_bounds.half_bin_ge_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 73,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_bounds.leq_bin_half_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 74,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_bounds.bin_near_half_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 75,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_central_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 76,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_bounds.bin_sqr_ratio_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 77,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_binomial_bounds.bin_partial_sum_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 78,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_duality.psd_eval_cone_closed_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 79,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_duality.psdmx_dual_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 80,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_duality.psd_farkas_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 81,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 82,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.LibraryStatements.accepted_psd_duality.psd_slack_certificate_affine_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 83,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.finite_mean.unif_mean_union"
+    },
+    {
+     "mode": "type",
+     "ordinal": 84,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.finite_mean.unif_mean_indicatorN"
+    },
+    {
+     "mode": "type",
+     "ordinal": 85,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.finite_mean.unif_mean_markov"
+    },
+    {
+     "mode": "type",
+     "ordinal": 86,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.finite_mean.unif_mean_cutoff"
+    },
+    {
+     "mode": "type",
+     "ordinal": 87,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.finite_mean.unif_chebyshev"
+    },
+    {
+     "mode": "type",
+     "ordinal": 88,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_ord"
+    },
+    {
+     "mode": "type",
+     "ordinal": 89,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.finite_mean.unif_mean_tuple_prod_set"
+    },
+    {
+     "mode": "type",
+     "ordinal": 90,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_mean0"
+    },
+    {
+     "mode": "type",
+     "ordinal": 91,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_meanS"
+    },
+    {
+     "mode": "type",
+     "ordinal": 92,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.eq_binomial_mean"
+    },
+    {
+     "mode": "type",
+     "ordinal": 93,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_mean_cst"
+    },
+    {
+     "mode": "type",
+     "ordinal": 94,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_meanD"
+    },
+    {
+     "mode": "type",
+     "ordinal": 95,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_meanZ"
+    },
+    {
+     "mode": "type",
+     "ordinal": 96,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.ler_binomial_mean"
+    },
+    {
+     "mode": "type",
+     "ordinal": 97,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_mean_id"
+    },
+    {
+     "mode": "type",
+     "ordinal": 98,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_mean_sqr_dev"
+    },
+    {
+     "mode": "type",
+     "ordinal": 99,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_chebyshev"
+    },
+    {
+     "mode": "type",
+     "ordinal": 100,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_mean_last"
+    },
+    {
+     "mode": "type",
+     "ordinal": 101,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_mean_trials"
+    },
+    {
+     "mode": "type",
+     "ordinal": 102,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.unif_mean_binomial_mean"
+    },
+    {
+     "mode": "type",
+     "ordinal": 103,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.binomial_meanE"
+    },
+    {
+     "mode": "type",
+     "ordinal": 104,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.binomial_mean.integral_binomial_mean"
+    },
+    {
+     "mode": "type",
+     "ordinal": 105,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.homo_iter"
+    },
+    {
+     "mode": "type",
+     "ordinal": 106,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.iter_le_subcomm"
+    },
+    {
+     "mode": "type",
+     "ordinal": 107,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.monotone_iter_le"
+    },
+    {
+     "mode": "type",
+     "ordinal": 108,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.iter_scale"
+    },
+    {
+     "mode": "type",
+     "ordinal": 109,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.iter_mix_binomial"
+    },
+    {
+     "mode": "type",
+     "ordinal": 110,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.binomial_mix_le_iter"
+    },
+    {
+     "mode": "type",
+     "ordinal": 111,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.meet_avg_linear"
+    },
+    {
+     "mode": "type",
+     "ordinal": 112,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.meet_avg_monotone"
+    },
+    {
+     "mode": "type",
+     "ordinal": 113,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.meet_avg_cst"
+    },
+    {
+     "mode": "type",
+     "ordinal": 114,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.meet_avgC"
+    },
+    {
+     "mode": "type",
+     "ordinal": 115,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.commuting_operators.iter_meet_avg"
+    },
+    {
+     "mode": "type",
+     "ordinal": 116,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.bchar_algebra"
+    },
+    {
+     "mode": "type",
+     "ordinal": 117,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.bchar_orthogonal"
+    },
+    {
+     "mode": "type",
+     "ordinal": 118,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.bchar_delta"
+    },
+    {
+     "mode": "type",
+     "ordinal": 119,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.blk_dist_metric"
+    },
+    {
+     "mode": "type",
+     "ordinal": 120,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.fcoef_inversion"
+    },
+    {
+     "mode": "type",
+     "ordinal": 121,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.fcoef_expansion"
+    },
+    {
+     "mode": "type",
+     "ordinal": 122,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.fcoef_plancherel"
+    },
+    {
+     "mode": "type",
+     "ordinal": 123,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.fcoef_linear"
+    },
+    {
+     "mode": "type",
+     "ordinal": 124,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.fcoef_comp_linear"
+    },
+    {
+     "mode": "type",
+     "ordinal": 125,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.fcoef_mulmx"
+    },
+    {
+     "mode": "type",
+     "ordinal": 126,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.fcoef_norm_le"
+    },
+    {
+     "mode": "type",
+     "ordinal": 127,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.fcoef_translate"
+    },
+    {
+     "mode": "type",
+     "ordinal": 128,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_expansion"
+    },
+    {
+     "mode": "type",
+     "ordinal": 129,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.low_blk_deg_translate"
+    },
+    {
+     "mode": "type",
+     "ordinal": 130,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.blk_dist_row"
+    },
+    {
+     "mode": "type",
+     "ordinal": 131,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.bchar_col_mx"
+    },
+    {
+     "mode": "type",
+     "ordinal": 132,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.blk_col_mx"
+    },
+    {
+     "mode": "type",
+     "ordinal": 133,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.fourier.boolean_fourier.fcoef_col_mx"
+    },
+    {
+     "mode": "type",
+     "ordinal": 134,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_factorization.psd_factorization_ge0"
+    },
+    {
+     "mode": "type",
+     "ordinal": 135,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_factorization.psd_factorization_size_gt0"
+    },
+    {
+     "mode": "type",
+     "ordinal": 136,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_factorization.psd_factorization_restrict"
+    },
+    {
+     "mode": "type",
+     "ordinal": 137,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_factorization.psd_factorization_widen"
+    },
+    {
+     "mode": "type",
+     "ordinal": 138,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_factorization.psd_factorization_shift"
+    },
+    {
+     "mode": "type",
+     "ordinal": 139,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_factorization.psd_factorization_nonneg"
+    },
+    {
+     "mode": "type",
+     "ordinal": 140,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.binomial_bounds.central_bin_le"
+    },
+    {
+     "mode": "type",
+     "ordinal": 141,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.binomial_bounds.central_bin_ge"
+    },
+    {
+     "mode": "type",
+     "ordinal": 142,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.binomial_bounds.half_bin_ge"
+    },
+    {
+     "mode": "type",
+     "ordinal": 143,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.binomial_bounds.leq_bin_half"
+    },
+    {
+     "mode": "type",
+     "ordinal": 144,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.binomial_bounds.bin_near_half"
+    },
+    {
+     "mode": "type",
+     "ordinal": 145,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_central"
+    },
+    {
+     "mode": "type",
+     "ordinal": 146,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.binomial_bounds.bin_sqr_ratio"
+    },
+    {
+     "mode": "type",
+     "ordinal": 147,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.binomial_bounds.bin_partial_sum"
+    },
+    {
+     "mode": "type",
+     "ordinal": 148,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_duality.psd_eval_cone_closed"
+    },
+    {
+     "mode": "type",
+     "ordinal": 149,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_duality.psdmx_dual"
+    },
+    {
+     "mode": "type",
+     "ordinal": 150,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_duality.psd_farkas"
+    },
+    {
+     "mode": "type",
+     "ordinal": 151,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_duality.psd_slack_certificate"
+    },
+    {
+     "mode": "type",
+     "ordinal": 152,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.psd_duality.psd_slack_certificate_affine"
+    }
+   ],
+   "requires": [
+    "Require GaussianApplications.SatThresholdDefinitions.",
+    "Require GaussianApplications.SatThresholdStatement.",
+    "Require GaussianApplications.MinSuperadditiveStatement.",
+    "Require GaussianApplications.PsdNormalizationStatement.",
+    "Require GaussianApplications.ProductSmoothingStatement.",
+    "Require GaussianApplications.PsdRankDefinitions.",
+    "Require GaussianApplications.PsdRankStatement.",
+    "Require Checks.LibraryStatements."
+   ]
+  },
+  "SnapshotPhase13Freeze1": {
+   "queries": [
+    {
+     "mode": "type",
+     "ordinal": 0,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.unif_mean_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 1,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.unif_var_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 2,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.binomial_mean_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 3,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.linear_op_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 4,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.monotone_op_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 5,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.meet_avg_characterization"
+    }
+   ],
+   "requires": [
+    "Require Checks.Phase13Definitions."
+   ]
+  },
+  "SnapshotPhase13Freeze2": {
+   "queries": [
+    {
+     "mode": "type",
+     "ordinal": 0,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.unif_mean_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 1,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.unif_var_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 2,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.binomial_mean_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 3,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.linear_op_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 4,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.monotone_op_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 5,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.meet_avg_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 6,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.bdot_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 7,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.bchar_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 8,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.blk_deg_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 9,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.blk_dist_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 10,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.fcoef_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 11,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.low_blk_deg_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 12,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.prob_vec_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 13,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.prod_avg_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 14,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.smoothing_hyps_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 15,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.weighted_gram_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 16,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.psd_factorization_characterization"
+    }
+   ],
+   "requires": [
+    "Require Checks.Phase13Definitions."
+   ]
+  },
+  "SnapshotPhase13Freeze3": {
+   "queries": [
+    {
+     "mode": "type",
+     "ordinal": 0,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.unif_mean_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 1,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.unif_var_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 2,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.binomial_mean_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 3,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.linear_op_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 4,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.monotone_op_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 5,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.meet_avg_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 6,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.bdot_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 7,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.bchar_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 8,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.blk_deg_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 9,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.blk_dist_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 10,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.fcoef_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 11,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.low_blk_deg_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 12,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.prob_vec_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 13,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.prod_avg_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 14,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.smoothing_hyps_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 15,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.weighted_gram_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 16,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.psd_factorization_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 17,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.psd_eval_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 18,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase13Definitions.psd_eval_cone_characterization"
+    }
+   ],
+   "requires": [
+    "Require Checks.Phase13Definitions."
+   ]
+  },
+  "SnapshotPhase1Theorems": {
+   "queries": [
+    {
+     "mode": "type",
+     "ordinal": 0,
+     "parts": [
+      "type"
+     ],
+     "target": "EllipsoidFitting.PaperMainResults.paper_main_results"
+    },
+    {
+     "mode": "type",
+     "ordinal": 1,
+     "parts": [
+      "type"
+     ],
+     "target": "EllipsoidFitting.MainTheorem.ellipsoid_fitting_main"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidFitting.PaperMainResults.",
+    "Require EllipsoidFitting.MainTheorem."
+   ]
+  },
+  "SnapshotPhase5": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_power"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_subgaussian_test"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_coordinate_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_product_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_sample_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 5,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_probability"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 6,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_positive_part"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 7,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_semicircle_density"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 8,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_semicircle_integral"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 9,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_semicircle_integrable"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 10,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_m"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 11,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_s"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 12,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_energy"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 13,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_cutoff"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 14,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_alpha_star"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 15,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_alpha_star_variational"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 16,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_level_cutoff"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 17,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_e_star"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 18,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_fitting_error"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 19,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_pd_fit_event"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 20,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_conditioned_fit_event"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 21,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_error_event"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 22,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityDefinitions.universality_density_tends_to"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 23,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.UniversalityStatement.universality_statement"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidUniversality.UniversalityDefinitions.",
+    "Require EllipsoidUniversality.UniversalityStatement."
+   ]
+  },
+  "SnapshotPhase6": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureDefinitions.mixture_component_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureDefinitions.mixture_family"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureDefinitions.mixture_fourth_moment"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureDefinitions.mixture_label"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureDefinitions.mixture_labelled_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 5,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureDefinitions.mixture_probability"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 6,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureDefinitions.mixture_interpolation"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 7,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureStatement.mixture_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 8,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureStatement.mixture_interpolation_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 9,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.MixtureStatement.mixture_theorem_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 10,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.PairedDefinitions.paired_uniform_spec"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 11,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.PairedDefinitions.paired_kernel"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 12,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.PairedDefinitions.paired_pair_density"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 13,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.PairedDefinitions.paired_sample_density"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 14,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.PairedDefinitions.paired_probability"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 15,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.PairedStatement.paired_statement"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidUniversality.MixtureDefinitions.",
+    "Require EllipsoidUniversality.MixtureStatement.",
+    "Require EllipsoidUniversality.PairedDefinitions.",
+    "Require EllipsoidUniversality.PairedStatement."
+   ]
+  },
+  "SnapshotPhase7": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentSignDefinitions.latent_sample_density"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentSignDefinitions.latent_probability"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentSignStatement.latent_sign_statement"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidUniversality.LatentSignDefinitions.",
+    "Require EllipsoidUniversality.LatentSignStatement."
+   ]
+  },
+  "SnapshotPhase8": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.CountableMixtureDefinitions.countable_mixture_family"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.CountableMixtureDefinitions.countable_fourth_moment"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.CountableMixtureDefinitions.countable_labelled_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.CountableMixtureDefinitions.countable_mixture_probability"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.CountableMixtureStatement.countable_mixture_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 5,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.CountableMixtureStatement.countable_interpolation_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 6,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.CountableMixtureStatement.countable_theorem_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 7,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionDefinitions.condition_t"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 8,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionDefinitions.condition_alpha"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 9,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionDefinitions.condition_star"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 10,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionDefinitions.data_condition_number"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 11,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionStatement.condition_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 12,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionStatement.condition_number_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 13,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionStatement.countable_condition_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 14,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionStatement.countable_condition_number_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 15,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionStatement.condition_theorem_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 16,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentSignScope.latent_point_expectation"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 17,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentSignScope.latent_covariance_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 18,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentSignScope.latent_variance_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 19,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentSignScope.latent_scope_statement"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidUniversality.CountableMixtureDefinitions.",
+    "Require EllipsoidUniversality.CountableMixtureStatement.",
+    "Require EllipsoidUniversality.ConditionDefinitions.",
+    "Require EllipsoidUniversality.ConditionStatement.",
+    "Require EllipsoidUniversality.LatentSignScope."
+   ]
+  },
+  "SnapshotPhase9": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustDefinitions.robust_point_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustDefinitions.finite_weights"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustDefinitions.robust_tv"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustDefinitions.robust_points"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustDefinitions.robust_sample_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 5,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustDefinitions.robust_close"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 6,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustDefinitions.contaminated_weights"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 7,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustDefinitions.contaminated_laws"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 8,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustStatement.robust_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 9,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustStatement.robust_interpolation_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 10,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustStatement.contamination_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 11,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.RobustStatement.robust_theorem_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 12,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentTensorization.latent_replace"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 13,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentTensorization.latent_cond_expectation"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 14,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentTensorization.latent_cond_variance"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 15,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentTensorization.latent_variance"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 16,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentTensorization.latent_tensorization"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 17,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.LatentTensorization.latent_tensorization_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 18,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ContinuousLatent.cl_value"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 19,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ContinuousLatent.cl_weight"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 20,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ContinuousLatent.cl_moment"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 21,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ContinuousLatent.cl_point_law"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 22,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ContinuousLatent.continuous_latent_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 23,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionEndpoints.condition_alpha_near_one"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 24,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionEndpoints.condition_alpha_near_infinity"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 25,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionEndpoints.condition_star_near_zero"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 26,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionEndpoints.condition_star_near_quarter"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 27,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ConditionEndpoints.condition_endpoints_statement"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidUniversality.RobustDefinitions.",
+    "Require EllipsoidUniversality.RobustStatement.",
+    "Require EllipsoidUniversality.LatentTensorization.",
+    "Require EllipsoidUniversality.ContinuousLatent.",
+    "Require EllipsoidUniversality.ConditionEndpoints."
+   ]
+  },
+  "SnapshotTupleProd": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianAnalysis.probability.lindeberg.tuple_cons"
+    },
+    {
+     "mode": "type",
+     "ordinal": 1,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.probability.lindeberg.measurable_tuple_cons"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianAnalysis.probability.lindeberg.HB_unnamed_factory_2"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianAnalysis.probability.lindeberg.lindeberg_tuple_cons__canonical__measurable_function_MeasurableFun"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianAnalysis.probability.lindeberg.tuple_prod"
+    }
+   ],
+   "requires": [
+    "Require GaussianAnalysis.probability.lindeberg."
+   ]
+  }
+ }
+}

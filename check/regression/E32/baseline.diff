@@ -1,0 +1,13 @@
+diff --git a/applications/SatThresholdStatement.v b/applications/SatThresholdStatement.v
+index 9c52fd8..bbef960 100644
+--- a/applications/SatThresholdStatement.v
++++ b/applications/SatThresholdStatement.v
+@@ -45,7 +45,7 @@ Local Open Scope classical_set_scope.
+ 
+ Definition sat_threshold_statement : Prop :=
+   forall (R : realType) (k : nat), (3 <= k)%N ->
+-  exists alpha : R, 0 < alpha /\
++  exists alpha : R, 0 <alpha /\
+   (forall c : R, 0 <= c -> c < alpha ->
+      sat_prob R n k (Num.truncn (c * n%:R)) @[n --> \oo] --> (1 : R)) /\
+   (forall c : R, alpha < c ->

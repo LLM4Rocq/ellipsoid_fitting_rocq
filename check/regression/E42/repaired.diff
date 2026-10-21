@@ -1,0 +1,68 @@
+diff --git a/_CoqProject b/_CoqProject
+index 1f84eac..b37688c 100644
+--- a/_CoqProject
++++ b/_CoqProject
+@@ -37,6 +37,7 @@ library/matrix/trace_projection.v
+ library/matrix/tensor_packing.v
+ library/matrix/psd_factorization.v
+ library/matrix/psd_duality.v
++library/zz/topology_structure.v
+ library/probability/moments.v
+ library/probability/lindeberg.v
+ library/probability/subgaussian.v
+diff --git a/library/matrix/psd_duality.v b/library/matrix/psd_duality.v
+index 080f5e6..4d3a3f1 100644
+--- a/library/matrix/psd_duality.v
++++ b/library/matrix/psd_duality.v
+@@ -8,6 +8,7 @@ From GaussianAnalysis.matrix Require Import psd_splitting psd_factorization.
+ From GaussianAnalysis.matrix Require Import nuclear condition_cone.
+ From GaussianAnalysis.gaussian Require Import measurable_matrix.
+ From GaussianAnalysis.convex Require Import logdet_barrier moreau.
++Require GaussianAnalysis.zz.topology_structure.
+ 
+ (**md**************************************************************************)
+ (* # Duality for the cone of positive semidefinite matrices                   *)
+@@ -339,7 +340,7 @@ apply: closedI; first apply: closedI.
+ Qed.
+ 
+ (* The evaluation cone of positive semidefinite matrices is closed. *)
+-Theorem psd_eval_cone_closed : closed (psd_eval_cone G).
++Theorem psd_eval_cone_closed_orig : closed (psd_eval_cone G).
+ Proof.
+ have [b b0 hb] := psd_eval_compress.
+ move=> y yK.
+@@ -367,6 +368,10 @@ rewrite mxvecK ler_pdivlMr // mulrC; apply: le_trans F'tr _.
+ by rewrite Fz; exact: ltW.
+ Qed.
+ 
++Theorem psd_eval_cone_closed :
++  GaussianAnalysis.zz.topology_structure.closed (psd_eval_cone G).
++Proof using Gp. exact I. Qed.
++
+ End closedness.
+ 
+ Section farkas.
+@@ -381,7 +386,7 @@ Proof.
+ move=> Gp; split => [[F Fp <-] c cp|h].
+   by rewrite mxdot_psd_eval; exact: mxtrace_psd_ge0.
+ set K := psd_eval_cone G.
+-have Kc : closed K := psd_eval_cone_closed Gp.
++have Kc : closed K := psd_eval_cone_closed_orig Gp.
+ have K0 : K 0 := psd_eval_cone0 G.
+ have Kn : K !=set0 by exists 0.
+ have Kcvx := @psd_eval_cone_convex R n N G.
+@@ -523,3 +528,5 @@ exists F.
+ apply/rowP => j; rewrite ord1 !mxE mulmx1 mxtraceZ mxtrace1.
+ by rewrite divfK // gt_eqF.
+ Qed.
++
++Notation closed := GaussianAnalysis.zz.topology_structure.closed.
+diff --git a/library/zz/topology_structure.v b/library/zz/topology_structure.v
+new file mode 100644
+index 0000000..035d21f
+--- /dev/null
++++ b/library/zz/topology_structure.v
+@@ -0,0 +1,3 @@
++From mathcomp Require Import classical_sets topology.
++
++Definition closed {T : topologicalType} (D : set T) : Prop := True.

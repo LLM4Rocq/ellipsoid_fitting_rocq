@@ -1,0 +1,27 @@
+The identity layer of the statement snapshots (rule 30 (e) of
+scripts/check_sources.py, the repair E42).
+
+kernel_identity.ml, kernel_universe.ml and META: the exporter, a Rocq 9.1.1
+plugin that prints, for a named constant, its kernel term as one JSON record
+(KernelIdentity "type" | "definition" | "opaque-body" "<full name>"). It is
+the prototype reviewed on 16 October 2026 (kernel_identity.ml c4820671,
+kernel_universe.ml a0a6e835) without the projection of the global universe
+graph and its global_constraints field, with the schema
+rocq-kernel-identity-pilot-v3 (the user's decision of 20 October 2026, Q20;
+reviewed by agent 1). scripts/run_checks.py builds it at each run into
+build/checks/plugin/ and loads it only in the drivers.
+
+inventory.json: the queries, one per Print or Check line of each snapshot
+file of check/snapshots/ that prints a declaration.
+
+Identity<Name>.v: the driver of the snapshot <Name>, generated from the
+inventory by scripts/snapshot_baselines.py identity-files.
+
+Identity<Name>.json: its reference, the sidecar of the export at the
+acceptance commit (scripts/snapshot_baselines.py identities): for each
+query, the kernel names, user and canonical, of every constant, inductive,
+constructor and projection of each term, at its position in the term. No
+universe: the printed snapshots keep them.
+
+REFERENCES.json: for each reference, its commit, the toolchain, the SHA-256
+of the exporter's sources and of the reference.
