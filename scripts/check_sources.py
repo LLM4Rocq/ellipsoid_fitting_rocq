@@ -405,6 +405,20 @@
    characterization snapshot, or, under Checks., defined in a check file. The sidecars hold no universe: the snapshots
    print them. They identify names; they do not fix what a name means, which
    the frozen files, the pinned sections and the characterizations do.
+31. Phase 13, the pin. The ten files of CHECKS_EXACT_P13, the four axiom
+   checks of phase 13 (rule 29) and their expected lists,
+   check/Phase13Definitions.v and check/LibraryStatements.v, are
+   byte-identical to the commit CHECKS_P13_BASELINE, the commit of the
+   repair of rule 30, a separate baseline. So is the repaired machinery
+   and its reference data: every file of MACHINERY_P13 (the scripts other
+   than this one, the Makefile and the check files that the repair added)
+   and every file that git lists at that commit under a directory of
+   MACHINERY_DIRS_P13 (the identity drivers and their references, the
+   statement snapshots and their references, the regression tests). The
+   comparison is of bytes, not of code. This script cannot check itself;
+   the fingerprint record of the machinery, kept outside the repository,
+   holds its SHA-256. The older baselines and check/frozen-baseline do not
+   change.
 """
 
 import argparse
@@ -527,6 +541,43 @@ CHECKS_EXACT_P12 = [
     "check/sat_variance_assumptions.expected",
 ]
 CHECKS_P12_BASELINE = "495929a550250684dcad654988436af67f808210"
+CHECKS_EXACT_P13 = [
+    "check/SatThresholdAssumptions.v",
+    "check/sat_threshold_assumptions.expected",
+    "check/PsdNormalizationAssumptions.v",
+    "check/psd_normalization_assumptions.expected",
+    "check/ProductSmoothingAssumptions.v",
+    "check/product_smoothing_assumptions.expected",
+    "check/MinSuperadditiveAssumptions.v",
+    "check/min_superadditive_assumptions.expected",
+    "check/Phase13Definitions.v",
+    "check/LibraryStatements.v",
+]
+MACHINERY_P13 = [
+    "Makefile",
+    "scripts/export_from_ellipsoid_rocq.py",
+    "scripts/stale_citations.py",
+    "scripts/unused.py",
+    "scripts/rocq_lex.py",
+    "scripts/test_rocq_lex.py",
+    "scripts/run_checks.py",
+    "scripts/snapshot_baselines.py",
+    "scripts/run_regressions.py",
+    "scripts/source_inventory.py",
+    "scripts/test_source_inventory.py",
+    "scripts/test_command_heads.py",
+    "scripts/test_check_runner.py",
+    "scripts/test_report_outputs.py",
+    "scripts/test_dependency_consistency.py",
+    "scripts/test_regression_cleanup.py",
+    "scripts/identity_sidecars.py",
+    "scripts/test_identity_sidecars.py",
+    "check/TheoremIdentities.v",
+    "check/Reports.v",
+    "check/MatrixSigmaRing.v",
+]
+MACHINERY_DIRS_P13 = ["check/identity", "check/snapshots", "check/regression"]
+CHECKS_P13_BASELINE = "c5bdf87f827050ebd6a4680d7ba8ddf4fb59ed6f"
 TUPLE_PROD = "library/probability/lindeberg.v"
 LATENT_FROZEN = [
     "extension/LatentSignDefinitions.v",
@@ -2605,6 +2656,29 @@ def main():
             if now is not None and then is not None and now != then:
                 failures.append(f"{path}: differs from {commit[:12]}")
 
+    def exact_bytes(paths, commit):
+        """Rule 31: the bytes of each file equal its bytes at commit."""
+        for path in paths:
+            now = read(path, binary=True)
+            then = subprocess.run(["git", "-C", str(ROOT), "show", f"{commit}:{path}"],
+                                  capture_output=True)
+            if then.returncode != 0:
+                failures.append(f"{path}: no such file at {commit[:12]}")
+            elif now is not None and now != then.stdout:
+                failures.append(f"{path}: differs from {commit[:12]}")
+
+    def listed(dirs, commit):
+        """Rule 31: the files that git lists under dirs at commit."""
+        paths = []
+        for d in dirs:
+            found = subprocess.run(["git", "-C", str(ROOT), "ls-tree", "-r", "--name-only",
+                                    commit, "--", d], capture_output=True, text=True)
+            names = found.stdout.splitlines() if found.returncode == 0 else []
+            if not names:
+                failures.append(f"{d}: no file at {commit[:12]}")
+            paths.extend(names)
+        return paths
+
     def fixed(path, want, what):
         now = read(path)
         if now is None:
@@ -2627,7 +2701,7 @@ def main():
             failures.append(f"{path}: the Require commands or the section {name} "
                             f"differ from {commit[:12]}")
 
-    # Rules 1, 7 to 28: the frozen files, the pinned check files and the
+    # Rules 1, 7 to 28 and 31: the frozen files, the pinned check files and the
     # pinned sections, compared with their baselines.
     frozen_baseline = read("check/frozen-baseline")
     commit = frozen_baseline.split()[0] if frozen_baseline else "HEAD"
@@ -2648,6 +2722,8 @@ def main():
     exact(CHECKS_EXACT_P10, CHECKS_P10_BASELINE)
     exact(CHECKS_EXACT_P11, CHECKS_P11_BASELINE)
     exact(CHECKS_EXACT_P12, CHECKS_P12_BASELINE)
+    exact_bytes(CHECKS_EXACT_P13 + MACHINERY_P13, CHECKS_P13_BASELINE)
+    exact_bytes(listed(MACHINERY_DIRS_P13, CHECKS_P13_BASELINE), CHECKS_P13_BASELINE)
     pinned_section(TUPLE_PROD, "tuple_prod", CHECKS_BASELINE)
     frozen(PHASE13_B1_FROZEN, PHASE13_B1_BASELINE)
     frozen(PHASE13_B2_FROZEN, PHASE13_B2_BASELINE)

@@ -50,7 +50,10 @@ kappa > 1.
 
 `applications/` (phase 12) formalizes, over an arbitrary `R : realType`,
 seven theorems of manuscripts of the OpenAI math collection whose proofs
-reuse the library (see below).
+reuse the library (see below). Phase 13 adds four more, among them the
+satisfiability threshold of random k-SAT for every fixed clause size, and
+the frozen statement of an exponential lower bound on the PSD rank of the
+shifted matching matrices, whose proof is the work of phase 14.
 
 ## Status
 
@@ -134,6 +137,48 @@ reuse the library (see below).
   `check/SatVarianceAssumptions.v`). Each file is a Rocq formalization of
   a credited argument; `applications/README.md` lists the manuscripts and
   the main results.
+- **Four more theorems of the collection (phase 13), proved.**
+  `applications/` proves the frozen statements of four more targets, which
+  the user accepted at commit `46e45c8`: `sat_threshold_theorem` (T9: for
+  every k >= 3 there is alpha > 0 such that floor(c n) independent uniform
+  proper k-clauses on n variables are satisfiable with probability tending
+  to 1 for 0 <= c < alpha and to 0 for c > alpha) and
+  `min_superadditive_theorem` (T12: a real sequence with approximate
+  minimum inequalities for comparable sizes satisfies a finite-size lower
+  bound, and converges if it is bounded), from "A Limiting Satisfiability
+  Threshold for Every Fixed Clause Size" (family 235);
+  `psd_normalization_theorem` (T10: the factors of a PSD factorization can
+  be chosen with the same size and pairings, row traces at most any bound
+  on the entries and column traces at most the size) and
+  `product_smoothing_theorem` (T11: the product smoothing of matrix
+  squares, with shared witnesses), from "Exponential PSD rank of
+  positively shifted matching matrices" (family 126). Each uses only the
+  three axioms of `boolp` (`check/SatThresholdAssumptions.v` to
+  `check/MinSuperadditiveAssumptions.v`). The main statement of the second
+  manuscript, a PSD rank at least 2^(n / K) for the shifted matching
+  matrices, is accepted and frozen (`applications/PsdRankStatement.v`); its
+  proof is phase 14, and `applications/PsdRank/Main.v` already derives it
+  from explicit hypotheses on the local averaging and the parity
+  functional. The user also accepted 70 general statements of the new
+  library files; `check/LibraryStatements.v` states each in full and
+  proves it by its library lemma.
+- **The checks repaired (phase 13).** Before the release of phase 13 the
+  checks were repaired (`reviews/phase13-checker-repair.md`; the report,
+  with its evidence, is `reviews/phase13-repair-report.md`): sources are
+  read as Rocq reads them, the check files are compiled by a runner whose
+  outputs are identified, the frozen and accepted statements are compared
+  with snapshots and kernel names taken at their acceptance commits, and
+  the machinery is pinned. No discrepancy was found in the accepted
+  development. Each bypass found before the repair has a regression test
+  in `check/regression/`, which shows it on the old checks and its
+  rejection by the repaired ones. For ten of them the test shows only
+  that the old checker accepts the attack text, which is not a
+  kernel-accepted false theorem; E33 and E34 have coverage records
+  instead of tests. The limits: the
+  universe constraints are not compared; the identity layer identifies
+  names, not what a name means, which the frozen files, the pinned
+  sections and the characterizations fix; the second independent run was
+  on the same Docker image.
 - **Countable mixtures.** `countable_theorem : countable_theorem_statement`
   (`extension/CountableTheorem.v`) is a generality result: the conclusions
   of the finite-mixture theorem below, with its constants, for mixtures
@@ -564,7 +609,11 @@ generated`), whose code cannot change. The other modules print none.
   byte-identical to commit `c3e555e`, those of phases 7 and 8 to commit
   `a89ed1e`, those of phase 9 to commit `e4c46e1`, those of phase 10 to
   commit `eda8a06`, those of phase 11 to commit `d29b278`, and those of
-  phase 12 to commit `495929a` (commit P); that the
+  phase 12 to commit `495929a` (commit P), and those of phase 13, with
+  `check/Phase13Definitions.v`, `check/LibraryStatements.v` and the
+  repaired machinery (the scripts other than the checker, the Makefile,
+  the identity drivers, the snapshots, the regression tests and their
+  references), to commit `c5bdf87` (the repair); that the
   Require
   commands of
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which
@@ -591,9 +640,10 @@ generated`), whose code cannot change. The other modules print none.
   frozen or accepted statement names is frozen, pinned or characterized; that no source contains a forbidden command (assumptions,
   typing-flag bypasses, plugin and file commands, Elpi commands, global
   settings and exports in `library/`, `extension/` and `applications/`); and
-  that the Makefile and the scripts have their fixed hashes, `scripts/` holds
-  exactly its listed files, `_CoqProject` has its fixed options, git tracks
-  no build product, and none of `GNUmakefile`, `makefile`,
+  that the Makefile and every script other than the checker itself have
+  the bytes of the repair commit (most of them also a fixed hash),
+  `scripts/` holds exactly its listed files, `_CoqProject` has its fixed
+  options, git tracks no build product, and none of `GNUmakefile`, `makefile`,
   `Makefile.rocq.local` and `Makefile.rocq.local-late` exists. `make check`
   runs it twice, without the environment variables that can change what
   Rocq loads and without any variable whose name starts with `OCAML` or
@@ -714,8 +764,9 @@ done, and the second is done in part.
    72 files and 48,032 lines after phase 5, 75 files and 48,991 lines
    after phase 6, 78 files and 51,203 lines after phase 8, 80 files and
    51,666 lines after phase 9, 80 files and 51,796 lines after phase 10,
-   82 files and 53,142 lines after phase 11, and has 94 files and 58,525
-   lines after phase 12.
+   82 files and 53,142 lines after phase 11, 94 files and 58,531 lines
+   after phase 12, and has 102 files and 63,058 lines after
+   phase 13.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -765,4 +816,9 @@ at every fourth moment kappa > 1, for finite and countable mixtures and
 their perturbations in total variation, with the properties of its curve
 (tag `phase11`). Phase 12 formalized in `applications/` seven theorems of
 manuscripts of the OpenAI math collection whose proofs reuse the library,
-with twelve new library files (tag `phase12`).
+with twelve new library files (tag `phase12`). Phase 13 proved four
+theorems of two manuscripts of the collection, the satisfiability threshold
+of random k-SAT among them, with eight new library files, froze the
+statement of the PSD rank theorem of the second, whose proof is phase 14,
+and checks the 70 general statements of the library that the user
+accepted (tag `phase13`).
