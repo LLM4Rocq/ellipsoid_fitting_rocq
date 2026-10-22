@@ -852,6 +852,7 @@ applications/PsdRank/Parity.v
 applications/PsdRank/CellBounds.v
 applications/PsdLiftDefinitions.v
 applications/PsdLiftStatement.v
+applications/PsdRank/Cells.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
 applications/SKGap/Spectral.v
