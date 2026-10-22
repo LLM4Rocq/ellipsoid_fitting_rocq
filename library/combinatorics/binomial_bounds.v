@@ -43,6 +43,11 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (* - bin_sqr_ratio: C(u, j)^4 (j + 1) (u - j + 1) <= 4 (u + 1) C(2u, 2j)^2    *)
 (*   for j <= u: the bound local:binomial-ratio of the manuscript with C = 2, *)
 (*   squared; from the identity and the two central bounds.                   *)
+(* - bin_mul_pow_statement, stated for review in phase 14, before its proof:  *)
+(*   C(b, s) l^s <= C(l, s) b^s for b <= l and every s. The expander lemma of *)
+(*   combinatorics/expander.v uses it to bound the number of permutations of  *)
+(*   a set of l points that map a given set of s points into a given set of b *)
+(*   points (parity.tex, lines 68-71).                                        *)
 (* - bin_partial_sum: for every realType and M <= N, sum_(j <= M) C(N, j) <=  *)
 (*   (e N / M)^M, where both sides are 1 for M = 0: with x = M / N, x^M times *)
 (*   the partial sum is at most (1 + x)^N <= e^M. The manuscript uses it at M *)
@@ -294,6 +299,12 @@ by rewrite leq_mul2r hu orbT.
 Qed.
 
 End central.
+
+(* For b <= l and every s: C(b, s) l^s <= C(l, s) b^s, that is, the
+   probability C(b, s) / C(l, s) that s points drawn without replacement
+   from l all fall in a given set of b is at most (b / l)^s. *)
+Definition bin_mul_pow_statement : Prop :=
+  forall b l s : nat, (b <= l)%N -> ('C(b, s) * l ^ s <= 'C(l, s) * b ^ s)%N.
 
 Section partial_sums.
 Context {R : realType}.
