@@ -1,5 +1,6 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix reals.
+From mathcomp Require Import fingroup perm zmodp.
 From GaussianAnalysis.matrix Require Import psd_part psd_factorization.
 From GaussianApplications Require Import PsdRankDefinitions PsdRankStatement.
 From GaussianApplications Require Import PsdLiftDefinitions.
@@ -34,6 +35,26 @@ From GaussianApplications Require Import PsdLiftDefinitions.
 (*   exclusion of rho = 1 is necessary.                                       *)
 (* - psd_rank_statementE: psd_rank_statement with the factors written out,    *)
 (*   for the reviewer's comparison.                                           *)
+(*                                                                            *)
+(* The frame of the cells (phase 14), shared by the local averaging, the      *)
+(* parity functional and the realization (AGENTS.md, section Phase 14; the    *)
+(* plan notes/phase14-plan.md, section 4.3), with the encoding of the PSD     *)
+(* audit (reviews/phase13-psd-audit/realization.md, lines 104-128 and         *)
+(* 279-298). Not frozen and not reviewed by the user:                         *)
+(* - cell_weight k b: w(b), the size in {k/2, k/2 + 1} congruent to the       *)
+(*   charge b modulo 2 (local-averaging.tex, lines 12-21); cell_weight_odd:   *)
+(*   it is odd exactly when b = 1; cell_weight_bounds.                        *)
+(* - cell_bit b y j: the full bit j of a cell of charge b with free bits y:   *)
+(*   the free bits, then the parity bit b + (the sum of the free bits).       *)
+(* - cell_support b m y x: the support of the restrictions of a cell with     *)
+(*   local data m (terminal j at m j, internal pairs after the terminals):    *)
+(*   #|x| = w(b), terminal j in x exactly when its full bit is 1, and each    *)
+(*   internal pair inside or outside x (local-averaging.tex, lines 28-36).    *)
+(* - inc_bit b y i j, disagreements sigma b y and f_eps sigma b eps y: on     *)
+(*   the cells 'I_(l + l) of the graph H of 100 permutations sigma j of 'I_l, *)
+(*   whose edge (j, u) joins the cells lshift l u and rshift l (sigma j u) at *)
+(*   position j, the incidence bit, the number of edges whose two incidence   *)
+(*   bits differ, and f_eps(y) = disagreements - eps.                         *)
 (*                                                                            *)
 (* The finite type kn_edges n of the edges of K_n is in                       *)
 (* PsdLiftDefinitions.v (phase 14), whose statement uses it.                  *)
@@ -235,3 +256,75 @@ have [n [en nn0 lt]] := bin2_pow_lt_exp n0 K0.
 have := hn0 n en nn0 _ (shifted_matching_one_factorization n R).
 by rewrite leqNgt lt.
 Qed.
+
+(* The frame of the cells (phase 14). The shared definitions of the local
+   averaging (Cells.v), the parity functional (Parity.v) and the realization
+   (Realization.v): one graph, one incidence order and one bit layout, with
+   the encoding of the PSD audit (reviews/phase13-psd-audit/realization.md,
+   lines 104-128 and 279-298; final.md, lines 496-517). A cell has the
+   vertices 'I_k; its local data are a permutation m of 'I_k, with the
+   terminal j at m j for j <= a and the q-th internal pair at m (a + 1 + 2q)
+   and m (a + 2 + 2q); its free bits are a row of a bits. *)
+Section cell_frame.
+Variables (a k : nat).
+
+(* w(b): the size in {k/2, k/2 + 1} congruent to the charge b modulo 2. *)
+Definition cell_weight (b : 'F_2) : nat :=
+  if odd (k %/ 2) == (b != 0) then k %/ 2 else (k %/ 2).+1.
+
+(* The full bits of a cell of charge b with free bits y: the a free bits,
+   then at position a the parity bit b + (the sum of the free bits). *)
+Definition cell_bit (b : 'F_2) (y : 'rV['F_2]_a) (j : 'I_a.+1) : 'F_2 :=
+  if insub (val j) is Some j' then y 0 j' else b + \sum_(j' < a) y 0 j'.
+
+(* The support of the restrictions: x is in the support when #|x| = w(b),
+   each terminal lies in x exactly when its full bit is 1, and each internal
+   pair lies inside or outside x. *)
+Definition cell_support (b : 'F_2) (m : {perm 'I_k}) (y : 'rV['F_2]_a)
+    (x : {set 'I_k}) : bool :=
+  [&& #|x| == cell_weight b,
+      [forall j : 'I_a.+1, forall v : 'I_k,
+         (val v == val j) ==> ((m v \in x) == (cell_bit b y j != 0))] &
+      [forall v : 'I_k, forall u : 'I_k,
+         [&& (a < v)%N, ~~ odd (v - a.+1)%N & val u == (val v).+1] ==>
+           ((m v \in x) == (m u \in x))]].
+
+End cell_frame.
+
+(* The size of the local points is odd exactly when the charge is 1. *)
+Lemma cell_weight_odd k (b : 'F_2) : odd (cell_weight k b) = (b != 0).
+Proof.
+rewrite /cell_weight; case: eqP => [-> //|].
+by rewrite /=; case: (odd _); case: (b != 0).
+Qed.
+
+(* The size of the local points is k/2 or k/2 + 1. *)
+Lemma cell_weight_bounds k (b : 'F_2) :
+  (k %/ 2 <= cell_weight k b <= (k %/ 2).+1)%N.
+Proof. by rewrite /cell_weight; case: ifP => _; rewrite leqnn ?leqnSn. Qed.
+
+(* The graph H on the cells 'I_(l + l): 100 permutations sigma j of 'I_l;
+   the edge (j, u) joins the cells lshift l u and rshift l (sigma j u), at
+   position j at both ends. The charges are a row b of 'F_2 on the cells;
+   the free bits of all the cells are a matrix y with a row of 99 bits per
+   cell. t is written (l + l)%N: under the ring scope a bare l + l is the
+   addition of the ring nat, which the lemmas on nat do not rewrite. *)
+Section frame.
+Variables (R : realType) (l : nat) (sigma : 'I_100 -> {perm 'I_l}).
+Variable (b : 'rV['F_2]_(l + l)).
+Local Notation t := (l + l)%N.
+Local Notation cube := 'M['F_2]_(t, 99).
+
+(* The incidence bit of cell i at position j: the full bit j of cell i. *)
+Definition inc_bit (y : cube) (i : 'I_t) (j : 'I_100) : 'F_2 :=
+  cell_bit (b 0 i) (row i y) j.
+
+(* The number of edges of H whose two incidence bits differ. *)
+Definition disagreements (y : cube) : nat :=
+  #|[set e : 'I_100 * 'I_l |
+      inc_bit y (lshift l e.2) e.1 != inc_bit y (rshift l (sigma e.1 e.2)) e.1]|.
+
+(* f_eps(y) = (the number of disagreeing edges) - eps. *)
+Definition f_eps (eps : R) (y : cube) : R^o := (disagreements y)%:R - eps.
+
+End frame.
