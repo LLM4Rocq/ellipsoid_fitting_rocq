@@ -15,6 +15,8 @@ From GaussianApplications.PsdRank Require Import Model.
 (* 68-101), a Rocq formalization of the credited argument, with the encoding  *)
 (* of the PSD audit (reviews/phase13-psd-audit/realization.md). It uses the   *)
 (* frame of the cells of PsdRank/Model.v and nothing of the local averaging.  *)
+(* The file follows no Lean module: the Lean development of the collection    *)
+(* proves a weaker claim by another route.                                    *)
 (*                                                                            *)
 (* realization: let n and k be even with 2 d <= k for d = 100 (departure 2    *)
 (* of phase 14: the lemma states k even and 2d <= k, and the theorem file     *)
