@@ -848,6 +848,7 @@ applications/ProductSmoothingStatement.v
 applications/ProductSmoothingTheorem.v
 applications/PsdRankDefinitions.v
 applications/PsdRankStatement.v
+applications/PsdRank/Parity.v
 applications/PsdLiftDefinitions.v
 applications/PsdLiftStatement.v
 applications/SKGap/Ising.v
