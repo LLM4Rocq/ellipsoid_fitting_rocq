@@ -5,7 +5,7 @@ From mathcomp Require Import matrix sesquilinear reals exp.
 From GaussianAnalysis.fourier Require Import boolean_fourier product_smoothing.
 From GaussianAnalysis.matrix Require Import euclidean.
 From GaussianAnalysis.matrix Require Import real_spectral psd_part multiplicity.
-From GaussianApplications Require Import PsdRank.Model.
+From GaussianApplications Require Import PsdRank.Model PsdRank.CellBounds.
 
 (**md**************************************************************************)
 (* # PSD rank of shifted matching matrices: averaging within a cell           *)
@@ -30,15 +30,15 @@ From GaussianApplications Require Import PsdRank.Model.
 (*   support of the identity layout, which every support has.                 *)
 (*                                                                            *)
 (* Main results:                                                              *)
-(* - local_averaging: under cell_estimates R (below), for a odd there are k0  *)
-(*   = 13 (a + 1) and theta : nat -> R, theta >= 0 with theta k -> 0 along    *)
-(*   the even k (in epsilon form), such that for every even k with 6 <= k, 2  *)
-(*   (a + 1) <= k and k0 <= k and both charges b, cell_hyps a k b (theta k)   *)
-(*   holds: the three laws are probability vectors, the channels average to   *)
-(*   cell_mu under cell_nu, and E_m (E_(pi^m) g - E_mu g)^2 <= theta k E_mu   *)
-(*   g^2 for every real g; and 0 < cell_pi R b m y x implies cell_support b m *)
-(*   y x. One may take theta k = sqrt (8 sqrt (cell_cmass d) (1 + ln (h + 1)) *)
-(*   / sqrt (h + 1)), h = (k - d) / 2, that is O_d (k^(-1/4) sqrt (log k)) as *)
+(* - local_averaging: for a odd there are k0 = 13 (a + 1) and                 *)
+(*   theta : nat -> R, theta >= 0 with theta k -> 0 along the even k (in      *)
+(*   epsilon form), such that for every even k with 6 <= k, 2 (a + 1) <= k    *)
+(*   and k0 <= k and both charges b, cell_hyps a k b (theta k) holds: the     *)
+(*   three laws are probability vectors, the channels average to cell_mu      *)
+(*   under cell_nu, and E_m (E_(pi^m) g - E_mu g)^2 <= theta k E_mu g^2 for   *)
+(*   every real g; and 0 < cell_pi R b m y x implies cell_support b m y x.    *)
+(*   One may take theta k = sqrt (8 sqrt (cell_cmass d) (1 + ln (h + 1)) /    *)
+(*   sqrt (h + 1)), h = (k - d) / 2, that is O_d (k^(-1/4) sqrt (log k)) as   *)
 (*   in the manuscript.                                                       *)
 (* - cell_pi_gt0: for 2 (a + 1) <= k, 0 < cell_pi R b m y x exactly when      *)
 (*   cell_support b m y x.                                                    *)
@@ -47,13 +47,10 @@ From GaussianApplications Require Import PsdRank.Model.
 (*   1-terminals), cell_support_perm (the support of m is the image under m   *)
 (*   of the support of the identity layout).                                  *)
 (*                                                                            *)
-(* The arithmetic estimates of the trace (the sum of the trace formula below  *)
-(* is at most 8 (1 + ln (h + 1)); C(2n, w)^2 <= 16^(n - h) 4 16^(T + 1) (h +  *)
-(* 1) C(h, g)^4 near the center; C (1 + ln n) / sqrt n tends to 0) are proved *)
-(* in a separate file of lane B, item A2b. Until that file is merged,         *)
-(* cell_estimates R states the three with their texts, and trace_bound,       *)
-(* ratio_bound and local_averaging take it as a hypothesis; the merge proves  *)
-(* it and removes the hypothesis.                                             *)
+(* The arithmetic estimates of the trace are central_ratio, pair_sum_bound    *)
+(* and root_ln_lim of CellBounds.v (item A2b): C(2n, w)^2 <= 16^(n - h) 4     *)
+(* 16^(T + 1) (h + 1) C(h, g)^4 near the center; the sum of the trace formula *)
+(* below is at most 8 (1 + ln (h + 1)); C (1 + ln n) / sqrt n tends to 0.     *)
 (*                                                                            *)
 (* The proof. The support of the identity layout is the image of the          *)
 (* g-subsets of the h internal pairs (xG), so it has C(h, g) points, and g <= *)
@@ -85,9 +82,10 @@ From GaussianApplications Require Import PsdRank.Model.
 (* bound is the scalar one with E_mu g^2 on the right, the form that          *)
 (* smoothing_hyps of product_smoothing.v takes; the matrix form of the        *)
 (* manuscript is not needed. The class constancy, implicit in the TeX         *)
-(* (trace.md, point 4), is proved. The sum of the trace formula is bounded    *)
-(* through a_j b_j <= (a_j^2 + b_j^2) / 2, not through the product of the two *)
-(* square-root bounds. The constants stay symbolic: no numeral is evaluated.  *)
+(* (trace.md, point 4), is proved. The sum of the trace formula is bounded,   *)
+(* in CellBounds.v, through a_j b_j <= (a_j^2 + b_j^2) / 2, not through the   *)
+(* product of the two square-root bounds. The constants stay symbolic: no     *)
+(* numeral is evaluated.                                                      *)
 (*                                                                            *)
 (* ```                                                                        *)
 (*         cell_mu R b == the uniform law of the w(b)-subsets of 'I_k         *)
@@ -96,7 +94,6 @@ From GaussianApplications Require Import PsdRank.Model.
 (*  cell_pi R b m y x == the uniform law on the support of cell_support       *)
 (* cell_hyps a k b th == the five conditions of smoothing_hyps for one cell   *)
 (*      cell_theta a k == the contraction constant at k                       *)
-(*    cell_estimates R == the three estimates of item A2b                     *)
 (* ```                                                                        *)
 (******************************************************************************)
 
@@ -1148,21 +1145,6 @@ Qed.
 
 End trace.
 
-(* The three arithmetic estimates of item A2b (lane B), with their statement
-   texts, as one hypothesis until that file is merged. *)
-Definition cell_estimates (R : realType) : Prop :=
-  [/\ forall g h s w k : nat, (g <= h)%N -> (s + g.*2 = w)%N ->
-        ((h - g).*2 <= k - w)%N ->
-        \sum_(i < g.+1) ('C(g, i) * 'C(h - g, g - i))%:R ^+ 2 /
-          ('C(w, s + i.*2) * 'C(k - w, w - (s + i.*2)))%:R
-        <= 8%:R * (1 + ln (h.+1%:R : R)),
-      forall n w h g T : nat, (h <= n)%N -> (6 * T <= h)%N ->
-        (h <= 2 * (g + T))%N -> (2 * g <= h + 2 * T)%N ->
-        ('C(2 * n, w) ^ 2 <=
-           16 ^ (n - h) * 4 * 16 ^ T.+1 * h.+1 * 'C(h, g) ^ 4)%N &
-      forall C e : R, 0 < e -> exists n1 : nat, forall n : nat,
-        (n1 <= n)%N -> C * (1 + ln (n%:R : R)) / Num.sqrt (n%:R) <= e].
-
 (* The bound on the trace of K^2, for h >= 6 d. *)
 Section trace_bound.
 Variables (R : realType) (a k : nat) (b : 'F_2) (y : 'rV['F_2]_a).
@@ -1170,7 +1152,6 @@ Hypotheses (ao : odd a) (ke : ~~ odd k) (h2d : ((a.+1).*2 <= k)%N).
 Local Notation d := a.+1.
 Local Notation h := ((k - a.+1)./2).
 Hypothesis h6 : (6 * d <= h)%N.
-Hypothesis CE : cell_estimates R.
 Local Notation w := (cell_weight k b).
 Local Notation K := (@kmx R a k b y).
 
@@ -1208,8 +1189,7 @@ have hA : ((h - g).*2 <= k - w)%N.
   by rewrite -(subnDl s) leq_sub2r // leq_add2r.
 rewrite (trace_pairs R b y ao ke h2d) (cell_count_eq b y ao ke h2d).
 rewrite card_ksubset.
-have [psb cr _] := CE.
-have hs := psb _ _ _ _ _ gh gd hA.
+have hs := pair_sum_bound R gh gd hA.
 apply: ler_pM.
 - by rewrite divr_ge0 ?ler0n ?exprn_ge0.
 - by apply: sumr_ge0 => i _; rewrite divr_ge0 ?ler0n ?exprn_ge0.
@@ -1218,7 +1198,7 @@ apply: ler_pM.
     ?exprn_ge0 //.
   rewrite sqr_sqrtr ?mulr_ge0 ?ler0n // expr_div_n -exprM.
   rewrite ler_pdivrMr ?exprn_gt0 ?ltr0n // -!natrX -!natrM ler_nat.
-  have cr' := cr _ w _ _ _ hn h6 hB hC.
+  have cr' := central_ratio w hn h6 hB hC.
   by rewrite -kK kn addKn in cr'; rewrite /cell_cmass.
 - exact: hs.
 Qed.
@@ -1287,7 +1267,7 @@ Definition cell_theta (a k : nat) : R :=
     (1 + ln (((k - a.+1)./2).+1%:R : R)) /
     Num.sqrt ((k - a.+1)./2).+1%:R).
 
-Theorem local_averaging (a : nat) : cell_estimates R -> odd a ->
+Theorem local_averaging (a : nat) : odd a ->
   exists (k0 : nat) (theta : nat -> R),
   [/\ forall k, 0 <= theta k,
       forall e : R, 0 < e -> exists k1, forall k, ~~ odd k -> (k1 <= k)%N ->
@@ -1297,7 +1277,7 @@ Theorem local_averaging (a : nat) : cell_estimates R -> odd a ->
         (forall (m : {perm 'I_k}) (y : 'rV['F_2]_a) (x : {set 'I_k}),
            0 < cell_pi R b m y x -> cell_support b m y x)].
 Proof.
-move=> CE ao.
+move=> ao.
 pose C : R := 8%:R * Num.sqrt (cell_cmass a.+1)%:R.
 have C0 : 0 <= C by rewrite mulr_ge0 ?ler0n ?sqrtr_ge0.
 have B0 (k : nat) : 0 <= C * (1 + ln (((k - a.+1)./2).+1%:R : R)) /
@@ -1306,8 +1286,7 @@ have B0 (k : nat) : 0 <= C * (1 + ln (((k - a.+1)./2).+1%:R : R)) /
 exists (13 * a.+1)%N, (cell_theta a); split.
 - by move=> k; exact: sqrtr_ge0.
 - move=> e e0.
-  have [_ _ rll] := CE.
-  have [n1 hn1] := rll C _ (exprn_gt0 2 e0).
+  have [n1 hn1] := root_ln_lim C (exprn_gt0 2 e0).
   exists (2 * n1 + a.+1)%N => k _ kk.
   have e2 : 0 <= e ^+ 2 by rewrite exprn_ge0 // ltW.
   rewrite /cell_theta -/C -(gtr0_norm e0) -sqrtr_sqr (ler_sqrt _ e2).
@@ -1328,7 +1307,7 @@ split.
 - by move=> m y; exact: cell_pi_prob ao ke h2d m.
 - by move=> y x; exact: cell_marginal ao ke h2d x.
 move=> y g.
-have rb := @ratio_bound R a k b y ao ke h2d h6 CE.
+have rb := @ratio_bound R a k b y ao ke h2d h6.
 exact: (@cell_variance R a k b y ao ke h2d k6 _ g (B0 k) rb).
 Qed.
 

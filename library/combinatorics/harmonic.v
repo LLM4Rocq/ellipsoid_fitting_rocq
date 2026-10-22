@@ -6,14 +6,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum reals exp.
 (* The n-th harmonic number H_n = sum_(i < n) 1 / (i + 1) is at most 1 + ln n *)
 (* for every n >= 1, over any realType.                                       *)
 (*                                                                            *)
-(* The general statement of this file is a compiled Prop definition, for      *)
-(* review with batch 1 of phase 14 (AGENTS.md, section Phase 14, step 0,      *)
-(* items 5 and 6). It is proved, in the second part of the file, by the lemma *)
-(* harmonic_ln with the same text and the same parameters; the statement      *)
-(* definition stays until the user accepts it.                                *)
-(*                                                                            *)
-(* - harmonic_ln_statement R: for every n > 0, sum_(i < n) 1 / (i + 1) <= 1 + *)
-(*   ln n in R. The proof applies ln (1 + x) <= x (le_ln1Dx of exp.v) at x =  *)
+(* - harmonic_ln: for every n > 0, sum_(i < n) 1 / (i + 1) <= 1 + ln n in R.  *)
+(*   The proof applies ln (1 + x) <= x (le_ln1Dx of exp.v) at x =             *)
 (*   -1 / (i + 1), which gives 1 / (i + 1) <= ln (i + 1) - ln i for i >= 1,   *)
 (*   and telescopes.                                                          *)
 (*                                                                            *)
@@ -33,10 +27,6 @@ Unset Printing Implicit Defensive.
 
 Import GRing.Theory Num.Theory.
 Local Open Scope ring_scope.
-
-Definition harmonic_ln_statement (R : realType) : Prop :=
-  forall n : nat, (0 < n)%N ->
-  \sum_(i < n) (i.+1%:R)^-1 <= 1 + ln (n%:R : R).
 
 Section harmonic.
 Variable R : realType.
