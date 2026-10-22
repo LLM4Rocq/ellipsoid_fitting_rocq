@@ -56,6 +56,15 @@ From GaussianApplications Require Import PsdLiftDefinitions.
 (*   position j, the incidence bit, the number of edges whose two incidence   *)
 (*   bits differ, and f_eps(y) = disagreements - eps.                         *)
 (*                                                                            *)
+(* Matchings from pairings (phase 14, item A1):                               *)
+(* - pairing p: p is a fixed-point-free involution of 'I_n; pairing_edges p:  *)
+(*   the edges {v, p v}; pairing_perfect: they form a perfect matching,       *)
+(*   pairing_matching; pairing_crossing: it crosses an odd set U once for     *)
+(*   each v of U with p v outside U.                                          *)
+(* - std_partner, std_pairing, std_matching: for even n, the pairs            *)
+(*   {2q, 2q + 1} give a perfect matching.                                    *)
+(* - cards2I: #|{x, y} cap A| = [x in A] + [y in A] for x != y.               *)
+(*                                                                            *)
 (* The finite type kn_edges n of the edges of K_n is in                       *)
 (* PsdLiftDefinitions.v (phase 14), whose statement uses it.                  *)
 (******************************************************************************)
@@ -328,3 +337,110 @@ Definition disagreements (y : cube) : nat :=
 Definition f_eps (eps : R) (y : cube) : R^o := (disagreements y)%:R - eps.
 
 End frame.
+
+(* Matchings from pairings (item A1 of phase 14). A pairing of 'I_n is a
+   fixed-point-free involution p; its edges {v, p v} form a perfect matching,
+   and the matching crosses an odd set U once for each v of U whose partner
+   lies outside U. For even n, the pairs {2q, 2q + 1} give one. The Lean
+   development of the collection has the same conversion:
+   Lean: fromPairing (MatchingConversion.lean, line 39)
+   Lean: crossingCount_fromPairing (MatchingConversion.lean, line 89) *)
+
+(* The points of A among two distinct points. *)
+Lemma cards2I (T : finType) (x y : T) (A : {set T}) :
+  x != y -> #|[set x; y] :&: A| = ((x \in A) + (y \in A))%N.
+Proof.
+move=> xy; rewrite (cardsD1 x) (cardsD1 y (_ :\ x)).
+have -> : [set x; y] :&: A :\ x :\ y = set0.
+  by apply/setP => z; rewrite !inE; case: (z =P y); case: (z =P x).
+by rewrite cards0 addn0 !inE eqxx /= (eq_sym y x) (negbTE xy) /= eqxx.
+Qed.
+
+Section pairings.
+Variable n : nat.
+
+(* p is a fixed-point-free involution of 'I_n. *)
+Definition pairing (p : 'I_n -> 'I_n) : bool :=
+  [forall v, (p (p v) == v) && (p v != v)].
+
+(* The edges {v, p v}. *)
+Definition pairing_edges (p : 'I_n -> 'I_n) : {set {set 'I_n}} :=
+  [set [set v; p v] | v : 'I_n].
+
+Variable p : 'I_n -> 'I_n.
+Hypothesis hp : pairing p.
+
+Let pK v : p (p v) = v.
+Proof. by have /forallP/(_ v)/andP[/eqP] := hp. Qed.
+
+Let pN v : p v != v.
+Proof. by have /forallP/(_ v)/andP[] := hp. Qed.
+
+(* The edge of v is the edge of its partner. *)
+Let edge_sym v : [set p v; p (p v)] = [set v; p v].
+Proof. by rewrite pK setUC. Qed.
+
+(* An edge of the pairing that contains u is the edge of u. *)
+Let edge_of u v : u \in [set v; p v] -> [set v; p v] = [set u; p u].
+Proof.
+by rewrite !inE => /orP[] /eqP ->; rewrite // -[in RHS](pK v) edge_sym.
+Qed.
+
+Lemma pairing_perfect : is_perfect_matching (pairing_edges p).
+Proof.
+apply/andP; split.
+  apply/forallP => e; apply/implyP => /imsetP[v _ ->]; rewrite /kn_edge cards2.
+  by have := pN v; rewrite eq_sym => ->.
+apply/forallP => u; apply/cards1P; exists [set u; p u].
+apply/setP => e; rewrite !inE; apply/andP/eqP => [[/imsetP[v _ ->] /edge_of //]|->].
+by split; [apply/imsetP; exists u | rewrite !inE eqxx].
+Qed.
+
+Definition pairing_matching : perfect_matching n :=
+  Sub (pairing_edges p) pairing_perfect.
+
+(* The crossing number: the vertices of U whose partner lies outside U. *)
+Lemma pairing_crossing (U : odd_set n) :
+  crossing U pairing_matching = #|[set v in val U | p v \notin val U]|.
+Proof.
+rewrite /crossing /=; set D := [set v in val U | p v \notin val U].
+have vNp v : v != p v by have := pN v; rewrite eq_sym.
+have -> : pairing_edges p :&: edge_cut (val U) = (fun v => [set v; p v]) @: D.
+  apply/setP => e; rewrite !inE; apply/andP/imsetP => [[/imsetP[v _ ->]]|[v]].
+    rewrite cards2I ?vNp // => /andP[_].
+    case vU: (v \in val U); case pU: (p v \in val U) => //= _.
+      by exists v; rewrite // inE vU pU.
+    by exists (p v); rewrite ?edge_sym // inE pU pK vU.
+  rewrite inE => /andP[vU pU] ->; split; first by apply/imsetP; exists v.
+  by rewrite /kn_edge cards2 vNp cards2I ?vNp // vU (negbTE pU).
+rewrite card_in_imset // => v w; rewrite !inE => /andP[vU pvU] /andP[wU pwU] e.
+have : v \in [set w; p w] by rewrite -e !inE eqxx.
+by rewrite !inE => /orP[/eqP //|/eqP vp]; move: pwU; rewrite -vp vU.
+Qed.
+
+End pairings.
+
+(* For even n, the partners of the pairs {2q, 2q + 1}. *)
+Definition std_partner (n : nat) (v : 'I_n) : 'I_n :=
+  insubd v (if odd v then (val v).-1 else (val v).+1).
+
+Lemma std_pairing n : ~~ odd n -> pairing (@std_partner n).
+Proof.
+move=> en; pose f m := if odd m then m.-1 else m.+1.
+have ff m : f (f m) = m.
+  by rewrite /f; case: m => [|m] //=; case om: (odd m) => /=; rewrite ?om.
+have fN m : f m != m.
+  by rewrite /f; case: m => [|m] //=; case: (odd m) => /=; rewrite ?neq_ltn ?ltnSn ?orbT.
+have flt (v : 'I_n) : (f v < n)%N.
+  rewrite /f; case: ifP => ov; first exact: leq_ltn_trans (leq_pred _) (ltn_ord v).
+  rewrite ltn_neqAle ltn_ord andbT; apply/eqP => vn.
+  by move: en; rewrite -vn /= ov.
+have vs (v : 'I_n) : val (std_partner v) = f v.
+  by rewrite /std_partner val_insubd flt.
+apply/forallP => v; apply/andP; split; first by apply/eqP/val_inj; rewrite !vs ff.
+by rewrite -val_eqE vs fN.
+Qed.
+
+(* For even n there is a perfect matching. *)
+Definition std_matching (n : nat) (en : ~~ odd n) : perfect_matching n :=
+  pairing_matching (std_pairing en).
