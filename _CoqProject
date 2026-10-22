@@ -852,6 +852,7 @@ applications/PsdLiftDefinitions.v
 applications/PsdLiftStatement.v
 applications/PsdRank/Realization.v
 applications/PsdRankTheorem.v
+applications/PsdRank/Lift.v
 applications/SKGap/Ising.v
 applications/SKGap/Disorder.v
 applications/SKGap/Spectral.v
