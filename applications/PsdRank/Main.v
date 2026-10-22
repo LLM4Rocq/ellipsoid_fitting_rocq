@@ -403,7 +403,7 @@ Qed.
    T10 and smoothed by T11, contradicts the realization of the cells by
    matchings and the parity functional. *)
 Lemma final_step (n D r : nat)
-    (rho lambda theta : R) (X M : finType) (mu : 'I_t -> X -> R)
+    (rho lambda theta : R) (X M : Finite.type) (mu : 'I_t -> X -> R)
     (nu : 'I_t -> M -> R) (pi : 'I_t -> M -> 'rV['F_2]_a -> X -> R)
     (U : t.-tuple X -> odd_set n) (Mm : t.-tuple M -> perfect_matching n)
     (fy : cube -> R^o) :
@@ -488,7 +488,7 @@ Qed.
    of parity.tex for the function f they realize. *)
 Definition cell_data (R : realType) (a : nat) (theta : R) (n t D : nat)
     (rho : R) : Prop :=
-  exists (X M : finType) (mu : 'I_t -> X -> R) (nu : 'I_t -> M -> R)
+  exists (X M : Finite.type) (mu : 'I_t -> X -> R) (nu : 'I_t -> M -> R)
          (pi : 'I_t -> M -> 'rV['F_2]_a -> X -> R)
          (U : t.-tuple X -> odd_set n) (Mm : t.-tuple M -> perfect_matching n)
          (fy : 'M['F_2]_(t, a) -> R^o),
