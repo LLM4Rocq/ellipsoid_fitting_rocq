@@ -113,6 +113,7 @@ library/analysis/min_superadditive.v
 library/combinatorics/binomial_bounds.v
 library/combinatorics/harmonic.v
 library/matrix/multiplicity.v
+library/combinatorics/expander.v
 
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
