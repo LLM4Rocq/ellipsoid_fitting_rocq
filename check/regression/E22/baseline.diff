@@ -1,0 +1,22 @@
+diff --git a/Makefile b/Makefile
+index a6eadad..33cb4c7 100644
+--- a/Makefile
++++ b/Makefile
+@@ -112,3 +112,5 @@ citations: Makefile.rocq
+ clean:
+ 	if [ -f Makefile.rocq ]; then $(EXEC) $(MAKE) -f Makefile.rocq clean; fi
+ 	rm -rf build Makefile.rocq Makefile.rocq.conf
++
++.IGNORE:
+diff --git a/check/Phase13Definitions.v b/check/Phase13Definitions.v
+index 6b8ce0a..433bb79 100644
+--- a/check/Phase13Definitions.v
++++ b/check/Phase13Definitions.v
+@@ -72,6 +72,7 @@ Proof. by []. Qed.
+ 
+ Print Assumptions meet_avg_characterization.
+ 
++(* " *)
+ (* Freeze 2, the definitions that T11 and packet P (batch 2) unfold to:
+    - bdot, bchar, blk_deg, blk_dist, fcoef and low_blk_deg
+      (fourier/boolean_fourier.v): the F_2 pairing, the character

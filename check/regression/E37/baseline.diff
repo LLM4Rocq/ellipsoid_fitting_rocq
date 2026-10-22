@@ -1,0 +1,21 @@
+diff --git a/library/fourier/e33.elpi b/library/fourier/e33.elpi
+new file mode 100644
+index 0000000..80203e9
+--- /dev/null
++++ b/library/fourier/e33.elpi
+@@ -0,0 +1 @@
++main _ :- system "touch build/e33-elpi-ran" _.
+diff --git a/library/fourier/inversion.v b/library/fourier/inversion.v
+index 5088299..8963628 100644
+--- a/library/fourier/inversion.v
++++ b/library/fourier/inversion.v
+@@ -1048,3 +1048,9 @@ by rewrite ler_pdivrMr// mul1r lerDl ler01.
+ Qed.
+ 
+ End cf_rV_inversion.
++
++From elpi Require Import elpi.
++From GaussianAnalysis Extra Dependency "fourier/e33.elpi" as e33.
++Elpi Command e33.
++Elpi Accumulate File e33.
++Elpi e33.

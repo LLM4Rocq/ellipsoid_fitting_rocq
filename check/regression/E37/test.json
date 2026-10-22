@@ -1,0 +1,13 @@
+{
+ "title": "an Elpi program in a file named by Extra Dependency runs a shell command while Rocq compiles a library module",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "library/fourier/inversion\\.v: (Elpi|From GaussianAnalysis Extra Dependency)",
+  "step": "checker"
+ },
+ "marker": "e33-elpi-ran"
+}

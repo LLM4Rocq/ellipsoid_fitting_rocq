@@ -1,0 +1,3 @@
+version = "0.1-prototype"
+requires = "rocq-runtime.vernac"
+plugin(native) = "kernel_identity.cmxs"

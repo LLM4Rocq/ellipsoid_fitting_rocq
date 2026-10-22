@@ -1,0 +1,49 @@
+(* The statement snapshot SnapshotPhase9 (scripts/check_sources.py, rule 30):
+   the declarations accepted at 1c05ffcbebc8, printed in full. Written
+   by scripts/snapshot_baselines.py; its reference, the output at that
+   commit, is check/snapshots/SnapshotPhase9.txt. *)
+
+Require EllipsoidUniversality.RobustDefinitions.
+Require EllipsoidUniversality.RobustStatement.
+Require EllipsoidUniversality.LatentTensorization.
+Require EllipsoidUniversality.ContinuousLatent.
+Require EllipsoidUniversality.ConditionEndpoints.
+
+Set Printing All.
+Set Printing Universes.
+Set Printing Depth 1000000.
+Set Printing Width 78.
+
+Print Module EllipsoidUniversality.RobustDefinitions.
+Print EllipsoidUniversality.RobustDefinitions.robust_point_law.
+Print EllipsoidUniversality.RobustDefinitions.finite_weights.
+Print EllipsoidUniversality.RobustDefinitions.robust_tv.
+Print EllipsoidUniversality.RobustDefinitions.robust_points.
+Print EllipsoidUniversality.RobustDefinitions.robust_sample_law.
+Print EllipsoidUniversality.RobustDefinitions.robust_close.
+Print EllipsoidUniversality.RobustDefinitions.contaminated_weights.
+Print EllipsoidUniversality.RobustDefinitions.contaminated_laws.
+Print Module EllipsoidUniversality.RobustStatement.
+Print EllipsoidUniversality.RobustStatement.robust_statement.
+Print EllipsoidUniversality.RobustStatement.robust_interpolation_statement.
+Print EllipsoidUniversality.RobustStatement.contamination_statement.
+Print EllipsoidUniversality.RobustStatement.robust_theorem_statement.
+Print Module EllipsoidUniversality.LatentTensorization.
+Print EllipsoidUniversality.LatentTensorization.latent_replace.
+Print EllipsoidUniversality.LatentTensorization.latent_cond_expectation.
+Print EllipsoidUniversality.LatentTensorization.latent_cond_variance.
+Print EllipsoidUniversality.LatentTensorization.latent_variance.
+Print EllipsoidUniversality.LatentTensorization.latent_tensorization.
+Print EllipsoidUniversality.LatentTensorization.latent_tensorization_statement.
+Print Module EllipsoidUniversality.ContinuousLatent.
+Print EllipsoidUniversality.ContinuousLatent.cl_value.
+Print EllipsoidUniversality.ContinuousLatent.cl_weight.
+Print EllipsoidUniversality.ContinuousLatent.cl_moment.
+Print EllipsoidUniversality.ContinuousLatent.cl_point_law.
+Print EllipsoidUniversality.ContinuousLatent.continuous_latent_statement.
+Print Module EllipsoidUniversality.ConditionEndpoints.
+Print EllipsoidUniversality.ConditionEndpoints.condition_alpha_near_one.
+Print EllipsoidUniversality.ConditionEndpoints.condition_alpha_near_infinity.
+Print EllipsoidUniversality.ConditionEndpoints.condition_star_near_zero.
+Print EllipsoidUniversality.ConditionEndpoints.condition_star_near_quarter.
+Print EllipsoidUniversality.ConditionEndpoints.condition_endpoints_statement.

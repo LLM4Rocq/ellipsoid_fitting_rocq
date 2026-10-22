@@ -1,0 +1,11 @@
+{
+ "title": "a definition of the theorem module shadows the statement in the historical check of T7",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "check/TheoremIdentities.v: rocq exited"
+ }
+}

@@ -1,0 +1,15 @@
+{
+ "title": "an Elpi quotation hides an Axiom from a lexer that ignores keywords",
+ "step": "make",
+ "baseline": {
+  "expect": "pass",
+  "step": "checker"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "a quotation \\(:\\{\\{, or lp: before",
+  "step": "checker"
+ },
+ "validation_level": "checker-only",
+ "validation_note": "This committed exploit text need not compile; baseline pass demonstrates the old source checker accepting it, not a kernel-accepted false theorem."
+}

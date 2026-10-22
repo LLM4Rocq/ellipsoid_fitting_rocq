@@ -1,0 +1,11 @@
+{
+ "title": "a Require of a dotted module name hides Reals from rule 3",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "requires Stdlib's"
+ }
+}

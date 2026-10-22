@@ -1,0 +1,29 @@
+{
+  "id": "E33",
+  "finding": "rocq dep and Rocq compilation may read comments differently, which can omit or add a dependency edge.",
+  "classification": "Dependency-consistency mechanism test, not an old successful false-proof bypass.",
+  "old_baseline_claim": "The reported stale dependency causes an inconsistent-assumptions failure. No successful false proof on 0ec5fcd is claimed by this coverage record.",
+  "mechanisms": [
+    "Rocq records dependency digests in .vo files and refuses a dependent module when the loaded dependency differs.",
+    "The release requires a fresh full rebuild, independently of this isolated test."
+  ],
+  "dedicated_test": {
+    "script": "scripts/test_dependency_consistency.py",
+    "command": "opam exec --switch=rocq-analysis -- python3 -I -B scripts/test_dependency_consistency.py",
+    "toolchain": "rocq and rocqchk 9.1.1, checked by the script",
+    "fixtures": "Fresh A.v, B.v requiring A, and a loading probe under build/dependency-tests/run-*; definitions and reflexivity only.",
+    "checks": [
+      "Compile A and B, then load B and check it with rocqchk successfully.",
+      "Change A.value from 0 to 1 and compile only A; verify A.vo changed and B.vo did not.",
+      "Loading stale B and checking stale B must each fail with the specific inconsistent-assumptions diagnostic.",
+      "Rebuild B, verify B.vo changes, then repeat loading and kernel checking successfully."
+    ],
+    "evidence": "Each run writes result.json, exact commands, object hashes and separate stdout/stderr logs beneath its fresh scratch directory.",
+    "measured_result": "All 10 checked steps passed locally on Rocq 9.1.1."
+  },
+  "limits": [
+    "This test exercises the safety mechanism after a missed rebuild; it does not reproduce the distinct rocq dep comment-parser discrepancy.",
+    "It does not replace the clean project rebuild, source scans, snapshot checks or report checks.",
+    "No project module, Elpi program, unsafe Rocq feature or full project build is executed by this test."
+  ]
+}

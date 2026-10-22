@@ -1,0 +1,13 @@
+diff --git a/applications/PsdNormalizationStatement.v b/applications/PsdNormalizationStatement.v
+index cc25ec7..a090992 100644
+--- a/applications/PsdNormalizationStatement.v
++++ b/applications/PsdNormalizationStatement.v
+@@ -60,7 +60,7 @@ Definition psd_normalization_statement : Prop :=
+   (forall i, psdmx (F i)) -> (forall j, psdmx (G j)) ->
+   (forall i j, \tr (F i *m G j) <= m) ->
+   exists (F' : I -> 'M[R]_r) (G' : J -> 'M[R]_r),
+-    [/\ forall i, psdmx (F' i), forall j, psdmx (G' j),
++    [/\ forall i, psdmx  (F' i), forall j, psdmx (G' j),
+         forall i j, \tr (F' i *m G' j) = \tr (F i *m G j),
+         forall i, \tr (F' i) <= m &
+         forall j, \tr (G' j) <= r%:R].

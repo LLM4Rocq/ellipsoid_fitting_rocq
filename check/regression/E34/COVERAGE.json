@@ -1,0 +1,19 @@
+{
+  "id": "E34",
+  "finding": "An Elpi command can read its own source text, so removing comments can identify texts whose execution defines different constants.",
+  "classification": "Covered by prohibition of the execution mechanism; no Elpi source-reading payload is executed here.",
+  "mechanism": "Before compilation, scripts/check_sources.py forbids every command whose normalized head is Elpi. It also rejects all Rocq control prefixes, so a prefix cannot hide that command. Extra Dependency is independently prohibited.",
+  "covered_by": [
+    {
+      "test": "scripts/test_command_heads.py",
+      "case": "test_forbidden_class_cross_product",
+      "coverage": "Elpi Command is crossed with every supported control-prefix form, including named Profile; both the control and the inner Elpi head must be reported."
+    },
+    {
+      "test": "check/regression/E37/test.json",
+      "coverage": "Existing before-build regression for an Elpi program supplied through Extra Dependency; rejects Elpi/Extra Dependency before the marker-producing program executes."
+    }
+  ],
+  "why_no_own_source_payload": "The source-reading behavior is unavailable if the Elpi command cannot compile. The generic command-head ban covers all Elpi command arguments, including a program that reads its source; replaying that program adds no distinct protection test.",
+  "limits": "This is explicit coverage by tested mechanisms, not a claimed separate E34 end-to-end execution or a claim that comment stripping preserves arbitrary plugin side effects."
+}

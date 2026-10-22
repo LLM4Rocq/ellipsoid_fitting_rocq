@@ -1,0 +1,12 @@
+{
+ "title": "a second mapping in _CoqProject",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "_CoqProject:\\d+: invalid source path or option: '-Q build GaussianAnalysis\\.fourier'"
+ },
+ "repaired_message_note": "Since the source inventory of E41 (scripts/source_inventory.py), which runs before every other rule, the attack is refused there; the earlier message was '_CoqProject: its option lines differ from COQPROJECT_OPTIONS'."
+}

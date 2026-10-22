@@ -185,7 +185,7 @@ Hypothesis u_next : forall s, (N <= s)%N ->
 
 Local Notation E := (balance_const beta).
 
-Lemma blocks_arith (us Ac P B Q m mm : R) :
+Lemma min_superadditive_arith (us Ac P B Q m mm : R) :
   us - Ac - P * (1 - B) <= m -> mm <= P * (B - Q) ->
   us - Ac - P * (1 - Q) <= m - mm.
 Proof. by move=> h1 h2; lra. Qed.
@@ -275,7 +275,7 @@ have hp : a%:R `^ (- beta)
     by rewrite ler_pdivrMr ?ltr0n // -natrM ler_nat.
   have : (b * 3)%:R <= (q * 2)%:R :> R by rewrite ler_nat.
   by rewrite !natrM => h; rewrite ler_pdivlMr; lra.
-apply: blocks_arith hmin _.
+apply: min_superadditive_arith hmin _.
 have -> : A * E * s%:R `^ (- beta) * (b%:R `^ (- beta) - q%:R `^ (- beta))
     = A * (E * (b%:R `^ (- beta) - q%:R `^ (- beta)) * s%:R `^ (- beta)).
   by ring.

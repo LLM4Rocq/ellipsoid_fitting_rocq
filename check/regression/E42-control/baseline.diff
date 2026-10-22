@@ -1,0 +1,33 @@
+diff --git a/_CoqProject b/_CoqProject
+index 59cfa79..171eba3 100644
+--- a/_CoqProject
++++ b/_CoqProject
+@@ -35,6 +35,7 @@ library/matrix/trace_projection.v
+ library/matrix/tensor_packing.v
+ library/matrix/psd_factorization.v
+ library/matrix/psd_duality.v
++library/zz/other.v
+ library/probability/moments.v
+ library/probability/lindeberg.v
+ library/probability/subgaussian.v
+diff --git a/library/matrix/psd_duality.v b/library/matrix/psd_duality.v
+index ac29424..ec54897 100644
+--- a/library/matrix/psd_duality.v
++++ b/library/matrix/psd_duality.v
+@@ -8,6 +8,7 @@ From GaussianAnalysis.matrix Require Import psd_splitting psd_factorization.
+ From GaussianAnalysis.matrix Require Import nuclear condition_cone.
+ From GaussianAnalysis.gaussian Require Import measurable_matrix.
+ From GaussianAnalysis.convex Require Import logdet_barrier moreau.
++Require GaussianAnalysis.zz.other.
+ 
+ (**md**************************************************************************)
+ (* # Duality for the cone of positive semidefinite matrices                   *)
+diff --git a/library/zz/other.v b/library/zz/other.v
+new file mode 100644
+index 0000000..035d21f
+--- /dev/null
++++ b/library/zz/other.v
+@@ -0,0 +1,3 @@
++From mathcomp Require Import classical_sets topology.
++
++Definition closed {T : topologicalType} (D : set T) : Prop := True.

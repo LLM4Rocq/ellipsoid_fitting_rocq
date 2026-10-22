@@ -1,0 +1,11 @@
+diff --git a/library/fourier/inversion.v b/library/fourier/inversion.v
+index 5088299..e0b338a 100644
+--- a/library/fourier/inversion.v
++++ b/library/fourier/inversion.v
+@@ -1048,3 +1048,6 @@ by rewrite ler_pdivrMr// mul1r lerDl ler01.
+ Qed.
+ 
+ End cf_rV_inversion.
++
++Class E17d := { e17d_false : False }.
++Declare Instance e17d : E17d.

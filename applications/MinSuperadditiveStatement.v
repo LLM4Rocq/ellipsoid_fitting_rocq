@@ -47,7 +47,11 @@ From mathcomp Require Import topology normedtype sequences exp.
 (*   only; the manuscript assumes it throughout.                              *)
 (* - The manuscript's sequence starts at an index n_0 >= 1. Here u is defined *)
 (*   on all of nat and the hypotheses start at N, which may be 0; the error   *)
-(*   term at size 0 is 0, since powR gives 0^x = 0 for x != 0.                *)
+(*   term at size 0 is 0, since powR gives 0^x = 0 for x != 0. So for N = 0   *)
+(*   the neighbor step at size 0 requires u 1 >= u 0, which the manuscript    *)
+(*   never imposes. Nothing is lost by taking N >= 1: from N = 0 to N = 1 the *)
+(*   hypotheses get weaker, and the conclusion, which only concerns sizes s   *)
+(*   >= 2 with s >= N, does not change.                                       *)
 (******************************************************************************)
 
 Import GRing.Theory Num.Theory.

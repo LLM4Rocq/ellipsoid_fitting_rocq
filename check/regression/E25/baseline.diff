@@ -1,0 +1,15 @@
+diff --git a/applications/SatThresholdStatement.v b/applications/SatThresholdStatement.v
+index 9c52fd8..7014053 100644
+--- a/applications/SatThresholdStatement.v
++++ b/applications/SatThresholdStatement.v
+@@ -2,9 +2,7 @@ From HB Require Import structures.
+ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum reals.
+ From mathcomp Require Import archimedean topology normedtype sequences.
+ From GaussianApplications Require Import
+-  SatVarianceDefinitions SatThresholdDefinitions.
+-
+-(**md**************************************************************************)
++  SatVarianceDefinitions SatThresholdDefinitions.(**md**************************************************************************)
+ (* # The satisfiability threshold of random k-SAT: the statement              *)
+ (*                                                                            *)
+ (* Target T9 of phase 13 (AGENTS.md, section Phase 13; the plan               *)

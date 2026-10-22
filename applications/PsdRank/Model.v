@@ -27,8 +27,10 @@ From GaussianApplications Require Import PsdRankDefinitions PsdRankStatement.
 (* - card_kn_edges: K_n has 'C(n, 2) edges.                                   *)
 (* - shifted_matching_one_factorization: A_n(1) has a PSD factorization of    *)
 (*   size 'C(n, 2), by the diagonal matrices indexed by the edges with the    *)
-(*   entries 1_(e in delta(U)) for a row and 1_(e in M) for a column; so the  *)
-(*   exclusion of rho = 1 in psd_rank_statement is necessary.                 *)
+(*   entries 1_(e in delta(U)) for a row and 1_(e in M) for a column.         *)
+(* - psd_rank_closed_fails: hence psd_rank_statement with rho = 1 allowed     *)
+(*   fails at every real type, since 'C(n, 2)^K < 2^n for large even n; the   *)
+(*   exclusion of rho = 1 is necessary.                                       *)
 (* - psd_rank_statementE: psd_rank_statement with the factors written out,    *)
 (*   for the reviewer's comparison.                                           *)
 (*                                                                            *)
@@ -175,4 +177,64 @@ split=> h R; have [K [K0 hK]] := h R; exists K; split=> // rho rho01;
   have [n0 hn0] := hK rho rho01; exists n0 => n en n0n.
   by move=> r F G Fp Gp AE; apply: (hn0 n en n0n r); exists F, G.
 by move=> r [F [G [Fp Gp AE]]]; exact: (hn0 n en n0n r F G Fp Gp AE).
+Qed.
+
+(* There are 2^|T| sets of elements of a finite type T. *)
+Lemma card_set_type (T : finType) : #|{: {set T}}| = (2 ^ #|T|)%N.
+Proof. by have := card_powerset [set: T]; rewrite powersetT !cardsT. Qed.
+
+(* 'C(j, 2) <= 2^j: the sets of two elements of 'I_j are among its sets. *)
+Lemma bin2_le_exp j : ('C(j, 2) <= 2 ^ j)%N.
+Proof.
+have := card_draws 'I_j 2; rewrite card_ord => <-.
+by apply: leq_trans (max_card _) _; rewrite card_set_type card_ord.
+Qed.
+
+Lemma bin2_mul2 j : ('C(j, 2) * 2 = j * j.-1)%N.
+Proof. by have := bin_ffact j 2; rewrite ffactnS ffactn1. Qed.
+
+(* 2 K j < 2^j once j >= 4 K + 2. *)
+Lemma lin_lt_exp K j : (4 * K + 2 <= j)%N -> (j * 2 * K < 2 ^ j)%N.
+Proof.
+move=> hj; apply: leq_trans (bin2_le_exp j).
+rewrite -(ltn_pmul2r (isT : (0 < 2)%N)) bin2_mul2.
+have -> : (j * 2 * K * 2 = j * (4 * K))%N.
+  by rewrite -!mulnA; congr (_ * _)%N; rewrite mulnCA mulnC.
+have j0 : (0 < j)%N by apply: leq_trans hj; rewrite addn2.
+rewrite ltn_pmul2l //.
+by case: j hj j0 => // j'; rewrite addn2 ltnS.
+Qed.
+
+(* For every K > 0 and every m there is an even n >= m with
+   'C(n, 2)^K < 2^n. *)
+Lemma bin2_pow_lt_exp K m : (0 < K)%N ->
+  exists n, [/\ ~~ odd n, (m <= n)%N & ('C(n, 2) ^ K < 2 ^ n)%N].
+Proof.
+move=> K0; pose j := (m + (4 * K + 2))%N.
+exists (2 ^ j)%N; split.
+- by rewrite oddX /j addn2 !addnS.
+- apply: leq_trans (ltnW (ltn_expl j (ltnSn 1))); exact: leq_addr.
+- have bn : ('C(2 ^ j, 2) <= 2 ^ (j * 2))%N.
+    apply: leq_trans (_ : 2 ^ j * (2 ^ j).-1 <= _)%N.
+      by rewrite -bin2_mul2 leq_pmulr.
+    by rewrite expnM -mulnn leq_mul2l leq_pred orbT.
+  apply: leq_ltn_trans (_ : 2 ^ (j * 2 * K) < _)%N.
+    by rewrite expnM leq_exp2r.
+  by rewrite ltn_exp2l // lin_lt_exp // leq_addl.
+Qed.
+
+(* The statement with rho = 1 allowed fails at every real type: A_n(1) has
+   a factorization of size 'C(n, 2) for every n. *)
+Lemma psd_rank_closed_fails (R : realType) :
+  ~ (exists K : nat, (0 < K)%N /\
+     forall rho : R, 0 < rho <= 1 ->
+     exists n0 : nat, forall n : nat, ~~ odd n -> (n0 <= n)%N ->
+     forall r : nat, psd_factorization (@shifted_matching_mx n R rho) r ->
+     (2 ^ n <= r ^ K)%N).
+Proof.
+move=> [K [K0 h]].
+have [n0 hn0] := h 1 (andb_true_intro (conj ltr01 (lexx 1))).
+have [n [en nn0 lt]] := bin2_pow_lt_exp n0 K0.
+have := hn0 n en nn0 _ (shifted_matching_one_factorization n R).
+by rewrite leqNgt lt.
 Qed.

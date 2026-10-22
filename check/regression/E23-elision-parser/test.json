@@ -1,0 +1,22 @@
+{
+ "title": "snapshot elision reaches its parser check, with manifest digest refreshed",
+ "step": "checker",
+ "baseline": {
+  "expect": "skip",
+  "reason": "mechanism-level test of the new output protocol, not a claimed old bypass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "the output holds the elision token"
+ },
+ "validation_level": "parser-defense-in-depth",
+ "transform": {
+  "repaired": [
+   {
+    "output": "checks/SnapshotPhase13.out",
+    "operation": "append-elision",
+    "refresh_manifest": true
+   }
+  ]
+ }
+}

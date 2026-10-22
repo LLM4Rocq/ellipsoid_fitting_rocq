@@ -1,0 +1,13 @@
+{
+ "title": "a frozen file deleted: a traceback from the old checker, a failure line from the repaired one",
+ "step": "checker",
+ "baseline": {
+  "expect": "fail",
+  "message": "Traceback|FileNotFoundError|No such file"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "applications/MinSuperadditiveStatement\\.v: registered source is not a discovered ordinary file"
+ },
+ "repaired_message_note": "Since the source inventory of E41 (scripts/source_inventory.py), which runs before every other rule, the attack is refused there; the earlier message was 'applications/MinSuperadditiveStatement.v: missing'."
+}

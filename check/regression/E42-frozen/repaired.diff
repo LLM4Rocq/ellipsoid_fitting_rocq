@@ -1,0 +1,618 @@
+diff --git a/_CoqProject b/_CoqProject
+index 1f84eac..99b9a37 100644
+--- a/_CoqProject
++++ b/_CoqProject
+@@ -19,6 +19,7 @@ library/gaussian/parameter_integral.v
+ library/gaussian/gauss_interpolation.v
+ library/gaussian/lebesgue_rV.v
+ library/matrix/euclidean.v
++library/zz/euclidean.v
+ library/matrix/real_spectral.v
+ library/matrix/whitening.v
+ library/matrix/opnorm.v
+diff --git a/applications/PsdRank/Main.v b/applications/PsdRank/Main.v
+index 73cf698..be895d6 100644
+--- a/applications/PsdRank/Main.v
++++ b/applications/PsdRank/Main.v
+@@ -234,7 +234,7 @@ Lemma final_step_core (Rw r s D : nat) (n eps lambda : R)
+   (forall y, f y = \sum_q mxdot (H q y *m B^T) (H q y *m B^T)) ->
+   (forall y, f y <= n) ->
+   mxdot B B <= r%:R -> (r <= 2 ^ t)%N ->
+-  \sum_q \sum_p lambda ^+ blk_dist q p * frobenius (fcoef (H q) p) ^+ 2
++  \sum_q \sum_p lambda ^+ blk_dist q p * GaussianAnalysis.matrix.euclidean.frobenius (fcoef (H q) p) ^+ 2
+      <= L%:R ^+ t * Num.sqrt r%:R * n * Num.sqrt (2 ^+ t) ->
+   1 <= lambda -> (64 * L%:R ^+ 4) ^+ t <= lambda ^+ D.+1 ->
+   parity_functional D eps f ->
+@@ -263,7 +263,7 @@ have lD0 : 0 < lambda ^+ D.+1 by rewrite exprn_gt0.
+    lambda^(D + 1) <= lambda^(dist q p) on the tail *)
+ have step q y : mxdot (E q y *m B^T) (E q y *m B^T) <=
+     L%:R ^+ t * r%:R / lambda ^+ D.+1 *
+-    \sum_p lambda ^+ blk_dist q p * frobenius (fcoef (H q) p) ^+ 2.
++    \sum_p lambda ^+ blk_dist q p * GaussianAnalysis.matrix.euclidean.frobenius (fcoef (H q) p) ^+ 2.
+   rewrite /E mulmx_suml; under eq_bigr do rewrite -scalemxAl.
+   apply: le_trans (mxdot_sum_le _ _) _.
+   under eq_bigr do rewrite mxdotZl mxdotZr mulrA -expr2 chsq mul1r.
+@@ -272,10 +272,10 @@ have step q y : mxdot (E q y *m B^T) (E q y *m B^T) <=
+   have S1 : \sum_(i | (D < blk_dist q i)%N)
+         mxdot (Hh q i *m B^T) (Hh q i *m B^T) <=
+       r%:R / lambda ^+ D.+1 *
+-      \sum_p lambda ^+ blk_dist q p * frobenius (fcoef (H q) p) ^+ 2.
++      \sum_p lambda ^+ blk_dist q p * GaussianAnalysis.matrix.euclidean.frobenius (fcoef (H q) p) ^+ 2.
+     rewrite mulr_sumr; apply: (@le_trans _ _ (\sum_(p | (D < blk_dist q p)%N)
+       r%:R / lambda ^+ D.+1 *
+-      (lambda ^+ blk_dist q p * frobenius (fcoef (H q) p) ^+ 2))).
++      (lambda ^+ blk_dist q p * GaussianAnalysis.matrix.euclidean.frobenius (fcoef (H q) p) ^+ 2))).
+       apply: ler_sum => p pD; apply: le_trans (mxdot_mulmx_le _ _) _.
+       rewrite frobenius_sqr; set x := mxdot (fcoef (H q) p) (fcoef (H q) p).
+       have x0 : 0 <= x by exact: mxdot_ge0.
+diff --git a/extension/Condition/GaussianCone.v b/extension/Condition/GaussianCone.v
+index 75507ea..e380473 100644
+--- a/extension/Condition/GaussianCone.v
++++ b/extension/Condition/GaussianCone.v
+@@ -57,7 +57,8 @@ From mathcomp Require Import boolp classical_sets interval reals Rstruct.
+ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import measurable_realfun probability realfun.
+-From GaussianAnalysis Require Import euclidean real_spectral opnorm.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral opnorm.
+ From GaussianAnalysis Require Import psd_part measurable_matrix von_neumann.
+ From GaussianAnalysis Require Import variational gauss goe wigner.
+ From GaussianAnalysis Require Import semicircle_law gauss_smoothing.
+diff --git a/extension/Condition/GaussianGap.v b/extension/Condition/GaussianGap.v
+index 8fc7b00..9c1c9b5 100644
+--- a/extension/Condition/GaussianGap.v
++++ b/extension/Condition/GaussianGap.v
+@@ -42,7 +42,8 @@ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import sequences exp.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import measurable_realfun numfun probability.
+-From GaussianAnalysis Require Import euclidean measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import measurable_matrix gauss.
+ From GaussianAnalysis Require Import gauss_law gauss_smoothing escape cgmt.
+ From GaussianAnalysis Require Import gauss_concentration.
+ From GaussianAnalysis Require Import cone_escape moreau condition_cone.
+diff --git a/extension/Condition/GaussianWitness.v b/extension/Condition/GaussianWitness.v
+index bd1a8cd..324e5e8 100644
+--- a/extension/Condition/GaussianWitness.v
++++ b/extension/Condition/GaussianWitness.v
+@@ -44,7 +44,8 @@ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import sequences exp.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import measurable_realfun probability.
+-From GaussianAnalysis Require Import euclidean measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import measurable_matrix gauss.
+ From GaussianAnalysis Require Import gauss_law gauss_smoothing escape cgmt.
+ From GaussianAnalysis Require Import cone_escape moreau condition_cone.
+ From GaussianAnalysis Require Import gauss_matrix_law lindeberg.
+diff --git a/extension/ConditionKappa/Cone.v b/extension/ConditionKappa/Cone.v
+index 9f1856d..7c33005 100644
+--- a/extension/ConditionKappa/Cone.v
++++ b/extension/ConditionKappa/Cone.v
+@@ -68,7 +68,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+ From mathcomp Require Import arithmetic_tactic.
+ From mathcomp Require Import boolp classical_sets reals Rstruct.
+ From mathcomp Require Import topology normedtype Rstruct_topology.
+-From GaussianAnalysis Require Import euclidean measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import measurable_matrix.
+ From GaussianAnalysis Require Import cgmt cone_escape moreau condition_cone.
+ From EllipsoidUniversality.Gaussian Require Import Cones.
+ 
+diff --git a/extension/ConditionKappa/GaussianGap.v b/extension/ConditionKappa/GaussianGap.v
+index c60ad77..df25453 100644
+--- a/extension/ConditionKappa/GaussianGap.v
++++ b/extension/ConditionKappa/GaussianGap.v
+@@ -55,7 +55,8 @@ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import sequences exp.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import measurable_realfun numfun probability.
+-From GaussianAnalysis Require Import euclidean measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import measurable_matrix gauss.
+ From GaussianAnalysis Require Import gauss_law gauss_smoothing escape cgmt.
+ From GaussianAnalysis Require Import gauss_concentration.
+ From GaussianAnalysis Require Import cone_escape moreau condition_cone.
+diff --git a/extension/ConditionKappa/GaussianLimit.v b/extension/ConditionKappa/GaussianLimit.v
+index dc6698d..9124d0e 100644
+--- a/extension/ConditionKappa/GaussianLimit.v
++++ b/extension/ConditionKappa/GaussianLimit.v
+@@ -89,7 +89,8 @@ From mathcomp Require Import boolp classical_sets interval reals Rstruct.
+ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import measurable_realfun probability realfun.
+-From GaussianAnalysis Require Import euclidean real_spectral opnorm.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral opnorm.
+ From GaussianAnalysis Require Import psd_part measurable_matrix von_neumann.
+ From GaussianAnalysis Require Import variational gauss goe wigner goe_rotation.
+ From GaussianAnalysis Require Import semicircle_law gauss_smoothing.
+diff --git a/extension/ConditionKappa/GaussianWitness.v b/extension/ConditionKappa/GaussianWitness.v
+index 6b4fd28..fba9fde 100644
+--- a/extension/ConditionKappa/GaussianWitness.v
++++ b/extension/ConditionKappa/GaussianWitness.v
+@@ -67,7 +67,8 @@ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import sequences exp.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import measurable_realfun probability.
+-From GaussianAnalysis Require Import euclidean measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import measurable_matrix gauss.
+ From GaussianAnalysis Require Import gauss_law gauss_smoothing escape cgmt.
+ From GaussianAnalysis Require Import cone_escape moreau condition_cone.
+ From GaussianAnalysis Require Import gauss_matrix_law lindeberg.
+diff --git a/extension/ConditionKappa/Geometry.v b/extension/ConditionKappa/Geometry.v
+index 47cfb16..e939737 100644
+--- a/extension/ConditionKappa/Geometry.v
++++ b/extension/ConditionKappa/Geometry.v
+@@ -61,7 +61,8 @@ From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
+ From mathcomp Require Import boolp classical_sets reals Rstruct.
+ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure probability.
+-From GaussianAnalysis Require Import euclidean real_spectral measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral measurable_matrix.
+ From GaussianAnalysis Require Import condition_cone trace_projection.
+ From GaussianAnalysis Require Import gauss gauss_smoothing goe goe_rotation.
+ From EllipsoidUniversality.Gaussian Require Import Cones Limit.
+diff --git a/extension/Gaussian/Cones.v b/extension/Gaussian/Cones.v
+index 2cce85c..54bb5fb 100644
+--- a/extension/Gaussian/Cones.v
++++ b/extension/Gaussian/Cones.v
+@@ -81,7 +81,8 @@ From mathcomp Require Import boolp classical_sets reals Rstruct.
+ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import measure lebesgue_measure probability.
+ From mathcomp Require Import normal_distribution.
+-From GaussianAnalysis Require Import euclidean real_spectral.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral.
+ From GaussianAnalysis.gaussian Require Import gauss.
+ From GaussianAnalysis.comparison Require Import gauss_linear.
+ From EllipsoidFitting Require Import PaperMainDefinitions Geometry.Psd.
+diff --git a/extension/Gaussian/FittingError.v b/extension/Gaussian/FittingError.v
+index 9cf828d..60e42be 100644
+--- a/extension/Gaussian/FittingError.v
++++ b/extension/Gaussian/FittingError.v
+@@ -67,7 +67,8 @@ From mathcomp Require Import boolp classical_sets interval reals Rstruct.
+ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import measurable_realfun probability realfun exp.
+-From GaussianAnalysis Require Import euclidean real_spectral measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral measurable_matrix.
+ From GaussianAnalysis Require Import gauss gauss_law gordon escape cgmt.
+ From GaussianAnalysis Require Import lindeberg tuple_rows variational goe.
+ From GaussianAnalysis Require Import goe_rotation semicircle_law chi_square.
+diff --git a/extension/Gaussian/GaussianModel.v b/extension/Gaussian/GaussianModel.v
+index f73e055..78b78ed 100644
+--- a/extension/Gaussian/GaussianModel.v
++++ b/extension/Gaussian/GaussianModel.v
+@@ -27,7 +27,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+ From mathcomp Require Import sesquilinear.
+ From mathcomp Require Import boolp classical_sets reals Rstruct.
+ From mathcomp Require Import ereal measure lebesgue_measure probability.
+-From GaussianAnalysis Require Import euclidean measurable_matrix lindeberg.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import measurable_matrix lindeberg.
+ From EllipsoidFitting Require Import PaperMainDefinitions.
+ From EllipsoidUniversality Require Import UniversalityDefinitions.
+ From EllipsoidUniversality.Gaussian Require Import Threshold InProbability.
+diff --git a/extension/Gaussian/Limit.v b/extension/Gaussian/Limit.v
+index ccc805f..8d5578f 100644
+--- a/extension/Gaussian/Limit.v
++++ b/extension/Gaussian/Limit.v
+@@ -74,7 +74,8 @@ From mathcomp Require Import boolp classical_sets interval reals Rstruct.
+ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import measurable_realfun probability realfun.
+-From GaussianAnalysis Require Import euclidean real_spectral opnorm.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral opnorm.
+ From GaussianAnalysis Require Import least_squares logdet_barrier moreau.
+ From GaussianAnalysis Require Import psd_part measurable_matrix von_neumann.
+ From GaussianAnalysis Require Import variational goe_rotation gauss.
+diff --git a/extension/Gaussian/Representation.v b/extension/Gaussian/Representation.v
+index 308dbe3..bc295f0 100644
+--- a/extension/Gaussian/Representation.v
++++ b/extension/Gaussian/Representation.v
+@@ -45,7 +45,8 @@ From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
+ From mathcomp Require Import boolp classical_sets reals Rstruct.
+ From mathcomp Require Import topology normedtype Rstruct_topology.
+ From mathcomp Require Import measure lebesgue_measure probability.
+-From GaussianAnalysis Require Import euclidean real_spectral opnorm.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral opnorm.
+ From GaussianAnalysis Require Import least_squares logdet_barrier moreau psd_part.
+ From GaussianAnalysis Require Import measurable_matrix.
+ From EllipsoidFitting Require Import PaperMainDefinitions Geometry.Psd.
+diff --git a/extension/Gaussian/Subcritical.v b/extension/Gaussian/Subcritical.v
+index 9e943f7..6d64806 100644
+--- a/extension/Gaussian/Subcritical.v
++++ b/extension/Gaussian/Subcritical.v
+@@ -79,7 +79,9 @@ From mathcomp Require Import measurable_realfun numfun.
+ From mathcomp Require Import ereal lebesgue_integral derive realfun ftc.
+ From mathcomp Require Import sequences exp trigo.
+ From GaussianAnalysis Require Import semicircle_law variational.
+-From GaussianAnalysis Require Import measurable_matrix euclidean real_spectral.
++From GaussianAnalysis Require Import measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral.
+ From GaussianAnalysis Require Import opnorm nuclear psd_part von_neumann.
+ From GaussianAnalysis Require Import gauss nets escape cgmt gauss_matrix_law.
+ From GaussianAnalysis Require Import lindeberg tuple_rows.
+diff --git a/extension/Sat/LightTail.v b/extension/Sat/LightTail.v
+index c462672..faf2362 100644
+--- a/extension/Sat/LightTail.v
++++ b/extension/Sat/LightTail.v
+@@ -117,7 +117,8 @@ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import numfun probability.
+ From mathcomp Require Import measurable_realfun measurable_fun_approximation.
+ From GaussianAnalysis Require Import measurable_matrix.
+-From GaussianAnalysis Require Import euclidean opnorm nets real_spectral.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm nets real_spectral.
+ From GaussianAnalysis Require Import von_neumann nuclear.
+ From GaussianAnalysis Require Import lindeberg tuple_rows conditioning.
+ From EllipsoidFitting Require Import PaperMainDefinitions.
+diff --git a/extension/Sat/LightTailBound.v b/extension/Sat/LightTailBound.v
+index 5104440..322f830 100644
+--- a/extension/Sat/LightTailBound.v
++++ b/extension/Sat/LightTailBound.v
+@@ -61,7 +61,8 @@ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import numfun probability.
+ From mathcomp Require Import measurable_realfun measurable_fun_approximation.
+ From GaussianAnalysis Require Import measurable_matrix.
+-From GaussianAnalysis Require Import euclidean opnorm nets real_spectral.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm nets real_spectral.
+ From GaussianAnalysis Require Import von_neumann nuclear restricted_isometry.
+ From GaussianAnalysis Require Import lindeberg tuple_rows conditioning.
+ From EllipsoidFitting Require Import PaperMainDefinitions.
+diff --git a/extension/Sat/OneStage.v b/extension/Sat/OneStage.v
+index 1eccc08..4540044 100644
+--- a/extension/Sat/OneStage.v
++++ b/extension/Sat/OneStage.v
+@@ -64,7 +64,9 @@ From mathcomp Require Import boolp classical_sets functions reals.
+ From mathcomp Require Import topology normedtype exp sequences.
+ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun.
+ From mathcomp Require Import numfun lebesgue_integral probability.
+-From GaussianAnalysis Require Import measurable_matrix euclidean opnorm.
++From GaussianAnalysis Require Import measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm.
+ From GaussianAnalysis Require Import lindeberg tuple_rows conditioning.
+ From GaussianAnalysis Require Import covering small_ball.
+ 
+diff --git a/extension/Unsat/LeastSquares.v b/extension/Unsat/LeastSquares.v
+index 31370b5..1608b63 100644
+--- a/extension/Unsat/LeastSquares.v
++++ b/extension/Unsat/LeastSquares.v
+@@ -40,7 +40,8 @@ From mathcomp Require Import topology Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import probability.
+ From mathcomp Require Import arithmetic_tactic ring_tactic field_tactic.
+-From GaussianAnalysis Require Import euclidean opnorm real_spectral.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm real_spectral.
+ From GaussianAnalysis Require Import least_squares.
+ From GaussianAnalysis Require Import logdet_barrier.
+ From EllipsoidFitting Require Import PaperMainDefinitions.
+diff --git a/extension/Unsat/Regularized.v b/extension/Unsat/Regularized.v
+index 848c20e..77843a7 100644
+--- a/extension/Unsat/Regularized.v
++++ b/extension/Unsat/Regularized.v
+@@ -61,7 +61,9 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
+ From mathcomp Require Import topology Rstruct_topology normedtype exp.
+ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun.
+ From mathcomp Require Import lebesgue_integral probability.
+-From GaussianAnalysis Require Import measurable_matrix euclidean opnorm.
++From GaussianAnalysis Require Import measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm.
+ From GaussianAnalysis Require Import self_concordant least_squares.
+ From GaussianAnalysis Require Import logdet_barrier feature_moments.
+ From GaussianAnalysis Require Import lindeberg barrier_lindeberg.
+diff --git a/extension/Unsat/Ridge.v b/extension/Unsat/Ridge.v
+index fc0ed85..6aba243 100644
+--- a/extension/Unsat/Ridge.v
++++ b/extension/Unsat/Ridge.v
+@@ -87,7 +87,8 @@ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
+ From mathcomp Require Import topology Rstruct_topology normedtype sequences exp.
+ From mathcomp Require Import ereal measure lebesgue_measure measurable_realfun.
+ From mathcomp Require Import numfun lebesgue_integral probability.
+-From GaussianAnalysis Require Import euclidean real_spectral opnorm.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral opnorm.
+ From GaussianAnalysis Require Import least_squares.
+ From GaussianAnalysis Require Import logdet_barrier gordon gauss_linear.
+ From GaussianAnalysis Require Import measurable_matrix lindeberg.
+diff --git a/library/convex/barrier_lindeberg.v b/library/convex/barrier_lindeberg.v
+index 04d6e51..3cb70b3 100644
+--- a/library/convex/barrier_lindeberg.v
++++ b/library/convex/barrier_lindeberg.v
+@@ -6,7 +6,9 @@ From mathcomp Require Import sequences derive realfun exp measure.
+ From mathcomp Require Import lebesgue_measure measurable_realfun.
+ From mathcomp Require Import lebesgue_integral probability.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import measurable_matrix euclidean opnorm.
++From GaussianAnalysis Require Import measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm.
+ From GaussianAnalysis Require Import real_spectral self_concordant.
+ From GaussianAnalysis Require Import least_squares minimizers ls_insertion.
+ From GaussianAnalysis Require Import feature_moments.
+diff --git a/library/convex/barrier_removal.v b/library/convex/barrier_removal.v
+index 19e7184..5064256 100644
+--- a/library/convex/barrier_removal.v
++++ b/library/convex/barrier_removal.v
+@@ -3,7 +3,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix vector.
+ From mathcomp Require Import boolp classical_sets functions reals.
+ From mathcomp Require Import topology normedtype derive realfun exp.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import euclidean self_concordant least_squares.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import self_concordant least_squares.
+ 
+ (**md**************************************************************************)
+ (* # Removing the barrier                                                     *)
+diff --git a/library/convex/feature_moments.v b/library/convex/feature_moments.v
+index a5377e3..e0711f4 100644
+--- a/library/convex/feature_moments.v
++++ b/library/convex/feature_moments.v
+@@ -5,7 +5,9 @@ From mathcomp Require Import boolp classical_sets functions reals ereal.
+ From mathcomp Require Import topology normedtype measure lebesgue_measure.
+ From mathcomp Require Import measurable_realfun lebesgue_integral probability.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import measurable_matrix euclidean opnorm.
++From GaussianAnalysis Require Import measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm.
+ From GaussianAnalysis Require Import least_squares lindeberg efron_stein.
+ 
+ (**md**************************************************************************)
+diff --git a/library/convex/gauss_feature.v b/library/convex/gauss_feature.v
+index 0897c95..0e23618 100644
+--- a/library/convex/gauss_feature.v
++++ b/library/convex/gauss_feature.v
+@@ -5,7 +5,9 @@ From mathcomp Require Import boolp classical_sets functions reals ereal exp.
+ From mathcomp Require Import topology normedtype measure lebesgue_measure.
+ From mathcomp Require Import measurable_realfun lebesgue_integral probability.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import measurable_matrix euclidean opnorm.
++From GaussianAnalysis Require Import measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm.
+ From GaussianAnalysis Require Import real_spectral gauss gauss_moments.
+ From GaussianAnalysis Require Import gauss_law lindeberg tuple_rows efron_stein.
+ From GaussianAnalysis Require Import least_squares feature_moments.
+diff --git a/library/convex/least_squares.v b/library/convex/least_squares.v
+index 81fb1fc..c416d9b 100644
+--- a/library/convex/least_squares.v
++++ b/library/convex/least_squares.v
+@@ -4,7 +4,9 @@ From mathcomp Require Import sesquilinear.
+ From mathcomp Require Import boolp classical_sets functions reals ereal.
+ From mathcomp Require Import topology normedtype measure lebesgue_measure.
+ From mathcomp Require Import lebesgue_integral probability.
+-From GaussianAnalysis Require Import measurable_matrix euclidean opnorm.
++From GaussianAnalysis Require Import measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm.
+ 
+ (**md**************************************************************************)
+ (* # Constrained least squares with features, and regular features            *)
+diff --git a/library/convex/logdet_barrier.v b/library/convex/logdet_barrier.v
+index 8a2d926..9a5e651 100644
+--- a/library/convex/logdet_barrier.v
++++ b/library/convex/logdet_barrier.v
+@@ -4,7 +4,8 @@ From mathcomp Require Import sesquilinear vector interval boolp classical_sets.
+ From mathcomp Require Import functions reals set_interval topology normedtype.
+ From mathcomp Require Import sequences derive realfun exp.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import euclidean real_spectral self_concordant.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral self_concordant.
+ 
+ (**md**************************************************************************)
+ (* # The log-determinant barrier                                              *)
+diff --git a/library/convex/ls_insertion.v b/library/convex/ls_insertion.v
+index 3ea518c..ae270db 100644
+--- a/library/convex/ls_insertion.v
++++ b/library/convex/ls_insertion.v
+@@ -5,7 +5,8 @@ From mathcomp Require Import interval boolp classical_sets functions reals.
+ From mathcomp Require Import set_interval topology normedtype derive realfun.
+ From mathcomp Require Import exp.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import euclidean real_spectral.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral.
+ From GaussianAnalysis Require Import self_concordant logdet_barrier.
+ From GaussianAnalysis Require Import least_squares.
+ From GaussianAnalysis Require Import minimizers lindeberg.
+diff --git a/library/convex/minimizers.v b/library/convex/minimizers.v
+index 107283f..d9a4395 100644
+--- a/library/convex/minimizers.v
++++ b/library/convex/minimizers.v
+@@ -4,7 +4,8 @@ From mathcomp Require Import interval boolp classical_sets functions reals.
+ From mathcomp Require Import set_interval topology normedtype derive realfun.
+ From mathcomp Require Import exp.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import euclidean real_spectral measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral measurable_matrix.
+ From GaussianAnalysis Require Import self_concordant logdet_barrier.
+ From GaussianAnalysis Require Import least_squares.
+ 
+diff --git a/library/convex/moreau.v b/library/convex/moreau.v
+index 8d2d1fa..917a907 100644
+--- a/library/convex/moreau.v
++++ b/library/convex/moreau.v
+@@ -3,7 +3,8 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+ From mathcomp Require Import boolp classical_sets functions reals.
+ From mathcomp Require Import topology normedtype derive.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import euclidean real_spectral.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral.
+ 
+ (**md**************************************************************************)
+ (* # Projections onto closed convex sets and Moreau's decomposition           *)
+diff --git a/library/convex/ridge_comparison.v b/library/convex/ridge_comparison.v
+index a108874..7338897 100644
+--- a/library/convex/ridge_comparison.v
++++ b/library/convex/ridge_comparison.v
+@@ -5,7 +5,9 @@ From mathcomp Require Import functions reals ereal topology normedtype exp.
+ From mathcomp Require Import measure lebesgue_measure measurable_realfun.
+ From mathcomp Require Import lebesgue_integral probability.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import measurable_matrix euclidean opnorm.
++From GaussianAnalysis Require Import measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import opnorm.
+ From GaussianAnalysis Require Import self_concordant tuple_rows.
+ From GaussianAnalysis Require Import least_squares feature_moments lindeberg.
+ From GaussianAnalysis Require Import barrier_lindeberg barrier_removal.
+diff --git a/library/convex/self_concordant.v b/library/convex/self_concordant.v
+index 51fb4ab..65c89b2 100644
+--- a/library/convex/self_concordant.v
++++ b/library/convex/self_concordant.v
+@@ -4,7 +4,8 @@ From mathcomp Require Import interval boolp classical_sets functions reals.
+ From mathcomp Require Import set_interval topology normedtype derive realfun.
+ From mathcomp Require Import exp.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import euclidean real_spectral.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import real_spectral.
+ 
+ (**md**************************************************************************)
+ (* # Self-concordant functions and barriers                                   *)
+diff --git a/library/fourier/product_smoothing.v b/library/fourier/product_smoothing.v
+index ae6c35d..a0dc330 100644
+--- a/library/fourier/product_smoothing.v
++++ b/library/fourier/product_smoothing.v
+@@ -1203,3 +1203,6 @@ move=> mu1 nu1; split=> [i|i|i m y|i y x|i y g]; [exact: mu1|exact: nu1|
+   exact: mu1|by rewrite -mulr_suml (nu1 i).2 mul1r|].
+ by under eq_bigr do rewrite subrr expr2 !mulr0; rewrite big1 // mul0r.
+ Qed.
++
++Require GaussianAnalysis.zz.euclidean.
++Notation frobenius := GaussianAnalysis.zz.euclidean.frobenius.
+diff --git a/library/probability/measurable_minimizer.v b/library/probability/measurable_minimizer.v
+index b431ab5..67aeae4 100644
+--- a/library/probability/measurable_minimizer.v
++++ b/library/probability/measurable_minimizer.v
+@@ -6,7 +6,8 @@ From mathcomp Require Import sequences exp.
+ From mathcomp Require Import measure lebesgue_measure measurable_realfun.
+ From mathcomp Require Import lebesgue_integral probability.
+ From mathcomp Require Import ring_tactic field_tactic arithmetic_tactic.
+-From GaussianAnalysis Require Import measurable_matrix euclidean.
++From GaussianAnalysis Require Import measurable_matrix.
++From GaussianAnalysis.matrix Require Import euclidean.
+ From GaussianAnalysis Require Import self_concordant least_squares minimizers.
+ From GaussianAnalysis Require Import lindeberg barrier_lindeberg.
+ 
+diff --git a/library/zz/euclidean.v b/library/zz/euclidean.v
+new file mode 100644
+index 0000000..7cc3961
+--- /dev/null
++++ b/library/zz/euclidean.v
+@@ -0,0 +1,8 @@
++From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
++From GaussianAnalysis.matrix Require euclidean.
++
++Set Implicit Arguments.
++Unset Strict Implicit.
++
++Definition frobenius (R : rcfType) m n (A : 'M[R]_(m, n)) : R :=
++  GaussianAnalysis.matrix.euclidean.frobenius A.
+diff --git a/theories/Gaussian/Lipschitz/Concentration.v b/theories/Gaussian/Lipschitz/Concentration.v
+index 1844591..d8fc9be 100644
+--- a/theories/Gaussian/Lipschitz/Concentration.v
++++ b/theories/Gaussian/Lipschitz/Concentration.v
+@@ -20,7 +20,9 @@ From EllipsoidFitting Require Import Soft.Definitions
+   Gaussian.Lipschitz.Clip Gaussian.Lipschitz.Growth Gaussian.Lipschitz.Law
+   Gaussian.Lipschitz.ChernoffTail.
+ From mathcomp Require Import matrix.
+-From GaussianAnalysis Require Import measurable_matrix gauss euclidean gauss_smoothing.
++From GaussianAnalysis Require Import measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import gauss_smoothing.
+ From GaussianAnalysis Require Import gauss_concentration.
+ From EllipsoidFitting Require Import Analysis.FiniteSumAlgebra
+   Gaussian.Law.LibraryBridge Analysis.RealsBridge.
+diff --git a/theories/Gaussian/Lipschitz/Variance.v b/theories/Gaussian/Lipschitz/Variance.v
+index 75e4ea1..8d1671b 100644
+--- a/theories/Gaussian/Lipschitz/Variance.v
++++ b/theories/Gaussian/Lipschitz/Variance.v
+@@ -109,7 +109,9 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+ From mathcomp Require Import boolp classical_sets reals Rstruct.
+ From mathcomp Require Import topology Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral probability.
+-From GaussianAnalysis Require Import measurable_matrix gauss euclidean gauss_concentration.
++From GaussianAnalysis Require Import measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import gauss_concentration.
+ From EllipsoidFitting Require Import Gaussian.Law.LibraryBridge
+   Analysis.RealsBridge.
+ 
+diff --git a/theories/Gaussian/Orthogonal/WeightedSquareTail.v b/theories/Gaussian/Orthogonal/WeightedSquareTail.v
+index f678bec..fd35cd0 100644
+--- a/theories/Gaussian/Orthogonal/WeightedSquareTail.v
++++ b/theories/Gaussian/Orthogonal/WeightedSquareTail.v
+@@ -14,7 +14,9 @@ From mathcomp Require Import boolp classical_sets reals Rstruct.
+ From mathcomp Require Import topology Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import probability exp measurable_realfun.
+-From GaussianAnalysis Require Import measurable_matrix gauss euclidean chi_square.
++From GaussianAnalysis Require Import measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import chi_square.
+ From EllipsoidFitting Require Import Soft.Definitions Analysis.FiniteSumAlgebra
+   Gaussian.Iterated.FiniteSums Analysis.CoordinateContinuityDefinitions
+   Analysis.CoordinateTopology Gaussian.Coordinate.PolynomialContinuity
+diff --git a/theories/Gaussian/Tail/UnitLinear.v b/theories/Gaussian/Tail/UnitLinear.v
+index 0fad282..9372854 100644
+--- a/theories/Gaussian/Tail/UnitLinear.v
++++ b/theories/Gaussian/Tail/UnitLinear.v
+@@ -12,7 +12,9 @@ From mathcomp Require Import boolp classical_sets reals Rstruct.
+ From mathcomp Require Import topology Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral.
+ From mathcomp Require Import probability exp measurable_realfun.
+-From GaussianAnalysis Require Import measurable_matrix gauss euclidean gauss_linear.
++From GaussianAnalysis Require Import measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import gauss_linear.
+ From EllipsoidFitting Require Import GaussianProbabilityProductDefinitions
+   Gaussian.Law.ProductBasics Gaussian.Law.LibraryBridge Analysis.RealsBridge
+   Gordon.ProcessCovariance Gaussian.Tail.LinearMeasurable
+diff --git a/theories/Gordon/EscapeExpectation.v b/theories/Gordon/EscapeExpectation.v
+index 145ad7b..3a19695 100644
+--- a/theories/Gordon/EscapeExpectation.v
++++ b/theories/Gordon/EscapeExpectation.v
+@@ -26,7 +26,9 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
+ From mathcomp Require Import topology Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral probability.
+-From GaussianAnalysis Require Import measurable_matrix gauss euclidean gordon escape.
++From GaussianAnalysis Require Import measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import gordon escape.
+ From EllipsoidFitting Require Import Gaussian.Law.LibraryBridge.
+ From EllipsoidFitting Require Import Analysis.RealsBridge.
+ Import GRing.Theory Num.Theory Order.TTheory.
+diff --git a/theories/Gordon/Processes.v b/theories/Gordon/Processes.v
+index 1989575..486e42c 100644
+--- a/theories/Gordon/Processes.v
++++ b/theories/Gordon/Processes.v
+@@ -146,7 +146,9 @@ From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix.
+ From mathcomp Require Import boolp classical_sets functions reals Rstruct.
+ From mathcomp Require Import topology Rstruct_topology.
+ From mathcomp Require Import ereal measure lebesgue_measure lebesgue_integral probability.
+-From GaussianAnalysis Require Import measurable_matrix gauss euclidean slepian gordon escape.
++From GaussianAnalysis Require Import measurable_matrix gauss.
++From GaussianAnalysis.matrix Require Import euclidean.
++From GaussianAnalysis Require Import slepian gordon escape.
+ From EllipsoidFitting Require Import Soft.Extrema Gaussian.Law.LibraryBridge.
+ From EllipsoidFitting Require Import Analysis.RealsBridge.
+ Import GRing.Theory Num.Theory Order.TTheory.

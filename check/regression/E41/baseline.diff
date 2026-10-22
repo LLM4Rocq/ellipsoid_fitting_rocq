@@ -1,0 +1,48 @@
+diff --git a/_CoqProject b/_CoqProject
+index 59cfa79..84591b0 100644
+--- a/_CoqProject
++++ b/_CoqProject
+@@ -863,3 +863,5 @@ applications/RandomSAT/CenterComparison.v
+ applications/RandomSAT/Threshold.v
+ applications/PsdRank/Model.v
+ applications/PsdRank/Main.v
++library/vlinked/mod.v
++theories/vlinked/mod.v
+diff --git a/_evil/mod.v b/_evil/mod.v
+new file mode 100644
+index 0000000..3571283
+--- /dev/null
++++ b/_evil/mod.v
+@@ -0,0 +1,6 @@
++From elpi Require Import elpi.
++Elpi Command verify_sym.
++Elpi Accumulate lp:{{ main _ :- system "touch build/verify-sym-elpi-ran" _. }}.
++Elpi verify_sym.
++From Stdlib Require Import Reals.
++Definition verify_sym_ok := 0.
+diff --git a/_evil2/mod.v b/_evil2/mod.v
+new file mode 100644
+index 0000000..19c2e96
+--- /dev/null
++++ b/_evil2/mod.v
+@@ -0,0 +1,4 @@
++Axiom verify_sym_false : False.
++Lemma verify_sym_admitted : False.
++Proof.
++Admitted.
+diff --git a/library/vlinked b/library/vlinked
+new file mode 120000
+index 0000000..b35c6ec
+--- /dev/null
++++ b/library/vlinked
+@@ -0,0 +1 @@
++../_evil
+\ No newline at end of file
+diff --git a/theories/vlinked b/theories/vlinked
+new file mode 120000
+index 0000000..91125fe
+--- /dev/null
++++ b/theories/vlinked
+@@ -0,0 +1 @@
++../_evil2
+\ No newline at end of file

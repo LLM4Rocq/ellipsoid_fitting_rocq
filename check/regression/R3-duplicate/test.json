@@ -1,0 +1,22 @@
+{
+ "title": "duplicated completed report rejected by parser, with manifest digest refreshed",
+ "step": "checker",
+ "baseline": {
+  "expect": "skip",
+  "reason": "mechanism-level test of the new output protocol, not a claimed old bypass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "missing or duplicated output-completion trailer"
+ },
+ "validation_level": "parser-defense-in-depth",
+ "transform": {
+  "repaired": [
+   {
+    "output": "checks/UniversalityAssumptions.out",
+    "operation": "duplicate",
+    "refresh_manifest": true
+   }
+  ]
+ }
+}

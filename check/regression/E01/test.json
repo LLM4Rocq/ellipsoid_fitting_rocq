@@ -1,0 +1,15 @@
+{
+ "title": "T9 weakened by two comments holding a double quote, proved by exists 1",
+ "step": "make",
+ "baseline": {
+  "expect": "pass",
+  "step": "checker"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "comment-terminator-in-string|code differs from 46e45c84b99a|a \\*\\) in a string inside a comment closes no",
+  "step": "checker"
+ },
+ "validation_level": "checker-only",
+ "validation_note": "This committed exploit text need not compile; baseline pass demonstrates the old source checker accepting it, not a kernel-accepted false theorem."
+}

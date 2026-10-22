@@ -50,7 +50,10 @@ kappa > 1.
 
 `applications/` (phase 12) formalizes, over an arbitrary `R : realType`,
 seven theorems of manuscripts of the OpenAI math collection whose proofs
-reuse the library (see below).
+reuse the library (see below). Phase 13 adds four more, among them the
+satisfiability threshold of random k-SAT for every fixed clause size, and
+the frozen statement of an exponential lower bound on the PSD rank of the
+shifted matching matrices, whose proof is the work of phase 14.
 
 ## Status
 
@@ -134,6 +137,48 @@ reuse the library (see below).
   `check/SatVarianceAssumptions.v`). Each file is a Rocq formalization of
   a credited argument; `applications/README.md` lists the manuscripts and
   the main results.
+- **Four more theorems of the collection (phase 13), proved.**
+  `applications/` proves the frozen statements of four more targets, which
+  the user accepted at commit `46e45c8`: `sat_threshold_theorem` (T9: for
+  every k >= 3 there is alpha > 0 such that floor(c n) independent uniform
+  proper k-clauses on n variables are satisfiable with probability tending
+  to 1 for 0 <= c < alpha and to 0 for c > alpha) and
+  `min_superadditive_theorem` (T12: a real sequence with approximate
+  minimum inequalities for comparable sizes satisfies a finite-size lower
+  bound, and converges if it is bounded), from "A Limiting Satisfiability
+  Threshold for Every Fixed Clause Size" (family 235);
+  `psd_normalization_theorem` (T10: the factors of a PSD factorization can
+  be chosen with the same size and pairings, row traces at most any bound
+  on the entries and column traces at most the size) and
+  `product_smoothing_theorem` (T11: the product smoothing of matrix
+  squares, with shared witnesses), from "Exponential PSD rank of
+  positively shifted matching matrices" (family 126). Each uses only the
+  three axioms of `boolp` (`check/SatThresholdAssumptions.v` to
+  `check/MinSuperadditiveAssumptions.v`). The main statement of the second
+  manuscript, a PSD rank at least 2^(n / K) for the shifted matching
+  matrices, is accepted and frozen (`applications/PsdRankStatement.v`); its
+  proof is phase 14, and `applications/PsdRank/Main.v` already derives it
+  from explicit hypotheses on the local averaging and the parity
+  functional. The user also accepted 70 general statements of the new
+  library files; `check/LibraryStatements.v` states each in full and
+  proves it by its library lemma.
+- **The checks repaired (phase 13).** Before the release of phase 13 the
+  checks were repaired (`reviews/phase13-checker-repair.md`; the report,
+  with its evidence, is `reviews/phase13-repair-report.md`): sources are
+  read as Rocq reads them, the check files are compiled by a runner whose
+  outputs are identified, the frozen and accepted statements are compared
+  with snapshots and kernel names taken at their acceptance commits, and
+  the machinery is pinned. No discrepancy was found in the accepted
+  development. Each bypass found before the repair has a regression test
+  in `check/regression/`, which shows it on the old checks and its
+  rejection by the repaired ones. For ten of them the test shows only
+  that the old checker accepts the attack text, which is not a
+  kernel-accepted false theorem; E33 and E34 have coverage records
+  instead of tests. The limits: the
+  universe constraints are not compared; the identity layer identifies
+  names, not what a name means, which the frozen files, the pinned
+  sections and the characterizations fix; the second independent run was
+  on the same Docker image.
 - **Countable mixtures.** `countable_theorem : countable_theorem_statement`
   (`extension/CountableTheorem.v`) is a generality result: the conclusions
   of the finite-mixture theorem below, with its constants, for mixtures
@@ -464,14 +509,76 @@ generated`), whose code cannot change. The other modules print none.
   `check/TensorPackingAssumptions.v`, `check/GoeEdgeAssumptions.v`,
   `check/SKGapAssumptions.v`, `check/PsdSplittingAssumptions.v`,
   `check/PerceptronSignAssumptions.v` and `check/SatVarianceAssumptions.v`
-  for the seven theorems of `applications/` (phase 12), with the expected
-  lists of the same names (`check/matrix_series_assumptions.expected` and
-  so on).
+  for the seven theorems of `applications/` (phase 12), and
+  `check/SatThresholdAssumptions.v`, `check/PsdNormalizationAssumptions.v`,
+  `check/ProductSmoothingAssumptions.v` and
+  `check/MinSuperadditiveAssumptions.v` for the four theorems of phase 13
+  (T9 to T12), with the expected lists of the same names
+  (`check/matrix_series_assumptions.expected` and so on).
   `check/ApplicationsDefinitions.v` states a characterization of each
   library definition that the frozen statements of `applications/` unfold
   to (`mxdot`, `frobenius`, `opnorm`, `psdmx`, `goe_mx`, the measurable
   structure of matrices, and `gauss` through its values on boxes, which
   determine it); `make check` compiles it.
+  `check/Phase13Definitions.v` does the same for phase 13: it states a
+  characterization of each project definition that the frozen statements
+  of phase 13 and its accepted general statements unfold to, written out
+  down to the definitions of MathComp and proved by computation, so that a
+  definition that no longer computes to that text fails. Each freeze
+  extends it; freeze 1 covers `unif_mean`, `unif_var`, `binomial_mean`,
+  `linear_op`, `monotone_op` and `meet_avg`, freeze 2 `bdot`, `bchar`,
+  `blk_deg`, `blk_dist`, `fcoef`, `low_blk_deg`, `prob_vec`, `prod_avg`,
+  `smoothing_hyps`, `weighted_gram` and `psd_factorization`, and freeze 3
+  `psd_eval` and `psd_eval_cone`. `make check` compiles it into
+  `build/phase13_definitions.txt`, a required output.
+  `check/LibraryStatements.v` states in full each general statement of the
+  library that the user accepted in phase 13, the 70 entries of the
+  acceptance inventory of `scripts/check_sources.py`, and proves each by
+  its library lemma; `make check` compiles it, and requires its report.
+  `check/TheoremIdentities.v` requires the statement and theorem modules of
+  the 28 theorems without importing them and defines, for each, by absolute
+  names, `<theorem>_identity` with the frozen statement as its type and the
+  theorem as its body; it prints the full name and the axioms of each. (The
+  theorem check files of phases 5 to 12 import the theorem modules after the
+  statement modules, so a definition of a theorem module could shadow the
+  statement there.) `check/MatrixSigmaRing.v` states that the measurable sets
+  of the SigmaRing instance of matrices, which the statements of phase 12,
+  batch 1, name, are those that `check/ApplicationsDefinitions.v`
+  characterizes, by reflexivity (the user's decision of 15 October 2026).
+  `check/Reports.v` prints, after its full name, the axioms of each
+  characterization lemma of `check/ApplicationsDefinitions.v`,
+  `check/MatrixSigmaRing.v` and `check/Phase13Definitions.v` and of each
+  accepted statement of `check/LibraryStatements.v`.
+  `check/snapshots/` holds one statement snapshot per acceptance baseline: a
+  file that requires the frozen modules, and the compiled check files,
+  without importing them, and prints under `Set Printing All` and
+  `Set Printing Universes` the module lists and the definitions of the
+  frozen files accepted there, the statements of their theorems, the pinned
+  sections, the characterization lemmas and the accepted statements; the
+  `.txt` file of the same name is its output against a build of the
+  acceptance commit, and `REFERENCES.json` records the commit, the toolchain
+  and the hash of each, with the project names each snapshot mentions.
+  `AcceptedConversions.v` checks, at the acceptance commit 46e45c8, that the
+  statements of the lemmas of `check/LibraryStatements.v` and of the library
+  lemmas are convertible with the accepted `_statement` definitions.
+  `check/identity/` holds the identity layer of the snapshots (the repair
+  E42): a printed name can resolve to another constant than at the
+  acceptance commit while the print stays the same. For each snapshot that
+  prints a declaration, the driver `Identity<Name>.v` requires the same
+  modules and asks the exporter of `check/identity/` (a small OCaml plugin,
+  `kernel_identity.ml` and `kernel_universe.ml`, loaded only by these
+  drivers) for the kernel term of each declaration; `Identity<Name>.json`
+  is the reference, the kernel names (user and canonical) of every
+  constant, inductive, constructor and projection of each term at its
+  position, from a build of the acceptance commit; `inventory.json` lists
+  the 424 queries of the 18 drivers, and `REFERENCES.json` records the
+  commit, the toolchain and the hashes. The sidecars hold no universe (the
+  printed snapshots keep them); they identify names and do not fix what a
+  name means, which the frozen files, the pinned sections and the
+  characterizations do.
+  `check/regression/` holds one directory per exploit of the checks found
+  before the release of phase 13, with its patch and the expected failure,
+  run by `scripts/run_regressions.py`.
 - `scripts/check_sources.py`: checks that the statement, the theorem and the
   five definition modules of the statement have the same code as at the
   commit in `check/frozen-baseline`, the statement of the universality
@@ -486,13 +593,27 @@ generated`), whose code cannot change. The other modules print none.
   `fc76edf`, as the section `lambda_max` of
   `library/matrix/lambda_max.v` with its Require commands, and the seven
   statement and definitions files of batch 2 the same code as at commit
-  `0d5afba` (comments may differ); that `check/ApplicationsDefinitions.v`
-  has its fixed code; that the
+  `0d5afba`, and the three statement files of batch 1 of phase 13, the two
+  of batch 2 and the two of batch 3 the same code as at commit `46e45c8`,
+  at which the user accepted the statements of phase 13 (comments may
+  differ; the text is read as Rocq reads it, by `scripts/rocq_lex.py`, and a
+  non-ASCII character outside comments is refused); that
+  `check/ApplicationsDefinitions.v`
+  has its fixed code, and `check/Phase13Definitions.v` the code of its
+  last freeze, the code of each earlier freeze being a prefix of it; that
+  each entry of the acceptance inventory, the general statements of the
+  library accepted in phase 13 with their full propositions as `Print`
+  shows them at the acceptance commit, names a definition of its file at
+  that commit; that the
   axiom-check files of phases 5 and 6 and their expected lists are
   byte-identical to commit `c3e555e`, those of phases 7 and 8 to commit
   `a89ed1e`, those of phase 9 to commit `e4c46e1`, those of phase 10 to
   commit `eda8a06`, those of phase 11 to commit `d29b278`, and those of
-  phase 12 to commit `495929a` (commit P); that the
+  phase 12 to commit `495929a` (commit P), and those of phase 13, with
+  `check/Phase13Definitions.v`, `check/LibraryStatements.v` and the
+  repaired machinery (the scripts other than the checker, the Makefile,
+  the identity drivers, the snapshots, the regression tests and their
+  references), to commit `c5bdf87` (the repair); that the
   Require
   commands of
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which
@@ -503,11 +624,60 @@ generated`), whose code cannot change. The other modules print none.
   `applications/` requires a module of `theories/` or `extension/`,
   Stdlib's reals, or MathComp's bridge to them (`Rstruct`,
   `Rstruct_topology`), and no module of `library/` a module of
-  `applications/`; and that it is given exactly the report of each theorem
-  of its table (24), by path and in order, every report exists and is
-  complete, and the axioms of each theorem are among its expected ones,
-  each expected list being part of the first. `make check` deletes the
-  reports before it regenerates them, then runs it.
+  `applications/`; that the outputs of the check files are those that
+  `scripts/run_checks.py` wrote in this run (the checker creates the run
+  identifier and starts the runner; the manifest records the sources, the
+  outputs and the toolchain), each with exactly the reports it must print,
+  every report complete; that the axioms of each theorem are among its
+  expected ones,
+  each expected list being part of the first, and those of phase 13 part
+  of the seven of `check/sat_variance_assumptions.expected` (without
+  `Classical_Prop.classic`); and that `check/LibraryStatements.v` has its
+  fixed code, states the recorded proposition of each entry of the
+  inventory, and has a complete report within the same seven axioms;
+  that each statement snapshot equals its reference, that the references
+  of each identity driver equal theirs, and that each project constant a
+  frozen or accepted statement names is frozen, pinned or characterized; that no source contains a forbidden command (assumptions,
+  typing-flag bypasses, plugin and file commands, Elpi commands, global
+  settings and exports in `library/`, `extension/` and `applications/`); and
+  that the Makefile and every script other than the checker itself have
+  the bytes of the repair commit (most of them also a fixed hash),
+  `scripts/` holds exactly its listed files, `_CoqProject` has its fixed
+  options, git tracks no build product, and none of `GNUmakefile`, `makefile`,
+  `Makefile.rocq.local` and `Makefile.rocq.local-late` exists. `make check`
+  runs it twice, without the environment variables that can change what
+  Rocq loads and without any variable whose name starts with `OCAML` or
+  `CAML`: first with `--before-build`, on the sources alone, before
+  anything compiles, then after the build. make reads a `GNUmakefile` or a
+  `makefile` before the `Makefile`, so the command that runs the checks
+  whatever files the tree holds is `make -f Makefile check`.
+- `scripts/run_checks.py`: compiles the check files of `check/` for the
+  checker, each with its fixed flags, `-q` and the warning
+  `comment-terminator-in-string` as an error, in `build/checks/`, which it
+  owns; it publishes an output only after a successful compilation and
+  writes the manifest only when every compilation succeeded. It refuses to
+  start if a variable whose name starts with `OCAML` or `CAML` is set. It
+  first builds the exporter of `check/identity/` from its sources and sets
+  `OCAMLPATH` to that build for the identity drivers only; the manifest
+  records the versions of ocamlopt and findlib and the SHA-256 of the
+  recipe and of the plugin, which the checker compares with the pinned
+  versions and with the plugin that wrote the references.
+- `scripts/identity_sidecars.py`: what the checker, the runner and the
+  snapshot generator share for the identity layer: the queries of the
+  snapshot files, the text of the drivers, the strict framing of their
+  outputs (one complete record per query, in order) and the sidecars;
+  `scripts/test_identity_sidecars.py` tests it.
+- `scripts/rocq_lex.py`: reads the comments, strings and blanks of a `.v`
+  file as Rocq does, and refuses the forms whose reading depends on the
+  keywords in scope; `scripts/test_rocq_lex.py` compares it with Rocq on a
+  corpus and on random insertions.
+- `scripts/snapshot_baselines.py`: builds the acceptance commits of the
+  frozen files, writes the statement snapshots of `check/snapshots/` and
+  their references, and verifies a reference against its acceptance build;
+  it also writes the identity drivers and their references
+  (`identity-files`, `identities`).
+- `scripts/run_regressions.py`: runs the regression tests of
+  `check/regression/` on a scratch copy.
 - `scripts/export_from_ellipsoid_rocq.py`: the script that copied the proof
   (see below).
 - `scripts/unused.py`: lists the declarations of `theories/` that the main
@@ -594,8 +764,9 @@ done, and the second is done in part.
    72 files and 48,032 lines after phase 5, 75 files and 48,991 lines
    after phase 6, 78 files and 51,203 lines after phase 8, 80 files and
    51,666 lines after phase 9, 80 files and 51,796 lines after phase 10,
-   82 files and 53,142 lines after phase 11, and has 94 files and 58,525
-   lines after phase 12.
+   82 files and 53,142 lines after phase 11, 94 files and 58,531 lines
+   after phase 12, and has 102 files and 63,058 lines after
+   phase 13.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -645,4 +816,9 @@ at every fourth moment kappa > 1, for finite and countable mixtures and
 their perturbations in total variation, with the properties of its curve
 (tag `phase11`). Phase 12 formalized in `applications/` seven theorems of
 manuscripts of the OpenAI math collection whose proofs reuse the library,
-with twelve new library files (tag `phase12`).
+with twelve new library files (tag `phase12`). Phase 13 proved four
+theorems of two manuscripts of the collection, the satisfiability threshold
+of random k-SAT among them, with eight new library files, froze the
+statement of the PSD rank theorem of the second, whose proof is phase 14,
+and checks the 70 general statements of the library that the user
+accepted (tag `phase13`).

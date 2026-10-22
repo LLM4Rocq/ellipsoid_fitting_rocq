@@ -1,0 +1,13 @@
+{
+ "title": "freeze 2 of check/Phase13Definitions.v hidden in one comment for Rocq",
+ "step": "make",
+ "baseline": {
+  "expect": "pass",
+  "step": "checker"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "code differs from the last code of PHASE13_DEFINITIONS_FREEZES",
+  "step": "checker"
+ }
+}

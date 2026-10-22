@@ -1,0 +1,11 @@
+{
+ "title": "a global Set Warnings in a library module",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "a global or exported setting"
+ }
+}

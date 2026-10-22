@@ -1,0 +1,11 @@
+{
+ "title": "rule 2: declare-instance",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "library/fourier/inversion.v: (Polymorphic|Axiom|Admit Obligations|Declare Instance|Unset Guard Checking|Unset Positivity Checking|Unset Universe Checking|the attribute bypass_check)"
+ }
+}

@@ -1,0 +1,39 @@
+(* The statement snapshot SnapshotPhase5 (scripts/check_sources.py, rule 30):
+   the declarations accepted at 3c6afa103ccd, printed in full. Written
+   by scripts/snapshot_baselines.py; its reference, the output at that
+   commit, is check/snapshots/SnapshotPhase5.txt. *)
+
+Require EllipsoidUniversality.UniversalityDefinitions.
+Require EllipsoidUniversality.UniversalityStatement.
+
+Set Printing All.
+Set Printing Universes.
+Set Printing Depth 1000000.
+Set Printing Width 78.
+
+Print Module EllipsoidUniversality.UniversalityDefinitions.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_power.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_subgaussian_test.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_coordinate_law.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_product_law.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_sample_law.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_probability.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_positive_part.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_semicircle_density.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_semicircle_integral.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_semicircle_integrable.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_m.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_s.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_energy.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_cutoff.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_alpha_star.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_alpha_star_variational.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_level_cutoff.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_e_star.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_fitting_error.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_pd_fit_event.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_conditioned_fit_event.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_error_event.
+Print EllipsoidUniversality.UniversalityDefinitions.universality_density_tends_to.
+Print Module EllipsoidUniversality.UniversalityStatement.
+Print EllipsoidUniversality.UniversalityStatement.universality_statement.

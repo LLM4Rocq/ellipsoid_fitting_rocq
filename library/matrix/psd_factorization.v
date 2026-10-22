@@ -15,28 +15,26 @@ From GaussianAnalysis.convex Require Import logdet_barrier moreau.
 (* for the rows and G j for the columns with A i j = tr (F i G j) for all i   *)
 (* and j (psd_factorization A r). The PSD rank of A is the least such r; this *)
 (* file does not define it, and the statements that use it are written for    *)
-(* every factorization of a given size.                                       *)
+(* every factorization of a given size. With r = 0 allowed, the least size is *)
+(* 0 for the zero matrix, where the manuscript's convention (the least r >=   *)
+(* 1) gives 1; the two agree for every matrix with a nonzero entry.           *)
 (*                                                                            *)
-(* The general statements of this file are compiled Prop definitions, for     *)
-(* review with batch 2 of phase 13 (AGENTS.md, section Phase 13, step 0,      *)
-(* items 3 and 4). Each is proved by the lemma of the same name without the   *)
-(* suffix _statement; the statement definitions stay until the user accepts   *)
-(* them.                                                                      *)
-(*                                                                            *)
-(* - psd_factorization_ge0_statement: the entries of a matrix with a PSD      *)
-(*   factorization are nonnegative.                                           *)
-(* - psd_factorization_size_gt0_statement: a factorization of a matrix with a *)
-(*   nonzero entry has a positive size.                                       *)
-(* - psd_factorization_restrict_statement: a factorization restricts to the   *)
-(*   rows and columns of any maps I' -> I and J' -> J.                        *)
-(* - psd_factorization_widen_statement: a factorization of size r gives one   *)
-(*   of every size s >= r, by zero blocks.                                    *)
-(* - psd_factorization_shift_statement: a factorization of A of size r gives  *)
-(*   one of A + rho of size r + 1 for rho >= 0, by a block of size one.       *)
-(* - psd_factorization_nonneg_statement: a nonnegative factorization A i j =  *)
-(*   sum_(k < r) a i k b j k, with a, b >= 0, gives a PSD factorization of    *)
-(*   size r, by diagonal matrices; it gives the factorization of A_n(1) of    *)
-(*   size the number of edges of introduction.tex, lines 46-50.               *)
+(* The general statements of this file, which the user accepted with batch    *)
+(* 2 of phase 13 (AGENTS.md, section Phase 13, step 0, items 3 and 4), are    *)
+(* the following lemmas, with the accepted texts:                             *)
+(* - psd_factorization_ge0: the entries of a matrix with a PSD factorization  *)
+(*   are nonnegative.                                                         *)
+(* - psd_factorization_size_gt0: a factorization of a matrix with a nonzero   *)
+(*   entry has a positive size.                                               *)
+(* - psd_factorization_restrict: a factorization restricts to the rows and    *)
+(*   columns of any maps I' -> I and J' -> J.                                 *)
+(* - psd_factorization_widen: a factorization of size r gives one of every    *)
+(*   size s >= r, by zero blocks.                                             *)
+(* - psd_factorization_shift: a factorization of A of size r gives one of     *)
+(*   A + rho of size r + 1 for rho >= 0, by a block of size one.              *)
+(* - psd_factorization_nonneg: a nonnegative factorization                    *)
+(*   A i j = sum_(k < r) a i k b j k, with a, b >= 0, gives a PSD             *)
+(*   factorization of size r, by diagonal matrices.                           *)
 (*                                                                            *)
 (* The exact normalization of the factors, target T10 of phase 13, is stated  *)
 (* in applications/PsdNormalizationStatement.v, written out with psdmx and    *)
@@ -65,10 +63,12 @@ From GaussianAnalysis.convex Require Import logdet_barrier moreau.
 (* OpenAI math collection, revision 1581d4cbd): the definition of a PSD       *)
 (* factorization (source/sections/introduction.tex, lines 25-35), the lemma   *)
 (* 'Normalization of PSD factors' (source/sections/matching.tex, lines        *)
-(* 13-39), and the padding of the proof of the corollary on semidefinite      *)
-(* lifts (introduction.tex, lines 82-86). The Lean development of the         *)
-(* collection for family 126 has the diagonal factorization of a nonnegative  *)
-(* matrix and the normalization, in these declarations:                       *)
+(* 13-39), the padding of the proof of the corollary on semidefinite lifts    *)
+(* (introduction.tex, lines 82-86), and the diagonal factorization of A_n(1)  *)
+(* of size the number of edges (introduction.tex, lines 46-50), which         *)
+(* psd_factorization_nonneg gives. The Lean development of the collection for *)
+(* family 126 has the diagonal factorization of a nonnegative matrix and the  *)
+(* normalization, in these declarations:                                      *)
 (* Lean: exists_diagonal_factorization (FiniteFactorization.lean, line 69)    *)
 (* Lean: exists_normalized_factors (DeterminantNormalization.lean, line 133)  *)
 (*                                                                            *)
@@ -103,51 +103,15 @@ Definition psd_factorization (I J : finType) (A : I -> J -> R) (r : nat) :
 
 End factorization.
 
-(* The general statements, for review. *)
-
-(* The trace of the product of two PSD matrices is nonnegative. *)
-Definition psd_factorization_ge0_statement : Prop :=
-  forall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat),
-  psd_factorization A r -> forall i j, 0 <= A i j.
-
-(* A factorization of size 0 has only zero entries. *)
-Definition psd_factorization_size_gt0_statement : Prop :=
-  forall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat),
-  psd_factorization A r -> (exists i j, A i j != 0) -> (0 < r)%N.
-
-(* Restriction to rows and columns, along any maps. *)
-Definition psd_factorization_restrict_statement : Prop :=
-  forall (R : realType) (I J I' J' : finType) (A : I -> J -> R) (r : nat)
-         (f : I' -> I) (g : J' -> J),
-  psd_factorization A r -> psd_factorization (fun i j => A (f i) (g j)) r.
-
-(* Padding the factors with zero blocks. *)
-Definition psd_factorization_widen_statement : Prop :=
-  forall (R : realType) (I J : finType) (A : I -> J -> R) (r s : nat),
-  (r <= s)%N -> psd_factorization A r -> psd_factorization A s.
-
-(* Appending the scalar blocks rho to the row factors and 1 to the column
-   factors. *)
-Definition psd_factorization_shift_statement : Prop :=
-  forall (R : realType) (I J : finType) (A : I -> J -> R) (r : nat) (rho : R),
-  0 <= rho -> psd_factorization A r ->
-  psd_factorization (fun i j => A i j + rho) r.+1.
-
-(* A nonnegative factorization of size r gives a PSD factorization of size r,
-   by diagonal factors. *)
-Definition psd_factorization_nonneg_statement : Prop :=
-  forall (R : realType) (I J : finType) (r : nat) (a : I -> 'I_r -> R)
-         (b : J -> 'I_r -> R),
-  (forall i k, 0 <= a i k) -> (forall j k, 0 <= b j k) ->
-  psd_factorization (fun i j => \sum_(k < r) a i k * b j k) r.
-
 Section closure.
 Variable R : realType.
 Implicit Types (I J : finType).
 
 Lemma psd_factorization_ge0 I J (A : I -> J -> R) (r : nat) :
   psd_factorization A r -> forall i j, 0 <= A i j.
-Proof. by move=> [F [G [Fp Gp AE]]] i j; rewrite AE; exact: mxtrace_psd_ge0. Qed.
+Proof.
+by move=> [F [G [Fp Gp AE]]] i j; rewrite AE; exact: mxtrace_psd_ge0.
+Qed.
 
 Lemma psd_factorization_size_gt0 I J (A : I -> J -> R) (r : nat) :
   psd_factorization A r -> (exists i j, A i j != 0) -> (0 < r)%N.
@@ -164,7 +128,8 @@ move=> [F [G [Fp Gp AE]]]; exists (F \o f), (G \o g).
 by split => [i|j|i j] /=; [exact: Fp | exact: Gp | exact: AE].
 Qed.
 
-(* Block-diagonal and diagonal positive semidefinite matrices. *)
+(* Block-diagonal and diagonal positive semidefinite matrices; psdmx_diag is
+   the case P = 1 of psd_conj (matrix/psd_part.v). *)
 Lemma psdmx_block_diag m n (A : 'M[R]_m) (B : 'M[R]_n) :
   psdmx A -> psdmx B -> psdmx (block_mx A 0 0 B).
 Proof.
@@ -338,7 +303,8 @@ rewrite andbT eq_sym; apply/negP => /eqP h.
 have : A *m x^T = 0.
   by apply: psd_form_eq0 => //; rewrite posdefmx_form // trmxK.
 move=> /(congr1 (mulmx (invmx A))); rewrite mulmxA mulVmx // mul1mx mulmx0.
-by move=> /(congr1 trmx); rewrite trmxK trmx0 => x00; move: x0; rewrite x00 eqxx.
+move=> /(congr1 trmx); rewrite trmxK trmx0 => x00.
+by move: x0; rewrite x00 eqxx.
 Qed.
 
 Lemma posdefmx_det_gt0 n (A : 'M[R]_n) : posdefmx A -> 0 < \det A.
@@ -457,7 +423,10 @@ rewrite mulrA; apply: small.
 by rewrite mulr_gt0 //= ger_pMl.
 Qed.
 
-(* The probability vectors of 'rV[R]_k form a compact set. *)
+(* The probability vectors of 'rV[R]_k form a compact set. prob_simplex is
+   the set of row vectors of this compactness argument; mixture_weights
+   (probability/mixture.v) and prob_vec (fourier/product_smoothing.v) are the
+   same notion for the functions on a finite type. *)
 Definition prob_simplex (k : nat) : set 'rV[R]_k :=
   [set w | (forall l, 0 <= w 0 l) /\ \sum_l w 0 l = 1].
 
@@ -546,19 +515,10 @@ have fu : 0 < f u.
   have := rowpsd _ x Spsd; have := rowpsd _ x Qpsd.
   have : 0 < k%:R^-1 :> R by rewrite invr_gt0.
   nra.
-have psdZ (c : R) (A : 'M[R]_r) : 0 <= c -> psdmx A -> psdmx (c *: A).
-  move=> c0 [As Ap]; split.
-    by apply/symmetricmxP; rewrite linearZ /= (symmetricmxP _ As).
-  by move=> x; rewrite -scalemxAl mxdotZr mulr_ge0.
-have psdD (A B : 'M[R]_r) : psdmx A -> psdmx B -> psdmx (A + B).
-  move=> [As Ap] [Bs Bp]; split.
-    apply/symmetricmxP; rewrite linearD /= (symmetricmxP _ As).
-    by rewrite (symmetricmxP _ Bs).
-  by move=> x; rewrite mulmxDl mxdotDr addr_ge0.
 pose D := Q + \sum_(l < k) ws 0 l *: Gk l.
 have Dpsd : psdmx D.
-  apply: psdD => //; apply: psdmx_sum => l _.
-  by apply: psdZ; [exact: wsS.1 | exact: Gkpsd].
+  apply: psdmxD => //; apply: psdmx_sum => l _.
+  by apply: psdmxZ; [exact: wsS.1 | exact: Gkpsd].
 have Ddet : 0 < \det D by apply: lt_le_trans fu (wsmax u _); rewrite inE.
 have Dpd : posdefmx D.
   by apply: psdmx_unit_posdefmx => //; rewrite unitmxE unitfE gt_eqF.

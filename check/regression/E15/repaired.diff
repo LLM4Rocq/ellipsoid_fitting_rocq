@@ -1,0 +1,13 @@
+diff --git a/library/probability/lindeberg.v b/library/probability/lindeberg.v
+index 886bbee..1b9c50c 100644
+--- a/library/probability/lindeberg.v
++++ b/library/probability/lindeberg.v
+@@ -301,3 +301,8 @@ by under [X in _ - X]eq_Rintegral do rewrite E.
+ Qed.
+ 
+ End lindeberg_replacement.
++
++Module Shadow.
++Notation tuple_prod := (fun mu n => tuple_prod (fun _ : nat => mu 0%N) n).
++End Shadow.
++Export Shadow.

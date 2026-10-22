@@ -1,0 +1,208 @@
+(* The identity checks of the 28 theorems that make check checks. For each,
+   <theorem>_identity has the frozen statement as its type and the theorem
+   as its body, both named by their absolute names, and the file only
+   Requires, without Import: no name that a theorem module or a library
+   module defines can stand for a frozen statement (E14 of the repair
+   specification: the theorem check files of phases 5 to 12 import the
+   unfrozen theorem modules after the statement modules and use short
+   names). The file prints the full name of each identity definition
+   (Locate), then its axioms. Its code is fixed by
+   scripts/check_sources.py, which starts scripts/run_checks.py to
+   compile it. *)
+
+Require EllipsoidFitting.MainStatement EllipsoidFitting.MainTheorem.
+Require EllipsoidUniversality.UniversalityStatement EllipsoidUniversality.UniversalityTheorem.
+Require EllipsoidUniversality.MixtureStatement EllipsoidUniversality.MixtureTheorem.
+Require EllipsoidUniversality.PairedStatement EllipsoidUniversality.PairedTheorem.
+Require EllipsoidUniversality.LatentSignStatement EllipsoidUniversality.LatentSignTheorem.
+Require EllipsoidUniversality.CountableMixtureStatement EllipsoidUniversality.CountableTheorem.
+Require EllipsoidUniversality.ConditionStatement EllipsoidUniversality.ConditionTheorem.
+Require EllipsoidUniversality.LatentSignScope EllipsoidUniversality.LatentScopeTheorem.
+Require EllipsoidUniversality.RobustStatement EllipsoidUniversality.RobustTheorem.
+Require EllipsoidUniversality.LatentTensorization EllipsoidUniversality.LatentTensorTheorem.
+Require EllipsoidUniversality.ContinuousLatent EllipsoidUniversality.ContinuousLatentTheorem.
+Require EllipsoidUniversality.ConditionEndpoints EllipsoidUniversality.ConditionEndpointsTheorem.
+Require EllipsoidUniversality.ConditionRobustStatement EllipsoidUniversality.ConditionRobustTheorem.
+Require EllipsoidUniversality.LatentTensorUpper EllipsoidUniversality.LatentTensorUpperTheorem.
+Require EllipsoidUniversality.ConditionKappaCurveStatement EllipsoidUniversality.ConditionKappaCurveTheorem.
+Require EllipsoidUniversality.ConditionKappaStatement EllipsoidUniversality.ConditionKappaTheorem.
+Require EllipsoidUniversality.ConditionKappaRobustStatement EllipsoidUniversality.ConditionKappaRobustTheorem.
+Require GaussianApplications.MatrixSeriesStatement GaussianApplications.MatrixSeriesTheorem.
+Require GaussianApplications.TensorPackingStatement GaussianApplications.TensorPackingTheorem.
+Require GaussianApplications.GoeEdgeStatement GaussianApplications.GoeEdgeTheorem.
+Require GaussianApplications.SKGapStatement GaussianApplications.SKGapTheorem.
+Require GaussianApplications.PsdSplittingStatement GaussianApplications.PsdSplittingTheorem.
+Require GaussianApplications.PerceptronSignStatement GaussianApplications.PerceptronSignTheorem.
+Require GaussianApplications.SatVarianceStatement GaussianApplications.SatVarianceTheorem.
+Require GaussianApplications.SatThresholdStatement GaussianApplications.SatThresholdTheorem.
+Require GaussianApplications.PsdNormalizationStatement GaussianApplications.PsdNormalizationTheorem.
+Require GaussianApplications.ProductSmoothingStatement GaussianApplications.ProductSmoothingTheorem.
+Require GaussianApplications.MinSuperadditiveStatement GaussianApplications.MinSuperadditiveTheorem.
+
+Definition ellipsoid_fitting_main_identity :
+  EllipsoidFitting.MainStatement.main_statement :=
+  EllipsoidFitting.MainTheorem.ellipsoid_fitting_main.
+Locate ellipsoid_fitting_main_identity.
+Print Assumptions ellipsoid_fitting_main_identity.
+
+Definition universality_theorem_identity :
+  EllipsoidUniversality.UniversalityStatement.universality_statement :=
+  EllipsoidUniversality.UniversalityTheorem.universality_theorem.
+Locate universality_theorem_identity.
+Print Assumptions universality_theorem_identity.
+
+Definition mixture_theorem_identity :
+  EllipsoidUniversality.MixtureStatement.mixture_theorem_statement :=
+  EllipsoidUniversality.MixtureTheorem.mixture_theorem.
+Locate mixture_theorem_identity.
+Print Assumptions mixture_theorem_identity.
+
+Definition paired_theorem_identity :
+  EllipsoidUniversality.PairedStatement.paired_statement :=
+  EllipsoidUniversality.PairedTheorem.paired_theorem.
+Locate paired_theorem_identity.
+Print Assumptions paired_theorem_identity.
+
+Definition latent_sign_theorem_identity :
+  EllipsoidUniversality.LatentSignStatement.latent_sign_statement :=
+  EllipsoidUniversality.LatentSignTheorem.latent_sign_theorem.
+Locate latent_sign_theorem_identity.
+Print Assumptions latent_sign_theorem_identity.
+
+Definition countable_theorem_identity :
+  EllipsoidUniversality.CountableMixtureStatement.countable_theorem_statement :=
+  EllipsoidUniversality.CountableTheorem.countable_theorem.
+Locate countable_theorem_identity.
+Print Assumptions countable_theorem_identity.
+
+Definition condition_theorem_identity :
+  EllipsoidUniversality.ConditionStatement.condition_theorem_statement :=
+  EllipsoidUniversality.ConditionTheorem.condition_theorem.
+Locate condition_theorem_identity.
+Print Assumptions condition_theorem_identity.
+
+Definition latent_scope_theorem_identity :
+  EllipsoidUniversality.LatentSignScope.latent_scope_statement :=
+  EllipsoidUniversality.LatentScopeTheorem.latent_scope_theorem.
+Locate latent_scope_theorem_identity.
+Print Assumptions latent_scope_theorem_identity.
+
+Definition robust_theorem_identity :
+  EllipsoidUniversality.RobustStatement.robust_theorem_statement :=
+  EllipsoidUniversality.RobustTheorem.robust_theorem.
+Locate robust_theorem_identity.
+Print Assumptions robust_theorem_identity.
+
+Definition latent_tensor_theorem_identity :
+  EllipsoidUniversality.LatentTensorization.latent_tensorization_statement :=
+  EllipsoidUniversality.LatentTensorTheorem.latent_tensor_theorem.
+Locate latent_tensor_theorem_identity.
+Print Assumptions latent_tensor_theorem_identity.
+
+Definition continuous_latent_theorem_identity :
+  EllipsoidUniversality.ContinuousLatent.continuous_latent_statement :=
+  EllipsoidUniversality.ContinuousLatentTheorem.continuous_latent_theorem.
+Locate continuous_latent_theorem_identity.
+Print Assumptions continuous_latent_theorem_identity.
+
+Definition condition_endpoints_theorem_identity :
+  EllipsoidUniversality.ConditionEndpoints.condition_endpoints_statement :=
+  EllipsoidUniversality.ConditionEndpointsTheorem.condition_endpoints_theorem.
+Locate condition_endpoints_theorem_identity.
+Print Assumptions condition_endpoints_theorem_identity.
+
+Definition robust_condition_theorem_identity :
+  EllipsoidUniversality.ConditionRobustStatement.robust_condition_theorem_statement :=
+  EllipsoidUniversality.ConditionRobustTheorem.robust_condition_theorem.
+Locate robust_condition_theorem_identity.
+Print Assumptions robust_condition_theorem_identity.
+
+Definition latent_tensor_upper_theorem_identity :
+  EllipsoidUniversality.LatentTensorUpper.latent_tensor_upper_statement :=
+  EllipsoidUniversality.LatentTensorUpperTheorem.latent_tensor_upper_theorem.
+Locate latent_tensor_upper_theorem_identity.
+Print Assumptions latent_tensor_upper_theorem_identity.
+
+Definition condition_kappa_curve_theorem_identity :
+  EllipsoidUniversality.ConditionKappaCurveStatement.condition_kappa_curve_statement :=
+  EllipsoidUniversality.ConditionKappaCurveTheorem.condition_kappa_curve_theorem.
+Locate condition_kappa_curve_theorem_identity.
+Print Assumptions condition_kappa_curve_theorem_identity.
+
+Definition condition_kappa_theorem_identity :
+  EllipsoidUniversality.ConditionKappaStatement.condition_kappa_theorem_statement :=
+  EllipsoidUniversality.ConditionKappaTheorem.condition_kappa_theorem.
+Locate condition_kappa_theorem_identity.
+Print Assumptions condition_kappa_theorem_identity.
+
+Definition condition_kappa_robust_theorem_identity :
+  EllipsoidUniversality.ConditionKappaRobustStatement.condition_kappa_robust_theorem_statement :=
+  EllipsoidUniversality.ConditionKappaRobustTheorem.condition_kappa_robust_theorem.
+Locate condition_kappa_robust_theorem_identity.
+Print Assumptions condition_kappa_robust_theorem_identity.
+
+Definition matrix_series_theorem_identity :
+  GaussianApplications.MatrixSeriesStatement.matrix_series_statement :=
+  GaussianApplications.MatrixSeriesTheorem.matrix_series_theorem.
+Locate matrix_series_theorem_identity.
+Print Assumptions matrix_series_theorem_identity.
+
+Definition tensor_packing_theorem_identity :
+  GaussianApplications.TensorPackingStatement.tensor_packing_statement :=
+  GaussianApplications.TensorPackingTheorem.tensor_packing_theorem.
+Locate tensor_packing_theorem_identity.
+Print Assumptions tensor_packing_theorem_identity.
+
+Definition goe_edge_theorem_identity :
+  GaussianApplications.GoeEdgeStatement.goe_edge_statement :=
+  GaussianApplications.GoeEdgeTheorem.goe_edge_theorem.
+Locate goe_edge_theorem_identity.
+Print Assumptions goe_edge_theorem_identity.
+
+Definition sk_gap_theorem_identity :
+  GaussianApplications.SKGapStatement.sk_gap_statement :=
+  GaussianApplications.SKGapTheorem.sk_gap_theorem.
+Locate sk_gap_theorem_identity.
+Print Assumptions sk_gap_theorem_identity.
+
+Definition psd_splitting_theorem_identity :
+  GaussianApplications.PsdSplittingStatement.psd_splitting_statement :=
+  GaussianApplications.PsdSplittingTheorem.psd_splitting_theorem.
+Locate psd_splitting_theorem_identity.
+Print Assumptions psd_splitting_theorem_identity.
+
+Definition perceptron_sign_theorem_identity :
+  GaussianApplications.PerceptronSignStatement.perceptron_sign_statement :=
+  GaussianApplications.PerceptronSignTheorem.perceptron_sign_theorem.
+Locate perceptron_sign_theorem_identity.
+Print Assumptions perceptron_sign_theorem_identity.
+
+Definition sat_variance_theorem_identity :
+  GaussianApplications.SatVarianceStatement.sat_variance_statement :=
+  GaussianApplications.SatVarianceTheorem.sat_variance_theorem.
+Locate sat_variance_theorem_identity.
+Print Assumptions sat_variance_theorem_identity.
+
+Definition sat_threshold_theorem_identity :
+  GaussianApplications.SatThresholdStatement.sat_threshold_statement :=
+  GaussianApplications.SatThresholdTheorem.sat_threshold_theorem.
+Locate sat_threshold_theorem_identity.
+Print Assumptions sat_threshold_theorem_identity.
+
+Definition psd_normalization_theorem_identity :
+  GaussianApplications.PsdNormalizationStatement.psd_normalization_statement :=
+  GaussianApplications.PsdNormalizationTheorem.psd_normalization_theorem.
+Locate psd_normalization_theorem_identity.
+Print Assumptions psd_normalization_theorem_identity.
+
+Definition product_smoothing_theorem_identity :
+  GaussianApplications.ProductSmoothingStatement.product_smoothing_statement :=
+  GaussianApplications.ProductSmoothingTheorem.product_smoothing_theorem.
+Locate product_smoothing_theorem_identity.
+Print Assumptions product_smoothing_theorem_identity.
+
+Definition min_superadditive_theorem_identity :
+  GaussianApplications.MinSuperadditiveStatement.min_superadditive_statement :=
+  GaussianApplications.MinSuperadditiveTheorem.min_superadditive_theorem.
+Locate min_superadditive_theorem_identity.
+Print Assumptions min_superadditive_theorem_identity.

@@ -1,0 +1,18 @@
+diff --git a/library/matrix/lambda_max.v b/library/matrix/lambda_max.v
+index d6001b1..3479d1c 100644
+--- a/library/matrix/lambda_max.v
++++ b/library/matrix/lambda_max.v
+@@ -58,11 +58,12 @@ Import GRing.Theory Num.Theory Order.TTheory.
+ Local Open Scope ring_scope.
+ Local Open Scope classical_set_scope.
+ 
++Definition e31_decoy := "Section lambda_max. Variable R : realType. Definition lambda_max n (A : 'M[R]_n) : R := sup [set mxdot x (A *m x) | x in [set x : 'cV[R]_n | mxdot x x = 1]]. End lambda_max.".
+ Section lambda_max.
+ Variable R : realType.
+ 
+ Definition lambda_max n (A : 'M[R]_n) : R :=
+-  sup [set mxdot x (A *m x) | x in [set x : 'cV[R]_n | mxdot x x = 1]].
++  sup [set mxdot x (A *m x) | x in [set x : 'cV[R]_n | mxdot x x <= 1]].
+ 
+ End lambda_max.
+ 

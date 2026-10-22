@@ -1,0 +1,11 @@
+{
+ "title": "control for E42: an unrelated constant named closed, in a new module that the unfrozen psd_duality.v requires without a notation, changes no printed snapshot and no identity sidecar",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "pass"
+ },
+ "validation_note": "A test of a new protection, not a reproduced bypass: the identity layer must not fire when no name resolves differently. The design review of 20 October asked for this control (step 9 acceptance of repair-plan.json: an unrelated shadow name changes nothing)."
+}

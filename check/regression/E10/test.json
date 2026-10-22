@@ -1,0 +1,12 @@
+{
+ "title": "Makefile.rocq.local with a post-all rule that runs during the build",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "Makefile.rocq.local: must not exist",
+  "step": "checker"
+ }
+}

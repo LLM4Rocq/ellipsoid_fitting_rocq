@@ -32,12 +32,14 @@ From GaussianApplications.PsdRank Require Import Model.
 (* (ProductSmoothingTheorem.v); of T11 only the coefficient conclusion, at    *)
 (* one tuple of positive weight, is used.                                     *)
 (*                                                                            *)
-(* The hypotheses of psd_rank_from_cell_data:                                 *)
-(* - fourier_packet R t a, five general statements of packet P                *)
-(*   (boolean_fourier.v): the character algebra, the block distance as a      *)
-(*   metric, Fourier inversion, the coefficients of a combination of          *)
-(*   characters, and the translation of low block degree; they become the     *)
-(*   lemmas of the same names once the user accepts them.                     *)
+(* Five accepted statements of packet P are used through their lemmas of      *)
+(* boolean_fourier.v: the character algebra (bchar_algebra), the block        *)
+(* distance as a metric (blk_dist_metric), Fourier inversion                  *)
+(* (fcoef_inversion), the coefficients of a combination of characters         *)
+(* (fcoef_expansion), and the translation of low block degree                 *)
+(* (low_blk_deg_translate).                                                   *)
+(*                                                                            *)
+(* The hypothesis of psd_rank_from_cell_data:                                 *)
 (* - cell_data, for every R, cells of a fixed size k, a fixed T and constants *)
 (*   theta and lambda chosen before rho, with L lambda^2 C_L theta <= 1       *)
 (*   (matching-local-smallness) and lambda >= (64 L^4)^T: for every           *)
@@ -77,71 +79,6 @@ From GaussianApplications.PsdRank Require Import Model.
 (*                                bounded by L^t times the supremum norm      *)
 (* cell_data a theta n t D rho == local laws, a realization and a parity      *)
 (*                                functional, for t cells of a bits each      *)
-(*        fourier_packet R t a == the five statements of packet P used        *)
-(* ```                                                                        *)
-(******************************************************************************)
-(* # The final step of the PSD rank bound for shifted matching matrices       *)
-(*                                                                            *)
-(* Item P6 of phase 13 (AGENTS.md, section Phase 13): the skeleton of the     *)
-(* final step of the main theorem of 'Exponential PSD rank of positively      *)
-(* shifted matching matrices' (family 126 of the OpenAI math collection,      *)
-(* revision 1581d4cbd, source/sections/matching.tex, lines 41-66 and          *)
-(* 114-218), a Rocq formalization of the credited argument. It proves         *)
-(* psd_rank_statement of PsdRankStatement.v from explicit hypotheses, each    *)
-(* named in the statements below. Compiling the skeleton does not validate    *)
-(* them: phase 14 proves them, and then this file proves the main theorem     *)
-(* without hypotheses. The file follows no Lean module: the Lean development  *)
-(* of the collection proves a weaker claim by another route (Main.lean).      *)
-(*                                                                            *)
-(* The hypotheses of psd_rank_from_cell_data:                                 *)
-(* - product_smoothing_statement, target T11 (ProductSmoothingStatement.v),   *)
-(*   until its proof lands; only its coefficient conclusion, at one tuple of  *)
-(*   positive weight, is used.                                                *)
-(* - fourier_packet R t a, five general statements of packet P                *)
-(*   (boolean_fourier.v): the character algebra, the block distance as a      *)
-(*   metric, Fourier inversion, the coefficients of a combination of          *)
-(*   characters, and the translation of low block degree; they become the     *)
-(*   lemmas of the same names once the user accepts them.                     *)
-(* - cell_data, for every R, cells of a fixed size k, a fixed T and constants *)
-(*   theta and lambda chosen before rho, with L lambda^2 C_L theta <= 1       *)
-(*   (matching-local-smallness) and lambda >= (64 L^4)^T: for every           *)
-(*   0 < rho < 1, every even n and every even t >= T with                     *)
-(*   k t <= n < k (t + 2), local laws mu, nu and channels pi with             *)
-(*   smoothing_hyps and the contraction theta (local-averaging.tex, Lemma     *)
-(*   'Local averaging'), the realization U, M of rows and columns by odd sets *)
-(*   and perfect matchings with A_n(rho)(U x, M m) = f y on the support of    *)
-(*   the product restriction (matching.tex, lines 68-101), and a parity       *)
-(*   functional for f at block degree t / T and eps = 1 - rho (parity.tex,    *)
-(*   Proposition 'Parity functional', with the expander lemma).               *)
-(*                                                                            *)
-(* The proof:                                                                 *)
-(* - final_step_core: the truncation of each branch to the frequencies within *)
-(*   block distance D of the branch, the bound n (16 L^2)^-t on the discarded *)
-(*   part (matching-tail), the uniform error 2 n (4 L)^-t + n (16 L^2)^-t     *)
-(*   (matching-uniform-error), and the contradiction with the parity          *)
-(*   functional, by the character translation of the squares.                 *)
-(* - final_step: from a PSD factorization of A_n(rho) of size r <= 2^t, T10   *)
-(*   (psd_normalization, B = n) and T11 give the squares (matching-squares)   *)
-(*   and the coefficient bound (matching-fourier-bound), and the realization  *)
-(*   gives f as a sum of squares (matching-full-squares).                     *)
-(* - psd_rank_from_cell_data: K = 2 k; t is the largest even integer with     *)
-(*   k t <= n; every factorization has a size r > 2^t >= 2^(n / (2 k)).       *)
-(*                                                                            *)
-(* Departures from the manuscript, all equivalent:                            *)
-(* - D = t / T for a fixed T in place of floor(tau t) with tau = 1/1000, and  *)
-(*   lambda >= (64 L^4)^T in place of lambda^tau >= 64 L^4.                   *)
-(* - G^(1/2) is replaced by a Gram factor B with G = B^T B (psdmx_gram).      *)
-(* - The uniform error comes from 2 <S, E> <= d |S|^2 + |E|^2 / d with        *)
-(*   d = (4 L)^-t (mxdot_young).                                              *)
-(*                                                                            *)
-(* ```                                                                        *)
-(*   parity_functional D eps f == a linear functional, nonnegative on the     *)
-(*                                squares of the functions of block degree    *)
-(*                                at most D, equal to - eps at f, and         *)
-(*                                bounded by L^t times the supremum norm      *)
-(* cell_data a theta n t D rho == local laws, a realization and a parity      *)
-(*                                functional, for t cells of a bits each      *)
-(*        fourier_packet R t a == the five statements of packet P used        *)
 (* ```                                                                        *)
 (******************************************************************************)
 
@@ -277,14 +214,6 @@ Variables (R : realType) (t a : nat).
 Local Notation cube := 'M['F_2]_(t, a).
 Local Notation L := (2 ^ a)%N.
 
-(* The general statements of packet P of boolean_fourier.v that the final
-   step uses, as explicit hypotheses until the user accepts them. *)
-Hypotheses (hchar : bchar_algebra_statement t a R)
-  (hdist : blk_dist_metric_statement t a)
-  (hinv : fcoef_inversion_statement t a R)
-  (hexp : fcoef_expansion_statement t a R)
-  (htrans : low_blk_deg_translate_statement t a R).
-
 Lemma card_cube : #|{: cube}| = (L ^ t)%N.
 Proof. by rewrite card_mx card_Fp // mulnC expnM. Qed.
 
@@ -313,8 +242,8 @@ Lemma final_step_core (Rw r s D : nat) (n eps lambda : R)
   False.
 Proof.
 move=> fE fn BB rt hF l1 hl [Phi [PhiD PhiZ Phisq Phif Phinorm]] small.
-have [ch0 chD chC chpm] := hchar.
-have [dist_deg dist0 distC dist_tri dist_tr] := hdist.
+have [ch0 chD chC chpm] := bchar_algebra t a R.
+have [dist_deg dist0 distC dist_tri dist_tr] := blk_dist_metric t a.
 have L0 : (0 : R) < L%:R by rewrite ltr0n expn_gt0.
 have NE : (#|{: cube}|%:R : R) = L%:R ^+ t by rewrite card_cube natrX.
 have chsq (p y : cube) : bchar R p y ^+ 2 = 1.
@@ -326,7 +255,7 @@ pose E q y := \sum_(p | (D < blk_dist q p)%N) bchar R p y *: Hh q p.
 pose fstar (y : cube) : R^o := \sum_q mxdot (K q y *m B^T) (K q y *m B^T).
 pose E2 := n / (16 * L%:R ^+ 2) ^+ t.
 have HKE q y : H q y = K q y + E q y.
-  rewrite {1}(hinv (H q) y) (bigID (fun p => (blk_dist q p <= D)%N)) /=.
+  rewrite {1}(fcoef_inversion (H q) y) (bigID (fun p => (blk_dist q p <= D)%N)) /=.
   by congr (_ + _); apply: eq_bigl => p; rewrite ltnNge.
 have lpos : 0 < lambda by apply: lt_le_trans l1.
 have lD0 : 0 < lambda ^+ D.+1 by rewrite exprn_gt0.
@@ -427,14 +356,14 @@ have Pstar : 0 <= Phi fstar.
     exact: big_cons.
   have lowg q i j :
       low_blk_deg D (fun y => bchar R q y * (K q y *m B^T) i j : R^o).
-    apply: (@htrans R^o D (fun y => (K q y *m B^T) i j : R^o) q) => p pD.
+    apply: (@low_blk_deg_translate t a R R^o D (fun y => (K q y *m B^T) i j : R^o) q) => p pD.
     have -> : (fun y => (K q y *m B^T) i j : R^o) =
         (fun y => \sum_(p' : cube) bchar R p' y *:
           ((if (blk_dist q p' <= D)%N then (Hh q p' *m B^T) i j else 0) : R^o)).
       apply: funext => y; rewrite /K mulmx_suml summxE big_mkcond /=.
       apply: eq_bigr => p' _; case: ifP => _; last by rewrite scaler0.
       by rewrite -scalemxAl mxE.
-    by rewrite hexp distC leqNgt pD.
+    by rewrite fcoef_expansion distC leqNgt pD.
   have fsE : fstar = (fun y =>
       \sum_q \sum_i \sum_j (bchar R q y * (K q y *m B^T) i j) ^+ 2 : R^o).
     apply: funext => y; rewrite /fstar; apply: eq_bigr => q _; rewrite /mxdot.
@@ -566,19 +495,11 @@ Definition cell_data (R : realType) (a : nat) (theta : R) (n t D : nat)
         shifted_matching_mx rho (U x) (Mm m) = fy y &
       parity_functional D (1 - rho) fy].
 
-(* The general statements of packet P that the final step uses, for t blocks
-   of a bits. *)
-Definition fourier_packet (R : realType) (t a : nat) : Prop :=
-  [/\ bchar_algebra_statement t a R, blk_dist_metric_statement t a,
-      fcoef_inversion_statement t a R, fcoef_expansion_statement t a R &
-      low_blk_deg_translate_statement t a R].
-
-(* The main statement from T11, the general statements of packet P, and cell
-   data for every large even n, with the constants chosen before rho: a = d - 1
+(* The main statement from T10, T11, the lemmas of packet P, and cell data
+   for every large even n, with the constants chosen before rho: a = d - 1
    bits per block, theta with L lambda^2 C_L theta <= 1, lambda with
    lambda >= (64 L^4)^T, the block degree D = t / T, and cells of size k. *)
 Theorem psd_rank_from_cell_data (a : nat) :
-  (forall (R : realType) t, fourier_packet R t a) ->
   (forall R : realType, exists (k T : nat) (theta lambda : R),
      [/\ (0 < k)%N && (0 < T)%N, 1 <= lambda,
          (2 ^ a)%:R * lambda ^+ 2 * 2 ^+ (2 ^ a).-1 * theta <= 1,
@@ -589,7 +510,7 @@ Theorem psd_rank_from_cell_data (a : nat) :
            cell_data a theta n t (t %/ T) rho]) ->
   psd_rank_statement.
 Proof.
-move=> hP hcells R.
+move=> hcells R.
 have [k [T [theta [lambda [/andP[k0 T0] l1 hlam hlT hc]]]]] := hcells R.
 exists (2 * k)%N; split; first by rewrite muln_gt0.
 move=> rho /andP[r0 r1]; have e0 : 0 < 1 - rho by rewrite subr_gt0.
@@ -630,7 +551,6 @@ case: (leqP r (2 ^ t)) => [rt|rt]; last first.
 exfalso; have r01 : 0 < rho < 1 by rewrite r0 r1.
 have [X [M [mu [nu [pi [U [Mm [fy [hs hreal hpar]]]]]]]]] :=
   hc rho r01 n t en te tT kt nlt.
-have [hchar hdist hinv hexp htrans] := hP R t.
 (* lambda^(t / T + 1) >= (64 L^4)^t *)
 have hl' : (64 * (2 ^ a)%:R ^+ 4) ^+ t <= lambda ^+ (t %/ T).+1.
   set c := 64 * (2 ^ a)%:R ^+ 4 : R.
@@ -672,6 +592,6 @@ have small' : 2 * n%:R / 4 ^+ t + n%:R / (16 * (2 ^ a)%:R) ^+ t < 1 - rho :> R.
   move: h1 h2; set u := (4 : R) ^+ t.
   set w := (16 * (2 ^ a)%:R : R) ^+ t; set nn := (n%:R : R).
   by rewrite -!mulrA; lra.
-exact: (final_step hchar hdist hinv hexp htrans hs l1 hlam hl' hreal hpar
+exact: (final_step hs l1 hlam hl' hreal hpar
   (ltW r1) small' hf rt).
 Qed.

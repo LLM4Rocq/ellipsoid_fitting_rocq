@@ -1,0 +1,11 @@
+{
+ "title": "an exported notation after the pinned section tuple_prod",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "an exported module"
+ }
+}

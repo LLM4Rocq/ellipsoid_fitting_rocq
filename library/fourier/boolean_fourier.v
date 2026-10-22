@@ -1,6 +1,7 @@
 From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum ssrint zmodp.
 From mathcomp Require Import matrix.
+From GaussianAnalysis.matrix Require Import euclidean.
 
 (**md**************************************************************************)
 (* # Real Fourier analysis on Boolean products                                *)
@@ -9,7 +10,7 @@ From mathcomp Require Import matrix.
 (* each, and is a group under addition. A frequency p and a point y have the  *)
 (* F_2 pairing p . y = \sum_i \sum_j p_ij y_ij and the character              *)
 (* chi_p (y) = (-1)^(p . y), with the values 1 and -1 in any ring. A function *)
-(* f with values in a module V over a number field R has the Fourier          *)
+(* f with values in a module V over a numFieldType R has the Fourier          *)
 (* coefficients                                                               *)
 (*   fcoef f p = 2^(-t a) \sum_y chi_p (y) f (y),                             *)
 (* normalized by the number 2^(t a) of points, so that the inversion formula  *)
@@ -20,56 +21,59 @@ From mathcomp Require Import matrix.
 (* (low_blk_deg D f) if its coefficients vanish at every frequency of block   *)
 (* degree larger than D; the zero function has every block degree.            *)
 (*                                                                            *)
-(* This file holds the definitions and, as Prop definitions, the general      *)
-(* statements of packet P of phase 13, for the user's review (AGENTS.md,      *)
-(* section Phase 13, step 0, items 3 and 4). Each statement foo_statement is  *)
-(* proved, in the second part of the file, by the lemma foo with the same     *)
-(* text and the same parameters; the statement definitions stay until the     *)
-(* user accepts them. The characters take their values in any ring            *)
-(* (pzRingType), and the coefficients are over a numFieldType:                *)
-(* - bchar_algebra_statement: chi_0 = 1, chi_(p + q) = chi_p chi_q,           *)
+(* This file holds the definitions and the lemmas of packet P of phase 13,    *)
+(* whose statements the user accepted on 15 October 2026 (AGENTS.md, section  *)
+(* Phase 13, step 0, items 3 and 4); make check proves each accepted text, as *)
+(* the acceptance inventory records it, by its lemma. The characters take     *)
+(* their values in any ring (pzRingType), and the coefficients are over a     *)
+(* numFieldType:                                                              *)
+(* - bchar_algebra: chi_0 = 1, chi_(p + q) = chi_p chi_q,                     *)
 (*   chi_p (y) = chi_y (p), and chi_p (y) is 1 or -1.                         *)
-(* - bchar_orthogonal_statement: \sum_y chi_p (y) chi_q (y) is 2^(t a) if     *)
-(*   p = q, and 0 otherwise.                                                  *)
-(* - blk_dist_metric_statement: the block distance is a metric, invariant     *)
-(*   under translation, and the distance of p and q is the block degree of    *)
-(*   p + q.                                                                   *)
-(* - blk_dist_row_statement: on one block, the distance of s and z is 1 if    *)
-(*   s != z, and 0 otherwise.                                                 *)
-(* - fcoef_inversion_statement: the inversion formula.                        *)
-(* - fcoef_expansion_statement: the coefficients of                           *)
-(*   y |-> \sum_p chi_p (y) c_p are the c_p, so the characters form a basis.  *)
-(* - fcoef_plancherel_statement: Plancherel's identity                        *)
+(* - bchar_orthogonal: \sum_y chi_p (y) chi_q (y) is 2^(t a) if p = q, and 0  *)
+(*   otherwise.                                                               *)
+(* - bchar_delta: at the one-bit frequency delta_mx i j, the character is     *)
+(*   y |-> (-1)^(y_ij), with the exponent written as nat_of_ord (y i j).      *)
+(* - blk_dist_metric: the block distance is a metric, invariant under         *)
+(*   translation, and the distance of p and q is the block degree of p + q.   *)
+(* - blk_dist_row: on one block, the distance of s and z is 1 if s != z, and  *)
+(*   0 otherwise.                                                             *)
+(* - fcoef_inversion: the inversion formula.                                  *)
+(* - fcoef_expansion: the coefficients of y |-> \sum_p chi_p (y) c_p are the  *)
+(*   c_p, so the characters form a basis.                                     *)
+(* - fcoef_plancherel: Plancherel's identity                                  *)
 (*   2^(-t a) \sum_y b (f y) (g y) = \sum_p b (fcoef f p) (fcoef g p) for     *)
 (*   every bilinear map b, for example mxdot or (H, G) |-> H^T G.             *)
-(* - fcoef_linear_statement, fcoef_comp_linear_statement and                  *)
-(*   fcoef_mulmx_statement: the coefficient is linear in the function, and it *)
-(*   commutes with every linear map of the values, in particular with         *)
-(*   constant matrix factors on both sides.                                   *)
-(* - fcoef_norm_le_statement: the coefficients of a real function are bounded *)
-(*   by the supremum of its absolute value.                                   *)
-(* - fcoef_translate_statement: multiplication by chi_q translates the        *)
-(*   frequency p to p + q.                                                    *)
-(* - low_blk_deg_expansion_statement: f has block degree at most D if and     *)
-(*   only if it is the sum of its terms of block degree at most D.            *)
-(* - low_blk_deg_translate_statement: if the coefficients of f vanish at      *)
-(*   block distance larger than D from q, then chi_q f has block degree at    *)
-(*   most D. Its squares are those of f, since chi_q (y)^2 = 1.               *)
-(* - bchar_col_mx_statement, blk_col_mx_statement and fcoef_col_mx_statement: *)
-(*   when col_mx splits 'M['F_2]_(t1 + t2, a) into two groups of blocks, the  *)
-(*   character is the product of the two characters, block degrees and        *)
-(*   distances add, and a coefficient is an iterated coefficient.             *)
+(* - fcoef_linear, fcoef_comp_linear and fcoef_mulmx: the coefficient is      *)
+(*   linear in the function, and it commutes with every linear map of the     *)
+(*   values, in particular with constant matrix factors on both sides.        *)
+(* - fcoef_norm_le: the coefficients of a real function are bounded by the    *)
+(*   supremum of its absolute value.                                          *)
+(* - fcoef_translate: multiplication by chi_q translates the frequency p to   *)
+(*   p + q.                                                                   *)
+(* - low_blk_deg_expansion: f has block degree at most D if and only if it is *)
+(*   the sum of its terms of block degree at most D.                          *)
+(* - low_blk_deg_translate: if the coefficients of f vanish at block distance *)
+(*   larger than D from q, then chi_q f has block degree at most D. Its       *)
+(*   squares are those of f, since chi_q (y)^2 = 1.                           *)
+(* - bchar_col_mx, blk_col_mx and fcoef_col_mx: when col_mx splits            *)
+(*   'M['F_2]_(t1 + t2, a) into two groups of blocks, the character is the    *)
+(*   product of the two characters, block degrees and distances add, and a    *)
+(*   coefficient is an iterated coefficient.                                  *)
 (*                                                                            *)
-(* Proved besides the statements:                                             *)
+(* Proved besides the lemmas of packet P:                                     *)
 (* - F2_cases, natF2_0, natF2_1, addF2_11, oppF2, oppmxF2, addmxF2_eq0 and    *)
 (*   addmxF2K: the arithmetic of 'F_2 and of its matrices, where -p = p;      *)
 (*   signF2D: (-1)^(u + v) = (-1)^u (-1)^v for u and v in 'F_2, in any ring.  *)
 (* - linear0_prop, linearD_prop, linearZ_prop and linear_sum_prop: a map that *)
 (*   satisfies the predicate linear sends 0 to 0 and commutes with sums and   *)
-(*   scalings.                                                                *)
-(* - bdotC, bdotDl, bdotDr, bdot0l, bdot_delta and bdot_col_mx: the pairing   *)
-(*   is symmetric and bilinear, bdot p (delta_mx i j) = p i j, and it adds    *)
-(*   along col_mx.                                                            *)
+(*   scalings. The lemmas of packet P take plain maps with this predicate,    *)
+(*   not the structure {linear U -> W}, so that a bilinear map is a curried   *)
+(*   function with one hypothesis for each argument, and a map such as        *)
+(*   H |-> A *m H *m B needs no instance.                                     *)
+(* - bdotE, bdotC, bdotDl, bdotDr, bdot0l, bdot_delta and bdot_col_mx: the    *)
+(*   pairing is mxdot of matrix/euclidean.v at 'F_2 (bdotE), so it is         *)
+(*   symmetric and bilinear and bdot p (delta_mx i j) = p i j, by the lemmas  *)
+(*   on mxdot; it adds along col_mx.                                          *)
 (* - bchar0, bcharD, bcharC, bcharDr, bchar_sign and bchar_sqr: the character *)
 (*   algebra; bchar_int: the characters in R are the images of the characters *)
 (*   in int; sum_bchar_int and sum_bchar: \sum_y chi_p (y) is 2^(t a) if      *)
@@ -108,7 +112,7 @@ From mathcomp Require Import matrix.
 (*   the points, Y_1 x ... x Y_t with each Y_i identified with (F_2)^a, are   *)
 (*   both 'M['F_2]_(t, a), with the block p_i as the row i of p;              *)
 (* - the coefficients are defined for functions with values in any module     *)
-(*   over a number field, where the manuscript has real matrices, and the     *)
+(*   over a numFieldType, where the manuscript has real matrices, and the     *)
 (*   characters with values in any ring.                                      *)
 (*                                                                            *)
 (* ```                                                                        *)
@@ -146,32 +150,6 @@ Definition blk_deg p : nat := #|[set i : 'I_t | row i p != 0]|.
 (* The block distance of p and q: the number of rows where they differ. *)
 Definition blk_dist p q : nat := #|[set i : 'I_t | row i p != row i q]|.
 
-Section characters.
-Variable R : pzRingType.
-
-(* The characters form a symmetric bicharacter with values 1 and -1. *)
-Definition bchar_algebra_statement : Prop :=
-  [/\ forall y, bchar R 0 y = 1,
-      forall p q y, bchar R (p + q) y = bchar R p y * bchar R q y,
-      forall p y, bchar R p y = bchar R y p &
-      forall p y, bchar R p y = 1 \/ bchar R p y = -1].
-
-(* Orthogonality of the characters for the counting measure. *)
-Definition bchar_orthogonal_statement : Prop :=
-  forall p q, \sum_(y : cube) bchar R p y * bchar R q y =
-    if p == q then #|{: cube}|%:R else 0.
-
-End characters.
-
-(* The block distance is a metric, invariant under translation, and the
-   distance of p and q is the block degree of p + q. *)
-Definition blk_dist_metric_statement : Prop :=
-  [/\ forall p q, blk_dist p q = blk_deg (p + q),
-      forall p q, blk_dist p q = 0%N <-> p = q,
-      forall p q, blk_dist p q = blk_dist q p,
-      forall p q s, (blk_dist p s <= blk_dist p q + blk_dist q s)%N &
-      forall p q s, blk_dist (p + s) (q + s) = blk_dist p q].
-
 Section coefficients.
 Variable R : numFieldType.
 
@@ -185,97 +163,9 @@ Definition fcoef (V : lmodType R) (f : cube -> V) p : V :=
 Definition low_blk_deg (V : lmodType R) (D : nat) (f : cube -> V) : Prop :=
   forall p, (D < blk_deg p)%N -> fcoef f p = 0.
 
-(* Fourier inversion. *)
-Definition fcoef_inversion_statement : Prop :=
-  forall (V : lmodType R) (f : cube -> V) y,
-  f y = \sum_(p : cube) bchar R p y *: fcoef f p.
-
-(* The coefficients of a combination of characters are its weights. *)
-Definition fcoef_expansion_statement : Prop :=
-  forall (V : lmodType R) (c : cube -> V) q,
-  fcoef (fun y => \sum_(p : cube) bchar R p y *: c p) q = c q.
-
-(* Plancherel's identity for every bilinear map b. *)
-Definition fcoef_plancherel_statement : Prop :=
-  forall (V W Z : lmodType R) (b : V -> W -> Z),
-  (forall w, linear (b^~ w)) -> (forall v, linear (b v)) ->
-  forall (f : cube -> V) (g : cube -> W),
-  (#|{: cube}|%:R)^-1 *: \sum_(y : cube) b (f y) (g y) =
-    \sum_(p : cube) b (fcoef f p) (fcoef g p).
-
-(* The coefficient is linear in the function. *)
-Definition fcoef_linear_statement : Prop :=
-  forall (V : lmodType R) (c : R) (f g : cube -> V) p,
-  fcoef (fun y => c *: f y + g y) p = c *: fcoef f p + fcoef g p.
-
-(* The coefficient commutes with the linear maps of the values. *)
-Definition fcoef_comp_linear_statement : Prop :=
-  forall (V W : lmodType R) (h : V -> W), linear h ->
-  forall (f : cube -> V) p, fcoef (fun y => h (f y)) p = h (fcoef f p).
-
-(* The coefficient commutes with constant matrix factors. *)
-Definition fcoef_mulmx_statement : Prop :=
-  forall m n k l (A : 'M[R]_(m, n)) (f : cube -> 'M[R]_(n, k))
-    (B : 'M[R]_(k, l)) p,
-  fcoef (fun y => A *m f y *m B) p = A *m fcoef f p *m B.
-
-(* A coefficient of a real function is bounded by the supremum of its
-   absolute value. *)
-Definition fcoef_norm_le_statement : Prop :=
-  forall (f : cube -> R^o) (c : R) p,
-  (forall y, `|f y : R| <= c) -> `|fcoef f p : R| <= c.
-
-(* Multiplication by chi_q translates the frequency p to p + q. *)
-Definition fcoef_translate_statement : Prop :=
-  forall (V : lmodType R) (f : cube -> V) p q,
-  fcoef (fun y => bchar R q y *: f y) (p + q) = fcoef f p.
-
-(* f has block degree at most D iff it is the sum of its terms of block
-   degree at most D. *)
-Definition low_blk_deg_expansion_statement : Prop :=
-  forall (V : lmodType R) (D : nat) (f : cube -> V),
-  low_blk_deg D f <->
-  forall y, f y = \sum_(p : cube | (blk_deg p <= D)%N) bchar R p y *: fcoef f p.
-
-(* If the spectrum of f lies within block distance D of q, then chi_q f has
-   block degree at most D. *)
-Definition low_blk_deg_translate_statement : Prop :=
-  forall (V : lmodType R) (D : nat) (f : cube -> V) q,
-  (forall p, (D < blk_dist p q)%N -> fcoef f p = 0) ->
-  low_blk_deg D (fun y => bchar R q y *: f y).
-
 End coefficients.
 
 End boolean_cube.
-
-(* On one block, the distance of s and z is 1 if s != z and 0 otherwise. *)
-Definition blk_dist_row_statement : Prop :=
-  forall a (s z : 'rV['F_2]_a), blk_dist s z = (s != z).
-
-Section blocks.
-Variables t1 t2 a : nat.
-
-(* Splitting the blocks with col_mx: the character is a product, ... *)
-Definition bchar_col_mx_statement : Prop :=
-  forall (R : pzRingType) (p1 y1 : 'M['F_2]_(t1, a))
-    (p2 y2 : 'M['F_2]_(t2, a)),
-  bchar R (col_mx p1 p2) (col_mx y1 y2) = bchar R p1 y1 * bchar R p2 y2.
-
-(* ... block degrees and distances add, ... *)
-Definition blk_col_mx_statement : Prop :=
-  forall (p1 q1 : 'M['F_2]_(t1, a)) (p2 q2 : 'M['F_2]_(t2, a)),
-  blk_deg (col_mx p1 p2) = (blk_deg p1 + blk_deg p2)%N /\
-  blk_dist (col_mx p1 p2) (col_mx q1 q2) = (blk_dist p1 q1 + blk_dist p2 q2)%N.
-
-(* ... and a coefficient is an iterated coefficient. *)
-Definition fcoef_col_mx_statement : Prop :=
-  forall (R : numFieldType) (V : lmodType R)
-    (f : 'M['F_2]_(t1 + t2, a) -> V) (p1 : 'M['F_2]_(t1, a))
-    (p2 : 'M['F_2]_(t2, a)),
-  fcoef f (col_mx p1 p2) =
-    fcoef (fun y1 => fcoef (fun y2 => f (col_mx y1 y2)) p2) p1.
-
-End blocks.
 
 (* ## Proofs *)
 
@@ -349,31 +239,24 @@ Variables t a : nat.
 Local Notation cube := 'M['F_2]_(t, a).
 Implicit Types p q s y z : cube.
 
+(* The pairing is mxdot of matrix/euclidean.v at 'F_2. *)
+Lemma bdotE p y : bdot p y = mxdot p y.
+Proof. by []. Qed.
+
 Lemma bdotC p y : bdot p y = bdot y p.
-Proof. by apply: eq_bigr => i _; apply: eq_bigr => j _; rewrite mulrC. Qed.
+Proof. by rewrite !bdotE mxdotC. Qed.
 
 Lemma bdotDl p q y : bdot (p + q) y = bdot p y + bdot q y.
-Proof.
-rewrite /bdot -big_split /=; apply: eq_bigr => i _.
-by rewrite -big_split /=; apply: eq_bigr => j _; rewrite mxE mulrDl.
-Qed.
+Proof. by rewrite !bdotE mxdotDl. Qed.
 
 Lemma bdotDr p y z : bdot p (y + z) = bdot p y + bdot p z.
-Proof. by rewrite bdotC bdotDl !(bdotC p). Qed.
+Proof. by rewrite !bdotE mxdotDr. Qed.
 
 Lemma bdot0l y : bdot 0 y = 0.
-Proof.
-by rewrite /bdot big1 // => i _; rewrite big1 // => j _; rewrite mxE mul0r.
-Qed.
+Proof. by rewrite bdotE mxdot0l. Qed.
 
 Lemma bdot_delta p i j : bdot p (delta_mx i j) = p i j.
-Proof.
-rewrite /bdot (bigD1 i) //= [X in _ + X]big1 => [i' Hi'|].
-  by rewrite big1 // => j' _; rewrite mxE (negbTE Hi') mulr0.
-rewrite addr0 (bigD1 j) //= big1 => [j' Hj'|].
-  by rewrite mxE eqxx (negbTE Hj') mulr0.
-by rewrite mxE !eqxx mulr1 addr0.
-Qed.
+Proof. by rewrite bdotE mxdot_delta. Qed.
 
 Section characters_proofs.
 Variable R : pzRingType.
@@ -407,6 +290,10 @@ Lemma bchar_algebra :
 Proof.
 by split; [exact: bchar0 | exact: bcharD | exact: bcharC | exact: bchar_sign].
 Qed.
+
+Lemma bchar_delta (i : 'I_t) (j : 'I_a) y :
+  bchar R (delta_mx i j) y = (-1) ^+ nat_of_ord (y i j).
+Proof. by rewrite bcharC /bchar bdot_delta. Qed.
 
 Lemma bchar_int p y : bchar R p y = (bchar int p y)%:~R.
 Proof. by rewrite /bchar rmorphXn rmorphN1. Qed.

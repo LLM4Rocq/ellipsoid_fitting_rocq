@@ -1,0 +1,17 @@
+diff --git a/check/Phase13Definitions.v b/check/Phase13Definitions.v
+index 6b8ce0a..14b1cd9 100644
+--- a/check/Phase13Definitions.v
++++ b/check/Phase13Definitions.v
+@@ -72,6 +72,7 @@ Proof. by []. Qed.
+ 
+ Print Assumptions meet_avg_characterization.
+ 
++(* " *)
+ (* Freeze 2, the definitions that T11 and packet P (batch 2) unfold to:
+    - bdot, bchar, blk_deg, blk_dist, fcoef and low_blk_deg
+      (fourier/boolean_fourier.v): the F_2 pairing, the character
+@@ -199,3 +200,4 @@ Lemma psd_eval_cone_characterization (R : realType) (n N : nat)
+ Proof. by []. Qed.
+ 
+ Print Assumptions psd_eval_cone_characterization.
++(* " *)

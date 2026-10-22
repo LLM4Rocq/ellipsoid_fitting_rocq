@@ -1,0 +1,18 @@
+{
+ "title": "an rc file under XDG_CONFIG_HOME (coq/coqrc, which Rocq 9.1.1 reads; ROCQRC and COQRC it does not) is loaded by every compilation and runs a shell command",
+ "step": "environment",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "unset XDG_CONFIG_HOME"
+ },
+ "environment": {
+  "XDG_CONFIG_HOME": "@BUILD@/e26xdg"
+ },
+ "files": {
+  "e26xdg/coq/coqrc": "From elpi Require Import elpi.\nElpi Command rc_marker.\nElpi Accumulate lp:{{ main _ :- system \"touch build/e26-rc-ran\" _. }}.\nElpi rc_marker.\n"
+ },
+ "marker": "e26-rc-ran"
+}

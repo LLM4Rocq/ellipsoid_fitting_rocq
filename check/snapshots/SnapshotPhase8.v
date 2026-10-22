@@ -1,0 +1,41 @@
+(* The statement snapshot SnapshotPhase8 (scripts/check_sources.py, rule 30):
+   the declarations accepted at 5442e84ba6cd, printed in full. Written
+   by scripts/snapshot_baselines.py; its reference, the output at that
+   commit, is check/snapshots/SnapshotPhase8.txt. *)
+
+Require EllipsoidUniversality.CountableMixtureDefinitions.
+Require EllipsoidUniversality.CountableMixtureStatement.
+Require EllipsoidUniversality.ConditionDefinitions.
+Require EllipsoidUniversality.ConditionStatement.
+Require EllipsoidUniversality.LatentSignScope.
+
+Set Printing All.
+Set Printing Universes.
+Set Printing Depth 1000000.
+Set Printing Width 78.
+
+Print Module EllipsoidUniversality.CountableMixtureDefinitions.
+Print EllipsoidUniversality.CountableMixtureDefinitions.countable_mixture_family.
+Print EllipsoidUniversality.CountableMixtureDefinitions.countable_fourth_moment.
+Print EllipsoidUniversality.CountableMixtureDefinitions.countable_labelled_law.
+Print EllipsoidUniversality.CountableMixtureDefinitions.countable_mixture_probability.
+Print Module EllipsoidUniversality.CountableMixtureStatement.
+Print EllipsoidUniversality.CountableMixtureStatement.countable_mixture_statement.
+Print EllipsoidUniversality.CountableMixtureStatement.countable_interpolation_statement.
+Print EllipsoidUniversality.CountableMixtureStatement.countable_theorem_statement.
+Print Module EllipsoidUniversality.ConditionDefinitions.
+Print EllipsoidUniversality.ConditionDefinitions.condition_t.
+Print EllipsoidUniversality.ConditionDefinitions.condition_alpha.
+Print EllipsoidUniversality.ConditionDefinitions.condition_star.
+Print EllipsoidUniversality.ConditionDefinitions.data_condition_number.
+Print Module EllipsoidUniversality.ConditionStatement.
+Print EllipsoidUniversality.ConditionStatement.condition_statement.
+Print EllipsoidUniversality.ConditionStatement.condition_number_statement.
+Print EllipsoidUniversality.ConditionStatement.countable_condition_statement.
+Print EllipsoidUniversality.ConditionStatement.countable_condition_number_statement.
+Print EllipsoidUniversality.ConditionStatement.condition_theorem_statement.
+Print Module EllipsoidUniversality.LatentSignScope.
+Print EllipsoidUniversality.LatentSignScope.latent_point_expectation.
+Print EllipsoidUniversality.LatentSignScope.latent_covariance_statement.
+Print EllipsoidUniversality.LatentSignScope.latent_variance_statement.
+Print EllipsoidUniversality.LatentSignScope.latent_scope_statement.

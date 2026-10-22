@@ -1,0 +1,12 @@
+diff --git a/_CoqProject b/_CoqProject
+index 1f84eac..9979f0c 100644
+--- a/_CoqProject
++++ b/_CoqProject
+@@ -6,6 +6,7 @@
+ -arg -w -arg -ambiguous-paths
+ -arg -w -arg -notation-incompatible-prefix
+ -arg -w -arg -hiding-delimiting-key
++-arg -impredicative-set
+ -arg -w -arg +comment-terminator-in-string
+ -arg -q
+ 

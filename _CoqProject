@@ -6,6 +6,8 @@
 -arg -w -arg -ambiguous-paths
 -arg -w -arg -notation-incompatible-prefix
 -arg -w -arg -hiding-delimiting-key
+-arg -w -arg +comment-terminator-in-string
+-arg -q
 
 library/gaussian/measurable_matrix.v
 library/gaussian/normal_integral.v
@@ -34,6 +36,7 @@ library/matrix/condition_cone.v
 library/matrix/trace_projection.v
 library/matrix/tensor_packing.v
 library/matrix/psd_factorization.v
+library/matrix/psd_duality.v
 library/probability/moments.v
 library/probability/lindeberg.v
 library/probability/subgaussian.v

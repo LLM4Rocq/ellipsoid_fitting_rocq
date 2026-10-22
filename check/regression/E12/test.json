@@ -1,0 +1,11 @@
+{
+ "title": "an inventory text changed (<= to <)",
+ "step": "checker",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "unif_mean_markov_accepted does not state the accepted proposition"
+ }
+}

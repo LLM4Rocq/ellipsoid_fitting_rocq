@@ -1,0 +1,24 @@
+{
+ "title": "ROCQPATH adds a load path: a library module requires a module that exists only outside the repository",
+ "step": "environment",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "unset ROCQPATH"
+ },
+ "environment": {
+  "ROCQPATH": "@BUILD@/e27"
+ },
+ "files": {
+  "e27/Shadowlib/Foo.v": "Definition shadow_marker := 0.\n"
+ },
+ "compile": [
+  [
+   "e27/Shadowlib",
+   "Shadowlib",
+   "e27/Shadowlib/Foo.v"
+  ]
+ ]
+}

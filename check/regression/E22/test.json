@@ -1,0 +1,12 @@
+{
+ "title": "a Makefile variant: .IGNORE with a broken check file",
+ "step": "make",
+ "baseline": {
+  "expect": "pass"
+ },
+ "repaired": {
+  "expect": "fail",
+  "message": "Makefile: differs from the content fixed by FIXED_FILES",
+  "step": "checker"
+ }
+}

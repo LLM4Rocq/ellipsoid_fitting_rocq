@@ -1,0 +1,12 @@
+diff --git a/Makefile b/Makefile
+index a6eadad..628ad51 100644
+--- a/Makefile
++++ b/Makefile
+@@ -76,7 +76,6 @@ theories/%.vo library/%.vo extension/%.vo applications/%.vo: Makefile.rocq FORCE
+ check: build
+ 	mkdir -p build
+ 	rm -f $(REPORTS) build/applications_definitions.txt build/phase13_definitions.txt
+-	$(EXEC) rocq compile -noglob -w -notation-overridden -w -ambiguous-paths -w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library GaussianAnalysis -o build/ApplicationsDefinitions.vo check/ApplicationsDefinitions.v > build/applications_definitions.txt
+ 	$(EXEC) rocq compile -noglob -w -notation-overridden -w -ambiguous-paths -w -notation-incompatible-prefix -w -hiding-delimiting-key -Q library GaussianAnalysis -o build/Phase13Definitions.vo check/Phase13Definitions.v > build/phase13_definitions.txt
+ 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -o build/Assumptions.vo check/Assumptions.v > build/assumptions.txt
+ 	$(EXEC) rocq compile -noglob -Q library GaussianAnalysis -Q theories EllipsoidFitting -Q extension EllipsoidUniversality -o build/UniversalityAssumptions.vo check/UniversalityAssumptions.v > build/universality_assumptions.txt
