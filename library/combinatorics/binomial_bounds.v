@@ -45,12 +45,11 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (*   for j <= u: the bound local:binomial-ratio of the manuscript with C = 2, *)
 (*   squared; from the identity and the two central bounds.                   *)
 (* - bin_mul_pow: C(b, s) l^s <= C(l, s) b^s for b <= l and every s, from     *)
-(*   (b)_s l^s <= (l)_s b^s factor by factor (ffact_mul_pow). It is stated    *)
-(*   again for review in phase 14 as bin_mul_pow_statement, which is kept     *)
-(*   until its acceptance. The expander lemma of combinatorics/expander.v     *)
-(*   uses it to bound the number of permutations of a set of l points that    *)
-(*   map a given set of s points into a given set of b points (parity.tex,    *)
-(*   lines 68-71).                                                            *)
+(*   (b)_s l^s <= (l)_s b^s factor by factor (ffact_mul_pow); its statement   *)
+(*   was accepted with batch 1 of phase 14. The expander lemma of             *)
+(*   combinatorics/expander.v uses it to bound the number of permutations of  *)
+(*   a set of l points that map a given set of s points into a given set of b *)
+(*   points (parity.tex, lines 68-71).                                        *)
 (* - expnn_le_fact: n^n <= 4^n n!, from (n + 1)^n <= 4 n^n (succ_expn_le, by  *)
 (*   the binomial expansion and k! >= 2^(k-1)); hence bin_expnn_le: C(n, w)   *)
 (*   w^w <= 4^w n^w, the bound C(n, w) <= (e n / w)^w with e replaced by 4.   *)
@@ -307,12 +306,6 @@ by rewrite leq_mul2r hu orbT.
 Qed.
 
 End central.
-
-(* For b <= l and every s: C(b, s) l^s <= C(l, s) b^s, that is, the
-   probability C(b, s) / C(l, s) that s points drawn without replacement
-   from l all fall in a given set of b is at most (b / l)^s. *)
-Definition bin_mul_pow_statement : Prop :=
-  forall b l s : nat, (b <= l)%N -> ('C(b, s) * l ^ s <= 'C(l, s) * b ^ s)%N.
 
 Section products.
 Local Open Scope nat_scope.

@@ -18,8 +18,7 @@ From GaussianAnalysis.combinatorics Require Import binomial_bounds.
 (*   with their multiplicities.                                               *)
 (* - expander: for every l >= 1 there are 100 permutations s 0, ..., s 99 of  *)
 (*   'I_l such that every vertex set W satisfies min(|W|, 2 l - |W|) <=       *)
-(*   |perm_cut s W|. It is also stated, for review, as expander_statement,    *)
-(*   which is kept until its acceptance.                                      *)
+(*   |perm_cut s W|; this statement was accepted with batch 1 of phase 14.    *)
 (* - perm_cut_eq0: under that inequality, a set with an empty cut is empty or *)
 (*   the whole vertex set; the example expander_connected gives a connected   *)
 (*   multigraph for every l >= 1.                                             *)
@@ -81,13 +80,6 @@ Import GRing.Theory Num.Theory.
 Definition perm_cut (d l : nat) (s : 'I_d -> {perm 'I_l})
     (W : {set 'I_(l + l)}) : {set 'I_d * 'I_l} :=
   [set e | (lshift l e.2 \in W) != (rshift l (s e.1 e.2) \in W)].
-
-(* For every l >= 1, some 100 permutations of 'I_l give a multigraph in which
-   every cut has at least min(|W|, 2 l - |W|) edges. *)
-Definition expander_statement : Prop :=
-  forall l : nat, (0 < l)%N ->
-  exists s : 'I_100 -> {perm 'I_l},
-  forall W : {set 'I_(l + l)}, (minn #|W| (l + l - #|W|) <= #|perm_cut s W|)%N.
 
 Section transitive.
 Variable n : nat.
