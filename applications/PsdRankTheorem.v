@@ -17,8 +17,8 @@ From GaussianApplications.PsdRank Require Import Model Main Realization.
 (* source/sections/matching.tex, lines 41-218), a Rocq formalization of the   *)
 (* credited argument. The file follows no Lean module.                        *)
 (*                                                                            *)
-(* psd_rank_from_parts: psd_rank_statement follows from three hypotheses,     *)
-(* each a Prop of this file or of the library:                                *)
+(* psd_rank_from_parts: psd_rank_statement follows from two hypotheses, Props *)
+(* of this file:                                                              *)
 (* - local_averaging_hyp, the local averaging of a cell at d = 100 (item A2,  *)
 (*   local-averaging.tex, lines 64-92): laws of the cell with the five        *)
 (*   conditions of smoothing_hyps, a contraction theta k with theta k -> 0    *)
@@ -26,11 +26,11 @@ From GaussianApplications.PsdRank Require Import Model Main Realization.
 (*   of the frame (PsdRank/Model.v);                                          *)
 (* - parity_hyp, the parity functional (item A4, parity.tex, lines 131-150):  *)
 (*   parity_functional at block degree (l + l) %/ 1000 for f_eps of the       *)
-(*   frame, when the graph of the 100 permutations sigma j expands;           *)
-(* - expander_statement of library/combinatorics/expander.v (item L7): such   *)
-(*   permutations exist for every l >= 1.                                     *)
+(*   frame, when the graph of the 100 permutations sigma j expands.           *)
 (* The proof applies psd_rank_from_cell_data of PsdRank/Main.v at a = 99 and  *)
-(* builds its cell data from the three hypotheses and from realization of     *)
+(* builds its cell data from the two hypotheses, from expander of             *)
+(* library/combinatorics/expander.v (item L7: for every l >= 1, 100           *)
+(* permutations of 'I_l whose graph expands) and from realization of          *)
 (* PsdRank/Realization.v (item A5), with the charges 1 at the first cell and  *)
 (* 0 elsewhere, of total 1.                                                   *)
 (*                                                                            *)
@@ -84,9 +84,9 @@ Definition parity_hyp : Prop :=
   parity_functional ((l + l) %/ 1000) eps (f_eps sigma b eps).
 
 Theorem psd_rank_from_parts :
-  local_averaging_hyp -> parity_hyp -> expander_statement -> psd_rank_statement.
+  local_averaging_hyp -> parity_hyp -> psd_rank_statement.
 Proof.
-move=> hA2 hA4 hL7; apply: (@psd_rank_from_cell_data 99) => R.
+move=> hA2 hA4; apply: (@psd_rank_from_cell_data 99) => R.
 have [k0 [theta [th0 thlim hcell]]] := hA2 R.
 (* L = 2^99, lambda = (64 L^4)^1000 and c = L lambda^2 2^(L - 1) stay
    symbolic: their bodies are cleared once their facts are proved. *)
@@ -134,7 +134,7 @@ have tl : t = (l + l)%N.
   by rewrite addnn /l -[t in LHS](odd_double_half t) (negbTE et) add0n.
 rewrite tl in ktn t1000 *.
 have l0 : (0 < l)%N by rewrite lt0n; apply/eqP => l0; move: t1000; rewrite l0.
-have [sigma hsig] := hL7 l l0.
+have [sigma hsig] := expander l0.
 (* the charges: 1 at the first cell, 0 elsewhere *)
 have t0 : (0 < l + l)%N by rewrite addn_gt0 l0.
 pose i0 : 'I_(l + l) := Ordinal t0.
