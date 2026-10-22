@@ -7,8 +7,9 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (* # Bounds on binomial coefficients                                          *)
 (*                                                                            *)
 (* Estimates of binomial coefficients: in nat, with no field, bounds on the   *)
-(* central binomial coefficient and comparisons near the center; over a       *)
-(* realType, a bound on the partial sums of a row of Pascal's triangle.       *)
+(* central binomial coefficient, comparisons near the center, and bounds of   *)
+(* C(n, k) by powers; over a realType, a bound on the partial sums of a row   *)
+(* of Pascal's triangle.                                                      *)
 (*                                                                            *)
 (* Item X of phase 13 (AGENTS.md, section Phase 13), for the local averaging  *)
 (* and the expander lemma of phase 14: a Rocq formalization of the binomial   *)
@@ -43,11 +44,18 @@ From mathcomp Require Import arithmetic_tactic ring_tactic.
 (* - bin_sqr_ratio: C(u, j)^4 (j + 1) (u - j + 1) <= 4 (u + 1) C(2u, 2j)^2    *)
 (*   for j <= u: the bound local:binomial-ratio of the manuscript with C = 2, *)
 (*   squared; from the identity and the two central bounds.                   *)
-(* - bin_mul_pow_statement, stated for review in phase 14, before its proof:  *)
-(*   C(b, s) l^s <= C(l, s) b^s for b <= l and every s. The expander lemma of *)
-(*   combinatorics/expander.v uses it to bound the number of permutations of  *)
-(*   a set of l points that map a given set of s points into a given set of b *)
-(*   points (parity.tex, lines 68-71).                                        *)
+(* - bin_mul_pow: C(b, s) l^s <= C(l, s) b^s for b <= l and every s, from     *)
+(*   (b)_s l^s <= (l)_s b^s factor by factor (ffact_mul_pow). It is stated    *)
+(*   again for review in phase 14 as bin_mul_pow_statement, which is kept     *)
+(*   until its acceptance. The expander lemma of combinatorics/expander.v     *)
+(*   uses it to bound the number of permutations of a set of l points that    *)
+(*   map a given set of s points into a given set of b points (parity.tex,    *)
+(*   lines 68-71).                                                            *)
+(* - expnn_le_fact: n^n <= 4^n n!, from (n + 1)^n <= 4 n^n (succ_expn_le, by  *)
+(*   the binomial expansion and k! >= 2^(k-1)); hence bin_expnn_le: C(n, w)   *)
+(*   w^w <= 4^w n^w, the bound C(n, w) <= (e n / w)^w with e replaced by 4.   *)
+(*   The expander lemma uses both: its statement is in nat, and its proof     *)
+(*   uses no real type.                                                       *)
 (* - bin_partial_sum: for every realType and M <= N, sum_(j <= M) C(N, j) <=  *)
 (*   (e N / M)^M, where both sides are 1 for M = 0: with x = M / N, x^M times *)
 (*   the partial sum is at most (1 + x)^N <= e^M. The manuscript uses it at M *)
@@ -305,6 +313,91 @@ End central.
    from l all fall in a given set of b is at most (b / l)^s. *)
 Definition bin_mul_pow_statement : Prop :=
   forall b l s : nat, (b <= l)%N -> ('C(b, s) * l ^ s <= 'C(l, s) * b ^ s)%N.
+
+Section products.
+Local Open Scope nat_scope.
+
+Lemma ffact_mul_pow b l s : b <= l -> b ^_ s * l ^ s <= l ^_ s * b ^ s.
+Proof.
+move=> bl; elim: s => [|s IH]; first by rewrite !ffactn0 !expn0.
+rewrite !ffactnSr !expnS [l * l ^ s]mulnC [b * b ^ s]mulnC.
+rewrite mulnACA [X in _ <= X]mulnACA; apply: leq_mul IH _.
+by rewrite !mulnBl [b * l]mulnC leq_sub2l // leq_mul2l bl orbT.
+Qed.
+
+(* The probability (b)_s / (l)_s of drawing s points of a set of b among l,
+   without replacement, is at most (b / l)^s. *)
+Lemma bin_mul_pow b l s : b <= l -> 'C(b, s) * l ^ s <= 'C(l, s) * b ^ s.
+Proof.
+move=> bl; rewrite -(@leq_pmul2r s`!) ?fact_gt0 //.
+rewrite [_ * l ^ s * _]mulnAC [_ * b ^ s * _]mulnAC !bin_ffact.
+exact: ffact_mul_pow.
+Qed.
+
+Lemma pow2_le_fact i : 2 ^ i <= 2 * i`!.
+Proof.
+case: i => // i; elim: i => // i IH; rewrite expnS factS.
+apply: leq_trans (leq_mul (leqnn 2) IH) _.
+by rewrite leq_mul2l /= leq_mul2r orbT.
+Qed.
+
+(* C(n, k) k! = n (n - 1) ... (n - k + 1) <= n^k, with k! >= 2^(k-1). *)
+Lemma bin_pow2_le n k : 'C(n, k) * 2 ^ k <= 2 * n ^ k.
+Proof.
+apply: leq_trans (leq_mul (leqnn _) (pow2_le_fact k)) _.
+rewrite mulnCA leq_mul2l bin_ffact ffact_prod; apply/orP; right.
+rewrite -(card_ord k) -prod_nat_const card_ord.
+by apply: leq_prod => i _; exact: leq_subr.
+Qed.
+
+Lemma sum_pow2_rev m : \sum_(i < m.+1) 2 ^ (m - i) < 2 ^ m.+1.
+Proof.
+elim: m => [|m IH]; first by rewrite big_ord1.
+rewrite big_ord_recl /= subn0 [2 ^ m.+2]expnS mul2n -addnn ltn_add2l.
+have -> : \sum_(i < m.+1) 2 ^ (m.+1 - bump 0 i) = \sum_(i < m.+1) 2 ^ (m - i).
+  by apply: eq_bigr => i _; rewrite /bump /= add1n subSS.
+exact: IH.
+Qed.
+
+(* (1 + 1 / n)^n <= 4, by the binomial expansion. *)
+Lemma succ_expn_le n : n.+1 ^ n <= 4 * n ^ n.
+Proof.
+rewrite -(@leq_pmul2r (2 ^ n)) ?expn_gt0 // -addn1 expnDn big_distrl /=.
+apply: (@leq_trans (\sum_(i < n.+1) 2 * n ^ n * 2 ^ (n - i))).
+  apply: leq_sum => i _; rewrite exp1n muln1.
+  have hi : i <= n by rewrite -ltnS.
+  have e2 : 2 ^ n = 2 ^ i * 2 ^ (n - i) by rewrite -expnD subnKC.
+  have en : n ^ n = n ^ i * n ^ (n - i) by rewrite -expnD subnKC.
+  rewrite {1}e2 en mulnACA [2 * _]mulnA -[X in _ <= X]mulnA.
+  by apply: leq_mul (bin_pow2_le n i) (leqnn _).
+rewrite -big_distrr /= -[4]/(2 * 2) mulnAC -!mulnA leq_mul2l /= mulnA.
+rewrite [2 * _]mulnC -mulnA -expnS mulnC leq_mul2l.
+by rewrite (ltnW (sum_pow2_rev n)) orbT.
+Qed.
+
+(* n^n <= 4^n n!: Stirling's bound n^n <= e^n n! with e replaced by 4. *)
+Lemma expnn_le_fact n : n ^ n <= 4 ^ n * n`!.
+Proof.
+elim: n => // n IH; rewrite expnS factS.
+apply: (@leq_trans (n.+1 * (4 * n ^ n))).
+  by rewrite leq_mul2l succ_expn_le orbT.
+apply: (@leq_trans (n.+1 * (4 * (4 ^ n * n`!)))).
+  by rewrite !leq_mul2l IH !orbT.
+by rewrite expnS; apply: eq_leq; rewrite mulnCA -!mulnA; congr (_ * _);
+  rewrite mulnCA.
+Qed.
+
+(* C(n, w) <= (4 n / w)^w, the bound C(n, w) <= (e n / w)^w with e replaced
+   by 4. *)
+Lemma bin_expnn_le n w : 'C(n, w) * w ^ w <= 4 ^ w * n ^ w.
+Proof.
+apply: leq_trans (leq_mul (leqnn _) (expnn_le_fact w)) _.
+rewrite mulnCA leq_mul2l bin_ffact ffact_prod; apply/orP; right.
+rewrite -(card_ord w) -prod_nat_const card_ord.
+by apply: leq_prod => i _; exact: leq_subr.
+Qed.
+
+End products.
 
 Section partial_sums.
 Context {R : realType}.
