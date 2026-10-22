@@ -16,32 +16,25 @@ From GaussianAnalysis.matrix Require Import psd_splitting.
 (* action of all the permutations of 'I_k has trace at least k/2 when k is    *)
 (* even and k >= 6.                                                           *)
 (*                                                                            *)
-(* The general statements of this file are compiled Prop definitions, for     *)
-(* review with batch 1 of phase 14 (AGENTS.md, section Phase 14, step 0,      *)
-(* items 5 and 6). Each statement foo_statement is proved, in the second part *)
-(* of the file, by the lemma foo with the same text and the same parameters;  *)
-(* the statement definitions stay until the user accepts them.                *)
-(*                                                                            *)
-(* - trace_multiplicity_statement: let K in 'M[R]_N be positive semidefinite  *)
-(*   with K 1 = 1, where 1 is the constant column vector, and let it commute  *)
-(*   with perm_mx s for every s in a list S of permutations of 'I_N. Let m >  *)
-(*   0, and suppose that every Q with Q symmetric, Q Q = Q, Q != 0, Q 1 = 0,  *)
+(* Main results:                                                              *)
+(* - trace_multiplicity: let K in 'M[R]_N be positive semidefinite with       *)
+(*   K 1 = 1, where 1 is the constant column vector, and let it commute with  *)
+(*   perm_mx s for every s in a list S of permutations of 'I_N. Let m > 0,    *)
+(*   and suppose that every Q with Q symmetric, Q Q = Q, Q != 0, Q 1 = 0,     *)
 (*   commuting with every perm_mx s for s in S, has trace at least m. Then    *)
 (*   <x, K x>^2 <= (tr K^2 - 1) / m |x|^4 for every column vector x           *)
 (*   orthogonal to 1. The square avoids a square root. The two hypotheses on  *)
-(*   Q, symmetric and then idempotent, say that Q is an orthogonal            *)
-(*   projection (orthoprojmx of psd_splitting.v), written out. The statement  *)
-(*   is about permutation matrices: for an arbitrary family of matrices that  *)
-(*   commute with K it is false, since a matrix that does not fix the         *)
-(*   constants on both sides can leave no nonzero projection to satisfy the   *)
-(*   hypothesis.                                                              *)
-(* - ksubset_multiplicity_statement: let k be even with 6 <= k, w any         *)
-(*   number, and Q a matrix indexed by the w-subsets of 'I_k with Q           *)
-(*   symmetric, Q Q = Q, Q != 0 and Q 1 = 0, that commutes with ksubset_mx w  *)
-(*   s for every permutation s of 'I_k. Then tr Q >= k %/ 2.                  *)
+(*   Q, symmetric and then idempotent, say that Q is an orthogonal projection *)
+(*   (orthoprojmx of psd_splitting.v), written out. The statement is about    *)
+(*   permutation matrices: for an arbitrary family of matrices that commute   *)
+(*   with K it is false, since a matrix that does not fix the constants on    *)
+(*   both sides can leave no nonzero projection to satisfy the hypothesis.    *)
+(* - ksubset_multiplicity: let k be even with 6 <= k, w any number, and Q a   *)
+(*   matrix indexed by the w-subsets of 'I_k with Q symmetric, Q Q = Q,       *)
+(*   Q != 0 and Q 1 = 0, that commutes with ksubset_mx w s for every          *)
+(*   permutation s of 'I_k. Then tr Q >= k %/ 2.                              *)
 (*                                                                            *)
-(* The second part of the file also proves the general results that these     *)
-(* proofs use:                                                                *)
+(* The file also proves the general results that these proofs use:            *)
 (* - sym_eigenproj: for M symmetric and c real, the orthogonal projection E   *)
 (*   onto the eigenspace of M for c satisfies M E = c E, commutes with every  *)
 (*   matrix that commutes with M, has c^2 tr E <= tr M^2, and is 0 exactly    *)
@@ -114,16 +107,6 @@ Local Open Scope ring_scope.
 Section multiplicity.
 Variable R : realType.
 
-Definition trace_multiplicity_statement : Prop :=
-  forall (N m : nat) (K : 'M[R]_N) (S : seq {perm 'I_N}),
-  psdmx K -> K *m (const_mx 1 : 'cV[R]_N) = const_mx 1 -> (0 < m)%N ->
-  (forall s, s \in S -> perm_mx s *m K = K *m perm_mx s) ->
-  (forall Q : 'M[R]_N, Q \is symmetricmx -> Q *m Q = Q -> Q != 0 ->
-     Q *m (const_mx 1 : 'cV[R]_N) = 0 ->
-     (forall s, s \in S -> perm_mx s *m Q = Q *m perm_mx s) -> m%:R <= \tr Q) ->
-  forall x : 'cV[R]_N, mxdot x (const_mx 1) = 0 ->
-  mxdot x (K *m x) ^+ 2 <= (\tr (K *m K) - 1) / m%:R * mxdot x x ^+ 2.
-
 (* The w-subsets of 'I_k, and the 0/1 matrix of the permutation that s
    induces on them, indexed by their enumeration. *)
 Definition ksubset (k w : nat) := {A : {set 'I_k} | #|A| == w}.
@@ -132,14 +115,6 @@ Definition ksubset_mx (k w : nat) (s : {perm 'I_k}) :
     'M[R]_#|{: ksubset k w}| :=
   \matrix_(i < #|{: ksubset k w}|, j < #|{: ksubset k w}|)
     (val (enum_val i : ksubset k w) == s @: val (enum_val j : ksubset k w))%:R.
-
-Definition ksubset_multiplicity_statement : Prop :=
-  forall (k w : nat) (Q : 'M[R]_#|{: ksubset k w}|),
-  ~~ odd k -> (6 <= k)%N ->
-  Q \is symmetricmx -> Q *m Q = Q -> Q != 0 ->
-  Q *m (const_mx 1 : 'cV[R]_#|{: ksubset k w}|) = 0 ->
-  (forall s : {perm 'I_k}, ksubset_mx w s *m Q = Q *m ksubset_mx w s) ->
-  (k %/ 2)%:R <= \tr Q.
 End multiplicity.
 
 Section trace_mult.
