@@ -34,7 +34,7 @@ The task has two parts.
    rename the remaining modules and group them in folders.
 
 Three agents share the work. Agent 1 coordinates phases 1 to 5; in
-phases 6 to 13, agent 3 coordinates (sections "Phase 6" to "Phase 13").
+phases 6 to 14, agent 3 coordinates (sections "Phase 6" to "Phase 14").
 
 ## The invariant
 
@@ -143,8 +143,8 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 12 below are done: tag `phase12` is at 9046883. The
-current work is phase 13, described after phase 12.
+Phases 1 to 13 below are done: tag `phase13` is at f16e6a26. The
+current work is phase 14, described after phase 13.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -2097,7 +2097,8 @@ and the plan
 `/srv/ellipsoid-fitting/reviews/project-audit-and-resume-plan-2026-10-19.md`
 (Part B). This subsection replaces that directory's `RULES-IN-FORCE.md`.
 Where it differs from any other section of this file, the section
-"Building" included, it prevails.
+"Building" included, it prevails, except over the section "Phase 14",
+which prevails where they differ.
 
 - **Scope of the exception.** It covers:
   - `scripts/check_sources.py`, the new files of `scripts/` and `check/`,
@@ -2216,6 +2217,576 @@ Where it differs from any other section of this file, the section
 - **The user.** Requests and status for the user, and a usage limit that
   stops an agent, go dated to
   `/srv/ellipsoid-fitting/runtime/coordinator/resume-2026-10-19/requests-to-user.md`.
+
+## Phase 14. The PSD rank theorem and its corollary
+
+Phases 1 to 13 are done (tag `phase13` at f16e6a26). Phase 14 proves the
+main theorem of "Exponential PSD rank of positively shifted matching
+matrices" (family 126), whose statement phase 13 froze, and the
+manuscript's corollary on unshifted matrices and exact semidefinite lifts,
+with their general mathematics as library modules. With it the success
+criterion of the direction is met: two completed applications supported by
+useful, independently reviewable mathematical modules. Six documents guide
+it:
+
+- **The decisions,**
+  `/srv/ellipsoid-fitting/runtime/coordinator/resume-2026-10-19/DECISIONS.md`.
+  Those of 21 October (18:35, 19:05, 19:10 and 19:15) and of 22 October
+  (05:48), with the approval of the phase 14 texts, the entry that follows
+  them, authorize this phase and fix its lanes, its release round, its
+  resources and the two departures of the skeleton. From step 0 the
+  coordinator alone writes this file, in the same bytes as its copy on the
+  Mac, and records each word of the user there before it relays it; no
+  agent edits it.
+- **The plan,** `/srv/ellipsoid-fitting/notes/phase14-plan.md`, written by
+  the coordinator and approved by the user with this section.
+- **The gate report,**
+  `/srv/ellipsoid-fitting/reviews/phase14-gate-report.md`, with the
+  checkpoint report
+  `/srv/ellipsoid-fitting/reviews/phase13-checkpoint.md`: the pace
+  measured in phase 13, the re-estimate, the two departures, the extension
+  of the checker and the regression fixtures.
+- **The audit,** `/srv/ellipsoid-fitting/reviews/phase13-psd-audit.md`,
+  with its group reports in
+  `/srv/ellipsoid-fitting/reviews/phase13-psd-audit/`: the 37 points of
+  the manuscript checked, the implicit steps to write out, and the
+  repaired constants of the expander lemma.
+- **The maps,** `/srv/ellipsoid-fitting/notes/phase13-maps/` (`psd.md` and
+  `psd-draft/`), are background. Where they differ from the plan, the plan
+  wins.
+- **The sources,** `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`:
+  the TeX of family 126 and the Lean directory `Combinatorics/MatchingPSD`
+  of the collection (`openai/math` at 1581d4cbd, Apache License 2.0).
+
+The plan of this phase is the plan's sections 2 (the targets), 3 (the
+library deliverables), 4 (step 0), 5 (ownership and items), 6 (the
+chains), 8 (pushes and the release round), 9 (the checker extension), 10
+(the fixture rule), 13 (risks) and 16 (done criteria). This section fixes
+the roles and the rules; where they differ, this section wins. It also
+prevails over the subsection "The checker repair and the release" of phase
+13 where they differ. Of that subsection these stay in force: the check
+command, the repaired protocol, the exceptions of the exporter, the
+environment, Building, the shifted work, Roles, and "Nothing goes to
+GitHub from the VM, and any push by the coordinator needs the user's word
+each time." Its pin is kept, except for the files that the extension of
+the checker changes, which move to the new pin (below). Its scope of the
+exception, its rules for pushes and the release, and "Sharing the VM" are
+replaced below; "The user" is completed below.
+
+The targets:
+
+1. **T13. The PSD rank theorem** (126, `introduction.tex` lines 37-44).
+   `psd_rank_theorem : psd_rank_statement`, in
+   `applications/PsdRankTheorem.v`. The statement is frozen in
+   `applications/PsdRankStatement.v` (accepted at 46e45c8, frozen at
+   freeze 3): for every real type there is K > 0, uniform in rho, such
+   that for every 0 < rho < 1 there is n0 with 2^n <= r^K for every PSD
+   factorization of size r of A_n(rho), n even, n >= n0.
+2. **T14. The corollary** (126, `introduction.tex` lines 74-114, Corollary
+   "Unshifted rank and exact lifts"). For every real type there are K > 0
+   and n0 such that, for every even n >= n0 and every r, a PSD
+   factorization of size r of A_n(0), one of T_n(0), or an exact
+   semidefinite lift of size r of the perfect matching polytope gives
+   2^n <= r^K. K comes after the real type, as D7 fixes for T13. Its
+   definitions and statement (`applications/PsdLiftDefinitions.v`,
+   `applications/PsdLiftStatement.v`) are written in batch 1 and frozen at
+   the release round; its proof is `psd_lift_theorem` in
+   `applications/PsdLiftTheorem.v`.
+
+**The departures of the skeleton** (decisions 2 and 3 of 22 October).
+`applications/PsdRank/Main.v` keeps its code.
+- **Departure 1.** T = 1000 where the hypothesis of
+  `psd_rank_from_cell_data` is discharged, in `PsdRankTheorem.v`. The
+  parity functional (A4) is stated for D = t %/ 1000 and every even
+  t >= 1000.
+- **Departure 2.** The lemma of the local averaging (A2) states k even,
+  6 <= k and 2d <= k, and theta_d(k) -> 0 beside a symbolic k_0(d). The
+  realization lemma (A5) states k even and 2d <= k. `PsdRankTheorem.v`
+  chooses k from them.
+- The header of `Main.v` names this choice at its next edit, the commit of
+  A6, which changes its comments only.
+
+Not in this phase:
+- the shifted Gaussian work, which reaches `main` at step 18 under its own
+  plan and acceptance;
+- T8, still deferred;
+- a rational theta_d(k), the alternating group and Edmonds' theorem;
+- any upstream submission (D6).
+
+### Roles
+
+As in phases 6 to 13. **Agent 3 is the master.**
+- It assigns the items (its own lane included) and gives agents 1 and 2
+  their work in their sessions.
+- It assembles the statement batches, writes the corollary's statement and
+  definitions files at the top of `applications/`, and records the
+  acceptance commit of each batch.
+- It writes the shared frame of the cells (the graph, the incidence order,
+  the bits, the support of a cell, f_eps) in
+  `applications/PsdRank/Model.v` before A2, A4 and A5 state their lemmas.
+- It merges in the `integration` clone and alone pushes `main` and tags.
+- It makes the release round: the extension of the checker, the freezes,
+  commit P and the pin.
+- It keeps the table of items, owners and states in
+  `/srv/ellipsoid-fitting/runtime/phase14/assignments.md`, with the exact
+  VM command of each assignment.
+
+The lanes (decision 9 of 21 October, 18:35):
+- **A (agent 1, clone `agent1`, branch `lane/a`):** the local-averaging
+  chain: L5, trace and multiplicity (`library/matrix/multiplicity.v`), the
+  harmonic bound (`library/combinatorics/harmonic.v`), then A2, the local
+  averaging (`applications/PsdRank/Cells.v`).
+- **B (agent 2, clone `agent2`, branch `lane/b`):** the expander and
+  parity chain: the bound C(b, s) l^s <= C(l, s) b^s
+  (`library/combinatorics/binomial_bounds.v`), L7, the expander lemma
+  (`library/combinatorics/expander.v`), then A4, the parity functional
+  (`applications/PsdRank/Parity.v`). Agent 2 does proof work only, never
+  harness work.
+- **C (agent 3, clone `agent3`, branch `lane/c`):** step 0, the batches,
+  the frame and A1 (`Model.v`), A5, the realization
+  (`applications/PsdRank/Realization.v`), A6
+  (`applications/PsdRankTheorem.v`), the checks, the merges and the
+  release round.
+- **A7,** the proof of the corollary (`applications/PsdRank/Lift.v`,
+  `applications/PsdLiftTheorem.v`), goes to the first free lane, expected
+  to be A or B.
+
+Agents 1 and 2 take their items from the master. The coordinator, the
+user's Claude Code session on the Mac, sends only the cold-start notices
+(Q19) and assigns no item. It monitors the processes on the VM (decision
+of 19:10), reads `requests-to-user.md`, verifies the batches and relays
+the user's words, each first recorded in `DECISIONS.md`. GitHub is a code
+mirror, pushed from the Mac on the user's word (decision 8 of 18:35).
+
+### Step 0
+
+1. **The sessions.** The VM started on the user's word. The coordinator
+   resumed the conversations of agents 1 and 3 (`/resume`) and started a
+   fresh session for agent 2, with the cold-start text
+   `/srv/ellipsoid-fitting/runtime/coordinator/resume-2026-10-19/marcol-phase14.md`.
+   There were no handoffs and no `/clear`. Read this section, the plan and
+   the decisions before any work. In the master's restart note
+   (`/srv/ellipsoid-fitting/runtime/agent3/RESTART-phase13-2026-10-21.md`,
+   section "Holds and rules in force at the stop"), the holds of release
+   mode (lines 96-103: the graph-theory hold, the admissions with their
+   MemAvailable and root-space floors, at most two jobs, idle MCP servers)
+   are void; correct any memory note that keeps them. The stop of 21
+   October that the same section records ended with the release. The
+   records, clones, bundles and evidence that it preserves
+   (`agent3/build/final-pin`, `agent3/build/final-regr`,
+   `agent1/build/final-pin`, the bundles,
+   `reviews/phase13-release-evidence/`) are kept until the user's word on
+   the cleanup (Q15), and git commands from a Claude Code shell run with
+   `env -u GIT_EDITOR`, as it says.
+2. **This section.** The master committed it on `lane/c`, with the edits
+   of lines 36-37, 146-147 and 2099-2100 in the same commit, after `make
+   -f Makefile check` passed, and pushed `lane/c`. `main` moved to that
+   commit on the user's word for its first push, recorded in the approval
+   of the phase 14 texts and relayed by the coordinator after its check of
+   the commit on the Mac. Before any session started, the coordinator had
+   brought the VM copy of `DECISIONS.md` to the bytes of its own copy (the
+   entries of 21 October 19:05, 19:10 and 19:15, of 22 October 05:48, and
+   the approval); the master checked the hashes that the approval lists.
+3. **No new directory.** New files go in existing directories:
+   `library/matrix/`, `library/combinatorics/`, `applications/PsdRank/`
+   and the top of `applications/`. The Rocq servers need no reconnection.
+4. **The lane merges.** Each lane merges `main` into its branch when the
+   master says so: f16e6a26 right after its reply to the notice, then the
+   commit of this section when `main` has it. `lane/a` fast-forwards.
+   `lane/b` holds two commits of 15 October (eb33143, 9281f4d) that add
+   `scripts/rocq_lex.py` with the blob that `main` has, so the merge has
+   no conflict; nobody edits that file. Until `main` has this section,
+   agents 1 and 2 read it in
+   `/srv/ellipsoid-fitting/runtime/coordinator/resume-2026-10-19/phase14-agents-section.md`.
+5. **The statements.** Two batches at most.
+   - **Who writes what.** Each lane writes, as the first commit of its
+     item, the definitions and the `_statement` definitions of its own
+     library files, compiled. The master merges these commits, adds the
+     corollary's files at the top of `applications/`, compiles the batch,
+     pushes `main` and says so in its pane, with the batch commit. The
+     coordinator verifies it and asks the user to review it, with the list
+     of the definitions its statements unfold to.
+   - **Batch 1,** early and once (decided on 22 October): agent 1's
+     statements of L5 (`trace_multiplicity_statement`, over permutation
+     matrices as the audit checked it, with `orthoprojmx Q` written out as
+     its two curried hypotheses, and the multiplicity on the w-subsets of
+     'I_k, with `ksubset` and `ksubset_mx`) and of the harmonic bound
+     (`harmonic_ln_statement`); agent 2's `bin_mul_pow_statement` and the
+     expander (`perm_cut` and `expander_statement`, the audit's statement
+     in `nat`); the master's `PsdLiftDefinitions.v` (`kn_edges`, moved
+     from `Model.v`, `matching_slack_mx`, `in_matching_polytope`,
+     `semidefinite_lift`) and `PsdLiftStatement.v` (`psd_lift_statement`).
+     The plan, section 4.4, gives the drafts with their Require lines;
+     they compile against the release.
+   - **Batch 2,** only for library statements that A2 or A4 bring: a
+     general result that agent 1 or 2 adds to `library/` for A2 or A4,
+     with its README row. The master assembles it once, when both lanes
+     have written theirs or said that they have none. A lemma kept in an
+     application file needs no review.
+   - **Acceptance.** A batch is accepted when the user types the
+     acceptance in the master's session, naming the batch commit, or when
+     the coordinator has recorded the user's words in `DECISIONS.md` and
+     relays them, citing that entry. The coordinator appends each such
+     entry, and every other word of the user that it relays, to the VM
+     copy, in the same bytes as its own, before the relay; the master
+     reads the entry before it acts. If a relay is refused, the user types
+     the word. If the user accepts with amendments, the master commits
+     them, the coordinator checks them with `Check` against the amended
+     text, and that commit is the acceptance commit, the baseline of the
+     freeze. From then on the code of an accepted statement file does not
+     change, and only the master edits its comments. A change to an
+     accepted statement goes back to the user.
+6. **The general statements.** As in phase 13, step 0 item 4. The
+   `Prop`-valued `_statement` definitions in their library files are
+   reviewed with their batch, accepted, not frozen, and kept until their
+   acceptance; the commit that proves the accepted text deletes the
+   definition, says so, and removes every citation of it. An application
+   proof that uses a general statement is merged only after its
+   acceptance; a lane may write it before, at its risk. A library proof
+   may be merged before, its `_statement` definition kept. The acceptance
+   inventory is written in the checker at the release round, from the
+   acceptance commits.
+7. **The checks.** During development nothing changes in `scripts/`,
+   `check/`, the `Makefile` or the option lines of `_CoqProject`, and no
+   file is added under `scripts/` or `check/`, step 18 aside, under its
+   own plan and the user's explicit word. Drafts and mutation tests stay
+   in scratch copies under the ignored `build/` of the master's clone. The
+   extension of the checker is made at the release round only, on the
+   user's explicit word (below).
+
+### Pushes and the release round
+
+- **During development** each lane pushes only its branch, to the hub.
+  After the word that moved `main` to this section, the master merges in
+  `integration` and pushes `main` as in phases 6 to 13; these development
+  merges need no further word of the user (the approval of the phase 14
+  texts). From commit P to the tag the master merges nothing else into
+  `main`, apart from the step 18 case below. No tag before the scheduled
+  acceptance. Nothing goes to GitHub from the VM.
+- **The word for the extension.** When T13 and T14 are proved on `main`,
+  every accepted statement is proved with its accepted text, the README
+  rows and the reviews for models are done, `requests/` is deleted and the
+  fixture probe agrees, the master asks the user, dated, in
+  `requests-to-user.md`, for the word that permits the extension of the
+  checker, unless the user has given it. Only the user's explicit word,
+  given at or before the round and naming this scope, typed in the
+  master's session or recorded in `DECISIONS.md` and relayed by the
+  coordinator, permits the extension. Its scope is the additions that
+  register, check and pin T13, T14, the two newly frozen files, the new
+  check files, snapshots, identity drivers and references, on the pattern
+  of their phase 13 counterparts:
+  - in `scripts/check_sources.py`: entries in `THEOREMS`, `REPORTS`,
+    `EXPECTED_LISTS`, `THEOREM_IDENTITIES` and `MARKED_REPORTS`; a
+    `CHECK_FILES` entry for every new check file; a new frozen list and
+    baseline for `PsdLiftDefinitions.v` and `PsdLiftStatement.v` at their
+    acceptance commit (as `PHASE13_B3_FROZEN` and `PHASE13_B3_BASELINE`),
+    with its call in the rules of the frozen files and `FROZEN_MODULES`; a
+    new inventory list with its fixed code and its coverage rule (as
+    `INVENTORY`, `LIBRARY_STATEMENTS`, `LIBRARY_STATEMENTS_CHECK` and rule
+    29); a fixed-code constant for the new definitions file (as
+    `PHASE13_DEFINITIONS_FREEZES`); `CHARACTERIZATION_SNAPSHOTS`,
+    `SNAPSHOT_SUBJECTS`, `NEW_CHECK_CODE`, `IDENTITY_QUERIES`,
+    `IDENTITY_PARTS`, `IDENTITY_REFERENCES` and `FIXED_FILES`; the
+    docstring (the new rules and the counts) and the summary line; rule 31
+    restricted to the files that the extension does not change, and a new
+    pin rule for those that it adds or changes;
+  - in `scripts/snapshot_baselines.py`: entries in `BASELINES`; a second
+    accepted-statement reference beside `ACCEPTED`; `CHECK_LEMMAS` entries
+    for the new definitions file; the reader of the new inventory (as
+    `libst_lemmas()` and `inventory()`); the branches on file and snapshot
+    names; the counts in the texts it writes;
+  - in `scripts/identity_sidecars.py`: the new accepted-statement snapshot
+    added to `HISTORICAL_ONLY`, if the extension writes one;
+  - new check files, each with its required output:
+    `check/PsdRankAssumptions.v` and
+    `check/psd_rank_assumptions.expected`; the check file and expected
+    list of T14; an inventory file that states every accepted statement of
+    phase 14 in full and proves it by its lemma; a definitions file that
+    protects the new definitions that the accepted statements use
+    (`ksubset`, `ksubset_mx`, `perm_cut`, `orthoprojmx` if a statement
+    keeps it, those of batch 2), with its characterization snapshot; new
+    identity and report files, since `check/TheoremIdentities.v` and
+    `check/Reports.v` are pinned. The expected lists stay within the seven
+    axioms of phases 11 and 12;
+  - the references that `scripts/snapshot_baselines.py` writes:
+    `check/snapshots/REFERENCES.json`, `check/identity/REFERENCES.json`
+    and `check/identity/inventory.json`, with the new snapshot files,
+    identity drivers and their references;
+  - `README.md` (the phase 14 summary, which also names the realization
+    among the hypotheses of `cell_data`), the README rows, and
+    `_CoqProject` (new source files only).
+
+  Nothing else: no other script changes; the `Makefile`, the option lines
+  of `_CoqProject` and the regression fixtures do not change; no change
+  removes or weakens an existing rule, list entry or baseline, apart from
+  the restriction of rule 31 to the files that the new pin then covers.
+  Each change is named in the message of commit P and checked in agent 1's
+  focused review. Every other baseline and pin is kept, step 18 aside,
+  under its own plan and the user's explicit word: the frozen files, the
+  historical check files and expected lists, the pinned sections,
+  `check/ApplicationsDefinitions.v`, `check/LibraryStatements.v`,
+  `check/Phase13Definitions.v`, the `Makefile` and the regression
+  fixtures. A change to a fixture needs the user's word of its own.
+- **Commit P and the pin.** The master makes commit P with the extension
+  on `lane/c`, then a pin commit that compares with P byte for byte, as a
+  separate baseline: the new check files and expected lists, the new
+  inventory, definitions, identity and report files,
+  `scripts/snapshot_baselines.py` and, if it changes,
+  `scripts/identity_sidecars.py`, the regenerated references, and every
+  new snapshot file and driver. Rule 31 keeps its pin to c5bdf87 for every
+  file that the extension does not change. Each change is mutation-tested
+  in a scratch copy under the ignored `build/` of the master's clone, and
+  the commit messages list the mutations. The pin commit is the final
+  commit; its full hash, and that of P, are recorded. Agent 1 records the
+  new hashes, `scripts/check_sources.py` included, in
+  `/srv/ellipsoid-fitting/runtime/agent1/machinery-hashes.txt`. Before the
+  gates the master runs `git apply --check` of every `repaired.diff` of
+  `check/regression/` on a scratch copy of the final commit and keeps the
+  outputs.
+- **The gates,** on the exact final commit; every record names it:
+  - agent 1's focused review of the actual diff from `main` to the final
+    commit: only the changes listed above, the new pin, and the limits
+    kept explicit in `README.md`. It also states whether the extension
+    changes code that a check left out of this lean round tests (the
+    baseline side of the campaign, on the old tree 0ec5fcd; the
+    regeneration of the old references); if it does, that check runs on
+    the final commit too;
+  - the master's fresh clone of the final commit, built from scratch,
+    `make -f Makefile check`, then one repaired-side regression campaign
+    on that commit;
+  - the master's exact replays of the fixtures E14 and E19 in the
+    campaign's built scratch copy (`DECISIONS.md`, 20 October, 21:52),
+    with full stdout, stderr and exit status kept: E14 must fail for the
+    mismatch of theorem and statement and E19 for the missing output of
+    `check/ApplicationsDefinitions.v`, with no timeout, memory kill or
+    crash as the cause; the scratch copy is restored and checked
+    afterwards; the evidence of the replays and of the campaign is
+    archived, with a `SHA256SUMS` file, under
+    `/srv/ellipsoid-fitting/reviews/phase14-release-evidence/`;
+  - in parallel, agent 1's own fresh clone of the final commit, from the
+    master's bundle, built from scratch, `make -f Makefile check`, and its
+    regeneration of the new references and sidecars, byte-identical to the
+    master's; no regeneration on the Mac;
+  - agent 1's agreement record, as G7 of phase 13: the two fresh-clone
+    manifests field by field, the campaign record, the checksums of the
+    evidence.
+
+  Nothing is pushed, and `main` does not move, before all of these pass.
+- **The acceptance.** The user then types in the master's session one
+  scheduled acceptance that names the full hash of the final commit and
+  pre-authorizes the pushes and the tag (decision 5 of 18:35). The master
+  then, with `env -u GIT_EDITOR`, one command at a time: pushes `lane/c`;
+  fast-forwards `main` in `integration` to the final commit; places the
+  annotated tag `phase14`; checks that `main` and `phase14^{commit}` are
+  the final commit and that the tag is annotated; pushes `main` and the
+  tag. Agent 1 checks the hub refs. The coordinator fetches on the Mac.
+- Any failure, or any possibility of a false pass that the reviews cannot
+  rule out, stops the work and goes to the user; the documented limits of
+  coverage do not.
+- **Step 18** runs lean and in parallel, under its own plan and its own
+  acceptance (decision 4 of 18:35). The master starts it only on the
+  coordinator's notice that names its lean plan and on the user's word for
+  its checker changes. The gate jobs of the two rounds together stay
+  within three builds. The `phase14` tag may precede the shifted tag or
+  share its commit (decision 6). If the final commit of one round reaches
+  `main` first, the other round merges it and runs its gates on a final
+  commit that contains both. The counts below are those of the phase 13
+  release; step 18 adds its own.
+
+### Rules for this phase
+
+The rules of phase 13 apply, with these changes.
+- **Unchanged files.** Nothing changes in:
+  - `theories/` and `extension/`, step 18 aside;
+  - the code of the 49 frozen files of phases 1 to 13 (56 once step 18 has
+    landed);
+  - the 58 check files and expected lists pinned byte for byte, and the
+    machinery that rule 31 pins, until the extension;
+  - the regression fixtures, whose change needs the user's word of its
+    own (for the machinery and the fixtures, step 18 aside, under its own
+    plan and the user's explicit word);
+  - the pinned sections `tuple_prod` and `lambda_max`, and the code of
+    `check/ApplicationsDefinitions.v`;
+  - the code of `applications/PsdRank/Main.v`.
+
+  The 28 theorems that `make check` checks (35 once step 18 has landed)
+  keep building at every commit.
+- **The regression fixtures.** The release campaign applies each fixture
+  of `check/regression/` with `git apply` and expects its outcome. A hunk
+  applies only where its lines are unchanged, and a hunk without trailing
+  context only at the end of its file. Keep the anchors:
+  - add nothing at the end of `library/fourier/product_smoothing.v` or
+    `library/matrix/psd_duality.v`; new lemmas go in new files;
+  - keep the text of the lines of `applications/PsdRank/Main.v` that the
+    fixtures patch (lines 94-100, 145-151, 234-240, 263-269 and 272-281 at
+    the release);
+  - in `_CoqProject`, keep the option lines and lines 19-24 and 37-42;
+    register new library files right after
+    `library/combinatorics/binomial_bounds.v` and new application files
+    right after `applications/PsdRankStatement.v`; keep
+    `applications/RandomSAT/Threshold.v`, `applications/PsdRank/Model.v`
+    and `applications/PsdRank/Main.v` as the last three lines;
+  - the extension keeps the lines of `INVENTORY` that E12 patches, with
+    their context, and does not change the `Makefile`;
+  - before editing an existing file, check that no fixture patches it
+    (`grep -l <path> check/regression/*/repaired.diff`); if one does, keep
+    the patched lines and the end of the file.
+
+  New files, the new check files included, must also build under the
+  attacks: require `euclidean` as `From GaussianAnalysis.matrix Require
+  Import euclidean`, never by the short name (E42-frozen adds a second
+  `euclidean`); in a file that imports `product_smoothing`, write
+  `Finite.type` and `GaussianAnalysis.matrix.euclidean.frobenius`, never
+  `finType` or `frobenius` (E11a, E11b and E42-frozen redefine them at its
+  end); in a file that imports `psd_duality`, use neither the name
+  `closed` nor the lemma `psd_eval_cone_closed` (E42 redefines the name
+  and replaces the lemma). When the new application files exist, and in
+  any case before the round, the master runs E11a, E11b, E42, E42-control
+  and E42-frozen with `scripts/run_regressions.py --tree repaired`, in a
+  scratch copy under the ignored `build/` of its clone that has passed
+  `make -f Makefile check` once, unchanged, and runs `git apply --check`
+  of every `repaired.diff` there; it runs the five tests again on the
+  candidate of commit P, before the final campaign. A fixture that must
+  change is a change of the machinery, on the user's word.
+- **Ownership.** Files keep their owners of phase 13. The new files take
+  the owners of the plan's section 5. One file has one owner at a time.
+  Each lane registers its new files in `_CoqProject` in the commit that
+  adds them, and settles conflicts there with the master.
+- **Library and applications.**
+  - `library/` results are general, over `R : realType` or a weaker
+    structure when that is enough; combinatorial results are over finite
+    types with no field.
+  - No model appears in `library/`: not the cells and their laws, the
+    frame, the incidence bits, odd cuts, the parity system, matchings or
+    lifts. Before the release, a lane other than its author reviews each
+    new library file for this.
+  - `make check` rejects `Rstruct` in `library/`, so `library/` has no
+    concrete real type: a statement in `nat` is proved in `nat` or `rat`,
+    not through a lemma over a real type.
+  - A general result enters the library only if a proof of this phase uses
+    it.
+  - Before adding a lemma, search MathComp, MathComp-Analysis and the
+    library for it, and use the weakest suitable structure. Each general
+    module ends with an example that does not depend on an application.
+- **Upstream (D6).** As in phase 13.
+- **Provenance.** As in phase 13. The headers state the departures:
+  departure 1 in `PsdRankTheorem.v` and `Parity.v`; departure 2 in
+  `Cells.v`, `Realization.v` and `PsdRankTheorem.v`; the route in
+  `multiplicity.v` (no simultaneous diagonalization of all the pair
+  transpositions, no alternating group, the trace bound through
+  `orthoprojmxB`); every l >= 1, the crude constants, beta d = 1 in `nat`
+  form, and e replaced by 3 if it is, in `expander.v`; one statement, with
+  K after the real type, in the corollary's files.
+- **Sources.** As in phase 13.
+- **No unproved step.** No commit contains `Admitted`, `Axiom`,
+  `Parameter` or `Conjecture`. A missing result is an explicit hypothesis
+  until it lands: A6 against A2, L7, A4 and A5; A4 against the expansion;
+  A7 against T13.
+- **Constants.** L = 2^99, C_L = 2^(2^99 - 1), lambda and k_0 stay
+  symbolic: never evaluate `2 ^ 99` or `(2 ^ 99).-1` as a `nat`, and never
+  compute a large unary numeral.
+- **Quotas.** Lanes commit in small, self-contained steps. If an account
+  is throttled, the master reassigns the next item rather than wait.
+- **Documentation.** Every new file has the documentation header and its
+  README rows, with the actual hypotheses.
+- **Building.** As in the subsection "The checker repair and the release":
+  every compiling or checking command runs through
+  `/srv/ellipsoid-fitting/environment/proof-shell.sh <clone>`, one at a
+  time per clone, with its scratch under the clone's ignored `build/`, the
+  environment prefix and `JOBS=3`; `make -f Makefile check` runs before
+  every commit. Each build has a dated start notice and end notice in
+  `requests-to-user.md`, appended with one shell command
+  (`printf ... >> file`), never by rewriting the file.
+- **Messages.** Rocq text, which holds apostrophes, is never pasted into a
+  tmux message: point to the file and the line.
+- **Requests** between lanes go through `requests/`, which the master
+  deletes before the release round.
+- **No journals.** The repository gets no journals or progress files. The
+  master's table and the records live in
+  `/srv/ellipsoid-fitting/runtime/`.
+
+Phase 14 is done when the following hold:
+- `psd_rank_theorem` (T13) proves the frozen `psd_rank_statement`, and
+  `psd_lift_theorem` (T14) the accepted and frozen `psd_lift_statement`,
+  on `main`;
+- their check files verify the statements, and their axioms are among the
+  seven of their expected lists;
+- the checker requires every theorem axiom report (30, or 37 with step 18)
+  and the outputs of the new auxiliary check files;
+- every accepted statement of phase 14 is proved with its full accepted
+  text, and the new inventory file covers every entry. An accepted
+  statement that is not proved at the release is withdrawn, with the
+  user's agreement;
+- the new definitions that the accepted statements use are protected, and
+  the corollary's files are frozen at their acceptance commit;
+- the lemmas of A2, A4 and A5 state the conditions of the two departures,
+  and `PsdRankTheorem.v` takes T = 1000 and chooses k from them;
+- the code of `Main.v` is unchanged, and its header names the choice of T
+  and k;
+- the commit messages record the mutation tests;
+- the new check files and the extended machinery are pinned to P, and
+  agent 1's fingerprint record holds the new hashes;
+- `make -f Makefile check` passes in two fresh clones of the final commit,
+  the regression campaign on it has no disagreement, the E14 and E19
+  replays fail for their intended causes, and agent 1's references equal
+  the master's byte for byte;
+- the README rows cover every new file, `_CoqProject` lists every new
+  file, and a lane other than its author has reviewed each new library
+  file for models;
+- `requests/` is deleted;
+- `main` is tagged `phase14` at the checked final commit, after the user's
+  scheduled acceptance.
+
+### The VM and the user
+
+This replaces "Sharing the VM" of phase 13 (the decisions of 21 October at
+19:05, 19:10 and 19:15, and point 12 of the approval of the phase 14
+texts).
+- **The regime.** For now ellipsoid-fitting is the only user of the VM.
+  Three Rocq servers are active, one per session. Up to three builds run
+  at once on the VM, each in a container of 4 CPU and 12 GiB with
+  `JOBS=3`. Each agent runs at most one build per clone; the master may
+  run a second build in another of its clones (`integration` or a fresh
+  clone under its `build/`), never two in one clone, and only while the
+  total stays at three. The gate jobs of the phase 14 round and of step
+  18 together stay within three builds. Each build has its start and end
+  notices; there are no admissions. The holds of the phase 13 release
+  (the graph-theory hold, admissions, at most two jobs, the memory and
+  root-space floors, idle servers) are void (19:05, and point 12 of the
+  approval of the phase 14 texts, with the user's clarification). The
+  caps stay: 16 GiB and 2 CPU per Rocq server, 12 GiB and 4 CPU per
+  build.
+- **The disk and the memory.** No disk ceiling and no memory floors while
+  the VM has no other user. The coordinator's watcher holds new launches
+  on critically low disk space or memory: when the root file system has
+  less than 15 GiB free or MemAvailable is below 20 GiB, it writes
+  `/srv/ellipsoid-fitting/runtime/coordinator/HOLD-LAUNCHES`, and no agent
+  starts a build while that file exists; the watcher removes it when both
+  readings are back above the thresholds. Before every build, the
+  launching agent checks that the file does not exist; if it exists, it
+  waits and says so in `requests-to-user.md`.
+- **Monitoring.** The coordinator on the Mac monitors the sessions, the
+  containers, the jobs and the hub, and reads `requests-to-user.md`.
+- **Starts and stops.** No agent starts the VM. Every start is the user's
+  word, given each time, and the coordinator performs it. The VM stops
+  when the user decides, with the coordinator, at the end of a block. No
+  agent stops or reboots the VM, restarts Docker, runs `apt upgrade` or
+  `docker kill`, or deletes Docker images; `docker builder prune` only on
+  the user's word.
+- **The other project.** Never look into or touch
+  `/srv/graph-theory-rocq`, its tmux sessions (`gt-*`), its containers or
+  its runtime. The three Claude profiles are also those of its agents.
+- **Sessions.** Our tmux sessions are `lancelot`, `arthur` and `marcol`;
+  never type into any other, nor into a pane whose prompt holds text that
+  the user typed (a dimmed prompt suggestion is not typed text). No agent
+  starts, restarts or clears a session, or changes a model or an account.
+- **Clones.** In another agent's clone, run `git status` only with
+  `--no-optional-locks`.
+- **The user.** Requests and status for the user, the start and end
+  notices of builds, and a usage limit that stops an agent go dated to
+  `/srv/ellipsoid-fitting/runtime/coordinator/resume-2026-10-19/requests-to-user.md`,
+  for the coordinator to read, each appended with one shell command, never
+  by rewriting the file.
 
 ## Bridging Stdlib's `R` and the library
 
