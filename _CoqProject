@@ -111,6 +111,8 @@ library/fourier/boolean_fourier.v
 library/fourier/product_smoothing.v
 library/analysis/min_superadditive.v
 library/combinatorics/binomial_bounds.v
+library/combinatorics/harmonic.v
+library/matrix/multiplicity.v
 
 theories/Analysis/CalculusBridge.v
 theories/Analysis/ContinuousTupleMeasurability.v
