@@ -5,9 +5,10 @@ From GaussianAnalysis.fourier Require Import boolean_fourier product_smoothing.
 From GaussianAnalysis.combinatorics Require Import expander.
 From GaussianApplications Require Import PsdRankDefinitions PsdRankStatement.
 From GaussianApplications.PsdRank Require Import Model Main Realization.
+From GaussianApplications.PsdRank Require Import Cells Parity.
 
 (**md**************************************************************************)
-(* # PSD rank of shifted matching matrices: the main theorem from its parts   *)
+(* # PSD rank of shifted matching matrices: the main theorem                  *)
 (*                                                                            *)
 (* Item A6 of phase 14 (AGENTS.md, section Phase 14; the plan                 *)
 (* notes/phase14-plan.md, section 6.3): the assembly of the main theorem of   *)
@@ -17,6 +18,8 @@ From GaussianApplications.PsdRank Require Import Model Main Realization.
 (* source/sections/matching.tex, lines 41-218), a Rocq formalization of the   *)
 (* credited argument. The file follows no Lean module.                        *)
 (*                                                                            *)
+(* psd_rank_theorem: psd_rank_statement, by psd_rank_from_parts and the       *)
+(* proofs of its two hypotheses (local_averaging_holds, parity_holds).        *)
 (* psd_rank_from_parts: psd_rank_statement follows from two hypotheses, Props *)
 (* of this file:                                                              *)
 (* - local_averaging_hyp, the local averaging of a cell at d = 100 (item A2,  *)
@@ -27,6 +30,9 @@ From GaussianApplications.PsdRank Require Import Model Main Realization.
 (* - parity_hyp, the parity functional (item A4, parity.tex, lines 131-150):  *)
 (*   parity_functional at block degree (l + l) %/ 1000 for f_eps of the       *)
 (*   frame, when the graph of the 100 permutations sigma j expands.           *)
+(* local_averaging_holds is local_averaging of PsdRank/Cells.v at a = 99, with*)
+(* the laws cell_mu, cell_nu and cell_pi; parity_holds is                     *)
+(* parity_functional_holds of PsdRank/Parity.v.                               *)
 (* The proof applies psd_rank_from_cell_data of PsdRank/Main.v at a = 99 and  *)
 (* builds its cell data from the two hypotheses, from expander of             *)
 (* library/combinatorics/expander.v (item L7: for every l >= 1, 100           *)
@@ -155,3 +161,20 @@ exists (f_eps sigma b (1 - rho)); split.
   by rewrite (bigD1 i) //= e0 mul0r ltxx.
 - exact: (hA4 R l sigma b (1 - rho) hsig t1000).
 Qed.
+
+(* The local averaging of PsdRank/Cells.v at d = 100 (a = 99). *)
+Lemma local_averaging_holds : local_averaging_hyp.
+Proof.
+move=> R; have [k0 [theta [th0 thlim hk]]] := @local_averaging R 99 isT.
+exists k0, theta; split=> // k ek k6 k200 kk0.
+exists (@cell_mu R k), (@cell_nu R k), (@cell_pi R 99 k).
+by split=> [b|b m y x]; case: (hk k ek k6 k200 kk0 b) => // _; apply.
+Qed.
+
+(* The parity functional of PsdRank/Parity.v. *)
+Lemma parity_holds : parity_hyp.
+Proof. exact: parity_functional_holds. Qed.
+
+(* The main theorem (T13). *)
+Theorem psd_rank_theorem : psd_rank_statement.
+Proof. exact: psd_rank_from_parts local_averaging_holds parity_holds. Qed.
