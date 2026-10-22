@@ -93,6 +93,27 @@ its folder `PsdRank/` holds sanity lemmas for its
 definitions (`Model.v`) and the skeleton of the final step of its proof
 (`Main.v`).
 
+## Targets of phase 14
+
+The plan is `/srv/ellipsoid-fitting/notes/phase14-plan.md` (sections 2
+and 3); the sources are in `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`.
+
+| Target | Manuscript (family) | Statement files | Library files | Proof folder |
+|---|---|---|---|---|
+| T13. The PSD rank theorem | Exponential PSD rank of positively shifted matching matrices (126), Theorem thm:main | `PsdRankDefinitions.v`, `PsdRankStatement.v` (frozen in phase 13) | `matrix/multiplicity.v`, `combinatorics/harmonic.v`, `combinatorics/binomial_bounds.v`, `combinatorics/expander.v` | `PsdRank/` |
+| T14. Unshifted rank and exact lifts | the same (126), Corollary cor:exact-lift | `PsdLiftDefinitions.v`, `PsdLiftStatement.v` | | `PsdRank/` |
+
+The statement files of T14 are reviewed with the library statements of
+phase 14 in batch 1. `PsdLiftDefinitions.v` defines `kn_edges` (moved there
+from `PsdRank/Model.v`, which imports it), the matrix T_n(0)
+(`matching_slack_mx`), membership in the perfect matching polytope
+(`in_matching_polytope`) and exact semidefinite lifts
+(`semidefinite_lift`); `PsdLiftStatement.v` states the corollary
+(`psd_lift_statement`): for every `R : realType` there are `K > 0` and `n0`
+such that, for every even `n >= n0` and every `r`, a PSD factorization of
+size `r` of A_n(0) or of T_n(0), or an exact semidefinite lift of size `r`
+of the perfect matching polytope, gives `2^n <= r^K`.
+
 ## Main results
 
 The main results of each file, with an informal statement and its actual

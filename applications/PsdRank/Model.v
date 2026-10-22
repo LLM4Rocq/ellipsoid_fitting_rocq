@@ -2,6 +2,7 @@ From HB Require Import structures.
 From mathcomp Require Import all_ssreflect_compat ssralg ssrnum matrix reals.
 From GaussianAnalysis.matrix Require Import psd_part psd_factorization.
 From GaussianApplications Require Import PsdRankDefinitions PsdRankStatement.
+From GaussianApplications Require Import PsdLiftDefinitions.
 
 (**md**************************************************************************)
 (* # PSD rank of shifted matching matrices: the model                         *)
@@ -34,9 +35,8 @@ From GaussianApplications Require Import PsdRankDefinitions PsdRankStatement.
 (* - psd_rank_statementE: psd_rank_statement with the factors written out,    *)
 (*   for the reviewer's comparison.                                           *)
 (*                                                                            *)
-(* ```                                                                        *)
-(*           kn_edges n == the edges of K_n, as a finite type                 *)
-(* ```                                                                        *)
+(* The finite type kn_edges n of the edges of K_n is in                       *)
+(* PsdLiftDefinitions.v (phase 14), whose statement uses it.                  *)
 (******************************************************************************)
 
 Set Implicit Arguments.
@@ -49,10 +49,7 @@ Local Open Scope ring_scope.
 Section model.
 Variable n : nat.
 
-(* The edges of K_n, as a finite type. *)
-Definition kn_edges := {e : {set 'I_n} | kn_edge e}.
-
-Lemma card_kn_edges : #|{: kn_edges}| = 'C(n, 2).
+Lemma card_kn_edges : #|{: kn_edges n}| = 'C(n, 2).
 Proof. by rewrite card_sig -cardsE card_draws card_ord. Qed.
 
 (* Double counting: every vertex lies in exactly one edge of M, so
@@ -135,9 +132,9 @@ Lemma shifted_matching_one_factorization (R : realType) :
   psd_factorization (@shifted_matching_mx n R 1) 'C(n, 2).
 Proof.
 rewrite -card_kn_edges.
-pose a (U : odd_set n) (k : 'I_#|{: kn_edges}|) : R :=
+pose a (U : odd_set n) (k : 'I_#|{: kn_edges n}|) : R :=
   (val (enum_val k) \in edge_cut (val U))%:R.
-pose b (M : perfect_matching n) (k : 'I_#|{: kn_edges}|) : R :=
+pose b (M : perfect_matching n) (k : 'I_#|{: kn_edges n}|) : R :=
   (val (enum_val k) \in val M)%:R.
 exists (fun U => diag_mx (\row_k a U k)), (fun M => diag_mx (\row_k b M k)).
 split => [U|M|U M].
@@ -145,14 +142,14 @@ split => [U|M|U M].
 - by apply: psdmx_diag => k; rewrite mxE ler0n.
 rewrite mulmx_diag mxtrace_diag /shifted_matching_mx subrK.
 under eq_bigr do rewrite !mxE.
-rewrite /a /b (reindex (@enum_rank kn_edges)) /=.
+rewrite /a /b (reindex (@enum_rank (kn_edges n))) /=.
   by apply: onW_bij; exact: enum_rank_bij.
 under eq_bigr do rewrite enum_rankK -natrM.
 rewrite -natr_sum /crossing; congr (_%:R).
 (* the edges of M crossing U, as edges of K_n *)
 set S := val M :&: edge_cut (val U).
 have Sedge e : e \in S -> kn_edge e by rewrite !inE => /andP[_ /andP[]].
-have -> : S = val @: [set x : kn_edges | val x \in S].
+have -> : S = val @: [set x : kn_edges n | val x \in S].
   apply/setP => e; apply/idP/imsetP => [eS|[x]]; last by rewrite inE => xS ->.
   by exists (exist _ e (Sedge e eS)); rewrite // inE.
 rewrite card_imset; first exact: val_inj.
