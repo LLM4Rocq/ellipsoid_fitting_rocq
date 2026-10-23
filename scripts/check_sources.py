@@ -486,6 +486,15 @@
    31 applies to the others, and these five, like every file that the
    extension adds, have their SHA-256 in FIXED_FILES or their code in
    NEW_CHECK_CODE.
+35. Phase 14, the pin. The eight files of CHECKS_EXACT_P14 (the two axiom
+   checks of rule 33 with their expected lists, check/Phase14Definitions.v,
+   check/Phase14Statements.v, check/Phase14Identities.v and
+   check/Phase14Reports.v) and the files of MACHINERY_P14 (the five files of
+   P14_CHANGED and the snapshot files, references, conversions, identity
+   drivers and identity references that the extension adds) are
+   byte-identical to the commit CHECKS_P14_BASELINE (commit P of phase 14),
+   a separate baseline. The older baselines, the pin of rule 31 for every
+   other file and check/frozen-baseline do not change.
 """
 
 import argparse
@@ -716,6 +725,40 @@ PHASE14_FROZEN = [
     "applications/PsdLiftStatement.v",
 ]
 PHASE14_BASELINE = "39f58468aeaa024a54509c1b684c3a40e208e5d8"
+# Rule 35: the files that commit P of phase 14 adds or changes, pinned to it.
+CHECKS_EXACT_P14 = [
+    "check/PsdRankAssumptions.v",
+    "check/psd_rank_assumptions.expected",
+    "check/PsdLiftAssumptions.v",
+    "check/psd_lift_assumptions.expected",
+    "check/Phase14Definitions.v",
+    "check/Phase14Statements.v",
+    "check/Phase14Identities.v",
+    "check/Phase14Reports.v",
+]
+MACHINERY_P14 = [
+    "scripts/snapshot_baselines.py",
+    "scripts/identity_sidecars.py",
+    "check/snapshots/REFERENCES.json",
+    "check/identity/inventory.json",
+    "check/identity/REFERENCES.json",
+    "check/snapshots/SnapshotPhase14.v",
+    "check/snapshots/SnapshotPhase14.txt",
+    "check/snapshots/SnapshotPhase14Definitions.v",
+    "check/snapshots/SnapshotPhase14Definitions.txt",
+    "check/snapshots/SnapshotPhase14Statements.v",
+    "check/snapshots/SnapshotPhase14Statements.txt",
+    "check/snapshots/SnapshotAcceptedStatements14.v",
+    "check/snapshots/SnapshotAcceptedStatements14.txt",
+    "check/snapshots/AcceptedConversions14.v",
+    "check/identity/IdentitySnapshotPhase14.v",
+    "check/identity/IdentitySnapshotPhase14.json",
+    "check/identity/IdentitySnapshotPhase14Definitions.v",
+    "check/identity/IdentitySnapshotPhase14Definitions.json",
+    "check/identity/IdentitySnapshotPhase14Statements.v",
+    "check/identity/IdentitySnapshotPhase14Statements.json",
+]
+CHECKS_P14_BASELINE = "bdcb12c65c0933c7a07fd8e6ce7e6a0f9bee2b3a"
 # Rule 34: the files of rule 31 that the extension of phase 14 changes.
 P14_CHANGED = [
     "scripts/snapshot_baselines.py",
@@ -2956,6 +2999,7 @@ def main():
                 CHECKS_P13_BASELINE)
     exact_bytes([p for p in listed(MACHINERY_DIRS_P13, CHECKS_P13_BASELINE)
                  if p not in P14_CHANGED], CHECKS_P13_BASELINE)
+    exact_bytes(CHECKS_EXACT_P14 + MACHINERY_P14, CHECKS_P14_BASELINE)
     pinned_section(TUPLE_PROD, "tuple_prod", CHECKS_BASELINE)
     frozen(PHASE13_B1_FROZEN, PHASE13_B1_BASELINE)
     frozen(PHASE13_B2_FROZEN, PHASE13_B2_BASELINE)

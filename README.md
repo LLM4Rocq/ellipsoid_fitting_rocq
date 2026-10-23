@@ -654,8 +654,9 @@ generated`), whose code cannot change. The other modules print none.
   the identity drivers, the snapshots, the regression tests and their
   references), to commit `c5bdf87` (the repair), except the five files
   that the extension of phase 14 changes (`scripts/snapshot_baselines.py`,
-  `scripts/identity_sidecars.py` and the three reference indexes), which
-  have fixed hashes like the files that the extension adds; that the
+  `scripts/identity_sidecars.py` and the three reference indexes), which,
+  with the check files, snapshots, references and drivers that the
+  extension adds, are byte-identical to its commit P (`bdcb12c`); that the
   Require
   commands of
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which
