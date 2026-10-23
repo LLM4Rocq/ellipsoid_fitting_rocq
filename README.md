@@ -597,6 +597,13 @@ generated`), whose code cannot change. The other modules print none.
   `AcceptedConversions.v` checks, at the acceptance commit 46e45c8, that the
   statements of the lemmas of `check/LibraryStatements.v` and of the library
   lemmas are convertible with the accepted `_statement` definitions.
+  `AcceptedConversions14.v` does the same for the five statements accepted
+  in phase 14 at 39f5846, and the snapshot `SnapshotPhase14Statements`
+  prints them with the library lemmas that prove them. Both are compiled
+  against a build of 4d02069, the first commit of `main` with those lemmas,
+  which do not exist at 39f5846, and where the five `_statement`
+  definitions still have their text of 39f5846. The other snapshots of
+  phase 14 are taken at 39f5846.
   `check/identity/` holds the identity layer of the snapshots (the repair
   E42): a printed name can resolve to another constant than at the
   acceptance commit while the print stays the same. For each snapshot that
@@ -607,7 +614,7 @@ generated`), whose code cannot change. The other modules print none.
   is the reference, the kernel names (user and canonical) of every
   constant, inductive, constructor and projection of each term at its
   position, from a build of the acceptance commit; `inventory.json` lists
-  the 424 queries of the 18 drivers, and `REFERENCES.json` records the
+  the 442 queries of the 21 drivers, and `REFERENCES.json` records the
   commit, the toolchain and the hashes. The sidecars hold no universe (the
   printed snapshots keep them); they identify names and do not fix what a
   name means, which the frozen files, the pinned sections and the
