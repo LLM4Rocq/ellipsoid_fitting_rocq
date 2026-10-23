@@ -1,0 +1,1645 @@
+Module
+PsdLiftDefinitions
+:= Struct
+     Definition kn_edges : forall _ : nat, Type@{ssrbool.predArgType.u0}.
+     Definition matching_slack_mx :
+       forall (n : nat) (R : reals.Real.type)
+         (_ : sum (kn_edges n) (PsdRankDefinitions.odd_set n))
+         (_ : PsdRankDefinitions.perfect_matching n),
+       reals.Real.sort R.
+     Definition in_matching_polytope :
+       forall (R : reals.Real.type) (n : nat)
+         (_ : @finfun.finfun_of
+                (@fintype.Specif_sig__canonical__fintype_Finite
+                   (finset.finset_set_of__canonical__fintype_Finite
+                      (@reverse_coercion@{fintype.Finite.type.u0
+                         PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                         ssrbool.predArgType
+                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                            n)
+                         (fintype.ordinal n)))
+                   (@PsdRankDefinitions.kn_edge n))
+                (fun _ : kn_edges n => reals.Real.sort R)
+                (ssreflect.Phant (forall _ : kn_edges n, reals.Real.sort R))),
+       Prop.
+     Definition semidefinite_lift :
+       forall (_ : reals.Real.type) (_ : nat) (_ : nat), Prop.
+   End
+PsdLiftDefinitions.kn_edges =
+fun n : nat =>
+@sig
+  (finset.set_of
+     (@reverse_coercion@{fintype.Finite.type.u0
+        PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+        ssrbool.predArgType
+        (fintype.fintype_ordinal__canonical__fintype_Finite n)
+        (fintype.ordinal n)))
+  (fun
+     e : finset.set_of
+           (@reverse_coercion@{fintype.Finite.type.u0
+              PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+              ssrbool.predArgType
+              (fintype.fintype_ordinal__canonical__fintype_Finite n)
+              (fintype.ordinal n)) =>
+   is_true (@PsdRankDefinitions.kn_edge n e))
+     : forall _ : nat, Type@{ssrbool.predArgType.u0}
+
+Arguments PsdLiftDefinitions.kn_edges n%_nat_scope
+PsdLiftDefinitions.matching_slack_mx =
+fun (n : nat) (R : reals.Real.type)
+  (i : sum (PsdLiftDefinitions.kn_edges n) (PsdRankDefinitions.odd_set n))
+  (M : PsdRankDefinitions.perfect_matching n) =>
+match i return (reals.Real.sort R) with
+| @inl _ _ e =>
+    @nmodule.Algebra.natmul
+      (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+         (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R))
+      (rings_modules_and_algebras.GRing.one
+         (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R))
+      (ssrnat.nat_of_bool
+         (@ssrbool.in_mem
+            (finset.set_of
+               (@reverse_coercion@{fintype.Finite.type.u0
+                  PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                  ssrbool.predArgType
+                  (fintype.fintype_ordinal__canonical__fintype_Finite n)
+                  (fintype.ordinal n)))
+            (@eqtype.isSub.val_subdef
+               (finset.set_of
+                  (@reverse_coercion@{fintype.Finite.type.u0
+                     PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                     ssrbool.predArgType
+                     (fintype.fintype_ordinal__canonical__fintype_Finite n)
+                     (fintype.ordinal n)))
+               (@PsdRankDefinitions.kn_edge n)
+               (@eqtype.SubType.sort
+                  (finset.set_of
+                     (@reverse_coercion@{fintype.Finite.type.u0
+                        PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                        ssrbool.predArgType
+                        (fintype.fintype_ordinal__canonical__fintype_Finite n)
+                        (fintype.ordinal n)))
+                  (@PsdRankDefinitions.kn_edge n)
+                  (@eqtype.Specif_sig__canonical__eqtype_SubType
+                     (finset.set_of
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              n)
+                           (fintype.ordinal n)))
+                     (@PsdRankDefinitions.kn_edge n)))
+               (@eqtype.SubType.eqtype_isSub_mixin _ _ _
+                  (@eqtype.SubType.phant_on_
+                     (finset.set_of
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              n)
+                           (fintype.ordinal n)))
+                     (@PsdRankDefinitions.kn_edge n)
+                     (@eqtype.Specif_sig__canonical__eqtype_SubType
+                        (finset.set_of
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              PsdRankDefinitions.kn_edge.u0}
+                              fintype.Finite.type ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 n)
+                              (fintype.ordinal n)))
+                        (@PsdRankDefinitions.kn_edge n))
+                     (ssreflect.Phant
+                        (@eqtype.SubType.sort
+                           (finset.set_of
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 PsdRankDefinitions.kn_edge.u0}
+                                 fintype.Finite.type ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    n)
+                                 (fintype.ordinal n)))
+                           (@PsdRankDefinitions.kn_edge n)
+                           (@eqtype.Specif_sig__canonical__eqtype_SubType
+                              (finset.set_of
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    PsdRankDefinitions.kn_edge.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       n)
+                                    (fintype.ordinal n)))
+                              (@PsdRankDefinitions.kn_edge n))))
+                   :
+                   @eqtype.SubType.axioms_
+                     (finset.set_of
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              n)
+                           (fintype.ordinal n)))
+                     (@PsdRankDefinitions.kn_edge n)
+                     (@eqtype.SubType.sort
+                        (finset.set_of
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              PsdRankDefinitions.kn_edge.u0}
+                              fintype.Finite.type ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 n)
+                              (fintype.ordinal n)))
+                        (@PsdRankDefinitions.kn_edge n)
+                        (@eqtype.Specif_sig__canonical__eqtype_SubType
+                           (finset.set_of
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 PsdRankDefinitions.kn_edge.u0}
+                                 fintype.Finite.type ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    n)
+                                 (fintype.ordinal n)))
+                           (@PsdRankDefinitions.kn_edge n)))))
+               e)
+            (@ssrbool.mem
+               (fintype.Finite.sort
+                  (@reverse_coercion@{fintype.Finite.type.u0
+                     PsdRankDefinitions.is_perfect_matching.u0}
+                     fintype.Finite.type ssrbool.predArgType
+                     (finset.finset_set_of__canonical__fintype_Finite
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              n)
+                           (fintype.ordinal n)))
+                     (finset.set_of
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              n)
+                           (fintype.ordinal n)))))
+               (ssrbool.predPredType
+                  (fintype.Finite.sort
+                     (@reverse_coercion@{fintype.Finite.type.u0
+                        PsdRankDefinitions.is_perfect_matching.u0}
+                        fintype.Finite.type ssrbool.predArgType
+                        (finset.finset_set_of__canonical__fintype_Finite
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              PsdRankDefinitions.kn_edge.u0}
+                              fintype.Finite.type ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 n)
+                              (fintype.ordinal n)))
+                        (finset.set_of
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              PsdRankDefinitions.kn_edge.u0}
+                              fintype.Finite.type ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 n)
+                              (fintype.ordinal n))))))
+               (@finset.pred_of_set.body
+                  (@reverse_coercion@{fintype.Finite.type.u0
+                     PsdRankDefinitions.is_perfect_matching.u0}
+                     fintype.Finite.type ssrbool.predArgType
+                     (finset.finset_set_of__canonical__fintype_Finite
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              n)
+                           (fintype.ordinal n)))
+                     (finset.set_of
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              n)
+                           (fintype.ordinal n))))
+                  (@eqtype.isSub.val_subdef
+                     (finset.set_of
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           PsdRankDefinitions.is_perfect_matching.u0}
+                           fintype.Finite.type ssrbool.predArgType
+                           (finset.finset_set_of__canonical__fintype_Finite
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 PsdRankDefinitions.kn_edge.u0}
+                                 fintype.Finite.type ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    n)
+                                 (fintype.ordinal n)))
+                           (finset.set_of
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 PsdRankDefinitions.kn_edge.u0}
+                                 fintype.Finite.type ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    n)
+                                 (fintype.ordinal n)))))
+                     (@PsdRankDefinitions.is_perfect_matching n)
+                     (@eqtype.SubType.sort
+                        (finset.set_of
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              PsdRankDefinitions.is_perfect_matching.u0}
+                              fintype.Finite.type ssrbool.predArgType
+                              (finset.finset_set_of__canonical__fintype_Finite
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    PsdRankDefinitions.kn_edge.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       n)
+                                    (fintype.ordinal n)))
+                              (finset.set_of
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    PsdRankDefinitions.kn_edge.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       n)
+                                    (fintype.ordinal n)))))
+                        (@PsdRankDefinitions.is_perfect_matching n)
+                        (@eqtype.Specif_sig__canonical__eqtype_SubType
+                           (finset.set_of
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                 fintype.Finite.type ssrbool.predArgType
+                                 (finset.finset_set_of__canonical__fintype_Finite
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       PsdRankDefinitions.kn_edge.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          n)
+                                       (fintype.ordinal n)))
+                                 (finset.set_of
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       PsdRankDefinitions.kn_edge.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          n)
+                                       (fintype.ordinal n)))))
+                           (@PsdRankDefinitions.is_perfect_matching n)))
+                     (@eqtype.SubType.eqtype_isSub_mixin _ _ _
+                        (@eqtype.SubType.phant_on_
+                           (finset.set_of
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                 fintype.Finite.type ssrbool.predArgType
+                                 (finset.finset_set_of__canonical__fintype_Finite
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       PsdRankDefinitions.kn_edge.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          n)
+                                       (fintype.ordinal n)))
+                                 (finset.set_of
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       PsdRankDefinitions.kn_edge.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          n)
+                                       (fintype.ordinal n)))))
+                           (@PsdRankDefinitions.is_perfect_matching n)
+                           (@eqtype.Specif_sig__canonical__eqtype_SubType
+                              (finset.set_of
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    PsdRankDefinitions.is_perfect_matching.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (finset.finset_set_of__canonical__fintype_Finite
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          PsdRankDefinitions.kn_edge.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             n)
+                                          (fintype.ordinal n)))
+                                    (finset.set_of
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          PsdRankDefinitions.kn_edge.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             n)
+                                          (fintype.ordinal n)))))
+                              (@PsdRankDefinitions.is_perfect_matching n))
+                           (ssreflect.Phant
+                              (@eqtype.SubType.sort
+                                 (finset.set_of
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       PsdRankDefinitions.is_perfect_matching.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (finset.finset_set_of__canonical__fintype_Finite
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             PsdRankDefinitions.kn_edge.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                n)
+                                             (fintype.ordinal n)))
+                                       (finset.set_of
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             PsdRankDefinitions.kn_edge.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                n)
+                                             (fintype.ordinal n)))))
+                                 (@PsdRankDefinitions.is_perfect_matching n)
+                                 (@eqtype.Specif_sig__canonical__eqtype_SubType
+                                    (finset.set_of
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          PsdRankDefinitions.is_perfect_matching.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (finset.finset_set_of__canonical__fintype_Finite
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                PsdRankDefinitions.kn_edge.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n)
+                                                (fintype.ordinal n)))
+                                          (finset.set_of
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                PsdRankDefinitions.kn_edge.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n)
+                                                (fintype.ordinal n)))))
+                                    (@PsdRankDefinitions.is_perfect_matching
+                                       n))))
+                         :
+                         @eqtype.SubType.axioms_
+                           (finset.set_of
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                 fintype.Finite.type ssrbool.predArgType
+                                 (finset.finset_set_of__canonical__fintype_Finite
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       PsdRankDefinitions.kn_edge.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          n)
+                                       (fintype.ordinal n)))
+                                 (finset.set_of
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       PsdRankDefinitions.kn_edge.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          n)
+                                       (fintype.ordinal n)))))
+                           (@PsdRankDefinitions.is_perfect_matching n)
+                           (@eqtype.SubType.sort
+                              (finset.set_of
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    PsdRankDefinitions.is_perfect_matching.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (finset.finset_set_of__canonical__fintype_Finite
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          PsdRankDefinitions.kn_edge.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             n)
+                                          (fintype.ordinal n)))
+                                    (finset.set_of
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          PsdRankDefinitions.kn_edge.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             n)
+                                          (fintype.ordinal n)))))
+                              (@PsdRankDefinitions.is_perfect_matching n)
+                              (@eqtype.Specif_sig__canonical__eqtype_SubType
+                                 (finset.set_of
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       PsdRankDefinitions.is_perfect_matching.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (finset.finset_set_of__canonical__fintype_Finite
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             PsdRankDefinitions.kn_edge.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                n)
+                                             (fintype.ordinal n)))
+                                       (finset.set_of
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             PsdRankDefinitions.kn_edge.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                n)
+                                             (fintype.ordinal n)))))
+                                 (@PsdRankDefinitions.is_perfect_matching n)))))
+                     M)))))
+| @inr _ _ U =>
+    @nmodule.Algebra.add
+      (nmodule.Algebra.BaseAddUMagma.Exports.Algebra_BaseAddUMagma__to__Algebra_BaseAddMagma
+         (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+            (rings_modules_and_algebras.GRing.PzRing.Exports.join_GRing_PzRing_between_Algebra_BaseZmodule_and_GRing_PzSemiRing
+               (reals.Real.Exports.reals_Real__to__GRing_PzRing R))))
+      (@nmodule.Algebra.natmul
+         (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+            (rings_modules_and_algebras.GRing.PzRing.Exports.join_GRing_PzRing_between_Algebra_BaseZmodule_and_GRing_PzSemiRing
+               (reals.Real.Exports.reals_Real__to__GRing_PzRing R)))
+         (rings_modules_and_algebras.GRing.one
+            (rings_modules_and_algebras.GRing.PzRing.Exports.join_GRing_PzRing_between_Algebra_BaseZmodule_and_GRing_PzSemiRing
+               (reals.Real.Exports.reals_Real__to__GRing_PzRing R)))
+         (@PsdRankDefinitions.crossing n U M))
+      (@nmodule.Algebra.opp
+         (rings_modules_and_algebras.GRing.PzRing.Exports.GRing_PzRing__to__Algebra_BaseZmodule
+            (reals.Real.Exports.reals_Real__to__GRing_PzRing R))
+         (rings_modules_and_algebras.GRing.one
+            (rings_modules_and_algebras.GRing.PzRing.Exports.join_GRing_PzRing_between_Algebra_BaseZmodule_and_GRing_PzSemiRing
+               (reals.Real.Exports.reals_Real__to__GRing_PzRing R))))
+end
+     : forall [n : nat] (R : reals.Real.type)
+         (_ : sum (PsdLiftDefinitions.kn_edges n)
+                (PsdRankDefinitions.odd_set n))
+         (_ : PsdRankDefinitions.perfect_matching n),
+       reals.Real.sort R
+
+Arguments PsdLiftDefinitions.matching_slack_mx [n]%_nat_scope R i M
+PsdLiftDefinitions.in_matching_polytope =
+fun (R : reals.Real.type) (n : nat)
+  (x : @finfun.finfun_of
+         (@fintype.Specif_sig__canonical__fintype_Finite
+            (finset.finset_set_of__canonical__fintype_Finite
+               (@reverse_coercion@{fintype.Finite.type.u0
+                  PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                  ssrbool.predArgType
+                  (fintype.fintype_ordinal__canonical__fintype_Finite n)
+                  (fintype.ordinal n)))
+            (@PsdRankDefinitions.kn_edge n))
+         (fun _ : PsdLiftDefinitions.kn_edges n => reals.Real.sort R)
+         (ssreflect.Phant
+            (forall _ : PsdLiftDefinitions.kn_edges n, reals.Real.sort R))) =>
+@ex (forall _ : PsdRankDefinitions.perfect_matching n, reals.Real.sort R)
+  (fun
+     w : forall _ : PsdRankDefinitions.perfect_matching n, reals.Real.sort R =>
+   ssrbool.and3
+     (forall M : PsdRankDefinitions.perfect_matching n,
+      is_true
+        (@preorder.Order.le orderedzmod.ring_display
+           (orderedzmod.Num.POrderNmodule.Exports.join_Num_POrderNmodule_between_Algebra_BaseAddUMagma_and_Order_Preorder
+              (reals.Real.Exports.reals_Real__to__Num_POrderNmodule R))
+           (@nmodule.Algebra.zero
+              (orderedzmod.Num.POrderNmodule.Exports.Num_POrderNmodule__to__Algebra_BaseAddUMagma
+                 (reals.Real.Exports.reals_Real__to__Num_POrderNmodule R)))
+           (w M)))
+     (@eq
+        (nmodule.Algebra.BaseAddUMagma.sort
+           (reals.Real.Exports.reals_Real__to__Algebra_BaseAddUMagma R))
+        (@bigop.bigop.body
+           (nmodule.Algebra.BaseAddUMagma.sort
+              (reals.Real.Exports.reals_Real__to__Algebra_BaseAddUMagma R))
+           (fintype.Finite.sort
+              (@fintype.Specif_sig__canonical__fintype_Finite
+                 (finset.finset_set_of__canonical__fintype_Finite
+                    (@reverse_coercion@{fintype.Finite.type.u0
+                       PsdRankDefinitions.is_perfect_matching.u0}
+                       fintype.Finite.type ssrbool.predArgType
+                       (finset.finset_set_of__canonical__fintype_Finite
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.kn_edge.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                n)
+                             (fintype.ordinal n)))
+                       (finset.set_of
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.kn_edge.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                n)
+                             (fintype.ordinal n)))))
+                 (@PsdRankDefinitions.is_perfect_matching n)))
+           (@nmodule.Algebra.zero
+              (reals.Real.Exports.reals_Real__to__Algebra_BaseAddUMagma R))
+           (bigop.index_enum
+              (@fintype.Specif_sig__canonical__fintype_Finite
+                 (finset.finset_set_of__canonical__fintype_Finite
+                    (@reverse_coercion@{fintype.Finite.type.u0
+                       PsdRankDefinitions.is_perfect_matching.u0}
+                       fintype.Finite.type ssrbool.predArgType
+                       (finset.finset_set_of__canonical__fintype_Finite
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.kn_edge.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                n)
+                             (fintype.ordinal n)))
+                       (finset.set_of
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.kn_edge.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                n)
+                             (fintype.ordinal n)))))
+                 (@PsdRankDefinitions.is_perfect_matching n)))
+           (fun
+              M : fintype.Finite.sort
+                    (@fintype.Specif_sig__canonical__fintype_Finite
+                       (finset.finset_set_of__canonical__fintype_Finite
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.is_perfect_matching.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (finset.finset_set_of__canonical__fintype_Finite
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.kn_edge.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n)))
+                             (finset.set_of
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.kn_edge.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n)))))
+                       (@PsdRankDefinitions.is_perfect_matching n)) =>
+            @bigop.BigBody
+              (nmodule.Algebra.BaseAddMagma.sort
+                 (reals.Real.Exports.reals_Real__to__Algebra_BaseAddMagma R))
+              (fintype.Finite.sort
+                 (@fintype.Specif_sig__canonical__fintype_Finite
+                    (finset.finset_set_of__canonical__fintype_Finite
+                       (@reverse_coercion@{fintype.Finite.type.u0
+                          PsdRankDefinitions.is_perfect_matching.u0}
+                          fintype.Finite.type ssrbool.predArgType
+                          (finset.finset_set_of__canonical__fintype_Finite
+                             (@reverse_coercion@{fintype.Finite.type.u0
+                                PsdRankDefinitions.kn_edge.u0}
+                                fintype.Finite.type ssrbool.predArgType
+                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                   n)
+                                (fintype.ordinal n)))
+                          (finset.set_of
+                             (@reverse_coercion@{fintype.Finite.type.u0
+                                PsdRankDefinitions.kn_edge.u0}
+                                fintype.Finite.type ssrbool.predArgType
+                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                   n)
+                                (fintype.ordinal n)))))
+                    (@PsdRankDefinitions.is_perfect_matching n)))
+              M
+              (@nmodule.Algebra.add
+                 (reals.Real.Exports.reals_Real__to__Algebra_BaseAddMagma R))
+              true (w M)))
+        (rings_modules_and_algebras.GRing.one
+           (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R)))
+     (forall
+        e : eqtype.Equality.sort
+              (fintype.Finite.Exports.fintype_Finite__to__eqtype_Equality
+                 (@fintype.Specif_sig__canonical__fintype_Finite
+                    (finset.finset_set_of__canonical__fintype_Finite
+                       (@reverse_coercion@{fintype.Finite.type.u0
+                          PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                          ssrbool.predArgType
+                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                             n)
+                          (fintype.ordinal n)))
+                    (@PsdRankDefinitions.kn_edge n))),
+      @eq (reals.Real.sort R)
+        (@finfun.fun_of_fin
+           (@fintype.Specif_sig__canonical__fintype_Finite
+              (finset.finset_set_of__canonical__fintype_Finite
+                 (@reverse_coercion@{fintype.Finite.type.u0
+                    PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                    ssrbool.predArgType
+                    (fintype.fintype_ordinal__canonical__fintype_Finite n)
+                    (fintype.ordinal n)))
+              (@PsdRankDefinitions.kn_edge n))
+           (fun _ : PsdLiftDefinitions.kn_edges n => reals.Real.sort R)
+           (ssreflect.Phant
+              (forall _ : PsdLiftDefinitions.kn_edges n, reals.Real.sort R))
+           x e)
+        (@bigop.bigop.body
+           (nmodule.Algebra.BaseAddUMagma.sort
+              (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                 (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R)))
+           (fintype.Finite.sort
+              (@fintype.Specif_sig__canonical__fintype_Finite
+                 (finset.finset_set_of__canonical__fintype_Finite
+                    (@reverse_coercion@{fintype.Finite.type.u0
+                       PsdRankDefinitions.is_perfect_matching.u0}
+                       fintype.Finite.type ssrbool.predArgType
+                       (finset.finset_set_of__canonical__fintype_Finite
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.kn_edge.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                n)
+                             (fintype.ordinal n)))
+                       (finset.set_of
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.kn_edge.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                n)
+                             (fintype.ordinal n)))))
+                 (@PsdRankDefinitions.is_perfect_matching n)))
+           (@nmodule.Algebra.zero
+              (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                 (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R)))
+           (bigop.index_enum
+              (@fintype.Specif_sig__canonical__fintype_Finite
+                 (finset.finset_set_of__canonical__fintype_Finite
+                    (@reverse_coercion@{fintype.Finite.type.u0
+                       PsdRankDefinitions.is_perfect_matching.u0}
+                       fintype.Finite.type ssrbool.predArgType
+                       (finset.finset_set_of__canonical__fintype_Finite
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.kn_edge.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                n)
+                             (fintype.ordinal n)))
+                       (finset.set_of
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.kn_edge.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                n)
+                             (fintype.ordinal n)))))
+                 (@PsdRankDefinitions.is_perfect_matching n)))
+           (fun
+              M : fintype.Finite.sort
+                    (@fintype.Specif_sig__canonical__fintype_Finite
+                       (finset.finset_set_of__canonical__fintype_Finite
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.is_perfect_matching.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (finset.finset_set_of__canonical__fintype_Finite
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.kn_edge.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n)))
+                             (finset.set_of
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.kn_edge.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n)))))
+                       (@PsdRankDefinitions.is_perfect_matching n)) =>
+            @bigop.BigBody
+              (nmodule.Algebra.BaseAddMagma.sort
+                 (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddMagma
+                    (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R)))
+              (fintype.Finite.sort
+                 (@fintype.Specif_sig__canonical__fintype_Finite
+                    (finset.finset_set_of__canonical__fintype_Finite
+                       (@reverse_coercion@{fintype.Finite.type.u0
+                          PsdRankDefinitions.is_perfect_matching.u0}
+                          fintype.Finite.type ssrbool.predArgType
+                          (finset.finset_set_of__canonical__fintype_Finite
+                             (@reverse_coercion@{fintype.Finite.type.u0
+                                PsdRankDefinitions.kn_edge.u0}
+                                fintype.Finite.type ssrbool.predArgType
+                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                   n)
+                                (fintype.ordinal n)))
+                          (finset.set_of
+                             (@reverse_coercion@{fintype.Finite.type.u0
+                                PsdRankDefinitions.kn_edge.u0}
+                                fintype.Finite.type ssrbool.predArgType
+                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                   n)
+                                (fintype.ordinal n)))))
+                    (@PsdRankDefinitions.is_perfect_matching n)))
+              M
+              (@nmodule.Algebra.add
+                 (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddMagma
+                    (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R)))
+              true
+              (@rings_modules_and_algebras.GRing.mul
+                 (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R)
+                 (w M)
+                 (@nmodule.Algebra.natmul
+                    (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                       (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R))
+                    (rings_modules_and_algebras.GRing.one
+                       (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R))
+                    (ssrnat.nat_of_bool
+                       (@ssrbool.in_mem
+                          (fintype.Finite.sort
+                             (finset.finset_set_of__canonical__fintype_Finite
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.kn_edge.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n))))
+                          (@eqtype.isSub.val_subdef
+                             (fintype.Finite.sort
+                                (finset.finset_set_of__canonical__fintype_Finite
+                                   (@reverse_coercion@{fintype.Finite.type.u0
+                                      PsdRankDefinitions.kn_edge.u0}
+                                      fintype.Finite.type ssrbool.predArgType
+                                      (fintype.fintype_ordinal__canonical__fintype_Finite
+                                         n)
+                                      (fintype.ordinal n))))
+                             (@PsdRankDefinitions.kn_edge n)
+                             (@eqtype.SubType.sort
+                                (fintype.Finite.sort
+                                   (finset.finset_set_of__canonical__fintype_Finite
+                                      (@reverse_coercion@{fintype.Finite.type.u0
+                                         PsdRankDefinitions.kn_edge.u0}
+                                         fintype.Finite.type
+                                         ssrbool.predArgType
+                                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                                            n)
+                                         (fintype.ordinal n))))
+                                (@PsdRankDefinitions.kn_edge n)
+                                (@eqtype.SubEquality.Exports.join_eqtype_SubEquality_between_eqtype_Equality_and_eqtype_SubType
+                                   (fintype.Finite.sort
+                                      (finset.finset_set_of__canonical__fintype_Finite
+                                         (@reverse_coercion@{fintype.Finite.type.u0
+                                            PsdRankDefinitions.kn_edge.u0}
+                                            fintype.Finite.type
+                                            ssrbool.predArgType
+                                            (fintype.fintype_ordinal__canonical__fintype_Finite
+                                               n)
+                                            (fintype.ordinal n))))
+                                   (@PsdRankDefinitions.kn_edge n)
+                                   (@fintype.SubFinite.Exports.join_fintype_SubFinite_between_fintype_Finite_and_eqtype_SubEquality
+                                      (fintype.Finite.sort
+                                         (finset.finset_set_of__canonical__fintype_Finite
+                                            (@reverse_coercion@{fintype.Finite.type.u0
+                                               PsdRankDefinitions.kn_edge.u0}
+                                               fintype.Finite.type
+                                               ssrbool.predArgType
+                                               (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n)
+                                               (fintype.ordinal n))))
+                                      (@PsdRankDefinitions.kn_edge n)
+                                      (@fintype.Specif_sig__canonical__fintype_SubFinite
+                                         (finset.finset_set_of__canonical__fintype_Finite
+                                            (@reverse_coercion@{fintype.Finite.type.u0
+                                               PsdRankDefinitions.kn_edge.u0}
+                                               fintype.Finite.type
+                                               ssrbool.predArgType
+                                               (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n)
+                                               (fintype.ordinal n)))
+                                         (@PsdRankDefinitions.kn_edge n)))))
+                             (@eqtype.SubType.eqtype_isSub_mixin _ _ _
+                                (@eqtype.SubType.phant_on_
+                                   (fintype.Finite.sort
+                                      (finset.finset_set_of__canonical__fintype_Finite
+                                         (@reverse_coercion@{fintype.Finite.type.u0
+                                            PsdRankDefinitions.kn_edge.u0}
+                                            fintype.Finite.type
+                                            ssrbool.predArgType
+                                            (fintype.fintype_ordinal__canonical__fintype_Finite
+                                               n)
+                                            (fintype.ordinal n))))
+                                   (@PsdRankDefinitions.kn_edge n)
+                                   (@eqtype.SubEquality.Exports.join_eqtype_SubEquality_between_eqtype_Equality_and_eqtype_SubType
+                                      (fintype.Finite.sort
+                                         (finset.finset_set_of__canonical__fintype_Finite
+                                            (@reverse_coercion@{fintype.Finite.type.u0
+                                               PsdRankDefinitions.kn_edge.u0}
+                                               fintype.Finite.type
+                                               ssrbool.predArgType
+                                               (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n)
+                                               (fintype.ordinal n))))
+                                      (@PsdRankDefinitions.kn_edge n)
+                                      (@fintype.SubFinite.Exports.join_fintype_SubFinite_between_fintype_Finite_and_eqtype_SubEquality
+                                         (fintype.Finite.sort
+                                            (finset.finset_set_of__canonical__fintype_Finite
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) 
+                                                 (fintype.ordinal n))))
+                                         (@PsdRankDefinitions.kn_edge n)
+                                         (@fintype.Specif_sig__canonical__fintype_SubFinite
+                                            (finset.finset_set_of__canonical__fintype_Finite
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) 
+                                                 (fintype.ordinal n)))
+                                            (@PsdRankDefinitions.kn_edge n))))
+                                   (ssreflect.Phant
+                                      (@eqtype.SubType.sort
+                                         (fintype.Finite.sort
+                                            (finset.finset_set_of__canonical__fintype_Finite
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) 
+                                                 (fintype.ordinal n))))
+                                         (@PsdRankDefinitions.kn_edge n)
+                                         (@eqtype.SubEquality.Exports.join_eqtype_SubEquality_between_eqtype_Equality_and_eqtype_SubType
+                                            (fintype.Finite.sort
+                                               (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))
+                                            (@PsdRankDefinitions.kn_edge n)
+                                            (@fintype.SubFinite.Exports.join_fintype_SubFinite_between_fintype_Finite_and_eqtype_SubEquality
+                                               (fintype.Finite.sort
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))
+                                               (@PsdRankDefinitions.kn_edge n)
+                                               (@fintype.Specif_sig__canonical__fintype_SubFinite
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (@PsdRankDefinitions.kn_edge
+                                                 n))))))
+                                 :
+                                 @eqtype.SubType.axioms_
+                                   (fintype.Finite.sort
+                                      (finset.finset_set_of__canonical__fintype_Finite
+                                         (@reverse_coercion@{fintype.Finite.type.u0
+                                            PsdRankDefinitions.kn_edge.u0}
+                                            fintype.Finite.type
+                                            ssrbool.predArgType
+                                            (fintype.fintype_ordinal__canonical__fintype_Finite
+                                               n)
+                                            (fintype.ordinal n))))
+                                   (@PsdRankDefinitions.kn_edge n)
+                                   (@eqtype.SubType.sort
+                                      (fintype.Finite.sort
+                                         (finset.finset_set_of__canonical__fintype_Finite
+                                            (@reverse_coercion@{fintype.Finite.type.u0
+                                               PsdRankDefinitions.kn_edge.u0}
+                                               fintype.Finite.type
+                                               ssrbool.predArgType
+                                               (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n)
+                                               (fintype.ordinal n))))
+                                      (@PsdRankDefinitions.kn_edge n)
+                                      (@eqtype.SubEquality.Exports.join_eqtype_SubEquality_between_eqtype_Equality_and_eqtype_SubType
+                                         (fintype.Finite.sort
+                                            (finset.finset_set_of__canonical__fintype_Finite
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) 
+                                                 (fintype.ordinal n))))
+                                         (@PsdRankDefinitions.kn_edge n)
+                                         (@fintype.SubFinite.Exports.join_fintype_SubFinite_between_fintype_Finite_and_eqtype_SubEquality
+                                            (fintype.Finite.sort
+                                               (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))
+                                            (@PsdRankDefinitions.kn_edge n)
+                                            (@fintype.Specif_sig__canonical__fintype_SubFinite
+                                               (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                               (@PsdRankDefinitions.kn_edge n)))))))
+                             e)
+                          (@ssrbool.mem
+                             (fintype.Finite.sort
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.is_perfect_matching.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (finset.finset_set_of__canonical__fintype_Finite
+                                      (@reverse_coercion@{fintype.Finite.type.u0
+                                         PsdRankDefinitions.kn_edge.u0}
+                                         fintype.Finite.type
+                                         ssrbool.predArgType
+                                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                                            n)
+                                         (fintype.ordinal n)))
+                                   (finset.set_of
+                                      (@reverse_coercion@{fintype.Finite.type.u0
+                                         PsdRankDefinitions.kn_edge.u0}
+                                         fintype.Finite.type
+                                         ssrbool.predArgType
+                                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                                            n)
+                                         (fintype.ordinal n)))))
+                             (ssrbool.predPredType
+                                (fintype.Finite.sort
+                                   (@reverse_coercion@{fintype.Finite.type.u0
+                                      PsdRankDefinitions.is_perfect_matching.u0}
+                                      fintype.Finite.type ssrbool.predArgType
+                                      (finset.finset_set_of__canonical__fintype_Finite
+                                         (@reverse_coercion@{fintype.Finite.type.u0
+                                            PsdRankDefinitions.kn_edge.u0}
+                                            fintype.Finite.type
+                                            ssrbool.predArgType
+                                            (fintype.fintype_ordinal__canonical__fintype_Finite
+                                               n)
+                                            (fintype.ordinal n)))
+                                      (finset.set_of
+                                         (@reverse_coercion@{fintype.Finite.type.u0
+                                            PsdRankDefinitions.kn_edge.u0}
+                                            fintype.Finite.type
+                                            ssrbool.predArgType
+                                            (fintype.fintype_ordinal__canonical__fintype_Finite
+                                               n)
+                                            (fintype.ordinal n))))))
+                             (@finset.pred_of_set.body
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.is_perfect_matching.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (finset.finset_set_of__canonical__fintype_Finite
+                                      (@reverse_coercion@{fintype.Finite.type.u0
+                                         PsdRankDefinitions.kn_edge.u0}
+                                         fintype.Finite.type
+                                         ssrbool.predArgType
+                                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                                            n)
+                                         (fintype.ordinal n)))
+                                   (finset.set_of
+                                      (@reverse_coercion@{fintype.Finite.type.u0
+                                         PsdRankDefinitions.kn_edge.u0}
+                                         fintype.Finite.type
+                                         ssrbool.predArgType
+                                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                                            n)
+                                         (fintype.ordinal n))))
+                                (@eqtype.isSub.val_subdef
+                                   (fintype.Finite.sort
+                                      (finset.finset_set_of__canonical__fintype_Finite
+                                         (@reverse_coercion@{fintype.Finite.type.u0
+                                            PsdRankDefinitions.is_perfect_matching.u0}
+                                            fintype.Finite.type
+                                            ssrbool.predArgType
+                                            (finset.finset_set_of__canonical__fintype_Finite
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) 
+                                                 (fintype.ordinal n)))
+                                            (finset.set_of
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) 
+                                                 (fintype.ordinal n))))))
+                                   (@PsdRankDefinitions.is_perfect_matching n)
+                                   (@eqtype.SubType.sort
+                                      (fintype.Finite.sort
+                                         (finset.finset_set_of__canonical__fintype_Finite
+                                            (@reverse_coercion@{fintype.Finite.type.u0
+                                               PsdRankDefinitions.is_perfect_matching.u0}
+                                               fintype.Finite.type
+                                               ssrbool.predArgType
+                                               (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                               (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))))
+                                      (@PsdRankDefinitions.is_perfect_matching
+                                         n)
+                                      (@fintype.SubFinite.Exports.join_fintype_SubFinite_between_fintype_Finite_and_eqtype_SubType
+                                         (fintype.Finite.sort
+                                            (finset.finset_set_of__canonical__fintype_Finite
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))))
+                                         (@PsdRankDefinitions.is_perfect_matching
+                                            n)
+                                         (@fintype.Specif_sig__canonical__fintype_SubFinite
+                                            (finset.finset_set_of__canonical__fintype_Finite
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))))
+                                            (@PsdRankDefinitions.is_perfect_matching
+                                               n))))
+                                   (@eqtype.SubType.eqtype_isSub_mixin _ _ _
+                                      (@eqtype.SubType.phant_on_
+                                         (fintype.Finite.sort
+                                            (finset.finset_set_of__canonical__fintype_Finite
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))))
+                                         (@PsdRankDefinitions.is_perfect_matching
+                                            n)
+                                         (@fintype.SubFinite.Exports.join_fintype_SubFinite_between_fintype_Finite_and_eqtype_SubType
+                                            (fintype.Finite.sort
+                                               (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))))
+                                            (@PsdRankDefinitions.is_perfect_matching
+                                               n)
+                                            (@fintype.Specif_sig__canonical__fintype_SubFinite
+                                               (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))))
+                                               (@PsdRankDefinitions.is_perfect_matching
+                                                 n)))
+                                         (ssreflect.Phant
+                                            (@eqtype.SubType.sort
+                                               (fintype.Finite.sort
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))))
+                                               (@PsdRankDefinitions.is_perfect_matching
+                                                 n)
+                                               (@fintype.SubFinite.Exports.join_fintype_SubFinite_between_fintype_Finite_and_eqtype_SubType
+                                                 (fintype.Finite.sort
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))))
+                                                 (@PsdRankDefinitions.is_perfect_matching
+                                                 n)
+                                                 (@fintype.Specif_sig__canonical__fintype_SubFinite
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))))
+                                                 (@PsdRankDefinitions.is_perfect_matching
+                                                 n)))))
+                                       :
+                                       @eqtype.SubType.axioms_
+                                         (fintype.Finite.sort
+                                            (finset.finset_set_of__canonical__fintype_Finite
+                                               (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))))
+                                         (@PsdRankDefinitions.is_perfect_matching
+                                            n)
+                                         (@eqtype.SubType.sort
+                                            (fintype.Finite.sort
+                                               (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))))
+                                            (@PsdRankDefinitions.is_perfect_matching
+                                               n)
+                                            (@fintype.SubFinite.Exports.join_fintype_SubFinite_between_fintype_Finite_and_eqtype_SubType
+                                               (fintype.Finite.sort
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n))))))
+                                               (@PsdRankDefinitions.is_perfect_matching
+                                                 n)
+                                               (@fintype.Specif_sig__canonical__fintype_SubFinite
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.is_perfect_matching.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (finset.finset_set_of__canonical__fintype_Finite
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))
+                                                 (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 PsdRankDefinitions.kn_edge.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n) (fintype.ordinal n)))))
+                                                 (@PsdRankDefinitions.is_perfect_matching
+                                                 n))))))
+                                   M)))))))))))
+     : forall [R : reals.Real.type] [n : nat]
+         (_ : @finfun.finfun_of
+                (@fintype.Specif_sig__canonical__fintype_Finite
+                   (finset.finset_set_of__canonical__fintype_Finite
+                      (@reverse_coercion@{fintype.Finite.type.u0
+                         PsdRankDefinitions.kn_edge.u0} fintype.Finite.type
+                         ssrbool.predArgType
+                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                            n)
+                         (fintype.ordinal n)))
+                   (@PsdRankDefinitions.kn_edge n))
+                (fun _ : PsdLiftDefinitions.kn_edges n => reals.Real.sort R)
+                (ssreflect.Phant
+                   (forall _ : PsdLiftDefinitions.kn_edges n,
+                    reals.Real.sort R))),
+       Prop
+
+Arguments PsdLiftDefinitions.in_matching_polytope [R] [n]%_nat_scope x
+PsdLiftDefinitions.semidefinite_lift =
+fun (R : reals.Real.type) (n r : nat) =>
+@ex nat
+  (fun m : nat =>
+   @ex (forall _ : fintype.ordinal m, matrix.matrix (reals.Real.sort R) r r)
+     (fun
+        C : forall _ : fintype.ordinal m,
+            matrix.matrix (reals.Real.sort R) r r =>
+      @ex (forall _ : fintype.ordinal m, reals.Real.sort R)
+        (fun c : forall _ : fintype.ordinal m, reals.Real.sort R =>
+         @ex
+           (forall _ : PsdLiftDefinitions.kn_edges n,
+            matrix.matrix (reals.Real.sort R) r r)
+           (fun
+              D : forall _ : PsdLiftDefinitions.kn_edges n,
+                  matrix.matrix (reals.Real.sort R) r r =>
+            @ex (forall _ : PsdLiftDefinitions.kn_edges n, reals.Real.sort R)
+              (fun
+                 d0 : forall _ : PsdLiftDefinitions.kn_edges n,
+                      reals.Real.sort R =>
+               forall
+                 x : @finfun.finfun_of
+                       (@fintype.Specif_sig__canonical__fintype_Finite
+                          (finset.finset_set_of__canonical__fintype_Finite
+                             (@reverse_coercion@{fintype.Finite.type.u0
+                                PsdRankDefinitions.kn_edge.u0}
+                                fintype.Finite.type ssrbool.predArgType
+                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                   n)
+                                (fintype.ordinal n)))
+                          (@PsdRankDefinitions.kn_edge n))
+                       (fun _ : PsdLiftDefinitions.kn_edges n =>
+                        reals.Real.sort R)
+                       (ssreflect.Phant
+                          (forall _ : PsdLiftDefinitions.kn_edges n,
+                           reals.Real.sort R)),
+               iff (@PsdLiftDefinitions.in_matching_polytope R n x)
+                 (@ex (matrix.matrix (reals.Real.sort R) r r)
+                    (fun X : matrix.matrix (reals.Real.sort R) r r =>
+                     ssrbool.and3 (@psd_part.psdmx R r X)
+                       (forall l : fintype.ordinal m,
+                        @eq
+                          (nmodule.Algebra.BaseAddUMagma.sort
+                             (nmodule.Algebra.Nmodule.Exports.Algebra_Nmodule__to__Algebra_BaseAddUMagma
+                                (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_Nmodule
+                                   (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing
+                                      R))))
+                          (@matrix.mxtrace
+                             (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_Nmodule
+                                (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing
+                                   R))
+                             r
+                             (@matrix.mulmx
+                                (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing
+                                   R)
+                                r r r (C l) X))
+                          (c l))
+                       (@eq
+                          (@finfun.finfun_of
+                             (@fintype.Specif_sig__canonical__fintype_Finite
+                                (finset.finset_set_of__canonical__fintype_Finite
+                                   (@reverse_coercion@{fintype.Finite.type.u0
+                                      PsdRankDefinitions.kn_edge.u0}
+                                      fintype.Finite.type ssrbool.predArgType
+                                      (fintype.fintype_ordinal__canonical__fintype_Finite
+                                         n)
+                                      (fintype.ordinal n)))
+                                (@PsdRankDefinitions.kn_edge n))
+                             (fun _ : PsdLiftDefinitions.kn_edges n =>
+                              reals.Real.sort R)
+                             (ssreflect.Phant
+                                (forall _ : PsdLiftDefinitions.kn_edges n,
+                                 reals.Real.sort R)))
+                          x
+                          (@finfun.finfun.body
+                             (@fintype.Specif_sig__canonical__fintype_Finite
+                                (finset.finset_set_of__canonical__fintype_Finite
+                                   (@reverse_coercion@{fintype.Finite.type.u0
+                                      PsdRankDefinitions.kn_edge.u0}
+                                      fintype.Finite.type ssrbool.predArgType
+                                      (fintype.fintype_ordinal__canonical__fintype_Finite
+                                         n)
+                                      (fintype.ordinal n)))
+                                (@PsdRankDefinitions.kn_edge n))
+                             (fun
+                                _ : fintype.Finite.sort
+                                      (@fintype.Specif_sig__canonical__fintype_Finite
+                                         (finset.finset_set_of__canonical__fintype_Finite
+                                            (@reverse_coercion@{fintype.Finite.type.u0
+                                               PsdRankDefinitions.kn_edge.u0}
+                                               fintype.Finite.type
+                                               ssrbool.predArgType
+                                               (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n)
+                                               (fintype.ordinal n)))
+                                         (@PsdRankDefinitions.kn_edge n)) =>
+                              nmodule.Algebra.BaseAddMagma.sort
+                                (nmodule.Algebra.BaseAddUMagma.Exports.Algebra_BaseAddUMagma__to__Algebra_BaseAddMagma
+                                   (nmodule.Algebra.Nmodule.Exports.Algebra_Nmodule__to__Algebra_BaseAddUMagma
+                                      (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_Nmodule
+                                         (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing
+                                            R)))))
+                             (fun
+                                e : fintype.Finite.sort
+                                      (@fintype.Specif_sig__canonical__fintype_Finite
+                                         (finset.finset_set_of__canonical__fintype_Finite
+                                            (@reverse_coercion@{fintype.Finite.type.u0
+                                               PsdRankDefinitions.kn_edge.u0}
+                                               fintype.Finite.type
+                                               ssrbool.predArgType
+                                               (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 n)
+                                               (fintype.ordinal n)))
+                                         (@PsdRankDefinitions.kn_edge n)) =>
+                              @nmodule.Algebra.add
+                                (nmodule.Algebra.BaseAddUMagma.Exports.Algebra_BaseAddUMagma__to__Algebra_BaseAddMagma
+                                   (nmodule.Algebra.Nmodule.Exports.Algebra_Nmodule__to__Algebra_BaseAddUMagma
+                                      (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_Nmodule
+                                         (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing
+                                            R))))
+                                (@matrix.mxtrace
+                                   (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_Nmodule
+                                      (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing
+                                         R))
+                                   r
+                                   (@matrix.mulmx
+                                      (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing
+                                         R)
+                                      r r r (D e) X))
+                                (d0 e)))))))))))
+     : forall (_ : reals.Real.type) (_ : nat) (_ : nat), Prop
+
+Arguments PsdLiftDefinitions.semidefinite_lift R (n r)%_nat_scope
+Module PsdLiftStatement := Struct Definition psd_lift_statement : Prop. End
+PsdLiftStatement.psd_lift_statement =
+forall R : reals.Real.type,
+@ex nat
+  (fun K : nat =>
+   and (is_true (ssrnat.leq (S O) K))
+     (@ex nat
+        (fun n0 : nat =>
+         forall (n : nat) (_ : is_true (negb (ssrnat.odd n)))
+           (_ : is_true (ssrnat.leq n0 n)) (r : nat),
+         ssrbool.and3
+           (forall
+              _ : @psd_factorization.psd_factorization R
+                    (@fintype.Specif_sig__canonical__fintype_Finite
+                       (finset.finset_set_of__canonical__fintype_Finite
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.odd_set.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                n)
+                             (fintype.ordinal n)))
+                       (fun
+                          U : finset.set_of
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.odd_set.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n)) =>
+                        ssrnat.odd
+                          (@fintype.card.body
+                             (@reverse_coercion@{fintype.Finite.type.u0
+                                PsdRankDefinitions.odd_set.u0}
+                                fintype.Finite.type ssrbool.predArgType
+                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                   n)
+                                (fintype.ordinal n))
+                             (@ssrbool.mem
+                                (fintype.Finite.sort
+                                   (@reverse_coercion@{fintype.Finite.type.u0
+                                      PsdRankDefinitions.odd_set.u0}
+                                      fintype.Finite.type ssrbool.predArgType
+                                      (fintype.fintype_ordinal__canonical__fintype_Finite
+                                         n)
+                                      (fintype.ordinal n)))
+                                (ssrbool.predPredType
+                                   (fintype.Finite.sort
+                                      (@reverse_coercion@{fintype.Finite.type.u0
+                                         PsdRankDefinitions.odd_set.u0}
+                                         fintype.Finite.type
+                                         ssrbool.predArgType
+                                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                                            n)
+                                         (fintype.ordinal n))))
+                                (@finset.pred_of_set.body
+                                   (@reverse_coercion@{fintype.Finite.type.u0
+                                      PsdRankDefinitions.odd_set.u0}
+                                      fintype.Finite.type ssrbool.predArgType
+                                      (fintype.fintype_ordinal__canonical__fintype_Finite
+                                         n)
+                                      (fintype.ordinal n))
+                                   U)))))
+                    (@fintype.Specif_sig__canonical__fintype_Finite
+                       (finset.finset_set_of__canonical__fintype_Finite
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.is_perfect_matching.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (finset.finset_set_of__canonical__fintype_Finite
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.kn_edge.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n)))
+                             (finset.set_of
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.kn_edge.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n)))))
+                       (@PsdRankDefinitions.is_perfect_matching n))
+                    (@PsdRankDefinitions.shifted_matching_mx n R
+                       (@nmodule.Algebra.zero
+                          (reals.Real.Exports.reals_Real__to__Algebra_BaseAddUMagma
+                             R)))
+                    r,
+            is_true (ssrnat.leq (ssrnat.expn (S (S O)) n) (ssrnat.expn r K)))
+           (forall
+              _ : @psd_factorization.psd_factorization R
+                    (fintype.Datatypes_sum__canonical__fintype_Finite
+                       (@fintype.Specif_sig__canonical__fintype_Finite
+                          (finset.finset_set_of__canonical__fintype_Finite
+                             (@reverse_coercion@{fintype.Finite.type.u0
+                                PsdRankDefinitions.kn_edge.u0}
+                                fintype.Finite.type ssrbool.predArgType
+                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                   n)
+                                (fintype.ordinal n)))
+                          (@PsdRankDefinitions.kn_edge n))
+                       (@fintype.Specif_sig__canonical__fintype_Finite
+                          (finset.finset_set_of__canonical__fintype_Finite
+                             (@reverse_coercion@{fintype.Finite.type.u0
+                                PsdRankDefinitions.odd_set.u0}
+                                fintype.Finite.type ssrbool.predArgType
+                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                   n)
+                                (fintype.ordinal n)))
+                          (fun
+                             U : finset.set_of
+                                   (@reverse_coercion@{fintype.Finite.type.u0
+                                      PsdRankDefinitions.odd_set.u0}
+                                      fintype.Finite.type ssrbool.predArgType
+                                      (fintype.fintype_ordinal__canonical__fintype_Finite
+                                         n)
+                                      (fintype.ordinal n)) =>
+                           ssrnat.odd
+                             (@fintype.card.body
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.odd_set.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n))
+                                (@ssrbool.mem
+                                   (fintype.Finite.sort
+                                      (@reverse_coercion@{fintype.Finite.type.u0
+                                         PsdRankDefinitions.odd_set.u0}
+                                         fintype.Finite.type
+                                         ssrbool.predArgType
+                                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                                            n)
+                                         (fintype.ordinal n)))
+                                   (ssrbool.predPredType
+                                      (fintype.Finite.sort
+                                         (@reverse_coercion@{fintype.Finite.type.u0
+                                            PsdRankDefinitions.odd_set.u0}
+                                            fintype.Finite.type
+                                            ssrbool.predArgType
+                                            (fintype.fintype_ordinal__canonical__fintype_Finite
+                                               n)
+                                            (fintype.ordinal n))))
+                                   (@finset.pred_of_set.body
+                                      (@reverse_coercion@{fintype.Finite.type.u0
+                                         PsdRankDefinitions.odd_set.u0}
+                                         fintype.Finite.type
+                                         ssrbool.predArgType
+                                         (fintype.fintype_ordinal__canonical__fintype_Finite
+                                            n)
+                                         (fintype.ordinal n))
+                                      U))))))
+                    (@fintype.Specif_sig__canonical__fintype_Finite
+                       (finset.finset_set_of__canonical__fintype_Finite
+                          (@reverse_coercion@{fintype.Finite.type.u0
+                             PsdRankDefinitions.is_perfect_matching.u0}
+                             fintype.Finite.type ssrbool.predArgType
+                             (finset.finset_set_of__canonical__fintype_Finite
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.kn_edge.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n)))
+                             (finset.set_of
+                                (@reverse_coercion@{fintype.Finite.type.u0
+                                   PsdRankDefinitions.kn_edge.u0}
+                                   fintype.Finite.type ssrbool.predArgType
+                                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                                      n)
+                                   (fintype.ordinal n)))))
+                       (@PsdRankDefinitions.is_perfect_matching n))
+                    (@PsdLiftDefinitions.matching_slack_mx n R) r,
+            is_true (ssrnat.leq (ssrnat.expn (S (S O)) n) (ssrnat.expn r K)))
+           (forall _ : PsdLiftDefinitions.semidefinite_lift R n r,
+            is_true (ssrnat.leq (ssrnat.expn (S (S O)) n) (ssrnat.expn r K))))))
+     : Prop

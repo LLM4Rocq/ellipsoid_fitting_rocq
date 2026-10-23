@@ -2848,6 +2848,177 @@
     "Require Checks.Phase13Definitions."
    ]
   },
+  "SnapshotPhase14": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdLiftDefinitions.kn_edges"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdLiftDefinitions.matching_slack_mx"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdLiftDefinitions.in_matching_polytope"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdLiftDefinitions.semidefinite_lift"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "GaussianApplications.PsdLiftStatement.psd_lift_statement"
+    }
+   ],
+   "requires": [
+    "Require GaussianApplications.PsdLiftDefinitions.",
+    "Require GaussianApplications.PsdLiftStatement."
+   ]
+  },
+  "SnapshotPhase14Definitions": {
+   "queries": [
+    {
+     "mode": "type",
+     "ordinal": 0,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase14Definitions.ksubset_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 1,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase14Definitions.ksubset_mx_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 2,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase14Definitions.perm_cut_characterization"
+    }
+   ],
+   "requires": [
+    "Require Checks.Phase14Definitions."
+   ]
+  },
+  "SnapshotPhase14Statements": {
+   "queries": [
+    {
+     "mode": "type",
+     "ordinal": 0,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase14Statements.accepted_multiplicity.trace_multiplicity_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 1,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase14Statements.accepted_multiplicity.ksubset_multiplicity_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 2,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase14Statements.accepted_harmonic.harmonic_ln_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 3,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase14Statements.accepted_binomial_bounds.bin_mul_pow_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 4,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.Phase14Statements.accepted_expander.expander_accepted"
+    },
+    {
+     "mode": "type",
+     "ordinal": 5,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.multiplicity.trace_multiplicity"
+    },
+    {
+     "mode": "type",
+     "ordinal": 6,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.matrix.multiplicity.ksubset_multiplicity"
+    },
+    {
+     "mode": "type",
+     "ordinal": 7,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.harmonic.harmonic_ln"
+    },
+    {
+     "mode": "type",
+     "ordinal": 8,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.binomial_bounds.bin_mul_pow"
+    },
+    {
+     "mode": "type",
+     "ordinal": 9,
+     "parts": [
+      "type"
+     ],
+     "target": "GaussianAnalysis.combinatorics.expander.expander"
+    }
+   ],
+   "requires": [
+    "Require Checks.Phase14Statements."
+   ]
+  },
   "SnapshotPhase1Theorems": {
    "queries": [
     {

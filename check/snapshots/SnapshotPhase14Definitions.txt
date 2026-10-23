@@ -1,0 +1,1370 @@
+Phase14Definitions.ksubset_characterization
+     : forall k w : nat,
+       @eq Type@{Phase14Definitions.ksubset_characterization.u0}
+         (multiplicity.ksubset k w)
+         (@sig
+            (finset.set_of
+               (@reverse_coercion@{fintype.Finite.type.u0
+                  Phase14Definitions.ksubset_characterization.u1}
+                  fintype.Finite.type ssrbool.predArgType
+                  (fintype.fintype_ordinal__canonical__fintype_Finite k)
+                  (fintype.ordinal k)))
+            (fun
+               A : finset.set_of
+                     (@reverse_coercion@{fintype.Finite.type.u0
+                        Phase14Definitions.ksubset_characterization.u1}
+                        fintype.Finite.type ssrbool.predArgType
+                        (fintype.fintype_ordinal__canonical__fintype_Finite k)
+                        (fintype.ordinal k)) =>
+             is_true
+               (@eqtype.eq_op
+                  ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                  (@fintype.card.body
+                     (@reverse_coercion@{fintype.Finite.type.u0
+                        Phase14Definitions.ksubset_characterization.u1}
+                        fintype.Finite.type ssrbool.predArgType
+                        (fintype.fintype_ordinal__canonical__fintype_Finite k)
+                        (fintype.ordinal k))
+                     (@ssrbool.mem
+                        (fintype.Finite.sort
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              Phase14Definitions.ksubset_characterization.u1}
+                              fintype.Finite.type ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 k)
+                              (fintype.ordinal k)))
+                        (ssrbool.predPredType
+                           (fintype.Finite.sort
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 Phase14Definitions.ksubset_characterization.u1}
+                                 fintype.Finite.type ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k))))
+                        (@finset.pred_of_set.body
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              Phase14Definitions.ksubset_characterization.u1}
+                              fintype.Finite.type ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 k)
+                              (fintype.ordinal k))
+                           A)))
+                  w)))
+Phase14Definitions.ksubset_mx_characterization
+     : forall (R : reals.Real.type) (k w : nat)
+         (s : perm.perm_of
+                (@reverse_coercion@{fintype.Finite.type.u0
+                   multiplicity.ksubset.u0} fintype.Finite.type
+                   ssrbool.predArgType
+                   (fintype.fintype_ordinal__canonical__fintype_Finite k)
+                   (fintype.ordinal k))),
+       @eq
+         (matrix.matrix (reals.Real.sort R)
+            (@fintype.card.body
+               (@fintype.Specif_sig__canonical__fintype_Finite
+                  (finset.finset_set_of__canonical__fintype_Finite
+                     (@reverse_coercion@{fintype.Finite.type.u0
+                        multiplicity.ksubset.u0} fintype.Finite.type
+                        ssrbool.predArgType
+                        (fintype.fintype_ordinal__canonical__fintype_Finite k)
+                        (fintype.ordinal k)))
+                  (fun
+                     A : finset.set_of
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              multiplicity.ksubset.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 k)
+                              (fintype.ordinal k)) =>
+                   @eqtype.eq_op
+                     ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                     (@fintype.card.body
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           multiplicity.ksubset.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              k)
+                           (fintype.ordinal k))
+                        (@ssrbool.mem
+                           (fintype.Finite.sort
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k)))
+                           (ssrbool.predPredType
+                              (fintype.Finite.sort
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k))))
+                           (@finset.pred_of_set.body
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k))
+                              A)))
+                     w))
+               (@ssrbool.mem (multiplicity.ksubset k w)
+                  (ssrbool.predPredType (multiplicity.ksubset k w))
+                  (@ssrbool.PredOfSimpl.coerce (multiplicity.ksubset k w)
+                     (ssrbool.pred_of_argType (multiplicity.ksubset k w)))))
+            (@fintype.card.body
+               (@fintype.Specif_sig__canonical__fintype_Finite
+                  (finset.finset_set_of__canonical__fintype_Finite
+                     (@reverse_coercion@{fintype.Finite.type.u0
+                        multiplicity.ksubset.u0} fintype.Finite.type
+                        ssrbool.predArgType
+                        (fintype.fintype_ordinal__canonical__fintype_Finite k)
+                        (fintype.ordinal k)))
+                  (fun
+                     A : finset.set_of
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              multiplicity.ksubset.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 k)
+                              (fintype.ordinal k)) =>
+                   @eqtype.eq_op
+                     ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                     (@fintype.card.body
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           multiplicity.ksubset.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              k)
+                           (fintype.ordinal k))
+                        (@ssrbool.mem
+                           (fintype.Finite.sort
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k)))
+                           (ssrbool.predPredType
+                              (fintype.Finite.sort
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k))))
+                           (@finset.pred_of_set.body
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k))
+                              A)))
+                     w))
+               (@ssrbool.mem (multiplicity.ksubset k w)
+                  (ssrbool.predPredType (multiplicity.ksubset k w))
+                  (@ssrbool.PredOfSimpl.coerce (multiplicity.ksubset k w)
+                     (ssrbool.pred_of_argType (multiplicity.ksubset k w))))))
+         (@multiplicity.ksubset_mx R k w s)
+         (@matrix.matrix_of_fun.body (reals.Real.sort R)
+            (@fintype.card.body
+               (@fintype.Specif_sig__canonical__fintype_Finite
+                  (finset.finset_set_of__canonical__fintype_Finite
+                     (@reverse_coercion@{fintype.Finite.type.u0
+                        multiplicity.ksubset.u0} fintype.Finite.type
+                        ssrbool.predArgType
+                        (fintype.fintype_ordinal__canonical__fintype_Finite k)
+                        (fintype.ordinal k)))
+                  (fun
+                     A : finset.set_of
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              multiplicity.ksubset.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 k)
+                              (fintype.ordinal k)) =>
+                   @eqtype.eq_op
+                     ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                     (@fintype.card.body
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           multiplicity.ksubset.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              k)
+                           (fintype.ordinal k))
+                        (@ssrbool.mem
+                           (fintype.Finite.sort
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k)))
+                           (ssrbool.predPredType
+                              (fintype.Finite.sort
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k))))
+                           (@finset.pred_of_set.body
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k))
+                              A)))
+                     w))
+               (@ssrbool.mem (multiplicity.ksubset k w)
+                  (ssrbool.predPredType (multiplicity.ksubset k w))
+                  (@ssrbool.PredOfSimpl.coerce (multiplicity.ksubset k w)
+                     (ssrbool.pred_of_argType (multiplicity.ksubset k w)))))
+            (@fintype.card.body
+               (@fintype.Specif_sig__canonical__fintype_Finite
+                  (finset.finset_set_of__canonical__fintype_Finite
+                     (@reverse_coercion@{fintype.Finite.type.u0
+                        multiplicity.ksubset.u0} fintype.Finite.type
+                        ssrbool.predArgType
+                        (fintype.fintype_ordinal__canonical__fintype_Finite k)
+                        (fintype.ordinal k)))
+                  (fun
+                     A : finset.set_of
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              multiplicity.ksubset.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 k)
+                              (fintype.ordinal k)) =>
+                   @eqtype.eq_op
+                     ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                     (@fintype.card.body
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           multiplicity.ksubset.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              k)
+                           (fintype.ordinal k))
+                        (@ssrbool.mem
+                           (fintype.Finite.sort
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k)))
+                           (ssrbool.predPredType
+                              (fintype.Finite.sort
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k))))
+                           (@finset.pred_of_set.body
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k))
+                              A)))
+                     w))
+               (@ssrbool.mem (multiplicity.ksubset k w)
+                  (ssrbool.predPredType (multiplicity.ksubset k w))
+                  (@ssrbool.PredOfSimpl.coerce (multiplicity.ksubset k w)
+                     (ssrbool.pred_of_argType (multiplicity.ksubset k w)))))
+            matrix.matrix_key
+            (fun
+               i
+                j : fintype.ordinal
+                      (@fintype.card.body
+                         (@fintype.Specif_sig__canonical__fintype_Finite
+                            (finset.finset_set_of__canonical__fintype_Finite
+                               (@reverse_coercion@{fintype.Finite.type.u0
+                                  multiplicity.ksubset.u0}
+                                  fintype.Finite.type ssrbool.predArgType
+                                  (fintype.fintype_ordinal__canonical__fintype_Finite
+                                     k)
+                                  (fintype.ordinal k)))
+                            (fun
+                               A : finset.set_of
+                                     (@reverse_coercion@{fintype.Finite.type.u0
+                                        multiplicity.ksubset.u0}
+                                        fintype.Finite.type
+                                        ssrbool.predArgType
+                                        (fintype.fintype_ordinal__canonical__fintype_Finite
+                                           k)
+                                        (fintype.ordinal k)) =>
+                             @eqtype.eq_op
+                               ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                               (@fintype.card.body
+                                  (@reverse_coercion@{fintype.Finite.type.u0
+                                     multiplicity.ksubset.u0}
+                                     fintype.Finite.type ssrbool.predArgType
+                                     (fintype.fintype_ordinal__canonical__fintype_Finite
+                                        k)
+                                     (fintype.ordinal k))
+                                  (@ssrbool.mem
+                                     (fintype.Finite.sort
+                                        (@reverse_coercion@{fintype.Finite.type.u0
+                                           multiplicity.ksubset.u0}
+                                           fintype.Finite.type
+                                           ssrbool.predArgType
+                                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                                              k)
+                                           (fintype.ordinal k)))
+                                     (ssrbool.predPredType
+                                        (fintype.Finite.sort
+                                           (@reverse_coercion@{fintype.Finite.type.u0
+                                              multiplicity.ksubset.u0}
+                                              fintype.Finite.type
+                                              ssrbool.predArgType
+                                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                              (fintype.ordinal k))))
+                                     (@finset.pred_of_set.body
+                                        (@reverse_coercion@{fintype.Finite.type.u0
+                                           multiplicity.ksubset.u0}
+                                           fintype.Finite.type
+                                           ssrbool.predArgType
+                                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                                              k)
+                                           (fintype.ordinal k))
+                                        A)))
+                               w))
+                         (@ssrbool.mem (multiplicity.ksubset k w)
+                            (ssrbool.predPredType (multiplicity.ksubset k w))
+                            (@ssrbool.PredOfSimpl.coerce
+                               (multiplicity.ksubset k w)
+                               (ssrbool.pred_of_argType
+                                  (multiplicity.ksubset k w))))) =>
+             @nmodule.Algebra.natmul
+               (rings_modules_and_algebras.GRing.PzSemiRing.Exports.GRing_PzSemiRing__to__Algebra_BaseAddUMagma
+                  (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R))
+               (rings_modules_and_algebras.GRing.one
+                  (reals.Real.Exports.reals_Real__to__GRing_PzSemiRing R))
+               (ssrnat.nat_of_bool
+                  (@eqtype.eq_op
+                     (finset.finset_set_of__canonical__eqtype_Equality
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           multiplicity.ksubset.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              k)
+                           (fintype.ordinal k)))
+                     (@eqtype.isSub.val_subdef
+                        (finset.set_of
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              multiplicity.ksubset.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 k)
+                              (fintype.ordinal k)))
+                        (fun
+                           A : finset.set_of
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k)) =>
+                         @eqtype.eq_op
+                           ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                           (@fintype.card.body
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k))
+                              (@ssrbool.mem
+                                 (fintype.Finite.sort
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       multiplicity.ksubset.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          k)
+                                       (fintype.ordinal k)))
+                                 (ssrbool.predPredType
+                                    (fintype.Finite.sort
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k))))
+                                 (@finset.pred_of_set.body
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       multiplicity.ksubset.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          k)
+                                       (fintype.ordinal k))
+                                    A)))
+                           w)
+                        (@eqtype.SubType.sort
+                           (finset.set_of
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k)))
+                           (fun
+                              A : finset.set_of
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       multiplicity.ksubset.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          k)
+                                       (fintype.ordinal k)) =>
+                            @eqtype.eq_op
+                              ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                              (@fintype.card.body
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k))
+                                 (@ssrbool.mem
+                                    (fintype.Finite.sort
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k)))
+                                    (ssrbool.predPredType
+                                       (fintype.Finite.sort
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k))))
+                                    (@finset.pred_of_set.body
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k))
+                                       A)))
+                              w)
+                           (@eqtype.Specif_sig__canonical__eqtype_SubType
+                              (finset.set_of
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k)))
+                              (fun
+                                 A : finset.set_of
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k)) =>
+                               @eqtype.eq_op
+                                 ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                 (@fintype.card.body
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       multiplicity.ksubset.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          k)
+                                       (fintype.ordinal k))
+                                    (@ssrbool.mem
+                                       (fintype.Finite.sort
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k)))
+                                       (ssrbool.predPredType
+                                          (fintype.Finite.sort
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k))))
+                                       (@finset.pred_of_set.body
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k))
+                                          A)))
+                                 w)))
+                        (@eqtype.SubType.eqtype_isSub_mixin _ _ _
+                           (@eqtype.SubType.phant_on_
+                              (finset.set_of
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k)))
+                              (fun
+                                 A : finset.set_of
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k)) =>
+                               @eqtype.eq_op
+                                 ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                 (@fintype.card.body
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       multiplicity.ksubset.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          k)
+                                       (fintype.ordinal k))
+                                    (@ssrbool.mem
+                                       (fintype.Finite.sort
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k)))
+                                       (ssrbool.predPredType
+                                          (fintype.Finite.sort
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k))))
+                                       (@finset.pred_of_set.body
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k))
+                                          A)))
+                                 w)
+                              (@eqtype.Specif_sig__canonical__eqtype_SubType
+                                 (finset.set_of
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       multiplicity.ksubset.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          k)
+                                       (fintype.ordinal k)))
+                                 (fun
+                                    A : finset.set_of
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k)) =>
+                                  @eqtype.eq_op
+                                    ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                    (@fintype.card.body
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k))
+                                       (@ssrbool.mem
+                                          (fintype.Finite.sort
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k)))
+                                          (ssrbool.predPredType
+                                             (fintype.Finite.sort
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k))))
+                                          (@finset.pred_of_set.body
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k))
+                                             A)))
+                                    w))
+                              (ssreflect.Phant
+                                 (@eqtype.SubType.sort
+                                    (finset.set_of
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k)))
+                                    (fun
+                                       A : finset.set_of
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k)) =>
+                                     @eqtype.eq_op
+                                       ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                       (@fintype.card.body
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k))
+                                          (@ssrbool.mem
+                                             (fintype.Finite.sort
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k)))
+                                             (ssrbool.predPredType
+                                                (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))))
+                                             (@finset.pred_of_set.body
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k))
+                                                A)))
+                                       w)
+                                    (@eqtype.Specif_sig__canonical__eqtype_SubType
+                                       (finset.set_of
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k)))
+                                       (fun
+                                          A : finset.set_of
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k)) =>
+                                        @eqtype.eq_op
+                                          ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                          (@fintype.card.body
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k))
+                                             (@ssrbool.mem
+                                                (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)))
+                                                (ssrbool.predPredType
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))))
+                                                (@finset.pred_of_set.body
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) A)))
+                                          w))))))
+                        (@fintype.enum_val
+                           (@fintype.Specif_sig__canonical__fintype_Finite
+                              (finset.finset_set_of__canonical__fintype_Finite
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k)))
+                              (fun
+                                 A : finset.set_of
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k)) =>
+                               @eqtype.eq_op
+                                 ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                 (@fintype.card.body
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       multiplicity.ksubset.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          k)
+                                       (fintype.ordinal k))
+                                    (@ssrbool.mem
+                                       (fintype.Finite.sort
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k)))
+                                       (ssrbool.predPredType
+                                          (fintype.Finite.sort
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k))))
+                                       (@finset.pred_of_set.body
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k))
+                                          A)))
+                                 w))
+                           (fun _ : multiplicity.ksubset k w => true) i))
+                     (@finset.imset.body
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           multiplicity.ksubset.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              k)
+                           (fintype.ordinal k))
+                        (@reverse_coercion@{fintype.Finite.type.u0
+                           multiplicity.ksubset.u0} fintype.Finite.type
+                           ssrbool.predArgType
+                           (fintype.fintype_ordinal__canonical__fintype_Finite
+                              k)
+                           (fintype.ordinal k))
+                        (fun
+                           x : fintype.Finite.sort
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k)) =>
+                         @perm.fun_of_perm.body
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              multiplicity.ksubset.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 k)
+                              (fintype.ordinal k))
+                           s x)
+                        (@ssrbool.mem
+                           (fintype.Finite.sort
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k)))
+                           (ssrbool.predPredType
+                              (fintype.Finite.sort
+                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                    multiplicity.ksubset.u0}
+                                    fintype.Finite.type ssrbool.predArgType
+                                    (fintype.fintype_ordinal__canonical__fintype_Finite
+                                       k)
+                                    (fintype.ordinal k))))
+                           (@finset.pred_of_set.body
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 multiplicity.ksubset.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    k)
+                                 (fintype.ordinal k))
+                              (@eqtype.isSub.val_subdef
+                                 (finset.set_of
+                                    (@reverse_coercion@{fintype.Finite.type.u0
+                                       multiplicity.ksubset.u0}
+                                       fintype.Finite.type
+                                       ssrbool.predArgType
+                                       (fintype.fintype_ordinal__canonical__fintype_Finite
+                                          k)
+                                       (fintype.ordinal k)))
+                                 (fun
+                                    A : finset.set_of
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k)) =>
+                                  @eqtype.eq_op
+                                    ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                    (@fintype.card.body
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k))
+                                       (@ssrbool.mem
+                                          (fintype.Finite.sort
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k)))
+                                          (ssrbool.predPredType
+                                             (fintype.Finite.sort
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k))))
+                                          (@finset.pred_of_set.body
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k))
+                                             A)))
+                                    w)
+                                 (@eqtype.SubType.sort
+                                    (finset.set_of
+                                       (@reverse_coercion@{fintype.Finite.type.u0
+                                          multiplicity.ksubset.u0}
+                                          fintype.Finite.type
+                                          ssrbool.predArgType
+                                          (fintype.fintype_ordinal__canonical__fintype_Finite
+                                             k)
+                                          (fintype.ordinal k)))
+                                    (fun
+                                       A : finset.set_of
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k)) =>
+                                     @eqtype.eq_op
+                                       ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                       (@fintype.card.body
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k))
+                                          (@ssrbool.mem
+                                             (fintype.Finite.sort
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k)))
+                                             (ssrbool.predPredType
+                                                (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))))
+                                             (@finset.pred_of_set.body
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k))
+                                                A)))
+                                       w)
+                                    (@eqtype.Specif_sig__canonical__eqtype_SubType
+                                       (finset.set_of
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k)))
+                                       (fun
+                                          A : finset.set_of
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k)) =>
+                                        @eqtype.eq_op
+                                          ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                          (@fintype.card.body
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k))
+                                             (@ssrbool.mem
+                                                (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)))
+                                                (ssrbool.predPredType
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))))
+                                                (@finset.pred_of_set.body
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) A)))
+                                          w)))
+                                 (@eqtype.SubType.eqtype_isSub_mixin _ _ _
+                                    (@eqtype.SubType.phant_on_
+                                       (finset.set_of
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k)))
+                                       (fun
+                                          A : finset.set_of
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k)) =>
+                                        @eqtype.eq_op
+                                          ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                          (@fintype.card.body
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k))
+                                             (@ssrbool.mem
+                                                (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)))
+                                                (ssrbool.predPredType
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))))
+                                                (@finset.pred_of_set.body
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) A)))
+                                          w)
+                                       (@eqtype.Specif_sig__canonical__eqtype_SubType
+                                          (finset.set_of
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k)))
+                                          (fun
+                                             A : finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) =>
+                                           @eqtype.eq_op
+                                             ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                             (@fintype.card.body
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k))
+                                                (@ssrbool.mem
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)))
+                                                 (ssrbool.predPredType
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))))
+                                                 (@finset.pred_of_set.body
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) A)))
+                                             w))
+                                       (ssreflect.Phant
+                                          (@eqtype.SubType.sort
+                                             (finset.set_of
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k)))
+                                             (fun
+                                                A : 
+                                                 finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) =>
+                                              @eqtype.eq_op
+                                                ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                                (@fintype.card.body
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))
+                                                 (@ssrbool.mem
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)))
+                                                 (ssrbool.predPredType
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))))
+                                                 (@finset.pred_of_set.body
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) A)))
+                                                w)
+                                             (@eqtype.Specif_sig__canonical__eqtype_SubType
+                                                (finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)))
+                                                (fun
+                                                 A : 
+                                                 finset.set_of
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) =>
+                                                 @eqtype.eq_op
+                                                 ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                                 (@fintype.card.body
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))
+                                                 (@ssrbool.mem
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)))
+                                                 (ssrbool.predPredType
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))))
+                                                 (@finset.pred_of_set.body
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) A)))
+                                                 w))))))
+                                 (@fintype.enum_val
+                                    (@fintype.Specif_sig__canonical__fintype_Finite
+                                       (finset.finset_set_of__canonical__fintype_Finite
+                                          (@reverse_coercion@{fintype.Finite.type.u0
+                                             multiplicity.ksubset.u0}
+                                             fintype.Finite.type
+                                             ssrbool.predArgType
+                                             (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                k)
+                                             (fintype.ordinal k)))
+                                       (fun
+                                          A : finset.set_of
+                                                (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) 
+                                                 (fintype.ordinal k)) =>
+                                        @eqtype.eq_op
+                                          ssrnat.Datatypes_nat__canonical__eqtype_Equality
+                                          (@fintype.card.body
+                                             (@reverse_coercion@{fintype.Finite.type.u0
+                                                multiplicity.ksubset.u0}
+                                                fintype.Finite.type
+                                                ssrbool.predArgType
+                                                (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k)
+                                                (fintype.ordinal k))
+                                             (@ssrbool.mem
+                                                (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)))
+                                                (ssrbool.predPredType
+                                                 (fintype.Finite.sort
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k))))
+                                                (@finset.pred_of_set.body
+                                                 (@reverse_coercion@{fintype.Finite.type.u0
+                                                 multiplicity.ksubset.u0}
+                                                 fintype.Finite.type
+                                                 ssrbool.predArgType
+                                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                                 k) (fintype.ordinal k)) A)))
+                                          w))
+                                    (fun _ : multiplicity.ksubset k w => true)
+                                    j)))))))))
+Phase14Definitions.perm_cut_characterization
+     : forall (d l : nat)
+         (s : forall _ : fintype.ordinal d,
+              perm.perm_of
+                (@reverse_coercion@{fintype.Finite.type.u0
+                   expander.perm_cut.u0} fintype.Finite.type
+                   ssrbool.predArgType
+                   (fintype.fintype_ordinal__canonical__fintype_Finite l)
+                   (fintype.ordinal l)))
+         (W : finset.set_of
+                (@reverse_coercion@{fintype.Finite.type.u0
+                   expander.perm_cut.u0} fintype.Finite.type
+                   ssrbool.predArgType
+                   (fintype.fintype_ordinal__canonical__fintype_Finite
+                      (ssrnat.addn l l))
+                   (fintype.ordinal (ssrnat.addn l l)))),
+       @eq
+         (finset.set_of
+            (@reverse_coercion@{fintype.Finite.type.u0 expander.perm_cut.u0}
+               fintype.Finite.type Type@{ssrbool.predArgType.u0}
+               (fintype.Datatypes_prod__canonical__fintype_Finite
+                  (fintype.fintype_ordinal__canonical__fintype_Finite d)
+                  (fintype.fintype_ordinal__canonical__fintype_Finite l))
+               (prod (fintype.ordinal d) (fintype.ordinal l))))
+         (@expander.perm_cut d l s W)
+         (@finset.finset.body
+            (fintype.Datatypes_prod__canonical__fintype_Finite
+               (fintype.fintype_ordinal__canonical__fintype_Finite d)
+               (fintype.fintype_ordinal__canonical__fintype_Finite l))
+            (fun e : prod (fintype.ordinal d) (fintype.ordinal l) =>
+             negb
+               (@eqtype.eq_op
+                  eqtype.Datatypes_bool__canonical__eqtype_Equality
+                  (@ssrbool.in_mem (fintype.ordinal (ssrnat.addn l l))
+                     (@fintype.lshift l l
+                        (@snd (fintype.ordinal d) (fintype.ordinal l) e))
+                     (@ssrbool.mem
+                        (fintype.Finite.sort
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              expander.perm_cut.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 (ssrnat.addn l l))
+                              (fintype.ordinal (ssrnat.addn l l))))
+                        (ssrbool.predPredType
+                           (fintype.Finite.sort
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 expander.perm_cut.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    (ssrnat.addn l l))
+                                 (fintype.ordinal (ssrnat.addn l l)))))
+                        (@finset.pred_of_set.body
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              expander.perm_cut.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 (ssrnat.addn l l))
+                              (fintype.ordinal (ssrnat.addn l l)))
+                           W)))
+                  (@ssrbool.in_mem (fintype.ordinal (ssrnat.addn l l))
+                     (@fintype.rshift l l
+                        (@perm.fun_of_perm.body
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              expander.perm_cut.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 l)
+                              (fintype.ordinal l))
+                           (s
+                              (@fst (fintype.ordinal d) (fintype.ordinal l) e))
+                           (@snd (fintype.ordinal d) (fintype.ordinal l) e)))
+                     (@ssrbool.mem
+                        (fintype.Finite.sort
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              expander.perm_cut.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 (ssrnat.addn l l))
+                              (fintype.ordinal (ssrnat.addn l l))))
+                        (ssrbool.predPredType
+                           (fintype.Finite.sort
+                              (@reverse_coercion@{fintype.Finite.type.u0
+                                 expander.perm_cut.u0} fintype.Finite.type
+                                 ssrbool.predArgType
+                                 (fintype.fintype_ordinal__canonical__fintype_Finite
+                                    (ssrnat.addn l l))
+                                 (fintype.ordinal (ssrnat.addn l l)))))
+                        (@finset.pred_of_set.body
+                           (@reverse_coercion@{fintype.Finite.type.u0
+                              expander.perm_cut.u0} fintype.Finite.type
+                              ssrbool.predArgType
+                              (fintype.fintype_ordinal__canonical__fintype_Finite
+                                 (ssrnat.addn l l))
+                              (fintype.ordinal (ssrnat.addn l l)))
+                           W))))))

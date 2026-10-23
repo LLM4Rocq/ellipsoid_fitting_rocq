@@ -96,6 +96,28 @@
   "rocq": "The Rocq Prover, version 9.1.1",
   "sha256": "25a5860620224a21d5740ea20dc0a50c02bd13018f36a61cfda9e7b24d6453cd"
  },
+ "SnapshotAcceptedStatements14": {
+  "commit": "39f58468aeaa024a54509c1b684c3a40e208e5d8",
+  "packages": {
+   "rocq-core": "9.1.1",
+   "rocq-mathcomp-analysis": "1.16.0",
+   "rocq-mathcomp-ssreflect": "2.6.0"
+  },
+  "project_names": {
+   "binomial_bounds.bin_mul_pow_statement": "GaussianAnalysis.combinatorics.binomial_bounds.bin_mul_pow_statement",
+   "euclidean.mxdot": "GaussianAnalysis.matrix.euclidean.mxdot",
+   "expander.expander_statement": "GaussianAnalysis.combinatorics.expander.expander_statement",
+   "expander.perm_cut": "GaussianAnalysis.combinatorics.expander.perm_cut",
+   "harmonic.harmonic_ln_statement": "GaussianAnalysis.combinatorics.harmonic.harmonic_ln_statement",
+   "multiplicity.ksubset": "GaussianAnalysis.matrix.multiplicity.ksubset",
+   "multiplicity.ksubset_multiplicity_statement": "GaussianAnalysis.matrix.multiplicity.ksubset_multiplicity_statement",
+   "multiplicity.ksubset_mx": "GaussianAnalysis.matrix.multiplicity.ksubset_mx",
+   "multiplicity.trace_multiplicity_statement": "GaussianAnalysis.matrix.multiplicity.trace_multiplicity_statement",
+   "psd_part.psdmx": "GaussianAnalysis.matrix.psd_part.psdmx"
+  },
+  "rocq": "The Rocq Prover, version 9.1.1",
+  "sha256": "5db70419d3cce9d9867ac128b80823cd5ddbb71126ff12c7a86264c152403e42"
+ },
  "SnapshotApplicationsDefinitions": {
   "commit": "b6173f138f14d97a2587452e99eca14889a78b21",
   "packages": {
@@ -679,6 +701,76 @@
   },
   "rocq": "The Rocq Prover, version 9.1.1",
   "sha256": "2e416b6067853b04def20fb4445600cd6295c1f276c49be26af648dc9ff46584"
+ },
+ "SnapshotPhase14": {
+  "commit": "39f58468aeaa024a54509c1b684c3a40e208e5d8",
+  "packages": {
+   "rocq-core": "9.1.1",
+   "rocq-mathcomp-analysis": "1.16.0",
+   "rocq-mathcomp-ssreflect": "2.6.0"
+  },
+  "project_names": {
+   "PsdLiftDefinitions.in_matching_polytope": "GaussianApplications.PsdLiftDefinitions.in_matching_polytope",
+   "PsdLiftDefinitions.kn_edges": "GaussianApplications.PsdLiftDefinitions.kn_edges",
+   "PsdLiftDefinitions.matching_slack_mx": "GaussianApplications.PsdLiftDefinitions.matching_slack_mx",
+   "PsdLiftDefinitions.semidefinite_lift": "GaussianApplications.PsdLiftDefinitions.semidefinite_lift",
+   "PsdLiftStatement.psd_lift_statement": "GaussianApplications.PsdLiftStatement.psd_lift_statement",
+   "PsdRankDefinitions.crossing": "GaussianApplications.PsdRankDefinitions.crossing",
+   "PsdRankDefinitions.is_perfect_matching": "GaussianApplications.PsdRankDefinitions.is_perfect_matching",
+   "PsdRankDefinitions.kn_edge": "GaussianApplications.PsdRankDefinitions.kn_edge",
+   "PsdRankDefinitions.odd_set": "GaussianApplications.PsdRankDefinitions.odd_set",
+   "PsdRankDefinitions.perfect_matching": "GaussianApplications.PsdRankDefinitions.perfect_matching",
+   "PsdRankDefinitions.shifted_matching_mx": "GaussianApplications.PsdRankDefinitions.shifted_matching_mx",
+   "psd_factorization.psd_factorization": "GaussianAnalysis.matrix.psd_factorization.psd_factorization",
+   "psd_part.psdmx": "GaussianAnalysis.matrix.psd_part.psdmx"
+  },
+  "rocq": "The Rocq Prover, version 9.1.1",
+  "sha256": "8f8ada537ed08545c3ae55bee6aa22beb85bfa1606c38ecbc1ce98d3c7bf71b9"
+ },
+ "SnapshotPhase14Definitions": {
+  "commit": "39f58468aeaa024a54509c1b684c3a40e208e5d8",
+  "packages": {
+   "rocq-core": "9.1.1",
+   "rocq-mathcomp-analysis": "1.16.0",
+   "rocq-mathcomp-ssreflect": "2.6.0"
+  },
+  "project_names": {
+   "Phase14Definitions.ksubset_characterization": "Checks.Phase14Definitions.ksubset_characterization",
+   "Phase14Definitions.ksubset_mx_characterization": "Checks.Phase14Definitions.ksubset_mx_characterization",
+   "Phase14Definitions.perm_cut_characterization": "Checks.Phase14Definitions.perm_cut_characterization",
+   "expander.perm_cut": "GaussianAnalysis.combinatorics.expander.perm_cut",
+   "multiplicity.ksubset": "GaussianAnalysis.matrix.multiplicity.ksubset",
+   "multiplicity.ksubset_mx": "GaussianAnalysis.matrix.multiplicity.ksubset_mx"
+  },
+  "rocq": "The Rocq Prover, version 9.1.1",
+  "sha256": "0c9f8d4fe5d7868db5316769a8e7831dbb984629b4bf48d45a9d586945f88ce1"
+ },
+ "SnapshotPhase14Statements": {
+  "commit": "4d020691cfee659d60fb413de9b6a1fe2e9291d9",
+  "packages": {
+   "rocq-core": "9.1.1",
+   "rocq-mathcomp-analysis": "1.16.0",
+   "rocq-mathcomp-ssreflect": "2.6.0"
+  },
+  "project_names": {
+   "Phase14Statements.accepted_binomial_bounds.bin_mul_pow_accepted": "Checks.Phase14Statements.accepted_binomial_bounds.bin_mul_pow_accepted",
+   "Phase14Statements.accepted_expander.expander_accepted": "Checks.Phase14Statements.accepted_expander.expander_accepted",
+   "Phase14Statements.accepted_harmonic.harmonic_ln_accepted": "Checks.Phase14Statements.accepted_harmonic.harmonic_ln_accepted",
+   "Phase14Statements.accepted_multiplicity.ksubset_multiplicity_accepted": "Checks.Phase14Statements.accepted_multiplicity.ksubset_multiplicity_accepted",
+   "Phase14Statements.accepted_multiplicity.trace_multiplicity_accepted": "Checks.Phase14Statements.accepted_multiplicity.trace_multiplicity_accepted",
+   "binomial_bounds.bin_mul_pow": "GaussianAnalysis.combinatorics.binomial_bounds.bin_mul_pow",
+   "euclidean.mxdot": "GaussianAnalysis.matrix.euclidean.mxdot",
+   "expander.expander": "GaussianAnalysis.combinatorics.expander.expander",
+   "expander.perm_cut": "GaussianAnalysis.combinatorics.expander.perm_cut",
+   "harmonic.harmonic_ln": "GaussianAnalysis.combinatorics.harmonic.harmonic_ln",
+   "multiplicity.ksubset": "GaussianAnalysis.matrix.multiplicity.ksubset",
+   "multiplicity.ksubset_multiplicity": "GaussianAnalysis.matrix.multiplicity.ksubset_multiplicity",
+   "multiplicity.ksubset_mx": "GaussianAnalysis.matrix.multiplicity.ksubset_mx",
+   "multiplicity.trace_multiplicity": "GaussianAnalysis.matrix.multiplicity.trace_multiplicity",
+   "psd_part.psdmx": "GaussianAnalysis.matrix.psd_part.psdmx"
+  },
+  "rocq": "The Rocq Prover, version 9.1.1",
+  "sha256": "48797bba7ec7ed1d935bf8e4f6cd81a18c0d25889e288928622e6575cd7dd8e3"
  },
  "SnapshotPhase1Theorems": {
   "commit": "29df54e436f05dd3fad60377e2f9a45588c2942b",

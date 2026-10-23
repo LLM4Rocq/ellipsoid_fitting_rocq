@@ -53,7 +53,9 @@ seven theorems of manuscripts of the OpenAI math collection whose proofs
 reuse the library (see below). Phase 13 adds four more, among them the
 satisfiability threshold of random k-SAT for every fixed clause size, and
 the frozen statement of an exponential lower bound on the PSD rank of the
-shifted matching matrices, whose proof is the work of phase 14.
+shifted matching matrices. Phase 14 proves that bound, with the
+manuscript's corollary on the unshifted matrices and exact semidefinite
+lifts.
 
 ## Status
 
@@ -156,12 +158,37 @@ shifted matching matrices, whose proof is the work of phase 14.
   three axioms of `boolp` (`check/SatThresholdAssumptions.v` to
   `check/MinSuperadditiveAssumptions.v`). The main statement of the second
   manuscript, a PSD rank at least 2^(n / K) for the shifted matching
-  matrices, is accepted and frozen (`applications/PsdRankStatement.v`); its
-  proof is phase 14, and `applications/PsdRank/Main.v` already derives it
-  from explicit hypotheses on the local averaging and the parity
-  functional. The user also accepted 70 general statements of the new
-  library files; `check/LibraryStatements.v` states each in full and
-  proves it by its library lemma.
+  matrices, is accepted and frozen (`applications/PsdRankStatement.v`);
+  `applications/PsdRank/Main.v` derives it from explicit hypotheses on the
+  local averaging, the realization of the cells by odd sets and perfect
+  matchings, and the parity functional, and phase 14 proves them (below).
+  The user also accepted 70 general statements of the new library files;
+  `check/LibraryStatements.v` states each in full and proves it by its
+  library lemma.
+- **The PSD rank theorem and its corollary (phase 14), proved.**
+  `psd_rank_theorem` (`applications/PsdRankTheorem.v`) proves the frozen
+  `psd_rank_statement` (T13): for every `R : realType` there is K > 0 such
+  that, for every 0 < rho < 1, every PSD factorization of size r of the
+  shifted matching matrix A_n(rho) has 2^n <= r^K for every even n large
+  enough. `psd_lift_theorem` (`applications/PsdLiftTheorem.v`) proves
+  `psd_lift_statement` (T14), accepted and frozen at commit `39f5846`: for
+  every `R : realType` there are K > 0 and n0 such that the same bound
+  holds, for every even n >= n0, for PSD factorizations of A_n(0) and of
+  the slack matrix T_n(0) and for exact semidefinite lifts of the perfect
+  matching polytope. The proof applies the final step of `PsdRank/Main.v`
+  with T = 1000; the data of the cells come from the local averaging
+  (`PsdRank/Cells.v`, with the estimates of `PsdRank/CellBounds.v`), the
+  realization of the cells by odd sets and perfect matchings
+  (`PsdRank/Realization.v`), the parity functional (`PsdRank/Parity.v`)
+  and the expander lemma (`library/combinatorics/expander.v`). The
+  corollary goes through a duality certificate at tight matchings
+  (`PsdRank/Lift.v`), with no use of Edmonds's description of the
+  polytope. Each theorem uses only the three axioms of `boolp`
+  (`check/PsdRankAssumptions.v`, `check/PsdLiftAssumptions.v`). The user
+  also accepted five general statements of the new library files at
+  commit `39f5846`; `check/Phase14Statements.v` states each in full and
+  proves it by its library lemma, and `check/Phase14Definitions.v`
+  characterizes `ksubset`, `ksubset_mx` and `perm_cut`, which they use.
 - **The checks repaired (phase 13).** Before the release of phase 13 the
   checks were repaired (`reviews/phase13-checker-repair.md`; the report,
   with its evidence, is `reviews/phase13-repair-report.md`): sources are
@@ -475,7 +502,7 @@ generated`), whose code cannot change. The other modules print none.
 - `applications/`: Rocq formalizations of theorems of manuscripts of the
   OpenAI math collection (`openai/math` at revision 1581d4cbd) whose proofs
   reuse the library, under the logical root `GaussianApplications` and over
-  an arbitrary `R : realType` like `library/` (phases 12 and 13). Each
+  an arbitrary `R : realType` like `library/` (phases 12 to 14). Each
   file cites the manuscript, the lemma it formalizes and the Lean module of
   the collection whose argument it follows, if any. The statement files are
   at the top, the proofs in folders by target (`SKGap/`, `Perceptron/`,
@@ -513,7 +540,9 @@ generated`), whose code cannot change. The other modules print none.
   `check/SatThresholdAssumptions.v`, `check/PsdNormalizationAssumptions.v`,
   `check/ProductSmoothingAssumptions.v` and
   `check/MinSuperadditiveAssumptions.v` for the four theorems of phase 13
-  (T9 to T12), with the expected lists of the same names
+  (T9 to T12), and `check/PsdRankAssumptions.v` and
+  `check/PsdLiftAssumptions.v` for the two of phase 14 (T13, T14), with the
+  expected lists of the same names
   (`check/matrix_series_assumptions.expected` and so on).
   `check/ApplicationsDefinitions.v` states a characterization of each
   library definition that the frozen statements of `applications/` unfold
@@ -535,6 +564,13 @@ generated`), whose code cannot change. The other modules print none.
   library that the user accepted in phase 13, the 70 entries of the
   acceptance inventory of `scripts/check_sources.py`, and proves each by
   its library lemma; `make check` compiles it, and requires its report.
+  `check/Phase14Definitions.v` characterizes in the same way `ksubset`,
+  `ksubset_mx` and `perm_cut`, which the five general statements accepted
+  in phase 14 use, and `check/Phase14Statements.v` states those five in
+  full and proves each by its library lemma; `make check` requires the
+  report of each. `check/Phase14Identities.v` and `check/Phase14Reports.v`
+  do for phase 14 what `check/TheoremIdentities.v` and `check/Reports.v`,
+  which are pinned, do for the earlier phases.
   `check/TheoremIdentities.v` requires the statement and theorem modules of
   the 28 theorems without importing them and defines, for each, by absolute
   names, `<theorem>_identity` with the frozen statement as its type and the
@@ -595,7 +631,9 @@ generated`), whose code cannot change. The other modules print none.
   statement and definitions files of batch 2 the same code as at commit
   `0d5afba`, and the three statement files of batch 1 of phase 13, the two
   of batch 2 and the two of batch 3 the same code as at commit `46e45c8`,
-  at which the user accepted the statements of phase 13 (comments may
+  at which the user accepted the statements of phase 13, and the two
+  statement files of the corollary of phase 14 the same code as at commit
+  `39f5846` (comments may
   differ; the text is read as Rocq reads it, by `scripts/rocq_lex.py`, and a
   non-ASCII character outside comments is refused); that
   `check/ApplicationsDefinitions.v`
@@ -603,8 +641,9 @@ generated`), whose code cannot change. The other modules print none.
   last freeze, the code of each earlier freeze being a prefix of it; that
   each entry of the acceptance inventory, the general statements of the
   library accepted in phase 13 with their full propositions as `Print`
-  shows them at the acceptance commit, names a definition of its file at
-  that commit; that the
+  shows them at the acceptance commit, and of the second inventory, those
+  accepted in phase 14, names a definition of its file at that commit;
+  that the
   axiom-check files of phases 5 and 6 and their expected lists are
   byte-identical to commit `c3e555e`, those of phases 7 and 8 to commit
   `a89ed1e`, those of phase 9 to commit `e4c46e1`, those of phase 10 to
@@ -613,7 +652,10 @@ generated`), whose code cannot change. The other modules print none.
   `check/Phase13Definitions.v`, `check/LibraryStatements.v` and the
   repaired machinery (the scripts other than the checker, the Makefile,
   the identity drivers, the snapshots, the regression tests and their
-  references), to commit `c5bdf87` (the repair); that the
+  references), to commit `c5bdf87` (the repair), except the five files
+  that the extension of phase 14 changes (`scripts/snapshot_baselines.py`,
+  `scripts/identity_sidecars.py` and the three reference indexes), which
+  have fixed hashes like the files that the extension adds; that the
   Require
   commands of
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which
@@ -765,8 +807,8 @@ done, and the second is done in part.
    after phase 6, 78 files and 51,203 lines after phase 8, 80 files and
    51,666 lines after phase 9, 80 files and 51,796 lines after phase 10,
    82 files and 53,142 lines after phase 11, 94 files and 58,531 lines
-   after phase 12, and has 102 files and 63,058 lines after
-   phase 13.
+   after phase 12, 102 files and 63,058 lines after phase 13, and has
+   105 files and 64,825 lines after phase 14.
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -821,4 +863,7 @@ theorems of two manuscripts of the collection, the satisfiability threshold
 of random k-SAT among them, with eight new library files, froze the
 statement of the PSD rank theorem of the second, whose proof is phase 14,
 and checks the 70 general statements of the library that the user
-accepted (tag `phase13`).
+accepted (tag `phase13`). Phase 14 proved the PSD rank theorem of the
+second manuscript and its corollary on the unshifted matrices and exact
+semidefinite lifts, with three new library files, and checks the five
+general statements of the library that the user accepted (tag `phase14`).

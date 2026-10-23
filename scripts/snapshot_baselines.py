@@ -46,6 +46,16 @@ that commit's library. For each:
   check/snapshots/<Name>.txt, the reference.
 - verify: the same, compared with the reference; exits 1 on a difference.
 
+Phase 14 (batch 1, accepted at 39f58468): SnapshotPhase14 (the frozen
+statement of the corollary and its definitions) and SnapshotPhase14Definitions
+(check/Phase14Definitions.v) are built at the acceptance commit;
+SnapshotPhase14Statements (check/Phase14Statements.v and the library lemmas)
+at 4d020691, the first commit of main with the proofs of the accepted
+statements, which did not exist at their acceptance. SnapshotAcceptedStatements14
+prints the accepted bodies at 39f58468, and "conversions
+SnapshotAcceptedStatements14" writes check/snapshots/AcceptedConversions14.v
+and compiles it at 4d020691.
+
 make check compiles the same snapshot files against the build of the tree,
 through scripts/run_checks.py, and scripts/check_sources.py requires each
 output to equal its reference, whose SHA-256 it fixes.
@@ -208,6 +218,24 @@ BASELINES = [
       "library/combinatorics/binomial_bounds.vo", "library/matrix/euclidean.vo",
       "library/matrix/real_spectral.vo", "library/matrix/psd_splitting.vo",
       "library/convex/logdet_barrier.vo", "library/convex/moreau.vo"]),
+    # Phase 14, batch 1, accepted at 39f58468: the frozen statement of the
+    # corollary and its definitions; the characterizations of the definitions
+    # that the accepted general statements name (check/Phase14Definitions.v),
+    # against the library at that commit.
+    ("SnapshotPhase14", "39f58468aeaa024a54509c1b684c3a40e208e5d8",
+     ["GaussianApplications.PsdLiftDefinitions", "GaussianApplications.PsdLiftStatement"],
+     [], [], ["library/matrix/multiplicity.vo", "library/combinatorics/harmonic.vo",
+      "library/combinatorics/binomial_bounds.vo", "library/combinatorics/expander.vo"]),
+    ("SnapshotPhase14Definitions", "39f58468aeaa024a54509c1b684c3a40e208e5d8",
+     [], [], ["check/Phase14Definitions.v"], ["library/matrix/multiplicity.vo", "library/combinatorics/harmonic.vo",
+      "library/combinatorics/binomial_bounds.vo", "library/combinatorics/expander.vo"]),
+    # The general statements of batch 1 were proved after their acceptance:
+    # check/Phase14Statements.v is compiled against 4d02069, the first commit of
+    # main with their proofs, where their _statement definitions are those of
+    # 39f5846; it prints the statements of the lemmas that replace them.
+    ("SnapshotPhase14Statements", "4d020691cfee659d60fb413de9b6a1fe2e9291d9",
+     [], [], ["check/Phase14Statements.v"], ["library/matrix/multiplicity.vo", "library/combinatorics/harmonic.vo",
+      "library/combinatorics/binomial_bounds.vo", "library/combinatorics/expander.vo"]),
 ]
 # The reference of the accepted general statements (the specification, R4
 # (iii)): the body of each _statement definition of the inventory, printed at
@@ -215,6 +243,11 @@ BASELINES = [
 # reference is compared by scripts/check_sources.py with the statements of the
 # lemmas of check/LibraryStatements.v, not with a print at HEAD.
 ACCEPTED = ("SnapshotAcceptedStatements", "46e45c84b99a50663205933ae501da029dd66098")
+# The same for the general statements of phase 14, printed at their
+# acceptance commit; their conversions (check/snapshots/AcceptedConversions14.v)
+# are compiled at ACCEPTED_P14_PROOFS, where the lemmas exist.
+ACCEPTED_P14 = ("SnapshotAcceptedStatements14", "39f58468aeaa024a54509c1b684c3a40e208e5d8")
+ACCEPTED_P14_PROOFS = "4d020691cfee659d60fb413de9b6a1fe2e9291d9"
 # The lemmas of the check files whose statements are snapshotted.
 CHECK_LEMMAS = {
     "check/ApplicationsDefinitions.v": [
@@ -230,6 +263,8 @@ CHECK_LEMMAS = {
             "unif_mean", "unif_var", "binomial_mean", "linear_op", "monotone_op", "meet_avg",
             "bdot", "bchar", "blk_deg", "blk_dist", "fcoef", "low_blk_deg", "prob_vec",
             "prod_avg", "smoothing_hyps", "weighted_gram", "psd_factorization")],
+    "check/Phase14Definitions.v": [
+        "ksubset_characterization", "ksubset_mx_characterization", "perm_cut_characterization"],
     "check/Phase13Definitions.v#3": [
         n + "_characterization" for n in (
             "unif_mean", "unif_var", "binomial_mean", "linear_op", "monotone_op", "meet_avg",
@@ -239,8 +274,8 @@ CHECK_LEMMAS = {
 }
 
 
-def libst_lemmas():
-    text = (ROOT / "check" / "LibraryStatements.v").read_text()
+def libst_lemmas(path="check/LibraryStatements.v"):
+    text = (ROOT / path).read_text()
     names = []
     for m in re.finditer(r"^Module (accepted_\w+)\.\n(.*?)^End \1\.", text, re.S | re.M):
         names += [f"{m.group(1)}.{n}" for n in
@@ -248,16 +283,17 @@ def libst_lemmas():
     return names
 
 
-def inventory():
-    """The entries of INVENTORY of scripts/check_sources.py: (commit, path,
-    name, proposition)."""
+def inventory(name="INVENTORY"):
+    """The entries of INVENTORY of scripts/check_sources.py (or of
+    INVENTORY_P14, the accepted statements of phase 14): (commit, path, name,
+    proposition)."""
     path = ROOT / "scripts" / "check_sources.py"
     module = types.ModuleType("check_sources")
     module.__file__ = str(path)
     # Compiled from its source, never from the bytecode cached in
     # scripts/__pycache__/ (E36).
     exec(compile(path.read_bytes(), str(path), "exec"), module.__dict__)
-    return module.INVENTORY
+    return getattr(module, name)
 
 
 def logical(path):
@@ -268,23 +304,25 @@ def logical(path):
     raise ValueError(path)
 
 
-def library_lemmas():
-    """The full names of the library lemmas of the 70 accepted statements."""
-    return [f"{logical(path)}.{name[:-len('_statement')]}"
-            for _, path, name, _ in inventory()]
+def library_lemmas(name="INVENTORY"):
+    """The full names of the library lemmas of the accepted statements (70 in
+    INVENTORY, 5 in INVENTORY_P14)."""
+    return [f"{logical(path)}.{stmt[:-len('_statement')]}"
+            for _, path, stmt, _ in inventory(name)]
 
 
-def write_accepted():
+def write_accepted(accepted=ACCEPTED, inv="INVENTORY", check="check/LibraryStatements.v"):
     """The reference of the accepted statements: Print of each _statement
-    definition of the inventory, at the acceptance commit."""
-    name, commit = ACCEPTED
-    entries = inventory()
+    definition of the inventory, at the acceptance commit (phase 13:
+    ACCEPTED, INVENTORY; phase 14: ACCEPTED_P14, INVENTORY_P14)."""
+    name, commit = accepted
+    entries = inventory(inv)
     modules = sorted({logical(path) for _, path, _, _ in entries})
-    lines = [f"(* The bodies of the 70 accepted _statement definitions, printed at",
+    lines = [f"(* The bodies of the {len(entries)} accepted _statement definitions, printed at",
              f"   {commit[:12]} (scripts/check_sources.py, rule 30 (d)). The definitions",
              "   no longer exist at HEAD: this file is compiled only at the",
              "   acceptance commit, and its output is compared with the statements",
-             "   of the lemmas of check/LibraryStatements.v. *)", ""]
+             f"   of the lemmas of {check}. *)", ""]
     lines += [f"Require {m}." for m in modules]
     lines += ["", "Set Printing All.", "Set Printing Universes.",
               "Set Printing Depth 1000000.", "Set Printing Width 78.", ""]
@@ -310,7 +348,9 @@ def leading_fun_to_forall(text):
     return text
 
 
-def write_conversions():
+def write_conversions(accepted=ACCEPTED, inv="INVENTORY", stem="LibraryStatements",
+                      target="AcceptedConversions.v",
+                      where="the acceptance commit 46e45c8"):
     """check/snapshots/AcceptedConversions.v: for each accepted statement, two
     definitions whose type is the body of its _statement definition printed
     at the acceptance commit (closed over its section parameters, universe
@@ -319,17 +359,21 @@ def write_conversions():
     acceptance commit only if both lemmas have types convertible with the
     accepted bodies; the definitions do not exist at HEAD, where the
     statements of both lemmas are compared with their prints at that commit
-    (SnapshotPhase13)."""
-    name, commit = ACCEPTED
-    entries = inventory()
+    (SnapshotPhase13). For phase 14 (ACCEPTED_P14, INVENTORY_P14,
+    check/Phase14Statements.v), check/snapshots/AcceptedConversions14.v is
+    compiled at ACCEPTED_P14_PROOFS, the first commit of main with the
+    lemmas, and SnapshotPhase14Statements compares their statements at HEAD
+    with their prints there."""
+    name, commit = accepted
+    entries = inventory(inv)
     ref = (SNAP / f"{name}.txt").read_text()
     blocks = re.split(r"\n(?=\S+_statement =)", ref.strip())
     if len(blocks) != len(entries):
         sys.exit(f"{name}: {len(blocks)} printed bodies for {len(entries)} entries")
     modules = sorted({logical(path) for _, path, _, _ in entries})
-    lines = ["(* Generated by scripts/snapshot_baselines.py from SnapshotAcceptedStatements.txt;",
-             "   compiled only at the acceptance commit 46e45c8. *)", ""]
-    lines += [f"Require {m}." for m in modules] + ["Require Checks.LibraryStatements.", ""]
+    lines = [f"(* Generated by scripts/snapshot_baselines.py from {name}.txt;",
+             f"   compiled only at {where}. *)", ""]
+    lines += [f"Require {m}." for m in modules] + [f"Require Checks.{stem}.", ""]
     for k, ((_, path, stmt, _), block) in enumerate(zip(entries, blocks)):
         if not block.split(" =", 1)[0].endswith(stmt):
             sys.exit(f"{name}: the printed body {k} is not that of {stmt}")
@@ -339,10 +383,10 @@ def write_conversions():
         base = stmt[:-len("_statement")]
         module = path.split("/")[-1][:-2]
         lines += [f"Definition conversion_{k} :", f"  {prop} :=",
-                  f"  Checks.LibraryStatements.accepted_{module}.{base}_accepted.",
+                  f"  Checks.{stem}.accepted_{module}.{base}_accepted.",
                   f"Definition conversion_library_{k} :", f"  {prop} :=",
                   f"  @{logical(path)}.{base}.", ""]
-    (SNAP / "AcceptedConversions.v").write_text("\n".join(lines) + "\n")
+    (SNAP / target).write_text("\n".join(lines) + "\n")
     return modules
 
 
@@ -533,6 +577,14 @@ def write_file(entry):
              f"   the declarations accepted at {commit[:12]}, printed in full. Written",
              "   by scripts/snapshot_baselines.py; its reference, the output at that",
              "   commit, is check/snapshots/" + name + ".txt. *)", ""]
+    if name == "SnapshotPhase14Statements":
+        lines = [f"(* The statement snapshot {name} (scripts/check_sources.py, rule 30):",
+                 "   the general statements of phase 14 accepted at 39f58468aeaa, stated",
+                 "   by check/Phase14Statements.v, and the library lemmas that prove them,",
+                 f"   printed in full against the library at {commit[:12]}, the first",
+                 "   commit of main with their proofs. Written by",
+                 "   scripts/snapshot_baselines.py; its reference, the output at that",
+                 "   commit, is check/snapshots/" + name + ".txt. *)", ""]
     if name == "SnapshotMatrixSigmaRing":
         lines = [f"(* The statement snapshot {name} (scripts/check_sources.py, rule 30):",
                  "   the characterization of check/MatrixSigmaRing.v, accepted on 15",
@@ -557,6 +609,8 @@ def write_file(entry):
         stem = Path(c).stem
         if stem == "LibraryStatements":
             lemmas = libst_lemmas()
+        elif stem == "Phase14Statements":
+            lemmas = libst_lemmas(c)
         elif stem == "Phase13Definitions":
             lemmas = CHECK_LEMMAS[f"{c}#{name[-1]}"]
         else:
@@ -567,6 +621,9 @@ def write_file(entry):
         # The statements of the library lemmas that replace the accepted
         # _statement definitions.
         for full in library_lemmas():
+            lines.append(f"Check @{full}.")
+    if name == "SnapshotPhase14Statements":
+        for full in library_lemmas("INVENTORY_P14"):
             lines.append(f"Check @{full}.")
     SNAP.mkdir(exist_ok=True)
     (SNAP / f"{name}.v").write_text("\n".join(lines) + "\n")
@@ -745,11 +802,26 @@ def main():
     if version != EXPECTED_ROCQ or packages != EXPECTED_PACKAGES:
         sys.exit("snapshot_baselines.py: the installed toolchain is not the pinned one")
     accepted = (ACCEPTED[0], ACCEPTED[1], [], [], [], [])
+    accepted14 = (ACCEPTED_P14[0], ACCEPTED_P14[1], [], [], [], [])
     if args.command == "identity-files":
         write_identity_files()
         return
     if args.command in ("identities", "identities-verify"):
         sys.exit(1 if identities(args.names, args.command == "identities") else 0)
+    if args.command == "conversions" and ACCEPTED_P14[0] in args.names:
+        # Phase 14: compiled at the first commit of main with the lemmas.
+        proofs = (ACCEPTED_P14[0], ACCEPTED_P14_PROOFS, [], [], [], [])
+        verify_extract(proofs)
+        write_conversions(ACCEPTED_P14, "INVENTORY_P14", "Phase14Statements",
+                          "AcceptedConversions14.v",
+                          f"{ACCEPTED_P14_PROOFS[:7]}, the first commit of main with the lemmas")
+        base = base_of(proofs)
+        r = run(["rocq", "compile", "-q", "-noglob"] + WARNINGS + load_paths(base)
+                + ["-o", str(base / "checks" / "AcceptedConversions14.vo"),
+                   str(SNAP / "AcceptedConversions14.v")])
+        print("AcceptedConversions14.v:", "compiled at " + ACCEPTED_P14_PROOFS[:12]
+              if r.returncode == 0 else "FAILED\n" + r.stderr[-3000:])
+        sys.exit(r.returncode)
     if args.command == "conversions":
         verify_extract(accepted)
         write_conversions()
@@ -760,7 +832,8 @@ def main():
         print("AcceptedConversions.v:", "compiled at " + ACCEPTED[1][:12] if r.returncode == 0
               else "FAILED\n" + r.stderr[-3000:])
         sys.exit(r.returncode)
-    entries = [e for e in BASELINES + [accepted] if not args.names or e[0] in args.names]
+    entries = [e for e in BASELINES + [accepted, accepted14]
+               if not args.names or e[0] in args.names]
     bad, meta = 0, {}
     meta_path = SNAP / "REFERENCES.json"
     if meta_path.exists():
@@ -769,12 +842,14 @@ def main():
         if args.command != "build":
             verify_extract(entry)
         if args.command == "build":
-            if entry[0] == ACCEPTED[0]:
+            if entry[0] in (ACCEPTED[0], ACCEPTED_P14[0]):
                 continue
             build(entry, args.jobs)
         elif args.command == "files":
             if entry[0] == ACCEPTED[0]:
                 write_accepted()
+            elif entry[0] == ACCEPTED_P14[0]:
+                write_accepted(ACCEPTED_P14, "INVENTORY_P14", "check/Phase14Statements.v")
             else:
                 write_file(entry)
         else:

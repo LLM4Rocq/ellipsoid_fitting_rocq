@@ -56,7 +56,7 @@ INVENTORY_SCHEMA = "phase13-identity-inventory-v1"
 OPAQUE = ("EllipsoidFitting.GaussianProbabilityProductDefinitions."
           "gaussian_pair_probability_setT_subproof",)
 # Snapshots kept for history only, compared with no build of the tree.
-HISTORICAL_ONLY = ("SnapshotAcceptedStatements",)
+HISTORICAL_ONLY = ("SnapshotAcceptedStatements", "SnapshotAcceptedStatements14")
 REFERENCE_KINDS = ("Const", "Ind", "Construct", "Proj", "Case")
 # Every tag that the exporter writes (kernel_identity.ml: terms, sorts,
 # levels, qualities, relevances, inversions, module paths, universe
