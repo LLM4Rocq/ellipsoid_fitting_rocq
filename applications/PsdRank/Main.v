@@ -30,10 +30,10 @@ From GaussianApplications.PsdRank Require Import Model.
 (* development of the collection proves a weaker claim by another route       *)
 (* (Main.lean).                                                               *)
 (*                                                                            *)
-(* T10 and T11 are used through their theorems, psd_normalization             *)
-(* (matrix/psd_factorization.v) and product_smoothing_theorem                 *)
-(* (ProductSmoothingTheorem.v); of T11 only the coefficient conclusion, at    *)
-(* one tuple of positive weight, is used.                                     *)
+(* T10 and T11 are used through the library lemmas psd_normalization          *)
+(* (matrix/psd_factorization.v) and product_smoothing (fourier/), by which    *)
+(* their theorem files prove them; of T11 only the coefficient conclusion,    *)
+(* at one tuple of positive weight, is used.                                  *)
 (*                                                                            *)
 (* Five accepted statements of packet P are used through their lemmas of      *)
 (* boolean_fourier.v: the character algebra (bchar_algebra), the block        *)
@@ -438,7 +438,7 @@ have [F' [G' [F'p G'p FGE F'tr G'tr]]] := psd_normalization J0 F0p G0p An.
 (* T11, with B = n, for the rows F' (U x) *)
 have l0 : 0 < lambda by apply: lt_le_trans l1.
 have [Rw [H [Hsq Hpot [m mpos Hfou]]]] :=
-  product_smoothing_theorem R X M t a r mu nu pi theta n%:R lambda
+  @product_smoothing R X M t a r mu nu pi theta n%:R lambda
     (fun x => F' (U x)) hs (fun x => F'p (U x)) (fun x => F'tr (U x)) l0 hlam.
 have [B GE] := psdmx_gram (G'p (Mm m)).
 pose w y x := \prod_(i < t) pi i (tnth m i) (row i y) (tnth x i).
