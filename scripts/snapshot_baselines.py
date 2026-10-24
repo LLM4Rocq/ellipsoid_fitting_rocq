@@ -56,6 +56,12 @@ prints the accepted bodies at 39f58468, and "conversions
 SnapshotAcceptedStatements14" writes check/snapshots/AcceptedConversions14.v
 and compiles it at 4d020691.
 
+Step 18 (the shifted-Gaussian extension, accepted at 51c2e14): SnapshotShifted
+(the seven frozen statement files) is built at the acceptance commit, and
+SnapshotShiftedDefinitions (check/ShiftedDefinitions.v) at 7c370d9, where
+that file was written and where the code of library/ and extension/ is that
+of 51c2e14.
+
 make check compiles the same snapshot files against the build of the tree,
 through scripts/run_checks.py, and scripts/check_sources.py requires each
 output to equal its reference, whose SHA-256 it fixes.
@@ -236,6 +242,32 @@ BASELINES = [
     ("SnapshotPhase14Statements", "4d020691cfee659d60fb413de9b6a1fe2e9291d9",
      [], [], ["check/Phase14Statements.v"], ["library/matrix/multiplicity.vo", "library/combinatorics/harmonic.vo",
       "library/combinatorics/binomial_bounds.vo", "library/combinatorics/expander.vo"]),
+    # Step 18, the shifted-Gaussian extension, accepted at 51c2e14: the seven
+    # frozen statement files; the characterizations of check/ShiftedDefinitions.v,
+    # against 7c370d9, where that file was written (the code of library/ and
+    # extension/ is the same at the two commits).
+    ("SnapshotShifted", "51c2e14d5c2d75469f8147901bc8f664d33d4b6c",
+     ["EllipsoidUniversality.ShiftedConditionStatement",
+      "EllipsoidUniversality.ShiftedGaussianStatement",
+      "EllipsoidUniversality.ShiftedQuadricStatement",
+      "EllipsoidUniversality.ShiftedErrorStatement",
+      "EllipsoidUniversality.ShiftedMixtureUnsatStatement",
+      "EllipsoidUniversality.ShiftedMixtureSatStatement",
+      "EllipsoidUniversality.ShiftedSignStatement"],
+     [], [], []),
+    ("SnapshotShiftedDefinitions", "7c370d9c2c5cf31b8bb637f15c8ea8f47df24a2d",
+     [], [], ["check/ShiftedDefinitions.v"], [
+      "library/gaussian/measurable_matrix.vo", "library/analysis/family_reindexing.vo",
+      "library/matrix/euclidean.vo", "library/matrix/coordinate_blocks.vo",
+      "library/matrix/quadric_certificate.vo", "library/probability/lindeberg.vo",
+      "library/probability/tuple_rows.vo", "library/probability/mixture.vo",
+      "library/probability/countable_mixture.vo", "library/probability/symmetric_shift.vo",
+      "theories/PaperMainDefinitions.vo", "theories/Gaussian/Law/LibraryBridge.vo",
+      "extension/UniversalityDefinitions.vo", "extension/MixtureDefinitions.vo",
+      "extension/CountableMixtureDefinitions.vo", "extension/Sat/AprioriSparse.vo",
+      "extension/Shifted/GaussianRows.vo", "extension/Shifted/Translations.vo",
+      "extension/Shifted/TranslationError.vo", "extension/Shifted/GaussianCondition.vo",
+      "extension/Shifted/MixtureRows.vo", "extension/Shifted/SignMixture.vo"]),
 ]
 # The reference of the accepted general statements (the specification, R4
 # (iii)): the body of each _statement definition of the inventory, printed at
@@ -265,6 +297,22 @@ CHECK_LEMMAS = {
             "prod_avg", "smoothing_hyps", "weighted_gram", "psd_factorization")],
     "check/Phase14Definitions.v": [
         "ksubset_characterization", "ksubset_mx_characterization", "perm_cut_characterization"],
+    "check/ShiftedDefinitions.v": [
+        "family_sequence_limit_characterization", "coordinate_support_characterization",
+        "quadric_eval_characterization", "tuple_map_characterization",
+        "mixture_weights_characterization", "mixture_characterization",
+        "cmixture_weights_characterization", "cmixture_characterization",
+        "row_symmetric_law_characterization", "row_shift_characterization",
+        "row_shift_law_characterization", "sign_shift_weights_characterization",
+        "sign_shift_law_characterization", "row_outer_characterization",
+        "row_of_tuple_characterization", "point_law_characterization",
+        "sample_row_tuple_characterization", "sample_flat_row_characterization",
+        "sample_flat_col_characterization", "sample_of_row_tuple_characterization",
+        "sample_translate_characterization", "translation_fitting_error_characterization",
+        "gaussian_small_shift_characterization", "finite_row_law_characterization",
+        "countable_row_law_characterization", "row_sample_map_characterization",
+        "iid_row_sample_law_characterization", "shifted_iid_sample_law_characterization",
+        "sign_mixture_sample_law_characterization"],
     "check/Phase13Definitions.v#3": [
         n + "_characterization" for n in (
             "unif_mean", "unif_var", "binomial_mean", "linear_op", "monotone_op", "meet_avg",
@@ -583,6 +631,14 @@ def write_file(entry):
                  "   by check/Phase14Statements.v, and the library lemmas that prove them,",
                  f"   printed in full against the library at {commit[:12]}, the first",
                  "   commit of main with their proofs. Written by",
+                 "   scripts/snapshot_baselines.py; its reference, the output at that",
+                 "   commit, is check/snapshots/" + name + ".txt. *)", ""]
+    if name == "SnapshotShiftedDefinitions":
+        lines = [f"(* The statement snapshot {name} (scripts/check_sources.py, rule 30):",
+                 "   the characterizations of check/ShiftedDefinitions.v, which protect",
+                 "   the definitions that the seven shifted statement files accepted at",
+                 "   51c2e14d5c2d unfold to, printed in full against the library at",
+                 f"   {commit[:12]}, where the file was written. Written by",
                  "   scripts/snapshot_baselines.py; its reference, the output at that",
                  "   commit, is check/snapshots/" + name + ".txt. *)", ""]
     if name == "SnapshotMatrixSigmaRing":

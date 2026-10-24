@@ -1,0 +1,67 @@
+(* One identified axiom report per characterization lemma of
+   check/ShiftedDefinitions.v, beside those of check/Reports.v and
+   check/Phase14Reports.v, which are pinned: the full name of the lemma
+   (Locate), then its axioms. check/ShiftedDefinitions.v is compiled
+   first, into build/checks/, as Checks.ShiftedDefinitions; this file only
+   Requires it. Its code is fixed by scripts/check_sources.py, and make
+   check compiles it through scripts/run_checks.py. *)
+
+Require Checks.ShiftedDefinitions.
+Locate Checks.ShiftedDefinitions.family_sequence_limit_characterization.
+Print Assumptions Checks.ShiftedDefinitions.family_sequence_limit_characterization.
+Locate Checks.ShiftedDefinitions.coordinate_support_characterization.
+Print Assumptions Checks.ShiftedDefinitions.coordinate_support_characterization.
+Locate Checks.ShiftedDefinitions.quadric_eval_characterization.
+Print Assumptions Checks.ShiftedDefinitions.quadric_eval_characterization.
+Locate Checks.ShiftedDefinitions.tuple_map_characterization.
+Print Assumptions Checks.ShiftedDefinitions.tuple_map_characterization.
+Locate Checks.ShiftedDefinitions.mixture_weights_characterization.
+Print Assumptions Checks.ShiftedDefinitions.mixture_weights_characterization.
+Locate Checks.ShiftedDefinitions.mixture_characterization.
+Print Assumptions Checks.ShiftedDefinitions.mixture_characterization.
+Locate Checks.ShiftedDefinitions.cmixture_weights_characterization.
+Print Assumptions Checks.ShiftedDefinitions.cmixture_weights_characterization.
+Locate Checks.ShiftedDefinitions.cmixture_characterization.
+Print Assumptions Checks.ShiftedDefinitions.cmixture_characterization.
+Locate Checks.ShiftedDefinitions.row_symmetric_law_characterization.
+Print Assumptions Checks.ShiftedDefinitions.row_symmetric_law_characterization.
+Locate Checks.ShiftedDefinitions.row_shift_characterization.
+Print Assumptions Checks.ShiftedDefinitions.row_shift_characterization.
+Locate Checks.ShiftedDefinitions.row_shift_law_characterization.
+Print Assumptions Checks.ShiftedDefinitions.row_shift_law_characterization.
+Locate Checks.ShiftedDefinitions.sign_shift_weights_characterization.
+Print Assumptions Checks.ShiftedDefinitions.sign_shift_weights_characterization.
+Locate Checks.ShiftedDefinitions.sign_shift_law_characterization.
+Print Assumptions Checks.ShiftedDefinitions.sign_shift_law_characterization.
+Locate Checks.ShiftedDefinitions.row_outer_characterization.
+Print Assumptions Checks.ShiftedDefinitions.row_outer_characterization.
+Locate Checks.ShiftedDefinitions.row_of_tuple_characterization.
+Print Assumptions Checks.ShiftedDefinitions.row_of_tuple_characterization.
+Locate Checks.ShiftedDefinitions.point_law_characterization.
+Print Assumptions Checks.ShiftedDefinitions.point_law_characterization.
+Locate Checks.ShiftedDefinitions.sample_row_tuple_characterization.
+Print Assumptions Checks.ShiftedDefinitions.sample_row_tuple_characterization.
+Locate Checks.ShiftedDefinitions.sample_flat_row_characterization.
+Print Assumptions Checks.ShiftedDefinitions.sample_flat_row_characterization.
+Locate Checks.ShiftedDefinitions.sample_flat_col_characterization.
+Print Assumptions Checks.ShiftedDefinitions.sample_flat_col_characterization.
+Locate Checks.ShiftedDefinitions.sample_of_row_tuple_characterization.
+Print Assumptions Checks.ShiftedDefinitions.sample_of_row_tuple_characterization.
+Locate Checks.ShiftedDefinitions.sample_translate_characterization.
+Print Assumptions Checks.ShiftedDefinitions.sample_translate_characterization.
+Locate Checks.ShiftedDefinitions.translation_fitting_error_characterization.
+Print Assumptions Checks.ShiftedDefinitions.translation_fitting_error_characterization.
+Locate Checks.ShiftedDefinitions.gaussian_small_shift_characterization.
+Print Assumptions Checks.ShiftedDefinitions.gaussian_small_shift_characterization.
+Locate Checks.ShiftedDefinitions.finite_row_law_characterization.
+Print Assumptions Checks.ShiftedDefinitions.finite_row_law_characterization.
+Locate Checks.ShiftedDefinitions.countable_row_law_characterization.
+Print Assumptions Checks.ShiftedDefinitions.countable_row_law_characterization.
+Locate Checks.ShiftedDefinitions.row_sample_map_characterization.
+Print Assumptions Checks.ShiftedDefinitions.row_sample_map_characterization.
+Locate Checks.ShiftedDefinitions.iid_row_sample_law_characterization.
+Print Assumptions Checks.ShiftedDefinitions.iid_row_sample_law_characterization.
+Locate Checks.ShiftedDefinitions.shifted_iid_sample_law_characterization.
+Print Assumptions Checks.ShiftedDefinitions.shifted_iid_sample_law_characterization.
+Locate Checks.ShiftedDefinitions.sign_mixture_sample_law_characterization.
+Print Assumptions Checks.ShiftedDefinitions.sign_mixture_sample_law_characterization.

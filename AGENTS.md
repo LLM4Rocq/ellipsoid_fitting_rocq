@@ -3,6 +3,70 @@
 `CLAUDE.md` is a symbolic link to this file. Read it, then `README.md` and
 `library/README.md`, before touching anything.
 
+## The shifted-Gaussian extension (16 October 2026)
+
+The user authorized the formal proof of the shifted-Gaussian extension on
+the Mac, while the VM was unavailable: seven theorems on translated
+samples, stated at the top of `extension/` and proved in
+`extension/Shifted/`, with 23 new library files. The work follows a
+formalization plan that is outside the repository. On 16 October 2026 the
+user accepted the seven statement files at commit `51c2e14` and froze
+them. The work was merged into `main` at the step 18 integration commit,
+after the tag `phase14`, under the step 18 amendment
+(`/srv/ellipsoid-fitting/reviews/step18-amendment-2026-10-23.md`), which
+the user approved on 23 October 2026. These rules are in force.
+
+- **The frozen statements.** The seven statement files are frozen:
+  `extension/ShiftedConditionStatement.v`, `ShiftedGaussianStatement.v`,
+  `ShiftedQuadricStatement.v`, `ShiftedErrorStatement.v`,
+  `ShiftedMixtureUnsatStatement.v`, `ShiftedMixtureSatStatement.v` and
+  `ShiftedSignStatement.v`. Their code does not change:
+  `scripts/check_sources.py` compares it with `51c2e14` (rule 36). Only the
+  master edits their comments. If a proof seems to require a change, stop
+  and ask the user.
+- **Their definitions.** `check/ShiftedDefinitions.v` protects the 29
+  definitions of other files that these statements unfold to and that no
+  earlier check protects, by characterizations proved by computation. Its
+  code is fixed, and the checker requires its report.
+- **The axiom checks.** `check/ShiftedConditionAssumptions.v` to
+  `check/ShiftedSignAssumptions.v` check the seven theorems, with the
+  expected lists `check/shifted_condition_assumptions.expected` to
+  `check/shifted_sign_assumptions.expected` (rule 37). Each theorem may use
+  only the seven axioms of `check/sat_variance_assumptions.expected`, so
+  `Classical_Prop.classic` is not allowed. `check/ShiftedIdentities.v`
+  checks each of the seven theorems against its frozen statement, and
+  `check/ShiftedReports.v` reports the characterizations of
+  `check/ShiftedDefinitions.v`. The checker takes 37 theorem reports. Two
+  guards of rule 37, applied before the build, fail a merge that leaves a
+  check file out of the checker's table.
+- **The snapshots.** `SnapshotShifted` prints the seven statement files
+  against a build of `51c2e14`, and the characterization snapshot
+  `SnapshotShiftedDefinitions` prints the characterizations of
+  `check/ShiftedDefinitions.v` against a build of `7c370d9`; their
+  identity drivers fix the kernel names (rule 38). Step 18 changes four
+  files that rule 35 pins (`scripts/snapshot_baselines.py` and the three
+  reference indexes), by additions: rule 35 skips them, and their hashes
+  are fixed instead.
+- **What is new.** `extension/Shifted/`, the seven statement files and the
+  23 library files that their proofs use are new; the user's authorization
+  permits them. For them only, this overrides the rules of phases 13 and
+  14 that nothing changes in `extension/` and that a general result enters
+  the library only for a proof of phase 13 or 14; the other rules of phase
+  14 apply. The code of the 58 frozen files, the 51 of phases 1 to 14 and
+  these seven, does not change, and the 37 theorems that `make check`
+  checks keep building at every commit. No new mathematics enters the
+  extension without a new decision of the user.
+- **What waits.** The pin commit that follows the step 18 integration
+  commit compares, byte for byte with the integration commit, the 17 check
+  files and expected lists of the extension and its 12 files of machinery:
+  its snapshots and identity drivers with their references,
+  `scripts/snapshot_baselines.py` and the three reference indexes (rule
+  39). The tag `shifted` waits for the user's scheduled acceptance of step
+  18.
+- **Pushes.** Lane branches go to the hub, and the master alone pushes
+  `main` and tags there. The coordinator mirrors `main` and the tags to
+  GitHub from the user's machine, on the user's word.
+
 ## The task
 
 `theories/` holds a proof of the three main theorems of the paper
@@ -113,7 +177,9 @@ by explaining why not; you then delete the answered entry. Agent 1 deletes
 ## Git
 
 All clones live on the VM, in `/srv/ellipsoid-fitting/`, and share one
-local bare repository there, the hub `hub.git`. There is no other remote.
+local bare repository there, the hub `hub.git`. No clone on the VM has
+another remote; the coordinator mirrors `main` and the tags to GitHub from
+the user's machine, on the user's word.
 
 | Clone | Used by | tmux session |
 |---|---|---|
@@ -143,8 +209,10 @@ local bare repository there, the hub `hub.git`. There is no other remote.
 
 ## Phases
 
-Phases 1 to 13 below are done: tag `phase13` is at f16e6a26. The
-current work is phase 14, described after phase 13.
+Phases 1 to 14 below are done: tag `phase14` is at 5f81a422. The
+shifted-Gaussian work, described at the top of this file, is merged into
+`main` at the step 18 integration commit; its tag `shifted` waits for the
+user's scheduled acceptance of step 18.
 
 **Phase 1. Agent 1 alone; the others wait.**
 
@@ -2140,7 +2208,8 @@ which prevails where they differ.
     `/srv/ellipsoid-fitting/runtime/agent1/machinery-hashes.txt`.
 - **The exceptions of the exporter** (decision Q20):
   - the exact sentence `Declare ML Module "kernel_identity".` is allowed
-    only in the 18 hash-pinned drivers `check/identity/Identity<Name>.v`;
+    only in the hash-pinned drivers `check/identity/Identity<Name>.v` (18
+    at the release of phase 13, 21 at that of phase 14, 23 since step 18);
   - `OCAMLPATH` is set to the findlib directory of the exporter just
     built, and only for the compilations of those drivers, by
     `scripts/run_checks.py` and by the `identities` and
@@ -2167,11 +2236,10 @@ which prevails where they differ.
   12 GiB of the container. The `Makefile`'s default `JOBS ?= 4` is not
   used.
 - **The shifted work.** The shifted Gaussian work of 16 October, frozen
-  on the user's machine, reaches `main` only at step 18 of the plan,
-  after the `phase13` pin. No lane drafts, proves or commits anything
-  shifted before that, and nobody creates `extension/Shifted` on the VM.
-  Step 18 may change `theories/`, `extension/` and the repaired checker
-  only as the shifted plan allows, on the user's explicit word.
+  on the user's machine, reached `main` at step 18, after the tag
+  `phase14`, under the step 18 amendment and the user's word of 23
+  October 2026 (`DECISIONS.md`, 14:24); the top section of this file gives
+  its rules.
 - **Pushes and the release** (the user's conditions of 20 October,
   17:32, in `DECISIONS.md`). No push of `main` or of a tag without the
   user's word, given directly or relayed by the coordinator. The user
@@ -2307,8 +2375,8 @@ The targets:
   A6, which changes its comments only.
 
 Not in this phase:
-- the shifted Gaussian work, which reaches `main` at step 18 under its own
-  plan and acceptance;
+- the shifted Gaussian work, which reached `main` at step 18, after this
+  phase, under its own plan and acceptance (the top section of this file);
 - T8, still deferred;
 - a rational theta_d(k), the alternating group and Edmonds' theorem;
 - any upstream submission (D6).
@@ -2448,9 +2516,10 @@ mirror, pushed from the Mac on the user's word (decision 8 of 18:35).
    acceptance commits.
 7. **The checks.** During development nothing changes in `scripts/`,
    `check/`, the `Makefile` or the option lines of `_CoqProject`, and no
-   file is added under `scripts/` or `check/`, step 18 aside, under its
-   own plan and the user's explicit word. Drafts and mutation tests stay
-   in scratch copies under the ignored `build/` of the master's clone. The
+   file is added under `scripts/` or `check/` (step 18, after the tag
+   `phase14`, changed them under its own plan and the user's explicit
+   word). Drafts and mutation tests stay in scratch copies under the
+   ignored `build/` of the master's clone. The
    extension of the checker is made at the release round only, on the
    user's explicit word (below).
 
@@ -2461,8 +2530,8 @@ mirror, pushed from the Mac on the user's word (decision 8 of 18:35).
   `integration` and pushes `main` as in phases 6 to 13; these development
   merges need no further word of the user (the approval of the phase 14
   texts). From commit P to the tag the master merges nothing else into
-  `main`, apart from the step 18 case below. No tag before the scheduled
-  acceptance. Nothing goes to GitHub from the VM.
+  `main`. No tag before the scheduled acceptance. Nothing goes to GitHub
+  from the VM.
 - **The word for the extension.** When T13 and T14 are proved on `main`,
   every accepted statement is proved with its accepted text, the README
   rows and the reviews for models are done, `requests/` is deleted and the
@@ -2521,9 +2590,10 @@ mirror, pushed from the Mac on the user's word (decision 8 of 18:35).
   removes or weakens an existing rule, list entry or baseline, apart from
   the restriction of rule 31 to the files that the new pin then covers.
   Each change is named in the message of commit P and checked in agent 1's
-  focused review. Every other baseline and pin is kept, step 18 aside,
-  under its own plan and the user's explicit word: the frozen files, the
-  historical check files and expected lists, the pinned sections,
+  focused review. Every other baseline and pin is kept (step 18 later
+  restricted rule 35 to the files that it does not change, under its own
+  plan and the user's explicit word): the frozen files, the historical
+  check files and expected lists, the pinned sections,
   `check/ApplicationsDefinitions.v`, `check/LibraryStatements.v`,
   `check/Phase13Definitions.v`, the `Makefile` and the regression
   fixtures. A change to a fixture needs the user's word of its own.
@@ -2583,34 +2653,30 @@ mirror, pushed from the Mac on the user's word (decision 8 of 18:35).
 - Any failure, or any possibility of a false pass that the reviews cannot
   rule out, stops the work and goes to the user; the documented limits of
   coverage do not.
-- **Step 18** runs lean and in parallel, under its own plan and its own
-  acceptance (decision 4 of 18:35). The master starts it only on the
-  coordinator's notice that names its lean plan and on the user's word for
-  its checker changes. The gate jobs of the two rounds together stay
-  within three builds. The `phase14` tag may precede the shifted tag or
-  share its commit (decision 6). If the final commit of one round reaches
-  `main` first, the other round merges it and runs its gates on a final
-  commit that contains both. The counts below are those of the phase 13
-  release; step 18 adds its own.
+- **Step 18** follows the tag `phase14`, under its own plan, the step 18
+  amendment (`/srv/ellipsoid-fitting/reviews/step18-amendment-2026-10-23.md`,
+  approved by the user on 23 October 2026 at 14:24), and its own scheduled
+  acceptance (decision 4 of 21 October, 18:35); the top section of this
+  file gives its rules. The counts below include those of step 18.
 
 ### Rules for this phase
 
 The rules of phase 13 apply, with these changes.
 - **Unchanged files.** Nothing changes in:
-  - `theories/` and `extension/`, step 18 aside;
-  - the code of the 49 frozen files of phases 1 to 13 (56 once step 18 has
-    landed);
-  - the 58 check files and expected lists pinned byte for byte, and the
-    machinery that rule 31 pins, until the extension;
+  - `theories/` and `extension/`, apart from the merge of step 18;
+  - the code of the 58 frozen files: the 49 of phases 1 to 13, the 2 of
+    phase 14 and the 7 of step 18;
+  - the check files and expected lists pinned byte for byte (64 at the
+    release of phase 14, 81 from the pin commit of step 18), and the
+    machinery that rules 31, 35 and 39 pin;
   - the regression fixtures, whose change needs the user's word of its
-    own (for the machinery and the fixtures, step 18 aside, under its own
-    plan and the user's explicit word);
+    own;
   - the pinned sections `tuple_prod` and `lambda_max`, and the code of
     `check/ApplicationsDefinitions.v`;
   - the code of `applications/PsdRank/Main.v`.
 
-  The 28 theorems that `make check` checks (35 once step 18 has landed)
-  keep building at every commit.
+  The 37 theorems that `make check` checks (28 of phases 1 to 13, 2 of
+  phase 14 and 7 of step 18) keep building at every commit.
 - **The regression fixtures.** The release campaign applies each fixture
   of `check/regression/` with `git apply` and expects its outcome. A hunk
   applies only where its lines are unchanged, and a hunk without trailing
@@ -2711,8 +2777,9 @@ Phase 14 is done when the following hold:
   on `main`;
 - their check files verify the statements, and their axioms are among the
   seven of their expected lists;
-- the checker requires every theorem axiom report (30, or 37 with step 18)
-  and the outputs of the new auxiliary check files;
+- the checker requires every theorem axiom report (30 at the release of
+  phase 14, 37 since step 18) and the outputs of the new auxiliary check
+  files;
 - every accepted statement of phase 14 is proved with its full accepted
   text, and the new inventory file covers every entry. An accepted
   statement that is not proved at the release is withdrawn, with the
@@ -2742,24 +2809,34 @@ Phase 14 is done when the following hold:
 This replaces "Sharing the VM" of phase 13 (the decisions of 21 October at
 19:05, 19:10 and 19:15, and point 12 of the approval of the phase 14
 texts).
-- **The regime.** For now ellipsoid-fitting is the only user of the VM.
-  Three Rocq servers are active, one per session. Up to three builds run
+- **The regime.** Since 23 October 2026 the VM is shared again with the
+  graph-theory project (the directive of 11:36, point 3, in
+  `DECISIONS.md`): neither project assumes exclusive use, and the heavy
+  builds of step 18 run in standing windows agreed through the user with
+  the graph-theory monitor, each with its combined CPU and memory budget.
+  The graph-theory project is capped at 10 CPUs and 64 GiB (`DECISIONS.md`,
+  22 October, 17:46). Three Rocq servers are active, one per session.
+  During the agreed window of the gates of step 18, Arthur's and Marcol's
+  idle servers are stopped, after any needed state is saved, and their
+  sessions keep running (the user's answer to question 8 of the step 18
+  amendment); only the user starts or stops a server, or the coordinator
+  on the user's word. Up to three builds run
   at once on the VM, each in a container of 4 CPU and 12 GiB with
   `JOBS=3`. Each agent runs at most one build per clone; the master may
   run a second build in another of its clones (`integration` or a fresh
   clone under its `build/`), never two in one clone, and only while the
-  total stays at three. The gate jobs of the phase 14 round and of step
-  18 together stay within three builds. Each build has its start and end
+  total stays at three. The gate jobs of step 18 stay within the slots
+  of their agreed window. Each build has its start and end
   notices; there are no admissions. The holds of the phase 13 release
   (the graph-theory hold, admissions, at most two jobs, the memory and
   root-space floors, idle servers) are void (19:05, and point 12 of the
   approval of the phase 14 texts, with the user's clarification). The
   caps stay: 16 GiB and 2 CPU per Rocq server, 12 GiB and 4 CPU per
   build.
-- **The disk and the memory.** No disk ceiling and no memory floors while
-  the VM has no other user. The coordinator's watcher holds new launches
-  on critically low disk space or memory: when the root file system has
-  less than 15 GiB free or MemAvailable is below 20 GiB, it writes
+- **The disk and the memory.** No disk ceiling and no memory floors; the
+  budgets of the agreed windows apply. The coordinator's watcher holds new
+  launches on critically low disk space or memory: when the root file
+  system has less than 15 GiB free or MemAvailable is below 20 GiB, it writes
   `/srv/ellipsoid-fitting/runtime/coordinator/HOLD-LAUNCHES`, and no agent
   starts a build while that file exists; the watcher removes it when both
   readings are back above the thresholds. Before every build, the

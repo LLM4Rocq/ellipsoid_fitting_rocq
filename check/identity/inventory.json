@@ -3910,6 +3910,465 @@
     "Require EllipsoidUniversality.ConditionEndpoints."
    ]
   },
+  "SnapshotShifted": {
+   "queries": [
+    {
+     "mode": "definition",
+     "ordinal": 0,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedConditionStatement.shifted_condition_measurability_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 1,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedConditionStatement.shifted_condition_threshold_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 2,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedConditionStatement.shifted_condition_number_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 3,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedConditionStatement.shifted_condition_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 4,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedGaussianStatement.shifted_gaussian_measurability_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 5,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedGaussianStatement.shifted_gaussian_uniform_lower_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 6,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedGaussianStatement.shifted_gaussian_bounds_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 7,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedGaussianStatement.shifted_gaussian_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 8,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedQuadricStatement.shifted_quadric_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 9,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedErrorStatement.shifted_error_measurable_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 10,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedErrorStatement.shifted_error_limit_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 11,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedErrorStatement.shifted_error_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 12,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedMixtureUnsatStatement.finite_shifted_mixture_unsat_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 13,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedMixtureUnsatStatement.countable_shifted_mixture_unsat_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 14,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedMixtureUnsatStatement.shifted_mixture_unsat_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 15,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedMixtureSatStatement.finite_shifted_mixture_sat_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 16,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedMixtureSatStatement.countable_shifted_mixture_sat_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 17,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedMixtureSatStatement.shifted_mixture_sat_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 18,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedSignStatement.shifted_sign_outer_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 19,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedSignStatement.shifted_sign_observables_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 20,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedSignStatement.shifted_sign_gaussian_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 21,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedSignStatement.shifted_sign_mixture_statement"
+    },
+    {
+     "mode": "definition",
+     "ordinal": 22,
+     "parts": [
+      "type",
+      "body"
+     ],
+     "target": "EllipsoidUniversality.ShiftedSignStatement.shifted_sign_statement"
+    }
+   ],
+   "requires": [
+    "Require EllipsoidUniversality.ShiftedConditionStatement.",
+    "Require EllipsoidUniversality.ShiftedGaussianStatement.",
+    "Require EllipsoidUniversality.ShiftedQuadricStatement.",
+    "Require EllipsoidUniversality.ShiftedErrorStatement.",
+    "Require EllipsoidUniversality.ShiftedMixtureUnsatStatement.",
+    "Require EllipsoidUniversality.ShiftedMixtureSatStatement.",
+    "Require EllipsoidUniversality.ShiftedSignStatement."
+   ]
+  },
+  "SnapshotShiftedDefinitions": {
+   "queries": [
+    {
+     "mode": "type",
+     "ordinal": 0,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.family_sequence_limit_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 1,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.coordinate_support_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 2,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.quadric_eval_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 3,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.tuple_map_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 4,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.mixture_weights_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 5,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.mixture_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 6,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.cmixture_weights_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 7,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.cmixture_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 8,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.row_symmetric_law_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 9,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.row_shift_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 10,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.row_shift_law_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 11,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.sign_shift_weights_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 12,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.sign_shift_law_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 13,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.row_outer_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 14,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.row_of_tuple_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 15,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.point_law_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 16,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.sample_row_tuple_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 17,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.sample_flat_row_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 18,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.sample_flat_col_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 19,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.sample_of_row_tuple_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 20,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.sample_translate_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 21,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.translation_fitting_error_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 22,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.gaussian_small_shift_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 23,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.finite_row_law_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 24,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.countable_row_law_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 25,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.row_sample_map_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 26,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.iid_row_sample_law_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 27,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.shifted_iid_sample_law_characterization"
+    },
+    {
+     "mode": "type",
+     "ordinal": 28,
+     "parts": [
+      "type"
+     ],
+     "target": "Checks.ShiftedDefinitions.sign_mixture_sample_law_characterization"
+    }
+   ],
+   "requires": [
+    "Require Checks.ShiftedDefinitions."
+   ]
+  },
   "SnapshotTupleProd": {
    "queries": [
     {

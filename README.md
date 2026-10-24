@@ -48,6 +48,24 @@ latent-sign law by an explicit exponential. Phase 11 extends the optimal
 condition-number theorem, with its robust form, to every fourth moment
 kappa > 1.
 
+The shifted-Gaussian extension proves seven theorems on samples translated
+by deterministic shifts m_d (`extension/README.md`, section (k)). For
+i.i.d. N(m_d, I_d) points with ||m_d|| = o(sqrt d), the threshold alpha_C
+of an exact fit of condition number at most C and the limit C_star(alpha)
+of the optimal condition number are those of centered Gaussian points. For
+arbitrary shifts the threshold of a positive semidefinite fit stays 1/4.
+Below it the optimal condition number is of order 1 + ||m_d|| / sqrt d;
+above it one event excludes every quadric with nonzero positive
+semidefinite quadratic part, whatever its linear and constant terms. At
+every density the optimal fitting error keeps its Gaussian limit
+e*(alpha, 3). For finite or countable mixtures of product laws as in
+phases 6 and 8 whose point law is centrally symmetric, quadrics are
+excluded in the same way above alpha*(kappa). Below alpha*(kappa), shifts
+supported on o(d) coordinates still leave a positive definite fit for these
+mixtures, and this needs no symmetry. The mixtures of the translates by m_d
+and -m_d of a centrally symmetric law give the same centered-fitting
+statistics as the translate by m_d.
+
 `applications/` (phase 12) formalizes, over an arbitrary `R : realType`,
 seven theorems of manuscripts of the OpenAI math collection whose proofs
 reuse the library (see below). Phase 13 adds four more, among them the
@@ -117,6 +135,41 @@ lifts.
   finite or countable family of fourth moment kappa. At kappa = 3 the
   curve and its inverse are alpha_C and C_star(alpha), and the statements
   of phase 11 imply those of phases 8 and 10.
+- **Translated samples, proved.** The shifted-Gaussian extension proves
+  seven theorems, each stated in a file at the top of `extension/` and
+  proved in a file of `extension/Shifted/`:
+  `shifted_condition_theorem : shifted_condition_statement` (S1,
+  `ShiftedConditionStatement.v`, `Shifted/ConditionTheorem.v`), the
+  threshold and the optimal condition number for small shifts;
+  `shifted_gaussian_theorem : shifted_gaussian_statement` (S2,
+  `ShiftedGaussianStatement.v`, `Shifted/GaussianTheorem.v`), the bounds of
+  order 1 + ||m_d|| / sqrt d on the optimal condition number for arbitrary
+  shifts; `shifted_quadric_theorem : shifted_quadric_statement` (S3,
+  `ShiftedQuadricStatement.v`, `Shifted/QuadricTheorem.v`), the exclusion
+  of quadrics above 1/4; `shifted_error_theorem : shifted_error_statement`
+  (S4, `ShiftedErrorStatement.v`, `Shifted/ErrorTheorem.v`), the limit of
+  the fitting error, and of its infimum over all translations, at every
+  density; `shifted_mixture_unsat_theorem : shifted_mixture_unsat_statement`
+  (S5, `ShiftedMixtureUnsatStatement.v`, `Shifted/MixtureUnsatTheorem.v`),
+  the exclusion of quadrics for symmetric mixtures above alpha*(kappa);
+  `shifted_mixture_sat_theorem : shifted_mixture_sat_statement` (S6,
+  `ShiftedMixtureSatStatement.v`, `Shifted/MixtureSatTheorem.v`), positive
+  definite fits for shifts on o(d) coordinates below alpha*(kappa), without
+  symmetry; and `shifted_sign_theorem : shifted_sign_statement` (S7,
+  `ShiftedSignStatement.v`, `Shifted/SignTheorem.v`), the sign mixtures.
+  The user accepted the seven statement files at commit `51c2e14` on 16
+  October 2026; they are frozen, and `make check` checks that their code is
+  unchanged since that commit. `check/ShiftedDefinitions.v` protects the
+  29 definitions of other files that they unfold to and that no earlier
+  check protects (see "What to read"). Each theorem uses seven of the eight
+  classical axioms of the first theorem, all but `Classical_Prop.classic`
+  (`check/ShiftedConditionAssumptions.v` to
+  `check/ShiftedSignAssumptions.v`), and `check/ShiftedIdentities.v` checks
+  each theorem against its frozen statement, as `check/Phase14Identities.v`
+  does for phase 14. Step 18 merged the extension into `main` under the
+  repaired checker (tag `shifted`).
+  `extension/README.md`, section (k), describes the extension. No claim
+  of novelty is made.
 - **Seven theorems of the OpenAI math collection (phase 12), proved.**
   `applications/` proves, over an arbitrary `R : realType` and from the
   library, the frozen statements of seven targets, which the user accepted
@@ -348,6 +401,7 @@ lifts.
   (`check/MixtureAssumptions.v`, `check/PairedAssumptions.v`,
   `check/LatentSignAssumptions.v`). `extension/README.md`, section (f),
   describes the definitions, the statements and the proofs.
+
 ## What to read
 
 The proof is checked by the kernel, so only the statement needs to be read.
@@ -381,6 +435,50 @@ points, the interpolation property); those of its corollaries are
 `extension/PairedStatement.v` and `extension/LatentSignStatement.v`, over
 `extension/PairedDefinitions.v` and `extension/LatentSignDefinitions.v`.
 Each has a comment that reads it.
+
+The statements of the shifted-Gaussian extension are the seven files
+`extension/ShiftedConditionStatement.v` to
+`extension/ShiftedSignStatement.v`, each with a comment that describes it;
+section (k) of `extension/README.md` reads them. Their theorems are in
+`extension/Shifted/` (`ConditionTheorem.v` to `SignTheorem.v`). Besides
+the frozen definitions of `theories/` and of `extension/`
+(`UniversalityDefinitions.v`, `ConditionDefinitions.v`,
+`MixtureDefinitions.v` and `CountableMixtureDefinitions.v`) and the library
+definitions protected before (below), they unfold to 29 definitions of
+other files, which `check/ShiftedDefinitions.v` protects:
+
+- the translation of a sample, `sample_translate`
+  (`extension/Shifted/Translations.v`), through its row layout
+  (`sample_row_tuple`, `sample_of_row_tuple`, `sample_flat_row` and
+  `sample_flat_col`, `Shifted/GaussianRows.v`); the fitting error
+  minimized over all translations, `translation_fitting_error`
+  (`Shifted/TranslationError.v`); and the small-shift hypothesis
+  `gaussian_small_shift` (`Shifted/GaussianCondition.v`);
+- the law of one point of a finite or countable mixture, `finite_row_law`
+  and `countable_row_law` (`Shifted/MixtureRows.v`), through `point_law`
+  (`extension/Sat/AprioriSparse.v`) and `row_of_tuple`
+  (`theories/Gaussian/Law/LibraryBridge.v`); and the laws of samples of
+  translated points and of their sign mixtures, `row_sample_map`,
+  `iid_row_sample_law`, `shifted_iid_sample_law` and
+  `sign_mixture_sample_law` (`Shifted/SignMixture.v`);
+- in the library: `row_symmetric_law`, `row_shift`, `row_shift_law`,
+  `sign_shift_weights`, `sign_shift_law` and `row_outer`
+  (`probability/symmetric_shift.v`), `quadric_eval`
+  (`matrix/quadric_certificate.v`), `coordinate_support`
+  (`matrix/coordinate_blocks.v`), `family_sequence_limit`
+  (`analysis/family_reindexing.v`), `mixture` and `mixture_weights`
+  (`probability/mixture.v`), `cmixture` and `cmixture_weights`
+  (`probability/countable_mixture.v`), and `tuple_map`
+  (`probability/tuple_rows.v`).
+
+The library definitions protected before are the section `tuple_prod` of
+`library/probability/lindeberg.v`, which is pinned, and `gauss`, `mxdot`,
+`frobenius`, `psdmx` and the measurable structure of matrices, which
+`check/ApplicationsDefinitions.v` characterizes. The other constants that
+the statements reach are generated by Hierarchy Builder for the
+definitions above, or are opaque lemmas, helpers used only inside `gauss`,
+or the display tag of the measurable structure of matrices
+(`extension/README.md`, section (k)).
 
 ## Building
 
@@ -431,8 +529,9 @@ generated`), whose code cannot change. The other modules print none.
   14 subfolders of `Gaussian/` divide its modules further:
   `theories/Gaussian/C/D.v` is the module `EllipsoidFitting.Gaussian.C.D`.
 - `extension/`: the universality theorem, the finite-mixture theorem and
-  its corollaries, under the logical root `EllipsoidUniversality` and at
-  Stdlib's `R` like `theories/`. At the top: the statements and their
+  its corollaries, and the theorems on translated samples, under the
+  logical root `EllipsoidUniversality` and at Stdlib's `R` like
+  `theories/`. At the top: the statements and their
   definitions, and the theorems `UniversalityTheorem.v`
   (`universality_theorem`), `MixtureTheorem.v` (`mixture_theorem`),
   `PairedTheorem.v` (`paired_theorem`), `LatentSignTheorem.v`
@@ -448,7 +547,10 @@ generated`), whose code cannot change. The other modules print none.
   `ConditionKappaCurveTheorem.v` (`condition_kappa_curve_theorem`),
   `ConditionKappaTheorem.v` (`condition_kappa_theorem`) and
   `ConditionKappaRobustTheorem.v` (`condition_kappa_robust_theorem`). The
-  folders of the proofs:
+  seven statement files of the shifted-Gaussian extension,
+  `ShiftedConditionStatement.v` to `ShiftedSignStatement.v`, are also at
+  the top, but their theorems are in `Shifted/` (`ConditionTheorem.v` to
+  `SignTheorem.v`), unlike the earlier theorems. The folders of the proofs:
   `Model/` (the law of the sample and the measurability of the events),
   `Features/` (the quadratic features of the points, and those of a
   mixture), `Unsat/` (the unsatisfiable phase), `Gaussian/` (the Gaussian
@@ -459,13 +561,18 @@ generated`), whose code cannot change. The other modules print none.
   conditional laws), `Countable/` (the truncation of a countable mixture,
   the transfer of the theorem, robustness in total variation and the
   continuous latent mixture), `Condition/` (the condition-number
-  theorem, the endpoints of its curve and its robustness) and
+  theorem, the endpoints of its curve and its robustness),
   `ConditionKappa/` (the condition-number theorem at every fourth moment
   kappa > 1: the curve, the Gaussian limit, the Gaussian witness and gap,
-  the two halves of the threshold, and the countable and robust versions).
+  the two halves of the threshold, and the countable and robust versions)
+  and `Shifted/` (translated samples: translations and the fitting error
+  minimized over them, the Gaussian condition limits and bounds, the
+  reserve certificate and the exclusion of quadrics, symmetric and
+  sparse-shift mixtures, sign mixtures, and the seven theorems).
   `extension/README.md` holds the feasibility study of phase 5 and, in its
-  sections (f) to (j), the description of phases 6 to 11.
-- `library/`: the library `GaussianAnalysis`, 96 files of general results
+  sections (f) to (k), the description of phases 6 to 11 and of the
+  shifted-Gaussian extension.
+- `library/`: the library `GaussianAnalysis`, 128 files of general results
   over an arbitrary `R : realType`: Gaussian measures, Gaussian comparison
   and concentration, real matrices and probability; the Fourier analysis
   of anti-concentration (characteristic functions written without complex
@@ -488,17 +595,25 @@ generated`), whose code cannot change. The other modules print none.
   variation distance and its bound for products, and the atoms of a finite
   measure; and those of phase 11: the maximizer of a trace-penalized
   quadratic on a closed convex set of matrices, and the problem over
-  clipped profiles of a symmetric law, with its dual form. The proofs use
-  the library at Stdlib's `R`: in
-  `theories/`, `Gaussian/Law/LibraryBridge` identifies the library's
+  clipped profiles of a symmetric law, with its dual form; and those of
+  the shifted-Gaussian extension: certificates that exclude quadrics,
+  centered corrections and translations, condition numbers under
+  perturbation, coordinate blocks, the variance of quadratic matrix series,
+  laws of symmetric rows under opposite shifts and their sign mixtures,
+  isotropic rows and mixtures, independent row signs and matrix blocks,
+  Rademacher matrix series, centered reserve corrections and their
+  convergence, closest points of linear images of a compact convex set, and
+  the measurability of infima. The proofs use the library at Stdlib's `R`:
+  in `theories/`, `Gaussian/Law/LibraryBridge` identifies the library's
   Gaussian measure with the product law of the statement,
   `Analysis/RealsBridge` rewrites Stdlib's real functions into MathComp's,
   and 23 other modules of `theories/` require library files directly, as
   do the modules of `extension/`.
   `library/README.md` gives its conventions, its main results and their
   users. Phase 5 added the directories `convex/` and `random_matrix/`,
-  phase 13 `analysis/` (real sequences) and `combinatorics/` (finite
-  combinatorics with no field).
+  phase 13 `analysis/` (real sequences; the shifted-Gaussian extension
+  added infima of families of continuous functions and families indexed by
+  the dimension) and `combinatorics/` (finite combinatorics with no field).
 - `applications/`: Rocq formalizations of theorems of manuscripts of the
   OpenAI math collection (`openai/math` at revision 1581d4cbd) whose proofs
   reuse the library, under the logical root `GaussianApplications` and over
@@ -540,10 +655,16 @@ generated`), whose code cannot change. The other modules print none.
   `check/SatThresholdAssumptions.v`, `check/PsdNormalizationAssumptions.v`,
   `check/ProductSmoothingAssumptions.v` and
   `check/MinSuperadditiveAssumptions.v` for the four theorems of phase 13
-  (T9 to T12), and `check/PsdRankAssumptions.v` and
-  `check/PsdLiftAssumptions.v` for the two of phase 14 (T13, T14), with the
-  expected lists of the same names
-  (`check/matrix_series_assumptions.expected` and so on).
+  (T9 to T12), `check/PsdRankAssumptions.v` and
+  `check/PsdLiftAssumptions.v` for the two of phase 14 (T13, T14), and
+  `check/ShiftedConditionAssumptions.v`,
+  `check/ShiftedGaussianAssumptions.v`, `check/ShiftedQuadricAssumptions.v`,
+  `check/ShiftedErrorAssumptions.v`,
+  `check/ShiftedMixtureUnsatAssumptions.v`,
+  `check/ShiftedMixtureSatAssumptions.v` and
+  `check/ShiftedSignAssumptions.v` for the seven theorems of the
+  shifted-Gaussian extension (step 18), with the expected lists of the
+  same names (`check/matrix_series_assumptions.expected` and so on).
   `check/ApplicationsDefinitions.v` states a characterization of each
   library definition that the frozen statements of `applications/` unfold
   to (`mxdot`, `frobenius`, `opnorm`, `psdmx`, `goe_mx`, the measurable
@@ -558,8 +679,8 @@ generated`), whose code cannot change. The other modules print none.
   `linear_op`, `monotone_op` and `meet_avg`, freeze 2 `bdot`, `bchar`,
   `blk_deg`, `blk_dist`, `fcoef`, `low_blk_deg`, `prob_vec`, `prod_avg`,
   `smoothing_hyps`, `weighted_gram` and `psd_factorization`, and freeze 3
-  `psd_eval` and `psd_eval_cone`. `make check` compiles it into
-  `build/phase13_definitions.txt`, a required output.
+  `psd_eval` and `psd_eval_cone`. `make check` compiles it and requires
+  its report.
   `check/LibraryStatements.v` states in full each general statement of the
   library that the user accepted in phase 13, the 70 entries of the
   acceptance inventory of `scripts/check_sources.py`, and proves each by
@@ -571,6 +692,14 @@ generated`), whose code cannot change. The other modules print none.
   report of each. `check/Phase14Identities.v` and `check/Phase14Reports.v`
   do for phase 14 what `check/TheoremIdentities.v` and `check/Reports.v`,
   which are pinned, do for the earlier phases.
+  `check/ShiftedDefinitions.v` does the same as `check/Phase13Definitions.v`
+  for the shifted-Gaussian extension: it states a characterization of each
+  of the 29 definitions that the frozen statements of the extension unfold
+  to and that no earlier check protects, proved by computation; `make
+  check` requires its report. `check/ShiftedIdentities.v` and
+  `check/ShiftedReports.v` do for the seven theorems of the extension and
+  for these characterizations what `check/Phase14Identities.v` and
+  `check/Phase14Reports.v` do for phase 14.
   `check/TheoremIdentities.v` requires the statement and theorem modules of
   the 28 theorems without importing them and defines, for each, by absolute
   names, `<theorem>_identity` with the frozen statement as its type and the
@@ -604,6 +733,12 @@ generated`), whose code cannot change. The other modules print none.
   which do not exist at 39f5846, and where the five `_statement`
   definitions still have their text of 39f5846. The other snapshots of
   phase 14 are taken at 39f5846.
+  `SnapshotShifted` prints the seven statement files of the
+  shifted-Gaussian extension against a build of their acceptance commit
+  51c2e14, and the characterization snapshot `SnapshotShiftedDefinitions`
+  the lemmas of `check/ShiftedDefinitions.v` against a build of 7c370d9,
+  where that file was written; the code of `library/` and `extension/` is
+  the same at the two commits.
   `check/identity/` holds the identity layer of the snapshots (the repair
   E42): a printed name can resolve to another constant than at the
   acceptance commit while the print stays the same. For each snapshot that
@@ -614,7 +749,7 @@ generated`), whose code cannot change. The other modules print none.
   is the reference, the kernel names (user and canonical) of every
   constant, inductive, constructor and projection of each term at its
   position, from a build of the acceptance commit; `inventory.json` lists
-  the 442 queries of the 21 drivers, and `REFERENCES.json` records the
+  the 494 queries of the 23 drivers, and `REFERENCES.json` records the
   commit, the toolchain and the hashes. The sidecars hold no universe (the
   printed snapshots keep them); they identify names and do not fix what a
   name means, which the frozen files, the pinned sections and the
@@ -638,13 +773,15 @@ generated`), whose code cannot change. The other modules print none.
   statement and definitions files of batch 2 the same code as at commit
   `0d5afba`, and the three statement files of batch 1 of phase 13, the two
   of batch 2 and the two of batch 3 the same code as at commit `46e45c8`,
-  at which the user accepted the statements of phase 13, and the two
+  at which the user accepted the statements of phase 13, the two
   statement files of the corollary of phase 14 the same code as at commit
-  `39f5846` (comments may
+  `39f5846`, and the seven statement files of the shifted-Gaussian
+  extension the same code as at commit `51c2e14`, at which the user
+  accepted them (comments may
   differ; the text is read as Rocq reads it, by `scripts/rocq_lex.py`, and a
   non-ASCII character outside comments is refused); that
-  `check/ApplicationsDefinitions.v`
-  has its fixed code, and `check/Phase13Definitions.v` the code of its
+  `check/ApplicationsDefinitions.v` and `check/ShiftedDefinitions.v`
+  have their fixed code, and `check/Phase13Definitions.v` the code of its
   last freeze, the code of each earlier freeze being a prefix of it; that
   each entry of the acceptance inventory, the general statements of the
   library accepted in phase 13 with their full propositions as `Print`
@@ -663,9 +800,10 @@ generated`), whose code cannot change. The other modules print none.
   that the extension of phase 14 changes (`scripts/snapshot_baselines.py`,
   `scripts/identity_sidecars.py` and the three reference indexes), which,
   with the check files, snapshots, references and drivers that the
-  extension adds, are byte-identical to its commit P (`bdcb12c`); that the
-  Require
-  commands of
+  extension adds, are byte-identical to its commit P (`bdcb12c`), except
+  the four of these five that step 18 changes again
+  (`scripts/snapshot_baselines.py` and the three reference indexes), which
+  have a fixed SHA-256 instead; that the Require commands of
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which
   the frozen statements depend, have the same code as at commit `c3e555e`;
   that no module of `theories/`,
@@ -678,20 +816,27 @@ generated`), whose code cannot change. The other modules print none.
   `scripts/run_checks.py` wrote in this run (the checker creates the run
   identifier and starts the runner; the manifest records the sources, the
   outputs and the toolchain), each with exactly the reports it must print,
-  every report complete; that the axioms of each theorem are among its
-  expected ones,
-  each expected list being part of the first, and those of phase 13 part
-  of the seven of `check/sat_variance_assumptions.expected` (without
+  every report complete; that the theorem check files of its table
+  correspond one to one to the theorems it checks, and that every `.v`
+  file under `check/`, outside `check/regression/`, is compiled by the
+  runner or is one of the four historical files of `check/snapshots/` (two
+  guards, applied before the build, so that a merge cannot leave a check
+  file out); that the axioms of each theorem are among its expected ones,
+  each expected list being part of the first, and those of phases 13 and
+  14 and of the shifted-Gaussian extension part of the seven of
+  `check/sat_variance_assumptions.expected` (without
   `Classical_Prop.classic`); and that `check/LibraryStatements.v` has its
   fixed code, states the recorded proposition of each entry of the
   inventory, and has a complete report within the same seven axioms;
   that each statement snapshot equals its reference, that the references
   of each identity driver equal theirs, and that each project constant a
-  frozen or accepted statement names is frozen, pinned or characterized; that no source contains a forbidden command (assumptions,
+  frozen or accepted statement names is frozen, pinned or characterized;
+  that no source contains a forbidden command (assumptions,
   typing-flag bypasses, plugin and file commands, Elpi commands, global
   settings and exports in `library/`, `extension/` and `applications/`); and
   that the Makefile and every script other than the checker itself have
-  the bytes of the repair commit (most of them also a fixed hash),
+  their fixed bytes (those of the repair commit, or, for the scripts that
+  phase 14 and step 18 changed, the hashes that the checker records),
   `scripts/` holds exactly its listed files, `_CoqProject` has its fixed
   options, git tracks no build product, and none of `GNUmakefile`, `makefile`,
   `Makefile.rocq.local` and `Makefile.rocq.local-late` exists. `make check`
@@ -741,6 +886,11 @@ generated`), whose code cannot change. The other modules print none.
   is not checked: it cites the Lean sources of the collection. `make
   citations` runs it, and `make check` fails on a stale citation
   (`CITATIONS=no` skips it).
+- `doc/shifted-gaussian.tex`: the informal proof of the seven theorems on
+  translated samples, *Centered ellipsoid fitting for non-centered Gaussian
+  data*, with its bibliography `doc/statements.bib`. Its Appendix A names
+  the frozen statement and the theorem of each of its results, and records
+  where the formal proof departs from the text.
 
 ## Where the proof comes from
 
@@ -815,8 +965,9 @@ done, and the second is done in part.
    after phase 6, 78 files and 51,203 lines after phase 8, 80 files and
    51,666 lines after phase 9, 80 files and 51,796 lines after phase 10,
    82 files and 53,142 lines after phase 11, 94 files and 58,531 lines
-   after phase 12, 102 files and 63,058 lines after phase 13, and has
-   105 files and 64,825 lines after phase 14.
+   after phase 12, 102 files and 63,058 lines after phase 13,
+   105 files and 64,825 lines after phase 14, and has 128 files and
+   72,331 lines after the shifted-Gaussian extension (step 18).
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
@@ -875,3 +1026,9 @@ accepted (tag `phase13`). Phase 14 proved the PSD rank theorem of the
 second manuscript and its corollary on the unshifted matrices and exact
 semidefinite lifts, with three new library files, and checks the five
 general statements of the library that the user accepted (tag `phase14`).
+Step 18 merged the shifted-Gaussian extension, proved on the user's
+machine in October: seven theorems on translated samples of Gaussian
+points, of finite and countable mixtures of product laws and of sign
+mixtures, with 23 new library files. Its statements were accepted at
+commit `51c2e14` and are frozen, and the repaired checker checks it (tag
+`shifted`).
