@@ -803,7 +803,11 @@ generated`), whose code cannot change. The other modules print none.
   extension adds, are byte-identical to its commit P (`bdcb12c`), except
   the four of these five that step 18 changes again
   (`scripts/snapshot_baselines.py` and the three reference indexes), which
-  have a fixed SHA-256 instead; that the Require commands of
+  have a fixed SHA-256 instead; that the 17 check files and expected
+  lists that step 18 adds, with its 12 files of machinery (its two
+  snapshots and two identity drivers with their references, and those four
+  files), are byte-identical to the step 18 integration commit
+  (`cc6fc9d`, rule 39); that the Require commands of
   `library/probability/lindeberg.v` and its section `tuple_prod`, on which
   the frozen statements depend, have the same code as at commit `c3e555e`;
   that no module of `theories/`,

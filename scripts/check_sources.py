@@ -299,7 +299,7 @@
    code-fixed file is a failure.
    (b) Compilation. make check first runs this script with --before-build,
    which applies every rule that reads only the sources (rules 1 to 3, 7 to
-   29 and 32 to 38, and those of rule 30 that read no compiled file), and
+   29 and 32 to 39, and those of rule 30 that read no compiled file), and
    stops on a
    failure before anything compiles, since a source that breaks them can
    run code during the build (E37). It then builds, and runs this script
@@ -500,7 +500,7 @@
    a separate baseline. The older baselines, the pin of rule 31 for every
    other file and check/frozen-baseline do not change. Since rule 38, the
    four files of SHIFTED_CHANGED, which step 18 changes, are left out of
-   this comparison and fixed by FIXED_FILES instead.
+   this comparison and fixed by FIXED_FILES instead; rule 39 pins them.
 36. Step 18, the shifted freeze (the user's acceptance of the seven
    statement files of the shifted-Gaussian extension on 16 October 2026,
    and the user's approval of the step 18 amendment on 23 October 2026,
@@ -547,6 +547,16 @@
    check/identity/REFERENCES.json), by additions; rule 35 applies to the
    other files, and these four, like every file that step 18 adds, have
    their SHA-256 in FIXED_FILES or their code in NEW_CHECK_CODE.
+39. Step 18, the pin. The seventeen files of CHECKS_EXACT_SHIFTED (the seven
+   axiom checks of rule 37 with their expected lists,
+   check/ShiftedDefinitions.v, check/ShiftedIdentities.v and
+   check/ShiftedReports.v) and the twelve files of MACHINERY_SHIFTED (the
+   four files of SHIFTED_CHANGED, the two snapshot files of rule 38 with
+   their references, and their two identity drivers with their references)
+   are byte-identical to the commit CHECKS_SHIFTED_BASELINE (the step 18
+   integration commit), a separate baseline. Every file that rule 35 no
+   longer compares is among them. The older baselines, the pins of rules 31
+   and 35 for every other file and check/frozen-baseline do not change.
 """
 
 import argparse
@@ -822,6 +832,42 @@ SHIFTED_FROZEN = [
     "extension/ShiftedSignStatement.v",
 ]
 SHIFTED_BASELINE = "51c2e14d5c2d75469f8147901bc8f664d33d4b6c"
+# Rule 39: the files that the step 18 integration commit adds or changes in
+# check/ and the machinery, pinned to it.
+CHECKS_EXACT_SHIFTED = [
+    "check/ShiftedConditionAssumptions.v",
+    "check/ShiftedGaussianAssumptions.v",
+    "check/ShiftedQuadricAssumptions.v",
+    "check/ShiftedErrorAssumptions.v",
+    "check/ShiftedMixtureUnsatAssumptions.v",
+    "check/ShiftedMixtureSatAssumptions.v",
+    "check/ShiftedSignAssumptions.v",
+    "check/shifted_condition_assumptions.expected",
+    "check/shifted_gaussian_assumptions.expected",
+    "check/shifted_quadric_assumptions.expected",
+    "check/shifted_error_assumptions.expected",
+    "check/shifted_mixture_unsat_assumptions.expected",
+    "check/shifted_mixture_sat_assumptions.expected",
+    "check/shifted_sign_assumptions.expected",
+    "check/ShiftedDefinitions.v",
+    "check/ShiftedIdentities.v",
+    "check/ShiftedReports.v",
+]
+MACHINERY_SHIFTED = [
+    "scripts/snapshot_baselines.py",
+    "check/snapshots/REFERENCES.json",
+    "check/identity/inventory.json",
+    "check/identity/REFERENCES.json",
+    "check/snapshots/SnapshotShifted.v",
+    "check/snapshots/SnapshotShifted.txt",
+    "check/snapshots/SnapshotShiftedDefinitions.v",
+    "check/snapshots/SnapshotShiftedDefinitions.txt",
+    "check/identity/IdentitySnapshotShifted.v",
+    "check/identity/IdentitySnapshotShifted.json",
+    "check/identity/IdentitySnapshotShiftedDefinitions.v",
+    "check/identity/IdentitySnapshotShiftedDefinitions.json",
+]
+CHECKS_SHIFTED_BASELINE = "cc6fc9d49c73f74e0bccdb7f7a7d5716ce02958a"
 # Rule 38: the files of rule 35 that step 18 changes.
 SHIFTED_CHANGED = [
     "scripts/snapshot_baselines.py",
@@ -3389,6 +3435,7 @@ def main():
                  if p not in P14_CHANGED], CHECKS_P13_BASELINE)
     exact_bytes([p for p in CHECKS_EXACT_P14 + MACHINERY_P14 if p not in SHIFTED_CHANGED],
                 CHECKS_P14_BASELINE)
+    exact_bytes(CHECKS_EXACT_SHIFTED + MACHINERY_SHIFTED, CHECKS_SHIFTED_BASELINE)
     pinned_section(TUPLE_PROD, "tuple_prod", CHECKS_BASELINE)
     frozen(PHASE13_B1_FROZEN, PHASE13_B1_BASELINE)
     frozen(PHASE13_B2_FROZEN, PHASE13_B2_BASELINE)
