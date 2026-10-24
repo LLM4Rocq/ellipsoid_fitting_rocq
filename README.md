@@ -971,7 +971,7 @@ done, and the second is done in part.
    82 files and 53,142 lines after phase 11, 94 files and 58,531 lines
    after phase 12, 102 files and 63,058 lines after phase 13,
    105 files and 64,825 lines after phase 14, and has 128 files and
-   72,331 lines after the shifted-Gaussian extension (step 18).
+   72,337 lines after the shifted-Gaussian extension (step 18).
 3. The comments no longer describe how the modules were produced, and the
    modules are renamed and grouped in folders.
 
