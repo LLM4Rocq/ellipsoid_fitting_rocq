@@ -1,7 +1,14 @@
 (* Complement dimensions for a vanishing coordinate fraction.
-   If h(d)/d tends to zero, p(d)=d-h(d) tends to infinity and preserves
-   quadratic sample density. The combined density and head-fraction
-   statistic is the scalar input to family_eventually_reindex. *)
+   If h(d)/d tends to zero, p(d)=d-h(d) is cofinal (tends to infinity),
+   h/p tends to zero and p preserves the quadratic sample density;
+   SparseShift.v uses these three limits. For every cofinal sequence q
+   and every fixed natural power, that power of log q divided by sqrt q
+   vanishes (sparse_log_sqrt_cofinal); SparseTargetRates.v uses it, with
+   sparse_square_limit. The reindexing of SparseInputs.v applies
+   family_eventually_reindex with the sample density n/q^2 alone as its
+   scalar statistic; the combined density and head-fraction statistic of
+   sparse_combined_stat_limit (with sparse_combined_stat_decompose and
+   sparse_error_stat_limit) is proved here but used by nothing else. *)
 
 From Stdlib Require Import Reals.
 From HB Require Import structures.
