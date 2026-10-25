@@ -1900,8 +1900,16 @@ and says that its list is not exhaustive. The main departures:
   argument. The formal constant suffices for the reserve error to be
   `o_P(sqrt d)`.
 - The condition lower bound uses a centered sample-covariance deviation
-  estimate for independent isotropic subgaussian rows, with the raw
-  quadratic adjoint bound; no separate centered Wishart limit is proved.
+  estimate for independent isotropic subgaussian rows
+  (`isotropic_centered_covariance_event`,
+  `library/random_matrix/isotropic_rows.v`, used in
+  `Shifted/ConditionLower.v`), with the raw quadratic adjoint bound; no
+  separate centered Wishart limit is proved. This replaced the route of
+  the formalization plan (outside the repository), which combined the
+  adjoint estimate with the singular-value tail `gauss_proj_singular_tail`
+  (`library/comparison/escape.v`) applied directly to the centered
+  matrix of the points `P_n G`, `P_n` the orthogonal projection onto the
+  vectors of `R^n` with coordinate sum zero.
 - The note states that the Gaussian reserve Gram matrix is invertible
   almost surely for large dimensions. The formal proof defines the
   correction to be zero at a singular matrix, and
