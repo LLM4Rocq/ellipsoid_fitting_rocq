@@ -59,7 +59,8 @@ mixtures, positive definite fits below the unshifted threshold also
 exist for arbitrary shifts supported on $o(d)$ coordinates. The general
 mixture inputs and the conclusions of this note are proved in Rocq. The
 conclusions are seven public propositions, each proved by a theorem;
-their statements are frozen with the repository's existing checker.
+their statements are frozen with the repository's checker, and the
+formalization is released under the tag \texttt{shifted}.
 Appendix~\ref{app:sources} names them and records several differences
 between the proofs, including a sparse-shift existence theorem that
 does not require symmetry. In particular, two supporting assertions of
@@ -1245,25 +1246,30 @@ these non-Gaussian mixtures is not established by the present argument.
 \label{app:sources}
 \begingroup\raggedright\setlength{\parindent}{17pt}
 
-The conclusions of this note are seven public propositions of the local
-Rocq development, listed below with the seven theorems that prove them.
-Their statement files were written at commit \texttt{51c2e14} on branch
-\texttt{local/shifted-gaussian}, based on \texttt{e34ddcf}; the
-supporting modules were complete at \texttt{9408427}. The statements
-were accepted at \texttt{51c2e14} and are frozen with the repository's
-existing checker. \path{scripts/check_sources.py} compares their code
-with that commit. The project definitions that they unfold to are
-either in frozen files or already protected by earlier checks, or
-among the 29 that \path{check/ShiftedDefinitions.v} fixes by
-characterizations proved by computation. Each theorem has an axiom check file, such as
-\path{check/ShiftedConditionAssumptions.v}, that compiles only if the
-theorem proves its frozen statement, and \path{check/ShiftedIdentities.v}
-checks the seven together. The work is not released: the pin of the
-new check files and the release tag wait for the acceptance of a
-separate repair of the verification machinery. The modules compiled
-with Rocq 9.1.1 and passed axiom audits, independent source reviews and
-recursive kernel checking. The references below point to the modules at
-\texttt{51c2e14}.
+The conclusions of this note are seven public propositions of the Rocq
+development, listed below with the seven theorems that prove them. The
+formalization is released under the annotated tag \texttt{shifted} of
+the repository, placed on 24 October 2026 on commit
+\texttt{305747af48d4f75e26378888a8111d591145fa52}, the final commit of
+step 18, the step that merged the extension onto phase 14 under the
+repaired checker. The statement files were accepted at commit
+\texttt{51c2e14d5c2d75469f8147901bc8f664d33d4b6c} on 16 October 2026
+and are frozen: rule 36 of \path{scripts/check_sources.py} compares
+their code with that commit. The project definitions that they unfold
+to are either in frozen files or already protected by earlier checks,
+or among the 29 that \path{check/ShiftedDefinitions.v} fixes by
+characterizations proved by computation. Each theorem has an axiom
+check file, such as \path{check/ShiftedConditionAssumptions.v}, that
+compiles only if the theorem proves its frozen statement, and
+\path{check/ShiftedIdentities.v} checks the seven together (rule 37);
+snapshots print the frozen statements and the characterizations
+against builds of the commits at which they were written, and identity
+drivers fix the kernel names that they use (rule 38); the check files
+and the machinery of the extension are pinned, byte for byte, to the
+integration commit \texttt{cc6fc9d49c73f74e0bccdb7f7a7d5716ce02958a}
+(rule 39). The modules compiled with Rocq 9.1.1 and passed axiom
+audits, independent source reviews and recursive kernel checking. The
+references below point to the modules at the tag \texttt{shifted}.
 
 The distinction is between conclusions and proof routes: some supporting
 claims in the text are stronger than the estimates used in Rocq, and
@@ -1280,31 +1286,38 @@ The statement files are at the top of \path{extension/}, and the
 theorem files are in \path{extension/Shifted/}.
 \begin{itemize}
 \item Theorem~\ref{thm:shifted}: \path{shifted_condition_statement} in
-  \path{ShiftedConditionStatement.v}, proved by
-  \path{shifted_condition_theorem} in \path{ConditionTheorem.v}.
+  \path{extension/ShiftedConditionStatement.v}, proved by
+  \path{shifted_condition_theorem} in
+  \path{extension/Shifted/ConditionTheorem.v}.
 \item Theorem~\ref{thm:unrestricted}, part~1:
-  \path{shifted_gaussian_statement} in \path{ShiftedGaussianStatement.v},
-  proved by \path{shifted_gaussian_theorem} in \path{GaussianTheorem.v}.
+  \path{shifted_gaussian_statement} in
+  \path{extension/ShiftedGaussianStatement.v}, proved by
+  \path{shifted_gaussian_theorem} in
+  \path{extension/Shifted/GaussianTheorem.v}.
 \item Theorem~\ref{thm:unrestricted}, part~2:
-  \path{shifted_quadric_statement} in \path{ShiftedQuadricStatement.v},
-  proved by \path{shifted_quadric_theorem} in \path{QuadricTheorem.v}.
+  \path{shifted_quadric_statement} in
+  \path{extension/ShiftedQuadricStatement.v}, proved by
+  \path{shifted_quadric_theorem} in
+  \path{extension/Shifted/QuadricTheorem.v}.
 \item Theorem~\ref{thm:shifted-error}: \path{shifted_error_statement} in
-  \path{ShiftedErrorStatement.v}, proved by \path{shifted_error_theorem}
-  in \path{ErrorTheorem.v}.
+  \path{extension/ShiftedErrorStatement.v}, proved by
+  \path{shifted_error_theorem} in \path{extension/Shifted/ErrorTheorem.v}.
 \item Theorem~\ref{thm:symmetric-mixtures}, part~1:
   \path{shifted_mixture_unsat_statement} in
-  \path{ShiftedMixtureUnsatStatement.v}, proved by
-  \path{shifted_mixture_unsat_theorem} in \path{MixtureUnsatTheorem.v}.
+  \path{extension/ShiftedMixtureUnsatStatement.v}, proved by
+  \path{shifted_mixture_unsat_theorem} in
+  \path{extension/Shifted/MixtureUnsatTheorem.v}.
 \item Theorem~\ref{thm:symmetric-mixtures}, part~2:
   \path{shifted_mixture_sat_statement} in
-  \path{ShiftedMixtureSatStatement.v}, proved by
-  \path{shifted_mixture_sat_theorem} in \path{MixtureSatTheorem.v}.
+  \path{extension/ShiftedMixtureSatStatement.v}, proved by
+  \path{shifted_mixture_sat_theorem} in
+  \path{extension/Shifted/MixtureSatTheorem.v}.
   This statement needs no symmetry.
 \item Remark~\ref{rem:sign-invariance} and the sign-mixture sentences of
   Theorems~\ref{thm:unrestricted}, \ref{thm:shifted-error}
   and~\ref{thm:symmetric-mixtures}: \path{shifted_sign_statement} in
-  \path{ShiftedSignStatement.v}, proved by \path{shifted_sign_theorem}
-  in \path{SignTheorem.v}.
+  \path{extension/ShiftedSignStatement.v}, proved by
+  \path{shifted_sign_theorem} in \path{extension/Shifted/SignTheorem.v}.
 \end{itemize}
 Several statements give, for every $\epsilon>0$ and every sufficiently
 large dimension, a Borel exceptional set of probability at most
@@ -1494,10 +1507,12 @@ lemmas use at most the three \path{boolp} axioms. This is not an
 axiom-free formalization.
 Source review checks the mathematical meanings and quantifiers;
 compilation and kernel checking verify the proofs of those propositions.
-The seven statements are frozen with the existing checker, and
-\texttt{make check} requires their seven axiom reports, 35 reports in
-all. The pin of the new check files and the release tag still depend on
-acceptance of the repaired verification machinery. Dense non-Gaussian
+The seven statements are frozen with the repaired checker (rule 36 of
+\path{scripts/check_sources.py}; rules 37 to 39 cover the axiom
+checks, the snapshots and the pin), and \texttt{make check} requires
+their seven axiom reports, 37 reports in all; at the tag
+\texttt{shifted} it passes in two fresh clones of commit
+\texttt{305747af48d4f75e26378888a8111d591145fa52}. Dense non-Gaussian
 shift existence and exact fitting at the critical density remain outside
 these conclusions.
 \par\endgroup
