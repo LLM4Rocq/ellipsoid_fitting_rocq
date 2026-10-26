@@ -1,5 +1,15 @@
 # Beyond Gaussian points: universality, mixtures, the optimal condition number and translated samples
 
+> Note. Sections (a) to (e) below are the feasibility study of phase 5,
+> kept because comments in the sources cite it. The study is based on
+> commit 3998195. In sections (c) and (d), `README.md` means the top-level
+> README of that commit, and in section (d), `CLAUDE.md` means its agents'
+> rules. The README and the agents' rules as they stood at commit 5893184e
+> are now `doc/details.md` and `doc/history/agent-rules.md`. The files
+> under `notes/` and `reviews/` that sections (f) to (j) cite are on the
+> virtual machine where the agents worked, under `/srv/ellipsoid-fitting/`;
+> they are not public.
+
 ## Existing results
 
 This directory, under the logical root `EllipsoidUniversality`, holds

@@ -1,5 +1,7 @@
 # Correspondence between the paper and the formal proof
 
+> Written on 6 October 2026 and not updated since.
+
 This document compares the Rocq proof in `theories/` with the informal proof
 of the paper, result by result. Correctness is not in question: the kernel
 checks the proof, and the statement and its definitions were reviewed

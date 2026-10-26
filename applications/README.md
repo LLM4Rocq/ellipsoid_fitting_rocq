@@ -3,8 +3,8 @@
 Rocq formalizations of theorems of manuscripts of the OpenAI math
 collection (`openai/math` at revision 1581d4cbd, under the Apache License
 2.0) whose proofs reuse the library `GaussianAnalysis` of `library/`. The
-logical root is `GaussianApplications`; phase 12 of `AGENTS.md` adds the
-directory.
+logical root is `GaussianApplications`; phase 12 of the agents' rules,
+`doc/history/agent-rules.md`, adds the directory.
 
 Each file is a Rocq formalization of a credited argument. Its header cites
 the manuscript (its title and its family number in the collection), the
@@ -48,8 +48,10 @@ statement, the TeX and a Lean statement differ, the header says so.
 
 ## Targets of phase 12
 
-The plan is `/srv/ellipsoid-fitting/notes/phase12-plan.md` (section 3);
-the sources are in `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`.
+The plan, `phase12-plan.md` (section 3), is a record kept outside the
+repository; the section "Phase 12" of `doc/history/agent-rules.md` gives
+the targets and the rules. The sources are in the collection, at revision
+1581d4cbd.
 
 | Target | Manuscript (family) | Statement files | Library files | Proof folder |
 |---|---|---|---|---|
@@ -68,8 +70,10 @@ T7, accepted at `0d5afba`.
 
 ## Targets of phase 13
 
-The plan is `/srv/ellipsoid-fitting/notes/phase13-plan.md` (sections 2
-and 3); the sources are in `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`.
+The plan, `phase13-plan.md` (sections 2 and 3), is a record kept outside
+the repository; the section "Phase 13" of `doc/history/agent-rules.md`
+gives the targets and the rules. The sources are in the collection, at
+revision 1581d4cbd.
 
 | Target | Manuscript (family) | Statement files | Library files | Proof folder |
 |---|---|---|---|---|
@@ -95,8 +99,10 @@ definitions (`Model.v`) and the skeleton of the final step of its proof
 
 ## Targets of phase 14
 
-The plan is `/srv/ellipsoid-fitting/notes/phase14-plan.md` (sections 2
-and 3); the sources are in `/srv/ellipsoid-fitting/papers/openai-math-1581d4c/`.
+The plan, `phase14-plan.md` (sections 2 and 3), is a record kept outside
+the repository; the section "Phase 14" of `doc/history/agent-rules.md`
+gives the targets and the rules. The sources are in the collection, at
+revision 1581d4cbd.
 
 | Target | Manuscript (family) | Statement files | Library files | Proof folder |
 |---|---|---|---|---|

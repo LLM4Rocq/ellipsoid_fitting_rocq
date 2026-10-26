@@ -40,6 +40,11 @@ d8bb8f380183817de780a550701eabc6).
   them. `CLAUDE.md` stays a symbolic link to `AGENTS.md`.
 - New: `CHANGELOG.md` and `doc/README.md`.
 - `.mcp.json` deleted: it started an MCP server that visitors do not have.
+- `library/README.md`: the 75 general statements of the library that the
+  user accepted, in phases 13 and 14. `extension/README.md` and
+  `applications/README.md`: notes on the moved documents and on the
+  records that are not public. `doc/formal_proof.tex` and
+  `doc/paper_correspondence.md`: a line that dates each.
 
 ## shifted (2026-10-24, commit 305747af)
 

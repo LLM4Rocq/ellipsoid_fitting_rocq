@@ -7,8 +7,12 @@ so that parts of it can later be proposed to MathComp-Analysis. It does not
 depend on the ellipsoid fitting papers. The proofs of the theorems in
 `theories/` and `extension/` use it at Stdlib's `R`.
 
-No human has reviewed its statements yet. The table of main results below
-is the place to start.
+Marc Lelarge, called the user in this repository, reviewed and accepted
+75 of its general statements: 70 in phase 13 and 5 in phase 14.
+`check/LibraryStatements.v` and `check/Phase14Statements.v` state each of
+them in full and prove it by its library lemma, and `make check` requires
+their reports. Its other statements have not been accepted in this way.
+The table of main results below is the place to start.
 
 ## Conventions
 
