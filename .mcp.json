@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "rocq": {
-      "command": "opam",
-      "args": ["exec", "--switch=rocq-analysis", "--", "rocq-mcp-evolve"]
-    }
-  }
-}
