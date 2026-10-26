@@ -45,6 +45,8 @@ d8bb8f380183817de780a550701eabc6).
   `applications/README.md`: notes on the moved documents and on the
   records that are not public. `doc/formal_proof.tex` and
   `doc/paper_correspondence.md`: a line that dates each.
+- `README.md`: the [website](https://llm4rocq.github.io/ellipsoid-fitting-web/),
+  first in the list of documents.
 
 ## shifted (2026-10-24, commit 305747af)
 

@@ -122,6 +122,9 @@ run, on 25 October 2026, stopped on a stack overflow during the build.
 
 ## Documents
 
+- [The website](https://llm4rocq.github.io/ellipsoid-fitting-web/) (sources in
+  `LLM4Rocq/ellipsoid-fitting-web`): the results, a guide to GaussianAnalysis
+  with a dated phase 12 browser, how the proofs were made and PDFs of the notes.
 - [doc/README.md](doc/README.md): an index of `doc/`.
 - [doc/details.md](doc/details.md): the former long README, kept as a record,
   with the description of each check; its header names its out-of-date parts.
@@ -132,12 +135,11 @@ run, on 25 October 2026, stopped on a stack overflow during the build.
   [doc/statements.bib](doc/statements.bib): the note *Centered ellipsoid
   fitting for non-centered Gaussian data*, the informal proof of S1 to S7.
 
-Git does not track PDFs: a PDF, when released, is attached to a GitHub release.
-
 ## Status and versions
 
 AI agents, including Claude and Codex, contributed to the formalization, review
 and documentation under the direction of Marc Lelarge (Inria), who maintains
 this research artifact. Issue reports are welcome; responses may be delayed. The
 mathematical release is the tag `shifted` (24 October 2026, commit `305747af`),
-and [CHANGELOG.md](CHANGELOG.md) lists the tagged versions.
+and [CHANGELOG.md](CHANGELOG.md) lists the tagged versions. Git does not track
+PDFs: a PDF, when released, is attached to a GitHub release.
