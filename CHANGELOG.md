@@ -28,9 +28,9 @@ Three commits. `make check` passed on the tree of each before the commit.
 
 ### The documentation cleanup
 
-Documentation only: no `.v` file, check file, script, `Makefile` or
-`_CoqProject` changes, and the checker reads the content of none of the
-changed paths. `make check` last passed at 5893184e (run
+Documentation and metadata only: no `.v` file, check file, script,
+`Makefile` or `_CoqProject` changes, and the checker reads the content of
+none of the changed paths. `make check` last passed at 5893184e (run
 d8bb8f380183817de780a550701eabc6).
 
 - The README of 1,038 lines moved to `doc/details.md`, and the rules given
@@ -47,6 +47,15 @@ d8bb8f380183817de780a550701eabc6).
   `doc/paper_correspondence.md`: a line that dates each.
 - `README.md`: the [website](https://llm4rocq.github.io/ellipsoid-fitting-web/),
   first in the list of documents.
+- `rocq-ellipsoid-fitting.opam`: metadata only; its `depends` and `build`
+  fields do not change.
+- `.gitignore`: the LaTeX build products and the PDFs under `doc/`,
+  `.vscode/` and `doc/libdoc/`.
+- `LICENSE` (MIT, copyright LLM4Rocq, for the code and the documents)
+  and `NOTICE` (the scope of the license, the inherited notice and the
+  OpenAI math collection); the `license` field of
+  `rocq-ellipsoid-fitting.opam`.
+- `CITATION.cff`: how to cite this repository.
 
 ## shifted (2026-10-24, commit 305747af)
 

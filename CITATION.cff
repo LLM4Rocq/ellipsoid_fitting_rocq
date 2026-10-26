@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file. The version is the documentation release; the Rocq sources of the mathematical release are those of the tag shifted (commit 305747af)."
+type: software
+title: "Ellipsoid fitting in Rocq"
+abstract: >-
+  Rocq proofs, checked by the kernel, of the sharp threshold for random
+  ellipsoid fitting and of new results on optimal conditioning, mixtures,
+  dependent laws and translated samples, with the reusable library
+  GaussianAnalysis.
+authors:
+  - family-names: Lelarge
+    given-names: Marc
+    affiliation: Inria
+repository-code: "https://github.com/LLM4Rocq/ellipsoid_fitting_rocq"
+url: "https://github.com/LLM4Rocq/ellipsoid_fitting_rocq"
+license: MIT
+keywords:
+  - Rocq
+  - Coq
+  - MathComp
+  - MathComp-Analysis
+  - formal verification
+  - theorem proving
+  - probability
+  - random matrices
+  - ellipsoid fitting
+version: "shifted-docs"
+references:
+  - type: article
+    status: preprint
+    title: "The sharp SAT/UNSAT phase transition in random ellipsoid fitting"
+    authors:
+      - family-names: Misiakiewicz
+        given-names: Theodor
+      - family-names: Wen
+        given-names: Garrett G.
+    year: 2026
+    url: "https://arxiv.org/abs/2608.10184v1"
+    notes: "arXiv:2608.10184v1"
+  - type: article
+    status: preprint
+    title: "Universality and sharp thresholds for ellipsoid fitting"
+    authors:
+      - family-names: Koehler
+        given-names: Frederic
+      - family-names: Sohn
+        given-names: Youngtak
+    year: 2026
+    url: "https://arxiv.org/abs/2608.27372v1"
+    notes: "arXiv:2608.27372v1"

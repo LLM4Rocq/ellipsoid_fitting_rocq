@@ -1,0 +1,29 @@
+License of ellipsoid_fitting_rocq
+
+Everything in this repository, the code and the documents, is under the
+MIT license, in the file LICENSE.
+
+
+Inherited notice
+
+Most Rocq modules of theories/ derive from the private repository
+LLM4Rocq/ellipsoid_rocq. Commit 29df54e of this repository copied them
+from commit 9556cdd of LLM4Rocq/ellipsoid_rocq, with the logical root
+Tablet renamed EllipsoidFitting. Parts of
+extension/Model/Measurability.v reuse proofs of two of these modules,
+theories/Measurability/Fit.v and theories/Measurability/Conditioned.v.
+Some statement snapshots under check/snapshots/, such as
+SnapshotPhase1.txt, print declarations of these modules. The license
+notice of LLM4Rocq/ellipsoid_rocq is the same MIT license text, with
+the same copyright line, "Copyright (c) 2026 LLM4Rocq". LICENSE
+reproduces it unchanged.
+
+
+The OpenAI math collection
+
+The files of applications/ and some files of library/ formalize
+arguments from manuscripts of the OpenAI math collection (openai/math at
+revision 1581d4cbd, under the Apache License 2.0). Their comments name
+the manuscripts, and the Lean declarations of the collection, whose
+arguments they follow. No Lean code of the collection is copied into
+them.

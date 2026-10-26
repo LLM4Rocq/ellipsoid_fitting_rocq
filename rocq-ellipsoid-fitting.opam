@@ -1,12 +1,35 @@
 opam-version: "2.0"
-synopsis: "Rocq proof of the three main theorems on ellipsoid fitting of Gaussian points"
+synopsis: "Rocq proofs on random ellipsoid fitting and other theorems, with the library GaussianAnalysis"
 description: """
-A machine-checked proof of the sharp ellipsoid fitting transition at
-n/d^2 = 1/4, of well-conditioned fits below it, and of the balanced
+A Rocq proof of the three main results of "The sharp SAT/UNSAT phase
+transition in random ellipsoid fitting" (Misiakiewicz and Wen,
+arXiv:2608.10184v1): the sharp ellipsoid fitting transition at
+n/d^2 = 1/4, well-conditioned fits below it, and the balanced
 positive-definite alternative, for n independent standard Gaussian points
 of R^d. The statement is theories/MainStatement.v.
+
+extension/ goes beyond Gaussian points: Theorem 1.2 of Koehler and Sohn
+(arXiv:2608.27372v1), exact fitting for finite and countable mixtures of
+product laws and for two dependent laws, the optimal condition number at
+every fourth moment kappa > 1, robustness in total variation, and seven
+theorems on samples translated by deterministic shifts. applications/
+formalizes thirteen theorems of manuscripts of the OpenAI math collection,
+among them the satisfiability threshold of random k-SAT and an exponential
+lower bound on the PSD rank of the shifted matching matrices. library/ is
+GaussianAnalysis, a Rocq library on Gaussian measures, Gaussian comparison
+and concentration inequalities, and the linear algebra and probability
+tools they need, written over an arbitrary realType in the style of
+MathComp-Analysis.
+
+The package has no install step: the four directories are used from a
+clone, through the -Q lines of _CoqProject.
 """
-maintainer: "Marc Lelarge"
+maintainer: "Marc Lelarge <marc.lelarge@inria.fr>"
+authors: ["Marc Lelarge"]
+license: "MIT"
+homepage: "https://github.com/LLM4Rocq/ellipsoid_fitting_rocq"
+bug-reports: "https://github.com/LLM4Rocq/ellipsoid_fitting_rocq/issues"
+dev-repo: "git+https://github.com/LLM4Rocq/ellipsoid_fitting_rocq.git"
 build: [make "build" "ROCQ_SWITCH=" "JOBS=%{jobs}%"]
 depends: [
   "rocq-core" {>= "9.1" & < "9.2~"}

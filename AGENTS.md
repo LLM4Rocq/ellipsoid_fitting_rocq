@@ -41,7 +41,7 @@ On 25 October 2026 the user made one narrow exception to the rule that
 `make check` passes after every commit. A commit is documentation-only when
 every path it changes is one of these:
 
-- `README.md`, `AGENTS.md`, `CLAUDE.md`, `LICENSE`, `LICENSE-docs`, `NOTICE`,
+- `README.md`, `AGENTS.md`, `CLAUDE.md`, `LICENSE`, `NOTICE`,
   `CITATION.cff`, `CHANGELOG.md` and `.gitignore`;
 - the deletion of `.mcp.json`;
 - a file under `doc/` other than a PDF or a `.v` file;
@@ -77,7 +77,7 @@ of scripts/check_sources.py"; if `CITATION.cff` changed, `cffconvert --validate
 
 ```sh
 changed=$(git diff --name-only --no-renames "$C^" "$C") || echo "guard: git diff failed for $C"
-printf '%s' "$changed" | grep -v -E '^(README\.md|AGENTS\.md|CLAUDE\.md|\.mcp\.json|LICENSE|LICENSE-docs|NOTICE|CITATION\.cff|CHANGELOG\.md|\.gitignore|doc/.+|(library|extension|applications)/README\.md)$'
+printf '%s' "$changed" | grep -v -E '^(README\.md|AGENTS\.md|CLAUDE\.md|\.mcp\.json|LICENSE|NOTICE|CITATION\.cff|CHANGELOG\.md|\.gitignore|doc/.+|(library|extension|applications)/README\.md)$'
 printf '%s' "$changed" | grep -q -x -F .mcp.json && git cat-file -e "${C}:.mcp.json" 2>/dev/null && echo ".mcp.json: only its deletion is allowed"
 printf '%s' "$changed" | grep -E '\.(pdf|v)$'
 for p in AGENTS.md doc/history/agent-rules.md doc/shifted-gaussian.tex extension/README.md; do git cat-file -e "${C}:${p}" 2>/dev/null || echo "missing: $p"; done

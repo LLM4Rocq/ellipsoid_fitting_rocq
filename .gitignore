@@ -13,3 +13,16 @@ Makefile.rocq.conf
 .Makefile.rocq.d
 build/
 __pycache__/
+# LaTeX build products and PDFs under doc/; *.aux and build/ are ignored above
+doc/**/*.bbl
+doc/**/*.blg
+doc/**/*.fdb_latexmk
+doc/**/*.fls
+doc/**/*.log
+doc/**/*.out
+doc/**/*.synctex.gz
+doc/**/*.toc
+doc/**/*.pdf
+# Editor settings and the local generator of the library's documentation
+.vscode/
+doc/libdoc/
