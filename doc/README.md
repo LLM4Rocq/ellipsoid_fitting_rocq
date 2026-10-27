@@ -14,7 +14,8 @@ AI coding agents is [AGENTS.md](../AGENTS.md).
 
 Git does not track PDFs. When a PDF is released, it is attached to a GitHub
 release of this repository, whose notes give the commit of its sources and the
-SHA-256 of the PDF.
+SHA-256 of the PDF. The GitHub release of `shifted-docs`, the documentation
+release of 27 October 2026, has the PDF of the note `shifted-gaussian.tex`.
 
 Commit messages and tag messages written before the move call these files by
 their old names: `README.md` for the long README, now

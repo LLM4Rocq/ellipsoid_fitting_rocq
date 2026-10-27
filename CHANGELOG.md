@@ -1,16 +1,17 @@
 # Changelog
 
-The changes made since the last tag, then the tagged versions of this
-repository, newest first. Each date is that of the tagged commit. Every tag
-is annotated, and its message says more: `git show phase8` prints the
-message of `phase8`. Phases 2 and 3 have no tag. `stage1` and `stage2` mark
-the first two stages of phase 5. [doc/README.md](doc/README.md) explains the
-terms used here, such as phase, step 18 and the user.
+The tagged versions of this repository, newest first. Each date is that of
+the tagged commit. Every tag is annotated, and its message says more:
+`git show phase8` prints the message of `phase8`. Phases 2 and 3 have no
+tag. `stage1` and `stage2` mark the first two stages of phase 5.
+[doc/README.md](doc/README.md) explains the terms used here, such as phase,
+step 18 and the user.
 
-## Unreleased
+## shifted-docs (2026-10-27)
 
-The changes since the tag `shifted`. None of them changes a Rocq statement,
-definition or proof.
+The documentation release: the changes since the tag `shifted`, none of
+which changes a Rocq statement, definition or proof. The tag is on the
+commit that adds this section; the release notes give its hash.
 
 ### On GitHub since 25 October 2026
 
@@ -56,6 +57,10 @@ d8bb8f380183817de780a550701eabc6).
   OpenAI math collection); the `license` field of
   `rocq-ellipsoid-fitting.opam`.
 - `CITATION.cff`: how to cite this repository.
+- The release: `CITATION.cff` gives its date, and the website as its `url`.
+  Its GitHub release has the PDF of the note `doc/shifted-gaussian.tex`,
+  built at the tagged commit; the release notes give that commit and the
+  SHA-256 of the PDF.
 
 ## shifted (2026-10-24, commit 305747af)
 

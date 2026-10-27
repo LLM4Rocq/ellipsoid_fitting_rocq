@@ -12,7 +12,7 @@ authors:
     given-names: Marc
     affiliation: Inria
 repository-code: "https://github.com/LLM4Rocq/ellipsoid_fitting_rocq"
-url: "https://github.com/LLM4Rocq/ellipsoid_fitting_rocq"
+url: "https://llm4rocq.github.io/ellipsoid-fitting-web/"
 license: MIT
 keywords:
   - Rocq
@@ -25,6 +25,7 @@ keywords:
   - random matrices
   - ellipsoid fitting
 version: "shifted-docs"
+date-released: 2026-10-27
 references:
   - type: article
     status: preprint

@@ -139,9 +139,9 @@ run, on 25 October 2026, stopped on a stack overflow during the build.
 
 AI agents, including Claude and Codex, contributed to the formalization, review
 and documentation under the direction of Marc Lelarge (Inria), who maintains
-this research artifact. Issue reports are welcome; responses may be delayed.
-Cite this work with [CITATION.cff](CITATION.cff). The MIT license
-([LICENSE](LICENSE), [NOTICE](NOTICE)) covers the code and the documents. The
-mathematical release is the tag `shifted` (24 October 2026, commit `305747af`),
-and [CHANGELOG.md](CHANGELOG.md) lists the tagged versions. Git does not track
-PDFs: a PDF, when released, is attached to a GitHub release.
+this research artifact. Issue reports are welcome; responses may be delayed. The
+MIT license ([LICENSE](LICENSE), [NOTICE](NOTICE)) covers the code and the
+documents. Cite this work with [CITATION.cff](CITATION.cff). The tag `shifted`
+(24 October 2026, commit `305747af`) is the mathematical release, `shifted-docs`
+(27 October 2026) the documentation release, whose GitHub release has the PDF of
+the note: git does not track PDFs. [CHANGELOG.md](CHANGELOG.md) lists the tags.
